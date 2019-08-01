@@ -1,0 +1,161 @@
+#' Aggregated investment cost data for REMIND regions (based on IEA_WEO)
+#' @description Disaggregated investment cost data is aggregated and technologies renamed to REMIND names 
+#' @details REMIND does not have a classification of coal power plants e.g., sub-critical. Therefore, countries are given coal plant
+#' costs assuming what type of coal plants are expected to develop there. For other technologies, certain assumptions are taken
+#' to change to REMIND convention.
+#' @param subtype Investment Costs, I&M Costs, and Efficiency
+#' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
+#' @author Aman Malik
+
+calcDiffInvestCosts <- function(subtype){
+  if (subtype=="Invest_Costs"){
+    x       <- readSource("IEA_WEO",subtype="Invest_Costs")
+    x_REN21 <- readSource("REN21",subtype="investmentCosts")
+  
+  # x <- readSource("IEA_WEO")# reading data end of convert function
+  x[,,] <- as.numeric(x[,,]) # convertng data values into numeric
+  
+  # Various mapping files used to get needed mappings, for e.g., South Asia
+  countries <- toolGetMapping("regionmappingREMIND.csv",where = "mappingfolder",type = "regional")
+  countries2 <- toolGetMapping("regionmappingMAgPIE.csv",where = "mappingfolder",type = "regional")
+  countries3 <- toolGetMapping("regionmappingSSP.csv",where = "mappingfolder",type = "regional")
+  
+  # For countries in Africa and South Asia (except India) use subcritical plant investment costs as coal plant costs
+  x[c(countries$CountryCode[countries$RegionCode=="AFR"],
+      countries2$CountryCode[countries2$RegionCode=="SAS"][-4]),,c("Coal.Steam Coal - SUPERCRITICAL",
+                                                                   "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+  # For countries in LAM, IND, FSU and MEA use supercritical plant investment costs as standard coal plant costs
+  x[c(countries$CountryCode[countries$RegionCode=="LAM"],"IND",
+      countries2$CountryCode[countries2$RegionCode=="FSU"],
+      countries$CountryCode[countries$RegionCode=="MEA"]),,c("Coal.Steam Coal - SUBCRITICAL",
+                                                             "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+  
+  # For countries in OECD and CHN use ultrasupercritical investment costs                                                                                                                  ultrasupercritical plants for "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+  x[c("CHN","KOR","MAC","HKG", countries3$CountryCode[countries3$RegionCode=="OECD"]),,c("Coal.Steam Coal - SUBCRITICAL",
+                                                                                         "Coal.Steam Coal - SUPERCRITICAL")] <- 0
+  # For remaining countries not covered above, use subcritical plant investment costs
+  years <- getYears(x)
+  for (y in years){
+    x[getRegions(x)[x[,y,"Coal.Steam Coal - SUBCRITICAL"]!=0 & 
+                      x[,y,"Coal.Steam Coal - SUPERCRITICAL"]!=0 & 
+                      x[,y,"Coal.Steam Coal - ULTRASUPERCRITICAL"]!=0],y,
+      c("Coal.Steam Coal - SUPERCRITICAL",
+        "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+  }
+  tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral")
+  techs <- unique(tech_mapping$tech[!is.na(tech_mapping$tech)]) # remove all names with no corresponding REMIND name
+  # list of original technologies with a REMIND tech mapping
+  techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
+  # create new magpie object with names of corresponding REMIND technologies
+  x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
+  x_new[is.na(x_new)] <- 0
+  # for "pc" add all types of coal plants so each country has one value of "pc"
+  x_new[,,"pc"] <- x[,,"Coal.Steam Coal - SUBCRITICAL"] + x[,,"Coal.Steam Coal - SUPERCRITICAL"] + 
+    x[,,"Coal.Steam Coal - ULTRASUPERCRITICAL"]
+  
+  # for "spv" take 1/4 of costs from small-scale and 3/4 costs from large scale (utility scale)ildings
+  x_new[,,"spv"] <- 0.75*x[,,"Renewables.Solar photovoltaics - Large scale"] + 0.25*x[,,"Renewables.Solar photovoltaics - Buildings"]
+  
+  # same for hydro - removed when hydro values are fed from "private" data source
+  #x_new[,,"hydro"] <- 0.75*x[,,"Renewables.Hydropower - large-scale"] + 0.25*x[,,"Renewables.Hydropower - small-scale"]
+  x_new[,,"hydro"] <- x[,,"Renewables.Hydropower - large-scale"] 
+  # and Biomass CHP
+  x_new[,,"biochp"] <- 0.75*x[,,"Renewables.Biomass CHP Medium"] + 0.25*x[,,"Renewables.Biomass CHP Small"]
+  
+  # for rest of technologies, simply match 
+  x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
+  x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
+  
+  # overwrite investmetn costs vor renewables with data form REN21
+  
+  x_REN21_wa <- collapseNames(x_REN21[,,"wa"]) # use weighted average
+  getNames(x_REN21_wa) <- gsub("hydropower","hydro",getNames(x_REN21_wa))
+  getNames(x_REN21_wa) <- gsub("Solar PV","spv",getNames(x_REN21_wa))
+  getNames(x_REN21_wa) <- gsub("wind-on","wind",getNames(x_REN21_wa))
+  x_REN21_wa <- x_REN21_wa[,,c("Biopower","Geothermal Power", "wind-off", "csp"),invert=TRUE]
+  # use REN21 data for all time steps for hydro
+  # x_new[,,"hydro"] <- x_REN21_wa[,,"hydro"]
+  # use REN21 data only for 2015 for spv,csp and wind; all other time steps are 0
+  x_new[,,c("spv","wind")]     <- 0
+  x_new[,2015,c("spv","wind")] <- x_REN21_wa[,,c("spv","wind")]
+  x_new["JPN",2015,"wind"] <- x_REN21["JPN",,"wind-on.max"]
+  x_new["JPN",2015,"spv"] <- 2000 # in USD/KW, source attached in input folder IEA_WEO
+  # (National_Survey_Report_of_PV_Power_Applications_in_Japan_-_2017.pdf)
+  x_new["JPN",2015,"hydro"] <- 2400 # in USD/KW, source is the 2016 WEO numbers - they seem more reliable here than the Oceania data of <2000USD/kW 
+  # as Japan is not substantially expanding hydro even at high electricity prices
+  
+  ### Australia ###
+  
+  # for wind 2015: take average of Europe and USA from REN21 (not from "Oceania" as before)
+  x_new["AUS",2015,c("wind")] <- setNames(dimSums(x_REN21[c("USA","FRA"), ,c("wind-on.wa")], dim = 1)/2, c("wind"))
+  # for solar pv 2015: take IRENA number for large-scale solar investment cost by 2016 
+  # (neglect that rooftop is a bit more expensive)
+  # source: https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2018/Jan/IRENA_2017_Power_Costs_2018.pdf
+  x_new["AUS",2015,"spv"] <- 1400 # in USD/kW
+  
+  
+  return(list(x = x_new,weight= x_new ,unit="USD$/KW 2015",description="Investment costs data" ))
+ 
+}
+
+  else if (subtype=="O&M_Costs"){
+    x <- readSource("IEA_WEO",subtype="Invest_Costs")
+    
+  } else if (subtype=="Efficiency"){
+    x <- readSource("IEA_WEO",subtype="Efficiency")
+    x[,,] <- as.numeric(x[,,]) # convertng data values into numeric
+    
+    # Various mapping files used to get needed mappings, for e.g., South Asia
+    countries <- toolGetMapping("regionmappingREMIND.csv",where = "mappingfolder",type = "regional")
+    countries2 <- toolGetMapping("regionmappingMAgPIE.csv",where = "mappingfolder",type = "regional")
+    countries3 <- toolGetMapping("regionmappingSSP.csv",where = "mappingfolder",type = "regional")
+    
+    # For countries in Africa and South Asia (except India) use subcritical plant investment costs as coal plant costs
+    x[c(countries$CountryCode[countries$RegionCode=="AFR"],
+        countries2$CountryCode[countries2$RegionCode=="SAS"][-4]),,c("Coal.Steam Coal - SUPERCRITICAL",
+                                                                     "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+    # For countries in LAM, IND, FSU and MEA use supercritical plant investment costs as standard coal plant costs
+    x[c(countries$CountryCode[countries$RegionCode=="LAM"],"IND",
+        countries2$CountryCode[countries2$RegionCode=="FSU"],
+        countries$CountryCode[countries$RegionCode=="MEA"]),,c("Coal.Steam Coal - SUBCRITICAL",
+                                                               "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+    
+    # For countries in OECD and CHN use ultrasupercritical investment costs                                                                                                                  ultrasupercritical plants for "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+    x[c("CHN","KOR","MAC","HKG", countries3$CountryCode[countries3$RegionCode=="OECD"]),,c("Coal.Steam Coal - SUBCRITICAL",
+                                                                                           "Coal.Steam Coal - SUPERCRITICAL")] <- 0
+    # For remaining countries not covered above, use subcritical plant investment costs
+    years <- getYears(x)
+    for (y in years){
+      x[getRegions(x)[x[,y,"Coal.Steam Coal - SUBCRITICAL"]!=0 & 
+                        x[,y,"Coal.Steam Coal - SUPERCRITICAL"]!=0 & 
+                        x[,y,"Coal.Steam Coal - ULTRASUPERCRITICAL"]!=0],y,
+        c("Coal.Steam Coal - SUPERCRITICAL",
+          "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
+    }
+    tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral")
+    techs <- unique(tech_mapping$tech[!is.na(tech_mapping$tech)]) # remove all names with no corresponding REMIND name
+    # list of original technologies with a REMIND tech mapping
+    techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
+    # create new magpie object with names of corresponding REMIND technologies
+    x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
+    x_new[is.na(x_new)] <- 0
+    # for "pc" add all types of coal plants so each country has one value of "pc"
+    x_new[,,"pc"] <- x[,,"Coal.Steam Coal - SUBCRITICAL"] + x[,,"Coal.Steam Coal - SUPERCRITICAL"] + 
+      x[,,"Coal.Steam Coal - ULTRASUPERCRITICAL"]
+    
+    # for rest of technologies, simply match 
+    x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
+    x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
+    
+    return(list(x = x_new,weight= x_new ,unit="NA",description="Efficiency data" ))
+  }
+  
+  if (subtype=="Invest_Costs"|subtype=="O&M_Costs"){
+  
+  return(list(x = x_new,weight= x_new ,unit="USD$/KW 2015",description="Investment costs data" ))
+  
+  }
+ 
+    
+  }
+

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1510321361713.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "22240298",
+    "id" : "B07D13E1",
+    "lastKnownWriteTime" : 1508324155,
+    "last_content_update" : 1508324155,
+    "path" : "~/Documents/work/libraries/madrat/R/readSource.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

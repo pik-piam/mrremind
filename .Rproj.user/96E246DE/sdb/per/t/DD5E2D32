@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' calcGDPpppFuture\n#' \n#' Calculates a time series of GDP in Purchase Power Parity (PPP) of\n#' International Dollars of the year 2005.  The source is selected in the\n#' config file(getConfig()$calc$GDPpppFuture). Different sources are available:\n#' \\itemize{ \\item \\code{SSP}: Lavinia? \\item \\code{OECD}: Lavinia? }\n#' \n#' @param GDPpppFuture GDPppp future data source\n#' @return GDP PPP(ICP11) in USD05 equivalents\n#' @author Lavinia Baumstark, Benjamin Bodirsky\n#' @seealso \\code{\\link{convertWDI}}\n#' @importFrom magclass getNames setNames clean_magpie\n\n\ncalcGDPpppFuture <- function(GDPpppFuture=\"SSP\") {\n  type <- GDPpppFuture\n  if (type==\"SRES\"){type=c(\"sres_a1_gdp\",\"sres_a2_gdp\",\"sres_b1_gdp\",\"sres_b2_gdp\")}\n  if(all(type%in%\"OECD\")){\n    data <- readSource(type,subtype=\"gdp\")*1000\n    time_extend <- c(\"y2105\",\"y2110\",\"y2115\",\"y2120\",\"y2125\",\"y2130\",\"y2135\",\"y2140\",\"y2145\",\"y2150\")\n    data <- time_interpolate(data,time_extend,extrapolation_type=\"constant\",integrate_interpolated_years=TRUE)\n    \n  } else if (all(type%in%\"SSP\")){\n    data <- collapseNames(readSource(\"SSP\",subtype=\"all\")[,,\"GDP|PPP\"][,,\"OECD Env-Growth\"])*1000\n    # remove 2000 and 2005, because these years are not complete\n    data <- data[,setdiff(getYears(data),c(\"y2000\",\"y2005\")),]\n    getNames(data) <- paste(\"gdp_\",gsub(\"_v[[:alnum:],[:punct:]]*\",\"\",getNames(data)),sep=\"\")\n    #remove years which only contain 0s     as entries\n    data <- data[,!apply(data,2,function(x) return(all(x==0))),]\n    time_extend <- c(\"y2105\",\"y2110\",\"y2115\",\"y2120\",\"y2125\",\"y2130\",\"y2135\",\"y2140\",\"y2145\",\"y2150\")\n    data <- time_interpolate(data,time_extend,extrapolation_type=\"constant\",integrate_interpolated_years=TRUE)\n    \n  } else if (all(type%in%c(\"sres_a1_gdp\",\"sres_a2_gdp\",\"sres_b1_gdp\",\"sres_b2_gdp\"))){\n    vcat(1,\"growth rates of SRES projections were multiplied on 1990 GDP of James et al\")\n    data<-NULL\n    for (i in type) {\n      data <- mbind(data,readSource(type=\"SRES\",subtype=i))\n    }\n    getNames(data)<-paste0(\"gdp_\",substr(getNames(data),6,7))\n    PPP_pc<-readSource(type=\"James\",subtype =\"IHME_USD05_PPP_pc\")\n    pop<-readSource(\"WDI\",subtype = \"SP.POP.TOTL\")\n    years<-intersect(getYears(PPP_pc),getYears(pop))\n    calib=PPP_pc[,years,]*pop[,years,]\n    getNames(calib) <- \"IHME_USD05_PPP\"\n    data <- data*setYears(setNames(calib[,\"y1990\",],NULL)/data[,\"y1990\",],NULL)\n    time_extend <- c(\"y2105\",\"y2110\",\"y2115\",\"y2120\",\"y2125\",\"y2130\",\"y2135\",\"y2140\",\"y2145\",\"y2150\")\n    data <- time_interpolate(data,time_extend,extrapolation_type=\"constant\",integrate_interpolated_years=TRUE)\n    data[is.na(data)]<-0\n  } else{\n    stop(type, \" is not a valid source type for gdp\")\n  }\n  data<-clean_magpie(data)\n  # put in alphabetical order\n  data<-data[,,order(getNames(data))]\n  return(list(x=data,weight=NULL,unit=\"Million US Dollar 2005 equivalents in PPP\",description=\"US Dollar 2005 equivalents in PPP\"))\n}\n\n",
+    "created" : 1508324769149.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2617156924",
+    "id" : "DD5E2D32",
+    "lastKnownWriteTime" : 1510317428,
+    "last_content_update" : 1510317428,
+    "path" : "~/Documents/work/libraries/moinput/R/calcGDPpppFuture.R",
+    "project_path" : "R/calcGDPpppFuture.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

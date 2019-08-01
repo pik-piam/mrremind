@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Read IEA\n#' \n#' Read-in an IEA csv file as magclass object\n#' \n#' \n#' @param subtype data subtype. Either \"EnergyBalances\",  \"CHPreport\" or \"Emissions\")\n#' @return magpie object of the IEA\n#' @author Anastasis Giannousakis, Lavinia Baumstark\n#' @seealso \\code{\\link{readSource}}\n#' @examples\n#' \n#' \\dontrun{ a <- readSource(type=\"IEA\",subtype=\"EnergyBalances\")\n#' }\n#' \n#' @importFrom R.utils gunzip\n#' @importFrom data.table fread\n#' \nreadIEA <- function(subtype) {\n  \n  if (subtype == \"EnergyBalances\") {\n    gunzip(\"IEA.csv.gz\", temporary=TRUE, remove=FALSE)\n    file <- paste0(tempdir(), \"/\",\"IEA.csv\")\n    on.exit(file.remove(file))\n    data <- fread(file, stringsAsFactors = FALSE, colClasses = c(\"character\", \"character\", \"character\", \"character\", \"character\"), showProgress = FALSE)\n    data$TIME<-sub(\"E\",\"\",data$TIME, perl=TRUE)\n    data$TIME <- as.numeric(data$TIME)\n    data$TIME<-paste0(\"y\",data$TIME)\n    data$COUNTRY<-toolCountry2isocode(data$COUNTRY,warn=F,type=\"IEA\")\n    data<-data[!is.na(data$COUNTRY),]\n    if (names(data)[[5]]==\"ktoe\")  data<-data[!is.na(data$ktoe),]\n    if (names(data)[[5]]==\"MtCO2\")  data<-data[!is.na(data$MtCO2),]\n    if (names(data)[[5]]==\"ktoe\")  data$ktoe<-suppressWarnings(as.numeric(data$ktoe))\n    if (names(data)[[5]]==\"MtCO2\")  data$MtCO2<-suppressWarnings(as.numeric(data$MtCO2))\n    mdata<-as.magpie(data,datacol=dim(data)[2], spatial=1, temporal=4)\n  } else if (subtype== \"Emissions\") {\n    data <- read.csv(\"emissions2013.csv\")\n    data$COUNTRY<-toolCountry2isocode(data$COUNTRY,warn=F,type=\"IEA\")\n    data<-data[!is.na(data$COUNTRY),]\n    data$TIME<-paste(\"y\",data$TIME,sep=\"\")\n    if (names(data)[[5]]==\"MtCO2\")  data<-data[!is.na(data$MtCO2),]\n    if (names(data)[[5]]==\"MtCO2\")  data$MtCO2<-suppressWarnings(as.numeric(data$MtCO2))\n    mdata<-as.magpie(data,datacol=dim(data)[2])\n  } else if (subtype== \"CHPreport\") {\n    data <- read.csv(\"CHPdata.csv\", sep=\";\",skip=4)\n    data$CountryName <- NULL\n    mdata <- as.magpie(data,datacol=2)\n    getNames(mdata) <- \"chp share\"\n  }else {\n    stop(\"Not a valid subtype!\")\n  } \n  \n  return(mdata)\n}  \n",
+    "created" : 1510321318779.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "663705148",
+    "id" : "7BB7E4CF",
+    "lastKnownWriteTime" : 1506936112,
+    "last_content_update" : 1506936112,
+    "path" : "~/Documents/work/libraries/moinput/R/readIEA.R",
+    "project_path" : "R/readIEA.R",
+    "properties" : {
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

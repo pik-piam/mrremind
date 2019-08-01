@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1510321318779.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2521485577",
+    "id" : "7BB7E4CF",
+    "lastKnownWriteTime" : 1519891175,
+    "last_content_update" : 1519891175,
+    "path" : "~/Documents/work/libraries/moinput/R/readIEA.R",
+    "project_path" : "R/readIEA.R",
+    "properties" : {
+        "cursorPosition" : "0,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

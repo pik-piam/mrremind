@@ -1,0 +1,61 @@
+Package: moinput
+Type: Package
+Title: Model Operations Input Data Library
+Version: 9.226.0
+Date: 2019-05-16
+Author: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich
+    Kreidenweis, Benjamin Bodirsky, Isabelle Weindl, Mishko Stevanovic, Xiaoxi Wang, Ewerton Araujo, Florian Humpenoeder, Stephen Wirth, Kristine Karstens, Abhijeet Mishra
+Maintainer: Anastasis Giannousakis <giannou@pik-potsdam.de>
+Description: Provides useful functions and a common structure to all the input data required to run models like MAgPIE and REMIND
+    of model input data.
+Depends:
+    R(>= 2.10.0),
+    magclass(>= 3.17),
+    madrat(>= 1.30),
+Imports:
+    abind,
+    assertr(>= 2.4),
+    assertthat,
+    compiler,
+    countrycode,
+    data.table,
+    doParallel,
+    dplyr,
+    foreach,
+    lazyeval,
+    lpjclass,
+    luscale,
+    magpiesets,
+    ncdf4,
+	nleqslv,
+	nnls,
+    parallel,
+    plyr,
+    quitte,
+    raster,
+    readr,
+    readxl,
+    reshape,
+    reshape2,
+    rhdf5,
+    rlang,
+    R.utils,
+    SPEI,
+    stringi,
+    stringr,
+    tidyr,
+    tools,
+    utils,
+    zoo,
+    WDI,
+	gdata,
+    demystas
+License: LGPL-3 | file LICENSE
+LazyData: no
+Encoding: UTF-8
+RoxygenNote: 6.1.1
+ValidationKey: 1663632320
+Suggests: knitr,
+    rmarkdown,
+	ggplot2
+VignetteBuilder: knitr

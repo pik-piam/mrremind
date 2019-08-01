@@ -1,0 +1,8 @@
+cat("Global .Rprofile loaded!\n")
+#options(repos = c(getOption("repos"), pik = "https://rse.pik-potsdam.de/r/packages"))
+#library(gdx)
+#igdx("/Users/anastasisg/Applications/GAMS/gams24.2_osx_x64_64_sfx")
+options(remind_repos=list("~/tmp/"=NULL))
+# Set mainfolder for madrat package
+options(MADRAT_MAINFOLDER="/Users/anastasisg/Documents/work/R2")
+

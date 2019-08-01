@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1550182904420.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "709337568",
+    "id" : "75983B20",
+    "lastKnownWriteTime" : 1523899081,
+    "last_content_update" : 1523899081,
+    "path" : "~/Documents/work/libraries/moinput/R/calcFeedPast.R",
+    "project_path" : "R/calcFeedPast.R",
+    "properties" : {
+        "cursorPosition" : "29,49",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

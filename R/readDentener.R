@@ -1,0 +1,17 @@
+readDentener<-function(){
+  a1<-setNames(read.magpie("N_1860.csv"),"n")
+  a2<-setNames(read.magpie("Nhx_1860.csv"),"nh3_n")
+  a3<-setNames(read.magpie("Noy_1860.csv"),"no2_n")
+  a4<-setNames(read.magpie("N_1993.csv"),"n")
+  a5<-setNames(read.magpie("Nhx_1993.csv"),"nh3_n")
+  a6<-setNames(read.magpie("Noy_1993.csv"),"no2_n")
+  a7<-setNames(read.magpie("N_2050.csv"),"n")
+  a8<-setNames(read.magpie("Nhx_2050.csv"),"nh3_n")
+  a9<-setNames(read.magpie("Noy_2050.csv"),"no2_n")
+  b1<-mbind(a1,a2,a3)
+  b2<-mbind(a4,a5,a6)
+  b3<-mbind(a7,a8,a9)
+  x<-clean_magpie(mbind(b1,b2,b3))
+  x<-toolCell2isoCell(x)
+  return(x)
+}

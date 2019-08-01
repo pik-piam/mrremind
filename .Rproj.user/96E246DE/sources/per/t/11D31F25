@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1508325140374.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1931362300",
+    "id" : "11D31F25",
+    "lastKnownWriteTime" : 1551187402,
+    "last_content_update" : 1551187402,
+    "path" : "~/Documents/work/libraries/moinput/R/readOECD.R",
+    "project_path" : "R/readOECD.R",
+    "properties" : {
+        "cursorPosition" : "32,29",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

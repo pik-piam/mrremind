@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Aman Malik" />
+
+<meta name="date" content="2019-07-12" />
+
+<title>Working with moinput</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Working with moinput</h1>
+<h4 class="author">Aman Malik</h4>
+<h4 class="date">2019-07-12</h4>
+
+
+
+<div id="what-is-moinput" class="section level2">
+<h2>What is moinput?</h2>
+<p>moinput or “model-operations input” is an R package written by the Model Operations team, in PIK’s Research Domain III. It provides useful functions and a common structure to all the input data required to run models like MAgPIE and REMIND.</p>
+</div>
+<div id="objective" class="section level2">
+<h2>Objective</h2>
+<p>This document explains the general structure and workflow to writing and understanding functions in the moinput package.</p>
+</div>
+<div id="pre-requisites" class="section level2">
+<h2>Pre-requisites</h2>
+<p>Before proceeding, make sure that you have</p>
+<ol style="list-style-type: decimal">
+<li><p>On your local machine, an <em>input folder</em> containing the following subfolders: <em>cache</em>, <em>mappings</em>, <em>output</em>, and <em>sources</em> (must be downloaded from the cluster). This folder contains the raw data from the source (often as .csv or .xlsx) that needs to be processed. (Note that this folder is very large. At the beginning, simply download the sources that are relevant to your work.)</p></li>
+<li><p>All R-packages developed at RD III: more info <a href="https://redmine.pik-potsdam.de/projects/mo/wiki/R_-_Libraries_-_Installation_Updating_and_Commiting#1-Installation-of-the-RD3-recommended-packages-on-your-local-machine-for-the-very-first-time">here</a></p></li>
+<li><p>SVN controlled version of the <em>moinput</em> package on your computer.</p></li>
+<li><p>Read the documentation about magclass, which explains what distinguishes magclass objects from data frames and other basic data structures, and introduces wrangling of magclass objects.</p></li>
+<li><p>Read the general structure of writing <code>read()</code>, <code>convert()</code>, and <code>calc()</code> functions in moinput <a href="https://redmine.pik-potsdam.de/projects/pik-model-operations/wiki/Input_data_preparation_library">here</a>, and that function calls are always made using wrapper functions, e.g., <code>readSource()</code> and <code>calcOutput()</code> and not your own functions. If this still seems dense to you -don’t worry!- it will be explained “in-action” later.</p></li>
+</ol>
+<blockquote>
+<p>If you run <code>library(moinput)</code> and are asked to specify the location of the <em>madrat mainfolder</em>, point it to the <em>input folder</em>. To avoid writing it every time you load the package, you can specify the following in your global <code>.Rprofile</code>: <code>options(MADRAT_MAINFOLDER=&quot;location/of/inputdata/folder&quot;)</code></p>
+</blockquote>
+</div>
+<div id="moinput-workflow" class="section level1">
+<h1>Moinput workflow</h1>
+<div id="reading-raw-data-and-converting-to-a-magclass-object" class="section level2">
+<h2>Reading raw data and converting to a magclass-object</h2>
+<p>Before beginning, remember that data are moslty used as aggregated regions and not as individual countries. However, at the same time models are moving towards flexible regions, i.e., the flexibility to group countries in different regional combinations. This translates into two aspects - firstly, the <code>convert&lt;functionname&gt;()</code>, expects that all countries have some data on the variable of interest, and that there are no NAs (NA: Non-Available). Secondly, the more country specific the data source is, the better. If not, then depending upon the data set and significance, often either zero values or some weight is assigned to them.</p>
+<div id="read" class="section level3">
+<h3>read()</h3>
+<p>As a first example, we analyse <code>readIRENA.R</code>, <code>convertIRENA.R</code> and <code>calcCapacity.R</code>, functions which process historical capacity and generation data of various renewable energy technologies from the <a href="http://www.irena.org/">IRENA</a> dataset to a usable form.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' Read IRENA</span>
+<span class="co">#' Read-in an IRENA csv file as magclass object</span>
+<span class="co">#' @param subtype data subtype. Either &quot;Capacity&quot; or &quot;Generation&quot;</span>
+<span class="co">#' @return magpie object of the IRENA data with historical electricity renewable capacities (MW) or generation levels (GWh) </span>
+<span class="co">#' @author Renato Rodrigues</span>
+<span class="co">#' @seealso \code{\link{readSource}}</span>
+<span class="co">#' @examples</span>
+<span class="co">#' \dontrun{ a &lt;- readSource(type=&quot;IRENA&quot;,subtype=&quot;Capacity&quot;)</span>
+<span class="co">#' }</span>
+<span class="co">#' @importFrom reshape2 melt</span>
+
+ readIRENA &lt;-<span class="st"> </span><span class="cf">function</span>(subtype) {
+   <span class="cf">if</span> (subtype <span class="op">==</span><span class="st"> &quot;Capacity&quot;</span>) {
+     <span class="co">#Reading renewables electricity capacity values in MW from csv</span>
+     data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Capacity.csv&quot;</span>,<span class="dt">sep=</span><span class="st">&quot;;&quot;</span>)
+   } <span class="cf">else</span> <span class="cf">if</span> (subtype<span class="op">==</span><span class="st"> &quot;Generation&quot;</span>) {
+     <span class="co">#Reading renewables electricity generation values in GWh from csv</span>
+     data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Generation.csv&quot;</span>,<span class="dt">sep=</span><span class="st">&quot;;&quot;</span>)
+   }<span class="cf">else</span> {
+     <span class="kw">stop</span>(<span class="st">&quot;Not a valid subtype!&quot;</span>)
+   }
+   <span class="co"># data in wide format </span>
+   data &lt;-<span class="st"> </span><span class="kw">melt</span>(data, <span class="dt">id.vars=</span><span class="kw">c</span>(<span class="st">&quot;Country.area&quot;</span>, <span class="st">&quot;Technology&quot;</span>), <span class="dt">variable.name=</span><span class="st">&quot;years&quot;</span>, <span class="dt">value.name=</span><span class="st">&quot;value&quot;</span>)  <span class="co"># melt requires library(reshape2)</span>
+   <span class="co">#replacing X by y on years preffix</span>
+   data<span class="op">$</span>years &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;X&quot;</span>, <span class="st">&quot;y&quot;</span>, data<span class="op">$</span>years)
+   <span class="co"># rearrange column order to more readable format: year, country, tech, value (capacity or generation)</span>
+   data &lt;-<span class="st"> </span>data[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>)]  
+   <span class="co"># creating capacity or generation magpie object</span>
+   x &lt;-<span class="st"> </span><span class="kw">as.magpie</span>(data,<span class="dt">temporal=</span><span class="dv">1</span>,<span class="dt">spatial=</span><span class="dv">2</span>,<span class="dt">datacol=</span><span class="dv">4</span>)
+   <span class="kw">return</span>(x)
+ }  </code></pre></div>
+<p>To run the code above, type in the following:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;IRENA&quot;</span>,<span class="dt">subtype =</span> <span class="st">&quot;Capacity&quot;</span>,<span class="dt">convert =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<blockquote>
+<p>To run the code line by line you will have to set your working directory to the folder where the input data file is stored.</p>
+</blockquote>
+<blockquote>
+<p>The read() function should convert the raw dataset into a magpie object in as few steps as possible. All wrangling, name-changing etc. is left to subsquent functions.</p>
+</blockquote>
+<p><em>Understanding the code:</em></p>
+<ol style="list-style-type: decimal">
+<li>The dataset in its raw form is stored as CSV files in a folder called <em>IRENA</em> inside the <em>sources</em> sub-folder, i.e., the file name (<code>readIRENA.R</code>) and the folder name (<em>IRENA</em>) share the same name- <em>IRENA</em>. This helps the wrapper function <code>readSource()</code> to know where the data is located. Further, the name of the function <code>readIRENA()</code> is the same as the name of the file <code>readIRENA.R</code>. This is required for the wrapper function <code>readSource(&quot;IRENA&quot;)</code> to work (more about this later). <em>To summarise, the folder name, the file name, and the function inside the filename, have a common element called <em>IRENA</em>, which helps all of them to work with each other.</em></li>
+</ol>
+<blockquote>
+<p>The <em>functionname or filename</em> is generally named after the source from where it is taken. These could be from well-known annual publications, e.g, IEA, BP, IRENA, FAO or from a paper, e.g., Rogelj2017.</p>
+</blockquote>
+<ol start="2" style="list-style-type: decimal">
+<li><p>The first 10 lines beginning with <em>#’</em> are part of the documentation<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> file, which appears when you type <code>?readIRENA</code>. The content in these lines is saved as a <code>.Rd</code> file, that is generated using the <code>roxygen2</code> package.</p></li>
+<li><p>The data is converted from a .csv file to a data frame, and finally from a data frame to a magpie object using <code>as.magpie()</code>. This last function is the only magpie-object specific function in this file.</p></li>
+<li><p>Since magpie objects always contains regions in the first column, years in the second column, and other dimensions in the third column, we help <code>as.magpie()</code> to point to where these columns are located in our file <code>x &lt;- as.magpie(data,temporal=1,spatial=2,datacol=4)</code>. For more information see `<code>?as.magpie()</code></p></li>
+</ol>
+</div>
+<div id="convert" class="section level3">
+<h3>convert()</h3>
+<p>Now that the input data has been converted to a magpie object, our next objective should be to clean and wrangle the data to a form we would like to see; at a country-level resolution. This could include renaming variables, selecting certain years, changing units etc. All this is done using properties of magclass objects and specific helper functions. These will be introduced later.</p>
+<p>As discussed <a href="#reading-raw-data-and-converting-to-a-magpie-object">before</a> , <code>convert()</code> expects you to have numerical (non-NA) values for all (249) countries in the world. For this reason, when you run <code>convert()</code>, all countries not in your input database are given NA values. This appears as a warning message. To remove this warning message, countries not in the input data need to be given either some educated values or zero. This is explained later.</p>
+<p>To run <code>read()</code> and <code>convert()</code> consecutively,the wrapper function <code>readSource()</code>is used.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;IRENA&quot;</span>,<span class="dt">subtype =</span> <span class="st">&quot;Capacity&quot;</span>)</code></pre></div>
+</div>
+<div id="calc" class="section level3">
+<h3>calc()</h3>
+<p>Unlike <code>read()</code> and <code>convert()</code>which are named according to their source, <code>calc()</code> functions are named according to the property or characteristic of the data. For the example above, the corresponding function is called <code>calcCapacity.R</code>. Because of this, <code>calc()</code> functions can include many datasets or operations. The <code>calc()</code> function has two main objectives- aggregating the data into REMIND/MAgPIE regions and renaming variable names to REMIND/MAgPIE conventions. The wrapper function for accessing <code>calcCapacity.R</code> is <code>calcOutput(&quot;Capacity&quot;)</code>.</p>
+<blockquote>
+<p><strong>setConfig()</strong> and <strong>getConfig()</strong>, functions from the madrat package, allow you to change and see various settings, respectively, during your process of wrangling data. For e.g., which countries should map to which regions, should your results from a function call be stored in a cache, should the cache be accessed at all. Arguments or settings to these functions can be seen from <code>?setConfig()</code>. Not all are equally important, we will see their use later.</p>
+</blockquote>
+</div>
+</div>
+<div id="wrangling-magclass-objects" class="section level2">
+<h2>Wrangling magclass objects</h2>
+<p>Before we consider specific examples, a basic set of useful functions are given below:</p>
+<ul>
+<li><p><code>str(x)</code> Displays important features of the magpie object. The first dimension contains names of countries. The second contains years, with a prefix <em>y</em> automatically added, to make it stand-out that they are years. The third contains names of all technologies for which the data is available. For each dimension, the data-type is also displayed.</p></li>
+<li><p><code>fulldim(x)</code> or <code>dimnames(x)</code> shows full dimensionality of the object.</p></li>
+<li><p><code>getSets(x)</code> displays all dimension names</p></li>
+<li><p><code>getRegions(x)</code> shows only region names</p></li>
+<li><p><code>getYears(x)</code> shows only years</p></li>
+<li><p><code>getNames(x)</code> shows all variables in the third dimension. To get variables only of a specific subdimension, for e.g., 1, use <code>getNames(x, dim= 1)</code></p></li>
+<li><p><code>nregions(x)</code> or <code>ncells(x)</code> number of entries within the Region dimension</p></li>
+<li><p><code>nyears(x)</code> number of years</p></li>
+<li><p><code>ndata(x)</code> count the number of datasets or variable names of an MAgPIE-object</p></li>
+</ul>
+<div id="country-name-to-iso3-conversion" class="section level3">
+<h3>Country name to ISO3 conversion</h3>
+<p>To convert country names to ISO3 coding</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">::</span><span class="kw">toolCountry2isocode</span>(<span class="kw">c</span>(<span class="st">&quot;Japan&quot;</span>,<span class="st">&quot;Australia&quot;</span>,<span class="st">&quot;Afghanistan&quot;</span>))</code></pre></div>
+<p>The mapping file, which `<code>toolCountry2isocode()</code> accesses is located in <em>inputdata</em> -&gt; <em>mapping</em> -&gt; <em>cell</em>. All countries not found in the mapping file are returned as NA. You can also create your own mapping file, place it in this folder, and within the argument <code>type</code> enter the name of the mapping file. If you have only a few countries not recognised by the mapping file, you can define their ISOcode explicitly.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">madrat<span class="op">::</span><span class="kw">toolCountry2isocode</span>(<span class="kw">c</span>(<span class="st">&quot;Shire&quot;</span>,<span class="st">&quot;Mordor&quot;</span>),<span class="dt">mapping =</span> <span class="kw">c</span>(<span class="st">&quot;Shire&quot;</span>=<span class="st">&quot;SHR&quot;</span>,<span class="st">&quot;Mordor&quot;</span>=<span class="st">&quot;MOR&quot;</span>))</code></pre></div>
+</div>
+<div id="creating-new-magpie-objects" class="section level3">
+<h3>Creating new magpie objects</h3>
+<p>New magpie objects can be created with <code>new.magpie()</code>. See a few examples below:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">new.magpie</span>(<span class="st">&quot;GLO&quot;</span>,<span class="dt">years =</span> <span class="ot">NULL</span>, <span class="dt">fill=</span> <span class="ot">NA</span>) <span class="co"># creates a region with no data on the variable &quot;years&quot;&quot; and with NA as data</span>
+c &lt;-<span class="st"> </span><span class="kw">new.magpie</span>(<span class="kw">c</span>(<span class="st">&quot;IND&quot;</span>,<span class="st">&quot;JPN&quot;</span>),<span class="dt">years =</span> <span class="kw">c</span>(<span class="dv">1990</span>,<span class="dv">2000</span>))</code></pre></div>
+<p>However, you will rarely use this function to create a magpie-object if your own. You might use it to create an empty magpie object with say, region and years, taken from an existing magpie object.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># If x is an existing magpie-object.</span>
+y &lt;-<span class="st"> </span><span class="kw">new.magpie</span>(<span class="kw">getRegions</span>(x),<span class="kw">getYears</span>(x),<span class="dt">fill=</span><span class="ot">NA</span>)</code></pre></div>
+</div>
+<div id="converting-dataframe-to-magpie-objects-and-vice-versa" class="section level3">
+<h3>Converting dataframe to magpie objects and vice-versa</h3>
+<p>You already saw before, how a data frame was converted to a magpie object using <code>as.magpie()</code>. Magpie objects can also be converted back to dataframes using <code>as.data.frame()</code>. This function is useful to quickly view your data using <code>View()</code>or to use the many functions available for dataframes but not (yet) available for magpie objects.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">View</span>(<span class="kw">as.data.frame</span>(x))</code></pre></div>
+</div>
+<div id="filtering-data" class="section level3">
+<h3>Filtering data</h3>
+<ul>
+<li><p>Show countries where capacity of Solar PV in the year 2010 is more than 1 GW.</p></li>
+<li><p>If the TRUE indices/position of the dataset is required</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">which</span>(x[,<span class="st">&quot;y2010&quot;</span>,<span class="st">&quot;Solar photovoltaic&quot;</span>]<span class="op">&gt;</span><span class="dv">1000</span>))</code></pre></div>
+<ul>
+<li>Excluding data using the <em>invert</em> argument. In the example below, the magpie object is updated to have all countries except Kosovo, with the ISO code “CHN”. If specific entries for years or variable names are also given, they will also be excluded in the resulting dataset.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>x[<span class="kw">c</span>(<span class="st">&quot;CHN&quot;</span>),,,invert=<span class="ot">TRUE</span>]<span class="co"># exlcudes CHN</span>
+x &lt;-<span class="st"> </span>x[<span class="kw">c</span>(<span class="st">&quot;CHN&quot;</span>),<span class="st">&quot;2010&quot;</span>,,invert=<span class="ot">TRUE</span>]<span class="co"># excludes CHN only for the year 2010</span></code></pre></div>
+</div>
+<div id="finding-certain-variable-names" class="section level3">
+<h3>Finding certain variable names</h3>
+<p>Quite frequently, you will have to either rename variable names or perform operations (exclude, add, include,merge) on data with selected variable names. This can be achieved by using a combination of base R functions, properties of arrays on which magclass objects are based, and specific magclass functions.</p>
+<ul>
+<li>Showing entries with partial matching using the <em>pmatch</em> argument. By default, <code>pmatch=F</code> which means that only entries containing the exact keywords will be displayed.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Display all variable names containing the word &quot;Hydro&quot; and &quot;hydro&quot;</span>
+<span class="kw">getNames</span>(x[,,<span class="kw">c</span>(<span class="st">&quot;hydro&quot;</span>,<span class="st">&quot;Hydro&quot;</span>),<span class="dt">pmatch=</span>T])</code></pre></div>
+<ul>
+<li>The same result is acheived using <code>grep()</code> (a base R function which looks for a certain string)</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>x[,,<span class="kw">grep</span>(<span class="st">&quot;ydro&quot;</span>,<span class="kw">getNames</span>(x),<span class="dt">fixed =</span> <span class="ot">FALSE</span>)]<span class="co"># fixed=F or T decides how strict should be the matching</span></code></pre></div>
+</div>
+<div id="appendingadding-data-to-a-dataset" class="section level3">
+<h3>Appending/adding data to a dataset</h3>
+<ul>
+<li>Often at the end of the convert function, you will fill zero or NA values to countries with no data. This can be done by:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x  &lt;-<span class="st"> </span><span class="kw">toolCountryFill</span>(x,<span class="dt">fill=</span><span class="dv">0</span>)</code></pre></div>
+<ul>
+<li><p>Two similar magpie objects can be combined using <code>mbind()</code>. Similar means that they have the same regions, years, and dimension names.</p></li>
+<li><p>Linear inter-/extra- polation The function <code>time_interpolate()</code> can be used to inter- or extra-polate to timesteps not given in the original dataset.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;IRENA&quot;</span>,<span class="dt">subtype =</span><span class="st">&quot;Capacity&quot;</span>)
+x &lt;-<span class="st"> </span><span class="kw">time_interpolate</span>(x,<span class="dv">1999</span>,<span class="dt">integrate_interpolated_years =</span>T,<span class="dt">extrapolation_type =</span> <span class="st">&quot;linear&quot;</span> ) </code></pre></div>
+<p>In the example above, the dataset extends only back till 2000. If you want to linearly extrapolate the data to 1999, you have to mention the year or years as an argument and the type of extrapolation.</p>
+<ul>
+<li>Adding columns or dimensions.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">add_columns</span>(x,<span class="dt">addnm =</span> <span class="st">&quot;Wind_total&quot;</span>, <span class="dt">dim =</span> <span class="fl">3.1</span>)</code></pre></div>
+<p>The code above adds a variable name <strong>Wind_total</strong>_ to the exisiting set.</p>
+<p>A new dimension can be created with <code>add_dimension()</code>. For e.g., if there are multiple data sources for exactly the same dataset (same variable name and years), and you want to distingush the two, you can add the name of the datasource as an additional dimension.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x_tmp &lt;-<span class="st"> </span><span class="kw">add_dimension</span>(x,<span class="dt">dim =</span> <span class="fl">3.1</span>,<span class="dt">add =</span> <span class="st">&quot;Source&quot;</span>, <span class="dt">nm=</span><span class="st">&quot;IRENA&quot;</span>)</code></pre></div>
+<p>The argument <em>add</em> is the name of the new dimension, and <em>nm</em> is the value stored in it.</p>
+</div>
+<div id="running-read-but-not-convert-using-readsource" class="section level3">
+<h3>Running read() but not convert() using readSource()</h3>
+<p>Normally,<code>readSource()</code>, first calls <code>read()</code> and then follows it with <code>convert()</code>. If you only want the magpie object at the end of <code>read()</code>, use the argument <em>convert</em>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">readSource</span>(<span class="st">&quot;IRENA&quot;</span>,<span class="dt">subtype =</span> <span class="st">&quot;Capacity&quot;</span>,<span class="dt">convert =</span> <span class="ot">FALSE</span>) <span class="co"># will run readIRENA() but not convertIRENA()</span></code></pre></div>
+</div>
+<div id="using-the-cache-when-running-functions" class="section level3">
+<h3>Using the cache when running functions</h3>
+<p>There are two settings that handle the cache-use: <a href="#enablecache"><code>enablecache</code></a> and <code>forcecache</code>; the former is TRUE by default and enables the use of the cache if nothing changes (with the data or functions). The latter forces the use of the cache (independent from all changes) for all or specific functions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setConfig</span>(<span class="dt">enablecache =</span> <span class="ot">TRUE</span>)<span class="co"># by default</span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>However, when you are developing a function, you might want only certain cache(s) turned ON. This can be done by specifying the functions:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setConfig</span>(<span class="dt">forcecache =</span> <span class="kw">c</span>(<span class="st">&quot;calcIO-subtype_input&quot;</span>,<span class="st">&quot;calcIO-subtype_output&quot;</span>,<span class="st">&quot;calcIO-subtype_output_EDGE_buildings&quot;</span>,<span class="st">&quot;calcIO-subtype_output_EDGE&quot;</span>, <span class="st">&quot;readRCPAviationShipping&quot;</span>,<span class="st">&quot;convertRCPWaste&quot;</span>,<span class="st">&quot;convertIEACHPreport&quot;</span>))</code></pre></div>
+<p>The cache files are stored in <em>input folder</em>-&gt; -&gt; <em>default</em> . Here you will see that each <code>read()</code>, <code>convert()</code> and <code>calc()</code>, have their own cache.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>When you are writing and testing a code/function for the first time, the result will automatically be stored as a cache. When you run it again, it will simply take the cache/result from the last run. What to do if you want forcecached turned ON (for other functions in your code) and yet not use the cache of your own function? You can either disable enablecache (see below) or delete the cache file (from the <em>cache</em> or <em>default</em>) sub-folder everytime it gets generated. To disable this:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setConfig</span>(<span class="dt">enablecache =</span> <span class="ot">FALSE</span>)</code></pre></div>
+</div>
+<div id="full" class="section level3">
+<h3>full<MODELNAME></h3>
+<p>All input files generated by moinput and fed into REMIND are can be viewed in <code>fullREMIND.R</code>, and similarly for MAGPIE in <code>fullMAGPIE.R</code>.</p>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>A good documentation makes it possible for others to use and understand the functions that you write. While coding you will also use the documentation from other functions to see they work, so give back to the community and spend some time on writing it!<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

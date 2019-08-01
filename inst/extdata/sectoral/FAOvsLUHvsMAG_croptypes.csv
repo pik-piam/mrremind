@@ -1,0 +1,166 @@
+LUH_orginal;ProductionItem;FAOItemCode;MAGsho;k;LUH2MAg;LUH2kcr
+c3ann;122|Sweet potatoes;122;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;125|Cassava;125;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;135|Yautia (cocoyam);135;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;136|Taro (cocoyam);136;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;137|Yams;137;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;149|Roots and tubers, nes;149;c3a;cassav_sp;c3ann.MAGc3a;c3ann.cassav_sp
+c3ann;328|Seed cotton;328;c3a;cottn_pro;c3ann.MAGc3a;c3ann.cottn_pro
+c3ann;638|Forage and silage, rye grass;638;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;639|Forage and silage, grasses nes;639;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;642|Forage and silage, green oilseeds;642;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;644|Cabbage for fodder;644;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;645|Pumpkins for Fodder;645;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;646|Turnips for fodder;646;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;647|Beets for fodder;647;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;648|Carrots for fodder;648;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;649|Swedes for fodder;649;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;651|Forage products;651;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;655|Vegetables and roots fodder;655;c3a;foddr;c3ann.MAGc3a;c3ann.foddr
+c3ann;358|Cabbages and other brassicas;358;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;366|Artichokes;366;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;367|Asparagus;367;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;372|Lettuce and chicory;372;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;373|Spinach;373;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;378|Cassava leaves;378;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;388|Tomatoes;388;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;393|Cauliflowers and broccoli;393;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;394|Pumpkins, squash and gourds;394;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;397|Cucumbers and gherkins;397;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;399|Eggplants (aubergines);399;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;401|Chillies and peppers, green;401;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;402|Onions, shallots, green;402;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;403|Onions, dry;403;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;406|Garlic;406;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;407|Leeks, other alliaceous vegetables;407;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;426|Carrots and turnips;426;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;430|Okra;430;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;449|Mushrooms and truffles;449;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;459|Chicory roots;459;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;463|Vegetables, fresh nes;463;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;544|Strawberries;544;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;567|Watermelons;567;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;568|Melons, other (inccantaloupes);568;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;689|Chillies and peppers, dry;689;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;711|Anise, badian, fennel, coriander;711;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;720|Ginger;720;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;723|Spices, nes;723;c3a;others;c3ann.MAGc3a;c3ann.others
+c3ann;116|Potatoes;116;c3a;potato;c3ann.MAGc3a;c3ann.potato
+c3ann;265|Castor oil seed;265;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;270|Rapeseed;270;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;280|Safflower seed;280;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;289|Sesame seed;289;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;292|Mustard seed;292;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;296|Poppy seed;296;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;299|Melonseed;299;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;333|Linseed;333;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;336|Hempseed;336;c3a;rapeseed;c3ann.MAGc3a;c3ann.rapeseed
+c3ann;27|Rice, paddy;27;c3a;rice_pro;c3ann.MAGc3a;c3ann.rice_pro
+c3ann;157|Sugar beet;157;c3a;sugr_beet;c3ann.MAGc3a;c3ann.sugr_beet
+c3ann;267|Sunflower seed;267;c3a;sunflower;c3ann.MAGc3a;c3ann.sunflower
+c3ann;15|Wheat;15;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;44|Barley;44;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;71|Rye;71;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;75|Oats;75;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;89|Buckwheat;89;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;92|Quinoa;92;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;94|Fonio;94;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;97|Triticale;97;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;101|Canary seed;101;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;103|Grain, mixed;103;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3ann;108|Cereals, nes;108;c3a;tece;c3ann.MAGc3a;c3ann.tece
+c3per;216|Brazil nuts, with shell;216;c3a;others;c3per.MAGc3a;c3per.others
+c3per;217|Cashew nuts, with shell;217;c3a;others;c3per.MAGc3a;c3per.others
+c3per;220|Chestnut;220;c3a;others;c3per.MAGc3a;c3per.others
+c3per;221|Almonds, with shell;221;c3a;others;c3per.MAGc3a;c3per.others
+c3per;222|Walnuts, with shell;222;c3a;others;c3per.MAGc3a;c3per.others
+c3per;223|Pistachios;223;c3a;others;c3per.MAGc3a;c3per.others
+c3per;224|Kola nuts;224;c3a;others;c3per.MAGc3a;c3per.others
+c3per;225|Hazelnuts, with shell;225;c3a;others;c3per.MAGc3a;c3per.others
+c3per;226|Areca nuts;226;c3a;others;c3per.MAGc3a;c3per.others
+c3per;234|Nuts, nes;234;c3a;others;c3per.MAGc3a;c3per.others
+c3per;461|Carobs;461;c3a;others;c3per.MAGc3a;c3per.others
+c3per;486|Bananas;486;c3a;cassav_sp;c3per.MAGc3a;c3per.cassav_sp
+c3per;489|Plantains;489;c3a;cassav_sp;c3per.MAGc3a;c3per.cassav_sp
+c3per;490|Oranges;490;c3a;others;c3per.MAGc3a;c3per.others
+c3per;495|Tangerines, mandarins, clementines, satsumas;495;c3a;others;c3per.MAGc3a;c3per.others
+c3per;497|Lemons and limes;497;c3a;others;c3per.MAGc3a;c3per.others
+c3per;507|Grapefruit (inc pomelos);507;c3a;others;c3per.MAGc3a;c3per.others
+c3per;512|Fruit, citrus nes;512;c3a;others;c3per.MAGc3a;c3per.others
+c3per;515|Apples;515;c3a;others;c3per.MAGc3a;c3per.others
+c3per;521|Pears;521;c3a;others;c3per.MAGc3a;c3per.others
+c3per;523|Quinces;523;c3a;others;c3per.MAGc3a;c3per.others
+c3per;526|Apricots;526;c3a;others;c3per.MAGc3a;c3per.others
+c3per;530|Cherries, sour;530;c3a;others;c3per.MAGc3a;c3per.others
+c3per;531|Cherries;531;c3a;others;c3per.MAGc3a;c3per.others
+c3per;534|Peaches and nectarines;534;c3a;others;c3per.MAGc3a;c3per.others
+c3per;536|Plums and sloes;536;c3a;others;c3per.MAGc3a;c3per.others
+c3per;541|Fruit, stone nes;541;c3a;others;c3per.MAGc3a;c3per.others
+c3per;542|Fruit, pome nes;542;c3a;others;c3per.MAGc3a;c3per.others
+c3per;547|Raspberries;547;c3a;others;c3per.MAGc3a;c3per.others
+c3per;549|Gooseberries;549;c3a;others;c3per.MAGc3a;c3per.others
+c3per;550|Currants;550;c3a;others;c3per.MAGc3a;c3per.others
+c3per;552|Blueberries;552;c3a;others;c3per.MAGc3a;c3per.others
+c3per;554|Cranberries;554;c3a;others;c3per.MAGc3a;c3per.others
+c3per;558|Berries nes;558;c3a;others;c3per.MAGc3a;c3per.others
+c3per;560|Grapes;560;c3a;others;c3per.MAGc3a;c3per.others
+c3per;569|Figs;569;c3a;others;c3per.MAGc3a;c3per.others
+c3per;571|Mangoes, mangosteens, guavas;571;c3a;others;c3per.MAGc3a;c3per.others
+c3per;572|Avocados;572;c3a;others;c3per.MAGc3a;c3per.others
+c3per;574|Pineapples;574;c3a;others;c3per.MAGc3a;c3per.others
+c3per;577|Dates;577;c3a;others;c3per.MAGc3a;c3per.others
+c3per;587|Persimmons;587;c3a;others;c3per.MAGc3a;c3per.others
+c3per;591|Cashewapple;591;c3a;others;c3per.MAGc3a;c3per.others
+c3per;592|Kiwi fruit;592;c3a;others;c3per.MAGc3a;c3per.others
+c3per;600|Papayas;600;c3a;others;c3per.MAGc3a;c3per.others
+c3per;603|Fruit, tropical fresh nes;603;c3a;others;c3per.MAGc3a;c3per.others
+c3per;619|Fruit, fresh nes;619;c3a;others;c3per.MAGc3a;c3per.others
+c3per;656|Coffee, green;656;c3a;others;c3per.MAGc3a;c3per.others
+c3per;661|Cocoa, beans;661;c3a;others;c3per.MAGc3a;c3per.others
+c3per;667|Tea;667;c3a;others;c3per.MAGc3a;c3per.others
+c3per;671|Mate;671;c3a;others;c3per.MAGc3a;c3per.others
+c3per;687|Pepper (piper spp);687;c3a;others;c3per.MAGc3a;c3per.others
+c3per;692|Vanilla;692;c3a;others;c3per.MAGc3a;c3per.others
+c3per;693|Cinnamon (canella);693;c3a;others;c3per.MAGc3a;c3per.others
+c3per;698|Cloves;698;c3a;others;c3per.MAGc3a;c3per.others
+c3per;702|Nutmeg, mace and cardamoms;702;c3a;others;c3per.MAGc3a;c3per.others
+c3per;249|Coconuts;249;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;260|Olives;260;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;263|Karite nuts (sheanuts);263;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;275|Tung nuts;275;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;277|Jojoba seed;277;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;305|Tallowtree seed;305;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;310|Kapok fruit;310;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;311|Kapokseed in shell;311;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c3per;339|Oilseeds nes;339;c3a;rapeseed;c3per.MAGc3a;c3per.rapeseed
+c4ann;636|Forage and silage, maize;636;c3a;foddr;c4ann.MAGc3a;c4ann.foddr
+c4ann;637|Forage and silage, sorghum;637;c3a;foddr;c4ann.MAGc3a;c4ann.foddr
+c4ann;446|Maize, green;446;c3a;others;c4ann.MAGc3a;c4ann.others
+c4ann;68|Popcorn;68;c3a;tece;c4ann.MAGc3a;c4ann.tece
+c3nfx;640|Forage and silage, clover;640;c3a;foddr;c3nfx.MAGc3a;c3nfx.foddr
+c3nfx;641|Forage and silage, alfalfa;641;c3a;foddr;c3nfx.MAGc3a;c3nfx.foddr
+c3nfx;643|Forage and silage, legumes;643;c3a;foddr;c3nfx.MAGc3a;c3nfx.foddr
+c3nfx;414|Beans, green;414;c3a;others;c3nfx.MAGc3a;c3nfx.others
+c3nfx;417|Peas, green;417;c3a;others;c3nfx.MAGc3a;c3nfx.others
+c3nfx;420|Vegetables, leguminous nes;420;c3a;others;c3nfx.MAGc3a;c3nfx.others
+c3nfx;423|String beans;423;c3a;others;c3nfx.MAGc3a;c3nfx.others
+c3per;254|Oil, palm fruit;254;c3p;oilpalm;c3per.MAGc3p;c3per.oilpalm
+c4ann;56|Maize;56;c4a;maiz;c4ann.MAGc4a;c4ann.maiz
+c4ann;79|Millet;79;c4a;trce;c4ann.MAGc4a;c4ann.trce
+c4ann;83|Sorghum;83;c4a;trce;c4ann.MAGc4a;c4ann.trce
+c4per;156|Sugar cane;156;c4p;sugr_cane;c4per.MAGc4p;c4per.sugr_cane
+c3nfx;242|Groundnuts, with shell;242;cnf;groundnut;c3nfx.MAGcnf;c3nfx.groundnut
+c3nfx;176|Beans, dry;176;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;181|Broad beans, horse beans, dry;181;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;187|Peas, dry;187;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;191|Chick peas;191;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;195|Cow peas, dry;195;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;197|Pigeon peas;197;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;201|Lentils;201;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;203|Bambara beans;203;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;205|Vetches;205;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;210|Lupins;210;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;211|Pulses, nes;211;cnf;puls_pro;c3nfx.MAGcnf;c3nfx.puls_pro
+c3nfx;236|Soybeans;236;cnf;soybean;c3nfx.MAGcnf;c3nfx.soybean
+c3ann;677|Hops;677;nul;others;c3ann.MAGnul;c3ann.others
+c3ann;748|Peppermint;748;nul;others;c3ann.MAGnul;c3ann.others

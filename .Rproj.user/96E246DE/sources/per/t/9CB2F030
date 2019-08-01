@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1508610446094.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1719805140",
+    "id" : "9CB2F030",
+    "lastKnownWriteTime" : 1564661009,
+    "last_content_update" : 1564661009,
+    "path" : "~/Documents/work/libraries/luplot/R/magpie2ggplot2.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "0,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

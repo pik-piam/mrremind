@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "Package: moinput\nType: Package\nTitle: Model Operations Input Data Library\nVersion: 8.180.0\nDate: 2017-12-08\nAuthor: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich\n    Kreidenweis, Benjamin Bodirsky, Isabelle Weindl, Mishko Stevanovic, Xiaoxi Wang, Ewerton Araujo, Florian Humpenoeder\nMaintainer: Anastasis Giannousakis <giannou@pik-potsdam.de>\nDescription: Package contains basic functions for manipulation and preparation\n    of model input data.\nDepends:\n    R(>= 2.10.0),\n    magclass(>= 3.17),\n    madrat(>= 1.30)\nImports:\n    luscale,\n    luplot,\n    lpjclass,\n    tools,\n    reshape2,\n    utils,\n    countrycode,\n    tidyr,\n    dplyr,\n    magpiesets,\n    mFilter,\n    zoo,\n    plyr,\n    rhdf5 ,data.table,\n    readxl,\n    quitte,\n    raster,\n    SPEI,\n    stringr,\n    stringi,\n    ncdf4,\n    lazyeval,\n    assertr,\n    readr,\n    parallel,\n    doParallel,\n    foreach,\n    abind,\n    compiler,\n    R.utils\nLicense: LGPL-3 | file LICENSE\nLazyData: no\nRoxygenNote: 6.0.1\n",
+    "created" : 1509574696239.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2175586342",
+    "id" : "1E2AAC7F",
+    "lastKnownWriteTime" : 1512736450,
+    "last_content_update" : 1512736450,
+    "path" : "~/Documents/work/libraries/moinput/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "dcf"
+}

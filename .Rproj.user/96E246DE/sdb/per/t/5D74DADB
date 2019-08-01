@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Convert IEA\n#' \n#' Convert IEA energy data to data on ISO country level.\n#' \n#' \n#' @param x MAgPIE object containing IEA values at IEA mixed country-region\n#' resolution\n#' @param subtype data subtype. Either \"EnergyBalances\" or \"CHPreport\"\n#' @return IEA data as MAgPIE object aggregated to country level\n#' @author Anastasis Giannousakis\n \nconvertIEA <- function(x,subtype) {\n\n  \n  if(subtype == \"EnergyBalances\" ){\n    x[,,c(\"ELOUTPUT\",\"ELMAINE\",\"ELAUTOE\",\"ELMAINC\",\"ELAUTOC\")] <- x[,,c(\"ELOUTPUT\",\"ELMAINE\",\"ELAUTOE\",\"ELMAINC\",\"ELAUTOC\")] * 0.0859845\n    mappingfile <- toolMappingFile(\"regional\",\"regionmappingIEA.csv\")\n    mapping<-read.csv2(mappingfile)\n    wp     <- calcOutput(\"Population\",aggregate=F,TimeFromFindSet = F)[as.vector(mapping[[1]]),2010,\"pop_SSP2\"]\n    wg     <- calcOutput(\"GDPppp\",aggregate=F,TimeFromFindSet = F)[as.vector(mapping[[1]]),2010,\"gdp_SSP2\"]\n    wp<-wp/max(wp);getNames(wp)<-\"SSP2\"\n    wg<-wg/max(wg);getNames(wg)<-\"SSP2\"\n    xadd<-toolAggregate(x[levels(mapping[[2]]),,],mappingfile,weight=wp+wg)\n    x<-x[setdiff(getRegions(x),as.vector(unique(mapping[[2]]))),,]\n    x<-mbind(x,xadd)\n    ISOhistorical <- read.csv2(system.file(\"extdata\",\"ISOhistorical.csv\",package = \"moinput\"),stringsAsFactors = F)\n    x[is.na(x)] <- 0\n    x <- toolISOhistorical(x,mapping=ISOhistorical[!ISOhistorical$toISO==\"SCG\",])\n    x<-toolCountryFill(x,0)\n  } else if (subtype == \"CHPreport\") {\n    x<-toolCountryFill(x,0)\n  }\n  \n  \n  return(x)\n}  \n",
+    "created" : 1510321865700.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3657984807",
+    "id" : "5D74DADB",
+    "lastKnownWriteTime" : 1506428109,
+    "last_content_update" : 1506428109,
+    "path" : "~/Documents/work/libraries/moinput/R/convertIEA.R",
+    "project_path" : "R/convertIEA.R",
+    "properties" : {
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

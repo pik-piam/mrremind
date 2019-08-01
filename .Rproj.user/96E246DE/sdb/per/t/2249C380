@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Read WDI\n#' \n#' Read-in WDI (World development indicators) data .rda file as magclass\n#' object. You can update the WDI data with the funciton \"downloadWDI\"\n#' \n#' \n#' @param subtype Type of WDI data that should be read. Please use the\n#' worldbank indicator abbreviation. Available types are e.g.: \\itemize{ \\item\n#' \\code{SP.POP.TOTL}: Population, total \\item \\code{NY.GDP.MKTP.PP.KD}: GDP,\n#' PPP (constant 2011 international Dollar) \\item \\code{NY.GDP.MKTP.PP.CD}:\n#' GDP, PPP (current international Dollar) \\item \\code{NY.GDP.MKTP.CD}: GDP MER\n#' (current USDollar) \\item \\code{NY.GDP.MKTP.KD}: GDP MER (constant 2005\n#' USDollar) \\item \\code{NY.GDP.MKTP.KN}: GDP LCU (constant LCU) }\n#' @return magpie object of the WDI data\n#' @author Jan Phillip Dietrich, Benjamin Bodirsky\n#' @seealso \\code{\\link{readSource}}\n#' @examples\n#' \n#' \\dontrun{ a <- readSource(type=\"WDI\",subtype=\"SP.POP.TOTL\")\n#' }\n#' \nreadWDI<-function(subtype){\n  load(paste0(subtype,\".rda\"))\n  if (subtype == \"NE.CON.PRVT.PP.CD\"){\n    # Some values for Chinese Household Consumption Expenditure are not reported in the newer version (will probably be corrected later)\n    # Reintroduce the values shown in the csv file\n    wdi[wdi$Country == \"China\" & wdi$Year %in% c(1990:2009), \"NE.CON.PRVT.PP.CD\"] <- c( 3.87E+11, 4.42E+11, 5.19E+11, 5.88E+11, \n                                                                                        6.47E+11, 7.39E+11, 8.40E+11, 9.09E+11,\n                                                                                        9.89E+11, 1.10E+12, 1.24E+12, 1.36E+12,\n                                                                                        1.49E+12, 1.64E+12, 1.84E+12, 2.09E+12,\n                                                                                        2.40E+12, 2.75E+12, 3.13E+12, 3.47E+12 )\n  }\n  wdi$Country<-NULL\n  wdi<-as.magpie(wdi,spatial=1,temporal=2,tidy=TRUE)\n  return(wdi)\n}\n",
+    "created" : 1508325027413.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3411273820",
+    "id" : "2249C380",
+    "lastKnownWriteTime" : 1489653951,
+    "last_content_update" : 1489653951,
+    "path" : "~/Documents/work/libraries/moinput/R/readWDI.R",
+    "project_path" : "R/readWDI.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

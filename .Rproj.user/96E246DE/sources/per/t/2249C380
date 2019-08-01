@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1508325027413.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3411273820",
+    "id" : "2249C380",
+    "lastKnownWriteTime" : 1489653951,
+    "last_content_update" : 1489653951,
+    "path" : "~/Documents/work/libraries/moinput/R/readWDI.R",
+    "project_path" : "R/readWDI.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
