@@ -20,5 +20,5 @@ defined as <0.5 $/kWh and economic potential as <0.1 $/kWh.
 \dontrun{a <- readGernaat()}
 }
 \author{
-Atreya Shankar
+Atreya Shankar, Renato Rodrigues
 }

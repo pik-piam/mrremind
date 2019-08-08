@@ -5,10 +5,7 @@
 \title{calcSolar
 calculate Area, Capacity and Energy for photovoltaics (PV) and contentrated solar power (CSP)}
 \usage{
-calcSolar(level = "all")
-}
-\arguments{
-\item{level}{level of complexity of returned value}
+calcSolar()
 }
 \value{
 magpie object
@@ -28,5 +25,5 @@ calculate Area, Capacity and Energy for photovoltaics (PV) and contentrated sola
 \code{\link{calcOutput}}
 }
 \author{
-Julian Oeser
+Julian Oeser, modified by Renato Rodrigues
 }

@@ -4,15 +4,12 @@
 \alias{calcGHGPrices}
 \title{calcGHGPrices}
 \usage{
-calcGHGPrices(emissions = "pollutants", datasource = "REMMAG",
-  modelinput_format = FALSE)
+calcGHGPrices(emissions = "pollutants", datasource = "REMMAG")
 }
 \arguments{
 \item{emissions}{which type of emissions shall be returned. ghg just returns n2o, ch4 and co2, pollutants a longer list including also air pollutants}
 
-\item{datasource}{REMMAG or SSPresults}
-
-\item{modelinput_format}{if modelinput_format is TRUE, the points in the scenarionames for models and versions will be replaced by a hyphen.}
+\item{datasource}{REMIND for prices from R2M4 coupled runs, REMMAG for old coupled runs, SSPResults for prices from the SSP scenarios from the IIASA database, SSP_and_REM for a combination of REMIND and SSPResults}
 }
 \value{
 list of magpie object with results on country level, weight on country level, unit and description.
@@ -31,5 +28,5 @@ calcOutput("GHGPrices")
 \code{\link{readSSPResults}}
 }
 \author{
-David Chen, Benjamin Leon Bodirsky
+David Chen, Benjamin Leon Bodirsky, David Klein
 }

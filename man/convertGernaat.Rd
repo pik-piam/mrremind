@@ -25,5 +25,5 @@ defined as <0.5 $/kWh and economic potential as <0.1 $/kWh.
 \dontrun{a <- convertGernaat(x, "Technical_Potential")}
 }
 \author{
-Atreya Shankar
+Atreya Shankar, Renato Rodrigues
 }
