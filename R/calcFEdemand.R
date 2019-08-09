@@ -122,6 +122,13 @@ calcFEdemand <- function(subtype = "FE") {
     # Modify industry FE trajectories of SSP1 (and SSP2) to generate SDP 
     # scenario trajectories
     
+    FE_eff_inc_min <- 0.000
+    FE_eff_inc_max <- 0.005
+    FE_eff_inc_thr <- 33000
+    
+    a <- (FE_eff_inc_max - FE_eff_inc_min) / FE_eff_inc_thr
+    b <- FE_eff_inc_min
+    
     # mask non-global variables so R doesn't get its panties twisted
     year <- Year <- Data1 <- Data2 <- Region <- Value <- Data3 <- scenario <- 
       iso3c <- value <- variable <- pf <- FE <- VA <- GDP <- VApGDP <- FEpVA <- 
@@ -172,14 +179,25 @@ calcFEdemand <- function(subtype = "FE") {
     #   interval
     # - cumulate the reduction factor over the time horizon
     
+    # CHN/2015 is defined as the transitional GDP-per-capita.  Countries with 
+    # lower GDPpC have their efficiency gains converge by 2150, countries with 
+    # equal (thus including China) or more converge by 2100.
+    trans_GDPpC <- tmp_GDPpC %>% 
+      filter('gdp_SSP1' == scenario,
+             'CHN' == iso3c, 
+             2015 == year) %>% 
+      getElement('GDPpC')
+    
     reduction_factor <- tmp_GDPpC %>% 
       interpolate_missing_periods(year = seq_range(range(year)), 
                                   value = 'GDPpC') %>% 
       group_by(scenario, iso3c) %>% 
       mutate(
-        f = cumprod(ifelse(2020 > year, 1,
-                           1 - ( pmin(0.007, 3e-7 * GDPpC + 0.002)
-                               * (1 - (year - 2020) / (2150 - 2020)))))) %>% 
+        f = pmin(FE_eff_inc_max, a * GDPpC + b),
+        f = 1 - (f * (1 - (year - 2020) 
+                        / (ifelse(GDPpC < trans_GDPpC, 2150, 2100) - 2020))),
+        f = ifelse(2020 > year, 1, f),
+        f = cumprod(f)) %>% 
       ungroup() %>% 
       select(-GDPpC) %>% 
       filter(year %in% years)
