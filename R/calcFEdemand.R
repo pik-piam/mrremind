@@ -116,7 +116,7 @@ calcFEdemand <- function(subtype = "FE") {
       if(year <= 2025)
         return(0)
       else
-        return((year-2025)^2 * 0.00002, 0.1) # at 2100, this is ~ 13%
+        return((year-2025)^2 * 0.00002) # at 2100, this is ~ 13%
     }
 
     yrs <- unique(newdem$year)
