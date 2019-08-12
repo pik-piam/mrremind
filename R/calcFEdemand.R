@@ -62,11 +62,12 @@ calcFEdemand <- function(subtype = "FE") {
     demPop <- pop[trpdem, on=c("year", "region", "scenario")]
     demPop[, dem_cap := value/pop * 1e3] # EJ/10^6=TJ (pop. in millions), scale to GJ/cap*yr
 
-    gdp_mc <- calcOutput("GDPppp")[,, "gdp_SDP"]
-    gdp_mc <- time_interpolate(gdp_mc, getYears(rmnd_reg))
-    getSets(gdp_mc) <- c("region", "Year", "scenario")
+    gdp_iso <- calcOutput("GDPppp", aggregate = F)[,, "gdp_SDP"]
+    gdp_iso <- time_interpolate(gdp_iso, getYears(rmnd_reg))
+    gdp_reg <- toolAggregate(gdp_iso, mappingfile, from="CountryCode", to="RegionCode")
+    getSets(gdp_reg) <- c("region", "Year", "scenario")
     ## load GDP
-    gdp <- as.data.table(gdp_mc)[
+    gdp <- as.data.table(gdp_reg)[
       , year := as.numeric(gsub("y", "", Year))][
       , Year := NULL]
 
@@ -115,7 +116,7 @@ calcFEdemand <- function(subtype = "FE") {
       if(year <= 2025)
         return(0)
       else
-        return(pmin((year-2025)^2 * 0.00002, 0.1)) # at 2100, this is ~ 13%
+        return((year-2025)^2 * 0.00002, 0.1) # at 2100, this is ~ 13%
     }
 
     yrs <- unique(newdem$year)
@@ -149,9 +150,11 @@ calcFEdemand <- function(subtype = "FE") {
     ## ggplot(newdem[region %in% c("CHN", "USA", "IND", "JPN"), sum(dem_cap), by=.(year, region)], aes(x=year, y=V1)) +
     ##   geom_line() +
     ##   facet_wrap(~region)
-    ## rmnd_reg <- suppressWarnings(as.magpie(newdem[, c("region", "year", "scenario", "item", "value")]))
-    rmnd_reg <- toolAggregate(rmnd_reg, mappingfile, gdp_mc, from="RegionCode", to="CountryCode")
-    return(rmnd_reg)
+    newdem <- suppressWarnings(as.magpie(newdem[, c("region", "year", "scenario", "item", "value")]))
+    dem_iso <- toolAggregate(newdem, mappingfile, gdp_iso, from="RegionCode", to="CountryCode")
+    getSets(dem_iso)[1] <- "iso3c"
+
+    return(dem_iso)
 
   }
 
