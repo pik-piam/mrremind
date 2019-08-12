@@ -122,11 +122,6 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            mdata <- as.magpie(tmp, datacol = 10, spatial = 1, temporal = 2)
          },
          
-         "pm_trp_demand" = {
-           tmp <- fread(paste0(subtype, ".cs4r"))
-           mdata <- as.magpie(tmp, datacol=5, spatial=2, temporal=1)
-         },
-         
          "fe2es" = {
            tmp <- fread(paste0(subtype, ".cs4r"))
            mdata <- as.magpie(tmp, datacol=4, spatial=2, temporal=1)
@@ -137,7 +132,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            mdata <- as.magpie(tmp, datacol=4, spatial=2, temporal=1)
          },
          
-         "demByTech" = {
+         "demand_tech" = {
            tmp <- fread(paste0(subtype, ".cs4r"))
            mdata <- as.magpie(tmp, datacol=7, spatial=2, temporal=1)
          }, 

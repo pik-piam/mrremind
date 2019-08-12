@@ -144,19 +144,18 @@ fullREMIND <- function(rev=0) {
   
   #--------------- EDGE Transport ---------------------------------------------------------------------
   ## sapply(c("value_time", "harmonized_intensities", "price_nonmot",
-  ##          "esCapCost", "pm_trp_demand", "SW"), function(stype){
-  ##            print(sprintf("Loading %s", stype))
-  ##            suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
-  ##                       file=paste0(stype, ".cs4r"), aggregate=F))
-  ##          })
+  ##          "SW", "UCD_NEC_iso", "logit_exponent"),
+  ##        function(stype){
+  ##          print(sprintf("Loading %s", stype))
+  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
+  ##                                      file=paste0(stype, ".cs4r"), aggregate=F))
+  ##        })
   
-  ## sapply(c("demByTech", "fe2es", "esCapCost", "pm_trp_demand"), 
-  # function(stype){
-  ##            print(sprintf("Loading %s", stype))
-  ##            suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
-  ##                       file=paste0(stype, ".cs4r"), aggregate=T))
-  ##          })
-  
-  ## calcOutput("EDGETransport", subtype ="logit_exponent", convert = FALSE, round=6,  file="logit_exponent.cs4r")
+  ## sapply(c("demand_tech", "fe2es", "esCapCost"),
+  ##        function(stype){
+  ##          print(sprintf("Loading %s", stype))
+  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
+  ##                                      file=paste0(stype, ".cs4r"), aggregate=T))
+  ##        })
   
 }

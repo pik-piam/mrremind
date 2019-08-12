@@ -13,18 +13,23 @@
 #' 
 calcEDGETransport <- function(subtype = "logit_exponent") {
   if (subtype %in% c("logit_exponent")) {
-    data <- readSource("EDGETransport", subtype = "logit_exponent", convert = F)
+    conv = FALSE
   }else{
-    data <- readSource("EDGETransport", subtype)    
+    conv = TRUE
   }
-  year_inter = getYears(data)
-  ## define weight for intensive entries (for weighted average)
-  weightInt <- calcOutput("GDPppp", aggregate = F)[,, "gdp_SSP2"]
-  weightInt <- time_interpolate(weightInt,year_inter,extrapolation_type="constant",integrate_interpolated_years=TRUE)[, getYears(data),]
 
-  ## define weight for extensive entries (for summation)
-  weightExt <- NULL
-  
+  weightInt <- calcOutput("GDPppp", aggregate = F)
+  get_weight <- function(data){
+    year_inter = getYears(data)
+    ## define weight for intensive entries (for weighted average)
+    weightInt <- time_interpolate(
+      weightInt,
+      year_inter,
+      extrapolation_type="constant",
+      integrate_interpolated_years=TRUE)
+  }
+
+  data <- readSource("EDGETransport", subtype, convert = conv)
   
   switch(subtype,
          "logit_exponent" = {
@@ -33,49 +38,44 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "Logit exponent values for transport alternatives"
          },
          "harmonized_intensities" = {
-           weight = weightInt
+           weight = NULL
            unit = "Passenger transport: [EJ/Mpkm]; freight transport: [EJ/Mtkm]"
            description = "Energy intensity for transport modes and fuel, harmonized on IEA balances"
          },
          "value_time" = {
-           weight = weightInt
+           weight = NULL
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Value of time for passenger transport modes"
          },
          "SW" = {
-           weight = weightInt
+           weight = NULL
            unit = "[-]"
            description = "Share weight, a dimensionless parameter reflecting consumer preferences."
          },
          "price_nonmot" = {
-           weight = weightInt
+           weight = NULL
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Price for non motorized transport modes (Walking; Cycling)"
          },
          "UCD_NEC_iso" = {
-           weight = weightInt
+           weight = NULL
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Non energy costs for all motorized transport modes"
          },
-         "pm_trp_demand" = {
-           weight = weightExt
-           unit = "Passenger transport: [trn pkm]; freight transport: [trn tkm]"
-           description = "Transport ES demand trajectories for the CES tree."
-         },
          "esCapCost" = {
-           weight = weightInt
+           weight = get_weight(data)
            unit = "Passenger transport [2005US$/pkm]; freight transport: [2005US$/tkm]"
            description = "Transport ES demand trajectories for the CES tree."
          },
          "fe2es" = {
-           weight = weightInt
+           weight = get_weight(data)
            unit = "Passenger transport [trn pkm/Twa], freight transport [trn tkm/Twa]"
            description = "Energy efficiency of CES level nodes for Transport."
          },
-         "demByTech" = {
-           weight = weightExt
+         "demand_tech" = {
+           weight = get_weight(data)
+           unit = "Passenger transport: [trn pkm]; freight transport: [trn tkm]"
            description = "FE demand divided by technologies for different ES on the CES level."
-           unit = "[-]"
          })
   
   return(list(x           = data,
