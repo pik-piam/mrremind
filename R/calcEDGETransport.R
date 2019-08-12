@@ -62,6 +62,11 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Non energy costs for all motorized transport modes"
          },
+         "pm_trp_demand" = {
+           weight = get_weight(data)
+           unit = "Passenger transport: [trn pkm]; freight transport: [trn tkm]"
+           description = "Transport ES demand trajectories for the CES tree."
+         },
          "esCapCost" = {
            weight = get_weight(data)
            unit = "Passenger transport [2005US$/pkm]; freight transport: [2005US$/tkm]"
@@ -72,9 +77,9 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "Passenger transport [trn pkm/Twa], freight transport [trn tkm/Twa]"
            description = "Energy efficiency of CES level nodes for Transport."
          },
-         "demand_tech" = {
+         "fe_demand_tech" = {
            weight = get_weight(data)
-           unit = "Passenger transport: [trn pkm]; freight transport: [trn tkm]"
+           unit = "EJ"
            description = "FE demand divided by technologies for different ES on the CES level."
          })
   
