@@ -81,7 +81,7 @@ calcEmiTarget <- function(subtype) {
                       "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT")  
       
     #for all countries with a quantitative target that can be translated into an emissions trajectory factor, this script will calculate the Factor of target year emissions vs. 2005 emissions
-    factor <- gdp[c(getRegions(Type),eu28_countries,"IND","CHN"),unique(TarYear),]
+    factor <- gdp[c(getRegions(Type),eu28_countries),unique(TarYear),]
     #set all to 1 as default
     factor[,,] <- 0
     
