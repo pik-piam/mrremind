@@ -5,11 +5,12 @@
 #' @param attributes in dm, wm, ge, nr, p, k
 #' @param cellular if TRUE value is calculate on cellular level
 #' @param irrigation distinguish irrigation or not
+#' @param cut FALSE (default) - do not cut off yields, number between 0 and 1 to define percentile value for cut off 
 #' @return MAgPIE object of yields
 #' @author Debbora Leip, Jan Philipp Dietrich
 #' @importFrom stats quantile
 
-calcYield <- function(physical = TRUE, attributes="dm", irrigation=FALSE, cellular=FALSE){
+calcYield <- function(physical = TRUE, attributes="dm", irrigation=FALSE, cellular=FALSE, cut=FALSE){
   
   years <- findset("past")
   
@@ -20,6 +21,16 @@ calcYield <- function(physical = TRUE, attributes="dm", irrigation=FALSE, cellul
   
   yield      <- collapseNames(production)/area
   yield[yield==Inf | yield==-Inf | is.nan(yield) | yield==0] <- NA
+  
+  # If cut!=FALSE, cut yields at 'cut'-percentile and hold constant from there on 
+  if(cut!=FALSE){
+    for(k in getNames(yield)){
+      # define cut off, depending on 'cut' value ('cut'-percentile)
+      cut_k <- quantile(yield[,,k], cut, na.rm=TRUE) 
+      # set all values above the threshold to cut off value
+      yield[,,k][yield[,,k] > cut_k] <- cut_k
+    }
+  }
   
   #if no data for begr and betr is available just take highest observed yields for the given country as replacement
   max <- as.magpie(suppressWarnings(apply(yield,1:2,max,na.rm=TRUE)))
