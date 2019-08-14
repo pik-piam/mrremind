@@ -100,6 +100,7 @@ fullMAGPIE <- function(rev=0.1) {
     
     #38 factor costs
     calcOutput("Yield", years=1995, round=2, file="f38_region_yield.csv")
+    calcOutput("Yield", years=mag_years_past, round=2, file="f14_region_yields.cs3")
     
     #41 Area Equipped for Irrigation
     #f41_irrig(j) should be read out of calcAreaEquippedForIrrigation()
