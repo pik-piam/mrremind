@@ -9,14 +9,15 @@
 #' @author Debbora Leip, Jan Philipp Dietrich
 #' @importFrom stats quantile
 
-calcYield <- function(physical = TRUE,attributes="dm",irrigation=FALSE,cellular=FALSE){
+calcYield <- function(physical = TRUE, attributes="dm", irrigation=FALSE, cellular=FALSE){
   
   years <- findset("past")
   
   area       <- calcOutput("Croparea", sectoral="kcr", physical = physical, 
                            irrigation=irrigation, aggregate=FALSE,cellular=cellular)[,years,]
-  production <- calcOutput("Production", aggregate=FALSE,attributes=attributes,
-                           irrigation=irrigation,cellular=cellular,products="kcr")[,years,]
+  production <- calcOutput("Production", aggregate=FALSE, attributes=attributes,
+                           irrigation=irrigation, cellular=cellular, products="kcr")[,years,]
+  
   yield      <- collapseNames(production)/area
   yield[yield==Inf | yield==-Inf | is.nan(yield) | yield==0] <- NA
   
