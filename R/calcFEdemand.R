@@ -5,9 +5,9 @@
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey
 #' @importFrom stats approx
-#' @importFrom dplyr as_tibble tibble
-#' @importFrom tidyr extract complete
-#' @importFrom quitte seq_range interpolate_missing_periods
+#' @importFrom dplyr as_tibble tibble last sym
+#' @importFrom tidyr extract complete nesting
+#' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 
@@ -298,7 +298,7 @@ calcFEdemand <- function(subtype = "FE") {
 
     stationary <- readSource("EDGE",subtype="FE_stationary")
     buildings  <- readSource("EDGE",subtype="FE_buildings")
-
+    
     ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
     if(all(stationary[, 2105, "SSP2.feelt"] == 0)){
       stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
@@ -451,6 +451,57 @@ calcFEdemand <- function(subtype = "FE") {
       reminditems[,,setdiff(getNames(reminditems),
                             getNames(SDP_industry_transport))],
       SDP_industry_transport)
+    
+    # ---- Industry subsectors data stubs ----
+    industry_subsectors <- calcOutput(
+      type = 'IO', subtype = 'output_Industry_subsectors', round = 8, 
+      aggregate = FALSE) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select('period' = 'Year', 'region' = 'Region', 'pf' = 'Data2', 
+             'value' = 'Value') %>% 
+      # get 2005-15 industry subsector data
+      character.data.frame() %>% 
+      mutate(period = as.integer(!!sym('period'))) %>% 
+      filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', !!sym('pf')), 
+             !!sym('period') %in% as.integer(
+               sub('^y', '', getYears(!!sym('reminditems'))))) %>% 
+      # sum up fossil and bio SEs
+      group_by(!!sym('period'), !!sym('region'), !!sym('pf')) %>% 
+      summarise(value = sum(!!sym('value'))) %>% 
+      ungroup() %>% 
+      # rename feel steel to feel steel primary (feel steel secondary is 
+      # handled within REMIND)
+      mutate(period = as.integer(!!sym('period')),
+             pf = ifelse('feel_steel' == !!sym('pf'), 'feel_steel_primary', 
+                         !!sym('pf'))) %>% 
+      # extend time horizon
+      complete(
+        nesting(!!sym('region'), !!sym('pf')),
+        period = as.integer(sub('^y', '', 
+                                unique(getYears(!!sym('reminditems')))))) %>% 
+      # decrease values by 0.5 % p.a. (this is just dummy data to get the 
+      # calibration rolling)
+      group_by(!!sym('region'), !!sym('pf')) %>% 
+      arrange(!!sym('period')) %>% 
+      mutate(
+        value = ifelse(!is.na(!!sym('value')), !!sym('value'),
+                       ( last(na.omit(!!sym('value'))) 
+                       * 0.995 ^ (!!sym('period') - 2015)
+                       ))) %>% 
+      ungroup() %>% 
+      select('period', 'region', 'pf', 'value') %>% 
+      # extend to SSP scenarios
+      mutate(scenario = '') %>% 
+      complete(nesting(!!sym('period'), !!sym('region'), !!sym('pf'), 
+                       !!sym('value')), 
+               scenario = paste0('gdp_SSP', 1:5)) %>% 
+      mutate(scenario.item = paste(!!sym('scenario'), !!sym('pf'), sep = '.'),
+             year = paste0('y', !!sym('period'))) %>% 
+      select('region', 'year', 'scenario.item', 'value') %>% 
+      as.magpie()
+    
+    reminditems <- mbind(reminditems, industry_subsectors)
   }
 
   return(list(x=reminditems,weight=NULL,
