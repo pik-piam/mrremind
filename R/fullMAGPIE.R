@@ -54,6 +54,7 @@ fullMAGPIE <- function(rev=0.1) {
     # 14 yields
     calcOutput("CalibrationDummy", round=0, file="f14_yld_calib.csv")
     calcOutput("PastureYield",round=3,file="f14_pasture_yields_hist.csv")
+    calcOutput("Yield", cut=0.95, years=mag_years_past, round=2, file="f14_region_yields.cs3")
     
     # 15 food
     calcOutput("BodyHeight",aggregate = FALSE,years=mag_years_past, round=2, file="f15_bodyheight_historical.cs3")
@@ -100,7 +101,6 @@ fullMAGPIE <- function(rev=0.1) {
     
     #38 factor costs
     calcOutput("Yield", cut=0.95, years=1995, round=2, file="f38_region_yield.csv")
-    calcOutput("Yield", cut=0.95, years=mag_years_past, round=2, file="f14_region_yields.cs3")
     
     #41 Area Equipped for Irrigation
     #f41_irrig(j) should be read out of calcAreaEquippedForIrrigation()
