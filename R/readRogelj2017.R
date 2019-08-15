@@ -41,7 +41,7 @@ readRogelj2017 <- function(subtype){
     # gather("Unconditional","Conditional", key = "Conditionality",value = "Reduction" )
     
     #fill up conditional/unconditional with respective counterpart
-    input2[is.na(input$Conditional),]$Conditional <- input2[is.na(input$Conditional),]$Unconditional
+    input2[is.na(input2$Conditional),]$Conditional <- input2[is.na(input2$Conditional),]$Unconditional
     
     #in case a country has two or more types of targets, use absolute targets
     input2 <- input2[!(input2$ISO_Code %in% input2[duplicated(input2$ISO_Code),]$ISO_Code & input2$Type=="GHG"),]

@@ -91,7 +91,7 @@ calcFEdemand <- function(subtype = "FE") {
       newdem[year == yr & item == it,
              window := 0.13 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.2)]
       newdem[year == yr & item == it,
-             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2025)/30, 1) + ssp2dem * (1 - pmin((yr - 2025)/30, 1))]
+             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/20, 1) + ssp2dem * (1 - pmin((yr - 2020)/20, 1))]
 
       it <- "ueHDVt"
       target <- 9
@@ -99,7 +99,7 @@ calcFEdemand <- function(subtype = "FE") {
       newdem[year == yr & item == it,
              window := 0.1 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.1)]
       newdem[year == yr & item == it,
-             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2025)/30, 1) + ssp2dem * (1 - pmin((yr - 2025)/30, 1))]
+             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/20, 1) + ssp2dem * (1 - pmin((yr - 2020)/20, 1))]
 
     }
 
@@ -113,10 +113,10 @@ calcFEdemand <- function(subtype = "FE") {
 
     ## add trains
     trns <- function(year){
-      if(year <= 2025)
+      if(year <= 2020)
         return(0)
       else
-        return((year-2025)^2 * 0.00002) # at 2100, this is ~ 13%
+        return((year-2020)^2 * 0.000018) # at 2100, this is ~ 11.5%
     }
 
     yrs <- unique(newdem$year)
@@ -132,27 +132,28 @@ calcFEdemand <- function(subtype = "FE") {
     newdem[item == "ueelTt" & year > 2025, dem_cap := newdem[item == "ueelTt" & year == 2025]$dem_cap, by=year]
 
     ## we add it to trains
-    newdem[year > 2025, train_add := sum(toadd, na.rm = T),
+    newdem[year > 2020, train_add := sum(toadd, na.rm = T),
            by=c("year", "region")]
     ## replace old values
     newdem[item == "ueelTt", dem_cap := dem_cap + train_add][
       , c("toadd", "train_add", "fact") := NULL]
 
-    ## multiply by population
-    newdem[, value := dem_cap * pop / 1e3] # back to EJ
-
-    newdem[year > 2100, value := newdem[year == 2100]$value, by="year"]
-
     ## ggplot(newdem[region %in% c("SSA", "USA", "IND", "JPN")], aes(x=year, y=dem_cap)) +
     ##   geom_line(aes(color=item)) +
     ##   facet_wrap(~region)
+
+    ## multiply by population
+    newdem[, value := dem_cap * pop / 1e3] # back to EJ
+
+    ## constant for t>2100
+    newdem[year > 2100, value := newdem[year == 2100]$value, by="year"]
 
     ## ggplot(newdem[region %in% c("CHN", "USA", "IND", "JPN"), sum(dem_cap), by=.(year, region)], aes(x=year, y=V1)) +
     ##   geom_line() +
     ##   facet_wrap(~region)
     newdem <- suppressWarnings(as.magpie(newdem[, c("region", "year", "scenario", "item", "value")]))
     dem_iso <- toolAggregate(newdem, mappingfile, gdp_iso, from="RegionCode", to="CountryCode")
-    getSets(dem_iso)[1] <- "iso3c"
+    getSets(dem_iso)[1] <- "region"
 
     return(dem_iso)
 
