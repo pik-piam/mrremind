@@ -22,7 +22,7 @@ readGSOC <- function() {
     
   } else {
     
-    out <- raster("/home/kristine/mnt/rd3mod/inputdata/sources/GSOC/GSOC_30cm.grd")
+    out <- raster("GSOC_30cm.grd")
   }
   
   lon <- seq(-179.75,179.75,by=0.5)
