@@ -167,7 +167,7 @@ convertFAO <- function(x,subtype) {
       if (length(lastyear)>1){stop("strange transition mapping")}
       allyears = getYears(data,as.integer = T)
       years = allyears[allyears <= as.integer(substring(lastyear,2,5))]
-      data[toISO,years,] = colSums(data[country,years])
+      data[toISO,years,] = magclass::colSums(data[country,years])
       data <- data[country,,,invert=T]
       return(data)
     }
@@ -228,8 +228,7 @@ convertFAO <- function(x,subtype) {
     x[is.na(x)] <- 0
     x <- toolISOhistorical(x, overwrite=TRUE, additional_mapping=additional_mapping)
     x <- toolCountryFill(x, fill=0, verbosity=2)
-  } 
-  else {
+  }  else {
     cat("Specify whether dataset contains absolute or relative values in convertFAO")
   }
   

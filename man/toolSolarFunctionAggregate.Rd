@@ -20,5 +20,5 @@ return: returns region aggregated solar data
 Aggregate Solar data into regions
 }
 \author{
-Felix Schreyer, Renato Rodrigues, Julian Oeser
+Renato Rodrigues
 }
