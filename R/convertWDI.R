@@ -22,15 +22,21 @@ convertWDI<-function(x,subtype){
   # changing scale of indicators
   if (subtype %in% c("SP.POP.TOTL","NY.GDP.MKTP.PP.KD","NY.GDP.MKTP.PP.CD","NY.GDP.MKTP.CD","NY.GDP.MKTP.KD","NY.GDP.MKTP.KN")) {
     x <- x/1000000
-  }else if (subtype %in%  WDI_data$series[,"indicator"]){
+    #Kosovo added to Serbia
+    x["RS",,] <- dimSums(x[c("RS","XK"),,],dim=1,na.rm=T) 
+    }else if (subtype %in%  WDI_data$series[,"indicator"]){
     # urbanisation rate and population density and land surface
     # include c("SP.URB.TOTL.IN.ZS", "EN.POP.DNST", "AG.SRF.TOTL.K2", "NE.CON.PRVT.PC.KD", "NE.CON.PRVT.PP.CD","NE.CON.PRVT.PP.KD")
+    vcat("Warning: Kosovo left out of conversion and has differing population values from FAO", verbosity=2)
     x <- x
   }else {
     stop("subtype does not exist in the dataset!")
   }
   y <- x
-  getCells(y)<-countrycode(getCells(y),"iso2c","iso3c")
+  
+  JG <- "JEY"
+  names(JG) <- "JG"
+  getCells(y)<-countrycode(getCells(y),"iso2c","iso3c", custom_match = JG)
   y<-y[!is.na(getCells(y)),,]
   y<-clean_magpie(y)
   

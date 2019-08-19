@@ -82,7 +82,7 @@ toolFAOcombine <- function (..., combine="Item") {
       
       # short check if global sums of the values are the same.
       for (item in inboth){
-        avg <- mean(x1_glo[,,item]/x2_glo[,,item])
+        avg <- mean((x1_glo[,,item]+10^-8)/(x2_glo[,,item]+10^-8))
         if (avg > 1.01 | avg < 0.99) cat(0, "For", item, "the values in the two datasets seem to differ. Manual check recommended.")
       }
     }

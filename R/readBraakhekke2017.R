@@ -24,6 +24,7 @@ readBraakhekke2017 <- function(subtype="soilN") {
   out<-as.magpie(b)
   out<-dimSums(out,dim=3)
   out<-setNames(out,subtype)
+  out<-toolCell2isoCell(out)
   return(out)
 }  
 
