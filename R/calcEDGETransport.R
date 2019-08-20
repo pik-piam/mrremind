@@ -1,7 +1,7 @@
 #' @title Prepare EDGETransport inputs
 #'
 #' All subtypes should be used with the aggregate=FALSE flag.
-#' 
+#'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Alois Dirnaichner, Marianna Rottoli
 #' @seealso \code{\link{readSource}}
@@ -10,8 +10,11 @@
 #' @examples
 #' \dontrun{ a <- calcOutput(type="EDGETransport", subtype="logit_exponent", aggregate=F)
 #' }
-#' 
+#'
 calcEDGETransport <- function(subtype = "logit_exponent") {
+
+  value <- i.value <- NULL
+
   if (subtype %in% c("logit_exponent")) {
     conv = FALSE
   }else{
@@ -29,8 +32,21 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
       integrate_interpolated_years=TRUE)
   }
 
-  data <- readSource("EDGETransport", subtype, convert = conv)
-  
+  if(subtype == "pm_trp_demand"){
+    fe_dem <- as.data.table(as.quitte(readSource("EDGETransport", "fe_demand_tech", convert = F)))[
+    , c("model", "scenario", "variable", "unit") := NULL
+    ]
+    fe2es  <- as.data.table(as.quitte(readSource("EDGETransport", "fe2es", convert = F)))[
+    , c("model", "scenario", "variable", "unit") := NULL
+    ]
+    es_dem <- fe_dem[fe2es, on=c("period", "region", "SSP", "EDGE_scenario", "all_teEs")][
+    , sum(value * i.value), by=c("period", "region", "SSP", "EDGE_scenario", "all_in")
+    ]
+    data <- as.magpie(es_dem, spatial=2, temporal=1, datacol=6)
+  }else{
+    data <- readSource("EDGETransport", subtype, convert = conv)
+  }
+
   switch(subtype,
          "logit_exponent" = {
            weight = NULL
@@ -62,11 +78,6 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Non energy costs for all motorized transport modes"
          },
-         "pm_trp_demand" = {
-           weight = get_weight(data)
-           unit = "Passenger transport: [trn pkm]; freight transport: [trn tkm]"
-           description = "Transport ES demand trajectories for the CES tree."
-         },
          "esCapCost" = {
            weight = get_weight(data)
            unit = "Passenger transport [2005US$/pkm]; freight transport: [2005US$/tkm]"
@@ -77,14 +88,19 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "Passenger transport [trn pkm/Twa], freight transport [trn tkm/Twa]"
            description = "Energy efficiency of CES level nodes for Transport."
          },
+         "pm_trp_demand" = {
+           weight = NULL
+           unit = "Passenger transport [trn pkm], freight transport [trn tkm]"
+           description = "CES level transport demand."
+         },
          "fe_demand_tech" = {
            weight = get_weight(data)
-           unit = "EJ"
+           unit = "TWa"
            description = "FE demand divided by technologies for different ES on the CES level."
          })
-  
+
   return(list(x           = data,
-              weight      = weight, 
-              unit        = unit, 
+              weight      = weight,
+              unit        = unit,
               description = description))
 }
