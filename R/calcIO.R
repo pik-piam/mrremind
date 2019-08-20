@@ -200,46 +200,6 @@ calcIO <- function(subtype) {
       reminditems[,,'seel.feelwlth_chemicals.tdelwlth_chemicals'] * (1 - hth),
       
       setNames(
-        reminditems[,,'seel.feelwlth_wood.tdelwlth_wood'] * hth, 
-        'seel.feelhth_wood.tdelhth_wood'),
-      reminditems[,,'seel.feelwlth_wood.tdelwlth_wood'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_text.tdelwlth_text'] * hth, 
-        'seel.feelhth_text.tdelhth_text'),
-      reminditems[,,'seel.feelwlth_text.tdelwlth_text'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_Paper.tdelwlth_Paper'] * hth, 
-        'seel.feelhth_Paper.tdelhth_Paper'),
-      reminditems[,,'seel.feelwlth_Paper.tdelwlth_Paper'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_transport.tdelwlth_transport'] * hth, 
-        'seel.feelhth_transport.tdelhth_transport'),
-      reminditems[,,'seel.feelwlth_transport.tdelwlth_transport'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_nonferr.tdelwlth_nonferr'] * hth, 
-        'seel.feelhth_nonferr.tdelhth_nonferr'),
-      reminditems[,,'seel.feelwlth_nonferr.tdelwlth_nonferr'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_foodpro.tdelwlth_foodpro'] * hth, 
-        'seel.feelhth_foodpro.tdelhth_foodpro'),
-      reminditems[,,'seel.feelwlth_foodpro.tdelwlth_foodpro'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_mining.tdelwlth_mining'] * hth, 
-        'seel.feelhth_mining.tdelhth_mining'),
-      reminditems[,,'seel.feelwlth_mining.tdelwlth_mining'] * (1 - hth),
-      
-      setNames(
-        reminditems[,,'seel.feelwlth_machine.tdelwlth_machine'] * hth, 
-        'seel.feelhth_machine.tdelhth_machine'),
-      reminditems[,,'seel.feelwlth_machine.tdelwlth_machine'] * (1 - hth),
-      
-      setNames(
         reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * hth, 
         'seel.feelhth_otherInd.tdelhth_otherInd'),
       reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * (1 - hth)
