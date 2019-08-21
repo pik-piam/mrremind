@@ -57,7 +57,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp_dfs[is.na(tmp_dfs)] <- "tmp"
 
            tmp_dfs=tmp_dfs[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp_dfs, c("SSP", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sw"))
+           setcolorder(tmp_dfs, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sw"))
            setnames(tmp_dfs, old ="sw", new ="value")
 
            mdata <- as.magpie(tmp_dfs, spatial = 3, temporal = 4)
@@ -77,7 +77,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp_dfs[is.na(tmp_dfs)] <- "tmp"
 
            tmp_dfs=tmp_dfs[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp_dfs, c("SSP", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "varname", "time_price"))
+           setcolorder(tmp_dfs, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "varname", "time_price"))
            setnames(tmp_dfs, old ="time_price", new ="value")
 
            mdata <- as.magpie(tmp_dfs, spatial = 3, temporal = 4)
@@ -90,7 +90,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("SSP", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
            setnames(tmp, old ="EJ_Mpkm_final", new ="value")
 
            mdata <- as.magpie(tmp, spatial = 3, temporal = 4)
@@ -103,7 +103,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("SSP", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "tot_price"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "tot_price"))
            setnames(tmp, old ="tot_price", new ="value")
 
            mdata <- as.magpie(tmp, spatial = 3, temporal = 4)
@@ -116,7 +116,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("SSP", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "non_fuel_price"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
 
            mdata <- as.magpie(tmp, spatial = 3, temporal = 4)

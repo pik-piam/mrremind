@@ -28,19 +28,18 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     weightInt <- time_interpolate(
       weightInt,
       year_inter,
-      extrapolation_type="constant",
-      integrate_interpolated_years=TRUE)
+      extrapolation_type="constant")[,, getNames(data, dim=1)]
   }
 
   if(subtype == "pm_trp_demand"){
-    fe_dem <- as.data.table(as.quitte(readSource("EDGETransport", "fe_demand_tech", convert = F)))[
+    fe_dem <- as.data.table(as.quitte(readSource("EDGETransport", "fe_demand_tech")))[
     , c("model", "scenario", "variable", "unit") := NULL
     ]
-    fe2es  <- as.data.table(as.quitte(readSource("EDGETransport", "fe2es", convert = F)))[
+    fe2es  <- as.data.table(as.quitte(readSource("EDGETransport", "fe2es")))[
     , c("model", "scenario", "variable", "unit") := NULL
     ]
-    es_dem <- fe_dem[fe2es, on=c("period", "region", "SSP", "EDGE_scenario", "all_teEs")][
-    , sum(value * i.value), by=c("period", "region", "SSP", "EDGE_scenario", "all_in")
+    es_dem <- fe_dem[fe2es, on=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_teEs")][
+    , sum(value * i.value), by=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_in")
     ]
     data <- as.magpie(es_dem, spatial=2, temporal=1, datacol=6)
   }else{
