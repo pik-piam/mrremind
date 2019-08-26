@@ -20,11 +20,9 @@ calcEmisNitrogenNonaglandPast<-function(method="Nsurplus"){
   # first iteration: calculate atmospheric deposition based on CEDS and estimate leaching
   # second iteration: calculate deposition based on Nsurplus and Oceans based on leaching    
   if(method=="Nsurplus2"){
-    dep <- calcOutput("AtmosphericDeposition",aggregate=FALSE,cellular=FALSE,datasource="Nsurplus")
     budget<-calcOutput("NitrogenBudgetNonagland",aggregate=FALSE,deposition="Nsurplus")
     method="Nsurplus"
   } else {
-    dep <- calcOutput("AtmosphericDeposition",aggregate=FALSE,cellular=FALSE,datasource="CEDS")
     budget<-calcOutput("NitrogenBudgetNonagland",aggregate=FALSE,deposition="CEDS")
   }
   

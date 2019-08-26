@@ -4,10 +4,12 @@
 \alias{calcSOM}
 \title{calcSOM}
 \usage{
-calcSOM(climatetype = "historical")
+calcSOM(climatetype = "historical", subtype = "stock")
 }
 \arguments{
 \item{climatetype}{Switch between different climate scenarios (default on "historical")}
+
+\item{subtype}{"stock" (default) for absoulte values, "density" for per hectar values}
 }
 \value{
 List of magpie object with results on country or cellular level, weight on cellular level, unit and description.
@@ -35,5 +37,5 @@ calcOutput("SOM")
 
 }
 \author{
-Benjamin Leon Bodirsky
+Benjamin Leon Bodirsky, Kristine Karstens
 }

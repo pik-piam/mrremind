@@ -141,43 +141,66 @@ convertFAO <- function(x,subtype) {
     x <- toolCountryFill(x, fill=0, verbosity = 2)
     if (any(grepl(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]]))) warning("The following elements could be relative: \n", paste(grep(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]], value=TRUE),collapse=" "), "\n" , "and would need a different treatment of NAs in convertFAO")
     
-  } 
-  else if (any(subtype == names(relative_delete))) {
+  } else if (any(subtype == names(relative_delete))) {
     x[is.na(x)] <- 0
     x <- x[,,relative_delete[[subtype]], invert=T]  
     x <- toolISOhistorical(x, overwrite = TRUE, additional_mapping = additional_mapping)
     x <- toolCountryFill(x, fill=0, verbosity = 2)
     if (any(grepl(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]]))) warning("The following elements could be relative: \n", paste(grep(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]], value=TRUE),collapse=" "), "\n" , "and would need a different treatment of NAs in convertFAO")
     
-  } 
-  else if (any(subtype == names(relative))) {
-    # pop <- readSource(type="FAO",subtype = "Pop",convert = F)[,,"population"] #leads to inconsistencies in later calculations
-    # instead we only complete it for missing countries
-    pop <- calcOutput("PopulationPast",aggregate=FALSE)
-    pop2 <- readSource(type="FAO",subtype = "Pop",convert = F)[,,"population"] / 10^6
-    pop2<-collapseNames(pop2[setdiff(getRegions(pop2),getRegions(pop)),,],collapsedim =1)
-    
-    pop<-mbind(pop[,getYears(x),],pop2[,getYears(x),])
-    
+  } else if (any(subtype == c("FSCrop", "FSLive"))) {
+
+
+    xabs=x[,,relative[[subtype]], invert=T]
     xrel <- x[,,relative[[subtype]], invert=F]
     
-    commonregions <- intersect(getRegions(pop), getRegions(x))
-    commonyears <- intersect(getYears(pop), getYears(x))
     
-    xrelpop <- collapseNames(complete_magpie(pop[commonregions,commonyears,])*complete_magpie(xrel[commonregions,commonyears,]))
+    # handling of relative values
+    # replaced toolISOhistorical by the following approach for disaggregation
+    mapping <- read.csv2(system.file("extdata","ISOhistorical.csv",package = "madrat"),stringsAsFactors = F)
+    for(elem in additional_mapping) {    mapping <- rbind(mapping,elem)  }
+    
+    adopt_aggregated_average<-function(country,data,mapping){
+      if(length(country)>1){stop("only one transition per function call")}
+      toISO=mapping$toISO[mapping$fromISO==country]
+      lastyear=unique(mapping$lastYear[mapping$fromISO==country])
+      if (length(lastyear)>1){stop("strange transition mapping")}
+      allyears = getYears(data,as.integer = T)
+      years = allyears[allyears <= as.integer(substring(lastyear,2,5))]
+      data[toISO,years,] = magclass::colSums(data[country,years])
+      data <- data[country,,,invert=T]
+      return(data)
+    }
+    xrel=adopt_aggregated_average(country = "SUN",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "YUG",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "CSK",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "XET",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "XBL",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "SCG",data=xrel,mapping = mapping)
+    xrel=adopt_aggregated_average(country = "XSD",data=xrel,mapping = mapping)
+
+    # transforming relative values into absolute values
+    pop <- calcOutput("PopulationPast",aggregate=FALSE)
+    xrel <- toolCountryFill(xrel, fill=0, verbosity = 2)
+    commonyears <- intersect(getYears(pop), getYears(x))
+    xrelpop <- collapseNames(complete_magpie(pop[,commonyears,])*complete_magpie(xrel[,commonyears,]))
     xrelpop <- xrelpop[,,c("food_supply_kcal/cap/day","protein_supply_g/cap/day","fat_supply_g/cap/day")] *365
     getNames(xrelpop,dim = 2) <- c("food_supply_kcal","protein_supply","fat_supply")
+    xrelpop[is.na(xrelpop)] <- 0
     
-    x <- mbind(x[,,relative[[subtype]], invert=T], xrelpop)
-
-    x[is.na(x)] <- 0
-    x <- toolISOhistorical(x, overwrite = TRUE, additional_mapping = additional_mapping)
+    # absolute values
+    xabs[is.na(xabs)]=0
+    xabs[xabs<0]=0
+    xabs <- toolISOhistorical(xabs, overwrite = TRUE, additional_mapping = additional_mapping)
+    xabs <- toolCountryFill(xabs, fill=0, verbosity = 2)
+    
+    x <- mbind(xabs, xrelpop)
+    x <- complete_magpie(x)
     x <- toolCountryFill(x, fill=0, verbosity = 2)
     if (any(grepl(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]]))) warning("The following elements could be relative: \n", paste(grep(pattern = 'yield|Yield|/', getNames(x, fulldim=T)[[2]], value=TRUE),collapse=" "), "\n" , "and would need a different treatment of NAs in convertFAO")
   
   # automatically delete the "Implied emissions factor XXX" dimension for Emission datasets
-  } 
-  else if (substring(subtype,1,6)=="EmisAg" | substring(subtype,1,6)=="EmisLu") {
+  } else if (substring(subtype,1,6)=="EmisAg" | substring(subtype,1,6)=="EmisLu") {
     if (any(grepl("Implied_emission_factor", fulldim(x)[[2]][[4]]))) {
       x <- x[,,"Implied_emission_factor", pmatch=T, invert=T]
     }
@@ -186,8 +209,7 @@ convertFAO <- function(x,subtype) {
      x <- toolCountryFill(x, fill=0, verbosity = 2)
      
   # Producer Prices Annual   
-  } 
-  else if(subtype=="PricesProducerAnnual"){
+  } else if(subtype=="PricesProducerAnnual"){
     x <- collapseNames(x[,,"Producer_Price_(US_$_tonne)_(USD)"])
     ## Serbia and Montenegro split
     if(all(c("SCG","SRB") %in% getRegions(x)) & !"MNE" %in% getRegions(x)){
@@ -206,8 +228,7 @@ convertFAO <- function(x,subtype) {
     x[is.na(x)] <- 0
     x <- toolISOhistorical(x, overwrite=TRUE, additional_mapping=additional_mapping)
     x <- toolCountryFill(x, fill=0, verbosity=2)
-  } 
-  else {
+  }  else {
     cat("Specify whether dataset contains absolute or relative values in convertFAO")
   }
   

@@ -17,7 +17,7 @@ Read-in the data from Bijl 2017 food demand paper (http://dx.doi.org/10.1016/j.g
 }
 \examples{
 
-\dontrun{ a <- readSource("Bijl2017","demand")
+\dontrun{ a <- readSource("Bijl2017","demand",convert=FALSE)
 }
 
 }

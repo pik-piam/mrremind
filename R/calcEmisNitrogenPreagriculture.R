@@ -39,6 +39,7 @@ calcEmisNitrogenPreagriculture<-function(cellular=FALSE, deposition=TRUE){
   
   # leaching ####
   #35 Tg of aquatic losses accoding to Vitousek 2013
+  # check fire! it seems to be really big, see Braakhekke et al 2017
   #scale factors accordingly
   
   # avoiding division by zero

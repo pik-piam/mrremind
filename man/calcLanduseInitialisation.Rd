@@ -4,7 +4,7 @@
 \alias{calcLanduseInitialisation}
 \title{calcLanduseInitialisation}
 \usage{
-calcLanduseInitialisation(cellular = FALSE, land = "new",
+calcLanduseInitialisation(cellular = FALSE, land = "fao",
   selectyears = "past", input_magpie = FALSE)
 }
 \arguments{

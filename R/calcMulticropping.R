@@ -28,7 +28,7 @@ calcMulticropping <- function(selectyears="time") {
   
   phys <- collapseNames(calcOutput("FAOLand", aggregate=FALSE)[,,"6620|Arable land and Permanent crops"][,selection,])
   # read in area harvested
-  area <- collapseNames(dimSums(calcOutput("Croparea", aggregate=FALSE, sectoral="kcr"),dim=3.1)[,selection,])
+  area <- collapseNames(dimSums(calcOutput("Croparea", physical=FALSE, aggregate=FALSE, sectoral="kcr"),dim=3.1)[,selection,])
   
 
   multi <- area/phys

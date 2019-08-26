@@ -20,7 +20,7 @@ and a mapping that corresponds to the structure of "products" and "flows" of IEA
 }
 \details{
 Mapping structure example: IEA product ANTCOAL used for IEA flow TPATFUEL, contributes via REMIND technology
-coaltr for generating seso from pecoal (REMIND names)
+coaltr for generating sesofos from pecoal (REMIND names)
 
 When using subtype \code{output_Industry_subsectors}, additional correctons 
 are applied to the IEA data in 

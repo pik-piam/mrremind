@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^GFED_1997.nc
 carbon_stored.*
+^\.git$

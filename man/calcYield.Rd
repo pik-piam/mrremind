@@ -5,7 +5,7 @@
 \title{calcYield}
 \usage{
 calcYield(physical = TRUE, attributes = "dm", irrigation = FALSE,
-  cellular = FALSE)
+  cellular = FALSE, cut = FALSE)
 }
 \arguments{
 \item{physical}{physical area or havested area}
@@ -15,6 +15,8 @@ calcYield(physical = TRUE, attributes = "dm", irrigation = FALSE,
 \item{irrigation}{distinguish irrigation or not}
 
 \item{cellular}{if TRUE value is calculate on cellular level}
+
+\item{cut}{FALSE (default) - do not cut off yields, number between 0 and 1 to define percentile value for cut off}
 }
 \value{
 MAgPIE object of yields
