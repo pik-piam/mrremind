@@ -25,6 +25,9 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   # old part by Julian Oeser
   
   # aggregate to regions
+  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12.csv" #to test
+  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12_Aus.csv" #to test
+  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmapping_21_EU11.csv" #to test
   x <- toolAggregate(x,rel)
   getSets(x)[1] <- "Region"
   
@@ -133,25 +136,23 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   
   
   # set parameters for bin to grade mapping
-  
-  grade.breaks <- c(0.1,0.2,0.4,0.6,1,1.5,2,3) # grade breaks normalized by current production 
-  n.intp <- 80 # number of interpolation points between given bins (to make sure at least one value is assigned to every REMIND grade)
-  thres.offset <- 4 # offset for assuring that enough data points are there for interpolation up to lower bound of last grade
+
+  grade.breaks <- c(0.1,0.3,0.6,1,2,5,10,20) # grade breaks normalized by current production 
+  n.intp <- 400 # number of interpolation points between given bins (to make sure at least one value is assigned to every REMIND grade)
+  thres.offset <- 30 # interpolation will be applied up to lower bound of last grade + offset (unit: normalized cumulative production)
+                    # for assuring that enough data points are there for interpolation up to lower bound of last grade
   
   techs <- c("CSP", "PV") # technologies to aggregate
   dist <- "1-100red" # distance class to aggregate
-  
-  
+
   # get 2015 FE electricity from IEA for iso-countries
   IEA.FE <- calcOutput("FE")[,"y2015","FE|Electricity (EJ/yr)"]
-  
-  
+
   # reference for grade distinction = 2015 production
   # assign 0.01 EJ/yr as reference for grade distinction to countries with zero 2015 production
   MaxProd.Norm <- IEA.FE
   MaxProd.Norm[MaxProd.Norm == 0] <- 0.01 
-  
-  
+
   # convert data to quitte format because more convenient for the following operations
   df.x <- as.quitte(x[,,techs][,,dist]) %>% 
     # drop 0 and NA potentials 
@@ -222,7 +223,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   # interpolate cumulative normalized potential vs. FLH step-wise linearly between the given data points to obtain fine grades
   df.interpolate <- df.cuml %>%
     # filter for potential below last grade, the rest will go into last grade, 
-    # add some offset (thres.offset) to obtain some values above the lower bound of the last grade
+    # add offset (thres.offset) to obtain values above the lower bound of the last grade
     # to assure that values are interpolated at least up to this lower bound 
     filter( maxprod.norm < grade.breaks[length(grade.breaks)]+thres.offset) %>%
     group_by(region, Technology, Distance) %>%
@@ -268,20 +269,15 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   ## for regions/technologies with total potential BELOW last grade (so that last grade would be empty):
   # map to equally sized grades up to total potential (so that each grade filled)
   
-  # determine regions/technologies with total potential below last grade
-  df.smallPot <- df.totalPot %>% 
-    filter(TotalPot < grade.breaks[length(grade.breaks)])
-  
   # determine region/technologies with first (highest FLH) data point above first grade
-  # and join with above
+  # and with total potential below last grade
   df.OutsideBreaks <- df.cuml %>% 
     group_by(region, Technology, Distance) %>% 
-    summarise( Min = min(maxprod.norm)) %>% 
+    summarise( Min = min(maxprod.norm)) %>%
     ungroup() %>% 
-    filter( Min > grade.breaks[1]) %>% 
-    full_join(df.smallPot) %>% 
-    mutate( Min = ifelse(is.na(Min), 0, Min), 
-            Max = ifelse(is.na(TotalPot), grade.breaks[length(grade.breaks)], TotalPot))
+    full_join(df.totalPot) %>% 
+    filter( Min > grade.breaks[1] | TotalPot < grade.breaks[length(grade.breaks)]) %>%  
+    mutate( Max = ifelse(is.na(TotalPot), grade.breaks[length(grade.breaks)], TotalPot))
   
   # for both (too large first grade and too small last grade): distribute grades equally spaced 
   # ugly loop soluation, I have not found a dplyr grouping solution 
@@ -293,16 +289,40 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
       filter( region == as.character(df.OutsideBreaks$region[i]),  
               Technology == as.character(df.OutsideBreaks$Technology[i]),
               Distance == as.character(df.OutsideBreaks$Distance[i]))
-    if (df.OutsideBreaks$Min[i] == 0) {
-      df.map.temp <- df.map.temp %>% 
-        mutate(grade.seq = .bincode(maxprod.norm, seq(0,df.OutsideBreaks$Max[i], 
-                                                      length.out=(length(grade.breaks)+2))))
-    } else {
-      df.map.temp <- df.map.temp %>% 
-        mutate(grade.seq = .bincode(maxprod.norm, seq(df.OutsideBreaks$Min[i]-0.01,df.OutsideBreaks$Max[i], 
-                                                      length.out=(length(grade.breaks)+1))))
+    # sry: a bit messay the following case distinction...if there is ever time, could be structured better
+    # 1. for regions/technologies where highest FLH data point (DLR) is outisde first grade (s.t. first grade would be NA)
+    # create equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins
+    if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] >= grade.breaks[8]) {
+      grades.to.shift <- grade.breaks[grade.breaks>df.OutsideBreaks$Min[i]]
+      new.grade.breaks <- seq(df.OutsideBreaks$Min[i]-1e-5,min(grades.to.shift), length.out = (9-length(grades.to.shift)+1))
+      new.grade.breaks <- c(new.grade.breaks, grades.to.shift[-1])
+    # 2. if highest FLH data point (DLR) outside first grade and (!) 
+      # total potential below lower bound of last grade -> 
+      # equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins and (!)
+      # split last grade into multiple equally spaced grades
+    } else if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] < grade.breaks[8]) {
+      grades.to.shift <- grade.breaks[grade.breaks>df.OutsideBreaks$Min[i]]
+      new.grade.breaks <- seq(df.OutsideBreaks$Min[i]-1e-5,min(grades.to.shift), length.out = (9-length(grades.to.shift)+1))
+      new.grade.breaks <- c(new.grade.breaks, grades.to.shift[-1])
+      grades.to.keep <- new.grade.breaks[new.grade.breaks < df.OutsideBreaks$Max[i]]
+      new.grade.breaks <- c(grades.to.keep[-length(grades.to.keep)], seq(grades.to.keep[length(grades.to.keep)],
+                                                                           df.OutsideBreaks$Max[i]+1e-2, 
+                                                                           length.out = (9-length(grades.to.keep)+2)))
+    # 3. if total potential is below the current generation -> equally spaced grades up to total potential
+    } else if (df.OutsideBreaks$Max[i] < 1 ) {
+      new.grade.breaks <- c(seq(df.OutsideBreaks$Min[i]-1e-5,df.OutsideBreaks$Max[i], 
+                              length.out=(length(grade.breaks)+2)))
+    # 4. if total potential is above current generation but below lower bound of last grade 
+      # -> split last grade into multiple equally spaced grades  
+    } else if (df.OutsideBreaks$Max[i] > 1 &  df.OutsideBreaks$Max[i] < grade.breaks[8]  ) {
+      grades.to.keep <- grade.breaks[grade.breaks < df.OutsideBreaks$Max[i]] 
+      new.grade.breaks <- c(0,grades.to.keep[-length(grades.to.keep)], seq(grades.to.keep[length(grades.to.keep)],
+                                                                         df.OutsideBreaks$Max[i]+1e-2, 
+                          length.out = (9-length(grades.to.keep)+1)))
     }
-    
+      
+    df.map.temp <- df.map.temp %>% 
+      mutate(grade.seq = .bincode(maxprod.norm, new.grade.breaks))
     
     # bind rows of temporary datafrage to output dataframe of loop: df.map.small
     if (i == 1) {
@@ -422,8 +442,8 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   out <- collapseNames(out)
   # calculate land use in MW/km2
   out <- add_columns(out, addnm = c("luse"), dim = 3.1)
-  out[,,"luse"] <- collapseNames(dimSums(out[,,"capacity"], dim = 3.3, na.rm = T)) / 
-    collapseNames(dimSums(out[,,"limitGeopot"], dim = 3.3, na.rm = T))
+  out[,,"luse.spv"] <- dimSums(out, dim = 3.3, na.rm=T)[,,"capacity"][,,"spv"]/ dimSums(out, dim = 3.3, na.rm=T)[,,"limitGeopot"][,,"spv"]
+  out[,,"luse.csp"] <- dimSums(out, dim = 3.3, na.rm=T)[,,"capacity"][,,"csp"]/ dimSums(out, dim = 3.3, na.rm=T)[,,"limitGeopot"][,,"csp"]
   # remove capacity
   out <- out[,,"capacity",invert=TRUE]
   # relabel sets
