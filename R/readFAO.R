@@ -60,6 +60,8 @@ readFAO <- function(subtype) {
              LiveProc="Production_LivestockProcessed_E_All_Data.zip",
              Pop="Population_E_All_Data.zip",
              PricesProducerAnnual="Prices_E_All_Data.zip",
+             PricesProducerAnnualLCU="Prices_E_All_Data.zip",
+             
              
              EmisAgTotal="Emissions_Agriculture_Agriculture_total_E_All_Data.zip",
              EmisAgBurnCropResid="Emissions_Agriculture_Burning_crop_residues_E_All_Data.zip",
