@@ -1,7 +1,8 @@
 #' @title calcWasteGen
 #' @description Calculates waste generation based on WhataWaste2.0 data, based on gdp regressions
 #' and calibrated to real data multiplicatively
-#' @param pc per capita (kg/capita) or total (Mt)
+#' @param form Functional form of predicted waste generation
+#' @param pc per capita (kg/capita) or totals (Mt)
 #' @author David Chen
 #' @return magpie object of total waste generation
 #' @importFrom magclass time_interpolate

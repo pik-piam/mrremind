@@ -25,8 +25,6 @@ treat_shr <- collapseNames(dimSums(treat_shr, dim=2, na.rm=T))
 
 ########## nl model
 
-##alabama
-
 nlwaste <- function(iso,comp_shr,treat_shr){
 #preprocess
   type<-as.data.frame(comp_shr[iso,,])
