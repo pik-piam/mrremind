@@ -26,7 +26,7 @@ calcFEdemand <- function(subtype = "FE") {
 
   addSDP_transport <- function(rmnditem){
     ## adding dummy vars and funcs to avoid global var complaints
-    scenario.item  <- year <- scenario <- item <- region <- value <- variable <- .SD  <- dem_cap  <- fact <- toadd <- Year <- gdp_cap <- gdpfact <- ssp2dem <- window <- train_add <- NULL
+    scenario.item  <- year <- scenario <- item <- region <- value <- variable <- .SD  <- dem_cap  <- fact <- toadd <- Year <- gdp_cap <- ssp2dem <- window <- train_add <- NULL
 
     ## start of actual function
     trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
@@ -80,30 +80,29 @@ calcFEdemand <- function(subtype = "FE") {
     ## add new scenario from SSP2
     newdem <- demPop
 
-    ## apply reductions to SSP2 demand trajectory
-    newdem[, gdpfact := abs(pmin(0.018, 6e-7 * gdp_cap - 0.018))]
     setkey(newdem, "year", "item")
     newdem[, ssp2dem := dem_cap]
     for(yr in seq(2025, 2100, 5)){
       it <- "ueLDVt"
-      target <- 7
+      target <- 7 ## GJ
+      switch_yrs <- 10
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
-             window := 0.13 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.2)]
+             window := 0.135 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.2)]
       newdem[year == yr & item == it,
-             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/20, 1) + ssp2dem * (1 - pmin((yr - 2020)/20, 1))]
+             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
       it <- "ueHDVt"
       target <- 9
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
-             window := 0.1 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.1)]
+             window := 0.135 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.1)]
       newdem[year == yr & item == it,
-             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/20, 1) + ssp2dem * (1 - pmin((yr - 2020)/20, 1))]
+             dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
     }
 
-    newdem[, c("gdpfact", "window", "ssp2dem") := NULL]
+    newdem[, c("window", "ssp2dem") := NULL]
 
     ## toplot <- rbind(demPop, newdem)
 
