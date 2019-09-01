@@ -20,12 +20,12 @@ convertWDI<-function(x,subtype){
   WDI_data <- WDI::WDI_data
 
   # changing scale of indicators
-  if (subtype %in% c("SP.POP.TOTL","NY.GDP.MKTP.PP.KD","NY.GDP.MKTP.PP.CD","NY.GDP.MKTP.CD","NY.GDP.MKTP.KD","NY.GDP.MKTP.KN")) {
+  if (subtype %in% c("SP.POP.TOTL","NY.GDP.MKTP.PP.KD","NY.GDP.MKTP.PP.CD",
+                     "NY.GDP.MKTP.CD","NY.GDP.MKTP.KD","NY.GDP.MKTP.KN", "NV.AGR.TOTL.KD")) {
     x <- x/1000000
     #Kosovo added to Serbia
     x["RS",,] <- dimSums(x[c("RS","XK"),,],dim=1,na.rm=T)
     }else if (subtype %in%  WDI_data$series[,"indicator"]){
-    # urbanisation rate and population density and land surface
     # include c("SP.URB.TOTL.IN.ZS", "EN.POP.DNST", "AG.SRF.TOTL.K2", "NE.CON.PRVT.PC.KD", "NE.CON.PRVT.PP.CD","NE.CON.PRVT.PP.KD")
     vcat("Warning: Kosovo left out of conversion and has differing population values from FAO", verbosity=2)
     x <- x

@@ -228,7 +228,27 @@ convertFAO <- function(x,subtype) {
     x[is.na(x)] <- 0
     x <- toolISOhistorical(x, overwrite=TRUE, additional_mapping=additional_mapping)
     x <- toolCountryFill(x, fill=0, verbosity=2)
-  }  else {
+  }  
+   else if(subtype=="PricesProducerAnnualLCU"){
+  x <- collapseNames(x[,,"Producer_Price_(Standard_local_Currency_tonne)_(SLC)"])
+  ## Serbia and Montenegro split
+  if(all(c("SCG","SRB") %in% getRegions(x)) & !"MNE" %in% getRegions(x)){
+    mne <- x["SRB",,]
+    dimnames(mne)[[1]] <- "MNE"
+    x <- mbind(x, mne)
+  }
+  ## Adjust prices of live animal weight to the carcass weith
+  mapping <- toolGetMapping("FAO_livestock_carcass_price_factor.csv",type="sectoral",where="moinput")
+  for(item in mapping$FAO_carcass){
+    litem <- mapping$FAO_live_weigth[grep(item, mapping$FAO_carcass)]
+    countries <- getRegions(which(!is.na(x[,,item]),arr.ind=TRUE))
+    countries <- setdiff(getRegions(x), countries)
+    x[countries,,item] <- x[countries,,litem]/mapping$Price_factor[grep(item, mapping$FAO_carcass)]
+  }
+  x[is.na(x)] <- 0
+  x <- toolISOhistorical(x, overwrite=TRUE, additional_mapping=additional_mapping)
+  x <- toolCountryFill(x, fill=0, verbosity=2)
+  }else {
     cat("Specify whether dataset contains absolute or relative values in convertFAO")
   }
   

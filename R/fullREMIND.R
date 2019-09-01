@@ -147,7 +147,7 @@ fullREMIND <- function(rev=0) {
   ##          "SW", "UCD_NEC_iso", "logit_exponent"),
   ##        function(stype){
   ##          print(sprintf("Loading %s", stype))
-  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
+  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype,
   ##                                      file=paste0(stype, ".cs4r"), aggregate=F))
   ##        })
   

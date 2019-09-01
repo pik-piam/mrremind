@@ -28,6 +28,7 @@
 #' \item \code{Pop}: Population ("Population_E_All_Data.zip") 
 #' \item \code{ForestProdTrade}: Forestry Production and Trade ("Forestry_E_All_Data_(Normalized).zip")
 #' \item \code{PricesProducerAnnual}: Producer Prices - Annual ("Prices_E_All_Data.zip")
+#' \item \code{PricesProducerAnnualLCU}: Producer Prices - Annual in LCU ("Prices_E_All_Data.zip")
 #' \item \code{ValueOfProd}: Value of Agricultural Production ("Value_of_Production_E_All_Data.zip") 
 #' }
 #' @return FAO data as MAgPIE object
@@ -59,6 +60,8 @@ readFAO <- function(subtype) {
              LiveProc="Production_LivestockProcessed_E_All_Data.zip",
              Pop="Population_E_All_Data.zip",
              PricesProducerAnnual="Prices_E_All_Data.zip",
+             PricesProducerAnnualLCU="Prices_E_All_Data.zip",
+             
              
              EmisAgTotal="Emissions_Agriculture_Agriculture_total_E_All_Data.zip",
              EmisAgBurnCropResid="Emissions_Agriculture_Burning_crop_residues_E_All_Data.zip",
