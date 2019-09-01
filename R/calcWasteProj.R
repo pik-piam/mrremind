@@ -3,10 +3,8 @@
 #' @param pc per capita (kg/capita) or total (Mt)
 #' @author David Chen
 #' @return magpie object of waste projections by treatment and type 
-
-#'#' @importFrom tidyverse spread select inner_join filter
-#'#' @importFrom tidyr unite
-#'#' @importFrom DirichletReg DR_data DirichReg predict
+#' @importFrom dplyr select inner_join filter
+#' @importFrom tidyr unite spread
 calcWasteProj <-function(pc=TRUE){
 
 trt <- calcOutput("WasteDirTrt", aggregate=FALSE)
