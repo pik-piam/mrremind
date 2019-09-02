@@ -402,6 +402,23 @@ calcFEdemand <- function(subtype = "FE") {
     
     data <- mbind(data[,,v, invert = TRUE], dataInd)
     
+    # ---- modify SSP1 Industry FE demand ----
+    # compute a reduction factor of 1 before 2021, 0.97 in 2050, and increasing 
+    # to 0.95 in 2150
+    f <- as.integer(sub('^y', '', y)) - 2020
+    f[f < 0] <- 0
+    f <- 0.99 ^ pmax(0, log(f))
+    
+    # get Industry FE items
+    v <- grep('^SSP1\\.fe(..i$|ind)', getNames(data), value = TRUE)
+    
+    # apply changes
+    for (i in 1:length(y)) {
+      if (1 != f[i]) {
+        data[,y[i],v] <- data[,y[i],v] * f[i]
+      }
+    }
+
     unit_out = "EJ"
     description_out = "demand pathways for final energy in buildings and industry in the original file"
 
