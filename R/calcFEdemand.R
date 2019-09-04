@@ -5,8 +5,8 @@
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey
 #' @importFrom stats approx
-#' @importFrom dplyr as_tibble tibble last sym
-#' @importFrom tidyr extract complete nesting
+#' @importFrom dplyr as_tibble tibble last sym between first
+#' @importFrom tidyr extract complete nesting replace_na
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
@@ -311,7 +311,92 @@ calcFEdemand <- function(subtype = "FE") {
 
     y = getYears(stationary)
     data = mbind(stationary[,y,],buildings[,y,])
-
+    
+    # ---- _ modify Industry FE data to carry on current trends ----
+    v <- grep('^SSP[1-5]\\.fe(..i$|ind)', getNames(data), value = TRUE)
+    
+    dataInd <- data[,,v] %>% 
+      as.quitte() %>% 
+      as_tibble() %>% 
+      select('scenario', 'iso3c' = 'region', 'pf' = 'item', 'year' = 'period', 
+             'value') %>% 
+      character.data.frame()
+    
+    regionmapping <- read_delim(
+      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      delim = ';',
+      col_names = c('country', 'iso3c', 'region'),
+      col_types = 'ccc',
+      skip = 1)
+    
+    
+    historic_trend <- c(2004, 2015)
+    phasein_period <- c(2015, 2050)
+    phasein_time   <- phasein_period[2] - phasein_period[1]
+    
+    dataInd <- bind_rows(
+      dataInd %>% 
+        filter(phasein_period[1] > !!sym('year')),
+      
+        inner_join(
+          # calculate regional trend
+          dataInd %>% 
+            # get trend period
+            filter(between(!!sym('year'), historic_trend[1], historic_trend[2]),
+                   0 != !!sym('value')) %>% 
+            # sum regional totals
+            full_join(regionmapping %>% select(-!!sym('country')), 'iso3c') %>% 
+            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf'), 
+                     !!sym('year')) %>% 
+            summarise(value = sum(!!sym('value'))) %>% 
+            ungroup() %>% 
+            # calculate average trend over trend period
+            interpolate_missing_periods(year = seq_range(historic_trend),
+                                        expand.values = TRUE) %>% 
+            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>% 
+            summarise(trend = mean(!!sym('value') / lag(!!sym('value')), 
+                                   na.rm = TRUE)) %>% 
+            ungroup() %>% 
+            # only use negative trends (decreasing energy use)
+            mutate(trend = ifelse(!!sym('trend') < 1, !!sym('trend'), NA)),
+          
+          # modify data projection
+          dataInd %>% 
+            filter(phasein_period[1] <= !!sym('year')) %>% 
+            interpolate_missing_periods(
+              year = phasein_period[1]:max(dataInd$year)) %>% 
+            group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>% 
+            mutate(
+              growth = replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>% 
+            full_join(regionmapping %>% select(-'country'), 'iso3c'),
+          
+          c('scenario', 'region', 'pf')
+        ) %>% 
+          group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>% 
+          mutate(
+            # replace NA (positive) trends with end. growth rates -> no change
+            trend = ifelse(is.na(!!sym('trend')), !!sym('growth'), 
+                           !!sym('trend')),
+            value_ = first(!!sym('value')) 
+            * cumprod(
+              ifelse(
+                phasein_period[1] == !!sym('year'), 1,
+                ( !!sym('trend')
+                * pmax(0, phasein_period[2] - !!sym('year') + 1)
+                + !!sym('growth') 
+                * pmin(phasein_time, !!sym('year') - phasein_period[1] - 1)
+                ) / phasein_time)),
+            value = ifelse(is.na(!!sym('value_')) | 0 == !!sym('value_'), 
+                           !!sym('value'), !!sym('value_'))) %>% 
+          ungroup() %>% 
+          select(-'region', -'value_', -'trend', -'growth') %>% 
+          filter(!!sym('year') %in% unique(dataInd$year))
+      ) %>%
+      rename('region' = 'iso3c', 'item' = 'pf') %>% 
+      as.magpie()
+    
+    data <- mbind(data[,,v, invert = TRUE], dataInd)
+    
     unit_out = "EJ"
     description_out = "demand pathways for final energy in buildings and industry in the original file"
 
