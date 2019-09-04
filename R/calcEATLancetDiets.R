@@ -17,7 +17,7 @@
 #' @examples
 #' 
 #' \dontrun{ 
-#' calcOutput("calcEATLancetDiets")
+#' calcOutput("EATLancetDiets")
 #' }
 #' @export
 
@@ -27,11 +27,12 @@ calcEATLancetDiets <- function(attributes = c("wm","kcal"), calib = TRUE, FAOcou
   EAT_diets <- readSource(type="EATLancet", subtype="cons_data")
   getNames(EAT_diets,dim=2) <- c("wm","kcal")
   getSets(EAT_diets)[4] <- "unit"
+  EAT_diets <- EAT_diets[,,attributes]
   
   #read data on food supply based on FAOSTAT, aggregated to MAgPIE commodities
   #food supply includes householde waste: food supply = intake + waste
   kfo <- findset("kfo")
-  fsupply.hist <- calcOutput(type = "FoodSupplyPast", aggregate = FALSE, per_capita = TRUE, product_aggr = FALSE, attributes = c("wm","kcal"))
+  fsupply.hist <- calcOutput(type = "FoodSupplyPast", aggregate = FALSE, per_capita = TRUE, product_aggr = FALSE, attributes = c("wm","kcal"))[,,attributes]
   getSets(fsupply.hist)[3:4] <- c("kfo","unit")
   
   #define new diet object with MAgPIE food products

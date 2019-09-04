@@ -72,6 +72,11 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("BMIshr", convert=TRUE,years=mag_years_past, round=4, file="f15_bmi_shr_past.cs3",aggregate = FALSE)
     calcOutput("BMI",file="f15_bmi.cs3",aggregate = FALSE)
     
+    calcOutput("EATLancetDiets",aggregate = TRUE, round=4, file="f15_intake_EATLancet.cs3", attributes = c("wm","kcal"), calib = TRUE, FAOcountr = TRUE)
+    
+    calcOutput("EATLancetWaste",aggregate = TRUE, round=4, file="f15_intake2supply_ratio_bottomup.cs3", out_type="ratio_detailed_FAO")
+    calcOutput("EATLancetWaste",aggregate = TRUE, round=4, file="f15_calib_factor_FAOfsupply.cs4", out_type="calib")
+    
     # 16 demand
     calcOutput("Attributes", round=4, aggregate = FALSE,        file="fm_attributes.cs3")
     calcOutput("SeedShare", years=mag_years, round=4,           file="f16_seed_shr.csv")
