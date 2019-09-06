@@ -3,6 +3,7 @@
 #'
 #' @param deposition if FALSE, deposition is not accounted for in the distribution. Use FALSE to avoid circularities in calcNitrogenBudget
 #' @param max_nue NULL or a numeric value. if numeric, an additional N balanceflow is included that takes care that the nitrogen use efficiency does not exceed the numeric value in balanceflow.
+#' @param cellular TRUE returns output on 0.5° grid
 #' @return List of magpie object with results on country level, weight on country level, unit and description.
 #' @author Benjamin Leon Bodirsky
 #' @examples
@@ -14,12 +15,12 @@
 
 
 
-calcNitrogenBudgetNonagland<-function(deposition="CEDS",max_nue=0.95){
+calcNitrogenBudgetNonagland<-function(deposition="CEDS",max_nue=0.95,cellular=FALSE){
   past<-findset("past")
   
-  fixation<-calcOutput("NitrogenBNF",aggregate = FALSE)[,,c("past","crop"),invert=TRUE]
+  fixation<-calcOutput("NitrogenBNF",cellular=cellular,aggregate = FALSE)[,,c("past","crop"),invert=TRUE]
   
-  deposition<-collapseNames(dimSums(calcOutput("AtmosphericDeposition",datasource=deposition,aggregate = FALSE)[,past,][,,c("past","crop"),invert=TRUE],dim=c(3.4)))
+  deposition<-collapseNames(dimSums(calcOutput("AtmosphericDeposition",datasource=deposition, cellular=cellular, aggregate = FALSE)[,past,][,,c("past","crop"),invert=TRUE],dim=c(3.4)))
   
   inputs<-mbind(
     add_dimension(fixation,dim = 3.2,nm = "fixation_freeliving"),
@@ -45,5 +46,6 @@ calcNitrogenBudgetNonagland<-function(deposition="CEDS",max_nue=0.95){
     x=out,
     weight=NULL,
     unit="Mt Nr",
-    description="Nitrogen budget on non-agricultural lands for historical period"))
+    description="Nitrogen budget on non-agricultural lands for historical period",
+    isocountries =!cellular))
 }
