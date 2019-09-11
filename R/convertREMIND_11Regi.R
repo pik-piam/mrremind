@@ -64,6 +64,8 @@ convertREMIND_11Regi <- function(x,subtype) {
     names(output) <- names(countryCoeff) 
     # merge all magpie objects into a single one
     y <- mbind(output)
+    # SB & NB edit 2019/09/11: Shifting SSP5 oil extraction cost curve down by 20% based on calibration with the SSP IAM project 2017
+    y[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <- y[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] * (1-0.2)
   } else if (subtype == "uraniumExtractionCoeff") {
     # changes hard coded in REMIND (Summarized from p31_costExPoly modification steps in file \modules\31_fossil\grades2poly\datainput.gms, Rev 7683)
     x[,,"peur.xi1"] <- 25/1000
@@ -103,6 +105,8 @@ convertREMIND_11Regi <- function(x,subtype) {
       w[,,s] <- bgr[,,s]
     }
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=w)
+    # SB & NB edit 2019/09/11: Increasing SSP5 oil max cumulative extraction by 20% based on calibration with the SSP IAM project 2017
+    y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highOil"] <- y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highOil"]*1.2
   } else if (subtype == "gridFactor") {
     y <- x
   } else if (subtype == "ccs") {

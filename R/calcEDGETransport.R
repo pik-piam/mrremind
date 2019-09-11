@@ -22,13 +22,18 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
   }
 
   weightInt <- calcOutput("GDPppp", aggregate = F)
-  get_weight <- function(data){
+  get_weight <- function(data, weightInt){
     year_inter = getYears(data)
     ## define weight for intensive entries (for weighted average)
     weightInt <- time_interpolate(
       weightInt,
       year_inter,
       extrapolation_type="constant")[,, getNames(data, dim=1)]
+    ## create an empty object that has the same dimensions as data
+    weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data))
+    ## use the GPD for each SSP in data to fill up the empty weight (it needs as many repetitions as SSP* is called in data)
+    weight[,,getNames(weightInt)] <- rep(as.vector(weightInt[,,getNames(weightInt)]),length(getNames(data))/length(getNames(weightInt)))
+    return(weight)
   }
 
   if(subtype == "pm_trp_demand"){
@@ -78,12 +83,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "Non energy costs for all motorized transport modes"
          },
          "esCapCost" = {
-           weight = get_weight(data)
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport [2005US$/pkm]; freight transport: [2005US$/tkm]"
            description = "Transport ES demand trajectories for the CES tree."
          },
          "fe2es" = {
-           weight = get_weight(data)
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport [trn pkm/Twa], freight transport [trn tkm/Twa]"
            description = "Energy efficiency of CES level nodes for Transport."
          },
@@ -93,7 +98,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "CES level transport demand."
          },
          "fe_demand_tech" = {
-           weight = get_weight(data)
+           weight = get_weight(data, weightInt)
            unit = "TWa"
            description = "FE demand divided by technologies for different ES on the CES level."
          })
