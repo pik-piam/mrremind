@@ -25,6 +25,7 @@ downloadWDI<-function(){
                  "NY.GDP.PCAP.CN", #GDP per capita current LCU,
                  "NY.GDP.PCAP.PP.KD", #GDP per capita PPP, 2011int$,
                  "NY.GDP.PCAP.KD", #GDP per capita MER, 2010 US$,
+                 "NV.AGR.TOTL.CD", #Ag GDP MER, current US$,
                  "NV.AGR.TOTL.KD", #Ag GDP MER, 2010 US$
                  "NY.GDP.PCAP.CD", #GDP per capita, current US$
                  "NY.GDP.PCAP.PP.CD" #GDP per capita, current PPP int$

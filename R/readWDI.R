@@ -15,7 +15,8 @@
 #' \item \code{NY.GDP.PCAP.CN}:GDP, LCU, per capita (current LCU)
 #' \item \code{NY.GDP.PCAP.PP.KD}: #' GDP PPP, per capita (2011 international $)
 #' \item \code{NY.GDP.PCAP.KD}: #' GDP, MER, per capita (2010 US$)
-#' \item \code{NV.AGR.TOTL.KD}: #' Ag GDP, MER, (2010 US$)
+#' \item \code{NV.AGR.TOTL.KD}: #' Ag GDP, MER, (2010 US$) 
+#' \item \code{NV.AGR.TOTL.CD}: #' Ag GDP, MER, (current US$)
 #' \item \code{NY.GDP.PCAP.CD}: #' GDP MER, per capita(current US$)
 #' \item \code{NY.GDP.PCAP.PP.CD}: #' GDP PPP, per capita (current int$)}
 #' @return magpie object of the WDI data
