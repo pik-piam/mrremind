@@ -8,9 +8,14 @@
 #' @importFrom magclass time_interpolate
 
 
-calcWasteGen <- function(pc=TRUE, form="lm"){
+calcWasteGen <- function(pc=TRUE, form="LogLog"){
   
 gdppc <- calcOutput("GDPpc",aggregate=F)[,,c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5")]
+
+if(form=="LogLog"){
+  pred <- 0.37*log(gdppc) + 2.16
+  pred <- exp(pred)
+}
 
 if(form=="lm"){
   pred <- 0.0126290642*gdppc + 121.496
