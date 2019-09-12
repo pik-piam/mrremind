@@ -88,7 +88,10 @@ calcFEdemand <- function(subtype = "FE") {
       switch_yrs <- 10
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
-             window := 0.135 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.2)]
+             window := ifelse(prv_row$dem_cap - target >= 0,
+                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.3))]
+
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
@@ -96,7 +99,9 @@ calcFEdemand <- function(subtype = "FE") {
       target <- 9
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
-             window := 0.135 * sign(prv_row$dem_cap - target) * pmin(abs(prv_row$dem_cap - target)^2/target^2, 0.1)]
+             window := ifelse(prv_row$dem_cap - target >= 0,
+                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.3))]
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
