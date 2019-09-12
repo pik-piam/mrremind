@@ -90,7 +90,7 @@ calcFEdemand <- function(subtype = "FE") {
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
                               0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.3))]
+                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.2))]
 
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
@@ -101,7 +101,7 @@ calcFEdemand <- function(subtype = "FE") {
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
                               0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.3))]
+                              -0.135 * pmax((target - prv_row$dem_cap)^2/target^2, 0.2))]
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
