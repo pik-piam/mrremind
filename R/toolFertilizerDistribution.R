@@ -1,4 +1,4 @@
-#' @title reportYieldShifter
+#' @title toolFertilizerDistribution
 #' @description Disaggregates fertilizer usage, trying to best match a certain soil nitrogen uptake efficiency (SNUpE). Also used in magpie4 library
 #' 
 #' @export
@@ -18,7 +18,7 @@
 #' 
 #' @export
 
-ToolFertilizerDistribution<-function(iteration_max=20, max_snupe=0.85, mapping, from, to, fertilizer, SNUpE, withdrawals, organicinputs) {
+toolFertilizerDistribution<-function(iteration_max=20, max_snupe=0.85, mapping, from, to, fertilizer, SNUpE, withdrawals, organicinputs) {
   
   for (iteration in 1:iteration_max){
     cat(paste0(" iteration: ",iteration)," ")
