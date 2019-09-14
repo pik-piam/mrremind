@@ -94,6 +94,8 @@ readREMIND_11Regi<- function(subtype) {
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
     #SB & NB edit 2019/09/11: Shifting SSP5 coal extraction cost curve down by 33% based on calibration with the SSP IAM project 2017
     x[,,c("highCoal.0","highCoal.1")] <- x[,,c("highCoal.0","highCoal.1")]*(1-0.33)
+    # SB & NB edit 2019/09/11: Shifting SSP5 oil extraction cost curve down by 20% based on calibration with the SSP IAM project 2017
+    x[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <- x[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")]*(1-0.2)
   } else if (subtype=="uraniumExtractionCoeff") {
     x <- read.csv("uranium_extraction_cost_eq_coefficients.csv",sep=";")
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
