@@ -54,8 +54,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     mapping <- read.csv(toolMappingFile("regional","regionmappingREMIND.csv"),sep=";") #original REMIND region mapping (11 regions)
     # maxExtraction (upper x limit for function estimation)
     upperBoundMaxExtractionPerCountry <- readSource("REMIND_11Regi", subtype = "ffPolyCumEx")[,,"max"]
-    # SB & NB edit 2019/09/11: Increasing SSP5 oil max cumulative extraction by 20% based on calibration with the SSP IAM project 2017
-    upperBoundMaxExtractionPerCountry[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highOil"] <- upperBoundMaxExtractionPerCountry[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highOil"]*1.2
     upperBoundMaxExtraction <- toolAggregate(upperBoundMaxExtractionPerCountry, mapping, weight=NULL)
     # return magpie list of country disaggregated coefficients
     countryCoeff <- suppressWarnings(toolCubicFunctionDisaggregate(x,weight,rel=mapping,xUpperBound=upperBoundMaxExtraction))
