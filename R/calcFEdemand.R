@@ -402,12 +402,12 @@ calcFEdemand <- function(subtype = "FE") {
     
     data <- mbind(data[,,v, invert = TRUE], dataInd)
     
-    # ---- modify SSP1 Industry FE demand ----
-    # compute a reduction factor of 1 before 2021, 0.97 in 2050, and increasing 
-    # to 0.95 in 2150
+    # ---- _ modify SSP1 Industry FE demand ----
+    # compute a reduction factor of 1 before 2021, 0.84 in 2050, and increasing 
+    # to 0.78 in 2150
     f <- as.integer(sub('^y', '', y)) - 2020
     f[f < 0] <- 0
-    f <- 0.99 ^ pmax(0, log(f))
+    f <- 0.95 ^ pmax(0, log(f))
     
     # get Industry FE items
     v <- grep('^SSP1\\.fe(..i$|ind)', getNames(data), value = TRUE)
