@@ -106,7 +106,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("BunkersTransportShare",                 round=5,  file="pm_bunker_share_in_nonldv_fe.cs4r")
   calcOutput("Solar",                                 round=5,  file="f_dataRegiSolar.cs3r")
   calcOutput("CapacityEV",                            round=8,  file="pm_boundCapEV.cs4r")
-  calcOutput("CapacityNuclear",                       round=5,  file="p_NuclearConstraint.cs4r")
+  calcOutput("CapacityNuclear",                       round=5,  file="pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity",                           round=8,  file="pm_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                             round=8,  file="p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                              round=8,  file="pm_dataccs.cs3r")
@@ -125,7 +125,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("RLDCCoefficients", subtype = "LoB",            round=6,  file="f32_RLDC_Coeff_LoB.cs3r")
   calcOutput("RLDCCoefficients", subtype = "Peak",           round=6,  file="f32_RLDC_Coeff_Peak.cs3r")
   calcOutput("EarlyRetirementAdjFactor",                               file="p_earlyRetirementAdjFactor.cs3r")
-  calcOutput("DiffInvestCosts",  subtype="Invest_Costs",     round=4,  file="pm_inco0.cs4r")
+  calcOutput("DiffInvestCosts",  subtype="Invest_Costs",     round=4,  file="p_inco0.cs4r")
   calcOutput("DiffInvestCosts",  subtype="Efficiency",       round=4,  file="pm_eff.cs4r")
   calcOutput("CapacityFactorHist",                           round=4,  file="p_histCapFac.cs4r")
   
