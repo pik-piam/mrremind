@@ -81,7 +81,12 @@ calcFossilExtraction <- function(subtype="FossilExtraction"){
     output["AUS",,"medGas.2"] <- 0
     output["AUS",,"medGas.3"] <- 0
     
- 
+    # SB & NB edit 2019/09/11:
+    # Shift SSP5 coal extraction cost curve down by 33% based on calibration with the SSP IAM project 2017
+    output[,,c("highCoal.0","highCoal.1")] <- output[,,c("highCoal.0","highCoal.1")]*(1 - 0.33)
+    # Shift SSP5 oil extraction cost curve for USA and CAZ down by 20% based on calibration with the SSP IAM project 2017
+    output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <- 
+      output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] * (1 - 0.2)
     
   } else if (subtype == "UraniumExtraction"){
     
