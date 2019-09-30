@@ -20,6 +20,7 @@ calcMacBaseLandUse <- function(subtype){
   getNames(x) <- gsub("\\.","",getNames(x))
   # split up the fourth dimension again
   getNames(x) <- gsub("SSP","\\.SSP",getNames(x))
+  getNames(x) <- gsub("SDP","\\.SDP",getNames(x))
   
   # Add missing rcp dimension (data only exists for Baseline=none, use Baseline data for RCPs)
   x <-add_dimension(x,dim=3.3,add="rcp",nm=c("rcp20","rcp26","rcp45","none"))

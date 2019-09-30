@@ -49,19 +49,32 @@ calcMAgPIEReport <- function(subtype){
   # remove model and variable name
   x <- collapseNames(x)
 
-  # rename the MAgPIE scenarios to RCP scenarios
-  getNames(x) <- gsub("r8423-C_Budg600-mag-7", "SSP2-rcp20",getNames(x))
-  getNames(x) <- gsub("r8423-C_Budg1300-mag-7","SSP2-rcp26",getNames(x))
-  getNames(x) <- gsub("r8423-C_NDC-mag-7",     "SSP2-rcp45",getNames(x))
-  getNames(x) <- gsub("r8423-C_Base-mag-7",    "SSP2-none", getNames(x))
+  # !!! ATTENTION !!! 
+  # If you change the name of the baseline scenario from "none" to something else update "none" in calcMacBaseLandUse.R
   
-  getNames(x) <- gsub("trunk_SSP1-Budg600-mag-4", "SSP1-rcp20",getNames(x))
-  getNames(x) <- gsub("trunk_SSP1-Budg1300-mag-4","SSP1-rcp26",getNames(x))
-  getNames(x) <- gsub("trunk_SSP1-NDC-mag-4",     "SSP1-rcp45",getNames(x))
-  getNames(x) <- gsub("trunk_SSP1-Base-mag-4",    "SSP1-none", getNames(x))
+  # rename the MAgPIE scenarios to RCP scenarios
+  getNames(x) <- gsub("remind-coupled_SDP-Budg600-mag-4", "SDP-rcp20",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SDP-Budg1300-mag-4","SDP-rcp26",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SDP-NDC-mag-4",     "SDP-rcp45",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SDP-Base-mag-4",    "SDP-none", getNames(x))
+  
+  getNames(x) <- gsub("remind-coupled_SSP1-Budg600-mag-4", "SSP1-rcp20",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP1-Budg1300-mag-4","SSP1-rcp26",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP1-NDC-mag-3",     "SSP1-rcp45",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP1-Base-mag-4",    "SSP1-none", getNames(x))
+  
+  getNames(x) <- gsub("remind-coupled_SSP2-Budg600-mag-4", "SSP2-rcp20",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP2-Budg1300-mag-4","SSP2-rcp26",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP2-NDC-mag-4",     "SSP2-rcp45",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP2-Base-mag-4",    "SSP2-none", getNames(x))
 
-  # Introduce new SSP dimension by replacing "-" with "."
-  getNames(x) <- gsub("(SSP[0-9])-","\\1.",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP5-Budg600-mag-4", "SSP5-rcp20",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP5-Budg1300-mag-4","SSP5-rcp26",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP5-NDC-mag-4",     "SSP5-rcp45",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SSP5-Base-mag-4",    "SSP5-none", getNames(x))
+  
+  # Introduce new SSP/SDP dimension by replacing "-" with "."
+  getNames(x) <- gsub("(SSP[0-9]|SDP)-","\\1.",getNames(x))
   
   return(list(x           = x,
               weight      = NULL,
