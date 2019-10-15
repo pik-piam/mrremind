@@ -42,19 +42,28 @@ readMAgPIE<- function(subtype) {
     
   } else if (subtype == "MAgPIEReport_extensive") {
     
-    # /p/projects/remind/runs/magpie_40-develop-2019-02-25-macfix/output/r8375-C_*/report.mif
+    # last version before the current /p/projects/remind/runs/magpie_40-develop-2019-02-25-macfix/output/r8375-C_*/report.mif
+    # current version /p/tmp/aloisdir/magpie/output
     
     # !!! ATTENTION !!! 
-    # Please update scenario names in calcMAgPIEReport.R and calcMacBaseLandUse.R ("none") if necessary
+    # Please update scenario names in calcMAgPIEReport.R 
 
-    file_list <- c("report-r8481-C_SSP1-Base.mif",
-                   "report-r8481-C_SSP1-NDC.mif",
-                   "report-r8481-C_SSP1-Budg1300.mif",
-                   "report-r8481-C_SSP1-Budg600.mif",
-                   "report-r8423-C_Base-mag-7.mif",
-                   "report-r8423-C_Budg1300-mag-7.mif",
-                   "report-r8423-C_Budg600-mag-7.mif",
-                   "report-r8423-C_NDC-mag-7.mif")
+    file_list <- c("remind-coupled_SDP-Base-mag-4.mif",
+                   "remind-coupled_SDP-Budg600_plus-mag-4.mif",
+                   "remind-coupled_SDP-Budg1300-mag-4.mif",
+                   "remind-coupled_SDP-NDC-mag-4.mif",
+                   "remind-coupled_SSP1-Base-mag-4.mif",
+                   "remind-coupled_SSP1-Budg600-mag-4.mif",
+                   "remind-coupled_SSP1-Budg1300-mag-4.mif",
+                   "remind-coupled_SSP1-NDC-mag-3.mif",
+                   "remind-coupled_SSP2-Base-mag-4.mif",
+                   "remind-coupled_SSP2-Budg600-mag-4.mif",
+                   "remind-coupled_SSP2-Budg1300-mag-4.mif",
+                   "remind-coupled_SSP2-NDC-mag-4.mif",
+                   "remind-coupled_SSP5-Base-mag-4.mif",
+                   "remind-coupled_SSP5-Budg600-mag-4.mif",
+                   "remind-coupled_SSP5-Budg1300-mag-4.mif",
+                   "remind-coupled_SSP5-NDC-mag-4.mif")
     
     x <- NULL
     for(f in file_list) {

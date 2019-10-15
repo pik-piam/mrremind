@@ -103,6 +103,8 @@ convertREMIND_11Regi <- function(x,subtype) {
       w[,,s] <- bgr[,,s]
     }
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=w)
+    # SB & NB edit 2019/09/11: Increase SSP5 oil max cumulative extraction in USA and CAZ by 20% based on calibration with the SSP IAM project 2017
+    y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"peoil.max.highOil"] <- y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"peoil.max.highOil"] * (1 + 0.2)
   } else if (subtype == "gridFactor") {
     y <- x
   } else if (subtype == "ccs") {

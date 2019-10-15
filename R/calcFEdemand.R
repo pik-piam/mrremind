@@ -207,7 +207,7 @@ calcFEdemand <- function(subtype = "FE") {
       ungroup()
 
     # - for each country and scenario, compute a GDPpC-dependent specific energy
-    #   use reduction factor according to 3e-5 * GDPpC + 0.2 [%], which is
+    #   use reduction factor according to 3e-7 * GDPpC + 0.2 [%], which is
     #   capped at 0.7 %
     #   - the mean GDPpC of countries with GDPpC > 15000 (in 2015) is about 33k
     #   - so efficiency gains range from 0.4 % at zero GDPpC (more development
@@ -216,14 +216,28 @@ calcFEdemand <- function(subtype = "FE") {
     # - linearly reduce this reduction factor from 1 to 0 over the 2020-2150
     #   interval
     # - cumulate the reduction factor over the time horizon
+    
+    SSA_countries <- read_delim(
+      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      delim = ';',
+      col_names = c('country', 'iso3c', 'region'),
+      col_types = 'ccc',
+      skip = 1) %>% 
+      filter('SSA' == !!sym('region')) %>% 
+      select(-'country', -'region') %>% 
+      getElement('iso3c') 
 
     reduction_factor <- tmp_GDPpC %>%
       interpolate_missing_periods(year = seq_range(range(year)),
                                   value = 'GDPpC') %>%
       group_by(scenario, iso3c) %>%
       mutate(
+        # no reduction for SSA countries before 2050, to allow for more 
+        # equitable industry and infrastructure development
+        a = ifelse(iso3c %in% SSA_countries & 2050 > year, 0, 0.002),
+        b = ifelse(iso3c %in% SSA_countries & 2050 > year, 0,   3e-7),
         f = cumprod(ifelse(2020 > year, 1,
-                           1 - ( pmin(0.007, 3e-7 * GDPpC + 0.002)
+                           1 - ( pmin(0.007, !!sym('a') + !!sym('b') * GDPpC)
                                * (1 - (year - 2020) / (2150 - 2020)))))) %>%
       ungroup() %>%
       select(-GDPpC) %>%
@@ -402,6 +416,23 @@ calcFEdemand <- function(subtype = "FE") {
     
     data <- mbind(data[,,v, invert = TRUE], dataInd)
     
+    # ---- _ modify SSP1 Industry FE demand ----
+    # compute a reduction factor of 1 before 2021, 0.84 in 2050, and increasing 
+    # to 0.78 in 2150
+    f <- as.integer(sub('^y', '', y)) - 2020
+    f[f < 0] <- 0
+    f <- 0.95 ^ pmax(0, log(f))
+    
+    # get Industry FE items
+    v <- grep('^SSP1\\.fe(..i$|ind)', getNames(data), value = TRUE)
+    
+    # apply changes
+    for (i in 1:length(y)) {
+      if (1 != f[i]) {
+        data[,y[i],v] <- data[,y[i],v] * f[i]
+      }
+    }
+
     unit_out = "EJ"
     description_out = "demand pathways for final energy in buildings and industry in the original file"
 
