@@ -126,16 +126,12 @@ calcTimberDemand <- function(){
   
   out <- timber_fao_cleaned
   
-  out[,,"Wood fuel"] <- out[,,"Wood fuel"] * 0.5
-  
-  out[,,"Roundwood"] <- out[,,"Wood fuel"] + out[,,"Industrial roundwood"]
-  
   # imp_countries <- where(out[,,"Roundwood"]>1)$true$regions
   # 
   # out <- out[imp_countries,,]
   
   return(list(x=out,
-              weight=pop,
+              weight=NULL,
               min=0,
               unit="mio m3",
               description="Calculates the timber demand pattern based on historical FAO data"))

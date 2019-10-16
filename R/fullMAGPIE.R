@@ -81,6 +81,7 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("SeedShare", years=mag_years, round=4,           file="f16_seed_shr.csv")
     calcOutput("LossShare", years=mag_years, round=4,           file="f16_waste_shr.csv")
     calcOutput("DomesticBalanceflow", years=mag_years, round=4, file="f16_domestic_balanceflow.csv")
+    calcOutput("TimberDemandExt", file = "f16_forestry_demand.csv")
     
     # 18 residues
     calcOutput("Multicropping", round=4, file="f18_multicropping.csv",aggregate = TRUE)
@@ -102,6 +103,9 @@ fullMAGPIE <- function(rev=0.1) {
 
     # 32 forestry
     calcOutput("AfforestCosts", years=2001,        round=0, file="f32_fac_req_ha.csv")
+    calcOutput("ManagementFactor",file = "f32_forestry_management.csv") 
+    calcOutput("TimberHarvestCost",file = "f32_harvestingcost.cs4")
+    calcOutput("ForestryProductionRatio",file = "f32_production_ratio.csv")
     
     #38 factor costs
     calcOutput("Yield", cut=0.95, years=1995, round=2, file="f38_region_yield.csv")
