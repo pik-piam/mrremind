@@ -53,7 +53,7 @@ calcMAgPIEReport <- function(subtype){
   # If you change the name of the baseline scenario from "none" to something else update "none" in calcMacBaseLandUse.R
   
   # rename the MAgPIE scenarios to RCP scenarios
-  getNames(x) <- gsub("remind-coupled_SDP-Budg600-mag-4", "SDP-rcp20",getNames(x))
+  getNames(x) <- gsub("remind-coupled_SDP-Budg600_plus-mag-4", "SDP-rcp20",getNames(x))
   getNames(x) <- gsub("remind-coupled_SDP-Budg1300-mag-4","SDP-rcp26",getNames(x))
   getNames(x) <- gsub("remind-coupled_SDP-NDC-mag-4",     "SDP-rcp45",getNames(x))
   getNames(x) <- gsub("remind-coupled_SDP-Base-mag-4",    "SDP-none", getNames(x))

@@ -14,12 +14,13 @@
 #' 
 #' @importFrom magclass as.magpie
 #' @importFrom madrat toolSubtypeSelect
-#' @export
+#' @import readxl
+#' @import countrycode 
 
 readFRA2015Doc <- function(subtype){
   
   ## Mapping file
-  iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "moinput"),row.names=NULL)
+  iso_country <- read.csv2(system.file("extdata","FAOiso_faocode.csv",package = "moinput"),row.names=NULL)
   
   ## Original data file name
   location <- "FRA2015_data.xlsx"
@@ -57,163 +58,134 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="other_wooded_land") {
+    
+  } else if (subtype=="other_wooded_land") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "1.2",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  ############ FOREST CHARACTERISTICS ############
-  
-  else if (subtype=="primary_forest") {
-    ## Read using pre-define function
-    x <- fra_reader(file_name = location,sheet_location = "2.1",
-                    skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
-    ## Convert to mio. ha
-    x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
+  } else if (subtype=="primary_forest") {
+  ## Read using pre-define function
+  x <- fra_reader(file_name = location,sheet_location = "2.1",
+                  skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
   
-  else if (subtype=="secondary_forest") {
+  ## Convert to mio. ha
+  x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
+  
+  } else if (subtype=="secondary_forest") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "2.2",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="plantation_forest") {
+    
+  } else if (subtype=="plantation_forest") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "2.3",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="mangrove_forest") {
+    
+  } else if (subtype=="mangrove_forest") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "2.4",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  ############ GROWING STOCK, BIOMASS AND CARBON ############
-  
-  else if (subtype=="forest_gs") {
+    
+  }  else if (subtype=="forest_gs") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. m3
-  }
-  
-  else if (subtype=="abvg_bm") {
+    
+  } else if (subtype=="abvg_bm") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.2",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="belg_bm") {
+    
+  } else if (subtype=="belg_bm") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.3",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="dead_wood") {
+    
+  } else if (subtype=="dead_wood") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.4",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="c_abvg_bm") {
+    
+  } else if (subtype=="c_abvg_bm") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.5",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="c_belg_bm") {
+    
+  } else if (subtype=="c_belg_bm") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.6",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="c_dead_wood") {
+    
+  } else if (subtype=="c_dead_wood") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.7",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="c_litter") {
+    
+  } else if (subtype=="c_litter") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.8",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  else if (subtype=="c_soil") {
+    
+  } else if (subtype=="c_soil") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "3.9",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     ## This is already in mio. tonnes
-  }
-  
-  ############ PRODUCTION AND MULTIPLE USE ############
-  
-  else if (subtype=="production_forest") {
+    
+  } else if (subtype=="production_forest") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "4.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="multiple_use_forest") {
+    
+  } else if (subtype=="multiple_use_forest") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "4.2",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  ############ BIODIVERSITY AND PROTECTED AREAS ############
-  
-  else if (subtype=="biodiversity_conservation") {
+    
+  } else if (subtype=="biodiversity_conservation") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "5.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="forest_within_protected") {
+    
+  } else if (subtype=="forest_within_protected") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "5.2",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  ############ OWNERSHIP OF FORESTS ############
-  
-  else if (subtype=="public_own") {
+    
+  } else if (subtype=="public_own") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -225,9 +197,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="private_own") {
+    
+  } else if (subtype=="private_own") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -239,9 +210,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="unknown_own") {
+    
+  } else if (subtype=="unknown_own") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -253,11 +223,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  ############ MANAGEMENT RIGHTS OF PUBLIC FORESTS ############
-  
-  else if (subtype=="public_admin") {
+    
+  } else if (subtype=="public_admin") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -269,9 +236,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="individual_admin") {
+    
+  } else if (subtype=="individual_admin") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -283,9 +249,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="private_admin") {
+    
+  } else if (subtype=="private_admin") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -297,9 +262,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="community_admin") {
+    
+  } else if (subtype=="community_admin") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -311,9 +275,8 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-  
-  else if (subtype=="other_admin") {
+    
+  } else if (subtype=="other_admin") {
     ## Read using pre-define function
     x <- fra_reader(file_name = location,sheet_location = "6.1",
                     skip_rows = 3,skip_cols = 245,rows_delete = remove_region_rows,col_vector = column_names)
@@ -325,12 +288,13 @@ readFRA2015Doc <- function(subtype){
     
     ## Convert to mio. ha
     x[,2:ncol(x)] <- x[,2:ncol(x)]/1000
-  }
-
-  else {stop("Invalid subtype ", subtype)}
+  } else {stop("Invalid subtype ", subtype)}
   
-  mag_iso <- merge(x, iso_country, by.x = "Country", by.y = "X")
-  mo_final <- magpiesort(as.magpie(mag_iso[,-1])) ## Dropping the first column because we now have ISO codes in last column
+  x$iso3 <- countrycode(sourcevar = x$Country,origin = "country.name",destination = "iso3c",warn = TRUE)
+  mo_final <- x[,c(7,1:6)]
+  mo_final <- mo_final[,c(-2)]
+  mo_final <- mo_final[complete.cases(mo_final$iso3),]
+  mo_final <- magpiesort(as.magpie(mo_final,spatial=1)) ## Dropping the first column because we now have ISO codes in last column
   mo_final <- round(mo_final,2)
   getNames(mo_final) <- subtype
   mo_final_1995 <- setYears((setYears(mo_final[,"y1990",],NULL) + setYears(mo_final[,"y2000",],NULL))/2,"y1995")

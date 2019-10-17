@@ -22,7 +22,7 @@ convertSRES<-function(x,subtype){
     }
     if (any(to%in%getRegions(split))){stop("countries in to already exist in split")}
     by<-setYears(by[intersect(getRegions(by),to),splityear,],NULL)
-    out<-setNames(by/dimSums(by,dim = 1),NULL)*setCells(split[from,,])
+    out<-setNames(by/dimSums(by,dim = 1),NULL)*setCells(split[from,,],nm="GLO")
     out<-clean_magpie(mbind(split, out))
     out<-out[from,,,invert=T]
     return(out)
