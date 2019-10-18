@@ -33,6 +33,7 @@ calcResFor2ndBioengery <- function(products="all", product_aggr=TRUE, add_off=FA
   #set start years
   newAgriSupply[,past_years,] <- 0
   
+  scenarios <- getNames(newAgriSupply,dim=2)
   
   if(products=="kres"){
     
@@ -44,11 +45,11 @@ calcResFor2ndBioengery <- function(products="all", product_aggr=TRUE, add_off=FA
     
   } else if(products=="res_wood"){
     
-    out <- add_dimension(oldReMIND[,,"res_wood"], dim=3.2, nm=c("ssp1","ssp2","ssp3","ssp4","ssp5"), add="scenario")
+    out <- add_dimension(oldReMIND[,,"res_wood"], dim=3.2, nm=scenarios, add="scenario")
       
   } else {
     
-    out <- mbind(newAgriSupply, add_dimension(oldReMIND[,,"res_wood"], dim=3.2, nm=c("ssp1","ssp2","ssp3","ssp4","ssp5"), add="scenario"))
+    out <- mbind(newAgriSupply, add_dimension(oldReMIND[,,"res_wood"], dim=3.2, nm=scenarios, add="scenario"))
     
   }
   

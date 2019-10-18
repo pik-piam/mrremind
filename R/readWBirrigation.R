@@ -1,7 +1,7 @@
 #' Read WBirrigation
 #' 
 #' Read-in an WBirrigation data .csv file as magclass object
-#' 
+#' from Jones, William I. 1995. "World Bank and Irrigation." Washington, D.C.: World Bank.
 #' 
 #' @return magpie object of the WBirrigation data
 #' @author Lavinia Baumstark
