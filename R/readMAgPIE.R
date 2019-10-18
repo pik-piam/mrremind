@@ -106,6 +106,11 @@ readMAgPIE<- function(subtype) {
       x <- mbind(x,read.magpie(f))
     }
     getSets(x) <- setnames
+    
+    # use data from SSP1 scenario for SPD scenario --- ATTENTION: needs to be deleted as soon as we have data for SDP
+    x_SDP <- x[,,"SSP1",pmatch=TRUE]
+    getNames(x_SDP) <- gsub("SSP1","SDP",getNames(x_SDP))
+    x <- mbind(x,x_SDP)
 
   } else {
     stop("Not a valid subtype!")

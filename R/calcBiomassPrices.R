@@ -12,8 +12,8 @@ calcBiomassPrices <- function(){
   getNames(x) <- gsub("NDC-NDC","rcp45",getNames(x))
   getNames(x) <- gsub("BASE-Base","none",getNames(x))
   
-  # Introduce new SSP dimension by replacing "-" with "."
-  getNames(x) <- gsub("(SSP[0-9])-","\\1.",getNames(x))
+  # Introduce new SSP/SDP dimension by replacing "-" with "."
+  getNames(x) <- gsub("(SSP[0-9]|SDP)-","\\1.",getNames(x))
   
   ### Australia ###
     # take USA biomass supply curves for Australia (preliminary fix)
