@@ -16,8 +16,10 @@
 
 
 calcSNUpE<-function(max_snupe=0.85,cellular=FALSE){
+
   a<-calcOutput("NitrogenBudgetCropland",max_snupe=max_snupe,aggregate = F,deposition="Nsurplus2",cellular=cellular)
-  a[,,"seed"]=-a[,,"seed"]
+
+   a[,,"seed"]=-a[,,"seed"]
   a[,,"fixation_crops"]=-a[,,"fixation_crops"]
   a[,,"som"]=a[,,"som"]*1
   outputs<-c(

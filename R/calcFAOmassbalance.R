@@ -20,7 +20,7 @@
 
 
 calcFAOmassbalance<-function(){
-  mb<-calcOutput("FAOmassbalance_pre",aggregate = F)
+  mb<-calcOutput("FAOmassbalance_pre",aggregate = FALSE)
   past<-findset("past")
   mb1<-add_columns(mb,dim = 3.2,addnm = "bioenergy")
   mb1[,,"bioenergy"]<-0
