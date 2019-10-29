@@ -45,6 +45,9 @@ calcEmisNitrogenPreagriculture<-function(cellular=FALSE, deposition=TRUE){
   # avoiding division by zero
   surplus[surplus<10^-10]<-10^-10
   
+  #emis_share=calcOutput("EmisNitrogenShareNature",aggregate = FALSE)
+  warning("to do: include emisnitrogenshareanture")
+  
   frac_leach<-calcOutput("IPCCfracLeach",aggregate = FALSE,cellular=TRUE)
   leaching_multiplicationfactor=setYears(35/dimSums(surplus*frac_leach,dim=c(1,3))[,"y1965",],NULL)
   no3<-surplus*frac_leach*leaching_multiplicationfactor
