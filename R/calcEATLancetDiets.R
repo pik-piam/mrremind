@@ -27,12 +27,11 @@ calcEATLancetDiets <- function(attributes = c("wm","kcal"), calib = TRUE, FAOcou
   EAT_diets <- readSource(type="EATLancet", subtype="cons_data")
   getNames(EAT_diets,dim=2) <- c("wm","kcal")
   getSets(EAT_diets)[4] <- "unit"
-  EAT_diets <- EAT_diets[,,attributes]
   
   #read data on food supply based on FAOSTAT, aggregated to MAgPIE commodities
   #food supply includes householde waste: food supply = intake + waste
   kfo <- findset("kfo")
-  fsupply.hist <- calcOutput(type = "FoodSupplyPast", aggregate = FALSE, per_capita = TRUE, product_aggr = FALSE, attributes = c("wm","kcal"))[,,attributes]
+  fsupply.hist <- calcOutput(type = "FoodSupplyPast", aggregate = FALSE, per_capita = TRUE, product_aggr = FALSE, attributes = c("wm","kcal"))
   getSets(fsupply.hist)[3:4] <- c("kfo","unit")
   
   #define new diet object with MAgPIE food products
@@ -271,7 +270,7 @@ calcEATLancetDiets <- function(attributes = c("wm","kcal"), calib = TRUE, FAOcou
   for(t in years){
     Mag_EAT_diets[,t,"alcohol"][,,"BMK"] <- setYears(fsupply.hist[,"y2010","alcohol"],t)*0.90*mult_factor_sc[,t,]
     
-    for(a in attributes){
+    for(a in getNames(Mag_EAT_diets,dim=2)){
       alcohol_gap_reg <- where(Mag_EAT_diets[,t,"alcohol"][,,a] > balance_post_al[,t,"BMK"][,,a])$true$regions
       alcohol_gap_cal <- collapseNames(balance_post_al[alcohol_gap_reg,t,"BMK"][,,"2100kcal"][,,a]/dimSums(Mag_EAT_diets[alcohol_gap_reg,t,"alcohol"][,,"BMK"][,,"2100kcal"][,,a],dim=3.4))
       alcohol_gap_cal[which(alcohol_gap_cal>1)] <- 1
@@ -328,6 +327,11 @@ calcEATLancetDiets <- function(attributes = c("wm","kcal"), calib = TRUE, FAOcou
     nonFAOSTAT <- where(dimSums(fsupply.hist[,"y2010","kcal"],dim = 3.1)==0)$true$regions
     data.out[nonFAOSTAT,,]=0 
   }
+  
+  
+  #### Select nutrition attributes for which data should be returned
+  
+  data.out <- collapseNames(data.out[,,attributes])
 
   
   #### Define weights and units

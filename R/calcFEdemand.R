@@ -5,8 +5,8 @@
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey
 #' @importFrom stats approx
-#' @importFrom dplyr as_tibble tibble last sym between first
-#' @importFrom tidyr extract complete nesting replace_na
+#' @importFrom dplyr as_tibble tibble last sym between first tribble
+#' @importFrom tidyr extract complete nesting replace_na crossing unite
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
@@ -207,7 +207,7 @@ calcFEdemand <- function(subtype = "FE") {
       ungroup()
 
     # - for each country and scenario, compute a GDPpC-dependent specific energy
-    #   use reduction factor according to 3e-5 * GDPpC + 0.2 [%], which is
+    #   use reduction factor according to 3e-7 * GDPpC + 0.2 [%], which is
     #   capped at 0.7 %
     #   - the mean GDPpC of countries with GDPpC > 15000 (in 2015) is about 33k
     #   - so efficiency gains range from 0.4 % at zero GDPpC (more development
@@ -216,14 +216,28 @@ calcFEdemand <- function(subtype = "FE") {
     # - linearly reduce this reduction factor from 1 to 0 over the 2020-2150
     #   interval
     # - cumulate the reduction factor over the time horizon
+    
+    SSA_countries <- read_delim(
+      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      delim = ';',
+      col_names = c('country', 'iso3c', 'region'),
+      col_types = 'ccc',
+      skip = 1) %>% 
+      filter('SSA' == !!sym('region')) %>% 
+      select(-'country', -'region') %>% 
+      getElement('iso3c') 
 
     reduction_factor <- tmp_GDPpC %>%
       interpolate_missing_periods(year = seq_range(range(year)),
                                   value = 'GDPpC') %>%
       group_by(scenario, iso3c) %>%
       mutate(
+        # no reduction for SSA countries before 2050, to allow for more 
+        # equitable industry and infrastructure development
+        a = ifelse(iso3c %in% SSA_countries & 2050 > year, 0, 0.002),
+        b = ifelse(iso3c %in% SSA_countries & 2050 > year, 0,   3e-7),
         f = cumprod(ifelse(2020 > year, 1,
-                           1 - ( pmin(0.007, 3e-7 * GDPpC + 0.002)
+                           1 - ( pmin(0.007, !!sym('a') + !!sym('b') * GDPpC)
                                * (1 - (year - 2020) / (2150 - 2020)))))) %>%
       ungroup() %>%
       select(-GDPpC) %>%
@@ -402,6 +416,23 @@ calcFEdemand <- function(subtype = "FE") {
     
     data <- mbind(data[,,v, invert = TRUE], dataInd)
     
+    # ---- _ modify SSP1 Industry FE demand ----
+    # compute a reduction factor of 1 before 2021, 0.84 in 2050, and increasing
+    # to 0.78 in 2150
+    f <- as.integer(sub('^y', '', y)) - 2020
+    f[f < 0] <- 0
+    f <- 0.95 ^ pmax(0, log(f))
+
+    # get Industry FE items
+    v <- grep('^SSP1\\.fe(..i$|ind)', getNames(data), value = TRUE)
+
+    # apply changes
+    for (i in 1:length(y)) {
+      if (1 != f[i]) {
+        data[,y[i],v] <- data[,y[i],v] * f[i]
+      }
+    }
+    
     unit_out = "EJ"
     description_out = "demand pathways for final energy in buildings and industry in the original file"
 
@@ -531,6 +562,70 @@ calcFEdemand <- function(subtype = "FE") {
   getNames(reminditems) <- gsub("SDP","gdp_SDP",getNames(reminditems))
 
   if ('FE' == subtype) {
+
+    # ---- _modify SSP1/SSP2 data of CHN/IND further ----
+    # To achieve projections more in line with local experts, apply tuning 
+    # factor f to liquids and gas consumption in industry in CHN and IND. 
+    # Apply additional energy intensity reductions 2015-30, that are phased out 
+    # halfway until 2040 again.
+    # IEIR - initial energy intensity reduction [% p.a.] in 2016
+    # FEIR - final energy intensity recovery [% p.a.] in 2040
+    # The energy intensity reduction is cummulative over the 2016-40 interval 
+    # and thereafter constant.
+    
+    mod_factors <- tribble(
+      # enter tuning factors for regions/energy carriers
+      ~region,   ~pf,        ~IEIR,   ~FEIR,
+      'CHN',     'fehoi',     2.5,    -0.5,
+      'CHN',     'fegai',    -2.5,     3,
+      'CHN',     'feeli',     0.5,     1.5,
+      'IND',     'fehoi',     3,       0,
+      'IND',     'fegai',    12,      -5) %>% 
+      # SSP1 factors are half those of SSP2
+      gather('variable', 'gdp_SSP2', !!sym('IEIR'), !!sym('FEIR'), 
+             factor_key = TRUE) %>% 
+      mutate(gdp_SSP1 = !!sym('gdp_SSP2') / 2) %>% 
+      gather('scenario', 'value', matches('^gdp_SSP')) %>% 
+      spread('variable', 'value') %>% 
+      mutate(t = as.integer(2016)) %>% 
+      # add missing combinations (neutral multiplication by 1) for easy joining
+      complete(crossing(!!sym('scenario'), !!sym('region'), !!sym('pf'), 
+                        !!sym('t')),
+               fill = list(IEIR = 0, FEIR = 0)) %>% 
+      # fill 2016-40 values
+      complete(nesting(!!sym('scenario'), !!sym('region'), !!sym('pf'),
+                       !!sym('IEIR'), !!sym('FEIR')),
+               t = 2016:2040) %>% 
+      group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>% 
+      mutate(
+        f = seq(1 - unique(!!sym('IEIR')) / 100, 
+                1 - unique(!!sym('FEIR')) / 100, 
+                along.with = !!sym('t'))) %>% 
+      # extend beyond 2050 (neutral multiplication by 1)
+      complete(t = c(1993:2015, 2041:2150), fill = list(f = 1)) %>% 
+      arrange(!!sym('t')) %>%
+      mutate(f = cumprod(!!sym('f'))) %>% 
+      filter(t %in% as.integer(sub('y', '', y))) %>% 
+      ungroup() %>% 
+      select(-'IEIR', -'FEIR')
+    
+    mod_r <- unique(mod_factors$region)
+    mod_sp <- cartesian(unique(mod_factors$scenario),
+                        unique(mod_factors$pf))
+    
+    reminditems[mod_r,,mod_sp] <- reminditems[mod_r,,mod_sp] %>% 
+      as.quitte() %>% 
+      tbl_df() %>% 
+      mutate(scenario = as.character(!!sym('scenario')),
+             region   = as.character(!!sym('region')),
+             item     = as.character(!!sym('item'))) %>% 
+      full_join(mod_factors, c('scenario', 'region', 'period' = 't',
+                               'item' = 'pf')) %>% 
+      mutate(value = !!sym('f') * !!sym('value')) %>% 
+      select(-'f') %>% 
+      as.quitte() %>% 
+      as.magpie()
+    
     # add SDP transport and industry scenarios
     SDP_industry_transport <- mbind(addSDP_transport(reminditems),
                                     addSDP_industry(reminditems))

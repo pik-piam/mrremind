@@ -1,8 +1,8 @@
 #' @title calcEATLancetWaste
 #' @description 
-#' Calculates the ratio between food intake and food supply at household level for different MAgPIE commodities. 
+#' Calculates the ratio between food supply at household level and food intake for different MAgPIE commodities. 
 #'
-#' @param out_type ratio: totoal intake to total food supply. 
+#' @param out_type ratio: total food supply to totoal intake. 
 #' ratio_detailed: food-specific estimates. 
 #' ratio_detailed_FAO: food-specific estimates based on FAO food waste shares 
 #' calib: factor for calibrating estimates based on FAO waste shares to food supply
@@ -35,8 +35,8 @@ calcEATLancetWaste <- function(out_type="ratio"){
   Mag_EAT_diets <- Mag_EAT_diets*Intake_calib
   
   
-  #### Calculation of the ratio between food intake and food supply at household level 
-  #based on FAO estimates on Food waste at consumption level and food conversion factors
+  #### Calculation of the ratio between food supply at household level and food intake
+  #based on FAO estimates on food waste at consumption level and food conversion factors
   
   FAO_waste_shr <- readSource(type="FAOLossesWaste",subtype="Consumption")
   
@@ -69,7 +69,7 @@ calcEATLancetWaste <- function(out_type="ratio"){
   conv_fact_detailed[,,"rice_pro"] <- 1
 
   
-  #calculation of wasted food at household level including losses from food conversion into edible matter
+  #calculation of the share of wasted food at household level including losses from food conversion into edible matter
   HH_waste_shr_detailed <- FAO_waste_shr_detailed + (1-FAO_waste_shr_detailed)*(1-conv_fact_detailed)
   fsupply_estimated <- Mag_EAT_diets/(1-HH_waste_shr_detailed)
   overcons_FAO <- fsupply_estimated/Mag_EAT_diets
@@ -101,13 +101,13 @@ calcEATLancetWaste <- function(out_type="ratio"){
   
   if(out_type=="ratio") {
     data.out <- Mag_overcons_fctr
-    description = "ratio between total food calorie intake and total food calorie supply"
+    description = "ratio between total food calorie supply and total food calorie intake"
   } else if(out_type=="ratio_detailed") {
     data.out <- overcons_estimated
-    description = "food-specific ratio between food intake and food calorie supply"
+    description = "food-specific ratio between food calorie supply and food intake"
   } else if(out_type=="ratio_detailed_FAO") {
     data.out <- overcons_FAO
-    description = "food-specific ratio between food intake and food calorie supply based on FAO food waste shares"    
+    description = "food-specific ratio between food calorie supply and food intake based on FAO food waste shares"    
   } else if (out_type=="calib") {
     data.out <-  fsupply_calib 
     description = "factor for calibrating estimated food supply (based on intake and FAO waste shares) to FAO food supply"

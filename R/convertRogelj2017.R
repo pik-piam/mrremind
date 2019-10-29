@@ -101,6 +101,7 @@ convertRogelj2017 <- function(x,subtype){
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
     #data_solar <- calcOutput("Solar", aggregate = FALSE)
+    setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
@@ -108,8 +109,8 @@ convertRogelj2017 <- function(x,subtype){
     data_combined <- new.magpie(getRegions(data_hydro), NULL, c(names_solar,names_hydro,names_wind))
     data_combined[,,"Hydro"] <- data_hydro
     data_combined[,,"Wind"] <- data_wind_sorted
-    data_combined[c("TCD","JPN"),,"Solar"][,,"maxprod"]  <- as.vector(data_solar[c("REF","JPN"),,"maxprod"][,,"spv"])
-    data_combined[c("TCD","JPN"),,"Solar"][,,"nur"]  <- as.vector(data_solar[c("REF","JPN"),,"nur"][,,"spv"])
+    data_combined[c("TCD","JPN"),,"Solar"][,,"maxprod"]  <- as.vector(data_solar[c("TCD","JPN"),,"maxprod"][,,"spv"])
+    data_combined[c("TCD","JPN"),,"Solar"][,,"nur"]  <- as.vector(data_solar[c("TCD","JPN"),,"nur"][,,"spv"])
     data_combined <- data_combined[getRegions(x_tmp),,]
     for (n in getNames(data_combined,dim=1)){
       name=paste0(n,".maxprod")
@@ -117,6 +118,7 @@ convertRogelj2017 <- function(x,subtype){
       data_combined[,,name,pmatch=TRUE] <- data_combined[,,name,pmatch=TRUE]*277777.778
     }
     
+    data_combined[is.na(data_combined)] <- 0
     # Production/Generation targets are converted into capacity targets by alloting production to certain capacity factors based on maxprod.
     final <- numeric(length(getRegions(x_tmp)))
     names(final) <- getRegions(x_tmp)
@@ -134,12 +136,15 @@ convertRogelj2017 <- function(x,subtype){
         x_tmp[r,,"Production-Absolute.Hydro"] <- 0
     }
     
+    
+    
     for (t in c("Solar","Wind","Hydro")){
       data_sel <- data_combined[,,t]
       data_in_use <-  data_sel[,,"maxprod"]/data_sel[,,"nur"]
       for (y in target_years){
         final[] <-0
         for (r in names(final)){
+          tmp_target <- numeric(10)
           name <- paste0(t,".maxprod")
           name2 <- paste0("Production-Absolute.",t)
           if (!isZero(x_tmp[,,"Production-Absolute"][,,t])[r,y,] & 
@@ -153,22 +158,22 @@ convertRogelj2017 <- function(x,subtype){
             } else {tmp_target[2] <- tmp_target[1] - data_sel[r,,"maxprod"][,,loc]
             if(data_sel[r,,"maxprod"][,,loc+1] > tmp_target[2]){
               final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + tmp_target[1]/data_sel[r,,"nur"][,,loc+1])
-            } else {tmp_target[3] <- tmp_target[2] - data_sel[r,,"maxprod"][loc+1]
+            } else {tmp_target[3] <- tmp_target[2] - data_sel[r,,"maxprod"][,,loc+1]
             if(data_sel[r,,"maxprod"][,,loc+2] > tmp_target[3]){
-              final[r] <- (1/8760)*(data_in_use[r,,][loc] + data_in_use[r,,][loc+1]
-                                    + tmp_target[2]/data_sel[r,,"nur"][loc+2])
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1]
+                                    + tmp_target[2]/data_sel[r,,"nur"][,,loc+2])
             } else {tmp_target[4] <- tmp_target[3] - data_sel[r,,"maxprod"][,,loc+2]
             if(data_sel[r,,"maxprod"][,,loc+3] > tmp_target[4]){
-              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                       tmp_target[3]/data_sel[r,,"nur"][,,loc+3])
               final[r] <- tmp_target[1]
             } else {tmp_target[5] <- tmp_target[4] - data_sel[r,,"maxprod"][,,loc+3]
             if(data_sel[r,,"maxprod"][loc+4] > tmp_target[5]){
-              final[r] <-(1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <-(1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                      data_in_use[r,,][,,loc+3] + tmp_target[4]/data_sel[r,,"nur"][,,loc+4])
             } else {tmp_target[6] <- tmp_target[5] - data_sel[r,,"maxprod"][,,loc+4]
             if(data_sel[r,,"maxprod"][loc+5] > tmp_target[6]){
-              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                       data_in_use[r,,][,,loc+3] + data_in_use[r,,][,,loc+4] + 
                                       tmp_target[5]/data_sel[r,,"nur"][,,loc+5])
             }
@@ -182,6 +187,7 @@ convertRogelj2017 <- function(x,subtype){
         x_new_prod_swh[,y,t] <-final 
       } 
     }
+    
     x_new_gen <- mbind(x_new_prod_swh[,,c("Solar","Wind","Hydro")],x_new_prod_nb[,,c("Biomass","Nuclear")])
     x_new[,,c("Solar","Wind","Hydro","Biomass","Nuclear")] <- pmax(x_new_abs[,,c("Solar","Wind","Hydro","Biomass","Nuclear")],
                                                                    x_new_gen[,,c("Solar","Wind","Hydro","Biomass","Nuclear")],
@@ -208,10 +214,12 @@ convertRogelj2017 <- function(x,subtype){
     x_other[,,"Nuclear"] <- 0
     x_other[,,"Biomass"] <- setYears(hist_cap[rest_regions,2015,"Bioenergy"])
     x_other[,,"Hydro"] <- setYears(hist_cap[rest_regions,2015,"Hydropower"])*setYears(cf_hydro[rest_regions,,])
-                                     
+    
     x_final <- magpiesort(mbind(x_new,x_other))
     x <- x_final
-    getNames(x) <- c("wind","spv","hydro","tnrs","bioigcc")
+    getNames(x) <- c("wind","spv","hydro","tnrs","bioigcc")  
+    
+
   }
   if(subtype == "COCapacity"){
     # x <- readSource("Rogelj2017",subtype = "COCapacity",convert = F)
@@ -314,6 +322,7 @@ convertRogelj2017 <- function(x,subtype){
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
     # data_solar <- calcOutput("Solar", aggregate = FALSE)
+    setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
@@ -321,8 +330,8 @@ convertRogelj2017 <- function(x,subtype){
     data_combined <- new.magpie(getRegions(data_hydro), NULL, c(names_solar,names_hydro,names_wind))
     data_combined[,,"Hydro"] <- data_hydro
     data_combined[,,"Wind"] <- data_wind_sorted
-    data_combined[c("TCD","JPN"),,"Solar"][,,"maxprod"]  <- as.vector(data_solar[c("REF","JPN"),,"maxprod"][,,"spv"])
-    data_combined[c("TCD","JPN"),,"Solar"][,,"nur"]  <- as.vector(data_solar[c("REF","JPN"),,"nur"][,,"spv"])
+    data_combined[c("TCD","JPN"),,"Solar"][,,"maxprod"]  <- as.vector(data_solar[c("TCD","JPN"),,"maxprod"][,,"spv"])
+    data_combined[c("TCD","JPN"),,"Solar"][,,"nur"]  <- as.vector(data_solar[c("TCD","JPN"),,"nur"][,,"spv"])
     data_combined <- data_combined[getRegions(x_tmp),,]
     for (n in getNames(data_combined,dim=1)){
       name=paste0(n,".maxprod")
@@ -353,6 +362,7 @@ convertRogelj2017 <- function(x,subtype){
       for (y in target_years){
         final[] <-0
         for (r in names(final)){
+          tmp_target <- numeric(10)
           name <- paste0(t,".maxprod")
           name2 <- paste0("Production-Absolute.",t)
           if (!isZero(x_tmp[,,"Production-Absolute"][,,t])[r,y,] & 
@@ -366,22 +376,22 @@ convertRogelj2017 <- function(x,subtype){
             } else {tmp_target[2] <- tmp_target[1] - data_sel[r,,"maxprod"][,,loc]
             if(data_sel[r,,"maxprod"][,,loc+1] > tmp_target[2]){
               final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + tmp_target[1]/data_sel[r,,"nur"][,,loc+1])
-            } else {tmp_target[3] <- tmp_target[2] - data_sel[r,,"maxprod"][loc+1]
+            } else {tmp_target[3] <- tmp_target[2] - data_sel[r,,"maxprod"][,,loc+1]
             if(data_sel[r,,"maxprod"][,,loc+2] > tmp_target[3]){
-              final[r] <- (1/8760)*(data_in_use[r,,][loc] + data_in_use[r,,][loc+1]
-                                    + tmp_target[2]/data_sel[r,,"nur"][loc+2])
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1]
+                                    + tmp_target[2]/data_sel[r,,"nur"][,,loc+2])
             } else {tmp_target[4] <- tmp_target[3] - data_sel[r,,"maxprod"][,,loc+2]
             if(data_sel[r,,"maxprod"][,,loc+3] > tmp_target[4]){
-              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                       tmp_target[3]/data_sel[r,,"nur"][,,loc+3])
               final[r] <- tmp_target[1]
             } else {tmp_target[5] <- tmp_target[4] - data_sel[r,,"maxprod"][,,loc+3]
             if(data_sel[r,,"maxprod"][loc+4] > tmp_target[5]){
-              final[r] <-(1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <-(1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                      data_in_use[r,,][,,loc+3] + tmp_target[4]/data_sel[r,,"nur"][,,loc+4])
             } else {tmp_target[6] <- tmp_target[5] - data_sel[r,,"maxprod"][,,loc+4]
             if(data_sel[r,,"maxprod"][loc+5] > tmp_target[6]){
-              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][loc+1] + data_in_use[r,,][,,loc+2] +
+              final[r] <- (1/8760)*(data_in_use[r,,][,,loc] + data_in_use[r,,][,,loc+1] + data_in_use[r,,][,,loc+2] +
                                       data_in_use[r,,][,,loc+3] + data_in_use[r,,][,,loc+4] + 
                                       tmp_target[5]/data_sel[r,,"nur"][,,loc+5])
             }

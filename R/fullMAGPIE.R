@@ -72,9 +72,8 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("BMIshr", convert=TRUE,years=mag_years_past, round=4, file="f15_bmi_shr_past.cs3",aggregate = FALSE)
     calcOutput("BMI",file="f15_bmi.cs3",aggregate = FALSE)
     
-    calcOutput("EATLancetDiets",aggregate = TRUE, round=4, file="f15_intake_EATLancet.cs3", attributes = c("wm","kcal"), calib = TRUE, FAOcountr = TRUE)
-    
-    calcOutput("EATLancetWaste",aggregate = TRUE, round=4, file="f15_intake2supply_ratio_bottomup.cs3", out_type="ratio_detailed_FAO")
+    calcOutput("EATLancetDiets",aggregate = TRUE, round=4, file="f15_intake_EATLancet.cs3", attributes = "kcal", calib = TRUE, FAOcountr = TRUE)
+    calcOutput("EATLancetWaste",aggregate = TRUE, round=4, file="f15_supply2intake_ratio_bottomup.cs3", out_type="ratio_detailed_FAO")
     calcOutput("EATLancetWaste",aggregate = TRUE, round=4, file="f15_calib_factor_FAOfsupply.cs4", out_type="calib")
     
     # 16 demand
@@ -82,6 +81,7 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("SeedShare", years=mag_years, round=4,           file="f16_seed_shr.csv")
     calcOutput("LossShare", years=mag_years, round=4,           file="f16_waste_shr.csv")
     calcOutput("DomesticBalanceflow", years=mag_years, round=4, file="f16_domestic_balanceflow.csv")
+    calcOutput("TimberDemandExt", file = "f16_forestry_demand.csv")
     
     # 18 residues
     calcOutput("Multicropping", round=4, file="f18_multicropping.csv",aggregate = TRUE)
@@ -103,6 +103,9 @@ fullMAGPIE <- function(rev=0.1) {
 
     # 32 forestry
     calcOutput("AfforestCosts", years=2001,        round=0, file="f32_fac_req_ha.csv")
+    calcOutput("ManagementFactor",file = "f32_forestry_management.csv",try = TRUE) 
+    calcOutput("TimberHarvestCost",file = "f32_harvestingcost.cs4",try = TRUE)
+    calcOutput("ForestryProductionRatio",file = "f32_production_ratio.csv",round=3,try = TRUE)
     
     #38 factor costs
     calcOutput("Yield", cut=0.95, years=1995, round=2, file="f38_region_yield.csv")

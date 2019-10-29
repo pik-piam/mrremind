@@ -1,5 +1,5 @@
 #' @title calcAreaEquippedForIrrigation
-#' @description Calculates the area equipped for irrigation based on LU2v1 dataset. It assumes, that all cropland irrigated in the last 20 years at least once is equipped for irrigation.
+#' @description Calculates the area equipped for irrigation based on LU2v2 dataset. It assumes, that all cropland irrigated in the last 20 years at least once is equipped for irrigation.
 #'
 #' @param cellular if true, dataset is returned on 0.5 degree resolution
 #' 

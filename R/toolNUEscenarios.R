@@ -20,6 +20,7 @@ toolNUEscenarios<-function(x,weight){
   x<-scenariosetting(x,0.75,0.80,"y2010")
   x<-scenariosetting(x,0.75,0.85,"y2010")  
   x<-scenariosetting(x,0.80,0.85,"y2010")
+  x<-scenariosetting(x,0.85,0.85,"y2010")
   
   weight2<-x
   weight2[,,]<-setNames(weight,NULL)
