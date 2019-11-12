@@ -48,7 +48,8 @@ readFAO <- function(subtype) {
              CBLive="CommodityBalances_LivestockFish_E_All_Data.zip",
              Crop="Production_Crops_E_All_Data.zip",
              CropProc="Production_CropsProcessed_E_All_Data.zip",
-             # Fbs="FoodBalanceSheets_E_All_Data.zip", #should not be used, use CB and FS or calcFAOharmonized() instead
+             #Fbs="FoodBalanceSheets_E_All_Data.zip", #should not be used, use CB and FS or calcFAOharmonized() instead
+             Fbs="FoodBalanceSheets_E_All_Data.zip", 
              Fertilizer="Environment_Fertilizers_E_All_Data.zip",
              Fodder="Fodder.csv",
              FoodSecurity="Food_Security_Data_E_All_Data.zip",
@@ -205,6 +206,6 @@ readFAO <- function(subtype) {
   gc()
   
   FAO_mag <- magpiesort(FAO_mag)
-  
+
   return(FAO_mag)
 }
