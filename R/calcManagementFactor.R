@@ -44,8 +44,8 @@ calcManagementFactor <- function(){
   ######### Splitting of production start
   natveg_production <- timber_production * (1-prod_plant_share)
   forestry_production <- timber_production * prod_plant_share
-   natveg_production <- timber_production_reg * (0.6)
-   forestry_production <- timber_production_reg * 0.4
+  #natveg_production <- timber_production_reg * (0.6)
+  #forestry_production <- timber_production_reg * 0.4
   
   ## Representative yield from natveg and forestry ---- y2015 is the data without any NAs which were replaced by 0s
   # rep_yield_natveg <- setYears(natveg_production[,"y2015",],NULL)/setYears(natveg_area[,"y2015",],NULL)
@@ -83,9 +83,10 @@ calcManagementFactor <- function(){
   out <- setYears(mbind(setNames(ry_forestry,"plantations"),setNames(ry_natveg,"natveg")),NULL)
   
   weight <- setYears(setNames(readSource("FRA2015Doc","forest_area")[,"y2015",],NULL),NULL)
+  weight[weight>=0] = 1
   
   return(list(x=ceiling(out),
-              weight=NULL,
+              weight=weight,
               min=0,
               unit="factor",
               description="Calculates forestry management factors"))
