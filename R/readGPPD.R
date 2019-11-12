@@ -5,9 +5,9 @@
 #' @param x MAgPIE object to be converted
 #' @return Magpie object, country capacities (MW) from the Global Power Plant Database for different fuels
 #' @author Aman Malik
-#' @import dplyr
 
-readGPPD <- function(x)
+
+readGPPD <- function()
 {
   input <- read.csv("global_power_plant_database.csv")
   # summing capacity over country and type
