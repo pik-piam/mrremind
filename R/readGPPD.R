@@ -15,5 +15,6 @@ readGPPD <- function(x)
     group_by(country,primary_fuel) %>% 
     summarise(capacity=sum(capacity_mw))
   x <- as.magpie(input, spatial=1,data=2)
+  return(x)
 }
 
