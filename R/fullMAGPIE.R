@@ -104,7 +104,7 @@ fullMAGPIE <- function(rev=0.1) {
 
     # 32 forestry
     calcOutput("AfforestCosts", years=2001,        round=0, file="f32_fac_req_ha.csv")
-    calcOutput("ManagementFactor",file = "f32_forestry_management.csv",try = debug) 
+    calcOutput("ForestProductionInitialization",file = "f32_fao_management_factors.csv",try = debug) 
     calcOutput("TimberHarvestCost",file = "f32_harvestingcost.cs4",try = debug)
     calcOutput("ForestryProductionRatio",file = "f32_production_ratio.csv",round=3,try = debug)
     
