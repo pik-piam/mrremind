@@ -7,6 +7,7 @@
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble
 #' @importFrom tidyr extract complete nesting replace_na crossing unite
+#' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
@@ -676,7 +677,7 @@ calcFEdemand <- function(subtype = "FE") {
       ungroup() %>% 
       select('period', 'region', 'pf', 'value') %>% 
       # extend to SSP scenarios
-      mutate(scenario = '') %>% 
+      mutate(scenario = 'gdp_SSP1') %>% 
       complete(nesting(!!sym('period'), !!sym('region'), !!sym('pf'), 
                        !!sym('value')), 
                scenario = paste0('gdp_SSP', 1:5)) %>% 

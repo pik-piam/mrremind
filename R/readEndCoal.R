@@ -1,5 +1,4 @@
-#' Data on Coal Plants by country (in MW) from EndCoal.org (Actual source: Coal Swarm
-#' and Global Plant Tracker) July 2018
+#' Data on Coal Plants by country (in MW) from EndCoal.org (Actual source: Coal Swarm and Global Plant Tracker) July 2018
 #' @author Aman Malik
 
 
