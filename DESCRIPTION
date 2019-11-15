@@ -54,7 +54,7 @@ Imports:
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0
 ValidationKey: 1687626174
 Suggests: knitr,
     rmarkdown,
