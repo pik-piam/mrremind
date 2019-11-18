@@ -1,3 +1,7 @@
+#' Nuclear data from world-nuclear.org
+#' @description  Data on currently operating and under-construction nuclear power plants, reactors planned and proposed, 
+#' electricity generation from nuclear  
+#' @author Christoph Bertram
 
 readIAEA <- function(){
   

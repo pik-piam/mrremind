@@ -61,8 +61,9 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_schofield_parameters.cs3", regression="Schofield")
     calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_schofield_parameters_height.cs3", regression="FAO_WHO_UNU1985")
     calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_bmi_shr_regr_paras.cs3", regression="bmi_shr")
-    calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_intake_regression_parameters.cs3", regression="intake_regression")
+    #calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_intake_regression_parameters.cs3", regression="intake_regression")
     calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_demand_regression_parameters.cs3", regression="demand_regression")
+    calcOutput("RegressionParameters",aggregate = FALSE, round=3, file="f15_bodyheight_regr_paras.cs3", regression="bodyheight_regression")
     
     calcOutput("Intake",modelinput="age_groups_hist", standardize=FALSE, method="FAO_WHO_UNU1985", aggregate=FALSE,years=mag_years_past, round=1, file="f15_intake_pc_observed_iso.cs3")
     calcOutput("FoodSupplyPast",per_capita=TRUE, products=NULL, product_aggr=FALSE, populationweight="PopulationPast",attributes="kcal",aggregate=FALSE,years=mag_years_past, round=1, file="f15_kcal_pc_iso.csv")
@@ -103,9 +104,9 @@ fullMAGPIE <- function(rev=0.1) {
 
     # 32 forestry
     calcOutput("AfforestCosts", years=2001,        round=0, file="f32_fac_req_ha.csv")
-    calcOutput("ManagementFactor",file = "f32_forestry_management.csv",try = TRUE) 
-    calcOutput("TimberHarvestCost",file = "f32_harvestingcost.cs4",try = TRUE)
-    calcOutput("ForestryProductionRatio",file = "f32_production_ratio.csv",round=3,try = TRUE)
+    calcOutput("ManagementFactor",file = "f32_forestry_management.csv",try = debug) 
+    calcOutput("TimberHarvestCost",file = "f32_harvestingcost.cs4",try = debug)
+    calcOutput("ForestryProductionRatio",file = "f32_production_ratio.csv",round=3,try = debug)
     
     #38 factor costs
     calcOutput("Yield", cut=0.95, years=1995, round=2, file="f38_region_yield.csv")
