@@ -92,6 +92,8 @@ readREMIND_11Regi<- function(subtype) {
     #removing the X string added to the column names because how the read.table call inside the read.csv function converts column name numbers to valid variable strings (by using check.names)
     colnames(x) <- gsub("^X", "",  colnames(x))
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
+    #JPN SSP5 gas extraction zero-order coeff was originally negative. 
+    x["JPN",,"highGas.0"] <- 0
   } else if (subtype=="uraniumExtractionCoeff") {
     x <- read.csv("uranium_extraction_cost_eq_coefficients.csv",sep=";")
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)

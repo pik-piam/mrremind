@@ -43,7 +43,6 @@ knitr::opts_chunk$set(
 #     return(x)
 #   }
 
-## ----readsource, results='hide',message=FALSE----------------------------------------------------------------------------------
 #  x <- readSource("IRENA",subtype = "Capacity",convert = FALSE)
 
 ## ----eval=FALSE----------------------------------------------------------------------------------------------------------------
