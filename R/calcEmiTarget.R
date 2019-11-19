@@ -252,7 +252,7 @@ calcEmiTarget <- function(subtype) {
     
 
     #default setting: exclude countries with factor higher than the highest region average BAU growth rate (excp. China and India)
-      targetCountries <- NULL
+    targetCountries <- NULL
     for (r in getRegions(factor)) {
       if((max(factor[r,,])<2.5)){
         targetCountries = c(targetCountries,r)
@@ -285,7 +285,7 @@ calcEmiTarget <- function(subtype) {
     ghg <- toolCountryFill(ghg,fill=0)
     
     #in order to calculate the share of regional emissions coming from countries with quantitative target
-    ghg_target <- setYears(ghg[,2005,],NULL)*dummy
+    ghg_target <- setYears(ghg[,2005,],NULL) * setNames(dummy,NULL)
     #check share of total emissions by countries with quantitative target
     dimSums(ghg_target,dim=c(1,2))/glob_ghg[,2005,]
     
@@ -296,12 +296,44 @@ calcEmiTarget <- function(subtype) {
     }
     getNames(dummy2)<- NULL
     
+    #------------------ weight alternative 1 -----------------------------------------
+    # calulate weight for GHG emission share - assuming constant relative emission intensities accros countries of one region
+    weight_share1 <- new.magpie(getRegions(dummy),getYears(dummy),getNames(factor))
+    for(t in getYears(dummy)) {
+      # calculate growth
+      weight_share1[,t,] <-  setYears(ghg[,2005,] / gdp[,2005,],NULL) * gdp[,t,]
+    }
+    #---------------------------------------------------------------------------------
+    
+    #------------------ weight alternative 2 -----------------------------------------
+    ## calulate alternative weight for GHG emission share - assuming converging emission intensities accros countries of one region
+    #map <- read.csv(toolMappingFile("regional",getConfig("regionmapping")),sep=";")  # get current mapping
+    #weight_share2 <- new.magpie(getRegions(dummy),getYears(dummy),getNames(factor))
+    #for(t in getYears(dummy)) {
+    #  for(r in getRegions(dummy)){
+    #     # get list of countries that belong to the same region as r
+    #     regi   <- map$RegionCode[map$CountryCode==r]
+    #     c_regi <- map$CountryCode[map$RegionCode==regi] 
+    #     # calculate growth
+    #     weight_share2[r,t,] <- ( setYears(  ghg[r,2005,]/gdp[r,2005,]  
+    #                                       + dimSums(ghg[c_regi,2005,],dim=1)/dimSums(gdp[c_regi,2005,],dim=1) ,NULL) 
+    #                             ) / 2 * gdp[r,t,]
+    #  }
+    #}
+    #---------------------------------------------------------------------------------
+    
+    # define dummy for all SSPs
+    dummy3 <- new.magpie(getRegions(dummy),getYears(dummy),getNames(factor))
+    for (s in getNames(factor)) {
+       dummy3[,,s] <- dummy
+    }
+    
     if(length(grep("share",subtype))==0 && length(grep("ghg",subtype))==0){
       description <- "Multiplier for target year emissions vs 2005 emissions, as weighted average for all countries with quantifyable emissions under NDC in particular region, using compilation from SI of Rogelj et al 2017 Nat Comm paper, per target year"
       return(list(x=factor, weight=ghg_target[,,], unit="1",description = description))  #p45_factor_targetyear
       } else if(length(grep("ghg",subtype))==0){
       description <- "2005 GHG emission share of countries with quantifyable emissions under NDC in particular region, using compilation from SI of Rogelj et al 2017 Nat Comm paper, per target year"
-      return(list(x=dummy, weight=ghg[,2005,], unit="1",description = description))  # p45_2005share_target - share of 2005 emissions in countries within region covered by quantitative target
+      return(list(x=dummy3, weight=weight_share1, unit="1",description = description))  # p45_2005share_target - share of 2005 emissions in countries within region covered by quantitative target
       } else {
       description <- "GHG emissions share of countries with quantifyable 2030 target in particular region"
       return(list(x=dummy2,weight=ghg, unit="1",description = description))
