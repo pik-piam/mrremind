@@ -50,6 +50,8 @@ calcMACCsN2O <- function(sector="all") {
   getNames(w) <- gsub("N2O Animal waste"          ,"n2oanwst",getNames(w))
   getNames(w) <- gsub("N2O Domestic sewage"       ,"n2owaste",getNames(w))
   
+  w[w==0] <- 1e-10 #asigning a very small number to countries with zero emissions so if regions that are resulting from zero emission country aggergations still have a value associated 
+  
   if (sector == "all") {
     N2O <- N2O[,rem_years,]
     w <- w[,rem_years,]

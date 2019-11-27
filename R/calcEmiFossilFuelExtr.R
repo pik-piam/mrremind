@@ -7,6 +7,13 @@ calcEmiFossilFuelExtr <- function() {
   data <- readSource("EDGAR",subtype="ch4_history")[,year,c("1B1","1B2")]/1000
   getNames(data) <- c("coal","oil_gas")
   
+  # overwritting european countries with eurostat data
+  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
+  baselineEurostat <- calcOutput("HistEmissions",subtype="MAC",aggregate=F)
+  baselineEurostatSector <- calcOutput("HistEmissions",subtype="sector",aggregate=F)
+  data[EUcountries,2005,"coal"] <- baselineEurostat[EUcountries,2005,"ch4coal"] / 28
+  data[EUcountries,2005,"oil_gas"] <- ( setNames(baselineEurostatSector[EUcountries,2005,"ch4.extraction.process"],nm="oil_gas") - setNames(baselineEurostat[EUcountries,2005,"ch4coal"],nm="oil_gas") ) / 28
+  
   # make new magpie-object
   x <- new.magpie(getRegions(data),year,c("pecoal","peoil","pegas")) 
   # allocate coal
