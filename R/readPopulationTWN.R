@@ -8,7 +8,7 @@ readPopulationTWN<- function(subtype) {
   
   file <- toolSubtypeSelect(subtype,files)
   
-  twn <- as.data.frame(read_excel(file,sheet="M3",skip=1))
+  twn <- as.data.frame(suppressMessages(read_excel(file,sheet="M3",skip=1)))
   twn <- twn[!is.na(twn[[2]]),]
     
   names(twn)[3] <- paste(names(twn)[2],twn[1,3],sep="_")

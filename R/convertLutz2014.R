@@ -25,7 +25,7 @@ convertLutz2014 <- function(x){
 	
 	# BB: use of speed_aggregate with an external mapping could replace the following function and speed it up
 	fill_country_by_average_of_region <- function(x, country="SSD", region=c("AFG","TCD")){
-	  cat(paste0("interpolating country: ", country))
+	  vcat(2,paste0("interpolating country: ", country))
 	  values <- x[region,,]
 	  population <- pop_wdi[country,getYears(values),"pop_SSP2"]
 	  x[country,,]  <-  setCells(dimSums(values, dim=1)/dimSums(values[,,"Total"][,,"Both"][,,"All"], dim=1),"GLO") * population
