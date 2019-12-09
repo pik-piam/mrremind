@@ -57,8 +57,33 @@ convertImageMacc <- function(x,subtype) {
     x[,,"N2O Fertilizer"] <- x[,,"N2O Fertilizer"]*(44/28)
     x[,,"N2O Animal waste"] <- x[,,"N2O Animal waste"]*(44/28)
     x[,,"N2O Domestic sewage"] <- x[,,"N2O Domestic sewage"]*(44/28)
-    y <- toolAggregate(x,map)
+    # weight
+    CEDS_CH4 <- readSource("CEDS",subtype="CH4")[,2015,]
+    LU_MagPie <- calcOutput("MacBaseLandUse",subtype="MAgPIE",aggregate=F)[,2015,]
+    emiMac <- calcOutput("EmiMac",aggregate=F)
+    FGases <- readSource("IMAGE")[,2010,]
+    w <- toolCountryFill(new.magpie(cells_and_regions = NULL, years = NULL, names = c("CH4 coal losses/leakages","CH4 oil losses/leakages","CH4 natural gas losses/leakages","CH4 Landfills","CH4 Domestic Sewage","CH4 Wetland rice","CH4 Animals","CH4 Animal waste","N2O Transport","N2O Adipic acid production","N2O Nitric acid production","N2O Fertilizer","N2O Animal waste","N2O Domestic sewage","HFC","PFC","SF6")))
+    w[,,"CH4 coal losses/leakages"]        <- CEDS_CH4[,,"1B1_Fugitive-solid-fuels"]
+    w[,,"CH4 oil losses/leakages"]         <- CEDS_CH4[,,"1B2_Fugitive-petr-and-gas"]
+    w[,,"CH4 natural gas losses/leakages"] <- CEDS_CH4[,,"1B2_Fugitive-petr-and-gas"]
+    w[,,"CH4 Landfills"]                   <- emiMac[,,"ch4wstl"]
+    w[,,"CH4 Domestic Sewage"]             <- emiMac[,,"ch4wsts"]
+    w[,,"CH4 Wetland rice"]                <- dimReduce(LU_MagPie[,,"ch4rice.SSP2.rcp26"])
+    w[,,"CH4 Animals"]                     <- dimReduce(LU_MagPie[,,"ch4animals.SSP2.rcp26"])
+    w[,,"CH4 Animal waste"]                <- dimReduce(LU_MagPie[,,"ch4anmlwst.SSP2.rcp26"])
+    w[,,"N2O Transport"]                   <- emiMac[,,"n2otrans"]
+    w[,,"N2O Adipic acid production"]      <- emiMac[,,"n2oacid"]
+    w[,,"N2O Nitric acid production"]      <- emiMac[,,"n2oacid"]
+    w[,,"N2O Fertilizer"]                  <- dimSums(LU_MagPie[,,c("n2ofertin.SSP2.rcp26", "n2ofertcr.SSP2.rcp26", "n2ofertsom.SSP2.rcp26")])
+    w[,,"N2O Animal waste"]                <- dimSums(LU_MagPie[,,c("n2oanwstc.SSP2.rcp26", "n2oanwstm.SSP2.rcp26", "n2oanwstp.SSP2.rcp26")])
+    w[,,"N2O Domestic sewage"]             <- emiMac[,,"n2owaste"]
+    w[,,"HFC"]                             <- dimReduce(FGases[,,"SSP2-26-SPA0-V13.Emissions|HFC.kt HFC134a-equiv/yr"])
+    w[,,"PFC"]                             <- dimReduce(FGases[,,"SSP2-26-SPA0-V13.Emissions|PFC.kt CF4-equiv/yr"])
+    w[,,"SF6"]                             <- dimReduce(FGases[,,"SSP2-26-SPA0-V13.Emissions|SF6.kt SF6/yr"])
+    
+    y <- toolAggregate(x,map,w)
+    
   }
-  
+
   return(y)
 }

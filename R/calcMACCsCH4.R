@@ -57,6 +57,8 @@ calcMACCsCH4 <- function(sector="all") {
   getNames(w) <- gsub("CH4 Animals"                    ,"ch4animals",getNames(w))
   getNames(w) <- gsub("CH4 Animal waste"               ,"ch4anmlwst",getNames(w))
   
+  w[w==0] <- 1e-10 #asigning a very small number to countries with zero emissions so if regions that are resulting from zero emission country aggergations still have a value associated 
+  
   if (sector == "all") {
     CH4 <- CH4[,rem_years,]
     w <- w[,rem_years,]

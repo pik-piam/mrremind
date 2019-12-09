@@ -24,6 +24,9 @@ calcManureRecyclingCroplandPast <- function( cellular = FALSE ){
   
   if(cellular){
     
+    options(magclass_expand_version=1)
+    on.exit(options(magclass_expand_version=2))
+    
     EmissionFactors3   <- toolIso2CellCountries(EmissionFactors3)
     AnimalWasteMSShare <- toolIso2CellCountries(AnimalWasteMSShare)
   }

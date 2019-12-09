@@ -59,6 +59,8 @@ fullREMIND <- function(rev=0) {
   #-------------- emission parameter ------------------------------------------------------------------
   calcOutput("EconometricEmiParameter",               round=5,  file="p_emineg_econometric.cs3r") 
   calcOutput("EmissionsTe",                           round=5,  file="p_boundEmi.cs4r")
+  calcOutput("HistEmissions",subtype="sector",        round=8,  file="p_histEmiSector.cs4r")
+  calcOutput("HistEmissions",subtype="MAC",           round=8,  file="p_histEmiMac.cs4r")
   calcOutput("EmiCO2LandUse",                         round=5,  file="p_macPolCO2luc.cs4r")
   calcOutput("MacBaseLandUse",subtype="MAgPIE",       round=5,  file="f_macBaseMagpie.cs4r")
   calcOutput("MacBaseLandUse",subtype="Exogenous",    round=5,  file="f_macBaseExo.cs4r")
@@ -137,7 +139,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="REN21",                round=4,  file="f40_REN21.cs4r")
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
-  calcOutput("EffortSharingTarget",                       round=6,  file="p47_EStarget.cs4r")
+  calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
   
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")
