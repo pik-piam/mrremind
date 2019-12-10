@@ -18,45 +18,45 @@ readGridPop <- function(subtype) {
     #select years
     start_year <- 1965 #min 1861
     end_year <- 2005 #max 2015
-    timesteps <- 5
+    timesteps <- 1
     offset=1860
     #year 850=1, year 1900=1051, year 2015=1166 timestep min=1
-
+    
     mapping<-toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv=TRUE) 
     cellNames <- mapping$celliso
     lon <- seq(-179.75,179.75,by=0.5)
     lat <- rev(seq(-89.75,89.75,by=0.5))
     time <- paste0("y",seq(start_year,end_year,by=timesteps)) 
     data <- "number_of_people"
-
-
+    
+    
     no_cores <- getConfig("nocores")
     cl <- makeCluster(no_cores,outfile="par_debug.txt")
     registerDoParallel(cl)
-
+    
     #Do the stuff
     acomb2 <- function(...) abind(..., along=2)
     #.maxcombine=10
     data_sel <- time_sel <- NULL
-
+    
     x <- foreach(time_sel=seq(start_year-offset,end_year-offset,by=timesteps),.combine='acomb2',.multicombine=TRUE, .export=c("start_year","end_year","timesteps","magpie_coord","cellNames","brick","subset","aggregate","abind")) %dopar% {
-  print(time_sel+offset)
-  slice <- subset(b,time_sel)
-    slice <- aggregate(slice,fact=12,fun=sum)
-    toMag <- t(as.matrix(slice))
-    mag <- array(NA,dim=c(59199,1,1),dimnames=list(cellNames,paste0("y",time_sel+offset),"number_of_people"))
-    for (j in 1:59199) {
-      mag[j,,] <- toMag[which(magpie_coord[j, 1]==lon), which(magpie_coord[j,2]==lat)]
+      print(time_sel+offset)
+      slice <- subset(b,time_sel)
+      slice <- aggregate(slice,fact=12,fun=sum)
+      toMag <- t(as.matrix(slice))
+      mag <- array(NA,dim=c(59199,1,1),dimnames=list(cellNames,paste0("y",time_sel+offset),"number_of_people"))
+      for (j in 1:59199) {
+        mag[j,,] <- toMag[which(magpie_coord[j, 1]==lon), which(magpie_coord[j,2]==lat)]
+      }
+      return(mag)
     }
-    return(mag)
-}
-
+    
     stopCluster(cl)
     gc()
-
+    
     x <- as.magpie(x,spatial=1,temporal=2)}
-
-if(subtype=="future"){
+  
+  if(subtype=="future"){
     
     files <- c("population_ssp1soc_0p5deg_annual_2006-2100.nc4",
                "population_ssp2soc_0p5deg_annual_2006-2100.nc4",
@@ -69,7 +69,7 @@ if(subtype=="future"){
       #select years
       start_year <- 2010 #min 2010
       end_year <- 2100 #max 2100
-      timesteps <- 5
+      timesteps <- 1
       offset=2005
       #year 850=1, year 1900=1051, year 2015=1166
       
