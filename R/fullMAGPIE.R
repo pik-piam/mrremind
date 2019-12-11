@@ -39,12 +39,12 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("TauTotal",  years=1995,        round=2, file="fm_tau1995.cs4")
   
     # 09 drivers
-    calcOutput("CollectProjectionDrivers", driver="gdp",aggregate=FALSE, years=mag_years, round=1, file="f09_gdp_ppp_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="gdpmer",aggregate=FALSE, years=mag_years, round=1, file="f09_gdp_mer_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="pop",aggregate=FALSE, years=mag_years, round=1, file="f09_pop_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="urban",aggregate=FALSE, years=mag_years, round=1, file="f09_urban_iso.csv")
+    calcOutput("CollectProjectionDrivers", driver="gdp",aggregate=FALSE, years=mag_years, round=3, file="f09_gdp_ppp_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="gdpmer",aggregate=FALSE, years=mag_years, round=3, file="f09_gdp_mer_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="pop",aggregate=FALSE, years=mag_years, round=6, file="f09_pop_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="urban",aggregate=FALSE, years=mag_years, round=4, file="f09_urban_iso.csv") # please dont increase rounding, this can create errors
     calcOutput("DevelopmentState", round=4, file="f09_development_state.cs3")
-    calcOutput("Demography",education=FALSE,aggregate=FALSE, file="f09_demography.cs3")
+    calcOutput("Demography",education=FALSE,aggregate=FALSE, file="f09_demography.cs3", round=6) # please dont increase rounding, this can create errors
     calcOutput("PhysicalInactivity",aggregate = FALSE,years=mag_years, round=3, file="f09_physical_inactivity.cs3")
     
     # 13 tc
