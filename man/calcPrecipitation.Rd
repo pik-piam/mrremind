@@ -4,7 +4,8 @@
 \alias{calcPrecipitation}
 \title{calcTemperature}
 \usage{
-calcPrecipitation(landusetypes = "all", months = FALSE, convert = TRUE)
+calcPrecipitation(landusetypes = "all", months = FALSE,
+  convert = TRUE)
 }
 \arguments{
 \item{landusetypes}{all or only one (to save computation memory)}
