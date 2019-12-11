@@ -31,9 +31,6 @@ calcResDemand<-function(cellular = FALSE){
   dev_state_past <- collapseNames(calcOutput("DevelopmentState",aggregate = F)[,past,"SSP2"])
   if(cellular){ 
     
-    options(magclass_expand_version=1)
-    on.exit(options(magclass_expand_version=2))
-    
     dev_state_past <- toolIso2CellCountries(dev_state_past)
     }
   

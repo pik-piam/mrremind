@@ -4,13 +4,20 @@
 \alias{downloadSoilGrids}
 \title{downloadSoilGrids}
 \usage{
-downloadSoilGrids()
+downloadSoilGrids(subtype = "cstock_0_30")
+}
+\arguments{
+\item{subtype}{Switch between different input. Use predefined ones or any FileName specified in 'SoilGrids/META_GEOTIFF_1B.csv'}
+}
+\value{
+magpie object in cellular resolution
 }
 \description{
-download SoilGrids data from https://files.isric.org/soilgrids/data/recent/OCSTHA_M_30cm_250m_ll.tif
+This function download the raw SoilGrids data (available at https://files.isric.org/soilgrids/data/recent)
+or if available the preprocessed raster layers.
 }
 \examples{
-\dontrun{ downloadSource("SoilGrids") }
+\dontrun{ downloadSource("SoilGrids",subtype="carbon0_30") }
 
 }
 \seealso{

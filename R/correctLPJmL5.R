@@ -1,20 +1,21 @@
-#' @title correctSoilGrids
-#' @description Correct SoilGrids content
+#' @title correctLPJmL5
+#' @description Correct LPJmL 5 content
 #' @param x magpie object provided by the read function
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens
 #' @seealso
-#' \code{\link{readSoilGrids}}
+#' \code{\link{correctLPJmL5}}
 #' @examples
 #'
 #' \dontrun{
-#'   readSource("SoilGrids", subtype="cstock_0_30", convert="onlycorrect")
+#' readSource("LPJmL5", subtype="soilc", convert="onlycorrect")
 #' }
 #'
 #' @import madrat
 #' @import magclass
+#' @importFrom lpjclass readLPJ
 
-correctSoilGrids <- function(x){
+correctLPJmL5<-function(x){
 
   x <- toolConditionalReplace(x, conditions = c("is.na()","<0"), replaceby = 0)
   x <- toolCell2isoCell(x)

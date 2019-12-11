@@ -1,20 +1,22 @@
-#' @title convertSoilGrids
-#' @description Convert SoilGrids content
+#' @title convertCRU
+#' @description Convert CRU content
 #' @param x magpie object provided by the read function
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens
 #' @seealso
-#' \code{\link{readSoilGrids}}
+#' \code{\link{readCRU}},
+#' \code{\link{read.LPJ_input}}
 #' @examples
 #'
 #' \dontrun{
-#'   readSource("SoilGrids", subtype="cstock_0_30", convert=TRUE)
+#'   readSource("CRU", subtype="precipitation", convert=TRUE)
 #' }
 #'
 #' @import madrat
 #' @import magclass
+#' @importFrom lpjclass read.LPJ_input
 
-convertSoilGrids <- function(x){
+convertCRU <- function(x){
 
   return(x)
 }

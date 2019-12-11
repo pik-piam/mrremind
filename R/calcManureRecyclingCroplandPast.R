@@ -2,6 +2,7 @@
 #' @description calculates manure recycling to cropland based on excretions, animal waste management types (and their shares per country) and emission factors for nitrogenous emissions in livestock confinements  
 #'
 #' @param cellular if TRUE value is calculate and returned (set aggregate to FALSE!) on cellular level
+#' @param products "sum" (default) or "kli"
 #'
 #' @return List of magpie object with results on country level, weight on country level, unit and description.
 #' @author Benjamin Leon Bodirsky, Kristine Karstens
@@ -15,7 +16,7 @@
 #' @importFrom magclass getNames<-
 
 
-calcManureRecyclingCroplandPast <- function( cellular = FALSE ){
+calcManureRecyclingCroplandPast <- function(products="sum", cellular = FALSE ){
 
   past               <- findset("past")
   Excretion          <- collapseNames(calcOutput("Excretion", cellular = cellular, aggregate = FALSE)[,past,"confinement"])
@@ -24,18 +25,24 @@ calcManureRecyclingCroplandPast <- function( cellular = FALSE ){
   
   if(cellular){
     
-    options(magclass_expand_version=1)
-    on.exit(options(magclass_expand_version=2))
-    
     EmissionFactors3   <- toolIso2CellCountries(EmissionFactors3)
     AnimalWasteMSShare <- toolIso2CellCountries(AnimalWasteMSShare)
   }
   
-  ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors3, dim = c(3.1, 3.3))
-  
-  vcat(verbosity = 2,"no P and K losses in manure management assumed")
-  ManurePhosphorKalium <- dimSums(Excretion[,,c("p","k")], dim = 3.1)
-  
+  if(products == "sum"){
+    
+    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors3, dim = c(3.1, 3.3))
+    vcat(verbosity = 2,"no P and K losses in manure management assumed")
+    ManurePhosphorKalium <- dimSums(Excretion[,,c("p","k")], dim = 3.1)
+    
+  } else if (products == "kli"){
+    
+    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors3, dim = c(3.3))
+    vcat(verbosity = 2,"no P and K losses in manure management assumed")
+    ManurePhosphorKalium <- Excretion[,,c("p","k")]
+    
+  } else stop(paste("Type", products ,"is not a valid for parameter 'products'."))
+              
   out       <- mbind(ManureNitrogen, ManurePhosphorKalium)
   
   return(list(x            = out,

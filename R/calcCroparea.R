@@ -83,9 +83,6 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
     
   } else {
     
-    options(magclass_expand_version=1)
-    on.exit(options(magclass_expand_version=2))
-    
     ##################################
     ### Croparea on cellular level ###
     ##################################
