@@ -67,7 +67,7 @@ readGridPop <- function(subtype) {
     read <- function(file){
       b <- brick(file)
       #select years
-      start_year <- 2010 #min 2010
+      start_year <- 2006 #min 2006
       end_year <- 2100 #max 2100
       timesteps <- 1
       offset=2005
