@@ -29,7 +29,7 @@ readRutovitz2015 <- function(subtype){
       add_row(tech="GasHP",duration=2,CI=1.3,Manf=0.93,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply=29.9) %>% 
       add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Regional") %>% # oil EF= Gas EF
-      filter_(~!tech %in% grep("Ccean|decommissioning|small|Oil|heat",
+      filter_(~!tech %in% grep("Ocean|decommissioning|small|Oil|heat",
                              x =tech,value=T)) %>%  # removing 
     mutate_(tech=~mgsub(tech, c("Hydro-large", "Wind onshore","Solar Photovoltaics","Solar thermal"),
                              c("Hydro", "Wind","Solar|PV","Solar|CSP"))) %>%  ## renaming techs
@@ -42,7 +42,7 @@ readRutovitz2015 <- function(subtype){
       gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
       filter_(~value != "Regional")  %>% 
       #mutate_(unit=ifelse(activity %in% c("CI","Manf"), yes = "Job-years/MW", no = ifelse(activity=="Fuel_supply","Jobs/PJ","Jobs/MW"))) %>% # adding units column
-      filter_( ~tech!="Nuclear") %>% 
+     # filter_( ~tech!="Nuclear") %>% 
       #mutate(life_span = ifelse(tech=="Coal",40,
        #                         ifelse(tech=="Gas",30,
         #                               ifelse(tech %in% c("Nuclear","Hydro"),60,
@@ -52,7 +52,7 @@ readRutovitz2015 <- function(subtype){
     
    
     
-    x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
+      x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
     return (x)
   }
   

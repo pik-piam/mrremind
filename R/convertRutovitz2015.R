@@ -28,7 +28,6 @@ convertRutovitz2015 <- function(x,subtype)
   x <- oecd_ef
   x <- toolCountryFill(x,fill=0)
   }
-  
   if (subtype=="regional_mult"){
     
   # x <- readSource(type = "Rutovitz2015",subtype = "regional_mult",convert=F)
@@ -47,12 +46,10 @@ convertRutovitz2015 <- function(x,subtype)
       filter(!(region=="Non-OECD Asia" & country=="IND")) %>% select(country,year,value) 
      
     x <- as.magpie(reg_mult2)
-    
     x <- toolCountryFill(x,fill=0)
     
   
   }
-
   if (subtype == "regional_ef"){
    
     mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)
@@ -66,11 +63,11 @@ convertRutovitz2015 <- function(x,subtype)
         rename(region=1,tech=2,activity=3,value=4) %>%
         na.omit() %>% 
         left_join(mapping,by="region") %>% 
-      select(country,tech,activity,value) 
+        select(country,tech,activity,value) 
     
     x <- as.magpie(x_df,datacol=4)
+    x[is.na(x)] <- 0
     x <- toolCountryFill(x,fill=0)
-    
   }
   if(subtype=="coal_ef"){
     #x <- readSource(type = "Rutovitz2015",subtype = "coal_ef",convert = F) 
