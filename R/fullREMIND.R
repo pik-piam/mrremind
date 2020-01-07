@@ -146,7 +146,7 @@ fullREMIND <- function(rev=0) {
   
   #--------------- EDGE Transport ---------------------------------------------------------------------
   ## sapply(c("value_time", "harmonized_intensities", "price_nonmot",
-  ##          "SW", "UCD_NEC_iso", "logit_exponent"),
+  ##          "SW", "inconv", "UCD_NEC_iso", "logit_exponent"),
   ##        function(stype){
   ##          print(sprintf("Loading %s", stype))
   ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype,
@@ -155,7 +155,7 @@ fullREMIND <- function(rev=0) {
   
   ## sapply(c("demand_tech", "fe2es", "esCapCost", "pm_trp_demand"),
   ##        function(stype){
-  ##          print(sprintf("Loading %s", stype))
+  ##         print(sprintf("Loading %s", stype))
   ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
   ##                                      file=paste0(stype, ".cs4r"), aggregate=T))
   ##        })
