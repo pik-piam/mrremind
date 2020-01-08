@@ -26,6 +26,7 @@ convertRutovitz2015 <- function(x,subtype)
     
   }
   x <- oecd_ef
+  x[is.na(x)] <- 0
   x <- toolCountryFill(x,fill=0)
   }
   if (subtype=="regional_mult"){
