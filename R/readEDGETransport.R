@@ -211,7 +211,6 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
            tmp <- fread(paste0(subtype, ".cs4r"))
 
-           
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
@@ -221,27 +220,23 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
                 mdata <- mbind(mdata, tmp_EDGE_SSP)
               }
-
+           }
          },
 
          "esCapCost" = {
 
            tmp <- fread(paste0(subtype, ".cs4r"))
 
-           
-          ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-          mdata <- NULL
-          for (j in unique(tmp$EDGE_scenario)) {
-            tmp_EDGE <- tmp[EDGE_scenario == j]
-            for (i in unique(tmp$GDP_scenario)) {
-              tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-              tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
-              mdata <- mbind(mdata, tmp_EDGE_SSP)
-            }
-
-            
-          }
-
+           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
+           mdata <- NULL
+           for (j in unique(tmp$EDGE_scenario)) {
+             tmp_EDGE <- tmp[EDGE_scenario == j]
+             for (i in unique(tmp$GDP_scenario)) {
+               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
+               mdata <- mbind(mdata, tmp_EDGE_SSP)
+             }
+           }
          },
 
          "fe_demand_tech" = {
@@ -258,7 +253,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
-             
+           }
          },
          {
            ## default
