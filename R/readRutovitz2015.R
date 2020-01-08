@@ -40,7 +40,7 @@ readRutovitz2015 <- function(subtype){
       mutate_(Manf=~Manf/duration) %>% 
       select_(~-duration) %>% 
       gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
-      filter_(~value != "Regional")  %>% 
+      mutate(value=ifelse(value == "Regional",0,value))  %>% 
       #mutate_(unit=ifelse(activity %in% c("CI","Manf"), yes = "Job-years/MW", no = ifelse(activity=="Fuel_supply","Jobs/PJ","Jobs/MW"))) %>% # adding units column
      # filter_( ~tech!="Nuclear") %>% 
       #mutate(life_span = ifelse(tech=="Coal",40,
