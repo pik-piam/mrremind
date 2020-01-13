@@ -692,5 +692,6 @@ calcFEdemand <- function(subtype = "FE") {
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
-              description = description_out))
+              description = description_out,
+              structure.data = '^gdp_(SSP[1-5]|SDP)\\.(fe|ue)'))
 }
