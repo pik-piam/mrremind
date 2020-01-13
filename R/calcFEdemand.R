@@ -41,13 +41,14 @@ calcFEdemand <- function(subtype = "FE") {
     rmndt[, c("scenario", "item") := tstrsplit(scenario.item, ".", fixed = TRUE)][
       , "scenario.item" := NULL][
       , year := as.numeric(gsub("y", "", year))]
-    setnames(rmndt, "V3", "region")
+    setnames(rmndt, "V3", "region", skip_absent = TRUE)
     trpdem <- rmndt[item %in% trp_nodes & scenario == "gdp_SSP2"][, scenario := "gdp_SDP"]
 
     ## get population
     pop <- as.data.table(calcOutput("Population"))[
       , year := as.numeric(gsub("y", "", year))]
-    setnames(pop, c("variable"), c("scenario"))
+    setnames(pop, c("variable", 'iso2c'), c("scenario", 'region'),
+             skip_absent = TRUE)
 
     ## intrapolate missing years
     yrs <- sort(union(pop$year, trpdem$year))
