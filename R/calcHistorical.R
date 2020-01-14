@@ -97,7 +97,7 @@ calcHistorical <- function() {
   LU_FAO_EmisLUC <- calcOutput(type="ValidEmissions", datasource="FAO_EmisLUC", aggregate=FALSE, try=TRUE)
   LU_FAO_EmisAg  <- calcOutput(type="ValidEmissions", datasource="FAO_EmisAg", aggregate=FALSE, try=TRUE)
   LU_PRIMAPhist  <- calcOutput(type="ValidEmissions", datasource="PRIMAPhist", aggregate=FALSE, try=TRUE)
-  LU_IPCC        <- calcOutput(type="ValidEmissions", datasource="IPCC", aggregate=FALSE, try=TRUE)
+  #LU_IPCC        <- calcOutput(type="ValidEmissions", datasource="IPCC", aggregate=FALSE, try=TRUE)
   LU_Nsurplus2   <- calcOutput(type="ValidEmissions", datasource="Nsurplus2", aggregate=FALSE, try=TRUE)
   #calcOutput(type="ValidEmisLucGlo", subtype="Canadell_2007", aggregate=FALSE, try=TRUE) #ready
   #calcOutput(type="ValidEmisLucGlo", subtype="Friedlingstein_2010", aggregate=FALSE, try=TRUE) #ready
@@ -111,7 +111,7 @@ calcHistorical <- function() {
   LU_FAO_EmisLUC <- collapseNames(LU_FAO_EmisLUC, collapsedim=1)
   LU_FAO_EmisAg  <- collapseNames(LU_FAO_EmisAg , collapsedim=1)
   LU_PRIMAPhist  <- collapseNames(LU_PRIMAPhist , collapsedim=1)
-  LU_IPCC        <- collapseNames(LU_IPCC       , collapsedim=1)
+  #LU_IPCC        <- collapseNames(LU_IPCC       , collapsedim=1)
   LU_Nsurplus2   <- collapseNames(LU_Nsurplus2  , collapsedim=1)
   
   # give ceds emissions from calcValidEmissions (magpie) a name that is different from ceds emissions from calcEmissions (remind)
@@ -123,7 +123,8 @@ calcHistorical <- function() {
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
-  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
+  # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
+  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_Nsurplus2)
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
   y <- sort(y)
