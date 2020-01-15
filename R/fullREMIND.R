@@ -95,7 +95,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("WaterWithCoef",                         round=3,  file="WaterWithCoef.cs4r",aggregate=FALSE)
   calcOutput("IO",   subtype="output",                round=8,  file="f04_IO_output.cs4r")
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
-  calcOutput("IO",   subtype="trade",                 round=8,  file="f24_IO_trade.cs4r")
+  calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r") 
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r") 
