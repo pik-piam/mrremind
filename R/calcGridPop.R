@@ -6,8 +6,7 @@
 #' @param subtype past (1965-2005), future (2005-2010) or all (divergence changed to start at 2015)
 #' @param cellular only cellular
 #' @param FiveYear TRUE for 5 year time steps, otherwise yearly from source
-#' @param harmonize_until 2015 default harmonization of SSPs
-#' @param converge_until 2030 for convergence of SSPs back from harmonized to original data
+#' @param harmonize_until 2005 default divergence of SSPs
 #' @return Population in millions.
 #' @author David Chen
 #' @importFrom magclass add_columns collapseNames
@@ -15,7 +14,7 @@
 #' @importFrom madrat calcOutput toolGetMapping toolAggregate
 
 
-calcGridPop <- function(subtype="all", cellular=TRUE,FiveYear=TRUE, harmonize_until=2015, converge_until=2050) {
+calcGridPop <- function(subtype="all", cellular=TRUE,FiveYear=TRUE, harmonize_until=2015) {
   if(!cellular)(stop("Run calcPopulation instead"))
   ##past 
   if (subtype=="past"){
@@ -72,32 +71,13 @@ calcGridPop <- function(subtype="all", cellular=TRUE,FiveYear=TRUE, harmonize_un
 if (subtype=="all"){
     past <- calcOutput("GridPop",subtype="past", aggregate=F, FiveYear=F)
     future <- calcOutput("GridPop", subtype="future", aggregate=F, FiveYear=F)
-   
-### harmonize future SSPs to divergence year
- 
- #harmonize years 
-    harm_y <- getYears(future, as.integer = T)[1:(harmonize_until-2005)]
-    future_h <- future[,harm_y,]
-    future_h[] <- 0
+    #harmonize future SSPs to divergence year
+    
+    harm_y <- getYears(future, as.integer = T)[1:(harmonize_until-2009)]
     for (i in 1:5){
-         future_h[,harm_y,i] <- future[,harm_y,"pop_SSP2"]} 
-      tmpPast     <- future[,getYears(future,as.integer=T)[1]:harmonize_until,]                                             
-    
-  #difference between ssps in "past" and harmonized ssp2 at year of divergence, converge by linearly meeting the difference at divergence
-      diff_in_lastyear <- tmpPast[,harmonize_until,] - future_h[,harmonize_until,]
-      years_trans <- harmonize_until:converge_until
-      tmpTrans <- future[,years_trans,]
-      tmpTrans[] <- 0
-      for(t in years_trans) {
-        tmpTrans[,t,] <- future[,t,] + setYears(diff_in_lastyear,t) * ( (max(years_trans) - t)/(max(years_trans) - min(years_trans)) ) 
-      }  
-      
-x   <- mbind(past,
-             tmpPast,
-             tmpTrans[,-1,],
-             future[,(converge_until+1):2150,])
-    
-x <- toolHoldConstantBeyondEnd(x)
+         future[,harm_y,i] <- future[,harm_y,"pop_SSP2"]} 
+    x <- mbind(past,future)
+    x <- time_interpolate(x, interpolated_year = 1965:2100)
     }
 
   
