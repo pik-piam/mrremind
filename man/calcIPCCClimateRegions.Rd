@@ -4,8 +4,12 @@
 \alias{calcIPCCClimateRegions}
 \title{calcClimateRegionsIPCC}
 \usage{
-calcIPCCClimateRegions(landusetypes = "all", cellular = FALSE,
-  yearly = FALSE, convert = TRUE)
+calcIPCCClimateRegions(
+  landusetypes = "all",
+  cellular = FALSE,
+  yearly = FALSE,
+  convert = TRUE
+)
 }
 \arguments{
 \item{landusetypes}{all or only one (to save computation memory)}
