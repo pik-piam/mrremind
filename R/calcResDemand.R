@@ -29,7 +29,10 @@ calcResDemand<-function(cellular = FALSE){
   past           <- findset("past")
   
   dev_state_past <- collapseNames(calcOutput("DevelopmentState",aggregate = F)[,past,"SSP2"])
-  if(cellular){ dev_state_past <- toolIso2CellCountries(dev_state_past)}
+  if(cellular){ 
+    
+    dev_state_past <- toolIso2CellCountries(dev_state_past)
+    }
   
   biomass1       <- add_dimension(dimSums(collapseNames(calcOutput("ResBiomass", cellular= cellular, plantparts="ag", aggregate = FALSE)[,,res_cereals]),dim=3.1), add = "kres", nm = "res_cereals")
   biomass2       <- add_dimension(dimSums(collapseNames(calcOutput("ResBiomass", cellular= cellular, plantparts="ag", aggregate = FALSE)[,,res_fibrous]),dim=3.1), add = "kres", nm = "res_fibrous")

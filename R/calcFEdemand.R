@@ -41,13 +41,14 @@ calcFEdemand <- function(subtype = "FE") {
     rmndt[, c("scenario", "item") := tstrsplit(scenario.item, ".", fixed = TRUE)][
       , "scenario.item" := NULL][
       , year := as.numeric(gsub("y", "", year))]
-    setnames(rmndt, "V3", "region")
+    setnames(rmndt, "V3", "region", skip_absent = TRUE)
     trpdem <- rmndt[item %in% trp_nodes & scenario == "gdp_SSP2"][, scenario := "gdp_SDP"]
 
     ## get population
     pop <- as.data.table(calcOutput("Population"))[
       , year := as.numeric(gsub("y", "", year))]
-    setnames(pop, c("variable"), c("scenario"))
+    setnames(pop, c("variable", 'iso2c'), c("scenario", 'region'),
+             skip_absent = TRUE)
 
     ## intrapolate missing years
     yrs <- sort(union(pop$year, trpdem$year))
@@ -235,8 +236,8 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(
         # no reduction for SSA countries before 2050, to allow for more 
         # equitable industry and infrastructure development
-        a = ifelse(iso3c %in% SSA_countries & 2050 > year, 0, 0.002),
-        b = ifelse(iso3c %in% SSA_countries & 2050 > year, 0,   3e-7),
+        a = ifelse(iso3c %in% SSA_countries & 2050 > year, -0.005, 0.002),
+        b = ifelse(iso3c %in% SSA_countries & 2050 > year,  2e-7,  3e-7),
         f = cumprod(ifelse(2020 > year, 1,
                            1 - ( pmin(0.007, !!sym('a') + !!sym('b') * GDPpC)
                                * (1 - (year - 2020) / (2150 - 2020)))))) %>%
@@ -691,5 +692,6 @@ calcFEdemand <- function(subtype = "FE") {
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
-              description = description_out))
+              description = description_out,
+              structure.data = '^gdp_(SSP[1-5]|SDP)\\.(fe|ue)'))
 }

@@ -15,13 +15,16 @@ calcRegressionParameters<-function(regression="bmi_shr")
 {
   if(regression=="bmi_shr") {
     x <- readSource("Bodirsky2018",convert = FALSE,subtype="bmi_shr")
-    description = "Equation parameters for BMI shares estimates using regression analysis"
+    description = "Equation parameters for BMI shares estimates using regression analysis. See Bodirsky et al 2019."
   } else if(regression=="demand_regression") {
     x <- readSource("Bodirsky2018",convert = FALSE,subtype="demand_regression")
-    description = "Equation parameters for BMI shares estimates using regression analysis"
+    description = "Equation parameters for BMI shares estimates using regression analysis. See Bodirsky et al 2019."
   } else if(regression=="intake_regression") {
     x <- readSource("Bodirsky2018",convert = FALSE,subtype="intake_regression")
-    description = "Equation parameters for BMI shares estimates using regression analysis"    
+    description = "Equation parameters for intake using regression analysis."    
+  } else if(regression=="bodyheight_regression") {
+    x <- readSource("Bodirsky2018",convert = FALSE,subtype="bodyheight_regression")
+    description = "Equations parameters for bodyheight regression. See Bodirsky et al 2019."    
   } else if (regression=="Schofield") {
     x <- readSource("Schofield",convert=FALSE)  
     description = "Equation parameters for intake estimates using regression analysis"

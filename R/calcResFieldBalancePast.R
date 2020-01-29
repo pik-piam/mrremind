@@ -15,6 +15,7 @@
 #'
 
 calcResFieldBalancePast<-function(cellular = FALSE, products = "sum"){
+  
   if(products=="kres"){
     past              <- findset("past")
     relevant_nutrients <- c("nr","p","k","c")  # after burning, unclear what dm and ge may be
@@ -23,7 +24,9 @@ calcResFieldBalancePast<-function(cellular = FALSE, products = "sum"){
     
     burnshr           <- calcOutput("ResCombustEff",aggregate = FALSE)[,,getNames(production,dim=1)]
     dev_state_past    <- collapseNames(calcOutput("DevelopmentState",aggregate = F)[,past,"SSP2"])
-    if(cellular){dev_state_past    <- toolIso2CellCountries(dev_state_past)}
+    if(cellular){
+      dev_state_past    <- toolIso2CellCountries(dev_state_past)
+    }
     
     # if the following parameters are changed, they also have to be changed
     # in the GAMS code!
@@ -42,6 +45,7 @@ calcResFieldBalancePast<-function(cellular = FALSE, products = "sum"){
     ### estimate removal
     
     if(cellular==TRUE){
+ 
       # to avoid negative values, take the regional share of removal by product
       fieldbalance <- calcOutput("ResFieldBalancePast",cellular=FALSE,aggregate=FALSE,products="kres")
       # use nr for removalshare decision

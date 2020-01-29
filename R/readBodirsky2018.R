@@ -20,6 +20,10 @@ readBodirsky2018 <- function(subtype="bmi_shr") {
     file <- "f15_intake_regression_parameters.cs3"
     bmi<-read.magpie(file,file_type = "cs3")
     out<-bmi
+  } else if ( subtype =="bodyheight_regression" ){    
+    file <- "f15_bodyheight_regr_paras.csv"
+    bmi<-read.magpie(file,file_type = "cs3")
+    out<-bmi
   }
   return(out)
 }  

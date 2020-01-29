@@ -23,6 +23,13 @@ calcEmiMac1990 <- function() {
   ch4wstl  <- dimSums(ch4[,1990,c("6A","6C","6D")],dim=3)
   getNames(ch4wstl) <- "ch4wstl"
   
+  # overwritting european countries with eurostat data
+  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
+  baselineEurostat <- readSource(type="Eurostat",subtype="MACCemi")
+  #baselineEurostat <- calcOutput("HistEmissions",subtype="MAC",aggregate=F)
+  ch4wsts[EUcountries,1990,"ch4wsts"] <- baselineEurostat[EUcountries,1990,"ch4wsts"] / 28
+  ch4wstl[EUcountries,1990,"ch4wstl"] <- baselineEurostat[EUcountries,1990,"ch4wstl"] / 28
+  
   # combine all parameters
   x <- mbind(ch4wsts,ch4wstl)
   getYears(x) <- NULL 

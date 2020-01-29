@@ -4,8 +4,12 @@
 \alias{calcLanduseInitialisation}
 \title{calcLanduseInitialisation}
 \usage{
-calcLanduseInitialisation(cellular = FALSE, land = "fao",
-  selectyears = "past", input_magpie = FALSE)
+calcLanduseInitialisation(
+  cellular = FALSE,
+  land = "fao",
+  selectyears = "past",
+  input_magpie = FALSE
+)
 }
 \arguments{
 \item{cellular}{cellular (TRUE) or country-level/regional (FALSE) data? For country-level vs regional data, remember to set "aggregate" to false.}

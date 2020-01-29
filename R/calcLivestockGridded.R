@@ -9,6 +9,7 @@
 #' calcOutput("calcLivestockGridded")
 #' }
 #' 
+#' @importFrom magpiesets findset
 
 calcLivestockGridded <- function(){
   
@@ -59,10 +60,9 @@ calcLivestockGridded <- function(){
   ExtensivePigPoultry   <- PigPoultryProduction * (1 - DevelopmentState)
   IntensivePigPoultry   <- PigPoultryProduction * DevelopmentState
   
-  #calculate extensive poultry and pig production per cell from urban area share
-  #vcat(2,"Even better use population than urban area")
-  Urbanarea               <- toolCell2isoCell(calcOutput("LanduseInitialisation", cellular=TRUE, aggregate = FALSE)[,selectyears,"urban"])
-  ExtensivePigPoultryCell <- toolAggregate(toolIso2CellCountries(ExtensivePigPoultry), rel=CountryToCell, weight=Urbanarea, from="iso", to="celliso", dim=1) 
+  #calculate extensive poultry and pig production per cell from population share
+  Population              <- collapseNames(calcOutput("GridPop", subtype="all", cellular=TRUE, aggregate= FALSE)[,selectyears,"pop_SSP2"])
+  ExtensivePigPoultryCell <- toolAggregate(toolIso2CellCountries(ExtensivePigPoultry), rel=CountryToCell, weight=Population, from="iso", to="celliso", dim=1) 
   
   #calculate intensive pig poultry production per cell from cropland share
   #more ideas to come for pig poultry disaggregation

@@ -88,6 +88,12 @@ calcFossilExtraction <- function(subtype="FossilExtraction"){
     output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <- 
       output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] * (1 - 0.2)
     
+    #SB & NB edit 2019/11/14:
+    # Reduce SSP5 coal extraction costs for USA and CAZ by 25%
+    output[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highCoal.0"] <- output[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highCoal.0"] * (1 - 0.25)
+    # Reduce SSP5 gas extraction costs for all regions by 10%
+    output[,,"highGas.0"] <- output[,,"highGas.0"] * (1 - 0.1)
+    
   } else if (subtype == "UraniumExtraction"){
     
     description <- "Coefficients for the 3rd-order polynomial Uranium extraction costs."

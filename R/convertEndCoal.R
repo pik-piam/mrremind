@@ -6,12 +6,13 @@
 convertEndCoal <- function(x){
   # x <- readSource("EndCoal",convert = F)
   # renaming countries that toolCountry2isocode can't identify
-  getRegions(x)[getRegions(x) %in% c("The Niger","Ivory Coast",
-                                     "Taiwan, China","FYROM")] <- 
-  c("Taiwan","Cote d Ivoire","Macedonia","Niger")  
+  x[is.na(x)] <- 0
+  getRegions(x)[getRegions(x) %in% c("Ivory Coast")] <-  "Cote d Ivoire"
    
   getRegions(x) <- toolCountry2isocode(getRegions(x))
+  
   x <- toolCountryFill(x,fill = 0)
   return(x)
 }
+  
   

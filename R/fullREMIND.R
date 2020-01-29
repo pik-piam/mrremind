@@ -25,7 +25,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("Labour",     years=rem_years,           round=8,  file="f_lab.cs3r")       
   calcOutput("GDPppp",     years=rem_years_hist,      round=8,  file="f_gdp.cs3r") 
   calcOutput("RatioPPP2MER",                          round=8,  file="pm_shPPPMER.cs4r")
-  calcOutput("MacroInvestments",                      round=8,  file="p_boundInvMacro.cs4r")
+  calcOutput("MacroInvestments",                      round=8,  file="p01_boundInvMacro.cs4r")
   calcOutput("SubsStationary", sector = "transport" , round=2,  file="f21_tau_fe_sub_transport.cs4r") 
   calcOutput("TaxesStationary",sector = "transport",  round=2,  file="f21_tau_fe_tax_transport.cs4r")
   calcOutput("SubsStationary", sector = "bit_st",     round=2,  file="f21_tau_fe_sub_bit_st.cs4r") 
@@ -59,6 +59,8 @@ fullREMIND <- function(rev=0) {
   #-------------- emission parameter ------------------------------------------------------------------
   calcOutput("EconometricEmiParameter",               round=5,  file="p_emineg_econometric.cs3r") 
   calcOutput("EmissionsTe",                           round=5,  file="p_boundEmi.cs4r")
+  calcOutput("HistEmissions",subtype="sector",        round=8,  file="p_histEmiSector.cs4r")
+  calcOutput("HistEmissions",subtype="MAC",           round=8,  file="p_histEmiMac.cs4r")
   calcOutput("EmiCO2LandUse",                         round=5,  file="p_macPolCO2luc.cs4r")
   calcOutput("MacBaseLandUse",subtype="MAgPIE",       round=5,  file="f_macBaseMagpie.cs4r")
   calcOutput("MacBaseLandUse",subtype="Exogenous",    round=5,  file="f_macBaseExo.cs4r")
@@ -84,7 +86,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("PotentialWind",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")    
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
-  calcOutput("CostsTrade",                            round=5,  file="p_costsPEtradeMp.cs4r")
+  calcOutput("CostsTrade",                            round=5,  file="pm_costsPEtradeMp.cs4r")
   calcOutput("CostsTradePeFinancial",                 round=5,  file="pm_costsTradePeFinancial.cs3r")
   calcOutput("ShareCHP",                              round=3,  file="f32_shCHP.cs4r")
   calcOutput("CapacityOffset",                        round=5,  file="p_adj_deltacapoffset.cs4r") 
@@ -137,25 +139,25 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="REN21",                round=4,  file="f40_REN21.cs4r")
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
-  calcOutput("EffortSharingTarget",                       round=6,  file="p47_EStarget.cs4r")
+  calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
   
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")
   
   #--------------- EDGE Transport ---------------------------------------------------------------------
-  ## sapply(c("value_time", "harmonized_intensities", "price_nonmot",
-  ##          "SW", "UCD_NEC_iso", "logit_exponent"),
-  ##        function(stype){
-  ##          print(sprintf("Loading %s", stype))
-  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype,
-  ##                                      file=paste0(stype, ".cs4r"), aggregate=F))
-  ##        })
+  sapply(c("value_time", "harmonized_intensities", "price_nonmot",
+           "SW", "inconv", "UCD_NEC_iso", "logit_exponent"),
+         function(stype){
+           print(sprintf("Loading %s", stype))
+           suppressWarnings(calcOutput("EDGETransport", subtype=stype,
+                                       file=paste0(stype, ".cs4r"), aggregate=F))
+         })
   
-  ## sapply(c("demand_tech", "fe2es", "esCapCost", "pm_trp_demand"),
-  ##        function(stype){
-  ##          print(sprintf("Loading %s", stype))
-  ##          suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
-  ##                                      file=paste0(stype, ".cs4r"), aggregate=T))
-  ##        })
+  sapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand"),
+         function(stype){
+          print(sprintf("Loading %s", stype))
+           suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
+                                       file=paste0(stype, ".cs4r"), aggregate=T))
+         })
   
 }

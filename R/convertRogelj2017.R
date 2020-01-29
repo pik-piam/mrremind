@@ -103,6 +103,7 @@ convertRogelj2017 <- function(x,subtype){
     #data_solar <- calcOutput("Solar", aggregate = FALSE)
     setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
+    setConfig(regionmapping = "regionmappingH12.csv")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
     names_wind <- paste0("Wind.",getNames(data_wind_sorted))
@@ -126,7 +127,7 @@ convertRogelj2017 <- function(x,subtype){
  
     #x_tmp[,,"Production-Absolute.Hydro"] <- pmax(x_tmp[,,"Production-Absolute.Hydro"],x_new[,,"Hydro"])
     x_tmp[,,"Production-Absolute.Hydro"] <- pmax(x_tmp[,,"Production-Absolute.Hydro"],x_new_tic[,,"Hydro"],x_new_abs[,,"Hydro"])
-    
+    x_tmp[is.na(x_tmp)] <- 0
     # For all countries which have non-zero generation values but zero or negative maxprod(),
     #  replace x_tmp[,,"Production-Absolute.Hydro]==0
     #  Even if there is one +ve production absolute value for Hydro but all maxprod are zero
@@ -148,7 +149,7 @@ convertRogelj2017 <- function(x,subtype){
           name <- paste0(t,".maxprod")
           name2 <- paste0("Production-Absolute.",t)
           if (!isZero(x_tmp[,,"Production-Absolute"][,,t])[r,y,] & 
-              dimSums(data_combined[r,,name]) > max(x_tmp[r,,name2])){
+              dimSums(data_combined[r,,name],na.rm=T) > max(x_tmp[r,,name2])){
             # extracting the first non-zero location of maxprod
             name <- paste0(t,".maxprod")
             loc <- min(which(!R.utils::isZero(data_combined[r,,name,pmatch=TRUE]))) 
@@ -216,10 +217,10 @@ convertRogelj2017 <- function(x,subtype){
     x_other[,,"Hydro"] <- setYears(hist_cap[rest_regions,2015,"Hydropower"])*setYears(cf_hydro[rest_regions,,])
     
     x_final <- magpiesort(mbind(x_new,x_other))
+    x_final[is.na(x_final)] <- 0
     x <- x_final
     getNames(x) <- c("wind","spv","hydro","tnrs","bioigcc")  
     
-
   }
   if(subtype == "COCapacity"){
     # x <- readSource("Rogelj2017",subtype = "COCapacity",convert = F)
@@ -240,7 +241,7 @@ convertRogelj2017 <- function(x,subtype){
     
     # Real world capacity factor for hydro = Generation in last year/Capacity in last year
     cf_realworld <- hist_gen[,2015,"Hydropower"]/(8760*hist_cap[,2015,"Hydropower"]) 
-    cf_realworld[is.na(cf_realworld)] <- 0
+    cf_realworld <- cf_realworld<1
     getNames(cf_realworld) <- "Hydro"
     
     tech <- c("Wind","Solar","Hydro","Nuclear","Biomass")
@@ -325,6 +326,7 @@ convertRogelj2017 <- function(x,subtype){
     setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
+    setConfig(regionmapping = "regionmappingH12.csv")
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
     names_wind <- paste0("Wind.",getNames(data_wind_sorted))
     data_combined <- new.magpie(getRegions(data_hydro), NULL, c(names_solar,names_hydro,names_wind))
@@ -338,6 +340,7 @@ convertRogelj2017 <- function(x,subtype){
       # Conversion from EJ/a to GWh
       data_combined[,,name,pmatch=TRUE] <- data_combined[,,name,pmatch=TRUE]*277777.778
     }
+    data_combined[is.na(data_combined)] <- 0
     
     # Production/Generation targets are converted into capacity targets by alloting production to certain capacity factors based on maxprod.
     final <- numeric(length(getRegions(x_tmp)))
@@ -346,10 +349,10 @@ convertRogelj2017 <- function(x,subtype){
     x_new_copy <- x_new
    # x_tmp[,,"Production-Absolute.Hydro"] <- pmax(x_tmp[,,"Production-Absolute.Hydro"],x_new[,,"Hydro"])
     x_tmp[,,"Production-Absolute.Hydro"] <- pmax(x_tmp[,,"Production-Absolute.Hydro"],x_new_tic[,,"Hydro"],x_new_abs[,,"Hydro"])
-    
+    x_tmp[is.na(x_tmp)] <- 0
     # For all countries which have non-zero generation values but zero or negative maxprod(),
     #  replace x_tmp[,,"Production-Absolute.Hydro]==0
-    #  Even if there is one +ve production absolute value for Hydro but all maxprod are zero
+    #  
     for (r in names(final)){
       if(any(x_tmp[r,,"Production-Absolute.Hydro"]!=0) & 
          all(data_combined[r,,"Hydro.maxprod"]==0)|any(data_combined[r,,"Hydro.maxprod"]<0) )
@@ -366,7 +369,7 @@ convertRogelj2017 <- function(x,subtype){
           name <- paste0(t,".maxprod")
           name2 <- paste0("Production-Absolute.",t)
           if (!isZero(x_tmp[,,"Production-Absolute"][,,t])[r,y,] & 
-              dimSums(data_combined[r,,name]) > max(x_tmp[r,,name2])){
+              dimSums(data_combined[r,,name],na.rm=T) > max(x_tmp[r,,name2])){
             # extracting the first non-zero location of maxprod
             name <- paste0(t,".maxprod")
             loc <- min(which(!R.utils::isZero(data_combined[r,,name,pmatch=TRUE]))) 
@@ -437,6 +440,7 @@ convertRogelj2017 <- function(x,subtype){
     x_other[,,"Hydro"] <- setYears(hist_cap[rest_regions,2015,"Hydropower"])*setYears(cf_hydro[rest_regions,,])
     
     x_final <- magpiesort(mbind(x_new,x_other))
+    x_final[is.na(x_final)] <- 0
     x <- x_final
     getNames(x) <- c("wind","spv","hydro","tnrs","bioigcc")
    }
@@ -444,4 +448,3 @@ convertRogelj2017 <- function(x,subtype){
   x <- toolCountryFill(x,fill = 0)
   return(x)
 }
-
