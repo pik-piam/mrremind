@@ -1,4 +1,4 @@
-#' @title calc
+#' @title calcDevelopmentState
 #' @description Provides development state of a country or region. We use worldbank definitions by default: above 12746 USD per capita, its a high-income country, below 1045 its a low-income country, in between its a medium-income country.
 #' 
 #' @param upper Change upper limit (default: 12746)

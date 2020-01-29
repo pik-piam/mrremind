@@ -5,7 +5,6 @@
 #' @author Benjamin Leon Bodirsky
 #' @seealso
 #' \code{\link{readLPJml_rev21}},
-#' \code{\link{readLPJ}}
 #' @examples
 #' 
 #' \dontrun{ 
