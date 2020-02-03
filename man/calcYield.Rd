@@ -4,8 +4,13 @@
 \alias{calcYield}
 \title{calcYield}
 \usage{
-calcYield(physical = TRUE, attributes = "dm", irrigation = FALSE,
-  cellular = FALSE, cut = FALSE)
+calcYield(
+  physical = TRUE,
+  attributes = "dm",
+  irrigation = FALSE,
+  cellular = FALSE,
+  cut = FALSE
+)
 }
 \arguments{
 \item{physical}{physical area or havested area}
