@@ -14,8 +14,8 @@
 #' @export 
 readCheung2018 <- function(subtype) {
   
-  Cheungdata2018DBEM <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/Cheung2018/FAO_Impacts_CC_on_fisheries_DBEM3.csv",stringsAsFactors = FALSE)
-  Cheungdata2018DynMod <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/Cheung2018/FAO_Impacts_CC_on_fisheries_Dynamic_Model3.csv",stringsAsFactors = FALSE)
+  Cheungdata2018DBEM <- read.csv("/p/projects/rd3mod/inputdata/sources/Cheung2018/FAO_Impacts_CC_on_fisheries_DBEM3.csv",stringsAsFactors = FALSE)
+  Cheungdata2018DynMod <- read.csv("/p/projects/rd3mod/inputdata/sources/Cheung2018/FAO_Impacts_CC_on_fisheries_Dynamic_Model3.csv",stringsAsFactors = FALSE)
   Cheungdatamerged <- merge(Cheungdata2018DBEM, Cheungdata2018DynMod, by="Scenarios",all.x=T)
   #Cheungdatamerged <- merge(Cheungdata2018DBEM, Cheungdata2018DynMod, by=c("Scenarios","Prim.Production.mgCm.2day.1","EEZ.area.in.km2","OtherFAOFA"),all.x=T)
   
