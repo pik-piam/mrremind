@@ -15,7 +15,8 @@
 readFAO_fishery <- function(subtype) {
   
   if (subtype == "capture"){
-    data <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/FAO_fishery/fishspeciesFAOSTAT2.csv",stringsAsFactors = FALSE)
+    data <- read.csv("/p/projects/rd3mod/inputdata/sources/FAO_fishery/fishspeciesFAOSTAT2.csv",stringsAsFactors = FALSE)
+    
     #data <- read.csv("/p/projects/landuse/users/wehner/PIK/inputdata/sources/FAO_fishery/fishspeciesFAOSTAT2.csv",stringsAsFactors = FALSE)
    
     data <- data[,-4] #removed unit column  
@@ -43,11 +44,11 @@ readFAO_fishery <- function(subtype) {
       "northern mariana is." = "MNP",
       "Other nei" = "XON",
       "pitcairn islands" = "PCN",
-      "réunion"= "REU",
-      #"r\u00e9union"= "REU",
+      #"réunion"= "REU",
+      "r\u00e9union"= "REU",
       "saint-martin"="MAF",
-      "saint barthélemy"="BLM",
-      #"saint barth\u00e9lemy"="BLM",
+      #"saint barthélemy"="BLM",
+      "saint barth\u00e9lemy"="BLM",
       "saint vincent/grenadines"="VCT",
       "serbia and montenegro"= "SCG", #hist 
       "sint maarten"="SXM",
@@ -81,7 +82,7 @@ readFAO_fishery <- function(subtype) {
   
   
   else if (subtype == "aquaculture"){
-    data <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/FAO_fishery/FAO_fishery_aquaculture.csv",stringsAsFactors = FALSE)
+    data <- read.csv("/p/projects/rd3mod/inputdata/sources/FAO_fishery/FAO_fishery_aquaculture.csv",stringsAsFactors = FALSE)
     #data <- read.csv("/p/projects/landuse/users/wehner/PIK/inputdata/sources/FAO_fishery/FAO_fishery_aquaculture.csv",stringsAsFactors = FALSE)
   
     data <- data[,-5] #removed unit column 
@@ -103,8 +104,8 @@ readFAO_fishery <- function(subtype) {
       "micronesia, fed.states of" ="FSM",
       "northern mariana is." = "MNP",
       "north macedonia" = "MKD",
-      #"r\u00e9union"= "REU",
-      "réunion"= "REU",
+      "r\u00e9union"= "REU",
+      #"réunion"= "REU",
       "serbia and montenegro"= "SCG",
       "st. pierre and miquelon"="SPM",
       "saint vincent/grenadines"="VCT",
