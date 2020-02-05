@@ -32,7 +32,9 @@ calcFishCCImpactCheung2018 <- function(subtype){
     x_PrimProdintCyrkm2 <- x_General[,,"PrimProdinmgCday"] * (10^-9) * 365 * 10^6
     w = x_PrimProdintCyrkm2 * x_General[,,"ExclEconZoneAreainkm2"]
     
-    relationmatrix <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
+    #relationmatrix <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
+    relationmatrix <- read.csv("/p/projects/rd3mod/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
+    
     relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub("\\(|\\)|\\,|\\-|\\’", "", x)}))
     relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub(" +", " ", x)}))
     x_ModelOutputDBEM <- x_ModelOutputDBEM *10^-2
@@ -127,7 +129,7 @@ calcFishCCImpactCheung2018 <- function(subtype){
     x_PrimProdintCyrkm2 <- x_General[,,"PrimProdinmgCday"] * (10^-9) * 365 * 10^6
     w = x_PrimProdintCyrkm2 * x_General[,,"ExclEconZoneAreainkm2"]
     
-    relationmatrix <- read.csv("C:/Users/wehne/ownCloud/PIK/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
+    relationmatrix <- read.csv("/p/projects/rd3mod/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
     relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub("\\(|\\)|\\,|\\-|\\’", "", x)}))
     relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub(" +", " ", x)}))
     x_ModelOutputDynModel <- x_ModelOutputDynModel *10^-2
