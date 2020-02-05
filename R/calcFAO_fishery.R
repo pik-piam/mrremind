@@ -4,7 +4,7 @@
 #' "capture_marine" takes all fishdata into account that has been captured in marine fishing areas
 #' "aquaculture" takes all data into account that has been listed as aquaculture fishery
 #' @return Magpie object with fish data in dry matter
-#' @author Benjamin Leon Bodirsky, Jasmin Wehner
+#' @author Jasmin Wehner, Benjamin Leon Bodirsky
 #' @importFrom madrat readSource  calcOutput 
 #' @importFrom magclass collapseNames
 #' @export
