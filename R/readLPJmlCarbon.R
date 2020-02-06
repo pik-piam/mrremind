@@ -7,6 +7,7 @@
 #' @author Kristine Karstens
 #' @seealso
 #' \code{\link{readLPJmlCarbon}},
+#' \code{\link{readLPJ}}
 #' @examples
 #' 
 #' \dontrun{ 
