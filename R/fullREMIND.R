@@ -140,6 +140,8 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
   calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="REMIND_GHG", round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")
