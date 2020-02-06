@@ -15,7 +15,7 @@
 #' @import magclass
 
 correctDams <- function(x){
-
+  toolConditionalReplace <- function(){}
   x <- toolConditionalReplace(x, conditions = c("is.na()","<0"), replaceby = 0)
   x <- toolCell2isoCell(x)
 

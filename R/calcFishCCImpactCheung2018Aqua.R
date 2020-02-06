@@ -9,7 +9,7 @@
 #' \dontrun{ a <- calcOutput(type="FAO_fishery")
 #' }
 #' @importFrom magclass add_dimension new.magpie collapseNames dimSums getNames
-#' @importFrom madrat readSource  calcOutput
+#' @importFrom madrat readSource  calcOutput toolAggregate
 #' @export
 calcFishCCImpactCheung2018 <- function(subtype){
   if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
