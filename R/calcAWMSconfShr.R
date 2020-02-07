@@ -15,7 +15,7 @@
 
 
 
-calcAWMSconfShr<-function(){
+calcAWMSconfShr<-function(rev=0.1){
   past<-findset("past")
   out<-calcOutput("AWMSconfShrPast",aggregate = FALSE)
   weight2<-collapseNames(calcOutput("Excretion",aggregate = FALSE)[,past,"confinement"][,,"nr"])
@@ -123,6 +123,7 @@ calcAWMSconfShr<-function(){
       y2100 = c(0.5,0.0,0.5)
     ),out)
 
+  if(rev>=4.33){
   out<-toolAWMSScenarioCreation(
     name="GoodPractice",
     start_year="y2010",
@@ -133,7 +134,7 @@ calcAWMSconfShr<-function(){
       y2050 = c(0.5,0.0,0.5),
       y2100 = c(0.7,0.0,0.3)
         ),out)
-
+  }
 
   
   return(list(x=out,
