@@ -18,6 +18,6 @@ calcCostsTradePeFinancial <- function() {
   w    <- calcOutput("GDPppp",aggregate=FALSE)[,2005,"gdp_SSP2"]
   
   return(list(x=data,weight=w,
-              unit="",
+              unit="TW and ratio",
               description="PE tradecosts (financial costs on import, export and use)"))
 }
