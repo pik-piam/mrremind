@@ -15,7 +15,7 @@
 
 
 
-calcSNUpE<-function(max_snupe=0.85,cellular=FALSE){
+calcSNUpE<-function(max_snupe=0.85,cellular=FALSE,rev=rev){
 
   a<-calcOutput("NitrogenBudgetCropland",max_snupe=max_snupe,aggregate = F,deposition="Nsurplus2",cellular=cellular)
 
@@ -40,7 +40,7 @@ calcSNUpE<-function(max_snupe=0.85,cellular=FALSE){
   SNUpE[SNUpE<0]=0
   #future
   
-  data<-toolNUEscenarios(x=SNUpE,weight=inputs)
+  data<-toolNUEscenarios(x=SNUpE,weight=inputs, rev=rev)
   
   weight=data$weight
   out=data$x
