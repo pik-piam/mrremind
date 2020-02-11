@@ -93,13 +93,29 @@ calcAtmosphericDeposition<-function(datasource="ACCMIP",glo_incl_oceans=FALSE,ce
         weight = calcOutput("AtmosphericDeposition",datasource="ACCMIP",glo=FALSE,cellular=TRUE,emission=FALSE,scenario=NULL,aggregate = FALSE)
         mapping<-toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv=TRUE)
         mapping <- mapping[which(mapping$iso%in%getRegions(weight)),]
-        out<-toolAggregate(x=out[getRegions(weight),,],rel=mapping,weight=weight[,getYears(out),],from="iso",to="celliso")
+        
+        warning("the following section can be removed when toolAggregate is bugfixed")
+        weight<-collapseNames(weight)
+        out=out[getRegions(weight),,]
+        getCells(weight) <-gsub(pattern = "\\.",replacement = "_",x = getCells(weight))
+        weight<-clean_magpie(weight)
+        mapping$celliso<-gsub(pattern = "\\.",replacement = "_",x = mapping$celliso)
+        ### till here.
+        
+        out<-toolAggregate(x=out,rel=mapping,weight=weight[,getYears(out),],from="iso",to="celliso")
+        getCells(out) <-gsub(pattern = "_",replacement = "\\.",x = getCells(out))
+        
       }
     }
 
     out<-add_dimension(out,dim =3.2,nm = "history")
     out<-add_dimension(out,dim =3.3,nm = "deposition")
   }
+  
+  if (any(out < -1e-08)) {
+    warning("very negative numbers. Check")
+  }
+  out[out<0]=0
   
   return(list(
     x=out,

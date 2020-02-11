@@ -16,8 +16,15 @@ calcFoodWasteAndSewage<-function(){
   urban_shr[urban_shr<0]<-0
   
   # food waste should be estimated without using demand projections
-  waste_shr<-calcOutput("Demand",aggregate = FALSE)
-  waste_shr<-collapseNames(waste_shr[,,"waste_shr"][,past,"SSP2"])
+  
+  scenarios=readSource("Bodirsky2018",subtype="scenarios")
+  
+  intake_shr = collapseNames(scenarios[,,"Intake (kcal/capita/day)"]/scenarios[,,"Demand for food (kcal/capita/day)"])
+  intake_shr[intake_shr>1] <- 1
+  intake_shr = intake_shr[,getYears(demand),]
+  
+  #waste_shr<-calcOutput("Demand",aggregate = FALSE)
+  #waste_shr<-collapseNames(waste_shr[,,"waste_shr"][,past,"SSP2"])
   
   #urine:80% of intake for N, 62% for P (moree)
   urine<-new.magpie("GLO",NULL,c("nr","p"))
@@ -25,9 +32,9 @@ calcFoodWasteAndSewage<-function(){
   urine[,,"p"]<-0.62
   
   out<-mbind(
-    add_dimension(demand*waste_shr,dim = 3.1,nm = "hh_food_waste"),
-    add_dimension(demand*(1-waste_shr)*urine,dim = 3.1,nm = "urine"),
-    add_dimension(demand*(1-waste_shr)*(1-urine),dim = 3.1,nm = "feces")
+    add_dimension(demand*(1-intake_shr),dim = 3.1,nm = "hh_food_waste"),
+    add_dimension(demand*(intake_shr)*urine,dim = 3.1,nm = "urine"),
+    add_dimension(demand*(intake_shr)*(1-urine),dim = 3.1,nm = "feces")
   )
   
   out<-out*urban_shr
