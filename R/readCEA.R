@@ -1,5 +1,5 @@
 #' @title readCEA
-#' Read Employment factors and cumulative jobs for RE techs from reports published in CEA's NEP
+#' Read Employment factors for different techs (for India) from  CEA's NEP
 #' See README.txt in the source folder for more information.
 #' @author Aman Malik
 #' @importFrom readxl read_excel
@@ -24,9 +24,8 @@ readCEA <- function()
   input$Tech <- gsub(x = input$Tech,pattern = "Thermal",replacement = "Coal")
   input$Tech <- gsub(x = input$Tech,pattern = "Hydro",replacement = "Hydro")
   input$Tech <- gsub(x = input$Tech,pattern = "Solar",replacement = "Solar|PV")
-  input$Region <- "IND"
-  x <- as.magpie(input)
+  x <- as.magpie(input,spatial=NULL)
   x <- add_dimension(x,dim = 3.2,add = "activity",nm = "OM")# # employment intensity assumed to be only for O&M
-
+  getRegions(x) <- "IND"
   return (x)
 }
