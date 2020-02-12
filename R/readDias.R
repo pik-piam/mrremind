@@ -4,16 +4,15 @@
 #' @author Aman Malik
 #' @param subtype Employment factors or Employment
 #' @importFrom readxl read_excel
-#' @importFrom dplyr gather rename mutate select
+#' @importFrom dplyr  rename mutate select
+#' @importFrom tidyr gather
 #' @examples
-#'  \dontrun{ a <- readSource(type="Dias",convert=FALE)
-#' }
-#' @return magpie object containing either employment or employment factors. Type of activity
-#' have also been provided.
+#'  \dontrun{ a <- readSource(type="Dias",convert=FALSE) }
+#' @return magpie object containing either employment or employment factors. 
+
 
 readDias <- function(subtype){
-  power_plant <- NULL
-  mine <- NULL
+
     
   if (subtype=="Employment factors"){
     # values are in Jobs/MW and only include O&M jobs

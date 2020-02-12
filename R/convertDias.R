@@ -1,8 +1,10 @@
 #' @title convertDias
 #' @author Aman Malik
-convertDias <- function(x,subtype){
+#' @param x  magpie object to be converted
+
+convertDias <- function(x){
   
- getRegions(x) <- toolCountry2isocode(getRegions(x))
+ #getRegions(x) <- toolCountry2isocode(getRegions(x))
   return (x)
   
 }
