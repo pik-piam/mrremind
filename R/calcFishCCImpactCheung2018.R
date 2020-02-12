@@ -49,7 +49,7 @@ calcFishCCImpactCheung2018 <- function(subtype){
     inland_waters <- c("Asia Inland waters","Europe Inland waters","Africa Inland waters",
                        "Oceania Inland waters","America North Inland waters",
                        "America South Inland waters")
-    x_capture_marine_raw <- x_capture_marine_raw[,,inland_waters, invert=T]
+   #x_capture_marine_raw <- x_capture_marine_raw[,,inland_waters, invert=T]
     x_aqua_raw <- x_aqua_raw[,,inland_waters, invert=T]
 
     #or:x_capture_marine_raw <- x_capture_marine
@@ -121,7 +121,7 @@ calcFishCCImpactCheung2018 <- function(subtype){
     inland_waters <- c("Asia Inland waters","Europe Inland waters","Africa Inland waters",
                        "Oceania Inland waters","America North Inland waters",
                        "America South Inland waters")
-    x_capture_marine_raw <- x_capture_marine_raw[,,inland_waters, invert=T]
+    #x_capture_marine_raw <- x_capture_marine_raw[,,inland_waters, invert=T]
     x_aqua_raw <- x_aqua_raw[,,inland_waters, invert=T]
 
     #or:x_capture_marine_raw <- x_capture_marine

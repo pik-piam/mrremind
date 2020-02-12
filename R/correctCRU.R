@@ -18,7 +18,7 @@
 #' @importFrom lpjclass read.LPJ_input
 
 correctCRU <- function(x, subtype){
-  toolConditionalReplace <- function(){}
+
   x <- toolConditionalReplace(x, conditions = c("is.na()"), replaceby = 0)
   if(subtype %in% c("precipitation", "potential_evap")){
     x <- toolConditionalReplace(x, conditions = c("<0"), replaceby = 0)
