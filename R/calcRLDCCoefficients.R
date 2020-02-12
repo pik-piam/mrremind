@@ -104,7 +104,7 @@ calcRLDCCoefficients <- function(subtype="LoB"){
   }
   
   return(list(x=output, weight=weight,
-              unit="", 
+              unit="ratio", 
               description=description,
               mixed_aggregation=TRUE              
   )) 

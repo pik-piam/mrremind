@@ -437,6 +437,13 @@ calcFEdemand <- function(subtype = "FE") {
     
     unit_out = "EJ"
     description_out = "demand pathways for final energy in buildings and industry in the original file"
+    
+    if ('FE' == subtype) {
+      structure_data <- paste('^gdp_(SSP[1-5]|SDP)', '(fe|ue)', sep = '\\.')
+    } else if (subtype %in% c('EsUeFe_in', 'EsUeFe_out')) {
+      structure_data <- paste('^gdp_(SSP[1-5]|SDP)', 'fe..s', 'ue.*b', 
+                              'te_ue.*b$', sep = '\\.')
+    }
 
   } else if (subtype == "ES"){
     Unit2Million = 1e-6
@@ -445,6 +452,7 @@ calcFEdemand <- function(subtype = "FE") {
     getSets(services) <- gsub("data", "item", getSets(services))
     data <- services*Unit2Million
     unit_out = "million square meters times degree [1e6.m2.C]"
+    structure_data <- paste('^SSP[1-5]', 'esswb$', sep = '\\.')
     description_out = "demand pathways for energy service in buildings"
 
   } else if ( subtype %in% c("FE_for_Eff", "UE_for_Eff")){
@@ -460,6 +468,7 @@ calcFEdemand <- function(subtype = "FE") {
     data = mbind(stationary[,y,],buildings[,y,])
 
     unit_out = "EJ"
+    structure_data <- paste('^gdp_(SSP[1-5]|SDP)', 'fe.*(b|s)$', sep = '\\.')
     description_out = "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND"
 
   }
@@ -693,5 +702,5 @@ calcFEdemand <- function(subtype = "FE") {
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
               description = description_out,
-              structure.data = '^gdp_(SSP[1-5]|SDP)\\.(fe|ue)'))
+              structure.data = structure_data))
 }

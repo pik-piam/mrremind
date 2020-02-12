@@ -17,6 +17,6 @@ calcIntertempElastSubst <- function() {
   
   return(list(x           = x,
               weight      = w,
-              unit        = "",
+              unit        = "dimensionless",
               description = "intertemporal elasticity of substitution"))
 }

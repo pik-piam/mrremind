@@ -7,6 +7,7 @@
 #' @author Benjamin Bodirsky, Eweron Araujo
 #' @seealso
 #' \code{\link{readLPJmlCarbon}},
+#' \code{\link{readLPJ}}
 #' @examples
 #' 
 #' \dontrun{ 

@@ -18,6 +18,6 @@ calcRiskPremium <- function() {
  
   return(list(x           = x,
               weight      = w,
-              unit        = "",
+              unit        = "dimensionless",
               description = "risk premium that lowers the use of capital imports"))
 }
