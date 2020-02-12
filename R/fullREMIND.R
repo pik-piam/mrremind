@@ -84,6 +84,7 @@ fullREMIND <- function(rev=0) {
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round=3,  file="f_maxProdGradeRegiHydro.cs3r") 
   calcOutput("PotentialWind",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")    
+  calcOutput("PotentialGeothermal",                   round=3,  file="f_maxProdGeothermal.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("CostsTrade",                            round=5,  file="pm_costsPEtradeMp.cs4r")
@@ -140,6 +141,8 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
   calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="REMIND_GHG", round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")

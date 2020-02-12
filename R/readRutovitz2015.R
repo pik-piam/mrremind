@@ -1,7 +1,10 @@
+#' Employment factors for various power production technologies from Rutovitz et al. 2015
+#' @author Aman Malik
 #' @import tidyr
 #' @import dplyr
 #' @importFrom mgsub mgsub
 #' @importFrom readr read_csv
+#' @return magpie object of emplyoment factors for different technologies in Jobs/MW
 
 CI <- NULL
 Fuel_supply <- NULL
@@ -36,8 +39,8 @@ readRutovitz2015 <- function(subtype){
      # mutate(CI=as.numeric(CI)) %>% 
       #mutate(Manf=as.numeric(Manf)) %>% 
     mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
-      mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
-      mutate_(Manf=~Manf/duration) %>% 
+      #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
+      #mutate_(Manf=~Manf/duration) %>% 
       select_(~-duration) %>% 
       gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
       mutate(value=ifelse(value == "Regional",0,value))  %>% 

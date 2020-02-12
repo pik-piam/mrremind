@@ -6,6 +6,6 @@ calcShareCHP <- function() {
   w <- dimSums(w,dim=3)
   
   return(list(x=data,weight=w,
-              unit="",
+              unit="ratio",
               description="share of electricity from chp on total electricity"))
 }

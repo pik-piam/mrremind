@@ -2,7 +2,7 @@
 #' 
 #' @param x MAgPIE object to be converted
 #' @param subtype data subtype. Either "target" or "emissions"
-#' @return A MAgPIE object containing the EU Effort Sharing targets (%) or Effort Sharing historical emissions (GtCO2) 
+#' @return A MAgPIE object containing the EU Effort Sharing targets (%) or Effort Sharing historical emissions (MtCO2) 
 #' @author Renato Rodrigues
 #' @examples
 #' 
