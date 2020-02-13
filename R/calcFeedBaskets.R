@@ -47,6 +47,10 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
     mselect(const,data1=constshr) <- 1
     mselect(anti,data1=constshr)  <- 0
     mselect(main,data1=constshr)  <- 0
+    #additionally hold "brans" constant in ruminant feed baskets 
+    #(not possible for pig system where brans are part of the main share):
+    const[,,c("sys_beef.brans","sys_dairy.brans")] <-1
+    anti[,,c("sys_beef.brans","sys_dairy.brans")] <-0
     out <- mbind(main,anti,const)
     if(!all(dimSums(out,dim=3.3)==1)) stop("Something went wrong assigning commodities to types. Each commodity needs to be assigned to exactly one type!")
     
@@ -66,16 +70,12 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
   #use livestock production as weight
   kli <- findset("kli")
   weight_kli <- collapseNames(calcOutput("FAOmassbalance_pre",aggregate = FALSE)[,,kli][,,"dm"][,,"production"])
-  
-  #=====================================================
   weight_sys <- dimSums(fbask_sys,dim=3.2)
   weight_sys[,,] <- 0
   for(t in past){
     weight_sys[,t,] <- dimSums(weight_kli[,t,]*prod_sys_ratio[,t,],dim=3.1)
   }
   weight_sys <- toolHoldConstantBeyondEnd(weight_sys)
-  #=====================================================
-  
   weight_kli <- setYears(weight_kli[,year,],NULL)
   
   
@@ -124,7 +124,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
     if(!all(round(dimSums(out,dim="type"),8)==1)) stop("Something went wrong calibrating the fbask shares!")  
     return(out)
   }
-  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=2250, type="smooth")
+  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=2050, type="linear")
   
   
   # Read in efficiencies and calibrate them
@@ -149,7 +149,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
         # convergence to global mean weights (assuming that production systems will get more similar over time)
         wglo <- magpie_expand(calc_weight(dimSums(x*weight_sys[,getYears(x),],dim=1)/dimSums(weight_sys[,getYears(x),],dim=1), 3.2), w)
         
-        w <- convergence(w, wglo, start_year=start, end_year="y2250", type="smooth")
+        w <- convergence(w, wglo, start_year=start, end_year=tail(years,1), type="linear")
       }
       if(!all(round(dimSums(w,dim=3.2),8)==1)) stop("Something went wrong in the weight calculation (sum!=1)!")
       return(w)

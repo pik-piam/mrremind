@@ -40,9 +40,12 @@ convertFeedModel <- function(x,subtype="FeedBaskets") {
     
     #some cases are not handled by the above executed automated filling of missing values
     #these are tackled by following replacement rules:
-    missing2 <- where(x[,year,"sys_beef.livst_rum"]<0.05)$true$regions
-    replacement <- as.magpie(apply(x[missing2,tail(timesteps,4),"sys_beef.livst_rum"],c(1,3),mean, na.rm=TRUE))
-    x[missing2,year,"sys_beef.livst_rum"] <- setYears(replacement,year)
+    missing_all <- where(x[,tail(timesteps,3),"sys_beef.livst_rum"]<0.08)$true$regions
+    replacement <- as.magpie(apply(x[missing_all,tail(timesteps,3),"sys_beef.livst_rum"],c(1,3),mean, na.rm=TRUE))
+    for(t in tail(timesteps,3)){
+      missing_t <- where(x[,t,"sys_beef.livst_rum"]<0.05)$true$regions
+      x[missing_t,t,"sys_beef.livst_rum"] <- setYears(replacement[missing_t,,],t)
+    }
     
     #re-establishment of the underlying properties of the data set:
     x[,,"sys_dairy.livst_milk"] <- 1
