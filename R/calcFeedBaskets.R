@@ -96,7 +96,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
   out_shr <- calcOutput("CentralFeedshares"   , aggregate=FALSE) 
   
   
-  calib_shr <- function(fbask_shr, out_shr, start_year, end_year, type="linear") {
+  calib_shr <- function(fbask_shr, out_shr, start_year, end_year, type) {
     fbask_shr <- toolHoldConstantBeyondEnd(fbask_shr)
     
     #calibration of main share:
@@ -104,7 +104,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
     diffm <- magpie_expand(fbask_shr[,year,"main",drop=TRUE][,,getNames(out_shr, dim=1)],out_shr[,year,]) - out_shr[,year,]
     outm <- magpie_expand(fbask_shr[,,"main",drop=TRUE][,,getNames(out_shr, dim=1)],out_shr)
     outm[,future,] <- out_shr[,future,] + setYears(diffm,NULL)
-    #(partial) convergence to regression values over a long time horizon:
+    #convergence to regression values:
     outm <- convergence(outm,out_shr, start_year=start_year, end_year=end_year, type=type)
     #set limit of 10% main share or the share in the last historical year in case it is lower than the limit
     outm[,future,] <- outm[,future,]*(outm[,future,]>0.1)+outm[,year,]*(outm[,future,]<0.1&outm[,year,]<0.1)+0.1*(outm[,future,]<0.1&outm[,year,]>0.1)
@@ -124,7 +124,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
     if(!all(round(dimSums(out,dim="type"),8)==1)) stop("Something went wrong calibrating the fbask shares!")  
     return(out)
   }
-  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=2050, type="linear")
+  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=tail(getYears(out_shr),1), type="linear")
   
   
   # Read in efficiencies and calibrate them
