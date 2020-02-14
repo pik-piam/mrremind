@@ -3,12 +3,11 @@
 #' are Jobs/MW. For Fuel supply, units are Jobs/PJ
 #' @author Aman Malik
 #' @param improvements Either "None", CEEW", "Dias" or "Dias+CEEW". The latter three are "improvements" over Rutovitz (None).
-#' @examples 
-#' \dontrun {a <- calcOutput("Employmentfactors",improvements="Dias+CEEW")
-#' }
+
 calcEmploymentfactors <- function(improvements){
 
-  rutovitz_common <- function(){ # Common data for Rutovitz
+  rutovitz_common <- function(){
+    # Common data for Rutovitz
     mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)
     colnames(mapping) <- c("region","country")
     mapping$country <- toolCountry2isocode(mapping$country)  
@@ -115,7 +114,6 @@ calcEmploymentfactors <- function(improvements){
   pop <- pop[,,"pop_SSP2"]
   
   gdppercap <- gdp/pop
-
 
 return(list(x=x1, weight=gdppercap,  unit="",  description="Employment factors"))
 }
