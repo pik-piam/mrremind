@@ -1,8 +1,11 @@
 #' @title calcEmploymentfactors
-#' Emplyoment factors for different technologies and activities. For all activities except Fuel_supply units
+#' @description Emplyoment factors for different technologies and activities. For all activities except Fuel_supply units
 #' are Jobs/MW. For Fuel supply, units are Jobs/PJ
 #' @author Aman Malik
 #' @param improvements Either "None", CEEW", "Dias" or "Dias+CEEW". The latter three are "improvements" over Rutovitz (None).
+#' @examples 
+#' \dontrun {a <- calcOutput("Employmentfactors",improvements="Dias+CEEW")
+#' }
 calcEmploymentfactors <- function(improvements){
 
   rutovitz_common <- function(){ # Common data for Rutovitz
