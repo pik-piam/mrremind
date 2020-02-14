@@ -1,10 +1,11 @@
 #' Employment factors for various power production technologies from Rutovitz et al. 2015
 #' @author Aman Malik
-#' @import tidyr
-#' @import dplyr
+#' @import tidyr gather_
+#' @importFrom dplyr rename add_row filter_ mutate_ select_ mutate_at left_join filter mutate
 #' @importFrom mgsub mgsub
 #' @importFrom readr read_csv
 #' @return magpie object of emplyoment factors for different technologies in Jobs/MW
+#' @param subtype Either "oecd_ef","regional_ef","coal_ef","gas_ef", "regional_mult
 
 CI <- NULL
 Fuel_supply <- NULL
