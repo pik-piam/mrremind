@@ -7,6 +7,10 @@
 convertRutovitz2015 <- function(x,subtype) {
   country = NULL
   year = NULL
+  region <- NULL
+  value <- NULL
+  tech <- NULL
+  activity <- NULL
   if (subtype == "oecd_ef")  {
   
     mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)
