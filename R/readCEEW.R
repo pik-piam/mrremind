@@ -23,8 +23,8 @@ readCEEW <- function(subtype){
     input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(ground mounted\\)",replacement = "Solar|PV")
     input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(rooftop\\)",replacement = "Solar|PV|Rooftop")
     
-    colnames(input)[2] <- "OM"
-    colnames(input)[3] <- "CI"
+    colnames(input)[2] <- "CI"
+    colnames(input)[3] <- "OM"
     x <- as.magpie(input)
     #getRegions(x) <- "IND"
     
