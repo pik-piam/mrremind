@@ -124,7 +124,7 @@ calcFeedBaskets <- function(non_eaten_food=FALSE) {
     if(!all(round(dimSums(out,dim="type"),8)==1)) stop("Something went wrong calibrating the fbask shares!")  
     return(out)
   }
-  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=tail(getYears(out_shr),1), type="linear")
+  cal_shr <- calib_shr(fbask_shr, out_shr, start_year=year, end_year=2050, type="linear")
   
   
   # Read in efficiencies and calibrate them
