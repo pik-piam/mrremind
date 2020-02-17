@@ -17,6 +17,6 @@ calcTimePref <- function() {
   
   return(list(x           = x,
               weight      = w,
-              unit        = "",
+              unit        = "dimensionless",
               description = "pure rate of time preference"))
 }

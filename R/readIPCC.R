@@ -46,33 +46,29 @@ readIPCC <- function(subtype) {
              emissionfactors="emission_factors.csv",
              rescombusteff="res_combust_eff.csv",
              efnsoil="ef_n_soil.csv",
-             ch10_table10a9="ch10_table10a9.csv")
+             ch10_table10a9="ch10_table10a9.csv",
+             SCF_input ="ch5_F_I.csv",
+             SCF_sub   ="ch5_F_LU.csv"
+             )
   
   file <- toolSubtypeSelect(subtype,files)
-  if(subtype=="awmsShr"||subtype=="awmsEfCh4"||subtype=="awmsParCh4"||subtype=="nExcrRate"|| subtype=="ch10_table10a9")
-    {
-  data <- read.csv(file, sep=";", stringsAsFactors=FALSE)
-  }
-  else if(subtype=="fraclossms")
-    {
+  
+  if(subtype=="awmsShr"||subtype=="awmsEfCh4"||subtype=="awmsParCh4"||subtype=="nExcrRate"|| subtype=="ch10_table10a9"){
+    data <- read.csv(file, sep=";", stringsAsFactors=FALSE)
+  } else if(subtype=="fraclossms"){
     data <-  read.csv(file,sep = ",", stringsAsFactors = F, header = T, skip=1)
-  }
-  else if(subtype=="efnsoil")
-  {
+  } else if(subtype=="efnsoil"){
     data <-  read.csv(file,sep = ",", stringsAsFactors = F, header = T, skip=3)
-  }
-  else if (subtype=="emissionfactors")
-  {
+  } else if (subtype=="emissionfactors"){
     data <-  read.csv(file,sep = ",", stringsAsFactors = F, header = F, skip=2)
-  }
-  else if (subtype=="rescombusteff")
-  {
+  } else if (subtype=="rescombusteff"){
     data <-  read.csv(file,sep = ",", stringsAsFactors = F, header = F)
-  }
-  else 
-  {
+  } else if(subtype %in% c("SCF_input","SCF_sub")){
+    data <-  read.csv(file,sep = ";", stringsAsFactors = F, header = T, comment.char = "*")
+  } else {
     data <-  read.csv(file,sep = ",", stringsAsFactors = F, header = T)
   }
+  
   if(subtype=="awmsShr"){
     data <- read.csv("awmsShr.csv", sep=";", header=TRUE, skip=1)
     data$groups <- paste(data$Livestock, data$Manure.Management.System.Usage, sep=".") # merge first 2 columns
@@ -148,6 +144,11 @@ readIPCC <- function(subtype) {
     
     d[,,] <- data[,2]
     
+    return(d)
+  }
+  
+  if(subtype %in% c("SCF_input","SCF_sub")){
+    d <- as.magpie(data)
     return(d)
   }
   

@@ -119,7 +119,9 @@ fullMAGPIE <- function(rev=0.1) {
     #f45_koeppengeiger(j,clcl)
     
     #50 n soil budget
-    calcOutput("SNUpE",years=mag_years, round=4, file="f50_snupe.cs4")
+
+    calcOutput("SNUpE",years=mag_years, round=4, file="f50_snupe.cs4",rev=rev)
+    
     calcOutput("NitrogenBudgetBalanceflow",years=mag_years, round=4, file="f50_nitrogen_balanceflow.cs4")
     calcOutput("NitrogenFixationNdfa",years=mag_years, round=4, file="f50_ndfa.cs4")
     calcOutput("NitrogenFixationFreeliving", round=4, file="f50_fixation_freeliving.cs4", aggregate = FALSE)

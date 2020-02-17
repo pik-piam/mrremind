@@ -1,12 +1,16 @@
+#' @title convertRutovitz2015
 #' @param x MAgPIE object to be converted
 #' @param subtype employment intensity for different technologies and regional multipliers
 #' @author Aman Malik
 
 
-country <- NULL
-year <- NULL
-convertRutovitz2015 <- function(x,subtype)
-{
+convertRutovitz2015 <- function(x,subtype) {
+  country = NULL
+  year = NULL
+  region <- NULL
+  value <- NULL
+  tech <- NULL
+  activity <- NULL
   if (subtype == "oecd_ef")  {
   
     mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)

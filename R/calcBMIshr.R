@@ -84,7 +84,7 @@ calcBMIshr <- function(convert=TRUE){
     
     BMI2[withdata,c("y1965","y1970"),]=BMI2[withdata,c("y1965","y1970"),]+setYears(calib,NULL)
     # in case that calibration created negative values or values above one, remove them and add them to the middle category
-    BMI2[BMI2<0]=0
+    BMI2[BMI2<0]=0.000001
     BMI2[BMI2>1]=1
     BMI2[,, "medium" ]= BMI2[,, "medium" ] + (1-dimSums(BMI2,dim=3.3))
     

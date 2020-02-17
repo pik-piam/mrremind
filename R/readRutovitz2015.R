@@ -1,25 +1,31 @@
-#' @import tidyr
-#' @import dplyr
+#' Employment factors for various power production technologies from Rutovitz et al. 2015
+#' @author Aman Malik
+#' @importFrom  tidyr gather_
+#' @importFrom dplyr rename add_row filter_ mutate_ select_ mutate_at left_join filter mutate
 #' @importFrom mgsub mgsub
 #' @importFrom readr read_csv
+#' @return magpie object of emplyoment factors for different technologies in Jobs/MW
+#' @param subtype Either "oecd_ef","regional_ef","coal_ef","gas_ef", "regional_mult
 
-CI <- NULL
-Fuel_supply <- NULL
-Manf <- NULL
-OM <- NULL
-activity <- NULL
-region <- NULL
-tech <- NULL
-duration <- NULL
-Productivity <- NULL
-Year <- NULL
-notes <- NULL
-value <- NULL
 
 
 readRutovitz2015 <- function(subtype){
+  
+  CI <- NULL
+  Fuel_supply <- NULL
+  Manf <- NULL
+  OM <- NULL
+  activity <- NULL
+  region <- NULL
+  tech <- NULL
+  duration <- NULL
+  Productivity <- NULL
+  Year <- NULL
+  notes <- NULL
+  value <- NULL
   if (subtype == "oecd_ef")
     {
+    
     input <- read_csv("oecd_ef.csv",na = "") %>% 
       # rename_(tech=~"X1",duration=~`Construction times`,CI=~`Construction/ Installation`,
       #         Manf=~`Manufacturing`,OM=~`Operations & Maintenance`, Fuel_supply=`Fuel – PRIMARY ENRGY DEMAND\nEnergy Demand`) %>% 
@@ -36,8 +42,8 @@ readRutovitz2015 <- function(subtype){
      # mutate(CI=as.numeric(CI)) %>% 
       #mutate(Manf=as.numeric(Manf)) %>% 
     mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
-      mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
-      mutate_(Manf=~Manf/duration) %>% 
+      #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
+      #mutate_(Manf=~Manf/duration) %>% 
       select_(~-duration) %>% 
       gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
       mutate(value=ifelse(value == "Regional",0,value))  %>% 
