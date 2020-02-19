@@ -21,7 +21,7 @@ correctLUH2v2<-function(x,subtype){
       x["JPN",bugged_years,"secdf"]=x["JPN",bugged_years,"secdf"] - setYears(dimSums(x["JPN","y2000",c("pastr","range")],dim=3),NULL)
       x["JPN",bugged_years,c("pastr","range")]=x["JPN",bugged_years,c("pastr","range")] + setYears(x["JPN","y2000",c("pastr","range")],NULL)
     } else {stop("it seems the Japan bug in LUH2v2 has been removed. Please remove the bugfix in correct LUH2v2 before proceeding!")}
-  }
   
+  }
   return(x)
 }  
