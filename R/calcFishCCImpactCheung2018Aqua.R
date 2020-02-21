@@ -1,4 +1,4 @@
-#' @title calcFishCCImpactCheung2018
+#' @title calcFishCCImpactCheung2018Aqua
 #' @description derive compatible Cheung data for magpie objects x_capture
 #' @return Cheung data for each FAO Major Fishing area
 #' @param subtype "ModelOutputDBEM" DBEM Model output for RCP2.6;RCP8.5
@@ -11,7 +11,7 @@
 #' @importFrom magclass add_dimension new.magpie collapseNames dimSums getNames
 #' @importFrom madrat readSource  calcOutput toolAggregate
 #' @export
-calcFishCCImpactCheung2018 <- function(subtype){
+calcFishCCImpactCheung2018Aqua <- function(subtype){
   if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
     x_General <- readCheung2018(subtype = "General")
     #Conversion from mg C day^(-1) m2^(-1) to  tCyr^(-1)^km2^(-1)

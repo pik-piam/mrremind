@@ -31,9 +31,17 @@ calcHistorical <- function() {
   pop <- add_dimension(pop, dim=3.1, add="model",nm="WDI")
   
   # GDP in ppp
-  gdpp <- calcOutput("GDPpppPast",aggregate=FALSE) / 1000
-  getNames(gdpp) <- paste0("GDP|PPP (billion US$2005/yr)")
-  gdpp <- add_dimension(gdpp, dim=3.1, add="model",nm="IHME_USD05_PPP_pc")
+  gdpp_James <- calcOutput("GDPpppPast",aggregate=FALSE) / 1000
+  getNames(gdpp_James) <- paste0("GDP|PPP (billion US$2005/yr)")
+  gdpp_James <- add_dimension(gdpp_James, dim=3.1, add="model",nm="James_IHME")
+  
+  gdpp_WB <- calcOutput("GDPpppPast",GDPpppPast="WB_USD05_PPP_pc",aggregate=FALSE) / 1000
+  getNames(gdpp_WB) <- paste0("GDP|PPP (billion US$2005/yr)")
+  gdpp_WB <- add_dimension(gdpp_WB, dim=3.1, add="model",nm="James_WB")
+  
+  gdpp_IMF <- calcOutput("GDPpppPast",GDPpppPast="IMF_USD05_PPP_pc",aggregate=FALSE) / 1000
+  getNames(gdpp_IMF) <- paste0("GDP|PPP (billion US$2005/yr)")
+  gdpp_IMF <- add_dimension(gdpp_IMF, dim=3.1, add="model",nm="James_IMF")
   
   # Historical emissions from CEDS data base (Steve Smith)
     # ceds16 <- calcOutput("Emissions",datasource="CEDS16")
@@ -124,7 +132,7 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
+  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
   y <- sort(y)
