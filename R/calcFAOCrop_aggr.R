@@ -56,7 +56,7 @@ if (any( grepl("+ (Total)",getNames(data, fulldim=T)[[1]], fixed = TRUE))) {
   data <- data[,,"+ (Total)", pmatch=T, invert=T]
 }
 
-aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
 
 data[is.na(data)] <- 0
 

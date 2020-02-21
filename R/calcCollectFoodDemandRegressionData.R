@@ -13,7 +13,7 @@ calcCollectFoodDemandRegressionData<-function()
   CZ <- readSource("Koeppen",convert=FALSE) #klimazone
   
 ### aggregate food groups ###
-  relationmatrix <- toolGetMapping("FAOitems.rda","sectoral",where="moinput")
+  relationmatrix <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
   relationmatrix <- relationmatrix[,which(names(relationmatrix)%in%c("FoodBalanceItem","k"))]
   relationmatrix <- relationmatrix[-which(duplicated(relationmatrix[,1])==T),]
   

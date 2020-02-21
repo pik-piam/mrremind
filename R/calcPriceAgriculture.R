@@ -94,7 +94,7 @@ calcPriceAgriculture <- function(datasource="IMPACT3.2.2World_Price"){
     # calculate prices as a ratio of production value and production quantities
     vprod <- calcOutput("AgProductionValue", aggregate=FALSE, datasource="FAO")
     qprod <- calcOutput("FAOharmonized", aggregate=FALSE)
-    aggregation <- toolGetMapping("FAOitems.rda","sectoral",where="moinput")
+    aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
     # aggregate FAO quantities into MAgPIE commodities 
     qprod <- toolAggregate(qprod[,,"production"], rel=aggregation, from="FoodBalanceItem", 
                              to="k", dim=3.1, partrel = TRUE, verbosity=2)
@@ -116,7 +116,7 @@ calcPriceAgriculture <- function(datasource="IMPACT3.2.2World_Price"){
   } 
   else if(datasource=="FAO"){
     out <- readSource("FAO", "PricesProducerAnnual", convert=TRUE)
-    aggregation <- toolGetMapping("FAOitems.rda","sectoral",where="moinput")
+    aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
     
     qprod <- collapseNames(calcOutput("FAOharmonized", aggregate=FALSE)[,,"production"])
     qprod <- qprod[,,-grep("Total", getNames(qprod))]

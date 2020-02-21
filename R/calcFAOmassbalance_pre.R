@@ -501,7 +501,7 @@ calcFAOmassbalance_pre <- function(years=paste0("y",(seq(1965,2010,5)))) {
   reduced<-fulldim(prod_attributes)[[2]][[4]][!fulldim(prod_attributes)[[2]][[4]]%in%c("betr","begr","pasture","scp","res_cereals","res_fibrous","res_nonfibrous","wood","woodfuel")]
   prod_attributes<-prod_attributes[,,reduced]
 
-  relationmatrix <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+  relationmatrix <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
   relationmatrix <- relationmatrix[,which(names(relationmatrix)%in%c("FoodBalanceItem","k"))]
   relationmatrix <- relationmatrix[-which(duplicated(relationmatrix[,1])==T),]
   
@@ -849,7 +849,7 @@ calcFAOmassbalance_pre <- function(years=paste0("y",(seq(1965,2010,5)))) {
   #print("remove empty columns")
   massbalance<-massbalance[,,setdiff(getNames(massbalance,dim = 2),c("processed","intermediate"))]
   
-  relationmatrix <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+  relationmatrix <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
   
   relationmatrix <- relationmatrix[,which(names(relationmatrix)%in%c("FoodBalanceItem","k"))]
   relationmatrix <- relationmatrix[-which(duplicated(relationmatrix[,1])==T),]
