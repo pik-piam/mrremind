@@ -48,8 +48,8 @@ readIPCC <- function(subtype) {
              efnsoil="ef_n_soil.csv",
              ch10_table10a9="ch10_table10a9.csv",
              SCF_input ="ch5_F_I.csv",
-             SCF_sub   ="ch5_F_LU.csv"
-             )
+             SCF_sub   ="ch5_F_LU.csv",
+             manure_table5p5c ="19R_V4_Ch05_Cropland_Table5p5C.csv")
   
   file <- toolSubtypeSelect(subtype,files)
   
@@ -149,6 +149,12 @@ readIPCC <- function(subtype) {
   
   if(subtype %in% c("SCF_input","SCF_sub")){
     d <- as.magpie(data)
+    return(d)
+  }
+  
+  if(subtype=="manure_table5p5c"){
+    d <- as.magpie(read.csv("19R_V4_Ch05_Cropland_Table5p5C.csv"))
+    getSets(d) <- c("region", "year", "kli", "attributes")
     return(d)
   }
   

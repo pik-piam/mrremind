@@ -14,7 +14,6 @@
 #' @importFrom magclass collapseNames add_columns add_dimension getNames<- setYears
 
 
-
 calcAWMSconfShr<-function(){
   past<-findset("past")
   out<-calcOutput("AWMSconfShrPast",aggregate = FALSE)

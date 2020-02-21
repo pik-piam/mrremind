@@ -2,6 +2,7 @@
 #' @description calculates excretion during grazing, cropland-grazing, confinement and collected for fuel. Based on MAgPIE Feed baskets, slaughter biomass and simple allocation rules. 
 #'
 #' @param cellular if TRUE value is calculate and returned (set aggregate to FALSE!) on cellular level
+#' @param attributes npk (default) or npkc (inclusing carbon) can be selected
 #'
 #' @return List of magpie object with results on country level, weight on country level, unit and description.
 #' @author Benjamin Leon Bodirsky
@@ -14,9 +15,7 @@
 #' }
 #' @importFrom magclass getNames<-
 
-
-
-calcExcretion<-function(cellular=FALSE){
+calcExcretion<-function(cellular=FALSE, attributes="npk"){
   
   #read in sets
   nutrients  <- c("nr","p","k")
@@ -66,11 +65,17 @@ calcExcretion<-function(cellular=FALSE){
   }
   Excretion                          <- round(Excretion,8)
   
+  if(attributes=="npkc"){
+    CNratio            <- collapseNames(readSource("IPCC", subtype="manure_table5p5c", convert=FALSE)[,,"cn_ratio"])
+    Excretion          <- add_columns(Excretion, addnm="c", dim=3.3)
+    Excretion[,,"c"]   <- Excretion[,,"nr"]*CNratio
+  }
+  
   return(list(x=Excretion,
               weight=NULL,
-              unit="Mt Nr, P, K",
+              unit="Mt Nr, P, K (, C)",
               min=0,
-              description="Excreted nitrogen per animal type and animal waste system",
+              description="Excreted nutrients per animal type and animal waste system",
               isocountries=!cellular)
   )                   
 }
