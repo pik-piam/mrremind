@@ -7,13 +7,13 @@
 #' @examples
 #'
 #' \dontrun{
-#'   readSource("Koeppen", subtype="iso", convert="onlycorrect")
+#'   readSource("Koeppen", subtype="cellular", convert="onlycorrect")
 #' }
 #' 
 #' @import madrat
 #' @import magclass
 
-correctKoeppen <- function(x, subtype){
+correctKoeppen <- function(x, subtype="iso"){
 
   if(subtype=="cellular"){
     

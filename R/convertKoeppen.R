@@ -13,7 +13,7 @@
 #' @import madrat
 #' @import magclass
 
-convertKoeppen<-function(x,subtype) {
+convertKoeppen<-function(x, subtype="iso") {
   
   if(subtype=="iso"){
     
