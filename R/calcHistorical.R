@@ -80,6 +80,7 @@ calcHistorical <- function() {
     
   # Historical emissions from CEDS data base (Steve Smith)
   ceds <- calcOutput("Emissions",datasource="CEDS2REMIND",aggregate=FALSE)
+  getNames(ceds) <- gsub("Energy and Industrial Processes","Fossil Fuels and Industry",getNames(ceds))
   
   # Add GHG total 
   ceds <- add_columns(ceds,"Emi|GHGtot (Mt CO2-equiv/yr)",dim=3.1)
@@ -90,13 +91,17 @@ calcHistorical <- function() {
   edgar <- calcOutput("Emissions",datasource="EDGAR",aggregate=FALSE)
   getNames(edgar) <- gsub("Emissions","Emi",getNames(edgar))
   edgar <- add_dimension(edgar, dim=3.1, add="model",nm="EDGAR")
+  
+  # Historical emissions from PRIMAPhist data base
+  primap <- readSource("PRIMAPhist","hist")[,,"CAT0"]  # select total
+  primap <- primap[,,c("co2_c","kyotoghgar4_co2eq_c")] / 12*44  # select CO2 and total GHG and convert into Co2
+  getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)","Emi|GHGtot (Mt CO2-equiv/yr)")
+  primap <- add_dimension(primap, dim=3.1, add="model",nm="PRIMAPhist")
 
   # Historical emissions from CDIAC data base
   cdiac <- calcOutput("Emissions",datasource="CDIAC",aggregate=FALSE)
   getNames(cdiac) <- gsub("Emissions","Emi",getNames(cdiac))
-  #getNames(cdiac) <- gsub("Energy and Industrial Processes \\(Mt\\/yr\\)","Fossil Fuels and Industry w\\/o Bunkers \\(Mt CO2\\/yr\\)",getNames(cdiac))
-  #cdiac <- mbind(cdiac, setNames(cdiac[,,"Emi|CO2|Fossil Fuels and Industry w/o Bunkers (Mt CO2/yr)"] 
-  #                             + cdiac[,,"Emi|CO2|Energy|Bunkers (Mt/yr)"],"Emi|CO2|Fossil Fuels and Industry (Mt CO2/yr)"))
+  getNames(cdiac) <- gsub("Mt/yr","Mt CO2/yr",getNames(cdiac))
   cdiac <- add_dimension(cdiac, dim=3.1, add="model",nm="CDIAC")
 
   # Historical land use emissions (taken from "mrvalidation/R/fullVALIDATION.R")
@@ -132,7 +137,7 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
+  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
   y <- sort(y)
