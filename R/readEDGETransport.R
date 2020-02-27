@@ -20,6 +20,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   vehicle_type <- NULL
   EDGE_scenario <- NULL
   GDP_scenario <- NULL
+  value <- NULL
 
   switch(subtype,
 
@@ -27,8 +28,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## do not call with convert=T, there is only global data!
            tmp <- list.files(path="./", pattern = subtype)
            tmp_dfs <- stats::setNames(
-                               object = lapply(tmp, fread),
-                               nm = sub("\\..*","", tmp))
+             object = lapply(tmp, fread),
+             nm = sub("\\..*","", tmp))
 
            for (i in names(tmp_dfs)) {
              tmp_dfs[[i]]$varname <- i
@@ -84,7 +85,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
 
-         "inconv" = {
+         "pref" = {
            tmp = list.files(path="./", pattern = subtype)
            tmp_dfs <- stats::setNames(object = lapply(tmp, fread), nm = sub("\\..*","",tmp))
 
@@ -93,11 +94,15 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
 
            tmp_dfs <- rbindlist(tmp_dfs, fill= TRUE)
+
+           ## due to rbindlist, "pinco" entries and "sw" entries are created as NAs. Remove them
+           tmp_dfs = tmp_dfs[!is.na(value)]
+
+           ## NAs in categories meant to be empty should be replaced
            tmp_dfs[is.na(tmp_dfs)] <- "tmp"
 
            tmp_dfs=tmp_dfs[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp_dfs, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "pinco"))
-           setnames(tmp_dfs, old ="pinco", new ="value")
+           setcolorder(tmp_dfs, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "logit_type", "varname", "value"))
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
@@ -145,7 +150,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          "harmonized_intensities" = {
            tmp <- fread(paste0(subtype, ".csv"))
            tmp$varname <- subtype
-                 tmp$varname = gsub(".*moinputData/","",tmp$varname)
+           tmp$varname = gsub(".*moinputData/","",tmp$varname)
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
@@ -188,7 +193,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp <- fread(paste0(subtype, ".csv"))
 
            tmp$varname <- subtype
-                       tmp$varname = gsub(".*moinputData/","",tmp$varname)
+           tmp$varname = gsub(".*moinputData/","",tmp$varname)
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
@@ -214,12 +219,12 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
-            tmp_EDGE <- tmp[EDGE_scenario == j]
-              for (i in unique(tmp$GDP_scenario)) {
-                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-                tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
-                mdata <- mbind(mdata, tmp_EDGE_SSP)
-              }
+             tmp_EDGE <- tmp[EDGE_scenario == j]
+             for (i in unique(tmp$GDP_scenario)) {
+               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
+               mdata <- mbind(mdata, tmp_EDGE_SSP)
+             }
            }
          },
 
