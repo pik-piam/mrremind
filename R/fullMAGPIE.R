@@ -50,6 +50,7 @@ fullMAGPIE <- function(rev=0.1) {
     # 13 tc
     calcOutput("ExoTcDummy",       round=4, file="f13_tau_scenario.csv")
     calcOutput("TCguess",          round=3, file="f13_tcguess.cs4")
+    calcOutput("TauHistorical",    round=2, file="f13_tau_historical.csv")
     
     # 14 yields
     calcOutput("CalibrationDummy", round=0, file="f14_yld_calib.csv")
