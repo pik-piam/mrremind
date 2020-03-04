@@ -186,6 +186,8 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
                           to = iso_col)
     result <- toolCountryFill(xadd,0)
     
+    
+    
     if(subtype == "FE_stationary"){
       # re-calculating fepet and fedie final energy based on updated EDGE shares
       share <- readSource(type="EDGEtranspLDV")
@@ -209,6 +211,29 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
       # extrapolating missing historical years
       result[,getYears(feTransp),getNames(feTransp)] <- feTransp[,getYears(feTransp),getNames(feTransp)]
     }
+    
+    if(subtype == "FE_buildings"){
+      # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
+      # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL
+      # For SSP1, SSP2 and SDP
+      names_2_change = grep("(SSP1|SSP2|SDP).*water_heating",getNames(result),value = T)
+      names_2_change_elec = grep("elec",names_2_change,value = T)
+      names_2_change_nonelec = grep("elec",names_2_change,value = T, invert = T)
+      regs_OCD = c("AUS","CAN","CHE","NOR","NZL")
+      reg_TUR = "TUR"
+      end_of_history = 2015
+      scenario_time = getYears(result, T)[getYears(result, T) > end_of_history]
+      
+      WH_growth = result[regs_OCD,scenario_time,names_2_change] -  dimReduce(result[regs_OCD,end_of_history,names_2_change])
+      WH_growth[,,names_2_change_elec] = WH_growth[,,names_2_change_elec] * 0.5
+      WH_growth[WH_growth < 0] <- 0
+      WH_growth_agg = dimSums(WH_growth, dim = 1)
+      
+      result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <- result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
+      result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <- result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
+     
+    }
+    
     
     
   } else if(subtype %in% c("Capital")){
