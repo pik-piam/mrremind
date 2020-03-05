@@ -4,22 +4,32 @@
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens
 #' @seealso
-#' \code{\link{readLPJmL5}},
+#' \code{\link{readLPJmL4}},
 #' \code{\link{readLPJ}}
 #' @examples
 #'
 #' \dontrun{
-#' readSource("LPJmL5", subtype="maize_mrh")
+#' readSource("LPJmL5", subtype="CRU4p02.soilc", convert="onlycorrect")
 #' }
 #'
 #' @import madrat
 #' @import magclass
 #' @importFrom lpjclass readLPJ
+#' @importFrom lucode path
 
-readLPJmL5 <- function(subtype="soilc"){
+readLPJmL5 <- function(subtype="CRU4p02.soilc"){
 
-  folder <- "CRU4p02_2019_11_07/"
-
+  if(grep("\\.",subtype)){
+    
+    subtype     <- strsplit(gsub("_","/" ,subtype), split="\\.")
+    folder      <- unlist(subtype)[1]
+    subtype     <- unlist(subtype)[2]
+  } else {
+    
+    folder <- "CRU4p02"
+    cat(paste0("Set input folder to default climate data set: ", folder))
+  }
+  
   files <- c(soilc           = "soilc_natveg.bin",
              soilc_layer     = "soilc_layer_natveg.bin",
              litc            = "litc_natveg.bin",
@@ -27,16 +37,22 @@ readLPJmL5 <- function(subtype="soilc"){
              alitfallc       = "alitfallc_natveg.bin",
              alitfalln       = "alitfalln_natveg.bin",
              harvest         = "pft_harvest_lai.unlimN.pft.bin",
+             irrig           = "cft_airrig_lai.unlimN.pft.bin",
              sdate           = "sdate_lai.unlimN.bin",
              hdate           = "hdate_lai.unlimN.bin",
-             transpiration   = "mtransp_natveg.bin"
-             )
+             transpiration   = "mtransp_natveg.bin",
+             discharge       = "mdischarge_natveg.bin",
+             runoff          = "mrunoff_natveg.bin",
+             evaporation     = "mevap_natveg.bin",
+             vegc_grass      = "vegc_grass.bin",
+             litc_grass      = "litc_grass.bin"
+  )
 
   file_name <- toolSubtypeSelect(subtype,files)
 
-
-  start_year <- as.numeric(gsub("First year: ","",readLines(paste0(folder,"tmp.out"))))
-  years      <- seq(start_year,2017,1)
+  start_year  <- 1901
+  #start_year <- as.numeric(gsub("First year: ","",readLines(path(folder,"tmp.out"))))
+  years      <- seq(start_year,2018,1)
 
   unit_transform <-0.01               # Transformation factor gC/m^2 --> t/ha
 
@@ -48,7 +64,7 @@ readLPJmL5 <- function(subtype="soilc"){
     avg_range   <- 1                    #Number of years used for averaging
 
     x <- readLPJ(
-      file_name=paste0(folder,file_name),
+      file_name=path(folder,file_name),
       wyears=years,
       syear=start_year,
       averaging_range=avg_range,
@@ -67,7 +83,7 @@ readLPJmL5 <- function(subtype="soilc"){
     avg_range   <- 1                    #Number of years used for averaging
 
     x <- readLPJ(
-      file_name=paste0(folder,file_name),
+      file_name=path(folder,file_name),
       wyears=years,
       syear=start_year,
       averaging_range=avg_range,
@@ -87,7 +103,7 @@ readLPJmL5 <- function(subtype="soilc"){
     avg_range   <- 1                    #Number of years used for averaging
 
     x <- readLPJ(
-      file_name=paste0(folder,file_name),
+      file_name=path(folder,file_name),
       wyears=years,
       syear=start_year,
       averaging_range=avg_range,
@@ -108,7 +124,7 @@ readLPJmL5 <- function(subtype="soilc"){
     avg_range   <- 1                    #Number of years used for averaging
 
     x <- readLPJ(
-      file_name=paste0(folder,file_name),
+      file_name=path(folder,file_name),
       wyears=years,
       syear=start_year,
       averaging_range = avg_range,
@@ -135,7 +151,7 @@ readLPJmL5 <- function(subtype="soilc"){
     avg_range   <- 1                    #Number of years used for averaging
 
     x <- readLPJ(
-      file_name=paste0(folder,file_name),
+      file_name=path(folder,file_name),
       wyears=years,
       syear=start_year,
       averaging_range=avg_range,
