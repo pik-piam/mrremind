@@ -50,7 +50,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("NetForeignAsset",                       round=6,  file="pm_nfa_start.cs4r")
   calcOutput("NetForeignAsset",                       round=6,  file="pm_nfa_start.cs4r")
   calcOutput("CalibrationPrices",                     round=6,  file="p29_cesdata_price.cs4r")
-#  calcOutput("Theil",                                 round=8,  file="f_ineqTheil.cs4r")
+  calcOutput("Theil",                                 round=8,  file="f_ineqTheil.cs4r")
   calcOutput("DevelopmentState",                      round=4,  file="f_developmentState.cs3r")
   
   #-------------- energy services parameter -----------------------------------------------------------
