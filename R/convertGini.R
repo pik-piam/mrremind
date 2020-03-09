@@ -4,6 +4,7 @@
 #' Countries missing in the original data set will have their Gini set to zero (a very small number for numerical reasons to be precise).
 #' The original data range is 2011-2100 in one-year steps, here we extend it to 2000-2150 in 5-year steps. 
 #' Values before (after) the original range are held fixed at 2011 (2100) levels.
+#' Gini values for the SDP scenario are taken from the SSP1 scenario
 #' 
 #' 
 #' @param x MAgPIE object containing Gini data with World Bank codes, 2011-2100, in percent (range 0-100)
@@ -18,6 +19,11 @@
  
 
 convertGini <- function(x){
+  
+  # add SDP scenario, with same data as SSP1
+  xSDP <- x[,,"SSP1"]
+  getNames(xSDP) <- "SDP"
+  x <- mbind(x,xSDP)
   
   # conversion to iso3c codes, match Somalia by hand because countrycode fails
   getRegions(x) <- countrycode(getRegions(x), origin = 'wb', destination = 'iso3c' , custom_match = c('SOM' = 'SOM'))
