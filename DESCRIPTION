@@ -1,8 +1,8 @@
 Package: moinput
 Type: Package
 Title: Model Operations Input Data Library
-Version: 9.315.1
-Date: 2020-02-27
+Version: 9.319.0
+Date: 2020-03-06
 Author: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich
     Kreidenweis, Benjamin Bodirsky, Isabelle Weindl, Mishko Stevanovic, Xiaoxi Wang, Ewerton Araujo, Florian Humpenoeder, Stephen Wirth, Kristine Karstens, Abhijeet Mishra
 Maintainer: Anastasis Giannousakis <giannou@pik-potsdam.de>
@@ -57,8 +57,9 @@ License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.0.2
-ValidationKey: 1706433169
+ValidationKey: 1707893130
 Suggests: knitr,
+    testthat,
     rmarkdown,
 	ggplot2
 VignetteBuilder: knitr

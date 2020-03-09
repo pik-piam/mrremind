@@ -9,16 +9,26 @@
 #' @examples
 #'
 #' \dontrun{
-#' readSource("LPJmL4", subtype="maize_mrh")
+#' readSource("LPJmL4", subtype="CRU4p02.soilc", convert="onlycorrect")
 #' }
 #'
 #' @import madrat
 #' @import magclass
 #' @importFrom lpjclass readLPJ
+#' @importFrom lucode path
 
 readLPJmL4 <- function(subtype="soilc"){
   
-  folder <- "CRU4p02_2019_11_07/"
+  if(grep("\\.",subtype)){
+    
+    subtype     <- strsplit(gsub("_","/" ,subtype), split="\\.")
+    folder      <- unlist(subtype)[1]
+    subtype     <- unlist(subtype)[2]
+  } else {
+    
+    folder <- "CRU4p02"
+    cat(paste0("Set input folder to default climate data set: ", folder))
+  }
   
   files <- c(soilc           = "soilc_natveg.bin",
              soilc_layer     = "soilc_layer_natveg.bin",
@@ -27,15 +37,22 @@ readLPJmL4 <- function(subtype="soilc"){
              alitfallc       = "alitfallc_natveg.bin",
              alitfalln       = "alitfalln_natveg.bin",
              harvest         = "pft_harvest_lai.unlimN.pft.bin",
+             irrig           = "cft_airrig_lai.unlimN.pft.bin",
              sdate           = "sdate_lai.unlimN.bin",
-             hdate           = "hdate_lai.unlimN.bin"
+             hdate           = "hdate_lai.unlimN.bin",
+             transpiration   = "mtransp_natveg.bin",
+             discharge       = "mdischarge_natveg.bin",
+             runoff          = "mrunoff_natveg.bin",
+             evaporation     = "mevap_natveg.bin",
+             vegc_grass      = "vegc_grass.bin",
+             litc_grass      = "litc_grass.bin"
   )
-  
+
   file_name <- toolSubtypeSelect(subtype,files)
   
-  
-  start_year <- as.numeric(gsub("First year: ","",readLines(paste0(folder,"tmp.out"))))
-  years      <- seq(start_year,2017,1)
+  start_year  <- 1901
+  #start_year <- as.numeric(gsub("First year: ","",readLines(path(folder,"tmp.out"))))
+  years      <- seq(start_year,2018,1)
   
   unit_transform <-0.01               # Transformation factor gC/m^2 --> t/ha
   

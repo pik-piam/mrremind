@@ -26,10 +26,10 @@ readEDGE <- function(subtype = "FE_stationary") {
     mdata <- mstationary
  } else if (subtype == "FE_buildings") {
  
-   mbuilding <- read.csv("EDGE_buildings_EDGE_EUR_ETP.csv") 
+   mbuilding <- read.csv("EDGE_buildings_EDGE_EUR_ETP_CCoff.csv") 
    mbuilding <- as.magpie(mbuilding)
    # read in additional data for SSP1plus/SDP
-   mbuilding_SDP <- read.csv("EDGE_buildings_EDGE_EUR_ETPSSP1plus.csv") 
+   mbuilding_SDP <- read.csv("EDGE_buildings_EDGE_EUR_ETP_CCoff_SSP1plus.csv") 
    mbuilding_SDP <- as.magpie(mbuilding_SDP)
    # rename SSP1 into SDP
    getNames(mbuilding_SDP) <- gsub("SSP1plus","SDP",getNames(mbuilding_SDP))

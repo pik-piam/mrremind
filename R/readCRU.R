@@ -48,9 +48,9 @@ readCRU <- function(subtype="precipitation"){
     #Load celliso names for 1:59199 magpie cells
     mapping   <- toolMappingFile(type="cell",name="CountryToCellMapping.csv", readcsv=TRUE)
     cellNames <- mapping$celliso
-    month     <- c("jan","feb","mar","apr","mai","jun","jul","aug","sep","oct","nov","dez")
+    ndays     <- clean_magpie(as.magpie(c( jan=31, feb=28, mar=31, apr=30, mai=31, jun=30, jul=31, aug=31, sep=30, oct=31, nov=30, dez=31)))
     years     <- seq(years[1],years[2],1)
-    x         <- as.array(new.magpie(cellNames, years, month ,fill=NA))
+    x         <- as.array(new.magpie(cellNames, years, getNames(ndays) ,fill=NA))
 
     for (j in 1:59199) {
       ilon <- which(magpie_coord[j,1]==nc.lon)
@@ -60,7 +60,8 @@ readCRU <- function(subtype="precipitation"){
       }
     }
 
-    x <- as.magpie(x)
+    # multiply number of daye per month to get monthly data
+    x <- as.magpie(x)*ndays
   }
 
   return(x)
