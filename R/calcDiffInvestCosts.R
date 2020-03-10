@@ -6,11 +6,13 @@
 #' @param subtype Investment Costs, I&M Costs, and Efficiency
 #' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
 #' @author Aman Malik
+#' @importFrom magclass new.magpie
 
 calcDiffInvestCosts <- function(subtype){
   if (subtype=="Invest_Costs"){
     x       <- readSource("IEA_WEO",subtype="Invest_Costs")
     x_REN21 <- readSource("REN21",subtype="investmentCosts")
+    x_IEA_PVPS <- readSource("IEA_PVPS", subtype="CAPEX")
   
   # x <- readSource("IEA_WEO")# reading data end of convert function
   x[,,] <- as.numeric(x[,,]) # convertng data values into numeric
@@ -94,6 +96,58 @@ calcDiffInvestCosts <- function(subtype){
   x_new["AUS",2015,"spv"] <- 1400 # in USD/kW
   
   
+  ### RP/FS: add PV investment cost for 2020
+  # based on IEA PVPS data from 2018, 
+  # some regions manually adjusted 
+
+  # add some manual adjustments to IEA PVPS data for 2020 PV investment cost input data
+  regmapping <- toolGetMapping("regionmappingH12.csv",where = "mappingfolder",type = "regional")
+  x_adj <- new.magpie(unique(regmapping$RegionCode), years = "y2020",fill = NA)
+  
+  # CAZ: The Australian utility-scale market saw a stong jump upwards in 2018. 
+  # It is likely that the reported prices are a result of this jump, as in contrast, 
+  # rooftop is already well-established and has prices around 1.25$/W. 
+  # Accordingly, we expect that by 2020, the utility-scale solar market will be more 
+  # in equilibrium and have prices below the current rooftop prices 
+  x_adj["CAZ",,] <- 1200
+  # IND: Other sources for Indian utility-scale prices (IRENA, WEO, REN21) are more in the range of ~800$/kW. 
+  # Also, the reports around failed auctions and non-delivery of projects might indicate that 
+  # the stated prices are below cost.
+  x_adj["IND",,] <- 700
+  # JPN: We assume that Japan prices will be downward-influenced by the low prices realized everywhere else in Asia.
+  x_adj["JPN",,] <- 1500
+  # LAM: IRENA states utility-scale prices in the range of ~1400-1500$/kW for LAM. 
+  # Recent auctions in individual countries indicate lower prices, but it is unlikely that 
+  # all the countries will immediately achieve the lowest prices realized in some auctions
+  x_adj["LAM",,] <- 950
+  # MEA: IRENA states utility-scale prices in the range of ~1250$/kW for MEA 
+  # Recent auctions in individual countries indicate lower prices, 
+  # but it is unlikely that all the countries will immediately achieve 
+  # the lowest prices realized in some auctions
+  x_adj["MEA",,] <- 850
+  # REF: Very different costs in IRENA (2300) and REN21 (1300) - 
+  # but unlikely to have higher capital costs than severly space-constrained Japan
+  x_adj["REF",,] <- 1400
+  # SSA: IRENA states prices of ~1600$/W, but very likely that prices are currently decreasing through learning
+  # from the low prices in North African countries.
+  x_adj["SSA",,] <- 1300
+  
+  # disaggregate adjustments to iso level
+  x_adj_iso <- toolAggregate(x_adj, regmapping)
+  
+  # regions which have not been manually adjusted -> replace by original IEA PVPS data 
+  x_adj_iso[which(is.na(x_adj_iso))] <- x_IEA_PVPS[which(is.na(x_adj_iso))]
+  # add new 2020 values PV
+  x_new[,"y2020","spv"] <- x_adj_iso
+  
+  
+  
+
+
+
+  
+  
+  
   return(list(x = x_new,weight= x_new ,unit="USD$/KW 2015",description="Investment costs data" ))
  
 }
@@ -149,6 +203,9 @@ calcDiffInvestCosts <- function(subtype){
     
     return(list(x = x_new,weight= x_new ,unit="NA",description="Efficiency data" ))
   }
+  
+
+  
   
   if (subtype=="Invest_Costs"|subtype=="O&M_Costs"){
   
