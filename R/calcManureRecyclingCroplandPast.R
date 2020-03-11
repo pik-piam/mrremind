@@ -19,35 +19,39 @@
 calcManureRecyclingCroplandPast <- function(products="sum", cellular = FALSE ){
 
   past               <- findset("past")
-  Excretion          <- collapseNames(calcOutput("Excretion", cellular = cellular, aggregate = FALSE)[,past,"confinement"])
-  EmissionFactors3   <- calcOutput("EF3confinement", selection="recycling", aggregate = FALSE)
+  Excretion          <- collapseNames(calcOutput("Excretion", cellular = cellular, attributes = "npkc", aggregate = FALSE)[,past,"confinement"])
+  EmissionFactors_n  <- calcOutput("EF3confinement", selection="recycling", aggregate = FALSE)
+  LossRates_c        <- calcOutput("ClossConfinement", aggregate = FALSE)
   AnimalWasteMSShare <- collapseNames(calcOutput("AWMSconfShr", aggregate = FALSE)[,past,"constant"])
   
   if(cellular){
     
-    EmissionFactors3   <- toolIso2CellCountries(EmissionFactors3)
+    EmissionFactors_n  <- toolIso2CellCountries(EmissionFactors_n)
+    LossRates_c        <- toolIso2CellCountries(LossRates_c)
     AnimalWasteMSShare <- toolIso2CellCountries(AnimalWasteMSShare)
   }
   
   if(products == "sum"){
     
-    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors3, dim = c(3.1, 3.3))
+    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors_n, dim = c(3.1, 3.3))
     vcat(verbosity = 2,"no P and K losses in manure management assumed")
     ManurePhosphorKalium <- dimSums(Excretion[,,c("p","k")], dim = 3.1)
+    ManureCarbon         <- dimSums(Excretion[,,"c"] * AnimalWasteMSShare * (1-LossRates_c), dim = c(3.1, 3.3))
     
   } else if (products == "kli"){
     
-    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors3, dim = c(3.3))
+    ManureNitrogen       <- dimSums(Excretion[,,"nr"] * AnimalWasteMSShare * EmissionFactors_n, dim = c(3.3))
     vcat(verbosity = 2,"no P and K losses in manure management assumed")
     ManurePhosphorKalium <- Excretion[,,c("p","k")]
+    ManureCarbon         <- dimSums(Excretion[,,"c"] * AnimalWasteMSShare * (1-LossRates_c), dim = c(3.3))
     
   } else stop(paste("Type", products ,"is not a valid for parameter 'products'."))
               
-  out       <- mbind(ManureNitrogen, ManurePhosphorKalium)
+  out       <- mbind(ManureNitrogen, ManurePhosphorKalium, ManureCarbon)
   
   return(list(x            = out,
               weight       = NULL,
-              unit         = "Mt Nr, P, K",
+              unit         = "Mt Nr, P, K, C",
               description  = "Manure from confinements recycled to croplands",
               isocountries = !cellular)
   )    

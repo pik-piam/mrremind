@@ -29,15 +29,15 @@ calcTheil <- function(){
   
   # population (in 1e6)
   pop <- calcOutput(type = 'Population', PopulationFuture="SSP_completed", aggregate = FALSE)
-  sspnames <- paste0('SSP',1:5)
+  sspnames <- c(paste0('SSP',1:5),"SDP")
   pop <- pop[,years,paste0('pop_',sspnames)]
   getNames(pop) <- sspnames
   getSets(pop) <- c("iso3c","year","scenario")
   
-  # GDP (in 1e6)
+  # GDP (in million $ PPP 2005)
   GDPppp <- calcOutput(type = 'GDPppp', GDPpppFuture="SSP_completed", aggregate = FALSE)
-  GDPnames <- getNames(GDPppp)
-  GDPppp <- GDPppp[,years,paste0('gdp_',sspnames)]
+  GDPnames <- paste0('gdp_',sspnames)
+  GDPppp <- GDPppp[,years,GDPnames]
   getNames(GDPppp) <- sspnames
   getSets(GDPppp) <- c("iso3c","year","scenario")
   

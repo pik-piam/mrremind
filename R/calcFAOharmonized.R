@@ -49,7 +49,7 @@ calcFAOharmonized <- function () {
 
   ## aggregate Prod to CB units
 
-  aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+  aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
   
   Prod <- Prod[,,"(Total)", pmatch=T, invert=T]
   

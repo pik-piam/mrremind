@@ -50,6 +50,7 @@ fullMAGPIE <- function(rev=0.1) {
     # 13 tc
     calcOutput("ExoTcDummy",       round=4, file="f13_tau_scenario.csv")
     calcOutput("TCguess",          round=3, file="f13_tcguess.cs4")
+    calcOutput("TauHistorical",    round=2, file="f13_tau_historical.csv")
     
     # 14 yields
     calcOutput("CalibrationDummy", round=0, file="f14_yld_calib.csv")
@@ -97,6 +98,7 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("TradeSelfSuff",    years=mag_years, round=2, file="f21_trade_self_suff.cs3")
     calcOutput("TradeExportShr",   years=mag_years, round=2, file="f21_trade_export_share.cs3")
     calcOutput("TradeBalanceflow", years=mag_years, round=4, file="f21_trade_balanceflow.cs3", aggregate=FALSE)
+    calcOutput("TradeBalance"    , years=mag_years, round=2, file="f21_trade_balance.cs3")
     calcOutput("TradeMargin",      years=2005,      round=4, file="f21_trade_margin.cs3")
     calcOutput("TradeTariff",      years=2005,      round=4, file="f21_trade_tariff.cs3")
     calcOutput("TradeTariff", type_tariff="export",    round=4, file="f21_trade_tariff_export.cs3")

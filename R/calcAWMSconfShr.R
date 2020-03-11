@@ -14,8 +14,8 @@
 #' @importFrom magclass collapseNames add_columns add_dimension getNames<- setYears
 
 
-
 calcAWMSconfShr<-function(rev=0.1){
+
   past<-findset("past")
   out<-calcOutput("AWMSconfShrPast",aggregate = FALSE)
   weight2<-collapseNames(calcOutput("Excretion",aggregate = FALSE)[,past,"confinement"][,,"nr"])

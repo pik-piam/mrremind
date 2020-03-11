@@ -37,12 +37,12 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
       
       if (sectoral=="FoodBalanceItem") {
 
-        aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+        aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
         data <- toolAggregate(data, rel=aggregation, from="ProductionItem", to="FoodBalanceItem", dim=3.1, partrel=T)
         
       } else if (sectoral=="kcr") {
 
-        aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+        aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
         data <- toolAggregate(data, rel=aggregation, from="ProductionItem", to="k", dim=3.1, partrel=T)
         
         # add bioenergy with 0 values
