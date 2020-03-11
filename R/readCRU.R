@@ -36,7 +36,7 @@ readCRU <- function(subtype="precipitation"){
 
     x    <- read.LPJ_input(file_name=paste0(folder,file), out_years=paste0("y",years[1]:years[2]))
     x    <- collapseNames(as.magpie(x))
-    getNames(x) <- c("jan","feb","mar","apr","mai","jun","jul","aug","sep","oct","nov","dez")
+    getNames(x) <- c("jan","feb","mar","apr","mai","jun","jul","aug","sep","oct","nov","dec")
 
   } else if(format == ".nc"){
 
