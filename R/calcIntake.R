@@ -93,6 +93,7 @@ calcIntake <- function(convert=TRUE,modelinput=FALSE,standardize=FALSE,method="F
     
     commonyears=intersect(getYears(height),getYears(inactivity))
     commonyears <- intersect(commonyears, getYears(height))
+    commonyears <- intersect(commonyears, getYears(demo))
     
     if(method=="Froehle"){
       tmean<-calcOutput("Temperature",landusetypes="urban",months=FALSE,aggregate = FALSE,convert=convert)
