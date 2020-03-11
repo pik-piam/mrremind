@@ -137,7 +137,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
     getNames(x)     <- paste0("soilc.",getNames(x))
     getSets(x)[4:5] <- c("data" ,"layer")
 
-  } else if(grepl("m *", subtype)){
+  } else if(subtype %in% c("transpiration","discharge","runoff","evaporation")){
 
     start_year  <- start_year         # Start year of data set
     years       <- years              # Vector of years that should be exported
