@@ -13,11 +13,14 @@
 #' 
 #' @importFrom magclass getRegionList<-
 #' @importFrom magclass getRegionList
+#' @importFrom magpiesets findset
 
 calcNitrogenFixationRateNatural<-function(){
   
-  e_rate <- readSource(type = "LPJml_rev21",subtype="evaporation",convert="onlycorrect")
-  t_rate <- readSource(type = "LPJml_rev21",subtype="transpiration",convert="onlycorrect")
+  years <- findset("past")
+  
+  e_rate <- readSource(type = "LPJmL", subtype="LPJmL4:CRU_4.evaporation", convert="onlycorrect")[,years,]
+  t_rate <- readSource(type = "LPJmL", subtype="LPJmL4:CRU_4.transpiration", convert="onlycorrect")[,years,]
   et_rate= dimSums(e_rate+t_rate,dim=3)
   start_year="y1965"
   

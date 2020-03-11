@@ -4,7 +4,7 @@
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens
 #' @seealso
-#' \code{\link{readLPJmL5}},
+#' \code{\link{readLPJmL}},
 #' \code{\link{read.LPJ_input}}
 #' @examples
 #'
@@ -48,7 +48,7 @@ readCRU <- function(subtype="precipitation"){
     #Load celliso names for 1:59199 magpie cells
     mapping   <- toolMappingFile(type="cell",name="CountryToCellMapping.csv", readcsv=TRUE)
     cellNames <- mapping$celliso
-    ndays     <- clean_magpie(as.magpie(c( jan=31, feb=28, mar=31, apr=30, mai=31, jun=30, jul=31, aug=31, sep=30, oct=31, nov=30, dez=31)))
+    ndays     <- clean_magpie(as.magpie(c( jan=31, feb=28, mar=31, apr=30, mai=31, jun=30, jul=31, aug=31, sep=30, oct=31, nov=30, dec=31)))
     years     <- seq(years[1],years[2],1)
     x         <- as.array(new.magpie(cellNames, years, getNames(ndays) ,fill=NA))
 

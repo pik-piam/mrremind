@@ -33,7 +33,7 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     CountryToCell <- toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv = TRUE)
     
     #Load LPJ yields and area on cell level
-    LPJYields      <- toolCell2isoCell(readSource("LPJml_rev21",subtype="harvest_lai4",convert="onlycorrect")[,,LPJCroptypes])
+    LPJYields      <- toolCell2isoCell(readSource("LPJmL",subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,,LPJCroptypes])
     if(sectoral=="kcr") LPJYields  <- toolAggregate(LPJYields, rel=MAGtoLPJ, from="LPJmL", to="MAgPIE", dim=3.1)
     LPJCroparea    <- toolCell2isoCell(calcOutput("Croparea", sectoral=sectoral, physical=TRUE, cellular=TRUE, irrigation=TRUE, aggregate = FALSE))
     
@@ -90,7 +90,7 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     CountryToCell <- toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv = TRUE)
     
     #Load LPJ yields and area on cell level
-    LPJYields           <- toolCell2isoCell(readSource("LPJml_rev21",subtype="harvest_lai4",convert="onlycorrect")[,,"mgrass.rainfed"])
+    LPJYields           <- toolCell2isoCell(readSource("LPJmL", subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,,"mgrass.rainfed"])
     MAGPasturearea      <- toolCell2isoCell(calcOutput("LanduseInitialisation", cellular = TRUE, aggregate = FALSE)[,,"past"])
     getNames(LPJYields) <- getNames(MAGPasturearea) <- "pasture"
 
