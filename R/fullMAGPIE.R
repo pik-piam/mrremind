@@ -144,7 +144,7 @@ fullMAGPIE <- function(rev=0.1) {
     
     #55 awms
     calcOutput("ManureFuelShr",      years=mag_years,  round=4, file="f55_manure_fuel_shr.cs4")
-    calcOutput("AWMSconfShr",        years=mag_years,  round=4, file="f55_awms_shr.cs4")
+    calcOutput("AWMSconfShr",        years=mag_years,  round=4, file="f55_awms_shr.cs4",rev=rev)
     calcOutput("EF3confinement", selection="recycling",round=4, file="f55_awms_recycling_share.cs4")
   
     # 56_ghg_policy
