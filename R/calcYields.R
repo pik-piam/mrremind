@@ -17,7 +17,7 @@ calcYields <- function(){
 
   # Load LPJmL harvested data as MAgPIe object and change unit gC/m?-> tDM/ha
 
-  lpj_yields    <- readSource("LPJmL5", subtype = "harvest", convert="onlycorrect")
+  lpj_yields    <- readSource("LPJmL", subtype = "harvest", convert="onlycorrect")
 
   # Load LPJmL to MAgPIE mapping to aggregate to MAgPIE crops
   LPJ2MAG      <- toolGetMapping( "MAgPIE_LPJmL.csv", type = "sectoral", where = "mappingfolder")

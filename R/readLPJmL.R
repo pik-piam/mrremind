@@ -1,15 +1,14 @@
-#' @title readLPJmL5
-#' @description Read LPJmL 5 content
+#' @title readLPJmL
+#' @description Read LPJmL content
 #' @param subtype Switch between different input
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens, Abhijeet Mishra, Felicitas Beier
 #' @seealso
-#' \code{\link{readLPJmL4}},
 #' \code{\link{readLPJ}}
 #' @examples
 #'
 #' \dontrun{
-#' readSource("LPJmL5", subtype="CRU4p02.soilc", convert="onlycorrect")
+#' readSource("LPJmL", subtype="LPJmL5:CRU4p02.soilc", convert="onlycorrect")
 #' }
 #'
 #' @import madrat
@@ -17,46 +16,68 @@
 #' @importFrom lpjclass readLPJ
 #' @importFrom lucode path
 
-readLPJmL5 <- function(subtype="CRU4p02.soilc"){
+readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
 
-  if(grep("\\.",subtype)){
+  if(grepl("\\.",subtype)){
     
-    subtype     <- strsplit(subtype, split="\\.")
+    subtype     <- strsplit(gsub(":","/" ,subtype),, split="\\.")
     folder      <- unlist(subtype)[1]
     subtype     <- unlist(subtype)[2]
+    
   } else {
     
-    folder <- "CRU4p02"
+    natveg <- c("soilc", "soilc_layer", "litc", "vegc", "alitterfallc", 
+    "transpiration", "discharge", "runoff", "evaporation")
+
+    if(subtype %in% natveg){
+    
+      folder <- "LPJmL4/CRU_4"  
+    } else{
+      
+      folder <- "LPJmL5/CRU_4"
+    }
+      
     cat(paste0("Set input folder to default climate data set: ", folder))
   }
   
   files <- c(soilc           = "soilc_natveg.bin",
              soilc_layer     = "soilc_layer_natveg.bin",
              litc            = "litc_natveg.bin",
-             vegc            = "vegc_natveg.nc",
+             vegc            = "vegc_natveg.bin",
              alitfallc       = "alitfallc_natveg.bin",
              alitfalln       = "alitfalln_natveg.bin",
-             harvest         = "pft_harvest_lai.unlimN.pft.bin",
-             irrig           = "cft_airrig_lai.pft.bin",
-             sdate           = "sdate_lai.unlimN.bin",
-             hdate           = "hdate_lai.unlimN.bin",
+             harvest         = "pft_harvest.pft.bin",
+             irrig           = "cft_airrig.pft.bin",
+             sdate           = "sdate.bin",
+             hdate           = "hdate.bin",
              transpiration   = "mtransp_natveg.bin",
              discharge       = "mdischarge_natveg.bin",
              runoff          = "mrunoff_natveg.bin",
              evaporation     = "mevap_natveg.bin",
-             vegc_grass      = "vegc_grass.bin",
-             litc_grass      = "litc_grass.bin"
+             vegc_grass      = "mean_vegc_mangrass.bin",
+             litc_grass      = "litc_mangrass.bin",
+             soilc_grass     = "soilc_mangrass.bin"
   )
 
   file_name <- toolSubtypeSelect(subtype,files)
 
-  start_year  <- 1901
-  #start_year <- as.numeric(gsub("First year: ","",readLines(path(folder,"tmp.out"))))
-  years      <- seq(start_year,2018,1)
+  if(tmp <- file.exists(path(folder,"tmp.out"))){
+  
+    tmp        <- readLines(path(folder,"tmp.out"))
+    years      <- as.numeric(unlist(regmatches(tmp, gregexpr("\\d{4}", tmp))))
+    start_year <- years[1]
+    years      <- seq(years[1],years[2],1)
+  
+  } else {
+  
+    # default
+    start_year  <- 1901
+    years      <- seq(start_year,2017,1)
+  }
 
   unit_transform <-0.01               # Transformation factor gC/m^2 --> t/ha
 
-  if(subtype%in%c("soilc","litc","vegc","alitfallc","alitfalln")){
+  if(subtype%in%c("soilc","litc","vegc","alitfallc","alitterfallc","alitfalln","vegc_grass","litc_grass","soilc_grass")){
 
     start_year  <- start_year           # Start year of data set
     years       <- years                # Vector of years that should be exported
@@ -116,7 +137,7 @@ readLPJmL5 <- function(subtype="CRU4p02.soilc"){
     getNames(x)     <- paste0("soilc.",getNames(x))
     getSets(x)[4:5] <- c("data" ,"layer")
 
-  } else if(grepl("m *", subtype)){
+  } else if(subtype %in% c("transpiration","discharge","runoff","evaporation")){
 
     start_year  <- start_year         # Start year of data set
     years       <- years              # Vector of years that should be exported

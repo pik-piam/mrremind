@@ -1,5 +1,5 @@
-#' @title convertCRU
-#' @description Convert CRU content
+#' @title convertLPJmL
+#' @description Convert LPJmL content
 #' @param x magpie object provided by the read function
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
 #' @author Kristine Karstens
@@ -8,13 +8,13 @@
 #' @examples
 #'
 #' \dontrun{
-#'   readSource("CRU", subtype="precipitation", convert=TRUE)
+#'   readSource("LPJmL", subtype="soilc", convert=TRUE)
 #' }
 #'
 #' @import madrat
 #' @import magclass
 
-convertCRU <- function(x){
+convertLPJmL <- function(x){
 
   return(x)
 }

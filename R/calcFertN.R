@@ -18,6 +18,7 @@
 #' 
 #' }
 #' @importFrom magpiesets findset
+#' @importFrom mstools toolFertilizerDistribution
 #' 
 calcFertN <- function(appliedto="total",cellular=FALSE,deposition="CEDS",max_snupe=0.85) {
   fert <- readSource("IFA",subtype="consumption")[,,"Grand Total N", drop=TRUE]
