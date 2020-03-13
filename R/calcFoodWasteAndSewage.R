@@ -3,7 +3,7 @@ calcFoodWasteAndSewage<-function(historic=TRUE){
   past<-findset("past") 
   mb<-calcOutput("FAOmassbalance",aggregate = FALSE)
   demand<-collapseNames(mb[,,"households"][,,c("nr")])
-  
+  getSets(demand)[[3]]<-"ItemCodeItem"
   
   # food waste should be estimated without using demand projections
   
@@ -41,7 +41,7 @@ calcFoodWasteAndSewage<-function(historic=TRUE){
   #Moree, A. L., A. H. W. Beusen, A. F. Bouwman, and W. J. Willems. 2013. “Exploring Global Nitrogen and Phosphorus Flows in Urban Wastes during the Twentieth Century.” Global Biogeochemical Cycles 27 (3): 836–46. doi:10.1002/gbc.20072.
   demand<-mbind(add_dimension(demand,dim=3.1,nm="nr"),add_dimension(demand,dim=3.1,nm="p")/10)
   # not differentiated by product
-  demand<-dimSums(demand,dim="data")
+  demand<-dimSums(demand,dim="ItemCodeItem")
   
   #waste_shr<-calcOutput("Demand",aggregate = FALSE)
   #waste_shr<-collapseNames(waste_shr[,,"waste_shr"][,past,"SSP2"])
