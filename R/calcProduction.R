@@ -42,7 +42,7 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
       ### crop production celluluar ###
       #################################
       
-      LPJYields      <- toolCell2isoCell(readSource("LPJml_rev21",subtype="harvest_lai4", convert=FALSE)[,selectyears,])
+      LPJYields      <- toolCell2isoCell(readSource("LPJmL",subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,selectyears,])
       
       CountryToCell  <- toolMappingFile(type="cell",name = "CountryToCellMapping.csv",readcsv = TRUE)
       MAGtoLPJ       <- toolMappingFile(type="sectoral",name = "MAgPIE_LPJmL.csv",readcsv = TRUE)
@@ -86,7 +86,7 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
       ####################################
       
       Pasturearea    <- toolCell2isoCell(collapseNames(calcOutput("LanduseInitialisation", cellular=TRUE, aggregate = FALSE)[,selectyears,"past"]))
-      PastureYields  <- toolCell2isoCell(collapseNames(readSource("LPJml_rev21", subtype="harvest_lai4", convert=FALSE)[,selectyears,"mgrass"][,,"rainfed"]))
+      PastureYields  <- toolCell2isoCell(collapseNames(readSource("LPJmL", subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,selectyears,"mgrass"][,,"rainfed"]))
       CountryToCell  <- toolMappingFile(type="cell",name = "CountryToCellMapping.csv",readcsv = TRUE)
       
       if(calibrated==TRUE){

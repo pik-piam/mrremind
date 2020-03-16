@@ -39,17 +39,18 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("TauTotal",  years=1995,        round=2, file="fm_tau1995.cs4")
   
     # 09 drivers
-    calcOutput("CollectProjectionDrivers", driver="gdp",aggregate=FALSE, years=mag_years, round=1, file="f09_gdp_ppp_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="gdpmer",aggregate=FALSE, years=mag_years, round=1, file="f09_gdp_mer_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="pop",aggregate=FALSE, years=mag_years, round=1, file="f09_pop_iso.csv")
-    calcOutput("CollectProjectionDrivers", driver="urban",aggregate=FALSE, years=mag_years, round=1, file="f09_urban_iso.csv")
+    calcOutput("CollectProjectionDrivers", driver="gdp",aggregate=FALSE, years=mag_years, round=3, file="f09_gdp_ppp_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="gdpmer",aggregate=FALSE, years=mag_years, round=3, file="f09_gdp_mer_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="pop",aggregate=FALSE, years=mag_years, round=6, file="f09_pop_iso.csv") # please dont increase rounding, this can create errors
+    calcOutput("CollectProjectionDrivers", driver="urban",aggregate=FALSE, years=mag_years, round=4, file="f09_urban_iso.csv") # please dont increase rounding, this can create errors
     calcOutput("DevelopmentState", round=4, file="f09_development_state.cs3")
-    calcOutput("Demography",education=FALSE,aggregate=FALSE, file="f09_demography.cs3")
+    calcOutput("Demography",education=FALSE,aggregate=FALSE, file="f09_demography.cs3", round=6) # please dont increase rounding, this can create errors
     calcOutput("PhysicalInactivity",aggregate = FALSE,years=mag_years, round=3, file="f09_physical_inactivity.cs3")
     
     # 13 tc
     calcOutput("ExoTcDummy",       round=4, file="f13_tau_scenario.csv")
     calcOutput("TCguess",          round=3, file="f13_tcguess.cs4")
+    calcOutput("TauHistorical",    round=2, file="f13_tau_historical.csv")
     
     # 14 yields
     calcOutput("CalibrationDummy", round=0, file="f14_yld_calib.csv")
@@ -97,6 +98,7 @@ fullMAGPIE <- function(rev=0.1) {
     calcOutput("TradeSelfSuff",    years=mag_years, round=2, file="f21_trade_self_suff.cs3")
     calcOutput("TradeExportShr",   years=mag_years, round=2, file="f21_trade_export_share.cs3")
     calcOutput("TradeBalanceflow", years=mag_years, round=4, file="f21_trade_balanceflow.cs3", aggregate=FALSE)
+    calcOutput("TradeBalance"    , years=mag_years, round=2, file="f21_trade_balance.cs3")
     calcOutput("TradeMargin",      years=2005,      round=4, file="f21_trade_margin.cs3")
     calcOutput("TradeTariff",      years=2005,      round=4, file="f21_trade_tariff.cs3")
     calcOutput("TradeTariff", type_tariff="export",    round=4, file="f21_trade_tariff_export.cs3")
@@ -119,7 +121,9 @@ fullMAGPIE <- function(rev=0.1) {
     #f45_koeppengeiger(j,clcl)
     
     #50 n soil budget
-    calcOutput("SNUpE",years=mag_years, round=4, file="f50_snupe.cs4")
+
+    calcOutput("SNUpE",years=mag_years, round=4, file="f50_snupe.cs4",rev=rev)
+    
     calcOutput("NitrogenBudgetBalanceflow",years=mag_years, round=4, file="f50_nitrogen_balanceflow.cs4")
     calcOutput("NitrogenFixationNdfa",years=mag_years, round=4, file="f50_ndfa.cs4")
     calcOutput("NitrogenFixationFreeliving", round=4, file="f50_fixation_freeliving.cs4", aggregate = FALSE)
@@ -140,7 +144,7 @@ fullMAGPIE <- function(rev=0.1) {
     
     #55 awms
     calcOutput("ManureFuelShr",      years=mag_years,  round=4, file="f55_manure_fuel_shr.cs4")
-    calcOutput("AWMSconfShr",        years=mag_years,  round=4, file="f55_awms_shr.cs4")
+    calcOutput("AWMSconfShr",        years=mag_years,  round=4, file="f55_awms_shr.cs4",rev=rev)
     calcOutput("EF3confinement", selection="recycling",round=4, file="f55_awms_recycling_share.cs4")
   
     # 56_ghg_policy

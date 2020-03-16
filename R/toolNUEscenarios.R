@@ -1,4 +1,4 @@
-toolNUEscenarios<-function(x,weight){
+toolNUEscenarios<-function(x,weight,rev=0.1){
   x<-setNames(toolHoldConstantBeyondEnd(x),"constant")
   weight<-setNames(toolHoldConstantBeyondEnd(weight),"constant")
   
@@ -20,7 +20,10 @@ toolNUEscenarios<-function(x,weight){
   x<-scenariosetting(x,0.75,0.80,"y2010")
   x<-scenariosetting(x,0.75,0.85,"y2010")  
   x<-scenariosetting(x,0.80,0.85,"y2010")
-  x<-scenariosetting(x,0.85,0.85,"y2010")
+  
+  if (rev>=4.33) {
+    x<-scenariosetting(x,0.85,0.85,"y2010")
+  }
   
   weight2<-x
   weight2[,,]<-setNames(weight,NULL)

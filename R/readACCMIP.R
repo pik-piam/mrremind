@@ -86,8 +86,9 @@ readACCMIP <- function(subtype=NULL)
   if(glo==FALSE){
     
     a <- read.magpie(file_name = file, file_type= "nc")
-    b <- unwrap(a)
-    d <- as.magpie(b, temporal = 3)
+    #b <- unwrap(a)
+    #d <- as.magpie(b, temporal = 3)
+    d <- a
     
     getYears(d) <- c(paste("y",str_sub(file, -7, -4), sep = ""))
     # kg(N)/m²/s to t(N)/ha/y

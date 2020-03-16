@@ -451,5 +451,4 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   
   
   return(out)
-  
 }

@@ -10,4 +10,4 @@ convertGridPop<-function(x,subtype){
   #agg1   <- toolAggregate(gridpop1, rel=CountryToCell, from="celliso", to="iso", partrel=TRUE)
   #round(agg1/1e6-pop[getRegions(gridpop),past,"pop_SSP2"])
   
-  }  
+}  

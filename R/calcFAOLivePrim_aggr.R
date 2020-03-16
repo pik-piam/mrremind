@@ -27,7 +27,7 @@ calcFAOLivePrim_aggr <- function() {
     FAOLive <- FAOLive[,,"+ (Total)", pmatch=T, invert=T]
   }
   
-  aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+  aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
 
   FAOLive[is.na(FAOLive)] <- 0
   

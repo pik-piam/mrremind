@@ -13,21 +13,24 @@
 #' 
 #' @importFrom magclass getRegionList<-
 #' @importFrom magclass getRegionList
+#' @importFrom magpiesets findset
 
 calcNitrogenFixationRateNatural<-function(){
   
-  e_rate <- readSource(type = "LPJml_rev21",subtype="evaporation",convert="onlycorrect")
-  t_rate <- readSource(type = "LPJml_rev21",subtype="transpiration",convert="onlycorrect")
+  years <- findset("past")
+  
+  e_rate <- readSource(type = "LPJmL", subtype="LPJmL4:CRU_4.evaporation", convert="onlycorrect")[,years,]
+  t_rate <- readSource(type = "LPJmL", subtype="LPJmL4:CRU_4.transpiration", convert="onlycorrect")[,years,]
   et_rate= dimSums(e_rate+t_rate,dim=3)
   start_year="y1965"
   
-  land <- calcOutput("LanduseInitialisation",aggregate = FALSE,cellular=TRUE)
-  et=et_rate*dimSums(land,dim=3)
+  land <- dimSums(setYears(calcOutput("LanduseInitialisation",aggregate = FALSE,cellular=TRUE)[,start_year,],NULL),dim=3)
+  et=et_rate*land
   
   # calibration to global total of 58 Tg from Vitousek et al 2013,
   # assuming linear relation to evapotranspiration from Cleveland et al 1999
   bnf=58/dimSums(setYears(et[,start_year,],NULL),dim=c(1,3))*et
-  bnf_rate=bnf/dimSums(land,dim=3)
+  bnf_rate=bnf/land
   bnf_rate[is.na(bnf_rate)]=0
   
   # in case we also have ET for pasture, we could also first calibrate with natveg and the apply to ET rates of pastures. however pasture productivtiy very uncertain

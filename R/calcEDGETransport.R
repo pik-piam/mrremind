@@ -72,6 +72,11 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "[-]"
            description = "Share weight, a dimensionless parameter reflecting consumer preferences."
          },
+         "pref" = {
+           weight = NULL
+           unit = "LDVs 4wheelers: inconvenience cost [1990$/pkm]; all other modes: [-] share weight, a dimensionless parameter reflecting consumer preferences"
+           description = "Inconvenience cost reflecting availability of infrastructure"
+         },
          "price_nonmot" = {
            weight = NULL
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"

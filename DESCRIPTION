@@ -1,8 +1,8 @@
 Package: moinput
 Type: Package
 Title: Model Operations Input Data Library
-Version: 9.287.1
-Date: 2019-12-06
+Version: 9.322.1
+Date: 2020-03-13
 Author: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich
     Kreidenweis, Benjamin Bodirsky, Isabelle Weindl, Mishko Stevanovic, Xiaoxi Wang, Ewerton Araujo, Florian Humpenoeder, Stephen Wirth, Kristine Karstens, Abhijeet Mishra
 Maintainer: Anastasis Giannousakis <giannou@pik-potsdam.de>
@@ -25,7 +25,9 @@ Imports:
     lazyeval,
     lpjclass,
     luscale,
+    lucode,
     magpiesets,
+	mstools,
     ncdf4,
 	nleqslv,
 	nnls,
@@ -46,6 +48,7 @@ Imports:
     tidyr,
     tools,
     utils,
+	mgsub,
     zoo,
     WDI,
 	gdata,
@@ -54,9 +57,10 @@ Imports:
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
-RoxygenNote: 7.0.2
-ValidationKey: 1693595556
+RoxygenNote: 7.1.0
+ValidationKey: 1709113814
 Suggests: knitr,
+    testthat,
     rmarkdown,
 	ggplot2
 VignetteBuilder: knitr

@@ -12,17 +12,14 @@
 
 calcEffortSharingTarget <- function(){
   
-  t <- readSource("Eurostat_EffortSharing",subtype="target")
-  e <- readSource("Eurostat_EffortSharing",subtype="emissions")
+  target <- readSource("Eurostat_EffortSharing",subtype="target")
   
-  target <- as.vector(e[,2005,]) * (1 + t) / 1000
+  w <- calcOutput("EffortSharingRefEmi", subtype="Eurostat_GHG", round=6, aggregate=F)
   
-  getNames(target) <- "co2"
-    
-  #Returning capacity values
-  return(list(x=target, weight=NULL,
-              unit="GtCo2", 
-              description="Effort sharing emission target"             
+  getNames(target) <- NULL
+  
+  return(list(x=target, weight=w,
+              unit="percentage", 
+              description="Effort sharing emission target in relation to 2005 reference emissions"             
   )) 
 }
-

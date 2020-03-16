@@ -40,7 +40,7 @@ calcNutrientWasteBudget<-function(nutrient="nr"){
   slaughterwaste<-setNames(dimSums(slaughtermass-livestock,dim=3),"slaughterwaste")
   
   # HH Waste
-  hhwaste<-dimSums(calcOutput("FoodWasteAndSewage",aggregate = FALSE)[,,nutrient][,,"hh_food_waste"],dim=c(3))
+  hhwaste<-dimSums(calcOutput("FoodWasteAndSewage",historic=TRUE,aggregate = FALSE)[,,nutrient][,,"hh_food_waste"],dim=c(3))
   hhwaste<-setNames(hhwaste,"hh_food_waste")
   
   out<-mbind(supply_chain_loss,processing_loss,food_processing_loss,slaughterwaste,hhwaste)

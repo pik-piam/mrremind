@@ -22,7 +22,7 @@ calcAgProductionValue <- function(datasource="FAO") {
     data <- data[,,"Gross_Production_Value_(constant_2004_2006_million_US$)_(USD)"]
     data <- collapseNames(data)
     
-    aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+    aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
     
     data[is.na(data)] <- 0
     

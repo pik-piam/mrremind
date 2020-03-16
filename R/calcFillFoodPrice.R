@@ -29,7 +29,7 @@ prices <- prices[,years_p,intersect(getNames(prices),getNames(prod))]
 prod <- prod[,,intersect(getNames(prices),getNames(prod))]
 
 #aggregate to magpie products
-aggregation <- toolGetMapping("FAOitems.rda","sectoral",where="moinput")
+aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
 prices <- toolAggregate(prices, rel=aggregation, from="ProductionItem", 
                         to="k", dim=3.1, partrel = TRUE, verbosity=2, weight=prod)
 #time interpolate between-year gaps - gaps longer than 1 year, does not improve

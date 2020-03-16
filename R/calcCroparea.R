@@ -34,15 +34,15 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
       data <- toolFAOcombine(CropPrim, Fodder)
       data <- data[,,"(Total)", pmatch=TRUE, invert=TRUE]
       data <- data/10^6 # convert to Mha
-      
+            
       if (sectoral=="FoodBalanceItem") {
 
-        aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+        aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
         data <- toolAggregate(data, rel=aggregation, from="ProductionItem", to="FoodBalanceItem", dim=3.1, partrel=T)
         
       } else if (sectoral=="kcr") {
 
-        aggregation <- toolGetMapping("FAOitems.rda", type = "sectoral", where="moinput")
+        aggregation <- toolGetMapping("FAOitems.csv", type = "sectoral", where="mappingfolder")
         data <- toolAggregate(data, rel=aggregation, from="ProductionItem", to="k", dim=3.1, partrel=T)
         
         # add bioenergy with 0 values
@@ -59,7 +59,7 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
           data <- data[,,kcr]
         }
         
-      } else {stop("Sectoral aggregation not supported")}
+      } else if(sectoral!="ProductionItem"){stop("Sectoral aggregation not supported")}
       
     } else if(sectoral=="lpj"){
       
@@ -83,9 +83,6 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
     
   } else {
     
-    options(magclass_expand_version=1)
-    on.exit(options(magclass_expand_version=2))
-    
     ##################################
     ### Croparea on cellular level ###
     ##################################
@@ -98,7 +95,7 @@ calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigati
       LUHcroparea      <- LUHcroparea[,,LUHcroptypes]
       if(irrigation==TRUE) LUHcroparea <- LUHcroparea[,,"total",invert=TRUE] #if "total" is also reported magpie object grows to big (over 1.3Gb)
       
-      LUHweights       <- calcOutput("LUH2MAgPIE", share = "MAGofLUH", aggregate = FALSE) 
+      LUHweights       <- calcOutput("LUH2MAgPIE", share = "MAGofLUH", missing="fill", aggregate = FALSE) 
       
       LUH2MAG          <- LUHcroparea * toolIso2CellCountries(LUHweights)
       MAGcroparea      <- dimSums(LUH2MAG, dim=3.1)

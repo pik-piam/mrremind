@@ -11,6 +11,6 @@ calcCCSbounds <- function() {
   getNames(data) <- NULL
   
   return(list(x=data,weight=NULL,
-              unit="",
+              unit="TW",
               description="CCS bound indicator"))
 }
