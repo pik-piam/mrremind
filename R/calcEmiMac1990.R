@@ -26,9 +26,9 @@ calcEmiMac1990 <- function() {
   # overwritting european countries with eurostat data
   EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
   baselineEurostat <- readSource(type="Eurostat",subtype="MACCemi")
-  #baselineEurostat <- calcOutput("HistEmissions",subtype="MAC",aggregate=F)
-  ch4wsts[EUcountries,1990,"ch4wsts"] <- baselineEurostat[EUcountries,1990,"ch4wsts"] / 28
-  ch4wstl[EUcountries,1990,"ch4wstl"] <- baselineEurostat[EUcountries,1990,"ch4wstl"] / 28
+  gwp_ch4_eurostat <- 25 #values from AR4
+  ch4wsts[EUcountries,1990,"ch4wsts"] <- baselineEurostat[EUcountries,1990,"ch4wsts"] / gwp_ch4_eurostat
+  ch4wstl[EUcountries,1990,"ch4wstl"] <- baselineEurostat[EUcountries,1990,"ch4wstl"] / gwp_ch4_eurostat
   
   # combine all parameters
   x <- mbind(ch4wsts,ch4wstl)

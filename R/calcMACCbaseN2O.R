@@ -14,13 +14,13 @@ calcMACCbaseN2O <- function() {
   baselineEurostat <- calcOutput("HistEmissions",subtype="MAC",aggregate=F)
   for(y in getYears(baseline,as.integer = T)){
     if (y <= 2010){
-      baseline[EUcountries,y,"n2otrans"] <- baselineEurostat[EUcountries,y,"n2otrans"] / 265 * 28/44 
-      baseline[EUcountries,y,"n2oadac"] <- baselineEurostat[EUcountries,y,"n2oadac"] / 265 * 28/44 
-      baseline[EUcountries,y,"n2onitac"] <- baselineEurostat[EUcountries,y,"n2onitac"] / 265 * 28/44 
+      baseline[EUcountries,y,"n2otrans"] <- baselineEurostat[EUcountries,y,"n2otrans"] 
+      baseline[EUcountries,y,"n2oadac"] <- baselineEurostat[EUcountries,y,"n2oadac"] 
+      baseline[EUcountries,y,"n2onitac"] <- baselineEurostat[EUcountries,y,"n2onitac"]  
     } else {
-      baseline[EUcountries,y,"n2otrans"] <- baseline[EUcountries,y,"n2otrans"] * setYears( (baselineEurostat[EUcountries,2015,"n2otrans"] / 265 * 28/44) / baseline[EUcountries,2015,"n2otrans"] )
-      baseline[EUcountries,y,"n2oadac"] <- baseline[EUcountries,y,"n2oadac"] * setYears( (baselineEurostat[EUcountries,2015,"n2oadac"] / 265 * 28/44) / baseline[EUcountries,2015,"n2oadac"] )
-      baseline[EUcountries,y,"n2onitac"] <- baseline[EUcountries,y,"n2onitac"] * setYears( (baselineEurostat[EUcountries,2015,"n2onitac"] / 265 * 28/44) / baseline[EUcountries,2015,"n2onitac"] )
+      baseline[EUcountries,y,"n2otrans"] <- baseline[EUcountries,y,"n2otrans"] * setYears( (baselineEurostat[EUcountries,2015,"n2otrans"]) / baseline[EUcountries,2015,"n2otrans"] )
+      baseline[EUcountries,y,"n2oadac"] <- baseline[EUcountries,y,"n2oadac"] * setYears( (baselineEurostat[EUcountries,2015,"n2oadac"]) / baseline[EUcountries,2015,"n2oadac"] )
+      baseline[EUcountries,y,"n2onitac"] <- baseline[EUcountries,y,"n2onitac"] * setYears( (baselineEurostat[EUcountries,2015,"n2onitac"]) / baseline[EUcountries,2015,"n2onitac"] )
     }
   }
   baseline[is.na(baseline)] <- 0
