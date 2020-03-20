@@ -54,7 +54,7 @@ if (relative==TRUE){
 #write dimnames
 C <-aperm(C, perm=c(2,3,1))
 dimnames(C) <- c(dimnames(cm)[2], dimnames(arr)[2], dimnames(arr)[3])
-
+C <- as.magpie(C)
 return(C)
 }
 
