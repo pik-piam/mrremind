@@ -7,6 +7,7 @@
 
 #'#' @importFrom tidyverse spread select inner_join filter
 #'#' @importFrom tidyr unite
+#'#' @importFrom DirichletReg DR_data DirichReg predict
 calcWasteProj <-function(pc=TRUE, SSP="SSP2"){
 
 trt <- calcOutput("WasteTrt", aggregate=FALSE)
@@ -22,7 +23,6 @@ shares[,,"metal"] <- trt[,,"metal"]*typ[,,"metal"]
 shares[,,"other"] <- trt[,,"other"]*typ[,,"other"]
 
 gen <-  calcOutput("WasteGen", form="LogLog", aggregate=FALSE, pc=FALSE)[,,"SSP2"]
-getNames(gen) <- c("Q25.SSP2","Estimate.SSP2","Q975.SSP2")
 # total <- gen*shares
 # total <- dimOrder(total,c(2,3,1))
 

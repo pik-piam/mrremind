@@ -14,6 +14,13 @@ gdppc <- calcOutput("GDPpc",aggregate=F)[,,c("SSP1", "SSP2", "SSP3", "SSP4", "SS
 
 if(form=="LogLog"){
   pred <- 0.37*log(gdppc) + 2.16
+  pred <- add_dimension(pred, dim=3.2, add="new", nm="Estimate")
+  predQ25 <- 0.32*log(gdppc) + 1.77
+  predQ25 <- add_dimension(predQ25, dim=3.2, add="new", nm="Q25")
+  predQ975 <- 0.41*log(gdppc) + 2.56
+  predQ975 <- add_dimension(predQ975, dim=3.2, add="new", nm="Q975")
+  
+  pred<-mbind(pred,predQ25, predQ975)
   pred <- exp(pred)
 }
 
