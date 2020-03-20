@@ -20,7 +20,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
 
   if(grepl("\\.",subtype)){
     
-    subtype     <- strsplit(gsub(":","/" ,subtype),, split="\\.")
+    subtype     <- strsplit(gsub(":", "/", subtype), split="\\.")
     folder      <- unlist(subtype)[1]
     subtype     <- unlist(subtype)[2]
     
@@ -177,7 +177,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
       syear=start_year,
       averaging_range=avg_range,
       bands=nbands,
-      soilcells=TRUE)
+      soilcells=FALSE)
 
     # Transformation factor gC/m^2 --> t/ha
     yield_transform <- 0.01/0.45
