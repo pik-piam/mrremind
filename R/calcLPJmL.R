@@ -26,38 +26,45 @@
 calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", time="raw", averaging_range=NULL, dof=NULL, 
                       harmonize_baseline=FALSE, ref_year="y2015", limited=TRUE, hard_cut=FALSE, selectyears="all"){
 
-  readin_name <- paste0(version,":",climatetype,".",subtype)  
-  LPJmL_input <- readSource("LPJmlCarbon", subtype=readin_name, convert="onlycorrect")
-  
-  if(time=="average"){
-    
-    LPJmL_input <- toolTimeAverage(LPJmL_input, averaging_range = averaging_range)
-    
-  } else if(time=="spline"){
-    
-    LPJmL_input <- toolTimeSpline(LPJmL_input, dof = dof)
-    
-  } else if(time!="raw"){
-    
-    stop("Time argument not supported!")
-  }
-  
   if(harmonize_baseline!=FALSE){
     
+    if(harmonize_baseline==climatetype) stop("Climatetype and baseline are identical.")
+    
     #read in historical data for subtype
+    x           <- calcOutput("LPJmL", version=version, climatetype=climatetype, subtype=subtype, time=time, 
+                              averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE)
+
     Baseline    <- calcOutput("LPJmL", version=version, climatetype=harmonize_baseline, subtype=subtype, time=time, 
                               averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE)
     #use 
-    LPJmL_input <- toolHarmonize2Baseline(LPJmL_input, Baseline,  ref_year=ref_year, limited=limited, hard_cut=hard_cut)
+    LPJmL_input <- toolHarmonize2Baseline(x, Baseline,  ref_year=ref_year, limited=limited, hard_cut=hard_cut)
+    
+  } else {
+    
+    readin_name <- paste0(version,":",climatetype,".",subtype)  
+    LPJmL_input <- readSource("LPJmL", subtype=readin_name, convert="onlycorrect")
+    
+    if(time=="average"){
+      
+      LPJmL_input <- toolTimeAverage(LPJmL_input, averaging_range = averaging_range)
+      
+    } else if(time=="spline"){
+      
+      LPJmL_input <- toolTimeSpline(LPJmL_input, dof = dof)
+      
+    } else if(time!="raw"){
+      
+      stop("Time argument not supported!")
+    }
   }
   
-  if(selectyears!=all){
+  if(selectyears!="all"){
     years       <- sort(findset(selectyears,noset = "original"))
-    LPJml_input <- LPJml_input[,years,]
+    LPJmL_input <- LPJmL_input[,years,]
   } 
   
   # unit table for subtypes
-  unites <- c(soilc           = "tC/ha",
+  units <- c(soilc           = "tC/ha",
              soilc_layer     = "tC/ha",
              litc            = "tC/ha",
              vegc            = "tC/ha",
@@ -79,7 +86,7 @@ calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", ti
   unit <- toolSubtypeSelect(subtype,units)
   
   return(list(
-    x=LPJml_input,
+    x=LPJmL_input,
     weight=NULL,
     unit=unit, 
     description=paste0("Carbon output from LPJmL (",subtype,") for ", version, "and", climatetype, "."),
