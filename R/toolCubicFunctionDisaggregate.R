@@ -224,8 +224,8 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
                            returnChart=FALSE
                            returnSample=FALSE
                          }
-                         from <- ifelse(dim(rel)[2]==3,2,1) # country
-                         to <- ifelse(dim(rel)[2]==3,3,2) # region
+                         from <- ifelse(dim(rel)[2]>2,2,1) # country
+                         to <- ifelse(dim(rel)[2]>2,3,2) # region
                          out <- sapply(unique(rel[[to]]), function(region) {
                            currentFilteredDf <- currentDf[region,]
                            currentWeight <- currentWeight[rel[from][rel[to]==as.character(region)],]
@@ -256,8 +256,8 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
         returnChart=FALSE
         returnSample=FALSE
       }
-      from <- ifelse(dim(rel)[2]==3,2,1) # country
-      to <- ifelse(dim(rel)[2]==3,3,2) # region
+      from <- ifelse(dim(rel)[2]>2,2,1) # country
+      to <- ifelse(dim(rel)[2]>2,3,2) # region
       output <- sapply(unique(rel[[to]]), function(region) {
         currentFilteredDf <- data[region,]
         currentWeight <- weight[rel[from][rel[to]==as.character(region)],]

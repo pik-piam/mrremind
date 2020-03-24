@@ -76,6 +76,10 @@
 toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=100, returnMagpie=TRUE, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend"), steepCurve = list()){
   
   data <- x
+  
+  if(is.null(rel$RegionCode))  rel$RegionCode  <- rel$region
+  if(is.null(rel$CountryCode)) rel$CountryCode <- rel$country
+  
 
   if (!(length(steepCurve) == 0)){  #set steep curve if all countries within a region have zero upper bound
     for (region in unique(rel$RegionCode)){
@@ -255,8 +259,8 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
                            returnChart=FALSE
                            returnSample=FALSE
                          }
-                         from <- ifelse(dim(rel)[2]==3,2,1) # country
-                         to <- ifelse(dim(rel)[2]==3,3,2) # region
+                         from <- ifelse(dim(rel)[2]>2,2,1) # country
+                         to <- ifelse(dim(rel)[2]>2,3,2) # region
                          out <- sapply(unique(rel[[to]]), function(region) {
                            currentFilteredDf <- currentDf[rel[from][rel[to]==as.character(region)],]
                            # upper bound
@@ -295,8 +299,8 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
         returnChart=FALSE
         returnSample=FALSE
       }
-      from <- ifelse(dim(rel)[2]==3,2,1) # country
-      to <- ifelse(dim(rel)[2]==3,3,2) # region
+      from <- ifelse(dim(rel)[2]>2,2,1) # country
+      to <- ifelse(dim(rel)[2]>2,3,2) # region
       output <- sapply(unique(rel[[to]]), function(region) {
         currentFilteredDf <- data[rel[from][rel[to]==as.character(region)],]
         currentxUpperBound <- as.numeric(xUpperBound[rel[from][rel[to]==as.character(region)],,])
