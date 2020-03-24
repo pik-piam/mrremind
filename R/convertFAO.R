@@ -29,7 +29,9 @@ convertFAO <- function(x,subtype) {
   
   ## datasets that have only absolute values
   absolute <- c("CBCrop", "CBLive", "CropProc", "Fertilizer", "Land", "LiveHead", 
-                "LiveProc", "Pop", "ValueOfProd","ForestProdTrade")
+                "LiveProc", "Pop", "ValueOfProd","ForestProdTrade","Fbs")
+  
+
   
   ## datasets that contain relative values that can be deleted because they can 
   ## be calculated again at a later point in time
@@ -276,7 +278,9 @@ convertFAO <- function(x,subtype) {
     getNames(x,dim = 2)[8] <- "Export_Quantity_(Mio_tonnes)"
     
     getNames(x) <- gsub("^\\|","",getNames(x))
-  return(x) 
+  
+    
+    return(x) 
   }
   
   else {return(x)}

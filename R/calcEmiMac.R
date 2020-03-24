@@ -40,11 +40,11 @@ calcEmiMac <- function() {
   # overwritting european countries with eurostat data
   EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
   baselineEurostat <- calcOutput("HistEmissions",subtype="MAC",aggregate=F)
-  n2owaste[EUcountries,2005,"n2owaste"] <- baselineEurostat[EUcountries,2005,"n2owaste"] / 265 * 28/44 
-  n2otrans[EUcountries,2005,"n2otrans"] <- baselineEurostat[EUcountries,2005,"n2otrans"] / 265 * 28/44  
-  n2oacid[EUcountries,2005,"n2oacid"] <- dimSums(baselineEurostat[EUcountries,2005,c("n2oadac", "n2onitac")]) / 265 * 28/44  
-  ch4wsts[EUcountries,2005,"ch4wsts"] <- baselineEurostat[EUcountries,2005,"ch4wsts"] / 28
-  ch4wstl[EUcountries,2005,"ch4wstl"] <- baselineEurostat[EUcountries,2005,"ch4wstl"] / 28
+  n2owaste[EUcountries,2005,"n2owaste"] <- baselineEurostat[EUcountries,2005,"n2owaste"] 
+  n2otrans[EUcountries,2005,"n2otrans"] <- baselineEurostat[EUcountries,2005,"n2otrans"]  
+  n2oacid[EUcountries,2005,"n2oacid"] <- dimSums(baselineEurostat[EUcountries,2005,c("n2oadac", "n2onitac")])   
+  ch4wsts[EUcountries,2005,"ch4wsts"] <- baselineEurostat[EUcountries,2005,"ch4wsts"] 
+  ch4wstl[EUcountries,2005,"ch4wstl"] <- baselineEurostat[EUcountries,2005,"ch4wstl"] 
   
   # combine all parameters
   x <- mbind(co2cement,co2luc,n2owaste,n2otrans,n2oacid,ch4wsts,ch4wstl)

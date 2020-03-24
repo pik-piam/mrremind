@@ -42,28 +42,28 @@ readMAgPIE<- function(subtype) {
     
   } else if (subtype == "MAgPIEReport_extensive") {
     
-    # last version before the current /p/projects/remind/runs/magpie_40-develop-2019-02-25-macfix/output/r8375-C_*/report.mif
-    # current version /p/tmp/aloisdir/magpie/output
+    # last version before the current /p/tmp/aloisdir/magpie/output
+    # current version /p/projects/piam/runs/coupled-magpie/output
     
     # !!! ATTENTION !!! 
     # Please update scenario names in calcMAgPIEReport.R 
 
-    file_list <- c("remind-coupled_SDP-Base-mag-4.mif",
-                   "remind-coupled_SDP-Budg600_plus-mag-4.mif",
-                   "remind-coupled_SDP-Budg1300-mag-4.mif",
-                   "remind-coupled_SDP-NDC-mag-4.mif",
-                   "remind-coupled_SSP1-Base-mag-4.mif",
-                   "remind-coupled_SSP1-Budg600-mag-4.mif",
-                   "remind-coupled_SSP1-Budg1300-mag-4.mif",
-                   "remind-coupled_SSP1-NDC-mag-3.mif",
-                   "remind-coupled_SSP2-Base-mag-4.mif",
-                   "remind-coupled_SSP2-Budg600-mag-4.mif",
-                   "remind-coupled_SSP2-Budg1300-mag-4.mif",
-                   "remind-coupled_SSP2-NDC-mag-4.mif",
-                   "remind-coupled_SSP5-Base-mag-4.mif",
-                   "remind-coupled_SSP5-Budg600-mag-4.mif",
-                   "remind-coupled_SSP5-Budg1300-mag-4.mif",
-                   "remind-coupled_SSP5-NDC-mag-4.mif")
+    file_list <- c("C_SDP-Base-mag-4.mif",
+                   "C_SDP-PkBudg900-mag-4.mif",
+                   "C_SDP-PkBudg1300-mag-4.mif",
+                   "C_SDP-NDC-mag-4.mif",
+                   "C_SSP1-Base-mag-4.mif",
+                   "C_SSP1-PkBudg900-mag-4.mif",
+                   "C_SSP1-PkBudg1300-mag-4.mif",
+                   "C_SSP1-NDC-mag-4.mif",
+                   "C_SSP2-Base-mag-4.mif",
+                   "C_SSP2-PkBudg900-mag-4.mif",
+                   "C_SSP2-PkBudg1300-mag-4.mif",
+                   "C_SSP2-NDC-mag-4.mif",
+                   "C_SSP5-Base-mag-4.mif",
+                   "C_SSP5-PkBudg900-mag-4.mif",
+                   "C_SSP5-PkBudg1300-mag-4.mif",
+                   "C_SSP5-NDC-mag-4.mif")
     
     x <- NULL
     for(f in file_list) {
@@ -76,18 +76,23 @@ readMAgPIE<- function(subtype) {
     # !!! ATTENTION !!! 
     # Please update scenario names in calcBiomassPrice.R if necessary
     
-    scenario_names <- c("f30_bioen_price_SSP1-BASE-Base_",
+    scenario_names <- c("f30_bioen_price_SDP-NDC-NDC_replaced_flat_",
+                        "f30_bioen_price_SDP-NDC-PkBudg1300_replaced_flat_",
+                        "f30_bioen_price_SDP-NDC-PkBudg900_replaced_flat_",
+                        "f30_bioen_price_SDP-NPI-Base_replaced_flat_",
                         "f30_bioen_price_SSP1-NDC-NDC_",
-                        "f30_bioen_price_SSP1-NDC-Budg1300_replaced_flat_",
-                        "f30_bioen_price_SSP1-NDC-Budg600_",
-                        "f30_bioen_price_SSP2-BASE-Base_",
+                        "f30_bioen_price_SSP1-NDC-PkBudg1300_replaced_flat_",
+                        "f30_bioen_price_SSP1-NDC-PkBudg900_",
+                        "f30_bioen_price_SSP1-NPI-Base_",
                         "f30_bioen_price_SSP2-NDC-NDC_",
-                        "f30_bioen_price_SSP2-NDC-Budg1300_replaced_flat_",
-                        "f30_bioen_price_SSP2-NDC-Budg600_replaced_flat_",
-                        "f30_bioen_price_SSP5-BASE-Base_replaced_flat_",
+                        "f30_bioen_price_SSP2-NDC-PkBudg1300_",
+                        "f30_bioen_price_SSP2-NDC-PkBudg900_replaced_flat_",
+                        "f30_bioen_price_SSP2-NPI-Base_",
                         "f30_bioen_price_SSP5-NDC-NDC_replaced_flat_",
-                        "f30_bioen_price_SSP5-NDC-Budg1300_replaced_flat_",
-                        "f30_bioen_price_SSP5-NDC-Budg600_")
+                        "f30_bioen_price_SSP5-NDC-PkBudg1300_replaced_flat_",
+                        "f30_bioen_price_SSP5-NDC-PkBudg900_replaced_flat_",
+                        "f30_bioen_price_SSP5-NPI-Base_replaced_flat_")
+    
 
     file_list <- paste0(scenario_names,regcode,".cs4r")
     setnames  <- c("region","year","scenario","char")
@@ -108,9 +113,9 @@ readMAgPIE<- function(subtype) {
     getSets(x) <- setnames
     
     # use data from SSP1 scenario for SPD scenario --- ATTENTION: needs to be deleted as soon as we have data for SDP
-    x_SDP <- x[,,"SSP1",pmatch=TRUE]
-    getNames(x_SDP) <- gsub("SSP1","SDP",getNames(x_SDP))
-    x <- mbind(x,x_SDP)
+    #x_SDP <- x[,,"SSP1",pmatch=TRUE]
+    #getNames(x_SDP) <- gsub("SSP1","SDP",getNames(x_SDP))
+    #x <- mbind(x,x_SDP)
 
   } else {
     stop("Not a valid subtype!")

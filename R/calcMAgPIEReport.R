@@ -42,6 +42,18 @@ calcMAgPIEReport <- function(subtype){
     d <- "CH4 and N2O land emissions"
     u <- "MtCH4/yr and Mt N2O/yr"
 
+  } else if (subtype == "co2") {
+    
+    mapping <- inline.data.frame(
+      "oldnames;newnames",
+      "Emissions|CO2|Land (Mt CO2/yr);co2luc")
+    
+    x <- x[,,mapping$oldnames]
+    # rename
+    getNames(x,dim=3) <- mapping$newnames
+    d <- "CO2 land emissions"
+    u <- "Mt CO2/yr"
+    
   } else {
     stop("Unknown subtype",subtype)
   }
@@ -53,25 +65,25 @@ calcMAgPIEReport <- function(subtype){
   # If you change the name of the baseline scenario from "none" to something else update "none" in calcMacBaseLandUse.R
   
   # rename the MAgPIE scenarios to RCP scenarios
-  getNames(x) <- gsub("remind-coupled_SDP-Budg600_plus-mag-4", "SDP-rcp20",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SDP-Budg1300-mag-4","SDP-rcp26",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SDP-NDC-mag-4",     "SDP-rcp45",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SDP-Base-mag-4",    "SDP-none", getNames(x))
+  getNames(x) <- gsub("C_SDP-PkBudg900-mag-4",  "SDP-rcp20",getNames(x))
+  getNames(x) <- gsub("C_SDP-PkBudg1300-mag-4", "SDP-rcp26",getNames(x))
+  getNames(x) <- gsub("C_SDP-NDC-mag-4",        "SDP-rcp45",getNames(x))
+  getNames(x) <- gsub("C_SDP-Base-mag-4",       "SDP-none", getNames(x))
   
-  getNames(x) <- gsub("remind-coupled_SSP1-Budg600-mag-4", "SSP1-rcp20",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP1-Budg1300-mag-4","SSP1-rcp26",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP1-NDC-mag-3",     "SSP1-rcp45",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP1-Base-mag-4",    "SSP1-none", getNames(x))
+  getNames(x) <- gsub("C_SSP1-PkBudg900-mag-4", "SSP1-rcp20",getNames(x))
+  getNames(x) <- gsub("C_SSP1-PkBudg1300-mag-4","SSP1-rcp26",getNames(x))
+  getNames(x) <- gsub("C_SSP1-NDC-mag-4",       "SSP1-rcp45",getNames(x))
+  getNames(x) <- gsub("C_SSP1-Base-mag-4",      "SSP1-none", getNames(x))
   
-  getNames(x) <- gsub("remind-coupled_SSP2-Budg600-mag-4", "SSP2-rcp20",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP2-Budg1300-mag-4","SSP2-rcp26",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP2-NDC-mag-4",     "SSP2-rcp45",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP2-Base-mag-4",    "SSP2-none", getNames(x))
+  getNames(x) <- gsub("C_SSP2-PkBudg900-mag-4", "SSP2-rcp20",getNames(x))
+  getNames(x) <- gsub("C_SSP2-PkBudg1300-mag-4","SSP2-rcp26",getNames(x))
+  getNames(x) <- gsub("C_SSP2-NDC-mag-4",       "SSP2-rcp45",getNames(x))
+  getNames(x) <- gsub("C_SSP2-Base-mag-4",      "SSP2-none", getNames(x))
 
-  getNames(x) <- gsub("remind-coupled_SSP5-Budg600-mag-4", "SSP5-rcp20",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP5-Budg1300-mag-4","SSP5-rcp26",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP5-NDC-mag-4",     "SSP5-rcp45",getNames(x))
-  getNames(x) <- gsub("remind-coupled_SSP5-Base-mag-4",    "SSP5-none", getNames(x))
+  getNames(x) <- gsub("C_SSP5-PkBudg900-mag-4", "SSP5-rcp20",getNames(x))
+  getNames(x) <- gsub("C_SSP5-PkBudg1300-mag-4","SSP5-rcp26",getNames(x))
+  getNames(x) <- gsub("C_SSP5-NDC-mag-4",       "SSP5-rcp45",getNames(x))
+  getNames(x) <- gsub("C_SSP5-Base-mag-4",      "SSP5-none", getNames(x))
   
   # Introduce new SSP/SDP dimension by replacing "-" with "."
   getNames(x) <- gsub("(SSP[0-9]|SDP)-","\\1.",getNames(x))
