@@ -32,15 +32,15 @@ calcTaxesStationary <- function(sector) {
   
   #produce the mapping. The stationary items are recomputed after. Including them in the mapping allows to create the category in the magclass object
   map_list = list(
-    "IN-Naturalgas" = c("fegai", "fegas"),
+    "IN-Naturalgas" = c("fegai", "fegas", 'feh2i', 'feh2s'),
     "IN-Oil" = c("fehoi", "fehos"),
     "IN-Coal" = c("fesoi","fesos"),
     "IN-Electricity" = c("feeli", "feels"),
-    "RC-Naturalgas" = c("fegab"),
+    "RC-Naturalgas" = c("fegab", 'feh2b'),
     "RC-Heatingoil" = c("fehob"),
     "RC-Coal" = c("fesob"),
     "RC-Electricity" = c("feelb","feelt"),
-    "TRP-Oilproducts" = c("fepet", "fedie", "feh2s","feh2t","fehes","feheb","fehei","feh2b","feh2i"))
+    "TRP-Oilproducts" = c("fepet", "fedie","feh2t","fehes","feheb","fehei"))
   
   map = unlist(lapply(unique(names(map_list)), function(x){ tmp = map_list[[x]] ; names(tmp) = rep(x,length(tmp)); return(tmp)}))
   
@@ -64,6 +64,7 @@ calcTaxesStationary <- function(sector) {
     
     #fegas is weighted average of IN-gas and RC-gas
     Rtax[,,"fegas"] <- (tax[,,"IN-Naturalgas"]*energy[,,"IN-Naturalgas"]+tax[,,"RC-Naturalgas"]*energy[,,"RC-Naturalgas"])/(energy[,,"IN-Naturalgas"]+energy[,,"RC-Naturalgas"])
+    Rtax[,,'feh2s'] <- Rtax[,,'fegas']
     #fehos is weighted average of IN-oil and RC-Heatingoil
     Rtax[,,"fehos"] <- (tax[,,"IN-Oil"]*energy[,,"IN-Oil"]+tax[,,"RC-Heatingoil"]*energy[,,"RC-Heatingoil"])/(energy[,,"IN-Oil"]+energy[,,"RC-Heatingoil"])
     #fesos is weighted average of IN-coal and RC-coal
@@ -73,18 +74,23 @@ calcTaxesStationary <- function(sector) {
     #feelt is equal to feels
     Rtax[,,"feelt"] <- Rtax[,,"feels"]
     #feh2s,feh2t,fehes = 0
-    Rtax[,,c("feh2s","feh2t","fehes","feheb","fehei","feh2b","feh2i")] <- 0
+    Rtax[,,c("feh2t","fehes","feheb","fehei")] <- 0
     
     #new variable with reduced 3rd dimension, aggregated Industry and ResidentialCommercial
-    
     Renergy          <- energy[,,names(map)]
     Renergy          <- setNames(Renergy,map)
+    
+    # scale H2 taxes with natural gas
+    Renergy[,,'feh2b'] <- energy[,,'RC-Naturalgas']
+    Renergy[,,'feh2i'] <- energy[,,'IN-Naturalgas']
+    Renergy[,,'feh2s'] <- Renergy[,,'feh2b'] + Renergy[,,'feh2i']
+    
     Renergy[,,"fegas"] <- energy[,,"IN-Naturalgas"]+energy[,,"RC-Naturalgas"]
     Renergy[,,"fehos"] <- energy[,,"IN-Oil"]+energy[,,"RC-Heatingoil"]
     Renergy[,,"fesos"] <- energy[,,"IN-Coal"]+energy[,,"RC-Coal"]
     Renergy[,,"feels"] <- energy[,,"IN-Electricity"]+energy[,,"RC-Electricity"]
     Renergy[,,"feelt"] <- Renergy[,,"feelb"]
-    Renergy[,,c("feh2s","feh2t","fehes","feheb","fehei","feh2b","feh2i")] <- 0
+    Renergy[,,c("feh2t","fehes","feheb","fehei")] <- 0
     Rtax[is.na(Rtax)] <- 0
     getYears(Rtax) <- "2005"
     getYears(Renergy) <- "2005"
