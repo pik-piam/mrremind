@@ -75,7 +75,7 @@ toolHarmonize2Baseline <- function(x, base, ref_year, limited=TRUE, hard_cut=FAL
     full[,after_ref,] <- base[,ref_year,] * (1 + (x[,after_ref,] - x[,ref_year,])/base[,ref_year,] * 
                                            (base[,ref_year,]/x[,ref_year,]) ** lambda )
     
-    full[,after_ref,][is.na(full[,after_ref,])]  <- base[,rep(ref_year,length(after_ref)),][is.na(full[,after_ref,])]
+    full[,after_ref,][is.na(full[,after_ref,])]  <- 0
     
   }
   

@@ -54,6 +54,10 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
              discharge       = "mdischarge_natveg.bin",
              runoff          = "mrunoff_natveg.bin",
              evaporation     = "mevap_natveg.bin",
+             mtranspiration  = "mtransp_natveg.bin",
+             mdischarge      = "mdischarge_natveg.bin",
+             mrunoff         = "mrunoff_natveg.bin",
+             mevaporation    = "mevap_natveg.bin",
              vegc_grass      = "mean_vegc_mangrass.bin",
              litc_grass      = "litc_mangrass.bin",
              soilc_grass     = "soilc_mangrass.bin"
@@ -137,7 +141,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
     getNames(x)     <- paste0("soilc.",getNames(x))
     getSets(x)[4:5] <- c("data" ,"layer")
 
-  } else if(subtype %in% c("transpiration","discharge","runoff","evaporation")){
+  } else if(grepl("transpiration|discharge|runoff|evaporation", subtype)){
 
     start_year  <- start_year         # Start year of data set
     years       <- years              # Vector of years that should be exported
@@ -154,7 +158,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
 
     x <- collapseNames(as.magpie(x))
     x <- x*unit_transform
-
+    
     if(grepl("layer", subtype)){
       subtype     <- gsub("_", "\\.", subtype)       # Expand dimension to layers
       getNames(x) <- paste0(subtype,".",getNames(x))
@@ -162,6 +166,11 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
     } else{
       getNames(x) <- paste0(subtype,".",getNames(x))
       getSets(x)[4:5]  <- c("data" , "month")
+    }
+    
+    # annual value as total over all month
+    if(!grepl("^m", subtype)){
+      x <- dimSums(x, dim="month")  
     }
 
   } else if(grepl("*harvest*", subtype)){
