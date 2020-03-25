@@ -186,7 +186,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
       syear=start_year,
       averaging_range=avg_range,
       bands=nbands,
-      soilcells=FALSE)
+      soilcells=TRUE)
 
     # Transformation factor gC/m^2 --> t/ha
     yield_transform <- 0.01/0.45

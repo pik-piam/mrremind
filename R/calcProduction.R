@@ -17,7 +17,7 @@
 #' calcOutput("Production")
 #' }
 #' 
-#' @importFrom magclass getSets
+#' @importFrom magclass getSets magpie_expand
 
 
 calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attributes="all", irrigation=FALSE){
@@ -59,14 +59,71 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
         MAGYields      <- TAUCell * MAGYields 
       }
       
+      MAGProduction  <- MAGYields * MAGCroparea
+      
+      #####################################################################  
+      # correct production mismatch - generic approach
+      
+      isoMAGProduction  <- isoMismatch <- toolAggregate(dimSums(MAGProduction, dim=3.2), rel = CountryToCell, from = "celliso", to = "iso")
+      FAOProduction     <- collapseNames(calcOutput("FAOmassbalance", aggregate=FALSE)[,selectyears,"production"][,,getNames(MAGProduction, dim=1)][,,"dm"])
+      isoMismatch[]     <- abs(round(isoMAGProduction-toolIso2CellCountries(FAOProduction),4)) > 0
+      
+      if(any(isoMismatch!=0)){
+        
+        # correct items with no area
+        isoMAGCroparea   <- noMAGCroparea <- toolAggregate(MAGCroparea, rel = CountryToCell, from = "celliso", to = "iso")
+        noMAGCroparea[]  <- (isoMAGCroparea==0)*isoMismatch
+        
+        if(any(noMAGCroparea!=0)){
+          
+          # distribute equally over all non-irrigated cells first
+          MAGProduction[,,"rainfed"]    <- MAGProduction[,,"rainfed"]*(1-noMAGCroparea[,,"rainfed"]) + 
+            magpie_expand(noMAGCroparea[,,"rainfed"] * (toolIso2CellCountries(FAOProduction)-isoMAGProduction), MAGProduction[,,"rainfed"])/
+            new.magpie(names(getCPR(MAGProduction)),fill=getCPR(MAGProduction))
+          
+          isoMAGProduction  <- toolAggregate(dimSums(MAGProduction, dim=3.2), rel = CountryToCell, from = "celliso", to = "iso")
+          
+          
+          MAGProduction[,,"irrigated"]   <- MAGProduction[,,"irrigated"]*(1-noMAGCroparea[,,"irrigated"]) + 
+            magpie_expand(noMAGCroparea[,,"irrigated"] * (toolIso2CellCountries(FAOProduction)-isoMAGProduction), MAGProduction[,,"irrigated"])/
+            new.magpie(names(getCPR(MAGProduction)),fill=getCPR(MAGProduction))
+        }
+        
+        # correct items with no yields
+        isoMAGYields   <- noMAGYields <- toolAggregate(MAGYields, weight=MAGCroparea, rel = CountryToCell, from = "celliso", to = "iso")
+        noMAGYields[]  <- (isoMAGYields==0)*isoMismatch*(1-noMAGCroparea)
+        
+        if(any(noMAGYields!=0)){
+          
+          isoMAGProduction  <- toolAggregate(dimSums(MAGProduction, dim=3.2), rel = CountryToCell, from = "celliso", to = "iso")
+          
+          # distribute corresponding to crop area share
+          MAGProduction[,,"rainfed"]   <- MAGProduction[,,"rainfed"]*(1-noMAGYields[,,"rainfed"]) +
+            noMAGYields[,,"rainfed"]*toolAggregate(toolIso2CellCountries(FAOProduction)-isoMAGProduction, rel= CountryToCell, weight=MAGCroparea[,,"rainfed"], from="iso", to="celliso")
+          
+          
+          isoMAGProduction  <- toolAggregate(dimSums(MAGProduction, dim=3.2), rel = CountryToCell, from = "celliso", to = "iso")
+          
+          # distribute corresponding to crop area share
+          MAGProduction[,,"irrigated"]   <- MAGProduction[,,"irrigated"]*(1-noMAGYields[,,"irrigated"]) +
+            noMAGYields[,,"irrigated"]*toolAggregate(toolIso2CellCountries(FAOProduction)-isoMAGProduction, rel= CountryToCell, weight=MAGCroparea[,,"irrigated"], from="iso", to="celliso")
+        }
+        
+      }
+      
+      isoMAGProduction  <- isoMismatch <- toolAggregate(dimSums(MAGProduction, dim=3.2), rel = CountryToCell, from = "celliso", to = "iso")
+      isoMismatch[]     <- abs(round(isoMAGProduction-toolIso2CellCountries(FAOProduction),4)) > 0
+      if(any(isoMismatch!=0)) warning("Cellular data to FAO production mismatch after generic fix. Please check.")
+      #####################################################################
+      
+      
+      if(!irrigation){ MAGProduction  <- dimSums(MAGProduction, dim=3.2)}
+      
       ProdAttributes <- calcOutput("Attributes", aggregate = FALSE)[,,MAGcroptypes]
       
       if(any(attributes!="all")){
         ProdAttributes<-ProdAttributes[,,attributes]
       }
-      
-      MAGProduction  <- MAGYields * MAGCroparea
-      if(!irrigation){MAGProduction  <- dimSums(MAGProduction, dim=3.2)}
       
       MAGProduction  <- MAGProduction * ProdAttributes
       MAGProduction  <-add_columns(MAGProduction,addnm = missing,dim = 3.1)
@@ -85,65 +142,74 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
       ### pasture production celluluar ###
       ####################################
       
-      Pasturearea    <- toolCell2isoCell(collapseNames(calcOutput("LanduseInitialisation", cellular=TRUE, aggregate = FALSE)[,selectyears,"past"]))
+      PastureArea    <- toolCell2isoCell(collapseNames(calcOutput("LanduseInitialisation", cellular=TRUE, aggregate = FALSE)[,selectyears,"past"]))
       PastureYields  <- toolCell2isoCell(collapseNames(readSource("LPJmL", subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,selectyears,"mgrass"][,,"rainfed"]))
       CountryToCell  <- toolMappingFile(type="cell",name = "CountryToCellMapping.csv",readcsv = TRUE)
       
       if(calibrated==TRUE){
-      
+        
         TAU            <- calcOutput("LanduseIntensity", sectoral = "pasture", rescale = FALSE, aggregate = FALSE)[,selectyears,]
         TAUCell        <- toolAggregate(x = TAU, rel = CountryToCell, from = "iso", to = "celliso", partrel = TRUE)
         
         PastureYields  <- TAUCell * PastureYields
       }
-    
-      MAGProduction    <- PastureYields * Pasturearea
+      
+      MAGProduction    <- PastureYields * PastureArea
       
       #####################################################################  
-      #correct strange pasture production for DJI, EGY, SAU YEM, KWT and AWE
+      # correct production mismatch - generic approach
       
-      WrongRegions      <- c("EGY","SAU","YEM","KWT","ARE","DJI")
-      FAOProduction     <- collapseNames(calcOutput("FAOmassbalance", aggregate=FALSE)[WrongRegions,selectyears,"production"][,,"pasture"][,,"dm"])
+      isoMAGProduction  <- isoMismatch <- toolAggregate(MAGProduction, rel = CountryToCell, from = "celliso", to = "iso")
+      FAOProduction     <- collapseNames(calcOutput("FAOmassbalance", aggregate=FALSE)[,selectyears,"production"][,,"pasture"][,,"dm"])
+      isoMismatch[]     <- abs(round(isoMAGProduction-toolIso2CellCountries(FAOProduction),4)) > 0
       
-      #correct strange data for 2005 and 2010
-      WrongRegions05    <- c("EGY","SAU","YEM","KWT","ARE")
-      WrongYears        <- c("y2005","y2010")
+      if(any(isoMismatch!=0)){
+        
+        # correct items with no area
+        isoPastureArea   <- noPastureArea <- toolAggregate(PastureArea, rel = CountryToCell, from = "celliso", to = "iso")
+        noPastureArea[]  <- (isoPastureArea==0)*isoMismatch
+  
+        if(any(noPastureArea!=0)){
+          
+          # distribute equally over all cells
+          MAGProduction     <- MAGProduction*(1-noPastureArea) + 
+                               magpie_expand(noPastureArea * toolIso2CellCountries(FAOProduction), MAGProduction)/
+                                 new.magpie(names(getCPR(MAGProduction)),fill=getCPR(MAGProduction))
+          
+        }
+        
+        # correct items with no yields
+        isoPastureYields   <- noPastureYields <- toolAggregate(PastureYields, weight=PastureArea, rel = CountryToCell, from = "celliso", to = "iso")
+        noPastureYields[]  <- (isoPastureYields==0)*isoMismatch*(1-noPastureArea)
+        
+        if(any(noPastureYields!=0)){
+          
+          # distribute corresponding to pasture area share
+          MAGProduction     <- MAGProduction*(1-noPastureYields) +
+                               noPastureYields*toolAggregate(toolIso2CellCountries(FAOProduction), rel= CountryToCell, weight=PastureArea, from="iso", to="celliso")
+        }
+      }
       
-      PastureYields[WrongRegions05,"y2005",] <- setYears(PastureYields[WrongRegions05,"y2000",],NULL)
-      PastureYields[WrongRegions05,"y2010",] <- setYears(PastureYields[WrongRegions05,"y2000",],NULL)
+      isoMAGProduction  <- isoMismatch <- toolAggregate(MAGProduction, rel = CountryToCell, from = "celliso", to = "iso")
+      isoMismatch[]     <- abs(round(isoMAGProduction-toolIso2CellCountries(FAOProduction),4)) > 0
+      if(any(isoMismatch!=0)) warning("Cellular data to FAO production mismatch after generic fix. Please check.")
+      #####################################################################
       
-      DummyProduction   <- PastureYields[WrongRegions05,WrongYears,] * Pasturearea[WrongRegions05,WrongYears,]
-      DummyProductionCountry <- toolAggregate(DummyProduction, rel = CountryToCell, from = "celliso", to = "iso", partrel = TRUE)
-      
-      Calibration       <- FAOProduction[WrongRegions05,WrongYears,] / DummyProductionCountry
-      Wrong05Production <- DummyProduction * Calibration
-      
-      MAGProduction[WrongRegions05,WrongYears,] <- Wrong05Production
-      
-      #correct strange data for past
-      WrongRegionsEver     <- "DJI"
-      PastureShare         <- Pasturearea[WrongRegionsEver,,] / dimSums(Pasturearea[WrongRegionsEver,,], dim=1)
-      WrongEverProduction  <- PastureShare * FAOProduction[WrongRegionsEver,,]
-      
-      MAGProduction[WrongRegionsEver,,] <- WrongEverProduction
-      
-      #####################################################################  
-    
       ProdAttributes <- calcOutput("Attributes", aggregate = FALSE)[,,"pasture"]
       MAGProduction  <- collapseNames(MAGProduction * ProdAttributes)
       
     }
-      
+    
   } else if (products=="kli"){
     
     Livestocktypes <- findset("kli")
     if(irrigation){stop("Irrigation not yet implemented for this Product group")}
     if(!cellular){
-
+      
       MAGProduction <- collapseNames(calcOutput("FAOmassbalance_pre", aggregate=FALSE)[,selectyears,Livestocktypes][,,"production"])
       
     } else {
-    
+      
       MAGProduction       <- calcOutput("LivestockGridded", aggregate = FALSE)
     }
     
@@ -163,8 +229,7 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
               min=-Inf,
               max=Inf, 
               isocountries=!cellular
-              )
-         
+  )
+  
   ) 
 }
-
