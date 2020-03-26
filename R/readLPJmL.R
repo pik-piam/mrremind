@@ -45,6 +45,7 @@ readLPJmL <- function(subtype="LPJmL5:CRU4p02.soilc"){
              litc            = "litc_natveg.bin",
              vegc            = "vegc_natveg.bin",
              alitfallc       = "alitfallc_natveg.bin",
+             alitterfallc    = "alitterfallc_natveg.bin",
              alitfalln       = "alitfalln_natveg.bin",
              harvest         = "pft_harvest.pft.bin",
              irrig           = "cft_airrig.pft.bin",
