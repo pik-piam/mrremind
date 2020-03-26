@@ -55,9 +55,9 @@ toolHarmonize2Baseline <- function(x, base, ref_year, limited=TRUE, hard_cut=FAL
     
   } else if(limited==FALSE){
     
-    full[,after_ref,]       <- base[,ref_year,] * (x[,after_ref,] / x[,ref_year,])
+    full[,after_ref,]       <- base[,rep(ref_year,length(after_ref)),] * (x[,after_ref,] / x[,rep(ref_year,length(after_ref)),])
     
-    #full[is.na(full)]) <- base[,ref_year,]  # does this make sense?
+    full[,after_ref,][is.na(full[,after_ref,])] <- base[,rep(ref_year,length(after_ref)),][is.na(full[,after_ref,])]  # does this make sense?
     #full[is.infinite(full)]  <- toolFillYears(base[,ref_year,], after_ref) # does this make sense?
     
   } else {
@@ -68,12 +68,12 @@ toolHarmonize2Baseline <- function(x, base, ref_year, limited=TRUE, hard_cut=FAL
     ### data from reference year +1 on      ###
     ###########################################
     
-    lambda <- sqrt(x[,ref_year,] / base[,ref_year,])
+    lambda <- sqrt(x[,ref_year,, drop=FALSE] / base[,ref_year,, drop=FALSE])
     lambda[base[, ref_year, ] <= x[, ref_year, ]] <- 1
     lambda[is.nan(lambda)] <- 1
     
-    full[,after_ref,] <- base[,ref_year,] * (1 + (x[,after_ref,] - x[,ref_year,])/base[,ref_year,] * 
-                                           (base[,ref_year,]/x[,ref_year,]) ** lambda )
+    full[,after_ref,] <- base[,rep(ref_year,length(after_ref)),] * (1 + (x[,after_ref,] - x[,rep(ref_year,length(after_ref)),])/base[,rep(ref_year,length(after_ref)),] * 
+                                           (base[,rep(ref_year,length(after_ref)),]/x[,rep(ref_year,length(after_ref)),]) ** lambda[,rep(ref_year,length(after_ref)),])
     
     full[,after_ref,][is.na(full[,after_ref,])]  <- 0
     
