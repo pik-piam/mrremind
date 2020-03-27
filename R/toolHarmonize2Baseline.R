@@ -80,8 +80,8 @@ toolHarmonize2Baseline <- function(x, base, ref_year, limited=TRUE, hard_cut=FAL
   }
   
   #check for nans and more
-  if(any(is.infinite(full) | is.nan(full) | is.na(full))) stop("Data containing inconsistencies.")
-  if(!negative) if(any(full<0)) stop("Data containing inconsistencies.")
+  if(any(is.infinite(full) | is.nan(full) | is.na(full))) warning("Data containing inconsistencies.")
+  if(!negative) if(any(full<0)) warning("Data containing inconsistencies.")
   
   out <- as.magpie(full)
   
