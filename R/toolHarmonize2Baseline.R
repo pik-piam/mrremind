@@ -81,7 +81,10 @@ toolHarmonize2Baseline <- function(x, base, ref_year, limited=TRUE, hard_cut=FAL
   
   #check for nans and more
   if(any(is.infinite(full) | is.nan(full) | is.na(full))) warning("Data containing inconsistencies.")
-  if(!negative) if(any(full<0)) warning("Data containing inconsistencies.")
+  if(!negative & any(full<0)){
+    vcat(2, paste0("toolHarmonize2Baseline created unwanted negativities in the range of ", range(full[which(full<0)]), ". They will be set to zero."))
+    full[full<0] <- 0
+  } 
   
   out <- as.magpie(full)
   
