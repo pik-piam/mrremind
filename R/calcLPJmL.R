@@ -4,6 +4,7 @@
 #' @param version Switch between LPJmL4 and LPJmL4
 #' @param climatetype Switch between different climate scenarios (default: "CRU_4")
 #' @param subtype Switch between different lpjml input as specified in readLPJmL
+#' @param subdata Switch between data dimension subitems
 #' @param selectyears defaults to all years available
 #' @param time average, spline or raw (default)
 #' @param averaging_range just specify for time=="average": number of time steps to average
@@ -23,26 +24,33 @@
 #' calcOutput("LPJmL", version="LPJmL4", climatetype="CRU_4", subtype="soilc", aggregate=FALSE)
 #' }
 
-calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", time="raw", averaging_range=NULL, dof=NULL, 
+calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", subdata=NULL, time="raw", averaging_range=NULL, dof=NULL, 
                       harmonize_baseline=FALSE, ref_year="y2015", limited=TRUE, hard_cut=FALSE, selectyears="all"){
 
+  
+  
   if(harmonize_baseline!=FALSE){
     
     if(harmonize_baseline==climatetype) stop("Climatetype and baseline are identical.")
     
     #read in historical data for subtype
-    x           <- calcOutput("LPJmL", version=version, climatetype=climatetype, subtype=subtype, time=time, 
-                              averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE, aggregate=FALSE)
+    x           <- calcOutput("LPJmL", version=version, climatetype=climatetype, subtype=subtype, subdata=subdata, time=time, 
+                              averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE, selectyears=selectyears, aggregate=FALSE)
 
-    Baseline    <- calcOutput("LPJmL", version=version, climatetype=harmonize_baseline, subtype=subtype, time=time, 
-                              averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE, aggregate=FALSE)
-    #use 
+    Baseline    <- calcOutput("LPJmL", version=version, climatetype=harmonize_baseline, subtype=subtype, subdata=subdata, time=time, 
+                              averaging_range=averaging_range, dof=dof, harmonize_baseline=FALSE, selectyears=selectyears, aggregate=FALSE)
+    #harmonize to baseline
     LPJmL_input <- toolHarmonize2Baseline(x, Baseline,  ref_year=ref_year, limited=limited, hard_cut=hard_cut)
     
   } else {
     
     readin_name <- paste0(version,":",climatetype,".",subtype)  
     LPJmL_input <- readSource("LPJmL", subtype=readin_name, convert="onlycorrect")
+    
+    if(!is.null(subdata)){
+      if(!all(subdata %in% getNames(LPJmL_input))) stop(paste0("Subdata items '", subdata,"' are not part of selected LPJmL subtype!"))
+      LPJmL_input <- LPJmL_input[,,subdata]
+    }
     
     if(time=="average"){
       
@@ -91,6 +99,5 @@ calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", ti
     unit=unit, 
     description=paste0("Carbon output from LPJmL (",subtype,") for ", version, "and", climatetype, "."),
     isocountries=FALSE))
-
 }
   
