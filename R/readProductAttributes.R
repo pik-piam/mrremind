@@ -22,7 +22,7 @@
 
 readProductAttributes <- function(subtype="Products") {
   
-  folder <- "Version_2017/"
+  folder <- "Version_2020/"
   
   files <- c(Products        = "product_attributes.csv"       ,
              AgResidues      = "f_attributes_residue_ag.csv"  ,
