@@ -17,6 +17,10 @@
 
 calcCroparea <- function(sectoral="kcr", physical=TRUE, cellular=FALSE, irrigation=FALSE) {
   
+  sizelimit <- getOption("magclass_sizeLimit")
+  options(magclass_sizeLimit=1e+10)
+  on.exit(options(magclass_sizeLimit=sizelimit))
+  
   selectyears<-findset("past")
   
   if(!cellular){
