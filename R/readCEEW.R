@@ -25,6 +25,9 @@ readCEEW <- function(subtype){
     
     colnames(input)[2] <- "CI"
     colnames(input)[3] <- "OM"
+    
+    input$CI <- input$CI*input$`Construction Period`
+    input <- input[,c(1:3)]
     x <- as.magpie(input)
     #getRegions(x) <- "IND"
     
