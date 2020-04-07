@@ -77,7 +77,7 @@ calcEmploymentfactors <- function(improvements){
   x1[oecd_con,"y2020",]<- x1[oecd_con,"y2015",] 
   x1[oecd_con,"y2030",]<- x1[oecd_con,"y2015",] 
   return (x1)
-  }
+  } 
   
   ceew <- function(){  
   x6 <- readSource(type = "CEEW",subtype = "Employment factors") # EFs for India from CEEW
@@ -88,7 +88,7 @@ calcEmploymentfactors <- function(improvements){
   # from CEEW (India) for some common variables
   # note than all years from x1 (2015,2020,2030)  get CEEW values
   com_var <- getNames(x1)[getNames(x1) %in% getNames(x6)]
-  x1["IND",,com_var] <- x6["IND",,com_var]
+  x1["IND",,com_var] <- x6["GLO",,com_var]
   return (x1)
   }
   dias <- function(){
