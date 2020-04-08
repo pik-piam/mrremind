@@ -21,7 +21,7 @@ correctKoeppen <- function(x, subtype="iso"){
     
     if(range(dimSums(x, dim=3))[1]==0){
       
-      cat("Some cells to not have a value and fill be filled by proxies.")
+      cat("Some cells do not have a value and fill be filled by proxies.")
       
       # Filling island states with the help of https://en.climate-data.org/
       x["MUS.8219",,"Am"]   <- 1
