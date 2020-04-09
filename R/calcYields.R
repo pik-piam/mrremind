@@ -70,19 +70,10 @@ calcYields <- function(version="LPJmL4", climatetype="CRU_4", time="raw", averag
     Calib[,getYears(FAOYields),"potato"]    <- FAOYields[,,"potato"]/FAOYields[,,"sugr_beet"]       # LPJmL proxy for potato is sugar beet
     
     # interpolate between FAO years
-    interpolate_years          <- getYears(FAOYields, as.integer = TRUE)
-    interpolate_years          <- seq(interpolate_years[1], interpolate_years[length(interpolate_years)], 1)
-    Calib[,interpolate_years,] <- time_interpolate(Calib[,getYears(FAOYields),], interpolate_years, integrate_interpolated_years=TRUE)
-    
-    # hold constant before and after FAO years
-    missingyears <- setdiff(getYears(mag_yields, as.integer = TRUE),interpolate_years)
-    beforeyears  <- missingyears[missingyears < interpolate_years[1]]
-    afteryears   <- missingyears[missingyears > interpolate_years[1]]
-    Calib[,beforeyears,] <- Calib[,interpolate_years[1],]
-    Calib[,afteryears,]  <- Calib[,interpolate_years[length(interpolate_years)],]
+    Calib <- toolFillYears(Calib, getYears(mag_yields))
     
     # recalibrate yields for proxys
-    mag_yields           <- Calib * mag_yields
+    mag_yields           <- Calib[,,getNames(mag_yields, dim=1)] * mag_yields
   }
  
   return(list(
