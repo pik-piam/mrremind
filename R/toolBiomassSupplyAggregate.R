@@ -5,6 +5,8 @@
 #' 
 #' @return return: returns region aggregated biomass supply curve data
 #' 
+#' @param x magclass object that should be aggregated
+#' @param rel relation matrix containing a region mapping.
 #' @author Felix Schreyer
 #' @export
 #' @importFrom magclass as.magpie
