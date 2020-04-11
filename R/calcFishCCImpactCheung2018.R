@@ -100,20 +100,18 @@ calcFishCCImpactCheung2018 <- function(subtype){
 
   } else if (subtype=="ModelOutputDynModel"){
 
-    x_ModelOutputDynModel <- readCheung2018(subtype = "ModelOutputDynModel")
-    x_General <- readCheung2018(subtype = "General")
+    x_ModelOutputDynModel <- readSource("Cheung2018",subtype = "ModelOutputDynModel",convert = FALSE)
+    x_General <- readSource("Cheung2018",subtype = "General",convert = FALSE)
+    
     x_PrimProdintCyrkm2 <- x_General[,,"PrimProdinmgCday"] * (10^-9) * 365 * 10^6
     w = x_PrimProdintCyrkm2 * x_General[,,"ExclEconZoneAreainkm2"]
 
-    relationmatrix <- read.csv("/p/projects/rd3mod/inputdata/sources/Cheung2018/mappingEEZFAOfishingarea.csv")
-    #relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub("\\(|\\)|\\,|\\-|\\’", "", x)}))
-    relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub("\\(|\\)|\\,|\\-|\\\u2019", "", x)}))
-    relationmatrix <- data.frame(lapply(relationmatrix, function(x) { gsub(" +", " ", x)}))
+    relationmatrix <- toolMappingFile(type = "regional",name = "FAOfishingarea2EEZ.csv",readcsv = T)
+    
     x_ModelOutputDynModel <- x_ModelOutputDynModel *10^-2
     x_ModelOutputDynModel[is.na(x_ModelOutputDynModel)] <- 0
-    x_ModelOutputDynModel <- toolAggregate(x_ModelOutputDynModel, rel=relationmatrix, from="Scenarios",
-    #to="ï..FAO.Fishing.Area", weight=w, dim=3.1)
-    to="\u00EF..FAO.Fishing.Area", weight=w, dim=3.1)
+    x_ModelOutputDynModel <- toolAggregate(x_ModelOutputDynModel, rel=relationmatrix, from="ExclEconZone",
+    to="FAO_Fishing_Area", weight=collapseNames(w),dim=3.1)
 
     #x_ModelOutputDynModel <- readSource("Cheung2018", subtype = "x_ModelOutputDynModel", convert=T)
     x_capture_marine_raw = calcOutput("FAO_fishery",subtype="capture_marine",aggregate = FALSE)
