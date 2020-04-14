@@ -12,6 +12,8 @@
 
 convertIRENA <- function(x,subtype) {
   # rename countries to REMIND iso codes
+  getRegions(x) <- gsub("\\*", "", getRegions(x))
+  #getRegions(x) <- gsub("South Georgia", "South Georgia and the South Sandwich Islands", getRegions(x),fixed = T)
   getRegions(x) <- toolCountry2isocode(getRegions(x))
   # aggregate Kosovo to Serbia
   x1 <- x["KOS",,]
