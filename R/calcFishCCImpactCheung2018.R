@@ -13,7 +13,7 @@
 #' @export
 calcFishCCImpactCheung2018 <- function(subtype){
   if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
-    x_General <- readCheung2018(subtype = "General")
+    x_General <- readSource("Cheung2018", subtype = "General")
     #Conversion from mg C day^(-1) m2^(-1) to  tCyr^(-1)^km2^(-1)
     #10^-9 is for mg to t, 10^6 is for  m2 to km2
     x_PrimProdintCyrkm2 <- x_General[,,"PrimProdinmgCday"] * (10^-9) * 365 * 10^6
