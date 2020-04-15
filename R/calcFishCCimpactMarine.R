@@ -13,7 +13,7 @@
 #' @importFrom madrat readSource  calcOutput toolAggregate
 #' @export
 #' 
-calcFishCCimpactMarine <- function(subtype, impacts_aquaculture=TRUE){
+calcFishCCimpactMarine <- function(subtype="ModelOutputDBEM", impacts_aquaculture=TRUE){
   if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
     x_General <- readSource("Cheung2018", subtype = "General",convert = FALSE)
     #Conversion from mg C day^(-1) m2^(-1) to  tCyr^(-1)^km2^(-1)
