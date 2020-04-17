@@ -40,7 +40,7 @@ calcFishCCimpacts <- function(impacts=c("marine_capture","marine_aquaculture"),t
     marine_CC_impacts[,,"Mediterranean and Black Sea"]<-1
   }
   if("Mediterranean and Black Sea"%in%proxies) {
-    marine_CC_impacts[,,"Pacific Antarctic"]<-marine_CC_impacts[,,"Atlantic Eastern Central"]
+    marine_CC_impacts[,,"Pacific Antarctic"]<-marine_CC_impacts[,,"Indian Ocean Antarctic"]
   } else {
     marine_CC_impacts[,,"Pacific Antarctic"]<-1
   }
