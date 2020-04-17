@@ -78,7 +78,7 @@ readFAO_fishery <- function(subtype) {
     
     #creating magpie object  
     x_capture <- as.magpie(data_new, spatial=1, temporal =4, tidy=TRUE)
-    getSets(x_capture)=c("iso","year","fish_category","fish_category")
+    getSets(x_capture)=c("iso","year","fish_category","fishing_area")
     return(x_capture)
   }
   
@@ -143,7 +143,7 @@ readFAO_fishery <- function(subtype) {
     data_new$fishing_area <- gsub(" +"," ", data_new$fishing_area)
     
     x_aqua <- as.magpie(data_new, spatial=1, temporal =5, tidy=TRUE)
-    getSets(x_aqua)=c("iso","year","fish_category","fish_category","environment")
+    getSets(x_aqua)=c("iso","year","fish_category","fishing_area","environment")
 }
   
   return(x_aqua)

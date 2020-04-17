@@ -152,12 +152,12 @@ convertFAO_fishery <- function(x, subtype){
     #for Cheung 2018:
     #remove Meditarrerranean Sea because they exlude semi enclosed fishing areas
     #move Pacific Antarctic to Indian Ocean  Antarctic (because fishing zone categories fit better) 
-    x_capture_PacAnt <- x_capture[,,"Pacific Antarctic"]
-    x_capture_PacAnt <- dimReduce(x_capture_PacAnt, dim_exclude=c("iso","variable","fish_category"))
-    i <- getNames(x_capture_PacAnt, dim=1)
-    x_capture[,,"Indian Ocean Antarctic"][,,i] <- x_capture[,,"Indian Ocean Antarctic"][,,i] + x_capture_PacAnt[,,i]
+    #x_capture_PacAnt <- x_capture[,,"Pacific Antarctic"]
+    #x_capture_PacAnt <- dimReduce(x_capture_PacAnt, dim_exclude=c("iso","variable","fish_category"))
+    #i <- getNames(x_capture_PacAnt, dim=1)
+    #x_capture[,,"Indian Ocean Antarctic"][,,i] <- x_capture[,,"Indian Ocean Antarctic"][,,i] + x_capture_PacAnt[,,i]
     
-    x_capture <- x_capture[,,c("Mediterranean and Black Sea","Pacific Antarctic"), invert=T]
+    #x_capture <- x_capture[,,c("Mediterranean and Black Sea","Pacific Antarctic"), invert=T]
     
     x_capture <- toolCountryFill(x_capture, fill=0)
     
@@ -173,7 +173,7 @@ convertFAO_fishery <- function(x, subtype){
     x_aqua=x
     
     #harmonization with x_capture
-    x_aqua <- add_columns(x_aqua, addnm = c("Arctic Sea","Atlantic Antarctic","Indian Ocean Antarctic"), dim = 3.2)
+    x_aqua <- add_columns(x_aqua, addnm = c("Arctic Sea","Atlantic Antarctic","Indian Ocean Antarctic","Pacific Antarctic"), dim = 3.2)
     
     x_aqua[is.na(x_aqua)] <- 0
     #rename fish category species to make them compartible with fish demand categories
@@ -266,7 +266,7 @@ convertFAO_fishery <- function(x, subtype){
     
     #for Cheung 2018:
     #remove Mediterrerranean Sea because they exlude semi enclosed fishing areas
-    x_aqua <- x_aqua[,,"Mediterranean and Black Sea", invert=T]
+    #x_aqua <- x_aqua[,,"Mediterranean and Black Sea", invert=T]
     #x_aqua <- dimReduce(x_aqua, dim_exclude = c("iso","variable","fish_category","fishing_area"))
     x_aqua <- toolCountryFill(x_aqua, fill=0)
     
