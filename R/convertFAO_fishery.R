@@ -1,17 +1,21 @@
 #' convertFAO_fishery
 #' 
 #' @description Converts readFAO_fishery output to complete MAgPIE object containing fishery data on country level (in tonnes)
+#' @param x magpie object with uncoverted source data
 #' @param subtype "capture" takes all fishdata into account that has been declared as capture fishery
 #' "aquaculture" takes all fishdata into account that has been listed as aquaculture fishery
 #' @return Fishery data as complete MAgPIE object on country level
-#' @author Benjamin Leon Bodirsky, Jasmin Wehner
+#' @author Jasmin Wehner,Benjamin Leon Bodirsky
 #' @seealso \code{\link{readSource}}
 #' @importFrom madrat toolAggregate toolISOhistorical toolCountryFill readSource calcOutput 
 #' @importFrom magclass mbind collapseNames add_columns getNames getRegions
 #' @export
-convertFAO_fishery <- function(subtype){
+convertFAO_fishery <- function(x, subtype){
   if (subtype=="capture"){
-    x_capture <-readFAO_fishery( subtype="capture")
+    
+    
+    #x <-readSource("FAO_fishery", subtype="capture", convert=FALSE)
+    x_capture=x
     
     x_capture[is.na(x_capture)] <- 0
     
@@ -147,7 +151,7 @@ convertFAO_fishery <- function(subtype){
     
     #for Cheung 2018:
     #remove Meditarrerranean Sea because they exlude semi enclosed fishing areas
-    #move Pacific Antarctic to Indian Ocean  Antarctic (because fish categories fit better) 
+    #move Pacific Antarctic to Indian Ocean  Antarctic (because fishing zone categories fit better) 
     x_capture_PacAnt <- x_capture[,,"Pacific Antarctic"]
     x_capture_PacAnt <- dimReduce(x_capture_PacAnt, dim_exclude=c("iso","variable","fish_category"))
     i <- getNames(x_capture_PacAnt, dim=1)
@@ -157,10 +161,16 @@ convertFAO_fishery <- function(subtype){
     
     x_capture <- toolCountryFill(x_capture, fill=0)
     
-     return(x_capture)
+    #unit conversion from t to Mio tonnes and dry matter conversion
+    wm<-calcOutput("Attributes",aggregate = F)[,,"fish"][,,"wm"]
+    x_capture <- x_capture/10^6/collapseNames(wm)
+    
+    return(x_capture)
   }
   else if (subtype=="aquaculture"){
-    x_aqua <-readFAO_fishery( subtype="aquaculture")
+    
+    #x<-readSource("FAO_fishery", subtype="aquaculture", convert=FALSE)
+    x_aqua=x
     
     #harmonization with x_capture
     x_aqua <- add_columns(x_aqua, addnm = c("Arctic Sea","Atlantic Antarctic","Indian Ocean Antarctic"), dim = 3.2)
@@ -260,6 +270,9 @@ convertFAO_fishery <- function(subtype){
     #x_aqua <- dimReduce(x_aqua, dim_exclude = c("iso","variable","fish_category","fishing_area"))
     x_aqua <- toolCountryFill(x_aqua, fill=0)
     
+    #unit conversion from t to Mio tonnes and dry matter conversion
+    wm<-calcOutput("Attributes",aggregate = F)[,,"fish"][,,"wm"]
+    x_aqua <- x_aqua/10^6/collapseNames(wm)
    return(x_aqua)
   }
   

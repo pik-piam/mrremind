@@ -4,8 +4,7 @@
 #' in percentage values
 #'
 #' @param subtype "General" data subtype. Areas in square km and Primary Production in mg C day^-1 for each Exclusive Economic Zone obtained from Seaaroundus.org
-#' "ModelOutputDBEM" data subtype. DBEM Model output for RCP2.6;RCP8.5 obtained from Cheung et al 2018
-#' "ModelOutputDynModel" data subtype. Dynamic Model output for RCP2.6;RCP8.5 obtained from Cheung et al 2018
+#' "models" data subtype. DBEM Model output for RCP2.6;RCP8.5 and  Dynamic Model output for RCP2.6;RCP8.5 obtained from Cheung et al 2018
 #' @return magpie object of the fishery data with respecitive model outputs
 #' @author Jasmin Wehner
 #' @seealso \code{\link{readSource}}
@@ -56,10 +55,18 @@ readCheung2018 <- function(subtype) {
 
 
 
-   if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
-    x_General <- as.magpie(Cheungdatamerged[,c(1:3)], spatial=0, temporal=0)
-  }  else if(subtype == "ModelOutputDBEM"){
-    x_ModelOutputDBEM <- as.magpie(Cheungdatamerged[,c(1,DBEM_scenario_position)], spatial=0, temporal=0)
-  } else if(subtype == "ModelOutputDynModel"){
-    x_ModelOutputDynModel <- as.magpie(Cheungdatamerged[,c(1,DynMod_scenario_position)], spatial=0, temporal=0)
-  }}
+  if (subtype == "General"){ # Reference Year (e.g. BAU, 2010)
+    x <- as.magpie(Cheungdatamerged[,c(1:3)], spatial=0, temporal=0)
+  }  else {
+    
+    x <- as.magpie(Cheungdatamerged[,-c(2,3)], spatial=0, temporal=0)
+    
+    getNames(x,dim = 2) <- sub(pattern = "RCP",replacement = ".RCP",x = getNames(x,dim = 2))
+    tmp <- sub(pattern = "2050",replacement = ".y2050",x = getNames(x,dim = 3))
+    tmp <-  sub(pattern = "2100",replacement = ".y2100",x = tmp)
+    getNames(x,dim = 3) <- tmp
+    x=as.magpie(unwrap(x))
+    getSets(x)<-c("region","year","fishing_area","fish_model","rcp")
+  }
+  return(x)
+}

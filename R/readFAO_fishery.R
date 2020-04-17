@@ -78,14 +78,14 @@ readFAO_fishery <- function(subtype) {
     
     #creating magpie object  
     x_capture <- as.magpie(data_new, spatial=1, temporal =4, tidy=TRUE)
+    getSets(x_capture)=c("iso","year","fish_category","fish_category")
     return(x_capture)
   }
   
   
   else if (subtype == "aquaculture"){
     
-    data <- read.csv("FAO_fishery_aquaculture.csv",stringsAsFactors = FALSE)
-    data <- read.csv("fishspeciesFAOSTAT2.csv",stringsAsFactors = FALSE,encoding="UTF-8")
+    data <- read.csv("FAO_fishery_aquaculture.csv",stringsAsFactors = FALSE,encoding="UTF-8")
     data[,1] = iconv(data[,1], "UTF-8", "UTF-8",sub="")
     data[,2] = iconv(data[,2], "UTF-8", "UTF-8",sub="")
     data[,3] = iconv(data[,3], "UTF-8", "UTF-8",sub="")
@@ -143,6 +143,7 @@ readFAO_fishery <- function(subtype) {
     data_new$fishing_area <- gsub(" +"," ", data_new$fishing_area)
     
     x_aqua <- as.magpie(data_new, spatial=1, temporal =5, tidy=TRUE)
+    getSets(x_aqua)=c("iso","year","fish_category","fish_category","environment")
 }
   
   return(x_aqua)
