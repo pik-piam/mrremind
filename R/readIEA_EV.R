@@ -12,13 +12,15 @@
 #' 
 #' \dontrun{ a <- readSource(type="IEA_EV")
 #' }
+#' @importFrom readxl read_excel
+#' 
 #' 
 readIEA_EV <- function(subtype) {
-  file <- "GlobalEVOutlook2017_Table4-9.xlsx"
+  file <- "GlobalEVOutlook2019_TableA1-A6.xlsx"
   #subtype = combSales, combStock, bevSales, bevStock, phevSales, phevStock
-  ev <- read_excel(file, sheet=subtype,skip=1,col_types = c("text",rep("numeric",12)))
+  ev <- read_excel(file, sheet=subtype,skip=1,col_types = c("text",rep("numeric",14)))
   names(ev)[1] <- "region"
-  names(ev)  <- gsub('X','y',names(ev))
+  #names(ev)  <- gsub('X','y',names(ev))
   ev <- as.data.frame(ev)
   ev <- as.magpie(ev,spatial=1,datacol=2)
   return(ev)
