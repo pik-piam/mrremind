@@ -1,7 +1,7 @@
 #' @title calcYields
 #' @description This function extracts yields from LPJ to MAgPIE
 #'
-#' @param version Switch between LPJmL4 and LPJmL4
+#' @param version Switch between LPJmL4 and LPJmL5
 #' @param climatetype Switch between different climate scenarios (default: "CRU_4")
 #' @param time average, spline or raw (default)
 #' @param averaging_range just specify for time=="average": number of time steps to average
