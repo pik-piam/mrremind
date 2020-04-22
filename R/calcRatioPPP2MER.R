@@ -2,11 +2,11 @@
 calcRatioPPP2MER <- function(RatioPPP2MER="SSP") {
   type <- RatioPPP2MER
   if(type=="SSP"){
-    data <- readSource(type,subtype="ratioPM")
+    data <- readSource("SSP",subtype="ratioPM")
     getNames(data) <- NULL
     getYears(data) <- NULL
   } else if (type=="OECD"){
-    data <- readSource(type,subtype="ratioPM")
+    data <- readSource("OECD",subtype="ratioPM")
   }  
   else{
     stop(type, " is not a valid source type for population")

@@ -16,7 +16,7 @@ calcGDPpppFuture <- function(GDPpppFuture="SSP_completed") {
   type <- GDPpppFuture
   if (type=="SRES"){type=c("sres_a1_gdp","sres_a2_gdp","sres_b1_gdp","sres_b2_gdp")}
   if(all(type%in%"OECD")){
-    data <- readSource(type,subtype="gdp")*1000
+    data <- readSource("OECD",subtype="gdp")*1000
     time_extend <- c("y2105","y2110","y2115","y2120","y2125","y2130","y2135","y2140","y2145","y2150")
     data <- time_interpolate(data,time_extend,extrapolation_type="constant",integrate_interpolated_years=TRUE)
     

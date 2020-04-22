@@ -17,11 +17,11 @@ calcPopulationFuture <- function(PopulationFuture="SSP_completed") {
   type <- PopulationFuture
   if (type=="SRES"){type=c("sres_a1_pop","sres_a2_pop","sres_b1_pop","sres_b2_pop")} 
   if(all(type%in%"IIASApop")){
-    data <- readSource(type)/1000000
+    data <- readSource("IIASApop")/1000000
     time_extend <- c("y2105","y2110","y2115","y2120","y2125","y2130","y2135","y2140","y2145","y2150")
     data <- time_interpolate(data,time_extend,extrapolation_type="constant",integrate_interpolated_years=TRUE)
   } else if (all(type%in%"SSP")){
-    data <- collapseNames(readSource(type,subtype="all")[,,"Population"][,,"IIASA-WiC POP"])
+    data <- collapseNames(readSource("SSP",subtype="all")[,,"Population"][,,"IIASA-WiC POP"])
     getNames(data) <- paste("pop_",gsub("_v[[:alnum:],[:punct:]]*","",getNames(data)),sep="")
     # change name of "SSP4d" to "SSP4
     getNames(data)<-sub("SSP4d","SSP4",getNames(data))

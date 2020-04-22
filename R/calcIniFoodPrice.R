@@ -29,7 +29,7 @@ calcIniFoodPrice <- function(datasource="FAO", year="y2005", products="kfo"){
   dm <- collapseNames(dm)
   
   if(datasource=="IMPACT3.2.2World_Price"){
-    out <- readSource(type=datasource)
+    out <- readSource("IMPACT3.2.2World_Price")
     # select scenario and initial year
     out <- collapseNames(out[,year,"SSP2-NoCC-NoCC-379"])
     out <- setYears(out, NULL)
