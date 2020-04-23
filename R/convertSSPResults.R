@@ -152,7 +152,7 @@ convertSSPResults<- function(x){
   
   # ----  Rename scenarios ----
   
-  getNames(out) <- gsub("-SPA[0-9]-V[0-9].","-",getNames(out))
+  getNames(out) <- gsub("-SPA[0-9]-V1[0-9].","-",getNames(out))
   getNames(out) <- sub("AIM/","AIM-", getNames(out))
   getNames(out) <- paste0("SSPDB-",getNames(out))
   
