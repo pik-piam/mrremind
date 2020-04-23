@@ -114,7 +114,6 @@ convertSSPResults<- function(x){
             "SSP1-19-SPA1-V16.REMIND-MAGPIE",
             "SSP1-26-SPA1-V15.REMIND-MAGPIE"  ,
             "SSP1-34-SPA1-V15.REMIND-MAGPIE"  ,
-            "SSP1-37-SPA1-V15.REMIND-MAGPIE",
             "SSP1-45-SPA1-V15.REMIND-MAGPIE" ,
             "SSP1-Ref-SPA0-V15.REMIND-MAGPIE",
             
@@ -128,7 +127,6 @@ convertSSPResults<- function(x){
             "SSP2-19-SPA2-V16.REMIND-MAGPIE",  
             "SSP2-26-SPA2-V15.REMIND-MAGPIE",    
             "SSP2-34-SPA2-V15.REMIND-MAGPIE",  
-            "SSP2-37-SPA2-V15.REMIND-MAGPIE", 
             "SSP2-45-SPA2-V15.REMIND-MAGPIE",  
             "SSP2-60-SPA2-V15.REMIND-MAGPIE",  
             "SSP2-Ref-SPA0-V15.REMIND-MAGPIE",
@@ -146,7 +144,6 @@ convertSSPResults<- function(x){
             "SSP5-19-SPA5-V16.REMIND-MAGPIE",
             "SSP5-26-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-34-SPA5-V15.REMIND-MAGPIE",  
-            "SSP5-37-SPA5-V15.REMIND-MAGPIE", 
             "SSP5-45-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-60-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-Ref-SPA0-V15.REMIND-MAGPIE")
