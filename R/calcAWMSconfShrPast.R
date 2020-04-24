@@ -25,7 +25,8 @@ calcAWMSconfShrPast<-function(products="magpie"){
   excretion<-excretion[,,awms]
   
   incomplete<-where(dimSums(excretion,dim=c(3.2))==0)$true$regions
-  largest <- toolXlargest(type="Population", range=1:30)
+  pop <- calcOutput("Population", aggregate=FALSE)
+  largest <- toolXlargest(pop, range=1:30)
   if(any(incomplete%in%largest)){
     vcat(verbosity = 1,paste("no complete excretion data for",paste(incomplete[incomplete%in%largest],collapse=" "),", and eventually some smaller countries."))
   }
