@@ -105,32 +105,28 @@ convertSSPResults<- function(x){
   
   # ---- Select scenarios ----
   
-  subset<-c("SSP1-20-SPA1-V15.IMAGE",
+  subset<-c("SSP1-19-SPA1-V16.IMAGE",
             "SSP1-26-SPA1-V15.IMAGE"  ,
             "SSP1-34-SPA1-V15.IMAGE"  ,
             "SSP1-45-SPA1-V15.IMAGE" ,
             "SSP1-Ref-SPA0-V15.IMAGE",
             
-            "SSP1-20-SPA1-V15.REMIND-MAGPIE",
+            "SSP1-19-SPA1-V16.REMIND-MAGPIE",
             "SSP1-26-SPA1-V15.REMIND-MAGPIE"  ,
             "SSP1-34-SPA1-V15.REMIND-MAGPIE"  ,
-            "SSP1-37-SPA1-V15.REMIND-MAGPIE",
             "SSP1-45-SPA1-V15.REMIND-MAGPIE" ,
             "SSP1-Ref-SPA0-V15.REMIND-MAGPIE",
             
-            "SSP2-18-SPA2-V15.MESSAGE-GLOBIOM" ,
-            "SSP2-19-SPA2-V15.MESSAGE-GLOBIOM",
-            "SSP2-20-SPA2-V15.MESSAGE-GLOBIOM",  
-            "SSP2-26-SPA2-V15.MESSAGE-GLOBIOM", 
-            "SSP2-34-SPA2-V15.MESSAGE-GLOBIOM",  
-            "SSP2-45-SPA2-V15.MESSAGE-GLOBIOM",  
-            "SSP2-60-SPA2-V15.MESSAGE-GLOBIOM",  
-            "SSP2-Ref-SPA0-V15.MESSAGE-GLOBIOM",
+            "SSP2-19-SPA2-V16.MESSAGE-GLOBIOM",
+            "SSP2-26-SPA2-V16.MESSAGE-GLOBIOM", 
+            "SSP2-34-SPA2-V16.MESSAGE-GLOBIOM",  
+            "SSP2-45-SPA2-V16.MESSAGE-GLOBIOM",  
+            "SSP2-60-SPA2-V16.MESSAGE-GLOBIOM",  
+            "SSP2-Ref-SPA0-V16.MESSAGE-GLOBIOM",
             
-            "SSP2-20-SPA2-V15.REMIND-MAGPIE",  
+            "SSP2-19-SPA2-V16.REMIND-MAGPIE",  
             "SSP2-26-SPA2-V15.REMIND-MAGPIE",    
             "SSP2-34-SPA2-V15.REMIND-MAGPIE",  
-            "SSP2-37-SPA2-V15.REMIND-MAGPIE", 
             "SSP2-45-SPA2-V15.REMIND-MAGPIE",  
             "SSP2-60-SPA2-V15.REMIND-MAGPIE",  
             "SSP2-Ref-SPA0-V15.REMIND-MAGPIE",
@@ -139,16 +135,15 @@ convertSSPResults<- function(x){
             "SSP3-45-SPA3-V15.AIM/CGE",  
             "SSP3-60-SPA3-V15.AIM/CGE",  
             
-            "SSP4-26-SPA4-V15.GCAM4",  
-            "SSP4-34-SPA4-V15.GCAM4", 
-            "SSP4-45-SPA4-V15.GCAM4",  
-            "SSP4-60-SPA4-V15.GCAM4", 
-            "SSP4-Ref-SPA0-V15.GCAM4", 
+            "SSP4-26-SPA4-V16.GCAM4",  
+            "SSP4-34-SPA4-V16.GCAM4", 
+            "SSP4-45-SPA4-V16.GCAM4",  
+            "SSP4-60-SPA4-V16.GCAM4", 
+            "SSP4-Ref-SPA0-V16.GCAM4", 
             
-            "SSP5-20-SPA5-V15.REMIND-MAGPIE",
+            "SSP5-19-SPA5-V16.REMIND-MAGPIE",
             "SSP5-26-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-34-SPA5-V15.REMIND-MAGPIE",  
-            "SSP5-37-SPA5-V15.REMIND-MAGPIE", 
             "SSP5-45-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-60-SPA5-V15.REMIND-MAGPIE",  
             "SSP5-Ref-SPA0-V15.REMIND-MAGPIE")
@@ -157,7 +152,7 @@ convertSSPResults<- function(x){
   
   # ----  Rename scenarios ----
   
-  getNames(out) <- gsub("-SPA[0-9]-V15.","-",getNames(out))
+  getNames(out) <- gsub("-SPA[0-9]-V1[0-9].","-",getNames(out))
   getNames(out) <- sub("AIM/","AIM-", getNames(out))
   getNames(out) <- paste0("SSPDB-",getNames(out))
   

@@ -3,7 +3,7 @@
 #'
 #' 
 #' @return MAgPIE object with regional aggregation of SSP regions, including all indicators
-#' @author Abhijeet Mishra
+#' @author Abhijeet Mishra, Florian Humpenoeder
 #' @seealso
 #' \code{\link{readSource}}
 #' @examples
@@ -15,7 +15,7 @@
 
 readSSPResults <- function() {
 
-  file <- "SSP_IAM_World_5Regs_2016-05-25.csv"
+  file <- "SSP_IAM_World_5Regs_2017-01-23.csv"
   
   data <- read.report(file, as.list = F)
   

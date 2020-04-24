@@ -16,41 +16,53 @@ calcCapacityNuclear <- function() {
   #total capacity in 2015: snapshot of operable reactors in early 2016
   out[,2015,] <- setYears(x[,2016,"REACTORS OPERABLE (MWe net)"] / 1000000,2015)
   #total capacity addition for next 5 years: under construction + plants that came online between early 2016 and August 2018
-  out[,2020,] <- (  setYears(x[,2018,"REACTORS UNDER CONSTRUCTION (MWe gross)"]/grossnet,2020) 
-                  + setYears(x[,2018,"REACTORS OPERABLE (MWe net)"],NULL)
+  out[,2020,] <- (  0.7*setYears(x[,2020,"REACTORS UNDER CONSTRUCTION (MWe gross)"]/grossnet,2020) 
+                  + setYears(x[,2020,"REACTORS OPERABLE (MWe net)"],NULL)
                   - setYears(x[,2016,"REACTORS OPERABLE (MWe net)"],NULL)) / 1000000
-  #maximum capacity addition for 5 years in 2025 period: 50% of planned and 30% of proposed, + 10% of 2015 to represent extensions
-  out[,2025,] <- (
-                0.5*setYears(x[,2018,"REACTORS PLANNED (MWe gross)"]/grossnet,2025)
-              + 0.3*setYears(x[,2018,"REACTORS PROPOSED (MWe gross)"]/grossnet,NULL)
-              + 0.1*setYears(x[,2016,"REACTORS OPERABLE (MWe net)"],NULL)) / 1000000
-  #maximum capacity addition for 5 years in 2025 period: 50% of planned and 70% of proposed, + 10% of 2015 to represent extensions
+  #maximum capacity addition for 5 years in 2025 period: 40% of planned and 30% of proposed, + 10% of 2015 to represent extensions
+  # out[,2025,] <- (
+  #               0.5*setYears(x[,2018,"REACTORS PLANNED (MWe gross)"]/grossnet,2025)
+  #             + 0.3*setYears(x[,2018,"REACTORS PROPOSED (MWe gross)"]/grossnet,NULL)
+  #             + 0.1*setYears(x[,2016,"REACTORS OPERABLE (MWe net)"],NULL)) / 1000000
+  out[,2025,] <- (      0.3*setYears(x[,2020,"REACTORS UNDER CONSTRUCTION (MWe gross)"]/grossnet,2025)
+    +0.4*setYears(x[,2020,"REACTORS PLANNED (MWe gross)"]/grossnet,NULL)
+     + 0.3*setYears(x[,2020,"REACTORS PROPOSED (MWe gross)"]/grossnet,NULL)
+     + 0.1*setYears(x[,2016,"REACTORS OPERABLE (MWe net)"],NULL)) / 1000000
+  #maximum capacity addition for 5 years in 2025 period: 60% of planned and 70% of proposed, + 10% of 2015 to represent extensions
   out[,2030,] <- (
-                0.5*setYears(x[,2018,"REACTORS PLANNED (MWe gross)"]/grossnet,2030)
-              + 0.7*setYears(x[,2018,"REACTORS PROPOSED (MWe gross)"]/grossnet,NULL)
+                0.6*setYears(x[,2020,"REACTORS PLANNED (MWe gross)"]/grossnet,2030)
+              + 0.7*setYears(x[,2020,"REACTORS PROPOSED (MWe gross)"]/grossnet,NULL)
               + 0.1*setYears(x[,2016,"REACTORS OPERABLE (MWe net)"],NULL)) / 1000000
 
   #special treatment for countries in the list (considering last political decisions)
-  out["VNM",2025,] <- 0 #Vietnam has paused the nuclear program, so first operation definitely not earlier
+#  out["VNM",2025,] <- 0 #Vietnam has paused the nuclear program, so first operation definitely not earlier
                         #than 2028 http://www.world-nuclear.org/information-library/country-profiles/countries-t-z/vietnam.aspx
   #special treatment to avoid infeasibility and open nuclear potential for Africa
   #all countries not in the list of proposed plants, but rated as "Developing plans" can have a 500MW in 2025 and 2GW in 2030 periods
   # http://www.world-nuclear.org/information-library/country-profiles/others/emerging-nuclear-energy-countries.aspx
   # Israel, Nigeria, Kenya, Laos, Malaysia, Morocco, Algeria
-  out["ISR",2025,] <- 0.0005
+ #out["ISR",2025,] <- 0.0005
   out["NGA",2025,] <- 0.0005
   out["KEN",2025,] <- 0.0005
   out["LAO",2025,] <- 0.0005
-  out["MYS",2025,] <- 0.0005
+ #out["MYS",2025,] <- 0.0005
   out["MAR",2025,] <- 0.0005
   out["DZA",2025,] <- 0.0005
-  out["ISR",2030,] <- 0.002
+  out["PHL",2025,] <- 0.0005
+  out["GHA",2025,] <- 0.0005
+  out["RWA",2025,] <- 0.0005
+  out["ETH",2025,] <- 0.0005
+  #out["ISR",2030,] <- 0.002
   out["NGA",2030,] <- 0.002
   out["KEN",2030,] <- 0.002
   out["LAO",2030,] <- 0.002
-  out["MYS",2030,] <- 0.002
+ #out["MYS",2030,] <- 0.002
   out["MAR",2030,] <- 0.002
   out["DZA",2030,] <- 0.002
+  out["PHL",2030,] <- 0.002
+  out["GHA",2030,] <-0.002
+  out["RWA",2030,] <-0.002
+  out["ETH",2030,] <- 0.002
   return(list(x      = out,
               weight = NULL,
               unit        = "TW",

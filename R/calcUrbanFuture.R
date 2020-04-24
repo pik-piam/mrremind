@@ -12,13 +12,7 @@ calcUrbanFuture <- function(UrbanFuture="SSP") {
   
   type <- UrbanFuture
   if (type == "SSP"){
-#     share <- collapseNames(readSource(type,subtype="all")[,,"Population|Urban|Share"][,,"NCAR"])/100
-#     getNames(share) <- paste("pop_",gsub("_v[[:alnum:],[:punct:]]*","",getNames(share)),sep="")
-#     pop<-collapseNames(readSource(type,subtype="all")[,,"Population"][,,"IIASA-WiC POP"])
-#     getNames(pop) <- paste("pop_",gsub("d*_v[[:alnum:],[:punct:]]*","",getNames(pop)),sep="")
-#     years<-intersect(getYears(share),getYears(pop))
-#     data=share[,years,]*pop[,years,]
-    data <- collapseNames(readSource(type,subtype="all")[,,"Population|Urban|Share"][,,"NCAR"])/100
+    data <- collapseNames(readSource("SSP",subtype="all")[,,"Population|Urban|Share"][,,"NCAR"])/100
     getNames(data) <- paste("pop_",gsub("_v[[:alnum:],[:punct:]]*","",getNames(data)),sep="")
     #remove years which only contain 0s as entries
     data <- data[,!apply(data,2,function(x) return(all(x==0))),]
