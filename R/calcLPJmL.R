@@ -15,7 +15,7 @@
 #' @param hard_cut just specify for harmonize_baseline != FALSE : use hard cut instead of multiplicative factor
 #' 
 #' @return List of magpie objects with results on cellular level, weight, unit and description.
-#' @author Kristine Karstens
+#' @author Kristine Karstens, Felicitas Beier
 #' @seealso
 #' \code{\link{readLPJmL}}
 #' @examples
@@ -71,7 +71,7 @@ calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", su
     LPJmL_input <- LPJmL_input[,years,]
   } 
   
-  # unit table for subtypes
+  # unit table for subtypes from readLPJmL
   units <- c(soilc           = "tC/ha",
              soilc_layer     = "tC/ha",
              litc            = "tC/ha",
@@ -79,13 +79,17 @@ calcLPJmL <- function(version="LPJmL4", climatetype="CRU_4", subtype="soilc", su
              alitfallc       = "tC/ha",
              alitfalln       = "tN/ha",
              harvest         = "tDM/ha",
-             irrig           = "?",
+             irrig           = "m^3/ha",
              sdate           = "day?",
              hdate           = "day?",
              transpiration   = "?",
              discharge       = "?",
              runoff          = "?",
              evaporation     = "?",
+             mtranspiration  = "?",
+             mdischarge      = "?", # hm3/day from LPJmL; unit transformation in readLPJmL?
+             mrunoff         = "?", # mm/month from LPJmL; unit transformation in readLPJmL?
+             mevaporation    = "?",
              vegc_grass      = "tC/ha",
              litc_grass      = "tC/ha",
              soilc_grass     = "tC/ha"
