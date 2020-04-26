@@ -42,7 +42,7 @@ calcProduction<-function(products="kcr", cellular=FALSE, calibrated=TRUE, attrib
       ### crop production celluluar ###
       #################################
       
-      LPJYields      <- toolCell2isoCell(readSource("LPJmL",subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,selectyears,])
+      LPJYields      <- calcOutput("LPJmL", version="LPJmL5", climatetype="CRU_4", subtype="harvest", time="average", averaging_range=8, aggregate=FALSE, years=selectyears)
       
       CountryToCell  <- toolMappingFile(type="cell",name = "CountryToCellMapping.csv",readcsv = TRUE)
       MAGtoLPJ       <- toolMappingFile(type="sectoral",name = "MAgPIE_LPJmL.csv",readcsv = TRUE)
