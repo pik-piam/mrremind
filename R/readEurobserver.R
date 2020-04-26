@@ -49,7 +49,7 @@ readEurobserver <- function(subtype){
     ## For year 2016
     input_2016 <- readxl::read_excel("Eurobserver.xlsx",sheet="2016",n_max = 28)
     input_2016 <- input_2016[-2]
-        colnames(input_2016)[1] <- "country"
+    colnames(input_2016)[1] <- "country"
     colnames(input_2016) <- mgsub::mgsub(pattern = c("PV","Hydro"),
                                          c("Solar|PV","Hydropower"),string = colnames(input_2016))
     input_2016[c(1:28),c(2:11)] <- mgsub(pattern = c(" ","\\*","<"),
@@ -57,8 +57,36 @@ readEurobserver <- function(subtype){
     input_2016[,2:11] <- as.numeric(unlist(input_2016[,2:11]))
     input_2016$period <- 2016
     input_2016 <- input_2016[c(1,12,2:11)]
+    
+    # For year 2017
+    input_2017 <- readxl::read_excel("Eurobserver.xlsx",sheet="2017",n_max = 28)
+    input_2017 <- input_2017[-2]
+    colnames(input_2017)[1] <- "country"
+    colnames(input_2017) <- mgsub::mgsub(pattern = c("PV","Hydro"),
+                                         c("Solar|PV","Hydropower"),string = colnames(input_2017))
+    
+    input_2017[c(1:28),c(2:11)] <- mgsub(pattern = c(" ","\\*","<"),
+                                         replacement =c("","",""),string =  as.matrix(input_2017[c(1:28),c(2:11)]))
+    
+    input_2017[,2:11] <- as.numeric(unlist(input_2017[,2:11]))
+    input_2017$period <- 2017
+    input_2017 <- input_2017[c(1,12,2:11)]
+    
+    # For year 2018
+    input_2018 <- readxl::read_excel("Eurobserver.xlsx",sheet="2018",n_max = 28)
+    input_2018 <- input_2018[-2]
+    colnames(input_2018)[1] <- "country"
+    colnames(input_2018) <- mgsub::mgsub(pattern = c("PV","Hydro"),
+                                         c("Solar|PV","Hydropower"),string = colnames(input_2018))
+    
+    input_2018[c(1:28),c(2:11)] <- mgsub(pattern = c(" ","\\*","<"),
+                                         replacement =c("","",""),string =  as.matrix(input_2018[c(1:28),c(2:11)]))
+    
+    input_2018[,2:11] <- as.numeric(unlist(input_2018[,2:11]))
+    input_2018$period <- 2018
+    input_2018 <- input_2018[c(1,12,2:11)]
 
-   x <- dplyr::bind_rows(input_2014,input_2015,input_2016)
+   x <- dplyr::bind_rows(input_2014,input_2015,input_2016,input_2017,input_2018)
    x <- as.magpie(x,spatial=1,temporal=2,datacol=3)
    
    return (x)
@@ -67,17 +95,17 @@ readEurobserver <- function(subtype){
   if (subtype=="share")  
   {
     input_wind <- readxl::read_excel("Eurobserver.xlsx",sheet = "Wind_exports",na = "n.a.")
-    input_wind <- gather(input_wind,2:5,key = "period",value="value")
+    input_wind <- gather(input_wind,2:6,key = "period",value="value")
     input_wind$variable="Wind"
     colnames(input_wind)[1] <- "country"
     
     input_solar <- readxl::read_excel("Eurobserver.xlsx",sheet = "Solar_PV_exports",na = "n.a.")
-    input_solar <- gather(input_solar,2:5,key = "period",value="value")
+    input_solar <- gather(input_solar,2:6,key = "period",value="value")
     input_solar$variable="Solar"
     colnames(input_solar)[1] <- "country"
     
     input_hydro <- readxl::read_excel("Eurobserver.xlsx",sheet = "Hydropower_exports",na = "n.a.")
-    input_hydro <- gather(input_hydro,2:5,key = "period",value="value")
+    input_hydro <- gather(input_hydro,2:6,key = "period",value="value")
     input_hydro$variable="Hydropower"
     colnames(input_hydro)[1] <- "country"
     
