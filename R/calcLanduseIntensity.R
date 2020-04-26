@@ -23,6 +23,8 @@
  
 calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
 
+  selectyears <- findset("past")
+  
   if(sectoral%in%c("kcr","lpj")){
     
     #Mappings
@@ -33,15 +35,10 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     CountryToCell <- toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv = TRUE)
     
     #Load LPJ yields and area on cell level
-    LPJYields      <- toolCell2isoCell(readSource("LPJmL",subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,,LPJCroptypes])
+    LPJYields      <- collapseNames(calcOutput("LPJmL", version="LPJmL5", climatetype="CRU_4", subtype="harvest", time="average", averaging_range=8, aggregate=FALSE, years=selectyears)[,,LPJCroptypes])
     if(sectoral=="kcr") LPJYields  <- toolAggregate(LPJYields, rel=MAGtoLPJ, from="LPJmL", to="MAgPIE", dim=3.1)
-    LPJCroparea    <- toolCell2isoCell(calcOutput("Croparea", sectoral=sectoral, physical=TRUE, cellular=TRUE, irrigation=TRUE, aggregate = FALSE))
+    LPJCroparea    <- calcOutput("Croparea", sectoral=sectoral, physical=TRUE, cellular=TRUE, irrigation=TRUE, aggregate = FALSE)
     
-    #Getting overlapping time period
-    years          <- intersect(getYears(LPJCroparea), getYears(LPJYields))
-    LPJYields      <- LPJYields[,years,]
-    LPJCroparea    <- LPJCroparea[,years,]
-
     LPJProduction  <- LPJYields * LPJCroparea
     LPJProduction  <- toolAggregate(dimSums(LPJProduction, dim=3.2), 
                                     rel=CountryToCell, from="celliso", to="iso", dim=1, partrel = TRUE)
@@ -50,11 +47,10 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     
     if(sectoral == "lpj") FAOProduction    <- toolAggregate(FAOProduction, rel=MAGtoLPJ, from="MAgPIE", to="LPJmL", dim=3.1)
 
-    #Getting overlapping time period and countries
+    #Getting overlapping countries
     regions          <- intersect(getRegions(LPJProduction),getRegions(FAOProduction))
-    years            <- intersect(getYears(LPJProduction),getYears(FAOProduction))
-    LPJProduction    <- LPJProduction[regions, years,]
-    FAOProduction    <- FAOProduction[regions, years,]
+    LPJProduction    <- LPJProduction[regions,,]
+    FAOProduction    <- FAOProduction[regions,,]
     
     #Calculate TAU as ratio of FAO to LPJmL yields
     TAU              <- FAOProduction / LPJProduction
@@ -90,14 +86,9 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     CountryToCell <- toolMappingFile(type="cell",name="CountryToCellMapping.csv",readcsv = TRUE)
     
     #Load LPJ yields and area on cell level
-    LPJYields           <- toolCell2isoCell(readSource("LPJmL", subtype="LPJmL5:CRU_4.harvest", convert="onlycorrect")[,,"mgrass.rainfed"])
-    MAGPasturearea      <- toolCell2isoCell(calcOutput("LanduseInitialisation", cellular = TRUE, aggregate = FALSE)[,,"past"])
+    LPJYields           <- calcOutput("LPJmL", version="LPJmL5", climatetype="CRU_4", subtype="harvest", time="average", averaging_range=8, aggregate=FALSE, years=selectyears)[,,"mgrass.rainfed"]
+    MAGPasturearea      <- calcOutput("LanduseInitialisation", cellular = TRUE, aggregate = FALSE)[,,"past"]
     getNames(LPJYields) <- getNames(MAGPasturearea) <- "pasture"
-
-    #Getting overlapping time period
-    years          <- intersect(getYears(MAGPasturearea), getYears(LPJYields))
-    LPJYields      <- LPJYields[,years,]
-    MAGPastarea    <- MAGPasturearea[,years,]
  
     LPJProduction  <- LPJYields * MAGPasturearea
     LPJProduction  <- toolAggregate(LPJProduction, rel=CountryToCell, from="celliso", to="iso", dim=1, partrel = TRUE)
@@ -105,18 +96,17 @@ calcLanduseIntensity <- function(sectoral="kcr", rescale = TRUE) {
     #Load FAO data and caluculate FAO yields on country level
     FAOProduction    <- collapseNames(calcOutput("FAOmassbalance", aggregate=FALSE)[,,"production"][,,"dm"][,,"pasture"])
     
-    #Getting overlapping time period and countries
+    #Getting overlapping countries
     regions          <- intersect(getRegions(LPJProduction),getRegions(FAOProduction))
-    years            <- intersect(getYears(LPJProduction),getYears(FAOProduction))
-    LPJProduction    <- LPJProduction[regions, years,]
-    FAOProduction    <- FAOProduction[regions, years,]
+    LPJProduction    <- LPJProduction[regions,,]
+    FAOProduction    <- FAOProduction[regions,,]
     
     #Calculate TAU as ratio of FAO to LPJmL yields
     TAU              <- FAOProduction/ LPJProduction
     TAU[is.na(TAU)]  <- 0
     TAU[TAU == Inf]  <- 0
     
-    CountryPastarea       <- toolAggregate(MAGPastarea, rel=CountryToCell, from="celliso", to="iso", dim=1, partrel = TRUE)
+    CountryPastarea       <- toolAggregate(MAGPasturearea, rel=CountryToCell, from="celliso", to="iso", dim=1, partrel = TRUE)
     
     #rescale such that average in 2010 is 1
     if(rescale){

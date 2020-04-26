@@ -17,8 +17,6 @@
 #' }
 #' @importFrom magclass getNames
 
-
-
 calcLUH2v2<-function(landuse_types="magpie",irrigation=FALSE,cellular=FALSE,selectyears="past"){
   
 

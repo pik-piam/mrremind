@@ -67,7 +67,7 @@ calcResFieldBalancePast<-function(cellular = FALSE, products = "sum"){
     correct_removal[correct_removal>0] <- 0
     
     removal <- removal + correct_removal
-    recycle <- round(production - removal - burn, 8)
+    recycle <- round(production - removal - burn, 8)  #taking ash into recycling
     removal <- round(removal, 8)
     
     
