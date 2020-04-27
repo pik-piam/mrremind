@@ -87,7 +87,9 @@ readEurobserver <- function(subtype){
     input_2018 <- input_2018[c(1,12,2:11)]
 
    x <- dplyr::bind_rows(input_2014,input_2015,input_2016,input_2017,input_2018)
+   x[is.na(x)] <- 0
    x <- as.magpie(x,spatial=1,temporal=2,datacol=3)
+   
    
    return (x)
   }

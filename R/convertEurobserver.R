@@ -19,11 +19,11 @@ convertEurobserver <- function(x,subtype){
     
     
     # indicator to distribute to ROW
-    gdppc <- calcOutput("GDPpc", gdp="ppp",aggregate = F)
-    gdppc <- gdppc[,"y2020","SSP2"]
-    gdppc <- gdppc[getRegions(x),,invert=T]
+    gdppp <-  calcOutput("GDPppp", years=2015,aggregate = F) 
+    gdppp <- gdppp[,,"gdp_SSP2"]
+    gdppp <- gdppp[getRegions(x),,invert=T]
     x_rem <- new.magpie(setdiff(mapping$CountryCode,getRegions(x)),getYears(x),getNames(x),fill = 1)
-    x_rem <- x_rem*as.numeric(gdppc/dimSums(gdppc,dim = 1))
+    x_rem <- x_rem*as.numeric(gdppp/dimSums(gdppp,dim = 1))
     for (i in getYears(x_rem)){
       for (j in getNames(x_rem)){
         x_rem[,i,j] <- x_rem[,i,j]*as.numeric(x_row[,i,j])
