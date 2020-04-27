@@ -105,18 +105,11 @@ calcHistorical <- function() {
   cdiac <- add_dimension(cdiac, dim=3.1, add="model",nm="CDIAC")
 
   # Historical land use emissions (taken from "mrvalidation/R/fullVALIDATION.R")
-  LU_EDGAR_LU    <- calcOutput(type="ValidEmissions", datasource="EDGAR_LU", aggregate=FALSE, try=TRUE)
-  LU_CEDS        <- calcOutput(type="ValidEmissions", datasource="CEDS", aggregate=FALSE, try=TRUE)
-  LU_FAO_EmisLUC <- calcOutput(type="ValidEmissions", datasource="FAO_EmisLUC", aggregate=FALSE, try=TRUE)
-  LU_FAO_EmisAg  <- calcOutput(type="ValidEmissions", datasource="FAO_EmisAg", aggregate=FALSE, try=TRUE)
-  LU_PRIMAPhist  <- calcOutput(type="ValidEmissions", datasource="PRIMAPhist", aggregate=FALSE, try=TRUE)
-  #LU_IPCC        <- calcOutput(type="ValidEmissions", datasource="IPCC", aggregate=FALSE, try=TRUE)
-  #LU_Nsurplus2   <- calcOutput(type="ValidEmissions", datasource="Nsurplus2", aggregate=FALSE, try=TRUE)
-  #calcOutput(type="ValidEmisLucGlo", subtype="Canadell_2007", aggregate=FALSE, try=TRUE) #ready
-  #calcOutput(type="ValidEmisLucGlo", subtype="Friedlingstein_2010", aggregate=FALSE, try=TRUE) #ready
-  #calcOutput(type="ValidEmisLucGlo", subtype="Harris_2013", aggregate=FALSE, try=TRUE) #ready
-  #calcOutput(type="ValidEmisLucGlo", subtype="Houghton_2012", aggregate=FALSE, try=TRUE) #ready
-  #calcOutput(type="ValidEmisLucGlo", subtype="RCP", aggregate=FALSE, try=TRUE) #ready
+  LU_EDGAR_LU    <- calcOutput(type="LandEmissions", datasource="EDGAR_LU", aggregate=FALSE, try=TRUE)
+  LU_CEDS        <- calcOutput(type="LandEmissions", datasource="CEDS", aggregate=FALSE, try=TRUE)
+  LU_FAO_EmisLUC <- calcOutput(type="LandEmissions", datasource="FAO_EmisLUC", aggregate=FALSE, try=TRUE)
+  LU_FAO_EmisAg  <- calcOutput(type="LandEmissions", datasource="FAO_EmisAg", aggregate=FALSE, try=TRUE)
+  LU_PRIMAPhist  <- calcOutput(type="LandEmissions", datasource="PRIMAPhist", aggregate=FALSE, try=TRUE)
   
   # remove scenario dimension (will be added below as also for remind variables)
   LU_EDGAR_LU    <- collapseNames(LU_EDGAR_LU   , collapsedim=1)
