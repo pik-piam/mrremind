@@ -21,21 +21,26 @@ calcEmploymentfactors <- function(improvements){
 
     x1 <- readSource(type = "Rutovitz2015",subtype = "oecd_ef")# EFs for OECD countries
     x2 <- readSource(type = "Rutovitz2015",subtype = "regional_mult")# regional multipliers for non-OECD countries
-    # countries for which regional multiplier is 0. There are actually no "0" values, but some countries are left out
+   
+     # countries for which regional multiplier is 0. There are actually no "0" values, but some countries are left out
     # by Rutovitz which automatically get 0 value after the end of the convert function.
-    noval_reg <- getRegions(x2)[which(x2[,2015,]==0)]
-    x2[noval_reg,,] <- x2["GHA",,]# all those countries with no regional
-    # multipliers get values for Africa (here Ghana taken as representative)
+        noval_reg <- getRegions(x2)[which(x2[,2015,]==0)]
+    for (i in noval_reg){
+      x2[i,,] <- as.numeric(x2["GHA",,])# all those countries with no regional     # multipliers get values for Africa (here Ghana taken as representative)
+      
+    }
     x3 <- readSource(type = "Rutovitz2015",subtype = "regional_ef")# EFs for specific regions and techs
     x4 <- readSource(type = "Rutovitz2015",subtype = "coal_ef")# EFs for coal fuel supply
     x5 <- readSource(type = "Rutovitz2015",subtype = "gas_ef")# EFs for gas fuel supply
   
     # Step 1: Give all non-oecd countries, oecd ef values for 2015
-    x1[non_oecd,,] <- x1["DEU",,] # arbitary OECD country value
+    for (i in non_oecd){
+    x1[i,,] <- as.numeric(x1["DEU",,]) # arbitary OECD country value
+    }
     #x1[non_oecd,,] <- 1 # replacing 0 (value) with 1 for multiplication later
     # Step 2: Multiply all non-oecd values by a regional multiplier
     #  for 2015 (for oecd countries, this factor is 1)
-    x1[non_oecd,2015,] <- x1[non_oecd,2015,] * x2[non_oecd,2015,] 
+    x1[non_oecd,2015,] <- x1[non_oecd,2015,] * setNames(x2[non_oecd,2015,],nm = NULL) 
   
   # Step 3: overwrite efs (values) for 2015 for countries for which there is
   # better data
@@ -67,15 +72,15 @@ calcEmploymentfactors <- function(improvements){
       }
   # Step 4: For future values (2020 and 2030), the regional multiplication factors 
   # which are provided for 2020 and 2030 are normalised to 2015 values.
-  x2[,"y2020",] <- x2[,"y2020",]/x2[,"y2015",]
-  x2[,"y2030",] <- x2[,"y2030",]/x2[,"y2015",]
+  x2[,"y2020",] <- x2[,"y2020",]/setYears(x2[,"y2015",],NULL)
+  x2[,"y2030",] <- x2[,"y2030",]/setYears(x2[,"y2015",],NULL)
 
   # Step 5: Future values found by multiplying with 2015 values
-  x1[non_oecd,2020,] <- x1[non_oecd,2015,] * x2[non_oecd,2020,] # multiplying by regional multiplier
-  x1[non_oecd,2030,] <- x1[non_oecd,2015,] * x2[non_oecd,2030,] # multiplying by regional multiplier
+  x1[non_oecd,2020,] <- setYears(x1[non_oecd,2015,],NULL) * setNames(x2[non_oecd,2020,],NULL) # multiplying by regional multiplier
+  x1[non_oecd,2030,] <- setYears(x1[non_oecd,2015,],NULL) * setNames(x2[non_oecd,2030,],NULL) # multiplying by regional multiplier
   # For OECD countries, the multiplier is 1 in 2020 and 2030
-  x1[oecd_con,"y2020",]<- x1[oecd_con,"y2015",] 
-  x1[oecd_con,"y2030",]<- x1[oecd_con,"y2015",] 
+  x1[oecd_con,"y2020",]<- as.numeric(x1[oecd_con,"y2015",]) 
+  x1[oecd_con,"y2030",]<- as.numeric(x1[oecd_con,"y2015",]) 
   return (x1)
   } 
   
@@ -97,7 +102,7 @@ calcEmploymentfactors <- function(improvements){
     regs <- getRegions(x7)[which(x7>0)]
     # Overwriting all efs in x1 for which better data exists in x7
     # for all years
-    x1[regs,,getNames(x7)] <- x7[regs,,]
+    x1[regs,,getNames(x7)] <- setYears(x7[regs,,],NULL)
     return (x1)
   }
   
@@ -135,7 +140,7 @@ calcEmploymentfactors <- function(improvements){
   
   gdppercap <- gdp/pop
 
-return(list(x=x1, weight=gdppercap,  unit="FTE/MW or FTE/PJ",
+return(list(x=x1, weight=gdp,  unit="FTE/MW or FTE/PJ",
             description="Employment factors"))
 }
 

@@ -52,16 +52,15 @@ convertRutovitz2015 <- function(x,subtype) {
     
     x <- as.magpie(reg_mult2)
     x <- toolCountryFill(x,fill=0)
-    x["CYP",,] <- x["DEU",,] # cyprus gets oecd values
+    x["CYP",,] <- as.numeric(x["DEU",,]) # cyprus gets oecd values
   
   }
   if (subtype == "regional_ef"){
 
+    # x <- readSource(type = "Rutovitz2015",subtype = "regional_ef",convert = F)
     
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
-    
-    # x <- readSource(type = "Rutovitz2015",subtype = "regional_ef",convert = F)
-    # 
+
     
     # assign countries to all regions in Rutovitz for specific regional EFs
     
@@ -71,10 +70,11 @@ convertRutovitz2015 <- function(x,subtype) {
         left_join(mapping,by="region") %>% 
         select(country,tech,activity,value) 
     
-    x <- as.magpie(x_df,datacol=4)
+    x <- as.magpie(x_df,spatial=1,temporal=NULL,datacol=4)
     x[is.na(x)] <- 0
-    getYears(x) <- 2015
     x <- toolCountryFill(x,fill=0)
+    getYears(x) <- 2015
+ 
   }
   if(subtype=="coal_ef"){
     #x <- readSource(type = "Rutovitz2015",subtype = "coal_ef",convert = F) 
