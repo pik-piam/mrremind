@@ -2,6 +2,7 @@
 
 .onLoad <- function(libname, pkgname){
   madrat::setConfig(packages=c(madrat::getConfig("packages"),pkgname), .cfgchecks=FALSE, .verbose=FALSE)
+  madrat::setConfig(nolabels=c(madrat::getConfig("nolabels"),"REMIND"), .cfgchecks=FALSE, .verbose=FALSE)
 }
 
 #create an own warning function which redirects calls to vcat (package internal)
