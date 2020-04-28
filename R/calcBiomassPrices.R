@@ -3,9 +3,9 @@
 #' @importFrom magclass dimReduce
 
 calcBiomassPrices <- function(){
-
-  x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
   
+  x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
+
   # rename the rcp-scenarios
   getNames(x) <- gsub("NDC-PkBudg900","rcp20",getNames(x))
   getNames(x) <- gsub("NDC-PkBudg1300","rcp26",getNames(x))
@@ -15,7 +15,7 @@ calcBiomassPrices <- function(){
   # Introduce new SSP/SDP dimension by replacing "-" with "."
   getNames(x) <- gsub("(SSP[0-9]|SDP)-","\\1.",getNames(x))
   
-  # if fit coefficients of a country are NA for all years (there is no supplycurve at all for this country) 
+  # if fit coefficients of a country are NA for all years (there is no supplycurve at all for this country)
   # generate artificial supplycurve with VERY high prices
   x[,,"a"][is.na(x[,,"a"])] <- 1
   x[,,"b"][is.na(x[,,"b"])] <- 0.1
