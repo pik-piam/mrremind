@@ -1,6 +1,6 @@
-Package: moinput
+Package: mrremind
 Type: Package
-Title: Model Operations Input Data Library
+Title: MadRat REMIND Input Data Package
 Version: 9.344.2
 Date: 2020-04-28
 Author: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich
@@ -12,6 +12,7 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
     madrat(>= 1.30),
+    mrcommons
 Imports:
     abind,
     assertr(>= 2.4),

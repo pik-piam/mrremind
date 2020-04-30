@@ -1,8 +1,8 @@
-# R moinput package
+# R mrremind package
 
 ## Purpose and Functionality
 
-The R-library moinput provides useful functions and a common structure to all the input data required to run models like MAgPIE and REMIND
+The mrremind packages contains data preprocessing for the REMIND model
 
 
 ## Installation
@@ -17,21 +17,13 @@ The additional repository can be made available permanently by adding the line a
 After that the most recent version of the package can be installed using `install.packages`:
 
 ```r 
-install.packages("moinput")
+install.packages("mrremind")
 ```
 
 Package updates can be installed using `update.packages` (make sure that the additional repository has been added before running that command):
 
 ```r 
 update.packages()
-```
-
-## Tutorial
-
-The package comes with a vignette describing the basic functionality of the package and how to use it. You can load it with the following command (the package needs to be installed):
-
-```r 
-vignette("moinput")
 ```
 
 ## Travis CI Integration
@@ -41,8 +33,10 @@ vignette("moinput")
 
 ## Questions / Problems
 
-In case of questions / problems please contact Jan Dietrich <dietrich@pik-potsdam.de>.
+In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-potsdam.de>.
 
 ## Citation
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3699594.svg)](https://doi.org/10.5281/zenodo.3699594)
+```r 
+citation("mrremind")
+```
