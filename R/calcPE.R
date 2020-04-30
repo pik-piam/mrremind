@@ -1,4 +1,5 @@
 #' @importFrom dplyr %>%
+#' @importFrom luscale speed_aggregate
 
 calcPE <- function() {
   

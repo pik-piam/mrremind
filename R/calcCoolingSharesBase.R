@@ -20,6 +20,7 @@
 #' }
 #' @importFrom magclass getNames<-
 #' @importFrom readxl read_excel
+#' @importFrom madrat toolMappingFile
 
 
 

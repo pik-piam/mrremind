@@ -2,6 +2,7 @@
 #' @author Aman Malik, Christoph Bertram
 #' @param subtype "share_uncond", "share_cond", "multiplier_uncond",  "multiplier_cond", "ghg_uncond" or "ghg_cond"
 #' @importFrom magclass getNames
+#' @importFrom madrat setConfig getConfig
 
 calcEmiTarget <- function(subtype) {
   

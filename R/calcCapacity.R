@@ -11,6 +11,7 @@
 #' }
 #'  
 #' @importFrom luscale rename_dimnames
+#' @importFrom magclass add_dimension
 #' 
 
 calcCapacity <- function(subtype){

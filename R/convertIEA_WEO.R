@@ -12,6 +12,7 @@
 #'   
 #' @importFrom tidyr gather
 #' @importFrom readxl read_excel
+#' @importFrom magclass nregions
 
 
 convertIEA_WEO <- function(x,subtype){

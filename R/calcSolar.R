@@ -12,6 +12,7 @@
 #' 
 #'
 #' @importFrom utils head
+#' @importFrom magclass where
 
 
 calcSolar <- function() {

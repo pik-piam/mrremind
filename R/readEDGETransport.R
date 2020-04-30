@@ -12,7 +12,7 @@
 #' \dontrun{ a <- readSource(type="EDGETransport")
 #' }
 #' @importFrom magclass read.magpie
-#' @importFrom data.table rbindlist fread setcolorder
+#' @importFrom data.table rbindlist fread setcolorder := setnames
 #'
 
 readEDGETransport <- function(subtype = "logit_exponent") {
@@ -95,9 +95,6 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
            tmp_dfs <- rbindlist(tmp_dfs, fill= TRUE)
 
-           ## due to rbindlist, "pinco" entries and "sw" entries are created as NAs. Remove them
-           tmp_dfs = tmp_dfs[!is.na(value)]
-
            ## NAs in categories meant to be empty should be replaced
            tmp_dfs[is.na(tmp_dfs)] <- "tmp"
 
@@ -149,6 +146,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "harmonized_intensities" = {
            tmp <- fread(paste0(subtype, ".csv"))
+
            tmp$varname <- subtype
            tmp$varname = gsub(".*moinputData/","",tmp$varname)
 
@@ -195,7 +193,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
            tmp$varname = gsub(".*moinputData/","",tmp$varname)
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "non_fuel_price"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "type", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects

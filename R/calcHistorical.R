@@ -1,4 +1,4 @@
-#' @importFrom magclass setNames getNames getSets
+#' @importFrom magclass setNames getNames getSets add_columns
 
 
 calcHistorical <- function() {

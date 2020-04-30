@@ -1,4 +1,6 @@
 
+#' @importFrom magclass setYears
+
 calcCapacityNuclear <- function() {
  ### overall philosophy:
   ## currently under construction goes online over the 5-year long 2020 timestep

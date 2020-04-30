@@ -4,7 +4,7 @@
 #' 
 #' @param tlimit Temperature threshold for computing HDD and CDD: 18, 21 or 25
 #' @author Antoine Levesque
-#' @importFrom magclass setNames as.magpie getNames
+#' @importFrom magclass setNames as.magpie getNames lowpass
 #' @importFrom dplyr group_by_ arrange_ mutate_ ungroup select_
 #' @importFrom quitte as.quitte
 

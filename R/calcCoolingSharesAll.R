@@ -22,6 +22,7 @@
 #' a <- calcOutput("CoolingSharesAll")
 #' 
 #' }
+#' @importFrom magclass mbind dimSums 
 #' 
 calcCoolingSharesAll <- function() {
 

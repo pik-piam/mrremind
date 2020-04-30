@@ -1,5 +1,6 @@
 #' @importFrom dplyr %>%
 #' @importFrom quitte inline.data.frame
+#' @importFrom stats na.omit
 
 
 calcFE <- function(source = "IEA", scenario_proj = "SSP2") {

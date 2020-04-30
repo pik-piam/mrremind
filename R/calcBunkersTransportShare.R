@@ -1,5 +1,7 @@
 #' @importFrom quitte as.quitte
 #' @importFrom stats lm predict
+#' @importFrom magclass getRegions
+#' @importFrom madrat calcOutput
 
 calcBunkersTransportShare <- function() {
   

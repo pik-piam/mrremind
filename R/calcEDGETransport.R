@@ -11,6 +11,7 @@
 #' \dontrun{ a <- calcOutput(type="EDGETransport", subtype="logit_exponent", aggregate=F)
 #' }
 #'
+#'@importFrom data.table as.data.table
 calcEDGETransport <- function(subtype = "logit_exponent") {
 
   value <- i.value <- NULL

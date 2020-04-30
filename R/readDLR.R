@@ -1,4 +1,5 @@
 #' @importFrom reshape2 melt
+#' @importFrom utils read.table
 
 readDLR <- function() {
   

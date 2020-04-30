@@ -1,6 +1,8 @@
 #' read biomass supply curves from Magpie emulator
 #' @return Magpie object with two parameters determining linear biomass supply curve
 #' @importFrom magclass dimReduce
+#' @importFrom madrat readSource
+#' @import mrcommons
 
 calcBiomassPrices <- function(){
   
