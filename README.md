@@ -28,7 +28,7 @@ update.packages()
 
 ## Travis CI Integration
 
-[![Travis build status](https://travis-ci.com/pik-piam/moinput.svg?branch=master)](https://travis-ci.com/pik-piam/moinput)
+[![Travis build status](https://travis-ci.com/pik-piam/mrremind.svg?branch=master)](https://travis-ci.com/pik-piam/mrremind)
 
 
 ## Questions / Problems
