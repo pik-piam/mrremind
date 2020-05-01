@@ -1,67 +1,55 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 9.344.2
-Date: 2020-04-28
-Author: Lavinia Baumstark, Anastasis Giannousakis, Jan Philipp Dietrich, Ulrich
-    Kreidenweis, Benjamin Bodirsky, Isabelle Weindl, Mishko Stevanovic, Xiaoxi Wang, Ewerton Araujo, Florian Humpenoeder, Stephen Wirth, Kristine Karstens, Abhijeet Mishra
-Maintainer: Anastasis Giannousakis <giannou@pik-potsdam.de>
-Description: Provides useful functions and a common structure to all the input data required to run models like MAgPIE and REMIND
-    of model input data.
+Version: 0.0.1
+Date: 2020-05-01
+Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
+             person("Renato", "Rodrigues", role = "aut"),
+             person("Antoine", "Levesque", role = "aut"),
+             person("Julian", "Oeser", role = "aut"),
+             person("Christoph", "Bertram", role = "aut"),
+             person("Ioanna", "Mouratiadou", role = "aut"),
+             person("Aman", "Malik", role = "aut"),
+             person("Felix", "Schreyer", role = "aut"),
+             person("Bjoern", "Soergel", role = "aut"),
+             person("Marianna", "Rottoli", role = "aut"),
+             person("Alois", "Dirnaichner", role = "aut"),
+             person("David", "Klein", role = "aut"),
+             person("Jessica", "Strefler", role = "aut"),
+             person("Regina", "Brecha", role = "aut"),
+             person("Sebastian", "Rauner", role = "aut"),
+             person("Anastasis", "Giannousakis", role = "aut"),
+             person("Jan Philipp", "Dietrich", role = "aut"))
+Description: The mrremind packages contains data preprocessing for the REMIND model.
 Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
     madrat(>= 1.30),
     mrcommons
 Imports:
-    abind,
-    assertr(>= 2.4),
+    R.utils,
     assertthat,
-    compiler,
     countrycode,
     data.table,
-    doParallel,
     dplyr,
-    foreach,
-    lazyeval,
-    lpjclass,
+    gdata,
     luscale,
-    lucode,
-    magpiesets,
-	mstools,
-    ncdf4,
-	nleqslv,
-	nnls,
-    parallel,
-    plyr,
+    nnls,
     quitte,
-    raster,
     readr,
     readxl,
     reshape,
     reshape2,
-    rhdf5,
-    rlang,
-    R.utils,
-    SPEI,
-    stringi,
-    stringr,
     tidyr,
-    tools,
-    utils,
-	mgsub,
-    zoo,
-    WDI,
-	gdata,
-    demystas,
-    alabama
+    zoo
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.1.0
-ValidationKey: 1717463960
-Suggests: knitr,
+ValidationKey: 18383
+Suggests: 
+    knitr,
     testthat,
     rmarkdown,
-	ggplot2
+    ggplot2
 VignetteBuilder: knitr
