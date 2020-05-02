@@ -12,6 +12,7 @@
 #' \dontrun{ y <- convertGFED(x)
 #' }
 #' @importFrom magclass getRegionList<-
+#' @importFrom luscale groupAggregate
 
 convertGFED <- function(x, subtype) {
   if(subtype=="12regions_baseline"){

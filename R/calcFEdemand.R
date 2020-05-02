@@ -6,10 +6,10 @@
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
-#' lag arrange
+#' lag arrange inner_join matches tbl_df
 #' @importFrom tidyr extract complete nesting replace_na crossing unite
 #' @importFrom readr read_delim
-#' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
+#' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 

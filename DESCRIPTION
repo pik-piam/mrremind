@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.0.1
-Date: 2020-05-01
+Version: 0.1.0
+Date: 2020-05-02
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -13,12 +13,15 @@ Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", ro
              person("Felix", "Schreyer", role = "aut"),
              person("Bjoern", "Soergel", role = "aut"),
              person("Marianna", "Rottoli", role = "aut"),
+             person("Abhijeet", "Mishra", role = "aut"),
              person("Alois", "Dirnaichner", role = "aut"),
+             person("Michaja", "Pehl", role = "aut"),
+             person("Anastasis", "Giannousakis", role = "aut"),
              person("David", "Klein", role = "aut"),
              person("Jessica", "Strefler", role = "aut"),
+             person("Lukas", "Feldhaus", role = "aut"),
              person("Regina", "Brecha", role = "aut"),
              person("Sebastian", "Rauner", role = "aut"),
-             person("Anastasis", "Giannousakis", role = "aut"),
              person("Jan Philipp", "Dietrich", role = "aut"))
 Description: The mrremind packages contains data preprocessing for the REMIND model.
 Depends:
@@ -28,25 +31,29 @@ Depends:
     mrcommons
 Imports:
     R.utils,
+    assertr,
     assertthat,
     countrycode,
     data.table,
     dplyr,
     gdata,
     luscale,
+    ncdf4,
     nnls,
     quitte,
     readr,
     readxl,
     reshape,
     reshape2,
+    rhdf5,
+    rlang,
     tidyr,
     zoo
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.1.0
-ValidationKey: 18383
+ValidationKey: 183840
 Suggests: 
     knitr,
     testthat,

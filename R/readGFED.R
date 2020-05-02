@@ -15,6 +15,7 @@
 #' @import ncdf4
 #' @import rhdf5
 #' @import madrat
+#' @importFrom magclass clean_magpie ncells
 
 readGFED <- function(subtype) {
   
