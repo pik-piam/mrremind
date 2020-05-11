@@ -149,7 +149,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")
   
   #--------------- EDGE Transport ---------------------------------------------------------------------
-  sapply(c("value_time", "harmonized_intensities", "price_nonmot",
+  lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "SW", "pref", "UCD_NEC_iso", "logit_exponent"),
          function(stype){
            print(sprintf("Loading %s", stype))
@@ -157,7 +157,7 @@ fullREMIND <- function(rev=0) {
                                        file=paste0(stype, ".cs4r"), aggregate=F))
          })
   
-  sapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand"),
+  lapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand", "loadFactor"),
          function(stype){
           print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,

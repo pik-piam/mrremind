@@ -186,16 +186,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
 
          },
-
+         
          "UCD_NEC_iso" = {
            tmp <- fread(paste0(subtype, ".csv"))
-
+           
            tmp$varname <- subtype
            tmp$varname = gsub(".*moinputData/","",tmp$varname)
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "type", "varname", "non_fuel_price"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "vehicle_type", "technology", "type", "price_component", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
-
+           
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
@@ -205,9 +205,17 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
-
+             
            }
-
+           
+         },
+         
+         "loadFactor" = {
+           tmp <- fread(paste0(subtype, ".csv"))
+           tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "vehicle_type", "loadFactor"))
+           setnames(tmp, old ="loadFactor", new ="value")
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4)
          },
 
          "fe2es" = {
