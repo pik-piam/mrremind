@@ -18,7 +18,6 @@ convertGFED <- function(x, subtype) {
   if(subtype=="12regions_baseline"){
     # delete global information (how to deal with it?)
     x   <- x["GLO",,,invert=TRUE]
-    #data(moinput)
     iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
     iso_country1<-as.vector(iso_country[,"x"])
     names(iso_country1)<-iso_country[,"X"]
