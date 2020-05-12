@@ -86,7 +86,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
          "UCD_NEC_iso" = {
            weight = NULL
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
-           description = "Non energy costs for all motorized transport modes"
+           description = "Non energy costs for all motorized transport modes, both total and purchase for LDVs"
+         },
+         "loadFactor" = {
+           weight = get_weight(data, weightInt)
+           unit = "Passenger transport: [pass/veh]; freight transport: [ton/veh]"
+           description = "Load factor for all motorized transport modes"
          },
          "esCapCost" = {
            weight = get_weight(data, weightInt)
