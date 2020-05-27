@@ -1,4 +1,4 @@
 library(testthat)
-library(moinput)
+library(mrremind)
 
-test_check("moinput")
+test_check("mrremind")

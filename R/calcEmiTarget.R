@@ -28,7 +28,7 @@ calcEmiTarget <- function(subtype) {
     
   ### Import historical data (gdp and emi) needed for the calculations 
     
-    # Historical emissions for 1990-2015 - co2 (excl LU),ch4,n2o (so far no Fgas historic time series in moinput)
+    # Historical emissions for 1990-2015 - co2 (excl LU),ch4,n2o (so far no Fgas historic time series)
     ceds <- calcOutput("Emissions",datasource="CEDS2REMIND",aggregate = FALSE)
     gwpCH4 <- 28 #"Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
     gwpN2O <- 265 #"Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/

@@ -1,8 +1,10 @@
-# R mrremind package
+# MadRat REMIND Input Data Package
+#### R package **mrremind**, version **0.1.2**
+ 
 
 ## Purpose and Functionality
 
-The mrremind packages contains data preprocessing for the REMIND model
+The mrremind packages contains data preprocessing for the REMIND model.
 
 
 ## Installation
@@ -26,17 +28,27 @@ Package updates can be installed using `update.packages` (make sure that the add
 update.packages()
 ```
 
-## Travis CI Integration
-
-[![Travis build status](https://travis-ci.com/pik-piam/mrremind.svg?branch=master)](https://travis-ci.com/pik-piam/mrremind)
-
-
 ## Questions / Problems
 
 In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-potsdam.de>.
 
 ## Citation
 
-```r 
-citation("mrremind")
+To cite package **mrremind** in publications use:
+
+Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F,
+Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J,
+Feldhaus L, Brecha R, Rauner S, Dietrich J (2020). _mrremind: MadRat REMIND Input Data Package_. R
+package version 0.1.2.
+
+A BibTeX entry for LaTeX users is
+
+ ```latex
+@Manual{,
+  title = {mrremind: MadRat REMIND Input Data Package},
+  author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich},
+  year = {2020},
+  note = {R package version 0.1.2},
+}
 ```
+
