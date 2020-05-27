@@ -132,6 +132,12 @@ fullREMIND <- function(rev=0) {
   calcOutput("DiffInvestCosts",  subtype="Invest_Costs",     round=4,  file="p_inco0.cs4r")
   calcOutput("DiffInvestCosts",  subtype="Efficiency",       round=4,  file="pm_eff.cs4r")
   calcOutput("CapacityFactorHist",                           round=4,  file="p_histCapFac.cs4r")
+  calcOutput("GEA2012", subtype="coal",                          round=8,  file="p31_grades_coal.cs4r")
+  calcOutput("GEA2012", subtype="gas",                           round=8,  file="p31_grades_gas.cs4r")
+  calcOutput("GEA2012", subtype="oil",                           round=8,  file="p31_grades_oil.cs4r")
+  calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
+  calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
+  calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
   
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r") 
