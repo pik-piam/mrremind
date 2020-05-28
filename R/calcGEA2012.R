@@ -2,7 +2,6 @@
 #' @description Extracts oil, gas and coal data from the GEA 2012 into a scenario- and time-dependent grade structure
 #' @param subtype oil, coal, gas, or bounds
 #' @param datatype extraseed, exportbound, or decoffset for bounds subtype
-#' @param realization Determines whether to aggregate data into coal, oil or gas (timeDepGrades) or to keep subtype granularity (MOFEX)
 #' @return MAgPIE object containing regionally aggregated GEA 2012 data
 #' @author Stephen Bi
 #' @seealso \code{\link{calcOutput}}
