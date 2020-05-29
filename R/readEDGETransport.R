@@ -213,7 +213,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          "loadFactor" = {
            tmp <- fread(paste0(subtype, ".csv"))
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "vehicle_type", "loadFactor"))
+           tmp$varname <- subtype
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "vehicle_type", "varname", "loadFactor"))
            setnames(tmp, old ="loadFactor", new ="value")
            mdata <- as.magpie(tmp, spatial = 3, temporal = 4)
          },
