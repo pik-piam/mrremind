@@ -4,8 +4,15 @@
 calcHistorical <- function() {
   
   # Final Energy
-  fe <- calcOutput("FE",aggregate=FALSE)
-  fe <- add_dimension(fe, dim=3.1, add="model",nm="IEA")
+  fe_iea <- calcOutput("FE",source="IEA",aggregate=FALSE)
+  fe_iea <- add_dimension(fe_iea, dim=3.1, add="model",nm="IEA")
+  
+  fe_weo <- calcOutput("FE",source="IEA_WEO",aggregate = F)
+  fe_weo <- fe_weo[,,"Current Policies Scenario",pmatch=T]
+  fe_weo <- collapseNames(fe_weo)
+  fe_weo <- add_dimension(fe_weo, dim=3.1, add="model",nm="IEA_WEO")
+  
+
   
   # Final Energy
   fe_proj_ssp1 <- calcOutput("FE", source = "EDGE_projections", scenario_proj = "SSP1",aggregate=FALSE)
@@ -17,8 +24,13 @@ calcHistorical <- function() {
   
   
   # Primary Energy
-  pe <- calcOutput("PE",aggregate=FALSE)
-  pe <- add_dimension(pe, dim=3.1, add="model",nm="IEA")
+  pe_iea <- calcOutput("PE",subtype="IEA",aggregate=FALSE)
+  pe_iea <- add_dimension(pe_iea, dim=3.1, add="model",nm="IEA")
+  
+  pe_weo <- calcOutput("PE",subtype="IEA_WEO",aggregate=FALSE)
+  pe_weo <- pe_weo[,,"Current Policies Scenario",pmatch=T]
+  pe_weo <- collapseNames(pe_weo)
+  pe_weo <- add_dimension(pe_weo, dim=3.1, add="model",nm="IEA_WEO")
   
   # fossil trade
   trade <- calcOutput("Trade",aggregate=FALSE)
@@ -130,13 +142,14 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list( fe, fe_proj, pe, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
+  varlist <- list( fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
+
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
   y <- sort(y)
   
   # create empty object with full temporal, regional and data dimensionality
-  data <- new.magpie(getRegions(fe),y,n,fill=NA)
+  data <- new.magpie(getRegions(fe_iea),y,n,fill=NA)
   getSets(data)[3]<- "model"
   getSets(data)[4]<- "variable"
 

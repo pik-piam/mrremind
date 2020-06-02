@@ -182,7 +182,6 @@ convertIEA_WEO <- function(x,subtype){
     if (subtype=="PE")
     {
       x <- x[,,"Primary Energy",pmatch=T]
-      x <- collapseNames(x)
     }
     
   

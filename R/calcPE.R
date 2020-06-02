@@ -67,11 +67,11 @@ calcPE <- function(subtype) {
   #data <- data[,,vars,pmatch=T]
   # converting to remind convention
   getNames(data) <- gsub(pattern = "Primary Energy",replacement = "PE",x = getNames(data))
-  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Gas",replacement = "PE|Gas|Electricity",getNames(data))
-  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Coal",replacement = "PE|Coal|Electricity",getNames(data))
-  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Oil",replacement = "PE|Oil|Electricity",getNames(data))
+  getNames(data) <- gsub(pattern = "PE\\|Electricity\\|Gas",replacement = "PE|Gas|Electricity",getNames(data))
+  getNames(data) <- gsub(pattern = "PE\\|Electricity\\|Coal",replacement = "PE|Coal|Electricity",getNames(data))
+  getNames(data) <- gsub(pattern = "PE\\|Electricity\\|Oil",replacement = "PE|Oil|Electricity",getNames(data))
   getNames(data) <- paste0(getNames(data)," (EJ/yr)")
-  
+  data <- collapseNames(data)
   }
     
   return(list(x=data,weight=NULL,unit="EJ",
