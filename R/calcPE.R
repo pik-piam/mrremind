@@ -1,7 +1,9 @@
 #' @importFrom dplyr %>%
 #' @importFrom luscale speed_aggregate
 
-calcPE <- function() {
+calcPE <- function(subtype) {
+  
+  if (subtype=="IEA"){
   
   data <- calcOutput("IO",subtype="input",aggregate=FALSE)
   
@@ -35,7 +37,44 @@ calcPE <- function() {
   x <- mbind(x,setNames(dimSums(x[,,"PE|Biomass",pmatch=TRUE],dim=3),"PE|Biomass (EJ/yr)"))
 
   
-  
-  return(list(x=x,weight=NULL,unit="EJ",
+    return(list(x=x,weight=NULL,unit="EJ",
               description="IEA Primary Energy Data based on 2014 version of IEA Energy Balances"))
-}
+  }
+  if (subtype=="IEA_WEO"){
+  
+  data <- readSource(type = "IEA_WEO",subtype = "PE")
+  regions <- toolGetMapping(getConfig()[1],where = "mappingfolder",type = "regional")
+  #regions <- unique(regions$RegionCode)
+  
+  # gdp of all countries in 2015
+  gdp <- calcOutput("GDPpppPast",aggregate = F)
+  gdp <- gdp[,"y2015",]
+  
+  # if 2015 gdp of a country is 90% of the GDP of the region to which it belongs
+  # include result. If not, display it as NA
+
+  
+  for (i in regions$CountryCode){
+    if (data[i,,]>0 & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
+        data[i,,] <- data[i,,]     
+    else {data[i,,] <- NA
+    }
+  }
+    
+  data <- data[,,]*4.1868e-2 # Mtoe to EJ
+  #data <- collapseNames(data)
+  #vars <- c("Coal","Oil","Gas")
+  #data <- data[,,vars,pmatch=T]
+  # converting to remind convention
+  getNames(data) <- gsub(pattern = "Primary Energy",replacement = "PE",x = getNames(data))
+  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Gas",replacement = "PE|Gas|Electricity",getNames(data))
+  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Coal",replacement = "PE|Coal|Electricity",getNames(data))
+  getNames(data) <- gsub(pattern = "Primary Energy\\|Electricity\\|Oil",replacement = "PE|Oil|Electricity",getNames(data))
+  getNames(data) <- paste0(getNames(data)," (EJ/yr)")
+  
+  }
+    
+  return(list(x=data,weight=NULL,unit="EJ",
+              description="IEA Primary Energy Data based on IEA WEO 2019"))
+  
+  }

@@ -2,10 +2,10 @@
 #' 
 #' @description Read-in IEA WEO 2016 data for investment costs, O&M costs and Efficiency of different technologies, and 
 #' WEO 2017 data for historical electricity capacities (GW), generation (TWh) or emissions (Mt CO2).
-#' 
+#' WEO 2019 data for PE and FE (Mtoe).
 #' @param subtype data subtype. Either "Capacity", "Generation", "Emissions", "Investment Costs", "O&M Costs" or "Efficiency"
 #' @return magpie object of the WEO data on generation (TWh), capacities (GW), emissions (Mt CO2) or disaggregated investment cost as magpie object  
-#' @author Renato Rodrigues and Aman Malik
+#' @author Renato Rodrigues, Aman Malik, and Jerome Hilaire
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' 
@@ -16,7 +16,8 @@
 #' @importFrom readxl read_excel
 
 readIEA_WEO <- function(subtype){
-    
+    # to do  - remove dirty fixes for tidyr, dplyr functions; move some parts of the function in PE and FE subtypes
+    # into convertIEA_WEO
   period <- NULL
   value <- NULL
   variable <- NULL
