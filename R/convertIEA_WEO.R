@@ -17,7 +17,8 @@
 
 convertIEA_WEO <- function(x,subtype){
   
-  if ((subtype=="Invest_Costs") || (subtype=="O&M_Costs") || (subtype=="Efficiency")) {
+  if ((subtype=="Invest_Costs") || (subtype=="O&M_Costs") || (subtype=="Efficiency"))
+    {
     # x <- readSource("IEA_WEO",subtype = "Invest_Costs",convert = FALSE)
     # x[,,] <- as.numeric(x[,,])
       # # mapping of all countries and their respective regions
@@ -87,13 +88,15 @@ convertIEA_WEO <- function(x,subtype){
     
     x[is.na(x)] <- 0
   
-  } else if ((subtype=="Capacity") || (subtype=="Generation") || (subtype=="Emissions")) {
+  } 
+  else if ((subtype=="Capacity") || (subtype=="Generation") || (subtype=="Emissions"))
+    {
     
     # WEO_regions -> c("World", "OECDNAM", "US", "CSAM", "BRAZIL", "EUR", "EU", "Africa", "SAFR", "ME", "EURASIA", "RUS", "ASIAPAC", "CHINA", "INDIA", "JPN", "ASEAN", "OECD", "NonOECD"
     
     H12map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
     
-    if (subtype=="Capacity"){ # estimate OAS coal
+  if (subtype=="Capacity"){ # estimate OAS coal
       # Approximate Caspian countries (part of the REF)
       weight <- calcOutput("IO",subtype="input",aggregate=FALSE)[,2015,"pecoal.seel.pc"]
       caspian <-  new.magpie(cells_and_regions = "Caspian",names=getNames(x),years = 2015, fill=as.vector(x["EURASIA",2015,getNames(x)]) - as.vector(x["RUS",2015,getNames(x)]))
@@ -141,8 +144,58 @@ convertIEA_WEO <- function(x,subtype){
     
   }
   
-  return(x)
-}
+  if ((subtype=="PE") ||  (subtype=="FE")) 
+    {
+  # x <- readSource(type = "IEA_WEO",subtype = "PE",convert = F)
+  x <- collapseNames(x)
+ # countries <- toolGetMapping("regionmappingREMIND.csv",where = "mappingfolder",type = "regional")
+ # countries <- countries[countries$RegionCode=="EUR",]
+ # eu <- new.magpie( countries[countries$RegionCode=="EUR",]$X,getYears(x),getNames(x))
+ # # EU countries get EU values from IEA WEO data
+ # for (i in getRegions(eu))
+ # {
+ #   eu[i,,] <- x["European Union (28 member countries)",,]/nregions(eu)
+ # 
+ # }
   
+  regions <- c( "BRAZIL","CHINA" ,"JPN",
+                "INDIA",
+                "US","RUS","SAFR")
+  y <- x[regions,,]
+  #getRegions(y) <- gsub("People's Repulic of China","China",getRegions(y))
+ # getRegions(y) <-  gsub("European Union \\(28 member countries\\)","EUR",getRegions(y))
+ # getRegions(y) <-  gsub("Republic of India","India",getRegions(y))
+  getRegions(y) <-  gsub("JPN","Japan",getRegions(y))
+  getRegions(y) <-  gsub("RUS","Russia",getRegions(y))
+  getRegions(y) <-  gsub("US","United States of America",getRegions(y))
+  getRegions(y) <-  gsub("SAFR","South Africa",getRegions(y))
+
+  
+  #z <- mbind(y,eu)
+  y <- mbind(y)
+ 
+  getRegions(y) <- toolCountry2isocode(getRegions(y))
+  x <- y
+  x <- toolCountryFill(x = y,fill = NA)
+ 
+  
+    if (subtype=="PE")
+    {
+      x <- x[,,"Primary Energy",pmatch=T]
+      x <- collapseNames(x)
+    }
+    
+  
+    if (subtype=="FE")
+    { x <- x[,,"Final Energy",pmatch=T]
+    }
+
+  }
+  
+
+  return(x)
+  
+}
+
  
 
