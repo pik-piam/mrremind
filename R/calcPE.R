@@ -43,6 +43,7 @@ calcPE <- function(subtype) {
   if (subtype=="IEA_WEO"){
   
   data <- readSource(type = "IEA_WEO",subtype = "PE")
+  data <- collapseNames(data)
   regions <- toolGetMapping(getConfig()[1],where = "mappingfolder",type = "regional")
   #regions <- unique(regions$RegionCode)
   
@@ -53,14 +54,18 @@ calcPE <- function(subtype) {
   # if 2015 gdp of a country is 90% of the GDP of the region to which it belongs
   # include result. If not, display it as NA
 
-  
+  var <- getNames(data)[1]
+  data_new <- new.magpie(getRegions(data),years = getYears(data),names = getNames(data),fill=NA)
   for (i in regions$CountryCode){
-    if (data[i,,]>0 & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
-        data[i,,] <- data[i,,]     
-    else {data[i,,] <- NA
+    if (!is.na(data[i,"y2010",var]) & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
+       { data_new[i,,] <- data[i,,]
+        countries <- regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode
+        data_new[setdiff(countries,i),,] <- 0 # countries other than the "main" country
+        # get zero value so that aggregation can be done
+         }
     }
-  }
-    
+  
+  data <- data_new
   data <- data[,,]*4.1868e-2 # Mtoe to EJ
   #data <- collapseNames(data)
   #vars <- c("Coal","Oil","Gas")
@@ -71,7 +76,7 @@ calcPE <- function(subtype) {
   getNames(data) <- gsub(pattern = "PE\\|Electricity\\|Coal",replacement = "PE|Coal|Electricity",getNames(data))
   getNames(data) <- gsub(pattern = "PE\\|Electricity\\|Oil",replacement = "PE|Oil|Electricity",getNames(data))
   getNames(data) <- paste0(getNames(data)," (EJ/yr)")
-  data <- collapseNames(data)
+ # data <- collapseNames(data)
   }
     
   return(list(x=data,weight=NULL,unit="EJ",

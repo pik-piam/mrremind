@@ -1,6 +1,11 @@
+#' Calculates FE historical from IEA energy balances, projections from EDGE, and historical
+#' values from IEA WEO 2019
+#' @author Lavinia Baumstark, Aman Malik 
 #' @importFrom dplyr %>%
 #' @importFrom quitte inline.data.frame
 #' @importFrom stats na.omit
+#' @param source "IEA", "EDGE_projections", or "IEA_WEO"
+#' @param scenario_proj "SSP2" by default unless overwritten
 
 
 calcFE <- function(source, scenario_proj = "SSP2") {
@@ -158,13 +163,18 @@ calcFE <- function(source, scenario_proj = "SSP2") {
     # if 2015 gdp of a country is 90% of the GDP of the region to which it belongs
     # include result. If not, display it as NA
     
-    
+    var <- getNames(data)[1]
+    data_new <- new.magpie(getRegions(data),years = getYears(data),names = getNames(data),fill=NA)
     for (i in regions$CountryCode){
-      if (data[i,,]>0 & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
-        data[i,,] <- data[i,,]     
-      else {data[i,,] <- NA
+      if (!is.na(data[i,"y2010",var]) & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
+      { data_new[i,,] <- data[i,,]
+      countries <- regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode
+      data_new[setdiff(countries,i),,] <- 0 # countries other than the "main" country
+      # get zero value so that aggregation can be done
       }
     }
+    
+    data <- data_new
     
     data <- data[,,]*4.1868e-2 # Mtoe to EJ
     #data <- collapseNames(data)
