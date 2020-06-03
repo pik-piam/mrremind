@@ -1,7 +1,7 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.6.0
+Version: 0.7.0
 Date: 2020-06-03
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
@@ -49,12 +49,13 @@ Imports:
     rhdf5,
     rlang,
     tidyr,
-    zoo
+    zoo,
+    mgsub
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.1.0
-ValidationKey: 1104960
+ValidationKey: 1289120
 Suggests: 
     knitr,
     testthat,
