@@ -18,9 +18,8 @@ r_packages:
   - devtools
   - testthat
   - lucode2
-  - BiocManager
 install:
   - Rscript -e "for(pkg in c('devtools','testthat')) if(!requireNamespace(pkg)) install.packages(pkg)"
-  - Rscript -e "if(!requireNamespace('rhdf5')) BiocManager::install('rhdf5')"
+  - Rscript -e "if(!requireNamespace('rhdf5')){install.packages("BiocManager");BiocManager::install('rhdf5')}"
 script:
   - Rscript -e 'devtools::test()'
