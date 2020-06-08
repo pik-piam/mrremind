@@ -1,6 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
+r: bioc-release
 os: linux
 dist: xenial
 addons:
@@ -18,11 +19,5 @@ r_packages:
   - devtools
   - testthat
   - lucode2
-  - magclass
-  - madrat
-  - mrcommons
-install:
-  - Rscript -e "for(pkg in c('devtools','testthat')) if(!requireNamespace(pkg)) install.packages(pkg)"
-  - Rscript -e "if(!requireNamespace('rhdf5')){install.packages('BiocManager');BiocManager::install('rhdf5')}"
 script:
   - Rscript -e 'devtools::test()'
