@@ -3,6 +3,11 @@
 language: r
 os: linux
 dist: xenial
+addons:
+    apt:
+        packages:
+            - libnetcdf-dev
+            - netcdf-bin
 repos:
   CRAN: https://cloud.r-project.org
   PIK:  https://rse.pik-potsdam.de/r/packages/
