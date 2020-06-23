@@ -12,7 +12,6 @@
 #' @importFrom readxl read_excel
 
 readGEA2012 <- function(subtype) {
-  filepath <- paste0(getConfig("sourcefolder"),"/GEA2012/")
   EJ_2_TWyr <- 1/31.536
   ts1 <- 5
   ts2 <- 10
@@ -35,7 +34,7 @@ readGEA2012 <- function(subtype) {
   #             'TAO-rv','SHO-rv','EHO-rv','COO-rv','TAO-rs','SHO-rs','EHO-rs','COO-rs','HAC','LIC')
   
   if ("coal" %in% subtype) {
-    rawData <- read.csv2(paste0(getConfig("sourcefolder"),"/GEA2012/scenarios/Scenario Data HAC_LIC.csv"),header=TRUE,as.is = T)
+    rawData <- read.csv2("Scenario Data HAC_LIC.csv",header=TRUE,as.is = T)
     rawData$grade <- as.factor(rawData$grade)
     rawData$value <- as.numeric(rawData$value)
     out <- setYears(as.magpie(rawData),ttot[1])
@@ -53,7 +52,7 @@ readGEA2012 <- function(subtype) {
     for (i in ffType) {
       #Read FF type data
       typeFilename <- paste0("FF Data ",i,".xlsx")
-      rawData <- as.data.frame(readxl::read_excel(paste0(filepath,"fossil fuels/",typeFilename)))
+      rawData <- as.data.frame(readxl::read_excel(typeFilename))
       rawData <- rawData[,which(!is.na(rawData[1,]))]
       if (i==ffType[1]) {
         regions <- rawData[,"Region code"]
@@ -61,7 +60,7 @@ readGEA2012 <- function(subtype) {
       }
       #Read appropriate pre-processing function from the file
       ppFunc <- as.character(rawData[1,"R Pre-Proc Function"])
-      ppFunc <- source(file=paste0(filepath,"ppFuncs/",ppFunc,".r"))[[1]]
+      ppFunc <- source(file=paste0(ppFunc,".r"))[[1]]
       #Retain only numerical data
       numData <- rawData[1:nreg,5:dim(rawData)[2]]
       #Execute pre-processing function
@@ -69,7 +68,7 @@ readGEA2012 <- function(subtype) {
       
       #Read Scenario data (cost and quantity mark-ups/factors)
       scenFilename <- paste0("Scenario data ",i,".xlsx")
-      scenData <- as.data.frame(readxl::read_excel(paste0(filepath,"scenarios/",scenFilename)))
+      scenData <- as.data.frame(readxl::read_excel(scenFilename))
       scenData <- scenData[,which(!is.na(scenData[1,]))]
       
       #Some data files are associated with 2 scenario adjustment functions -- these must be handled differently (EHO and TAO)
@@ -80,13 +79,13 @@ readGEA2012 <- function(subtype) {
         if (n_scenFuncs==1) {
           #The Scenario processing func requires the full data frame and the scenario multiplier columns as arguments
           scenFunc <- as.character(unique(scenData[,"R Scenario Function"]))
-          scenFunc <- source(file=paste0(filepath,"ppFuncs/",scenFunc,".r"))[[1]]
+          scenFunc <- source(file=paste0(scenFunc,".r"))[[1]]
           ffTypeScenData[[i]][[scen[j]]] <- scenFunc(ffTypeData[[i]],scenData[((j-1)*nreg+1):(j*nreg),which(grepl("Data",colnames(scenData)))])
         }else {
           #Case 2: 1 scenario adustment function for this scenario of the FF type
           if (length(unique(scenData[((j-1)*nreg+1):(j*nreg),"R Scenario Function"]))==1) {
             scenFunc <- as.character(scenData[1+(j-1)*nreg,"R Scenario Function"])
-            scenFunc <- source(file=paste0(filepath,"ppFuncs/",scenFunc,".r"))[[1]]
+            scenFunc <- source(file=paste0(scenFunc,".r"))[[1]]
             ffTypeScenData[[i]][[scen[j]]] <- scenFunc(ffTypeData[[i]],scenData[((j-1)*nreg+1):(j*nreg),which(grepl("Data",colnames(scenData)))])
             #Case 3: Different scenario adjustment functions across regions within the scenario of the FF type 
           }else {
@@ -94,7 +93,7 @@ readGEA2012 <- function(subtype) {
             #Read and use the scenario function for each region
             for (k in 1:nreg) {
               scenFunc <- as.character(scenData[k+(j-1)*nreg,"R Scenario Function"])
-              scenFunc <- source(file=paste0(filepath,"ppFuncs/",scenFunc,".r"))[[1]]
+              scenFunc <- source(file=paste0(scenFunc,".r"))[[1]]
               ffTypeScenData[[i]][[scen[j]]][k,,] <- scenFunc(array(ffTypeData[[i]][k,,],dim=c(1,dim(ffTypeData[[i]])[2],2)),
                                                               scenData[k+(j-1)*nreg,which(grepl("Data",colnames(scenData)))])
             }
@@ -149,6 +148,15 @@ readGEA2012 <- function(subtype) {
       )  
     )
     
+    if ("grades2poly" %in% subtype) {
+      #More granular function for grades2poly parametrization
+      for (ssp in names(costGrades)) {
+        for (type in names(costGrades[[ssp]])) {
+          costGrades[[ssp]][[type]] <- seq(min(costGrades[[ssp]][[type]]),max(costGrades[[ssp]][[type]]),length.out = 50)
+        }
+      }
+    }
+
     # IEA decline rate data from WEO 2008/09
     if (subtype=="oil") {
       sp_IEADecRat <- new.magpie(c("MEA", "EUR", "USA", "JPN", "RUS", "LAM", "CHN", "IND", "OAS", "AFR", "ROW"),years=NULL,names=c("conv","unconv"),fill=0)

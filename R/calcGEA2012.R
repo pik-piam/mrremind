@@ -53,8 +53,8 @@ calcGEA2012 <- function(subtype,datatype) {
     }else if (datatype=="decoffset") {
       #SB 031720 This "decline offset" parameter is taken from the initial implementation of 31_fossil/timeDepGrades pre-moinput by NB & JH
       #Comment from *NB, IM* The parameter values are based on World Energy Outlook (2008, 2009) and further assumptions/approximations
-      x <- new.magpie(regionsH12,NULL,names=paste(rep(c("peoil","pegas"),each=ngrades),c(1:ngrades),sep="."),fill=-2e-4)
-      x[c("REF","MEA"),,] <- -2e-5
+      x <- new.magpie(regionsH12,NULL,names=paste(rep(c("peoil","pegas","pecoal"),each=ngrades),c(1:ngrades),sep="."),fill=-2e-4)
+      x[c("REF","MEA"),,c("peoil","pegas")] <- -2e-5
       unit <- "TWyr"
     }else if (datatype=="extraseed") {
       x <- new.magpie(regionsH12,ttot,names=paste(rep(c("peoil","pegas"),each=ngrades),c(1:ngrades),sep="."),fill=0)
