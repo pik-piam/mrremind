@@ -51,7 +51,7 @@ readGEA2012 <- function(subtype) {
     # Loop over FF types
     for (i in ffType) {
       #Read FF type data
-      typeFilename <- paste0("FF Data ",i,".xlsx")
+      typeFilename <- paste0("FF data ",i,".xlsx")
       rawData <- as.data.frame(readxl::read_excel(typeFilename))
       rawData <- rawData[,which(!is.na(rawData[1,]))]
       if (i==ffType[1]) {
