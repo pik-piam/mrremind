@@ -8,7 +8,7 @@
 #' @param scenario_proj "SSP2" by default unless overwritten
 
 
-calcFE <- function(source, scenario_proj = "SSP2") {
+calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
   
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA"){
