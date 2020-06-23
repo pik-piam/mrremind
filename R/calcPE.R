@@ -1,7 +1,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom luscale speed_aggregate
 
-calcPE <- function(subtype) {
+calcPE <- function(subtype = "IEA") {
   
   if (subtype=="IEA"){
   
