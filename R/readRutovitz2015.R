@@ -26,16 +26,16 @@ readRutovitz2015 <- function(subtype){
   if (subtype == "oecd_ef")
     {
     
-    input <- read_csv("oecd_ef.csv",na = "") %>% 
+    input <- read_csv("oecd_ef.csv",na = "",col_types = "cddddc") %>% 
       # rename_(tech=~"X1",duration=~`Construction times`,CI=~`Construction/ Installation`,
       #         Manf=~`Manufacturing`,OM=~`Operations & Maintenance`, Fuel_supply=`Fuel – PRIMARY ENRGY DEMAND\nEnergy Demand`) %>% 
       rename(tech=1,duration=2,CI=3,Manf=4,OM=5, Fuel_supply=6) %>% 
       filter_(~!is.na(tech)) %>% 
       add_row(tech="CoalHP",duration=5,CI=11.2,Manf=5.4,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="GasHP",duration=2,CI=1.3,Manf=0.93,OM=0.14*1.5,Fuel_supply="Regional") %>% 
-      add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply=29.9) %>% 
+      add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="29.9") %>% 
       add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Regional") %>% # oil EF= Gas EF
-      filter_(~!tech %in% grep("Ocean|decommissioning|small|Oil|heat",
+      filter(!tech %in% grep("Ocean|decommissioning|small|Oil|heat",
                              x =tech,value=T)) %>%  # removing 
     mutate_(tech=~mgsub::mgsub(tech, c("Hydro-large", "Wind onshore","Solar Photovoltaics","Solar thermal"),
                              c("Hydro", "Wind","Solar|PV","Solar|CSP"))) %>%  ## renaming techs
@@ -44,8 +44,8 @@ readRutovitz2015 <- function(subtype){
     mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
       #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
       #mutate_(Manf=~Manf/duration) %>% 
-      select_(~-duration) %>% 
-      gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
+      select(-duration)   %>% 
+      gather(key =   "activity",value = "value",c(2:5))   %>% 
       mutate(value=ifelse(value == "Regional",0,value))  %>% 
       #mutate_(unit=ifelse(activity %in% c("CI","Manf"), yes = "Job-years/MW", no = ifelse(activity=="Fuel_supply","Jobs/PJ","Jobs/MW"))) %>% # adding units column
      # filter_( ~tech!="Nuclear") %>% 
@@ -131,7 +131,7 @@ readRutovitz2015 <- function(subtype){
   return(x)  
 }  
   if(subtype=="regional_mult"){
-       input <- read_csv("regional_mult.csv",na="") %>% 
+    input <- read_csv("regional_mult.csv",na="") %>% 
     rename(region=1) %>% 
     gather(2:4,key="year",value="value") %>% 
     mutate(region=ifelse(region=="Eastern Europe/Eurasia","Eurasia",region))

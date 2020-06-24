@@ -1,6 +1,5 @@
-#' @title readCEEW
-#' Read Employment factors and cumulative jobs for RE techs (for India) from reports published by CEEW et al.
-#' See README.txt in the source folder for more information.
+#' Read Employment factors and cumulative jobs for RE techs (for India)
+#' @details Reports published by CEEW et al. See README.txt in the source folder for more information.
 #' @author Aman Malik
 #' @importFrom readxl read_excel
 #' @param subtype data subtype. Either "Employment factors" or "Employment"
@@ -26,7 +25,7 @@ readCEEW <- function(subtype){
     colnames(input)[2] <- "CI"
     colnames(input)[3] <- "OM"
     
-    input$CI <- input$CI*input$`Construction Period`
+    #input$CI <- input$CI*input$`Construction Period`
     input <- input[,c(1:3)]
     x <- as.magpie(input)
     #getRegions(x) <- "IND"
