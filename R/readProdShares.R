@@ -3,7 +3,7 @@
 #' @importFrom dplyr bind_rows
 #' @importFrom readxl read_excel
 
-readProdshares <- function(){
+readProdShares <- function(){
 
 
   input_spv <- read_excel("shares.xlsx",sheet = "spv")
@@ -16,6 +16,7 @@ readProdshares <- function(){
   input <- bind_rows(input_spv,input_wind)
   
   x <- as.magpie(input,spatial=1)
+  
   return (x)
 
 }
