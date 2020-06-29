@@ -1,6 +1,6 @@
 # MadRat REMIND Input Data Package
 
-R package **mrremind**, version **0.10.0**
+R package **mrremind**, version **0.11.0**
 
   
 
@@ -44,7 +44,7 @@ Rottoli M, Mishra A, Dirnaichner A, Pehl M,
 Giannousakis A, Klein D, Strefler J, Feldhaus L,
 Brecha R, Rauner S, Dietrich J, Bi S (2020).
 _mrremind: MadRat REMIND Input Data Package_. R
-package version 0.10.0.
+package version 0.11.0.
 
 A BibTeX entry for LaTeX users is
 
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
   title = {mrremind: MadRat REMIND Input Data Package},
   author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich and Stephen Bi},
   year = {2020},
-  note = {R package version 0.10.0},
+  note = {R package version 0.11.0},
 }
 ```
 

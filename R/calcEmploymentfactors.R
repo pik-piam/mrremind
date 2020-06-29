@@ -113,7 +113,7 @@ calcEmploymentfactors <- function(improvements){
   getNames(x6) <- gsub(x = getNames(x6),pattern = "Large Hydro",replacement = "Hydro")
   getRegions(x6) <- "IND"
   getYears(x6) <- 2015
-  
+  #  factors is how the regional multiplier changes over time
   factors <- x1[,,]/setYears(x1[,2015,],NULL)
   
   for (i in getRegions(x6)){
@@ -124,21 +124,14 @@ calcEmploymentfactors <- function(improvements){
   # 2020 value same as 2015 value
   x1[getRegions(x6),2020,intersect(getNames(x6),getNames(x1))] <- as.numeric(x1[getRegions(x6),2015,intersect(getNames(x6),getNames(x1))])
   
-  
-  # overwriting Rutovitz (x1) values with "better" or region-specific data
-  # from CEEW (India) for some common variables
-  # note than all years from x1 (2015,2020,2030)  get CEEW values
-  # com_var <- getNames(x1)[getNames(x1) %in% getNames(x6)]
-  # x1["IND",,com_var] <- x6["GLO",,com_var]
   return (x1)
   }
   
   dias <- function(){
     x7 <- readSource(type = "Dias", subtype = "Employment factors") # EFs for coal and coal mining
     # using Dias et al. data, regions with non-zero values 
+  # x1 for which better data exists in x7, for all years
     regs <- getRegions(x7)[which(x7>0)]
-    # Overwriting all efs in x1 for which better data exists in x7
-    # for all years
     x1[regs,,getNames(x7)] <- setYears(x7[regs,,],NULL)
     return (x1)
   }
