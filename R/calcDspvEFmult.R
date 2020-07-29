@@ -1,5 +1,5 @@
-#' Calculates a multiplier for the employment factor for distributed solar
-
+#' Calculates a multiplier for the employment factor for distributed solar pv
+#' @author Aman Malik
 
 calcDspvEFmult <- function()
   {

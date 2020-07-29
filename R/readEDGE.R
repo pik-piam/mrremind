@@ -61,7 +61,7 @@ readEDGE <- function(subtype = "FE_stationary") {
    mfloor = read.csv("EDGE_buildings_floorspace.csv")
    mfloor = as.magpie(mfloor)
    mfloor = collapseNames(mfloor)
-   getSets(mfloor) <- c("region", "year", "scenario")
+   getSets(mfloor) <- c("region", "year", "scenario", "variable")
    mdata = mfloor
  }else if(subtype == "ES_buildings"){
    mservices = read.csv("EDGE_buildings_services_EDGE_EUR_ETP.csv")

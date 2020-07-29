@@ -1,5 +1,6 @@
 #' Capacity targets from two sources
-#' @description The capacity targets (GW)  at regional level are produced from two different databases.
+#' @description The capacity targets (GW)  at regional level are produced from two different databases-
+#' Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables report
 #' The Rogelj2017 capacity targets are further broken down to conditional and unconditional targets.
 #' @author Aman Malik
 #' @param sources Database source

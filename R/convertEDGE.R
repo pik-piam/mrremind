@@ -312,7 +312,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     wg     <- calcOutput("Population", PopulationFuture = "SSP",     years=rem_years_hist,aggregate=F)
     getNames(x) <- paste0("pop_",getNames(x))
     getSets(wg) = gsub("variable","scenario",getSets(wg))
-    wg = wg[,,getNames(x)]
+    wg = wg[,,getNames(x,T)[["scenario"]]]
     
     x = toolAggregate(x[,rem_years_hist,],mappingfile, weight = wg, from = region_col, to = iso_col )
     result = x
