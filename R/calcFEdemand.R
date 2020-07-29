@@ -89,11 +89,12 @@ calcFEdemand <- function(subtype = "FE") {
       it <- "ueLDVt"
       target <- 7 ## GJ
       switch_yrs <- 10
+      drive <- 0.1
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
-                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * (target - prv_row$dem_cap)/target)]
+                              drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -drive * (target - prv_row$dem_cap)/target)]
 
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
@@ -103,8 +104,8 @@ calcFEdemand <- function(subtype = "FE") {
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
-                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * (target - prv_row$dem_cap)/target)]
+                              drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -drive * (target - prv_row$dem_cap)/target)]
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
