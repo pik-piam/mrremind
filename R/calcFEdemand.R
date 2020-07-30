@@ -294,10 +294,7 @@ calcFEdemand <- function(subtype = "FE") {
       # f for feeli is sqrt of f; for for others choosen such that total
       # reduction equals f
       group_by(scenario, iso3c, year) %>%
-      mutate(f.mod = ifelse('feeli' == pf, FE / sum(FE), 0),
-             f.mod = ifelse('feeli' == pf, f.mod, 1 - sum(f.mod)),
-             f.mod = ifelse('feeli' == pf, sqrt(f),
-                            (f - sqrt(f) * (1 - f.mod)) / f.mod)) %>%
+      mutate(f.mod = ifelse('feeli' == pf & f < 1, sqrt(f), f)) %>%
       ungroup() %>%
       select(-f, f = f.mod) %>%
       # gather(variable, value, GDP, FE, VA, VApGDP, FEpVA) %>%
