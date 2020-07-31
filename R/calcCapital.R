@@ -1,3 +1,7 @@
+#' @importFrom magclass as.data.frame as.magpie
+#' @importFrom dplyr as_tibble select mutate sym
+#' @importFrom quitte character.data.frame interpolate_missing_periods
+#' @importFrom tidyr pivot_wider pivot_longer
 
 calcCapital <- function(subtype = "Capital") {
 
@@ -96,12 +100,33 @@ calcCapital <- function(subtype = "Capital") {
     cap_macro <- mbind(cap_macro,
                        cap_sdp)
     
-    output = list(x=cap_macro,weight=NULL,
-                  unit = "trillion 2005US$",
-                  description = "Capital stock at constant 2005 national prices")
+    # ---- add industry subsectors energy efficiency capital stocks ----
+    EEK <- readSource('EDGE_Industry', 'p29_capitalQuantity_industry') %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select('iso3c' = 'Region', 'period' = 'Year', 'scenario' = 'Data1',
+             'pf' = 'Data2', 'value' = 'Value') %>% 
+      character.data.frame() %>% 
+      mutate(!!sym('period') := as.integer(!!sym('period'))) %>% 
+      # generate SDP scenario from SSP1
+      pivot_wider(names_from = 'scenario') %>% 
+      mutate(!!sym('gdp_SDP') := !!sym('gdp_SSP1')) %>% 
+      pivot_longer(matches('^gdp_'), names_to = 'scenario') %>% 
+      # expand missing periods at constant level
+      interpolate_missing_periods(
+        period = as.integer(sub('^y', '', getYears(cap_macro))),
+        expand.values = TRUE) %>% 
+      select('iso3c', 'period', 'scenario', 'pf', 'value') %>% 
+      as.magpie(spatial = 1, temporal = 2)
     
-    
-  } else if( subtype == "CapitalUnit"){
+    # --- tie ouputs together ----
+    output <- list(
+      x = mbind(cap_macro, EEK),
+      weight = NULL,
+      unit = "trillion 2005US$",
+      description = "Capital stock at constant 2005 national prices")
+  } 
+  else if( subtype == "CapitalUnit") {
    
     data = readSource("EDGE", subtype = subtype)
     
