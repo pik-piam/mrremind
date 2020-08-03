@@ -678,7 +678,8 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
              !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), 
                                               '.ue_steel_', !!sym('Data2')),
-             !!sym('value') := !!sym('value') * 1e3) %>% 
+             # Mt * 1e-3 Gt/Mt = Mt
+             !!sym('value') := !!sym('value') * 1e-3) %>% 
       select('Region', 'year', 'scenario.item', 'value') %>% 
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
       as.magpie()
