@@ -34,15 +34,25 @@ calcEmploymentfactors <- function(improvements){
     x4 <- readSource(type = "Rutovitz2015",subtype = "coal_ef")[,2015,]# EFs for coal fuel supply
     x5 <- readSource(type = "Rutovitz2015",subtype = "gas_ef")[,2015,]# EFs for gas fuel supply
     
-    ###### Step 1-3 are ONLY for 2015!!
-      
-    # Step 1: Give all non-oecd countries, oecd ef values for 2015
-    for (i in non_oecd){
-    x1[i,,] <- as.numeric(x1["DEU",,]) # arbitary OECD country value
-    }
-    #x1[non_oecd,,] <- 1 # replacing 0 (value) with 1 for multiplication later
+    ###### Step 1-3 are  for 2015 ONLY!!
     
-    # Step 2: Multiply all non-oecd values by a regional multiplier
+    # differentiate Solar PV into utility and rooftop
+    getNames(x1) <- gsub(x = getNames(x1),replacement = "Solar|PV-utility",pattern = "Solar\\|PV")
+    getNames(x3) <- gsub(x = getNames(x3),replacement = "Solar|PV-utility",pattern = "Solar\\|PV")
+    
+    x1 <- add_columns(x1,"Solar|PV-rooftop",dim = 3.1) 
+    # Rooftop gets 2 X Utility values, but for CI and Manf only - from Supplementary info Ram et al. who cites a Solar Power Europe 2015 study
+    x1[,,"Solar|PV-rooftop"][,,c("OM","CI","Fuel_supply")] <- 2*x1[,,"Solar|PV-utility"][,,c("OM","CI","Fuel_supply")]
+    x1 <- add_columns(x1,"Storage-battery",dim = 3.1)
+    x1[,,"Storage-battery.Manf"] <- 16.9 # values for battery storage large scale from Supplementary info. (sheet Employment factors) Ram et al. 2019
+    x1[,,"Storage-battery.CI"] <- 10.8
+    x1[,,"Storage-battery.OM"] <- 0.4
+    x1[,,"Storage-battery.Fuel_supply"] <- 0 # No fuel supply component
+    
+    # Step 1: all countries get OECD values
+    x1[,,] <- x1["DEU",,]
+
+    # Step 2: Multiply all non-oecd countries by a regional multiplier
     #  for 2015 (for oecd countries, this factor is 1)
     x1[non_oecd,,] <- x1[non_oecd,,] * setNames(x2[non_oecd,,],nm = NULL) 
   
@@ -67,16 +77,18 @@ calcEmploymentfactors <- function(improvements){
       }
   
   
-  # 3c. Replacing gas EFs in x1 with those of x5,only or 2015
+  # 3c. Replacing gas and oil EFs in x1 with those of x5, only or 2015
       for (i in getRegions(x4)){
         for (j in getNames(x5)){
           if (x5[i,,j]!=0)
             (x1[i,,j] <- x5[i,,j])
         }
       }
-  # Step 4: For future values the regional multiplication factors 
-  # which are provided for 2020 and 2030 are normalised to 2015 values and interpolcated/extrapolated until 2050
-  # x2[,"y2020",] <- x2[,"y2020",]/setYears(x2[,"y2015",],NULL)
+  
+  # # 3d. oil fuel supply same as gas fuel supply from Rutovitz et al.2015 
+  # x1[,,"Oil.Fuel_supply"] <- x1[,,"Gas.Fuel_supply"] 
+    
+  ## Step 4: Regional multipliers for year > 2015, normalised to 2015 and extrapolated until 2015"
   # x2[,"y2030",] <- x2[,"y2030",]/setYears(x2[,"y2015",],NULL)
   x2 <- readSource(type = "Rutovitz2015",subtype = "regional_mult")# regional multipliers for non-OECD countries
   x2[which(x2==0),] <- as.numeric(x2["GHA",,])
@@ -88,7 +100,8 @@ calcEmploymentfactors <- function(improvements){
   
   x2[,,] <- x2[,,]/setYears(x2[,"y2015",],NULL)
 
-  # Step 5: Future values found by multiplying with 2015 values
+  ## Step 5: For years > 2015, EFs are mutiplied with 2015 values
+  
   # adding future/missing years to x1
   x1_tmp <- new.magpie(getRegions(x1),seq(2015,2050,5),getNames(x1),fill=1)
   x1_tmp[,getYears(x1),] <- x1
@@ -109,20 +122,16 @@ calcEmploymentfactors <- function(improvements){
   
   ceew <- function(){  
   x6 <- readSource(type = "CEEW",subtype = "Employment factors") # EFs for India from CEEW
-  # Replacing Large Hydro with Hydro (Note!!)
-  getNames(x6) <- gsub(x = getNames(x6),pattern = "Large Hydro",replacement = "Hydro")
+  
   getRegions(x6) <- "IND"
   getYears(x6) <- 2015
   #  factors is how the regional multiplier changes over time
-  factors <- x1[,,]/setYears(x1[,2015,],NULL)
+  factors <- x1["IND",,]/setYears(x1["IND",2015,],NULL)
   
-  for (i in getRegions(x6)){
-    for (j in intersect(getNames(x6),getNames(x1))){
-      x1[i,,j] <- setYears(x6[i,,j],NULL)*factors[i,,j]
-    }
-  }
-  # 2020 value same as 2015 value
-  x1[getRegions(x6),2020,intersect(getNames(x6),getNames(x1))] <- as.numeric(x1[getRegions(x6),2015,intersect(getNames(x6),getNames(x1))])
+  x1["IND",,getNames(x6)] <- setYears(x6["IND",,getNames(x6)],NULL)*factors["IND",,getNames(x6)]
+    
+  # 2020 value same as 2015 value, only for variables in CEEW/x6
+  x1["IND",2020,getNames(x6)] <- as.numeric(x1["IND",2015,getNames(x6)])
   
   return (x1)
   }
@@ -160,6 +169,7 @@ calcEmploymentfactors <- function(improvements){
     x1 <- ceew()  
     x1 <- dias()
   }
+
   
   # using gdp per capita fpr regional aggregation
   # gdp <-   calcOutput("GDPppp",   years=2015, aggregate = F)

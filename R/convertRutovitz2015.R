@@ -30,7 +30,6 @@ convertRutovitz2015 <- function(x,subtype) {
   oecd_ef <- new.magpie(unique(oecd_con),c(2015,2020,2030),names = getNames(x))
   
   # assign all countries and techs, same value as x
-  x[,,"Oil.Fuel_supply"] <- x[,,"Gas.Fuel_supply"] # but first put oil fuel supply same as gas fuel supply
   oecd_ef[,,] <- x
   oecd_ef[is.na(oecd_ef)] <- 0
   x <- toolCountryFill(oecd_ef,fill=0) 
@@ -93,8 +92,10 @@ convertRutovitz2015 <- function(x,subtype) {
     # assign countries to all regions in Rutovitz for coal employment factors
       x_df <- as.data.frame(x) %>% 
       select(2,4,5,6) %>% 
-      rename(region=1,tech=2,activity=3,value=4) %>% 
-      left_join(x_df,mapping,by="region") %>%
+      rename(region=1,tech=2,activity=3,value=4)
+      
+      x_df <- left_join(x_df,mapping,by="region")
+      x_df <- x_df %>% 
       mutate(country=ifelse(region=="China","CHN",country)) %>% 
       mutate(country=ifelse(region=="India","IND",country)) %>% 
       filter(!(region=="Non-OECD Asia" & country=="CHN")) %>% # removing duplicates
@@ -140,7 +141,9 @@ convertRutovitz2015 <- function(x,subtype) {
       x <- as.magpie(x_df,spatial=1,temporal=NULL,datacol=4)
       getYears(x) <- 2015
       x <- toolCountryFill(x,fill=0)
-
+      # Oil EF for Fuel_supply is same as Gas Fuel supply
+      x <- add_columns(x,addnm = "Oil",dim=3.1)
+      x[,,"Oil"] <- x[,,"Gas"]
     
   }
   

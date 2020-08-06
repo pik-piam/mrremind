@@ -33,7 +33,7 @@ readRutovitz2015 <- function(subtype){
       filter(!is.na(tech)) %>% 
       add_row(tech="CoalHP",duration=5,CI=11.2,Manf=5.4,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="GasHP",duration=2,CI=1.3,Manf=0.93,OM=0.14*1.5,Fuel_supply="Regional") %>% 
-      add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="29.9") %>% 
+      add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Gas EF") %>% # oil EF= Gas EF
       filter(!tech %in% grep("Ocean|decommissioning|heat|diesel",
                              x =tech,value=T)) %>%  # removing 
