@@ -34,31 +34,24 @@ readRutovitz2015 <- function(subtype){
       add_row(tech="CoalHP",duration=5,CI=11.2,Manf=5.4,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="GasHP",duration=2,CI=1.3,Manf=0.93,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="29.9") %>% 
-      add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Regional") %>% # oil EF= Gas EF
-      filter(!tech %in% grep("Ocean|decommissioning|small|Oil|heat",
+      add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Gas EF") %>% # oil EF= Gas EF
+      filter(!tech %in% grep("Ocean|decommissioning|heat|diesel",
                              x =tech,value=T)) %>%  # removing 
-    mutate(tech=mgsub::mgsub(tech, c("Hydro-large", "Wind onshore","Solar Photovoltaics","Solar thermal"),
-                             c("Hydro", "Wind","Solar|PV","Solar|CSP"))) %>%  ## renaming techs
+    mutate(tech=mgsub::mgsub(tech, c("Solar Photovoltaics","Solar thermal"),
+                             c("Solar|PV","Solar|CSP"))) %>%  ## renaming techs
      # mutate(CI=as.numeric(CI)) %>% 
       #mutate(Manf=as.numeric(Manf)) %>% 
     mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
+    mutate(Fuel_supply=ifelse(Fuel_supply == "0.001 jobs/GWh final demand",0.001,Fuel_supply))  %>% 
       #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
       #mutate_(Manf=~Manf/duration) %>% 
       select(-duration)   %>% 
       gather(key =   "activity",value = "value",c(2:5))   %>% 
-      mutate(value=ifelse(value == "Regional",0,value))  %>% 
-      #mutate_(unit=ifelse(activity %in% c("CI","Manf"), yes = "Job-years/MW", no = ifelse(activity=="Fuel_supply","Jobs/PJ","Jobs/MW"))) %>% # adding units column
-     # filter_( ~tech!="Nuclear") %>% 
-      #mutate(life_span = ifelse(tech=="Coal",40,
-       #                         ifelse(tech=="Gas",30,
-        #                               ifelse(tech %in% c("Nuclear","Hydro"),60,
-         #                                     ifelse(tech %in% c("Solar|PV","Solar|CSP","Wind"),25,30))))) %>% 
+      mutate(value=ifelse(value == "Regional",0,value))  %>% # regional values exist for coal and gas, are read later
       mutate_at(vars(tech,activity),as.factor) %>% 
       mutate(value=as.numeric(value))
     
-   
-    
-      x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
+       x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
     return (x)
   }
   
@@ -66,23 +59,21 @@ readRutovitz2015 <- function(subtype){
   if (subtype == "regional_ef")
     {
     
-  const <- data.frame(tech=c("Nuclear","Biomass","Hydro","Wind","Solar|PV","Solar|CSP","Wind offshore"),
-                        duration=c(10,2,2,2,1,2,4))
+  #const <- data.frame(tech=c("Nuclear","Biomass","Hydro","Wind","Solar|PV","Solar|CSP","Wind offshore"),
+       #                 duration=c(10,2,2,2,1,2,4))
   input <- read_csv("regional_ef.csv",na="") %>%
     rename(tech=1,region=2,CI=3,Manf=4,OM=5,Fuel_supply=6) %>%
     filter(!is.na(tech)) %>%
     mutate_at(vars(tech,region),as.character) %>%
     mutate_at(vars(CI,Manf,OM,Fuel_supply),as.numeric) %>%
-    mutate(tech=mgsub::mgsub(tech, c("Hydro-large", "Wind-onshore","Solar PV","Solar Thermal power","Wind-offshore"),
-                                   c("Hydro", "Wind","Solar|PV","Solar|CSP","Wind offshore"))) %>%
+    mutate(tech=mgsub::mgsub(tech, c("Solar PV","Solar Thermal power","Wind-offshore","Wind-onshore"),
+                                   c("Solar|PV","Solar|CSP","Wind offshore","Wind onshore"))) %>%
     gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
     filter(!grepl("average",region))%>% 
-    mutate(region=mgsub::mgsub(region,c("OECD North America","OECD Pacific"),
-                        c("OECD Americas","OECD Asia Oceania"))) %>% 
     na.omit() %>% 
-    left_join(const,by="tech") %>% 
+    #left_join(const,by="tech") %>% 
     #mutate(region=ifelse(region=="OECD North America","OECD Americas",region))
-    mutate(value=ifelse(!activity %in% c("Fuel_supply","OM"),value/duration,value)) %>% 
+    #mutate(value=ifelse(!activity %in% c("Fuel_supply","OM"),value/duration,value)) %>% 
     select(region,tech,activity,value)
     
 
