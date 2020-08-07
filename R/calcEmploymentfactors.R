@@ -1,6 +1,6 @@
 #' @title calcEmploymentfactors
 #' @description Employment factors for different technologies and activities. For all activities except Fuel_supply, units
-#' are Full Time Equivalent (FTE)/MW. For Fuel supply, units are Jobs/PJ
+#' are Full Time Equivalent (FTE)/MW. For Fuel supply, units are Jobs/PJ; for nuclear Jobs/GWh
 #' @author Aman Malik
 #' @param improvements Either "None", CEEW", "Dias" or "Dias+CEEW". The latter three are "improvements" over only Rutovitz (None).
 
@@ -41,8 +41,10 @@ calcEmploymentfactors <- function(improvements){
     getNames(x3) <- gsub(x = getNames(x3),replacement = "Solar|PV-utility",pattern = "Solar\\|PV")
     
     x1 <- add_columns(x1,"Solar|PV-rooftop",dim = 3.1) 
-    # Rooftop gets 2 X Utility values, but for CI and Manf only - from Supplementary info Ram et al. who cites a Solar Power Europe 2015 study
-    x1[,,"Solar|PV-rooftop"][,,c("OM","CI","Fuel_supply")] <- 2*x1[,,"Solar|PV-utility"][,,c("OM","CI","Fuel_supply")]
+    # Rooftop gets 2 X Utility values, but for CI and OM only - from Supplementary info Ram et al. who cites a Solar Power Europe 2015 study
+    x1[,,"Solar|PV-rooftop"][,,c("OM","CI")] <- 2*x1[,,"Solar|PV-utility"][,,c("OM","CI")]
+    # for Manf, values same as spv utility. Fuel supply is anyway 0
+    x1[,,"Solar|PV-rooftop"][,,c("Manf","Fuel_supply")] <- x1[,,"Solar|PV-utility"][,,c("Manf","Fuel_supply")]
     x1 <- add_columns(x1,"Storage-battery",dim = 3.1)
     x1[,,"Storage-battery.Manf"] <- 16.9 # values for battery storage large scale from Supplementary info. (sheet Employment factors) Ram et al. 2019
     x1[,,"Storage-battery.CI"] <- 10.8
