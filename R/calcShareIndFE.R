@@ -27,6 +27,7 @@
 calcShareIndFE <- function() {
   if ('regionmapping_21_EU11.csv' != getConfig('regionmapping')) {
     x <- readSource("REMIND_11Regi",subtype="shareIndFE")
+    w <- calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,]
   } else {
     x <- calcOutput(type = 'FEdemand', subtype = 'FE', aggregate = FALSE) %>% 
       as.data.frame() %>% 
@@ -84,10 +85,11 @@ calcShareIndFE <- function() {
       select('region' = 'iso3c', 'type' = 'pf', 
              'variable' = 'sector.fixed_shares', 'value') %>% 
       as.magpie()
+    
+    w <- calcOutput('IO', subtype = 'output', aggregate = FALSE)[,2015,]
   }
   
-  w <- calcOutput("IO",subtype="output",aggregate=FALSE)
-  w <- w[,2010,intersect(getNames(x, dim = 1),getNames(w, dim=2))] 
+  w <- w[,,intersect(getNames(x, dim = 1),getNames(w, dim=2))] 
   w <- dimSums(w,dim=c(3.1,3.3))
   # duplicate fegai as a weight for feh2i
   w <- mbind(w, setNames(w[,,'fegai'], 'feh2i'))

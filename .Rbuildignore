@@ -5,3 +5,4 @@ carbon_stored.*
 ^\.git$
 ^\.travis.yml
 ^.*\.zenodo.json$
+^\.buildlibrary$
