@@ -152,7 +152,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   
   #-------------- historical data ---------------------------------------------------------------------
-  calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="REG+GLO")
+  calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
   
   #--------------- EDGE Transport ---------------------------------------------------------------------
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",

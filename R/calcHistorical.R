@@ -1,4 +1,5 @@
 #' @importFrom magclass setNames getNames getSets add_columns
+#' @importFrom luscale rename_dimnames
 
 
 calcHistorical <- function() {
@@ -138,11 +139,68 @@ calcHistorical <- function() {
   # remove duplicates from LU_FAO_EmisAg
   LU_FAO_EmisAg <- LU_FAO_EmisAg[,,which(!duplicated(getNames(LU_FAO_EmisAg)))]
   
+  
+  #====== Capacities historical data ===================
+  
+  #IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
+  IRENAcap <- readSource(type="IRENA",subtype="Capacity")[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
+  IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
+  mapping <- data.frame( IRENA_techs=c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
+                         REMIND_var=c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)", "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)", "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE)
+  IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_var") # renaming technologies to REMIND naming convention
+  IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)")) 
+  IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
+  
+  #====== Region specific historical data ===================
+  # European Eurostat data
+  eurostat <- readSource("EuropeanEnergyDatasheets")
+  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
+  eurostatEU <- eurostat[EUcountries,,]
+  eurostatEU[is.na(eurostatEU)] <- 0
+  eurostat[EUcountries,,] <- eurostatEU[EUcountries,,]
+  eurostat <- add_dimension(eurostat, dim=3.1, add="model",nm="Eurostat")
+  
+  # Emissions market data
+  emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ES (Mt CO2-equiv/yr)") # Effort Sharing
+  emiMktETS <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)") #ETS without aviation
+  # national aviation is not included in REMIND ETS yet
+  # aviation <- readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.10 Aviation")]
+  #set all non EU values to NA (by doing this we are excluding from the ETS the non EU28 countries - Norway, Liechtenstein and Iceland - because REMIND is not including them in the ETS)
+  emiMktES[getRegions(emiMktES)[-which(getRegions(emiMktES) %in% EUcountries)],,] <- NA 
+  emiMktES <- add_dimension(emiMktES, dim=3.1, add="model",nm="Eurostat")
+  ETScountries <- c(EUcountries,"GRL","ISL","LIE","NOR","SJM","CHE")
+  emiMktETS[getRegions(emiMktETS)[-which(getRegions(emiMktETS) %in% ETScountries)],,] <- NA 
+  emiMktETS <- add_dimension(emiMktETS, dim=3.1, add="model",nm="Eurostat")
+  # set remaining emissions to other market - it is missing lulucf (Land use, land-use change, and forestry)
+  totalGHG <- dimSums(eurostat[,,c("Emi|GHGtot (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Aviation (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Maritime Transport (Mt CO2-equiv/yr)")])
+  years <- Reduce(intersect, list(getYears(totalGHG),getYears(emiMktES[,,"Emi|GHG|ES (Mt CO2-equiv/yr)"]),getYears(emiMktETS[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"])))
+  emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ES (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ES (Mt CO2-equiv/yr)")
+  emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
+  
+  # EU Reference Scenario
+  EU_ReferenceScenario <- readSource("EU_ReferenceScenario")
+  EU_ReferenceScenarioEU <- EU_ReferenceScenario[EUcountries,,]
+  EU_ReferenceScenarioEU[is.na(EU_ReferenceScenarioEU)] <- 0
+  EU_ReferenceScenario[EUcountries,,] <- EU_ReferenceScenarioEU[EUcountries,,]
+  EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
+  
+  #Eurostat emissions
+  eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
+  eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
+  emiEurostatEU <- eurostatEmi[EUcountries,,]
+  emiEurostatEU[is.na(emiEurostatEU)] <- 0
+  emiEurostat <- NULL
+  emiEurostat <- mbind(
+    setNames(eurostatEmi[,,"CH4.All sectors (excluding memo items)"],"Emi|CH4 (Mt CH4/yr)")/28,
+    setNames(eurostatEmi[,,"N2O.All sectors (excluding memo items)"],"Emi|N2O (kt N2O/yr)")/(265 * 44 / 28)*1000 
+  )
+  emiEurostat <- add_dimension(emiEurostat, dim=3.1, add="model",nm="Eurostat")
+  
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list( fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist)
+  varlist <- list( fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))

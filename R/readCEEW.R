@@ -19,8 +19,11 @@ readCEEW <- function(subtype){
     
     input <- readxl::read_excel("Employment_CEEW.xlsx",sheet = 1)
     tech <- input$Tech
-    input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(ground mounted\\)",replacement = "Solar|PV")
-    input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(rooftop\\)",replacement = "Solar|PV|Rooftop")
+    input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(ground mounted\\)",replacement = "Solar|PV-utility")
+    input$Tech <- gsub(x = input$Tech,pattern = "Solar \\(rooftop\\)",replacement = "Solar|PV-rooftop")
+    input$Tech <- gsub(x = input$Tech,pattern = "Large Hydro",replacement = "Hydro-large")
+    input$Tech <- gsub(x = input$Tech,pattern = "Small Hydro",replacement = "Hydro-small")
+    input$Tech <- gsub(x = input$Tech,pattern = "Wind",replacement = "Wind onshore")
     
     colnames(input)[2] <- "CI"
     colnames(input)[3] <- "OM"
@@ -42,8 +45,12 @@ readCEEW <- function(subtype){
     input$Year <- gsub(x = input$Year,pattern = "FY17",replacement = "2016")
     input$Year <- gsub(x = input$Year,pattern = "FY18",replacement = "2017")
     input$Year <- gsub(x = input$Year,pattern = "FY19",replacement = "2018")
-    input$Tech <- gsub(x = input$Tech,pattern = "Utility-scale Solar",replacement = "Solar|PV")
-    input$Tech <- gsub(x = input$Tech,pattern = "Rooftop Solar",replacement = "Solar|PV|Rooftop")
+    # naming convention according to Rutovitz et al. 2015
+    input$Tech <- gsub(x = input$Tech,pattern = "Utility-scale Solar",replacement = "Solar|PV-utility")
+    input$Tech <- gsub(x = input$Tech,pattern = "Rooftop Solar",replacement = "Solar|PV-rooftop")
+    input$Tech <- gsub(x = input$Tech,pattern = "Large Hydro",replacement = "Hydro-large")
+    input$Tech <- gsub(x = input$Tech,pattern = "Small Hydro",replacement = "Hydro-small")
+    input$Tech <- gsub(x = input$Tech,pattern = "Wind",replacement = "Wind onshore")
     
     x <- as.magpie(input,spatial=NULL)
     # getRegions(x) <- "IND"

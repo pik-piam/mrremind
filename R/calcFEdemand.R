@@ -6,8 +6,9 @@
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
-#' lag arrange inner_join matches tbl_df
-#' @importFrom tidyr extract complete nesting replace_na crossing unite
+#' lag arrange inner_join matches 
+#' @importFrom tidyr extract complete nesting replace_na crossing unite 
+#'   pivot_longer pivot_wider
 #' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
 #' @author Antoine Levesque
@@ -89,11 +90,12 @@ calcFEdemand <- function(subtype = "FE") {
       it <- "ueLDVt"
       target <- 7 ## GJ
       switch_yrs <- 10
+      drive <- 0.1
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
-                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * (target - prv_row$dem_cap)/target)]
+                              drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -drive * (target - prv_row$dem_cap)/target)]
 
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
@@ -103,8 +105,8 @@ calcFEdemand <- function(subtype = "FE") {
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
-                              0.135 * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                              -0.135 * (target - prv_row$dem_cap)/target)]
+                              drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
+                              -drive * (target - prv_row$dem_cap)/target)]
       newdem[year == yr & item == it,
              dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
 
@@ -293,10 +295,7 @@ calcFEdemand <- function(subtype = "FE") {
       # f for feeli is sqrt of f; for for others choosen such that total
       # reduction equals f
       group_by(scenario, iso3c, year) %>%
-      mutate(f.mod = ifelse('feeli' == pf, FE / sum(FE), 0),
-             f.mod = ifelse('feeli' == pf, f.mod, 1 - sum(f.mod)),
-             f.mod = ifelse('feeli' == pf, sqrt(f),
-                            (f - sqrt(f) * (1 - f.mod)) / f.mod)) %>%
+      mutate(f.mod = ifelse('feeli' == pf & f < 1, sqrt(f), f)) %>%
       ungroup() %>%
       select(-f, f = f.mod) %>%
       # gather(variable, value, GDP, FE, VA, VApGDP, FEpVA) %>%
@@ -630,7 +629,7 @@ calcFEdemand <- function(subtype = "FE") {
     
     reminditems[mod_r,,mod_sp] <- reminditems[mod_r,,mod_sp] %>% 
       as.quitte() %>% 
-      tbl_df() %>% 
+      as_tibble() %>% 
       mutate(scenario = as.character(!!sym('scenario')),
              region   = as.character(!!sym('region')),
              item     = as.character(!!sym('item'))) %>% 
@@ -652,7 +651,40 @@ calcFEdemand <- function(subtype = "FE") {
       SDP_industry_transport)
     
     # ---- Industry subsectors data stubs ----
-    industry_subsectors <- calcOutput(
+    industry_subsectors_ue <- readSource('EDGE_Industry', 
+                    'cement_chemicals_otherInd_production_scenarios') %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(-!!sym('Data3')) %>% 
+      pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
+      mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
+      pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
+      mutate(!!sym('year') := paste0('y', !!sym('Year')),
+             !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), '.ue_', 
+                                             !!sym('Data2'))) %>% 
+      select('Region', 'year', 'scenario.item', 'value') %>% 
+      filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
+      as.magpie()
+    
+    industry_steel <- readSource('EDGE_Industry', 
+                                 'steel_production_scenarios') %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      filter('production' == !!sym('Data3')) %>% 
+      select(-!!sym('Data3')) %>% 
+      pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
+      mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
+      pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
+      mutate(!!sym('year') := paste0('y', !!sym('Year')),
+             !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), 
+                                              '.ue_steel_', !!sym('Data2')),
+             # Mt * 1e-3 Gt/Mt = Mt
+             !!sym('value') := !!sym('value') * 1e-3) %>% 
+      select('Region', 'year', 'scenario.item', 'value') %>% 
+      filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
+      as.magpie()
+    
+    industry_subsectors_en <- calcOutput(
       type = 'IO', subtype = 'output_Industry_subsectors', round = 8, 
       aggregate = FALSE) %>% 
       as.data.frame() %>% 
@@ -669,11 +701,35 @@ calcFEdemand <- function(subtype = "FE") {
       group_by(!!sym('period'), !!sym('region'), !!sym('pf')) %>% 
       summarise(value = sum(!!sym('value'))) %>% 
       ungroup() %>% 
-      # rename feel steel to feel steel primary (feel steel secondary is 
-      # handled within REMIND)
-      mutate(period = as.integer(!!sym('period')),
-             pf = ifelse('feel_steel' == !!sym('pf'), 'feel_steel_primary', 
-                         !!sym('pf'))) %>% 
+      # split feel steel into primary and secondary production
+      left_join(
+        industry_steel %>% 
+          as.data.frame() %>% 
+          as_tibble() %>% 
+          select('iso3c' = 'Region', 'scenario' = 'Data1', 'year' = 'Year', 
+                 'subsector' = 'Data2', 'production' = 'Value') %>% 
+          filter('gdp_SSP2' == !!sym('scenario')) %>% 
+          select(-'scenario') %>% 
+          mutate(!!sym('year') := as.integer(as.character(!!sym('year'))),
+                 !!sym('pf') := 'feel_steel') %>% 
+          pivot_wider(names_from = 'subsector', values_from = 'production'),
+        
+        c('region' = 'iso3c','period' = 'year', 'pf')
+      ) %>% 
+      group_by(!!sym('period'), !!sym('region'), !!sym('pf')) %>% 
+      # assume that secondary steel production is nine times as electricity 
+      # intensive (not energy intensive!) as primary production, since 
+      # detailed data is missing so far
+      mutate(!!sym('feel_steel_secondary') := 
+                 (9 * !!sym('ue_steel_secondary') * !!sym('value'))
+               / (9 * !!sym('ue_steel_secondary') + !!sym('ue_steel_primary')),
+             !!sym('feel_steel_primary') := 
+               !!sym('value') - !!sym('feel_steel_secondary')) %>% 
+      ungroup() %>% 
+      select(-'ue_steel_primary', -'ue_steel_secondary') %>% 
+      pivot_wider(names_from = 'pf') %>% 
+      select(-'feel_steel') %>% 
+      pivot_longer(matches('^fe.*'), names_to = 'pf', values_drop_na = TRUE) %>% 
       # extend time horizon
       complete(
         nesting(!!sym('region'), !!sym('pf')),
@@ -686,7 +742,7 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(
         value = ifelse(!is.na(!!sym('value')), !!sym('value'),
                        ( last(na.omit(!!sym('value'))) 
-                       * 0.995 ^ (!!sym('period') - 2015)
+                         * 0.995 ^ (!!sym('period') - 2015)
                        ))) %>% 
       ungroup() %>% 
       select('period', 'region', 'pf', 'value') %>% 
@@ -694,13 +750,19 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(scenario = 'gdp_SSP1') %>% 
       complete(nesting(!!sym('period'), !!sym('region'), !!sym('pf'), 
                        !!sym('value')), 
-               scenario = paste0('gdp_SSP', 1:5)) %>% 
+               scenario = c(paste0('gdp_SSP', 1:5), 'gdp_SDP')) %>% 
       mutate(scenario.item = paste(!!sym('scenario'), !!sym('pf'), sep = '.'),
              year = paste0('y', !!sym('period'))) %>% 
       select('region', 'year', 'scenario.item', 'value') %>% 
       as.magpie()
     
-    reminditems <- mbind(reminditems, industry_subsectors)
+    reminditems <- mbind(reminditems, industry_subsectors_en, industry_steel, 
+                         industry_subsectors_ue)
+    
+    unit_out <- paste0(unit_out,
+                       ', except ue_cement (Gt), ue_primary_steel and ',
+                       'ue_secondary_steel (Mt) and ue_chemicals and ',
+                       'ue_otherInd ($tn)')
   }
 
   return(list(x=reminditems,weight=NULL,

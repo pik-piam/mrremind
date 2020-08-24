@@ -32,7 +32,8 @@ convertRutovitz2015 <- function(x,subtype) {
   # assign all countries and techs, same value as x
   oecd_ef[,,] <- x
   oecd_ef[is.na(oecd_ef)] <- 0
-  x <- toolCountryFill(oecd_ef,fill=0)
+  x <- toolCountryFill(oecd_ef,fill=0) 
+  
   }
   if (subtype=="regional_mult"){
     
@@ -44,9 +45,10 @@ convertRutovitz2015 <- function(x,subtype) {
     mapping$region <- gsub("OECD Europe|OECD Asia Oceania|OECD Americas","OECD",x = mapping$region)
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
     
-    
-    # assign countries to all regions for regional multipliers
-      reg_mult2 <- left_join(reg_mult,mapping,by="region") %>% 
+    # assign countries to regions 
+    reg_mult2 <- left_join(reg_mult,mapping,by="region")   %>% 
+      mutate(country=ifelse(region=="China","CHN",country)) %>% 
+      mutate(country=ifelse(region=="India","IND",country)) %>% 
       filter(!(region=="Non-OECD Asia" & country=="CHN")) %>% # removing duplicates
       filter(!(region=="Non-OECD Asia" & country=="IND")) %>% # removing duplicates
       select(country,year,value) 
@@ -60,25 +62,28 @@ convertRutovitz2015 <- function(x,subtype) {
 
     # x <- readSource(type = "Rutovitz2015",subtype = "regional_ef",convert = F)
     
+    # Changing names of column "regions" in mapping to better match both data frames
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
-
+    getRegions(x) <- gsub(getRegions(x),replacement = c("OECD Americas"),pattern = c("OECD North America")) # replace OECD Americas with OECD North America
     
-    # assign countries to all regions in Rutovitz for specific regional EFs
     
     x_df <- as.data.frame(x) %>% select(2,4,5,6) %>% 
         rename(region=1,tech=2,activity=3,value=4) %>%
         na.omit() %>% 
-        left_join(mapping,by="region") %>% 
+       left_join(mapping,by="region") %>% 
         select(country,tech,activity,value) 
     
     x <- as.magpie(x_df,spatial=1,temporal=NULL,datacol=4)
-    x[is.na(x)] <- 0
-    x <- toolCountryFill(x,fill=0)
+    x[is.na(x)] <- 0 # for all countries with no data, replace by 0
+    x <- toolCountryFill(x,fill=0) 
     getYears(x) <- 2015
  
   }
   if(subtype=="coal_ef"){
     #x <- readSource(type = "Rutovitz2015",subtype = "coal_ef",convert = F) 
+    
+    mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
+    
     getRegions(x) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
     getRegions(x) <-  gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
     getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
@@ -87,8 +92,14 @@ convertRutovitz2015 <- function(x,subtype) {
     # assign countries to all regions in Rutovitz for coal employment factors
       x_df <- as.data.frame(x) %>% 
       select(2,4,5,6) %>% 
-      rename(region=1,tech=2,activity=3,value=4) %>% 
-      left_join(mapping,by="region") %>% 
+      rename(region=1,tech=2,activity=3,value=4)
+      
+      x_df <- left_join(x_df,mapping,by="region")
+      x_df <- x_df %>% 
+      mutate(country=ifelse(region=="China","CHN",country)) %>% 
+      mutate(country=ifelse(region=="India","IND",country)) %>% 
+      filter(!(region=="Non-OECD Asia" & country=="CHN")) %>% # removing duplicates
+      filter(!(region=="Non-OECD Asia" & country=="IND")) %>% # removing duplicates        
       na.omit() %>% 
       select(country,tech,activity,value,-region)
     
@@ -104,13 +115,13 @@ convertRutovitz2015 <- function(x,subtype) {
     getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
     
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
-    mapping <- mapping %>% filter(!country %in% getRegions(x) )
+
     
     x_df<-  as.data.frame(x) %>% 
       select(2,4,5,6) %>% 
       rename(region=1,tech=2,activity=3,value=4) %>% 
-      filter(!region %in% unique(mapping$region)) %>% 
-      filter(region!="Africa")
+      filter(!region %in% unique(mapping$region))  
+      
     
     x_df$region <- toolCountry2isocode(x_df$region)
     
@@ -130,7 +141,9 @@ convertRutovitz2015 <- function(x,subtype) {
       x <- as.magpie(x_df,spatial=1,temporal=NULL,datacol=4)
       getYears(x) <- 2015
       x <- toolCountryFill(x,fill=0)
-
+      # Oil EF for Fuel_supply is same as Gas Fuel supply
+      x <- add_columns(x,addnm = "Oil",dim=3.1)
+      x[,,"Oil"] <- x[,,"Gas"]
     
   }
   
