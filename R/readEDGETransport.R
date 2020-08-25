@@ -6,7 +6,7 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Marianna Rottoli, Alois Dirnaichner
 #' @seealso \code{\link{readSource}}
-#' @param subtype logit_exponents, SW, VOT_nonmot, intensity
+#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
@@ -17,10 +17,7 @@
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
-  vehicle_type <- NULL
-  EDGE_scenario <- NULL
-  GDP_scenario <- NULL
-  value <- NULL
+  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- NULL
 
   switch(subtype,
 
@@ -267,6 +264,29 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              }
            }
          },
+
+         "shares_LDV_transport" = {
+           tmp <- fread(paste0(subtype, ".cs4r"))
+
+           tmp$varname <- subtype
+           tmp$varname = gsub(".*moinputData/","",tmp$varname)
+           tmp = melt(tmp, id.vars = c("GDP_scenario", "EDGE_scenario", "iso", "year", "varname"))
+           setnames(tmp, old = "variable", new = "sharetype")
+           tmp[, c("sharetype", "year") := list(as.character(sharetype), as.character(year))]
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sharetype", "varname", "value"))
+
+           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
+           mdata <- NULL
+           for (j in unique(tmp$EDGE_scenario)) {
+             tmp_EDGE <- tmp[EDGE_scenario == j]
+             for (i in unique(tmp$GDP_scenario)) {
+               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               mdata <- mbind(mdata, tmp_EDGE_SSP)
+             }
+           }
+         },
+
          {
            ## default
            stop(sprintf("Subtype %s is not valid for EDGETransport.", subtype))

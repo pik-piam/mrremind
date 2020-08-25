@@ -143,64 +143,64 @@ calcIO <- function(subtype) {
     reminditems = mbind(reminditems,
                         setNames(reminditems[,,n_bioshare] * 0, n_biotrad))
   }
-  
+
   #Add the values from bioshare to the other modern and traditional biomass
   reminditems[,, n_biotrad] = reminditems[,, n_biotrad] + bioshareTrad
   reminditems[,, n_biomod] = reminditems[,, n_biomod] + bioshareMod
-  
+
   #Remove the bioshare item
   reminditems = reminditems[,,n_bioshare, invert = T]
- 
+
   } else if (subtype %in% c("output","input", "output_Industry_subsectors", "input_Industry_subsectors")){
     #In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
-    
+
     edge_bio = calcOutput("IO",subtype = "output_EDGE_buildings", aggregate = F)
     fe_bio = calcOutput("IO", subtype = "output_biomass", aggregate = F)
-    share_biotrad = (edge_bio[,,"biotrad"] 
+    share_biotrad = (edge_bio[,,"biotrad"]
                     / (fe_bio[,,"sesobio.fesob.tdbiosob"] +fe_bio[,,"sesobio.fesoi.tdbiosoi"]))
     share_biotrad[is.na(share_biotrad)] <- 0
     reminditems = mbind(reminditems,
                         setNames(reminditems[,,"pebiolc.sesobio.biotr"] * (1-share_biotrad),
                                  "pebiolc.sesobio.biotrmod"))
     reminditems[,,"pebiolc.sesobio.biotr"] = reminditems[,,"pebiolc.sesobio.biotr"] * (share_biotrad)
-                          
+
   }
-  
-  
+
+
   if(subtype=="trade") {
      # adjust the inconsistent trade data from IEA for JPN
      reminditems["JPN",2005,"peoil.Mport"] <- reminditems["JPN",2005,"peoil.Mport"] - 0.0245/31.71e-03
   }
-  
+
   # replace IEA data for 1st generation biomass with data that also MAgPIE uses
   if(subtype == "input") {
     bio1st <- calcOutput("1stBioDem", subtype="ethanol_oils",aggregate = FALSE) / 1000 # PJ -> EJ
     reminditems[,,"pebios.seliqbio.bioeths"]    <- time_interpolate(bio1st[,,"pebios"],interpolated_year = getYears(reminditems),integrate_interpolated_years = FALSE,extrapolation_type = "constant")
     reminditems[,,"pebioil.seliqbio.biodiesel"] <- time_interpolate(bio1st[,,"pebioil"],interpolated_year = getYears(reminditems),integrate_interpolated_years = FALSE,extrapolation_type = "constant")
   }
-  
+
   # replace IEA data for 1st generation biomass with data that also MAgPIE uses
   if(subtype %in% c("output", 'output_Industry_subsectors')) {
     bio1st <- calcOutput("1stBioDem", subtype="ethanol_oils",aggregate = FALSE) / 1000 # PJ -> EJ
     reminditems[,,"pebios.seliqbio.bioeths"]    <- time_interpolate(bio1st[,,"pebios"],interpolated_year = getYears(reminditems),integrate_interpolated_years = FALSE,extrapolation_type = "constant")
     reminditems[,,"pebioil.seliqbio.biodiesel"] <- time_interpolate(bio1st[,,"pebioil"],interpolated_year = getYears(reminditems),integrate_interpolated_years = FALSE,extrapolation_type = "constant")
   }
-  
-  # split off a 1e-4 fraction of chemicals/otherInd electricity for high 
+
+  # split off a 1e-4 fraction of chemicals/otherInd electricity for high
   # temperature heat electricity
   if ('output_Industry_subsectors' == subtype) {
     hth <- 1e-4
     reminditems <- mbind(
       reminditems[,,'feelwlth_', pmatch = TRUE, invert = TRUE],
-      
+
       setNames(
-        reminditems[,,'seel.feelwlth_chemicals.tdelwlth_chemicals'] * hth, 
+        reminditems[,,'seel.feelwlth_chemicals.tdelwlth_chemicals'] * hth,
         'seel.feelhth_chemicals.tdelhth_chemicals'),
       reminditems[,,'seel.feelwlth_chemicals.tdelwlth_chemicals'] * (1 - hth),
-      
+
       setNames(
-        reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * hth, 
+        reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * hth,
         'seel.feelhth_otherInd.tdelhth_otherInd'),
       reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * (1 - hth)
     )
@@ -208,7 +208,7 @@ calcIO <- function(subtype) {
   
   if(subtype %in% c("input", "output")){
     # re-calculating fepet and fedie final energy based on updated EDGE shares
-    share <- readSource(type="EDGEtranspLDV")
+    share <- readSource(type="EDGETransport", subtype = "shares_LDV_transport")
     feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(reminditems)), names = c("seliqfos.fepet.tdfospet","seliqbio.fepet.tdbiopet","seliqfos.fedie.tdfosdie","seliqbio.fedie.tdbiodie"))
     feShares[getRegions(share),getYears(feShares),"fepet"] <- setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],NULL)
     feShares[getRegions(share),getYears(feShares),"fedie"] <- (1-setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],NULL))
