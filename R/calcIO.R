@@ -205,8 +205,8 @@ calcIO <- function(subtype) {
       reminditems[,,'seel.feelwlth_otherInd.tdelwlth_otherInd'] * (1 - hth)
     )
   }
-
-  if(subtype=="output"){
+  
+  if(subtype %in% c("input", "output")){
     # re-calculating fepet and fedie final energy based on updated EDGE shares
     share <- readSource(type="EDGETransport", subtype = "shares_LDV_transport")
     feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(reminditems)), names = c("seliqfos.fepet.tdfospet","seliqbio.fepet.tdbiopet","seliqfos.fedie.tdfosdie","seliqbio.fedie.tdbiodie"))

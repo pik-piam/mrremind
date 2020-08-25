@@ -38,7 +38,7 @@ calcEffortSharingRefEmi <- function(subtype){
       period=rep(2005,9),
       regionscode=c("DEU","ECE","ECS","ENC","ESC","ESW","EWN","FRA","UKI"),
       REMIND_ES_Emi=c(394.2864406,162.5137758,98.05365416,88.50179503,288.7617393,221.2791697,271.4385753,290.2774547,308.7078729))) # CO2 ES 2005 REMIND emissions
-    e <- toolAggregate(e_REMIND,EU11map[which(EU11map$RegionCode %in% getRegions(e_REMIND)), ],e_ES[EU11map[which(EU11map$RegionCode %in% getRegions(e_REMIND)), ]$CountryCode,2005,])
+    e <- toolAggregate(e_REMIND,EU11map[which(EU11map$RegionCode %in% getRegions(e_REMIND)), ][,c(1,2,3)],e_ES[EU11map[which(EU11map$RegionCode %in% getRegions(e_REMIND)), ]$CountryCode,2005,])
     e <- toolCountryFill(e,fill=0)
     description <- "Effort sharing reference 2005 emissions in Mt CO2 from REMIND" 
     unit <- "Mt CO2"
