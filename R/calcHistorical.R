@@ -183,7 +183,26 @@ calcHistorical <- function() {
   EU_ReferenceScenarioEU[is.na(EU_ReferenceScenarioEU)] <- 0
   EU_ReferenceScenario[EUcountries,,] <- EU_ReferenceScenarioEU[EUcountries,,]
   EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
-  
+
+  # ARIADNE Reference Scenario
+  ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE_ReferenceScenario", subtype="gdp")
+  ARIADNE_ReferenceScenarioGdpEU <- ARIADNE_ReferenceScenarioGdp[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpEU[is.na(ARIADNE_ReferenceScenarioGdpEU)] <- 0
+  ARIADNE_ReferenceScenarioGdp[EUcountries,,] <- ARIADNE_ReferenceScenarioGdpEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp, dim=3.1, add="model", nm="ARIADNE")
+
+  ARIADNE_ReferenceScenarioGdpCorona <- readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona")
+  ARIADNE_ReferenceScenarioGdpCoronaEU <- ARIADNE_ReferenceScenarioGdpCorona[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpCoronaEU[is.na(ARIADNE_ReferenceScenarioGdpCoronaEU)] <- 0
+  ARIADNE_ReferenceScenarioGdpCorona[EUcountries,,] <- ARIADNE_ReferenceScenarioGdpCoronaEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona, dim=3.1, add="model", nm="ARIADNE - Corona")
+
+  ARIADNE_ReferenceScenarioPop <- readSource("ARIADNE_ReferenceScenario", subtype="population")
+  ARIADNE_ReferenceScenarioPopEU <- ARIADNE_ReferenceScenarioPop[EUcountries,,]
+  ARIADNE_ReferenceScenarioPopEU[is.na(ARIADNE_ReferenceScenarioPopEU)] <- 0
+  ARIADNE_ReferenceScenarioPop[EUcountries,,] <- ARIADNE_ReferenceScenarioPopEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
+
   #Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
   eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
@@ -200,7 +219,7 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list( fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat)
+  varlist <- list( fe_iea, fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
