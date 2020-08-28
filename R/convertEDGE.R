@@ -190,7 +190,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
     if(subtype == "FE_stationary"){
       # re-calculating fepet and fedie final energy based on updated EDGE shares
-      share <- readSource(type="EDGEtranspLDV")
+      share <- readSource(type="EDGETransport", subtype = "shares_LDV_transport")
       feTotal <- dimSums(result[,,c("fepet","fedie")],dim=3.2)
       feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(result)), names = getNames(result[,,c("fepet","fedie")]))
       feShares[,,"fepet"] <- setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL)
