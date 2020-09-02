@@ -5,6 +5,7 @@
 #' @author Aman Malik
 #' @param sources Database source
 #' @param condition if applicable, conditional or unconditional
+#' @importFrom dplyr %>% filter
 
 
 calcCapTarget <- function(sources,condition){ 
@@ -56,9 +57,71 @@ calcCapTarget <- function(sources,condition){
         x[,2040,][t] <- as.vector(x[,2035,])[t]
       }
     }
+    
+    
+    ### Hydrogen Target Start
+    # hydrogen capacity targets from national/EU hydrogen strategies
+    
+    # Region targets
+    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional") # get H12 regionmapping
+    H2Target.reg <- new.magpie(unique(reg.map$RegionCode), 
+                           getYears(x), 
+                           "elh2", 
+                           fill = 0)
+    # Electrolyzer capacity target from the EU Hydrogen Strategy
+    # https://ec.europa.eu/energy/sites/ener/files/hydrogen_strategy.pdf
+    H2Target.reg["EUR", "y2025",] <- 6
+    H2Target.reg["EUR", "y2030",] <- 40
+    
+    
+    
+    # Country Targets 
+    H2Target.country <- new.magpie(getRegions(x), 
+                                   getYears(x), 
+                                   "elh2", fill = 0)
+    # iso countries with a country target that belong to the EU
+    country.target.regs <- c("DEU")
+    # Germany Target: https://www.bmbf.de/files/die-nationale-wasserstoffstrategie.pdf
+    H2Target.country["DEU","y2030","elh2"] <- 5
+    
+
+    
+    # aggregate Country Targets to EU
+    H2Target.CountryAgg <- toolAggregate(H2Target.country, reg.map, dim=1)
+    # reduce EU target by aggregated country targets
+    H2Target <- new.magpie(unique(reg.map$RegionCode), 
+                               getYears(x), 
+                               "elh2", 
+                               fill = 0)
+    H2Target["EUR",,"elh2"] <- H2Target.reg["EUR",,"elh2"] - H2Target.CountryAgg["EUR",,"elh2"]
+    
+    # # SE VRE Production in 2015 to be used as weight for disaggregation EU target to iso countries
+    # SEHistVRE <- dimSums(calcOutput("FE", aggregate = F)[,"y2015",c("SE|Electricity|Solar (EJ/yr)",
+    #                                                                 "SE|Electricity|Wind (EJ/yr)")],
+    #                      dim = 3)
+    
+    # GDP 2015 to be used as weight for disaggregation of EU target to iso coutries
+    GDP2015 <- calcOutput("GDPpppPast", aggregate = F)[,"y2015",]
+    
+    
+
+    # regionmapping without countries that already have a country target
+    CountryCode <- NULL
+    reg.map.reduced <- reg.map %>% 
+                        filter(! CountryCode %in% country.target.regs)
+    # disaggregate EU target to iso-countries
+    H2Target.disagg <- toolAggregate(H2Target, reg.map.reduced, 
+                                  from = "RegionCode", to = "CountryCode" , dim = 1,
+                                  weight = GDP2015[country.target.regs,,,invert=TRUE])
+    # bind country target together with disaggregation of EU targets to other countries
+    H2Target.out <- magpiesort(mbind(H2Target.country[country.target.regs,,],H2Target.disagg))
+    x <- mbind(x,H2Target.out)
+    ### Hydrogen Target End
+    
     x[is.na(x)] <- 0
     description <- "Capacity targets combined from REN 21(2017), NDC database, special case for China nuclear target, and EV target"
   }
+  
   return(list(x=x, weight=NULL, unit="GW",description = description))
   
 }
