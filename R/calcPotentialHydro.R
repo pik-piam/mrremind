@@ -208,6 +208,15 @@ calcPotentialHydro <- function() {
   data["AUS",,"maxprod"] <- 0
   data["AUS",,"maxprod.4"] <- 0.07
   
+  
+  # FS: in Northern Central Europe region (ENC) potential is slightly below current capacity
+  # increase potentials by 5% to avoid infeasibility with capacity targets in NDC2018 realization
+  data["FIN",,"maxprod"] <- data["FIN",,"maxprod"]*1.05
+  data["DNK",,"maxprod"] <- data["DNK",,"maxprod"]*1.05
+  data["SWE",,"maxprod"] <- data["SWE",,"maxprod"]*1.05
+  
+                  
+  
   return(list(x                 = data,
               weight            = w,
               unit              = "EJ/a",

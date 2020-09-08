@@ -272,7 +272,7 @@ calcFEdemand <- function(subtype = "FE") {
       readSource('EDGE_Industry', 'projections_VA_iso3c', convert = FALSE) %>%
         as.data.frame() %>%
         as_tibble() %>%
-        select(scenario = Data1, iso3c = Data2, year = Year, sector = Data3,
+        select(scenario = Data1, iso3c = Region, year = Year, sector = Data2,
                value = Value) %>%
         filter(grepl('^gdp_SSP[12]$', scenario),
                'Total' != iso3c,

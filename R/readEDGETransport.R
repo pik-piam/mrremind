@@ -17,7 +17,7 @@
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
-  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- NULL
+  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- varname <- NULL
 
   switch(subtype,
 
@@ -267,10 +267,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "shares_LDV_transport" = {
            tmp <- fread(paste0(subtype, ".cs4r"))
-
-           tmp$varname <- subtype
-           tmp$varname = gsub(".*moinputData/","",tmp$varname)
-           tmp = melt(tmp, id.vars = c("GDP_scenario", "EDGE_scenario", "iso", "year", "varname"))
+           tmp[, varname := subtype]
+           tmp = data.table::melt(tmp, id.vars = c("GDP_scenario", "EDGE_scenario", "iso", "year", "varname"))
            setnames(tmp, old = "variable", new = "sharetype")
            tmp[, c("sharetype", "year") := list(as.character(sharetype), as.character(year))]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sharetype", "varname", "value"))
