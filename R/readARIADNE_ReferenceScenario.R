@@ -2,6 +2,7 @@
 #' 
 #' Read ARIADNE Reference Scenario data from various .xls files as magpie object
 #' 
+#' @param subtype data subtype. Either "population", "gdp", or "gdp_corona"
 #' @return magpie object of ARIADNE reference scenario data by country
 #' @author Falk Benke
 #' @importFrom readxl excel_sheets read_excel
