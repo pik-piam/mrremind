@@ -3,7 +3,7 @@
 #' are Full Time Equivalent (FTE)/MW. For Fuel supply, units are Jobs/PJ; for nuclear Jobs/GWh
 #' @author Aman Malik
 #' @param improvements Either "CEEW", "Dias","Fragkos", or "CEEW+Dias+Fragkos". The latter three are "improvements" over only Rutovitz et al. (None).
-#' @param mutiplier source of regional multiplier. Either "Ram" or "Rutovitz"
+#' @param multiplier source of regional multiplier. Either "Ram" or "Rutovitz"
 
 calcEmploymentfactors <- function(improvements,multiplier){
   if (improvements=="None"||improvements=="CEEW"||improvements=="Dias"||improvements=="Fragkos"||improvements=="CEEW+Dias+Fragkos"){
@@ -182,5 +182,4 @@ calcEmploymentfactors <- function(improvements,multiplier){
  return(list(x=x1, weight=pop,  unit="FTE/MW or FTE/PJ",
              description="Employment factors"))
  
- return(x)
 }

@@ -1,3 +1,4 @@
+#' @title Manufacture production shares for spc and wind
 #' @description Shares of world manufacture for spv modules and wind turbines for 2018 and 2019
 #' @author Aman Malik
 #' @return magpie object with REMIND-aggregated region
