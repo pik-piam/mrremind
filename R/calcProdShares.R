@@ -4,8 +4,9 @@
 #' @return magpie object with REMIND-aggregated region
 
 
+
 calcProdShares <- function(){
-  x <- readSource(type = "ProdShares",convert = F)
+  x <- readSource(type = "ProdShares")
   
 return(list(x=x, 
             weight=NULL,
