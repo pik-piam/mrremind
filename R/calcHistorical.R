@@ -185,23 +185,31 @@ calcHistorical <- function() {
   EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
 
   # ARIADNE Reference Scenario
+  Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
+  
   ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE_ReferenceScenario", subtype="gdp")
-  ARIADNE_ReferenceScenarioGdpEU <- ARIADNE_ReferenceScenarioGdp[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpEU <- ARIADNE_ReferenceScenarioGdp[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioGdpEU[is.na(ARIADNE_ReferenceScenarioGdpEU)] <- 0
-  ARIADNE_ReferenceScenarioGdp[EUcountries,,] <- ARIADNE_ReferenceScenarioGdpEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdp[Non28EUcountries,,] <- ARIADNE_ReferenceScenarioGdpEU[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp, dim=3.1, add="model", nm="ARIADNE")
 
   ARIADNE_ReferenceScenarioGdpCorona <- readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona")
-  ARIADNE_ReferenceScenarioGdpCoronaEU <- ARIADNE_ReferenceScenarioGdpCorona[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpCoronaEU <- ARIADNE_ReferenceScenarioGdpCorona[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioGdpCoronaEU[is.na(ARIADNE_ReferenceScenarioGdpCoronaEU)] <- 0
-  ARIADNE_ReferenceScenarioGdpCorona[EUcountries,,] <- ARIADNE_ReferenceScenarioGdpCoronaEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioGdpCorona[Non28EUcountries,,] <- ARIADNE_ReferenceScenarioGdpCoronaEU[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona, dim=3.1, add="model", nm="ARIADNE - Corona")
 
   ARIADNE_ReferenceScenarioPop <- readSource("ARIADNE_ReferenceScenario", subtype="population")
-  ARIADNE_ReferenceScenarioPopEU <- ARIADNE_ReferenceScenarioPop[EUcountries,,]
+  ARIADNE_ReferenceScenarioPopEU <- ARIADNE_ReferenceScenarioPop[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioPopEU[is.na(ARIADNE_ReferenceScenarioPopEU)] <- 0
-  ARIADNE_ReferenceScenarioPop[EUcountries,,] <- ARIADNE_ReferenceScenarioPopEU[EUcountries,,]
+  ARIADNE_ReferenceScenarioPop[Non28EUcountries,,] <- ARIADNE_ReferenceScenarioPopEU[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
+
+  # EEA GHG Projections
+  EEA_GHGProjections <- readSource("EEA_GHGProjections")
+  EEA_GHGProjectionsEU <- EEA_GHGProjections[Non28EUcountries,,]
+  EEA_GHGProjectionsEU[is.na(EEA_GHGProjectionsEU)] <- 0
+  EEA_GHGProjections[Non28EUcountries,,] <- EEA_GHGProjectionsEU[Non28EUcountries,,]
 
   #Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
@@ -219,7 +227,7 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop)
+  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, EEA_GHGProjections)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
