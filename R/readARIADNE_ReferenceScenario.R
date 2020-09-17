@@ -26,12 +26,14 @@ readARIADNE_ReferenceScenario <- function(subtype){
 
   } else if (subtype %in% c('gdp', 'gdp_corona')) {
     gdpSheet <- suppressMessages(
-      read_excel('GDP_Base_Corona_EU-28_V02.xlsx', range='A2:AL29', sheet='GDP_comparison')
+      read_excel('GDP_Base_Corona_EU-28_V02.xlsx', range='A2:AL30', sheet='GDP_comparison')
     )
     # remove empty columns
     gdpSheet <- gdpSheet[,-which(is.na(gdpSheet[1,]))]
     # correct country code for Greece EL -> GR
     gdpSheet$Regions[9] <- 'GR'
+    # correct country code for UK -> GB
+    gdpSheet$Regions[28] <- 'GB'
     gdpSheet <- melt(gdpSheet, id.vars=1)
     colnames(gdpSheet) <- c('region','period','value')
 
@@ -47,10 +49,12 @@ readARIADNE_ReferenceScenario <- function(subtype){
     }
     gdpSheet$period <- sapply(substr(gdpSheet$period,0,4), as.numeric)
     
-    # convert US$2010/yr to US$2005/yr
-    gdpSheet$value <- gdpSheet$value / 1000 * 0.9
+    # convert million EUR2010/yr to million US$2010/yr to billion US$2005/yr
+    # sources for conversion: 
+    # https://www.ofx.com/en-au/forex-news/historical-exchange-rates/yearly-average-rates/
+    # https://www.in2013dollars.com/us/inflation/2010?endYear=2005&amount=1
+    gdpSheet$value <- gdpSheet$value * 1.327386 / 1000 * 0.9 
 
-    
     x <- as.magpie(gdpSheet,spatial=2,datacol=4,temporal=3)
 
   } else {
