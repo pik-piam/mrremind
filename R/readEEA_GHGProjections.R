@@ -2,18 +2,16 @@
 #' @importFrom readxl read_excel
 #' @importFrom reshape2 melt
 #' @importFrom dplyr left_join
-#' @importFrom stringr str_trim
 #' @importFrom quitte calc_addVariable
 
 readEEA_GHGProjections <- function(){
 
-  projections <- read.csv(file='GHG_projections_2019_EEA.csv', stringsAsFactors = FALSE)
+  projections <- read.csv(file='GHG_projections_2019_EEA.csv', stringsAsFactors = FALSE, strip.white=TRUE)
   projections <- projections[projections$CountryCode != '', ]
   projections <- projections[projections$CountryCode != 'EU', ]
   projections <- projections[projections$Gapfilled != as.double(0), ]
   projections <- projections[c(1,2,5,6,7,10)]
   projections <- na.omit(projections, cols=projections$Gapfilled)
-  projections$Category_name <- str_trim(projections$Category_name, side = "right")
 
   mapping.variable <- as.data.frame(cbind(Variable=c(
     'Emi|GHGtot',
