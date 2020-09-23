@@ -12,9 +12,7 @@ calcHistorical <- function() {
   fe_weo <- fe_weo[,,"Current Policies Scenario",pmatch=T]
   fe_weo <- collapseNames(fe_weo)
   fe_weo <- add_dimension(fe_weo, dim=3.1, add="model",nm="IEA_WEO")
-  
 
-  
   # Final Energy
   fe_proj_ssp1 <- calcOutput("FE", source = "EDGE_projections", scenario_proj = "SSP1",aggregate=FALSE)
   fe_proj_ssp1 <- add_dimension(fe_proj_ssp1, dim=3.1, add="model",nm="EDGE_SSP1")
@@ -211,7 +209,12 @@ calcHistorical <- function() {
   EEA_GHGProjectionsEU[is.na(EEA_GHGProjectionsEU)] <- 0
   EEA_GHGProjections[Non28EUcountries,,] <- EEA_GHGProjectionsEU[Non28EUcountries,,]
 
-  #Eurostat emissions
+  IEA_ETPTransport <- readSource("IEA_ETP", subtype="transport")
+  IEA_ETPBuildings <- readSource("IEA_ETP", subtype="buildings")
+  IEA_ETPIndustry <- readSource("IEA_ETP", subtype="industry")
+  IEA_ETPScenario <- readSource("IEA_ETP", subtype="scenario")
+
+  # Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
   eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
   emiEurostatEU <- eurostatEmi[EUcountries,,]
@@ -227,7 +230,8 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, EEA_GHGProjections)
+  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, 
+                  EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, EEA_GHGProjections, IEA_ETPTransport, IEA_ETPBuildings, IEA_ETPIndustry, IEA_ETPScenario)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))

@@ -1,5 +1,4 @@
 #' @author Falk Benke
-#' @importFrom readxl read_excel
 #' @importFrom reshape2 melt
 #' @importFrom dplyr left_join
 #' @importFrom quitte calc_addVariable
@@ -96,8 +95,8 @@ readEEA_GHGProjections <- function(){
   )
 
   projections$value<- projections$value / 1000
-  projections$scenario <- paste(projections$scenario, '_2019', sep='')
-  projections$variable <- paste(projections$variable, "(Mt CO2-equiv/yr)", sep=" ")
+  projections$scenario <- paste0(projections$scenario, '_2019', sep='')
+  projections$variable <- paste0(projections$variable, "(Mt CO2-equiv/yr)", sep=" ")
 
   x <- as.magpie(projections,spatial=3,temporal=4,datacol=5)
   return(x)
