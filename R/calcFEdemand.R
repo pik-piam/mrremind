@@ -649,6 +649,16 @@ calcFEdemand <- function(subtype = "FE") {
       reminditems[,,setdiff(getNames(reminditems),
                             getNames(SDP_industry_transport))],
       SDP_industry_transport)
+
+    ## calculate *real* useful (i.e., motive) energy instead of
+    ## fossil-fuel equivalents for light- and heavy-duty vehicles
+    ## sources for TtW efficiencies:
+    ##  Cox, B., et al. (2020) Life cycle environmental and cost comparison of current and future passenger cars under different energy scenarios. Applied Energy2.
+    ## Sacchi, R., et al. (2020) carculator: an open-source tool for prospective environmental and economic life cycle assessment of vehicles. When, Where and How can battery-electric vehicles help reduce greenhouse gas emissions? Renewable and Sustainable Energy Reviews, submitted (in review). https://www.psi.ch/en/media/57994/download
+
+    reminditems[,, "ueLDVt"] <- reminditems[,, "ueLDVt"] * 0.22
+    reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
+
     
     # ---- Industry subsectors data stubs ----
     industry_subsectors_ue <- readSource('EDGE_Industry', 
