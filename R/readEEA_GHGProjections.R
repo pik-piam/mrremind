@@ -1,5 +1,4 @@
 #' @author Falk Benke
-#' @importFrom readxl read_excel
 #' @importFrom reshape2 melt
 #' @importFrom dplyr left_join
 #' @importFrom quitte calc_addVariable
