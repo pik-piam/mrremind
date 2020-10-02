@@ -16,9 +16,9 @@
 #' 
 #' 
 readIEA_EV <- function(subtype) {
-  file <- "GlobalEVOutlook2019_TableA1-A6.xlsx"
+  file <- "GlobalEVOutlook2019-2020_TableA1-A6.xlsx" #use file from 2019 GEVO, with additional 2019 numbers from 2020 GEVO
   #subtype = combSales, combStock, bevSales, bevStock, phevSales, phevStock
-  ev <- read_excel(file, sheet=subtype,skip=1,col_types = c("text",rep("numeric",14)))
+  ev <- read_excel(file, sheet=subtype,skip=1,col_types = c("text",rep("numeric",15)))
   names(ev)[1] <- "region"
   #names(ev)  <- gsub('X','y',names(ev))
   ev <- as.data.frame(ev)
