@@ -21,6 +21,8 @@ convertEEA_EuropeanEnvironmentAgency <- function(x,subtype) {
     x <- toolCountryFill(x)
     #remove NAs
     x[is.na(x)] <- 0
+  } else if (subtype == "historical") {
+    x <- toolCountryFill(x, no_remove_warning="EUR")
   }
   return(x)
 }
