@@ -33,6 +33,7 @@ readEuropeanEnergyDatasheets <- function(){
   sheets <- sheets[which(nchar(sheets)==2)]
   data <- lapply(sheets, function(region){
     countrySheet <- suppressMessages(read_excel("energy_statistical_countrydatasheets.xlsx",sheet=region))
+    countrySheet <- countrySheet[, colSums(is.na(countrySheet)) != nrow(countrySheet)]
     # find correct column to search for names, most likely should be column 3
     nameColumn <- grep("Energy Balance", countrySheet)
     # remove NAs, remove "Energy statistics for", then get exact matches by row numbers
