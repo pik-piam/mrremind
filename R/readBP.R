@@ -1,8 +1,10 @@
 
 #' BP Capacity and Generation Data
 #' @description  BP data. See README in input file for more details.
-#' @details Data contains historical electricity renewable capacities (in MW for Wind, Solar, and Geothermal) and Generation (in TWh for Nuclear, Hydro, Wind, Solar, Other Renewables, and Geo Biomass) 
-#' @param subtype Either "Capacity" or "Generation"
+#' @details Data contains historical electricity renewable capacities (in MW for Wind, Solar, and Geothermal), Generation (in TWh for Nuclear, Hydro, Wind, Solar, Other Renewables, and Geo Biomass) 
+#' and Production (Oil, Gas, and Oil in Tonnes/EJ)
+#' 
+#' @param subtype Either "Capacity", "Generation", or "Production"
 #' @return A magpie object 
 #' @author Aman Malik
 #' @importFrom tidyr gather
@@ -70,6 +72,26 @@ readBP <- function(subtype) {
    data <- merge_recurse(my_list) # merging all datasets into one
    data <- filter(data,!grepl("\\.",data$Year))
    
+  }
+  
+  else if (subtype=="Production"){
+    y1 <- read_excel(filename, sheet = "Coal Production - EJ", range="A3:AN62")
+    data_coal_ej <- tidy_data(y1,"Coal_EJ") # in EJ
+    
+    y1 <- read_excel(filename,sheet= "Coal Production - Tonnes",range="A3:AN62")
+    data_coal_ton <- tidy_data(y1,"Coal_Ton") # in tonnes
+    
+    y1 <- read_excel(filename,sheet= "Gas Production - EJ",range="A3:AY78")
+    data_gas <- tidy_data(y1,"Gas_EJ") # in EJ
+    
+    y1 <-  read_excel(filename,sheet= "Oil Production - Tonnes",range="A3:BD80")
+    data_oil <- tidy_data(y1,"Oil_Ton") # in Ton
+    #Includes crude oil, shale oil, oil sands, condensates (lease condensate or gas condensates that require 
+    #further refining) and NGLs (natural gas liquids - ethane, LPG and naphtha separated from the production of natural gas). 
+    my_list <- list(data_coal_ej,data_coal_ton,data_gas,data_oil)
+    data <- merge_recurse(my_list) # merging all datasets into one
+    data <- filter(data,!grepl("\\.",data$Year))
+    
   }
   else {
     stop("Not a valid subtype!")

@@ -1,12 +1,11 @@
 
 #' Disaggregates and cleans BP data.
-#' @description    
 #' @param x MAgPIE object to be converted
 #' @param subtype Either "Capacity" or "Generation"
-#' @description Disagregates historical capacity and generation data.
-#' @return A magpie object of the BP country disaggregated data  with historical electricity capacities 
-#' (in MW for Wind, Solar, and Geothermal) AND Generation
-#'  (in TWh for Nuclear, Hydro, Wind, Solar, and Geo Biomass) 
+#' @description Disaggregates historical - capacity, generation, and production data.
+#' @return A magpie object with historical electricity capacities (in MW for Wind, Solar, and Geothermal),
+#' Generation (in TWh for Nuclear, Hydro, Wind, Solar, and Geo Biomass), AND
+#' Production (in EJ for Coal, Oil, and Gas, additionally in tonnes for coal)
 #' @author Aman Malik
 #' @importFrom dplyr filter
 #' @importFrom utils write.csv2
@@ -150,6 +149,31 @@ convertBP <- function(x,subtype){
     
     # Combine the two objects containing normal and disaggregated data
     x <- x + x_row
+  }
+  
+  if (subtype=="Production")
+  {
+    origReg <- c("Other Europe", "Other Middle East","Other Africa",
+                 "Other S & Cent America","Other Asia Pacific","Other CIS")
+    
+    x <- x[c("OPEC","Non-OPEC"),,invert=T]
+    getRegions(x) <- gsub("\\bUS\\b","USA",getRegions(x))
+    
+    read_mapping_file <- read.csv2("BPmapping.csv")
+    PE <- calcOutput("PE",aggregate = FALSE)[read_mapping_file$ISO.Code,2016,"PE (EJ/yr)"]
+    x_row <- toolAggregate(x[origReg,,],"BPmapping.csv",weight = PE)
+    x_row <- toolCountryFill(x_row,fill = 0)
+    x_row[is.na(x_row)] <- 0
+    
+    x <- x[origReg,,invert=TRUE]
+    getRegions(x) <- toolCountry2isocode(getRegions(x))
+    x <- toolCountryFill(x,fill = 0)
+    x[is.na(x)] <- 0
+    
+    # Combine the two objects containing normal and disaggregated data
+    x <- x + x_row
+    
+    
   }
   
   return (x)
