@@ -164,11 +164,11 @@ fullREMIND <- function(rev=0) {
                                        file=paste0(stype, ".cs4r"), aggregate=F))
          })
   
-  lapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand"),
+  lapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand", "pm_fe_demand_EDGETbased"),
          function(stype){
           print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,
                                        file=paste0(stype, ".cs4r"), aggregate=T))
          })
-  
+
 }
