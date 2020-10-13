@@ -15,13 +15,6 @@ calcEarlyRetirementAdjFactor <- function(){
   #loading early retirement adjustment factor data
   data <- readSource("REMIND_11Regi", subtype="earlyRetirementAdjFactor")
   
-  ### SB 09.2020 
-  ### Increasing China's maximum retirement rate to match the EU and US (13%)
-  ### China's weighted average plant lifespan was half the global average for plants retired in 2015-2020, due to technology efficiency upgrades,
-  ### overcapacity (ongoing), and mismatched local and national political agendas. Plants are permitted by local authorities but can be retired by
-  ### federal authorities. We expect the trend to continue to some degree because of the CPC's recent climate commitments and their political longevity.
-  data["CHN",,] <- data["USA",,]
-
   #loading weight factor
   IO <- calcOutput("IO",subtype="input",aggregate=FALSE)
   weight <- NULL

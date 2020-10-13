@@ -1,7 +1,7 @@
 #' @title calc Capacity
 #' @description provides historical capacity values in TW
 #'
-#' @param subtype capacityByTech or capacityByPE for historical calibration, or coal2025 for post-COVID coal scenarios
+#' @param subtype data subtype. Either "capacityByTech" or "capacityByPE"
 #' @return magpie object of  capacity data
 #' @author Renato Rodrigues
 #' @examples
@@ -107,43 +107,24 @@ calcCapacity <- function(subtype){
     out[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)]  
     
     #filtering results -> for now we are only using capacities for all countries for c("pecoal", "pegas", "pebiolc"), and additionaly for european countries and china for c("pehyd")
-    output <- new.magpie(cells_and_regions=c(getRegions(out)), years = c(2005,2010,2015,2020), names = c("pecoal","pegas","pebiolc","pehyd"), fill=0)
+    output <- new.magpie(cells_and_regions=c(getRegions(out)), years = c(2010,2015), names = c("pecoal","pegas","pebiolc","pehyd"), fill=0)
     output[,2015,c("pecoal", "pegas", "pebiolc")] <- out[,2015,c("pecoal", "pegas", "pebiolc")]
     output[EU_regi,2010,c("pecoal", "pegas", "pebiolc")] <- out[EU_regi,2010,c("pecoal", "pegas", "pebiolc")]
     output[EU_regi,c(2010,2015),c("pecoal", "pegas", "pebiolc","pehyd")] <- out[EU_regi,c(2010,2015),c("pecoal", "pegas", "pebiolc","pehyd")]
     output["CHN",2015,"pehyd"] <- 0.319 # WEO data says ~319 GW in 2015 
                       
     output[is.na(output)] <- 0 #set NA to 0  
-    output  <- toolCountryFill(output,fill=0,verbosity=2) # fill missing countries
+    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
     
     output <- add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
     
     # estimating lower bound coal capacity to remaining countries assuming (1) capacity factors are given by REMIND pc capacity factor in 2015, (2) generation is given by IEA 2015 generation values, (3) all 2015 coal capacity is provided by the pc technology.
-    # SB 09.2020 REPLACED WITH NEW DATA FROM GCPT (SEE BELOW)
-    #coalGen <- calcOutput("IO",subtype="input",aggregate=FALSE)[,,"pecoal.seel.pc"]
-    #capFac <- calcOutput("CapacityFactor", round=6,aggregate=FALSE)[,,"pc"]
-    #capacity2015 <- coalGen[,2015,]/capFac[,2015,]* 1E-02
-    #emptReg <- getRegions(output)[as.vector(output[,2015,"pecoal"]==0)]
-    #output[emptReg,2015,"pecoal"] <- capacity2015[emptReg,2015,"pecoal.seel.pc"]
+    coalGen <- calcOutput("IO",subtype="input",aggregate=FALSE)[,,"pecoal.seel.pc"]
+    capFac <- calcOutput("CapacityFactor", round=6,aggregate=FALSE)[,,"pc"]
+    capacity2015 <- coalGen[,2015,]/capFac[,2015,]* 1E-02
+    emptReg <- getRegions(output)[as.vector(output[,2015,"pecoal"]==0)]
+    output[emptReg,2015,"pecoal"] <- capacity2015[emptReg,2015,"pecoal.seel.pc"]
     
-    #Global Coal Plant Tracker historical coal capacity data
-    remind_map <- toolGetMapping("regionmappingH12.csv",type="regional")
-    coal_hist <- readSource("GCPT",subtype="historical")
-    ts <- as.numeric(gsub("y","",getYears(coal_hist)))
-    for (yr in getYears(output)) {
-      yr <- as.numeric(gsub("y","",yr))
-      if ((yr+2) %in% ts) {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+2),],dim=2)/5 * 1e-03
-      }else if ((yr+1) %in% ts) {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+1),],dim=2)/4 * 1e-03
-      }else {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3 * 1e-03
-      }
-    }
-  }else if (subtype=="coal2025") {
-    output <- readSource("GCPT",subtype="future") * 1e-03
-    description <- "Post-COVID coal power capacity scenarios for 2025"
-  
   } else {
     stop("Not a valid subtype!")
   }
