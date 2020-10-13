@@ -13,6 +13,7 @@
 #' }
 #' @importFrom magclass read.magpie
 #' @importFrom data.table rbindlist fread setcolorder := setnames
+#' @importFrom rmndt approx_dt
 #'
 
 readEDGETransport <- function(subtype = "logit_exponent") {
@@ -300,11 +301,19 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*0.64] ## battery electric HDV
            ## summarize according to the CES category
            tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year, node)]
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "node", "value"))
            ## rename the CES nodes
            tmp[node == "LDV", node := "ueLDVt"]
            tmp[node == "HDV", node := "ueHDVt"]
-           tmp[node == "Electric Trains	", node := "ueelTt"]
+           tmp[node == "Electric Trains", node := "ueelTt"]
+           ## extend to time steps necessary for the input demand trend
+           tmp = approx_dt(tmp,
+                           xdata = c(seq(1993, 2010, 1), seq(2105, 2150, 5)),
+                           xcol = "year",
+                           ycol = "value",
+                           idxcols = c("GDP_scenario", "EDGE_scenario", "iso", "node"),
+                           extrapolate = TRUE)
+           ## set cols order
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "node", "value"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {

@@ -1,7 +1,7 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.29.2
+Version: 0.29.3
 Date: 2020-10-13
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
@@ -48,6 +48,7 @@ Imports:
     reshape2,
     rhdf5,
     rlang,
+    rmndt,
     tidyr,
     zoo,
     mgsub
