@@ -90,7 +90,7 @@ calcFEdemand <- function(subtype = "FE") {
       it <- "ueLDVt"
       target <- 7 ## GJ
       switch_yrs <- 10
-      drive <- 0.1
+      drive <- 0.12
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
