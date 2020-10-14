@@ -162,7 +162,7 @@ calcHistorical <- function() {
   
   # Emissions market data
   emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ES (Mt CO2-equiv/yr)") # Effort Sharing
-  emiMktETS <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)") #ETS without aviation
+  emiMktETS <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018), c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)") #ETS without aviation
   # national aviation is not included in REMIND ETS yet
   # aviation <- readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.10 Aviation")]
   #set all non EU values to NA (by doing this we are excluding from the ETS the non EU28 countries - Norway, Liechtenstein and Iceland - because REMIND is not including them in the ETS)
@@ -177,6 +177,20 @@ calcHistorical <- function() {
   emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ES (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ES (Mt CO2-equiv/yr)")
   emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
   
+  # EEA GHG Projections
+  Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
+  EEA_GHGProjections <- readSource("EEA_EuropeanEnvironmentAgency", subtype="projections")
+  EEA_GHGProjectionsEU <- EEA_GHGProjections[Non28EUcountries,,]
+  EEA_GHGProjectionsEU[is.na(EEA_GHGProjectionsEU)] <- 0
+  EEA_GHGProjections[Non28EUcountries,,] <- EEA_GHGProjectionsEU[Non28EUcountries,,]
+  
+  # EEA GHG Historical Data
+  EEA_GHGHistorical <- readSource("EEA_EuropeanEnvironmentAgency", subtype="historical")
+  EEA_GHGHistoricalEU <- EEA_GHGHistorical[Non28EUcountries,,]
+  EEA_GHGHistoricalEU[is.na(EEA_GHGHistoricalEU)] <- 0
+  EEA_GHGHistorical[Non28EUcountries,,] <- EEA_GHGHistoricalEU[Non28EUcountries,,]
+  EEA_GHGHistorical <- add_dimension(EEA_GHGHistorical, dim=3.1, add="model",nm="EEA_historical")
+  
   # EU Reference Scenario
   EU_ReferenceScenario <- readSource("EU_ReferenceScenario")
   EU_ReferenceScenarioEU <- EU_ReferenceScenario[EUcountries,,]
@@ -185,8 +199,6 @@ calcHistorical <- function() {
   EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
 
   # ARIADNE Reference Scenario
-  Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
-  
   ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE_ReferenceScenario", subtype="gdp")
   ARIADNE_ReferenceScenarioGdpEU <- ARIADNE_ReferenceScenarioGdp[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioGdpEU[is.na(ARIADNE_ReferenceScenarioGdpEU)] <- 0
@@ -205,16 +217,10 @@ calcHistorical <- function() {
   ARIADNE_ReferenceScenarioPop[Non28EUcountries,,] <- ARIADNE_ReferenceScenarioPopEU[Non28EUcountries,,]
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
 
-  # EEA GHG Projections
-  EEA_GHGProjections <- readSource("EEA_GHGProjections")
-  EEA_GHGProjectionsEU <- EEA_GHGProjections[Non28EUcountries,,]
-  EEA_GHGProjectionsEU[is.na(EEA_GHGProjectionsEU)] <- 0
-  EEA_GHGProjections[Non28EUcountries,,] <- EEA_GHGProjectionsEU[Non28EUcountries,,]
-  
   # Calculate Emission Reference Values
   Emi_Reference <- calcOutput("EmiReference", aggregate=FALSE)
   
-  #Eurostat emissions
+  # Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
   eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
   emiEurostatEU <- eurostatEmi[EUcountries,,]
@@ -230,7 +236,8 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, EEA_GHGProjections, Emi_Reference)
+  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat,
+                  ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, EEA_GHGHistorical, EEA_GHGProjections, Emi_Reference)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
