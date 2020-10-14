@@ -65,11 +65,11 @@ convertBP <- function(x,subtype){
     # Combining all countries (ISO coded) "others" in one file  
     mainmappingfile <- rbind(other_cis,other_africa,other_asia,other_middle_east,other_sc_america,other_europe)
     mainmappingfile <- filter(mainmappingfile,ISO_code!="SUN")
-    write.csv2(mainmappingfile,file = "BPmapping2.csv",row.names=FALSE)
+    write.csv2(mainmappingfile,file = "BPmapping2.csv",row.names=FALSE,quote = F)
     
     # Step 4: Downscaling all "Other_*" into respective countries
     PE <- calcOutput("PE",aggregate = FALSE)[mainmappingfile$ISO_code,2016,"PE (EJ/yr)"]
-    output_solar <- toolAggregate(x[origReg,,"Solar"],"BPmapping2.csv",weight = PE)
+    output_solar <- toolAggregate(x[origReg,,"Solar"],rel = "BPmapping2.csv",weight = PE)
     output_solar[is.na(output_solar)] <- 0
     output_solar <- toolCountryFill(output_solar, fill=0)
     
@@ -95,12 +95,12 @@ convertBP <- function(x,subtype){
     
     mainmappingfile <- rbind(other_cis,other_africa,other_asia,other_middle_east,other_sc_america,other_europe)
     mainmappingfile <- filter(mainmappingfile,ISO_code!="SUN")
-    write.csv2(mainmappingfile,file = "BPmapping2.csv",row.names=FALSE)
+    write.csv2(mainmappingfile,file = "BPmapping2.csv",row.names=FALSE,quote = F)
     
     # Step 4: Downscaling all "Other_*" into respective countries
     
     PE <- calcOutput("PE",aggregate = FALSE)[mainmappingfile$ISO_code,2016,"PE (EJ/yr)"]
-    output_wind <- toolAggregate(x[origReg,,"Wind"],"BPmapping2.csv",weight = PE)
+    output_wind <- toolAggregate(x[origReg,,"Wind"],rel = "BPmapping2.csv",weight = PE)
     # output_wind[] <- x[]
     output_wind <- toolCountryFill(output_wind, fill=0)
     
@@ -137,8 +137,8 @@ convertBP <- function(x,subtype){
    
     # Downscaled regions in ISO3
     read_mapping_file <- read.csv2("BPmapping.csv")
-    PE <- calcOutput("PE",aggregate = FALSE)[read_mapping_file$ISO.Code,2016,"PE (EJ/yr)"]
-    x_row <- toolAggregate(x[origReg,,],"BPmapping.csv",weight = PE)
+    PE <- calcOutput("PE",aggregate = FALSE)[unique(read_mapping_file$ISO.Code),2016,"PE (EJ/yr)"]
+    x_row <- toolAggregate(x[origReg,,],rel = "BPmapping.csv",weight = PE)
     x_row <- toolCountryFill(x_row,fill = 0)
     x_row[is.na(x_row)] <- 0
     
@@ -161,7 +161,7 @@ convertBP <- function(x,subtype){
     
     read_mapping_file <- read.csv2("BPmapping.csv")
     PE <- calcOutput("PE",aggregate = FALSE)[read_mapping_file$ISO.Code,2016,"PE (EJ/yr)"]
-    x_row <- toolAggregate(x[origReg,,],"BPmapping.csv",weight = PE)
+    x_row <- toolAggregate(x = x[origReg,,],rel = "BPmapping.csv",weight = PE)
     x_row <- toolCountryFill(x_row,fill = 0)
     x_row[is.na(x_row)] <- 0
     
