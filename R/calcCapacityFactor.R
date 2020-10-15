@@ -14,7 +14,7 @@ calcCapacityFactor <- function(){
   # Read capacity factor inputs
   global <- readSource("REMIND_11Regi", subtype="capacityFactorGlobal", convert = FALSE)
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
-  global[,,c("pc","igcc","pcc","pco","igccc","coalchp")] <- 0.5
+  global[,,"pc"] <- 0.5
   # Read capacity factor rules
   rules <- readSource("REMIND_11Regi", subtype="capacityFactorRules")
   
@@ -51,20 +51,23 @@ calcCapacityFactor <- function(){
   # using final energy as a proxy for the existent capacity factor to weight the capacity factor aggregation (it should be changed if the information about the existent capacity factor become available in the future)
   #fe <- calcOutput("FE",source="IEA",aggregate=FALSE)[,2015,"FE (EJ/yr)"]
   
-  #Now using 2018 electricity generation by technology as the aggregation weight, or total electricity generation if tech data unavailable
-  setConfig(forcecache = T)
+  #Now using IEA total electricity generation as the aggregation weight, may change to generation by tech 
   elec_gen <- calcOutput("IO",subtype="output",aggregate=FALSE,)
-  setConfig(forcecache = F)
   elec_gen <- mselect(elec_gen,TIME=paste0("y",max(as.numeric(gsub("y","",getYears(elec_gen))))-1),data1="seel")
   elec_gen[which(elec_gen<0)] <- 0
-  weight <- new.magpie(getRegions(output),getYears(elec_gen),getNames(output))
-  for (te in getNames(output)) {
-    if (any(grepl(paste0(".",te),getNames(elec_gen),fixed = TRUE))) {
-      weight[,,te] <- elec_gen[,,te]
-    }else {
-      weight[,,te] <- dimSums(elec_gen,dim=3)
-    }
-  }
+  #weight <- new.magpie(getRegions(output),getYears(output),getNames(output))
+  # for (te in getNames(output)) {
+  #   if (any(grepl(paste0(".",te),getNames(elec_gen),fixed = TRUE))) {
+  #     weight[,getYears(weight)<=getYears(elec_gen),te] <- elec_gen[,,te]
+  #   }else {
+  #     weight[,getYears(weight)<=getYears(elec_gen),te] <- dimSums(elec_gen,dim=3)
+  #   }
+  #   #weight[getRegions(weight[,,te][which(weight[,,te]==0)]),,te] <- dimSums(elec_gen[getRegions(weight[,,te][which(weight[,,te]==0)]) ,,],dim=3)
+  # }
+  # weight[,getYears(weight)>getYears(elec_gen),] <- dimSums(elec_gen,dim=3)
+  
+  weight <- dimSums(elec_gen,dim=3)
+  
   # Return regions aggregation weighted by final energy 
   return(list(x=output, weight=weight,
                unit="% of capacity", 
