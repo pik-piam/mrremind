@@ -294,11 +294,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## extract only ConvCase and ConvCaseWise (this subtype is only needed for calibration purposes)
            tmp = tmp[grepl("ConvCase", EDGE_scenario)]
            ## convert from final energy to useful energy
-           tmp[fuel == "BEV", totdem := totdem*0.64] ## battery electric LDV
-           tmp[fuel == "FCEV", totdem := totdem*0.36] ## battery electric vehicles LDV and HDV
-           tmp[grepl("Liquids|NG", fuel) & node == "LDV", totdem := totdem*0.22] ## ICE LDV
-           tmp[grepl("Liquids|NG", fuel) & node == "HDV", totdem := totdem*0.24] ## ICE HDV
-           tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*0.64] ## battery electric HDV
+           tmp[fuel == "BEV", totdem := totdem*3] ## battery electric LDV
+           tmp[fuel == "FCEV" & node == "LDV", totdem := totdem*2.5] ## FCEV vehicles LDV
+           tmp[fuel == "FCEV" & node == "HDV", totdem := totdem*1.5] ## FCEV vehicles HDV
+           tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*2.5] ## battery electric HDV
            ## summarize according to the CES category
            tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year, node)]
            ## rename the CES nodes
@@ -307,7 +306,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp[node == "Electric Trains", node := "ueelTt"]
            ## extend to time steps necessary for the input demand trend
            tmp = approx_dt(tmp,
-                           xdata = c(seq(1993, 2010, 1), seq(2105, 2150, 5)),
+                           xdata = c(seq(1993, 2010, 1), seq(2015, 2150, 5)),
                            xcol = "year",
                            ycol = "value",
                            idxcols = c("GDP_scenario", "EDGE_scenario", "iso", "node"),
