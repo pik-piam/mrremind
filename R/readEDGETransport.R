@@ -294,11 +294,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## extract only ConvCase and ConvCaseWise (this subtype is only needed for calibration purposes)
            tmp = tmp[grepl("ConvCase", EDGE_scenario)]
            ## convert from final energy to useful energy
-           tmp[fuel == "BEV", totdem := totdem*0.64] ## battery electric LDV
-           tmp[fuel == "FCEV", totdem := totdem*0.36] ## FCEV vehicles LDV and HDV
-           tmp[grepl("Liquids|NG", fuel) & node == "LDV", totdem := totdem*0.22] ## ICE LDV
-           tmp[grepl("Liquids|NG", fuel) & node == "HDV", totdem := totdem*0.24] ## ICE HDV
-           tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*0.64] ## battery electric HDV
+           tmp[fuel == "BEV", totdem := totdem*3] ## battery electric LDV
+           tmp[fuel == "FCEV" & node == "LDV", totdem := totdem*2.5] ## FCEV vehicles LDV
+           tmp[fuel == "FCEV" & node == "HDV", totdem := totdem*1.5] ## FCEV vehicles HDV
+           tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*2.5] ## battery electric HDV
            ## summarize according to the CES category
            tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year, node)]
            ## rename the CES nodes
