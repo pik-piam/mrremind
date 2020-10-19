@@ -306,7 +306,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp[node == "Electric Trains", node := "ueelTt"]
            ## extend to time steps necessary for the input demand trend
            tmp = approx_dt(tmp,
-                           xdata = c(seq(1993, 2010, 1), unique(tmp$year)[unique(tmp$year)>2010], seq(2105, 2150, 5)),
+                           xdata = c(seq(1993, 2010, 1), seq(2015, 2150, 5)),
                            xcol = "year",
                            ycol = "value",
                            idxcols = c("GDP_scenario", "EDGE_scenario", "iso", "node"),
