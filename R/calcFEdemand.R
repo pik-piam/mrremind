@@ -90,7 +90,7 @@ calcFEdemand <- function(subtype = "FE") {
       it <- "ueLDVt"
       target <- 7 ## GJ
       switch_yrs <- 10
-      drive <- 0.1
+      drive <- 0.12
       prv_row <- newdem[year == yr - 5 & item == it]
       newdem[year == yr & item == it,
              window := ifelse(prv_row$dem_cap - target >= 0,
@@ -656,8 +656,8 @@ calcFEdemand <- function(subtype = "FE") {
     ##  Cox, B., et al. (2020) Life cycle environmental and cost comparison of current and future passenger cars under different energy scenarios. Applied Energy2.
     ## Sacchi, R., et al. (2020) carculator: an open-source tool for prospective environmental and economic life cycle assessment of vehicles. When, Where and How can battery-electric vehicles help reduce greenhouse gas emissions? Renewable and Sustainable Energy Reviews, submitted (in review). https://www.psi.ch/en/media/57994/download
 
-    reminditems[,, "ueLDVt"] <- reminditems[,, "ueLDVt"] * 0.22
-    reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
+    #reminditems[,, "ueLDVt"] <- reminditems[,, "ueLDVt"] * 0.22
+    #reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
 
     
     # ---- Industry subsectors data stubs ----

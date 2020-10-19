@@ -13,11 +13,13 @@
 #' }
 #' @importFrom magclass read.magpie
 #' @importFrom data.table rbindlist fread setcolorder := setnames
+#' @importFrom rmndt approx_dt
 #'
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
   vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- varname <- NULL
+  fuel <- iso <- node <- totdem <- `.`<- NULL
 
   switch(subtype,
 
@@ -273,6 +275,44 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp[, c("sharetype", "year") := list(as.character(sharetype), as.character(year))]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "sharetype", "varname", "value"))
 
+           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
+           mdata <- NULL
+           for (j in unique(tmp$EDGE_scenario)) {
+             tmp_EDGE <- tmp[EDGE_scenario == j]
+             for (i in unique(tmp$GDP_scenario)) {
+               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               mdata <- mbind(mdata, tmp_EDGE_SSP)
+             }
+           }
+         },
+
+
+         "pm_fe_demand_EDGETbased" = {
+           tmp = fread("EDGE_output_FEdem.csv")
+           tmp[, varname := subtype]
+           ## extract only ConvCase and ConvCaseWise (this subtype is only needed for calibration purposes)
+           tmp = tmp[grepl("ConvCase", EDGE_scenario)]
+           ## convert from final energy to useful energy
+           tmp[fuel == "BEV", totdem := totdem*3] ## battery electric LDV
+           tmp[fuel == "FCEV" & node == "LDV", totdem := totdem*2.5] ## FCEV vehicles LDV
+           tmp[fuel == "FCEV" & node == "HDV", totdem := totdem*1.5] ## FCEV vehicles HDV
+           tmp[grepl("Electric", fuel) & node == "HDV", totdem := totdem*2.5] ## battery electric HDV
+           ## summarize according to the CES category
+           tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year, node)]
+           ## rename the CES nodes
+           tmp[node == "LDV", node := "ueLDVt"]
+           tmp[node == "HDV", node := "ueHDVt"]
+           tmp[node == "Electric Trains", node := "ueelTt"]
+           ## extend to time steps necessary for the input demand trend
+           tmp = approx_dt(tmp,
+                           xdata = c(seq(1993, 2010, 1), seq(2015, 2150, 5)),
+                           xcol = "year",
+                           ycol = "value",
+                           idxcols = c("GDP_scenario", "EDGE_scenario", "iso", "node"),
+                           extrapolate = TRUE)
+           ## set cols order
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "node", "value"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {

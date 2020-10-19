@@ -17,8 +17,8 @@ calcTranspEff <- function(){
   ## the data is provided for energy service per "fossil-fuel equivalents".
   ## to obtain the ES for a given motive energy, we have to divide by
   ## tank-to-wheel efficiencies
-  x[,, "Eff_Pass_LDV"] <- x[,, "Eff_Pass_LDV"] / 0.22
-  x[,, c("Eff_Pass_nonLDV", "Eff_Freight")] <- x[,, c("Eff_Pass_nonLDV", "Eff_Freight")] / 0.24
+  #x[,, "Eff_Pass_LDV"] <- x[,, "Eff_Pass_LDV"] / 0.22
+  #x[,, c("Eff_Pass_nonLDV", "Eff_Freight")] <- x[,, c("Eff_Pass_nonLDV", "Eff_Freight")] / 0.24
   weights <- calcOutput("FE", aggregate = FALSE, years=2005)[,,"FE|Transport (EJ/yr)"]
 
 
