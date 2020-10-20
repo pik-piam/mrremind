@@ -65,10 +65,19 @@ readBP <- function(subtype) {
    y1 <- read_excel(filename, sheet = "Wind Generation - TWh", range="A3:BD114")
    data_wind <- tidy_data(y1,"Wind")
    
+   y1 <- read_excel(filename, sheet = "Elec Gen from Gas", range="A3:AJ58")
+   data_gas <- tidy_data(y1,"Gas")
+   
+   y1 <- read_excel(filename, sheet = "Elec Gen from Oil", range="A3:AJ58")
+   data_oil <- tidy_data(y1,"Oil")
+   
+   y1 <- read_excel(filename, sheet = "Elec Gen from Coal", range="A3:AJ58")
+   data_coal <- tidy_data(y1,"Coal")
+   
    y1 <- read_excel(filename, sheet = "Geo Biomass Other - TWh", range="A3:BD114")
    data_geo_biomass <- tidy_data(y1,"Geo_biomass")
    
-   my_list <- list(data_wind,data_solar,data_hydro,data_geo_biomass,data_nuclear)
+   my_list <- list(data_wind,data_solar,data_hydro,data_geo_biomass,data_nuclear,data_gas,data_oil,data_coal)
    data <- merge_recurse(my_list) # merging all datasets into one
    data <- filter(data,!grepl("\\.",data$Year))
    
