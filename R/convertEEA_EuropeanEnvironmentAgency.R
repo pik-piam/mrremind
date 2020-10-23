@@ -13,15 +13,18 @@
 #' }
 #'  
 #' @importFrom magclass as.magpie
+#' @importFrom madrat toolCountry2isocode
 #' 
  
 convertEEA_EuropeanEnvironmentAgency <- function(x,subtype) {
-  if (subtype == "ETS") { 
+  if (subtype %in% c("ETS", "ES")) { 
     # fill up zero countries
     x <- toolCountryFill(x)
     #remove NAs
     x[is.na(x)] <- 0
-  } else if (subtype == "historical") {
+  } else if(subtype == "total") {
+    x <- toolCountryFill(x)
+  } else if (subtype == "sectoral") {
     x <- toolCountryFill(x, no_remove_warning="EUR")
   } else if (subtype == "projections") {
     getRegions(x) <- countrycode(getRegions(x), 'iso2c', 'iso3c')
