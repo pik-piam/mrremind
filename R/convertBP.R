@@ -123,18 +123,15 @@ convertBP <- function(x,subtype){
                  "Other S & Cent America","Other Asia Pacific","Other CIS")
     getRegions(x) <- gsub("\\bUS\\b","USA",getRegions(x))
     getRegions(x) <- gsub(pattern = "China Hong Kong SAR","Hong Kong",x = getRegions(x))
-    x["Other Southern Africa",,] <- x["Other Northern Africa",,]+x["Other Southern Africa",,]+x["Middle Africa",,]+
-      x["Eastern Africa",,]+x["Western Africa",,]
-    getRegions(x) <- gsub(x=getRegions(x),pattern = "Other Southern Africa",replacement = "Other Africa")
-    x["Other South America",,] <- x["Other South America",,]+x["Other Caribbean",,]+x["Central America",,]
-    getRegions(x) <- gsub(x = getRegions(x),pattern = "Other South America","Other S & Cent America")
+    other_africas <- c("Other Northern Africa","Other Southern Africa","Middle Africa","Eastern Africa","Western Africa")
+    x["Other Africa",,] <- dimSums(x[c(other_africas,"Other Africa")],na.rm = T,dim = 1)
+    x <- x[other_africas,,invert=T]
     
-    rem_regions <- c("Eastern Africa","Middle Africa","Western Africa",
-                     "Other Southern Africa","Other Northern Africa","Other South America",
-                     "Other Caribbean","Central America")
+    other_samicas <- c("Other South America","Other Caribbean","Central America")
+    x["Other S & Cent America",,] <- dimSums(x[c(other_samicas,"Other S & Cent America")],dim=1,na.rm = T)
+    x <- x[other_samicas,,invert=T]
 
-    x <- x[rem_regions,,invert=T]
-   
+  
     # Downscaled regions in ISO3
     read_mapping_file <- read.csv2("BPmapping.csv")
     PE <- calcOutput("PE",aggregate = FALSE)[unique(read_mapping_file$ISO.Code),2016,"PE (EJ/yr)"]
