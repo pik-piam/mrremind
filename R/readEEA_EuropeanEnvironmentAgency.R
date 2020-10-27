@@ -3,7 +3,7 @@
 #' Read-in European Environment Agency (EEA) data on ETS emissions as magclass object
 #' 
 #' 
-#' @param subtype data subtype. Either "ETS", "historical", or "projections"
+#' @param subtype data subtype. Either "ETS", "ES", "total", "sectoral", or "projections"
 #' @return magpie object of European Environment Agency (EEA) ETS emissions (GtCO2) 
 #' @author Renato Rodrigues, Falk Benke
 #' @seealso \code{\link{readSource}}
@@ -17,28 +17,54 @@
 #' @importFrom quitte calc_addVariable
 #' @importFrom readxl read_excel
 #' @importFrom reshape2 melt
+#' @importFrom madrat toolCountry2isocode
 
 readEEA_EuropeanEnvironmentAgency <- function(subtype) {
    
-  if (subtype == "ETS") { 
-
-    #Reading ETS emissions
-    data <- read.csv("(Tab)_Emissions_by_sector_data.csv")
-    data <- data[,-c(2,6)] # removing unit columns
-    data <- data[(!(is.na(data$Years))),] #removing NA Years
-    colnames(data) <- c("region","ETS_info","sector","period","value")
-    data$region <- toolCountry2isocode(data$region)
+  if (subtype == "ETS"){
+    data <- read.csv("ETS_Database_v38.csv", sep="\t")
+    data <- data[,-c(2,5)]
+    data$year <- as.numeric(as.character(data$year))
+    data <- data[(!(is.na(data$year))),]
+    colnames(data) <- c("region","ETS_info","sector","value","period")
+    data$region <- toolCountry2isocode(data$region, warn=F)
+    data <- data[(!(is.na(data$region))),]
     data$ETS_info <- gsub(pattern="\\.", replacement="_", data$ETS_info)
     data$sector <- gsub(pattern="\\.", replacement="", data$sector)
-    data <- data[(!(is.na(data$region))),] #removing NA countries
-    data$value <- as.numeric(gsub(" ","",data$value))/1000000 # changing value column to numeric and changing unit to Mt CO2-eq
-    x <- as.magpie(data,spatial=1,temporal=4,datacol=5)
-
-  } else if (subtype == "historical") {
+    data$value <- as.numeric(gsub(" ","",data$value))/1000000
+    data <- data[,c(1,5,2,3,4)]
+    x <- as.magpie(data,spatial=1,temporal=2,datacol=5)
+  }
+  else if (subtype == "ES") {
+    data <- read_excel(path='ESD-GHG_2019_revised.xlsx', trim_ws=T, skip=11)
+    data <- data[,c(1,17:30)]
+    data <- melt(data, id.vars=1)
+    colnames(data) <- c("region","period","value")
+    data$region <- toolCountry2isocode(data$region)
+    data <- data[(!(is.na(data$region))),]
+    data$variable <- "Emi|GHG|ES (Mt CO2-equiv/yr)"
+    data <- data[,c(1,2,4,3)]
+    x <- as.magpie(data,spatial=1,temporal=2,datacol=4)
+  } 
+  else if (subtype == "total") {
+    data <- read_excel(path='GHG_Total_historical.xlsx', trim_ws=T)
+    data$...1 <- NULL
+    eur <- c('AUT','BEL','BGR','HRV','CYP','CZE','DNK','EST','FIN','FRA','DEU','GRC','HUN', 'ISL', 'IRL',
+                'ITA','LVA','LIE','LTU','LUX','MLT','NLD','NOR','POL','PRT','ROU','SVK','SVN','ESP','SWE',
+                'CHE','TUR','GBR')
+    colnames(data) <- c("year", eur)
+    data <- melt(data, id.vars=1)
+    colnames(data) <- c("year", "region", "value")
+    data <- cbind(data,variable=c('Emi|GHGtot'))
+    data$variable <- paste0(data$variable, sep=" ", "(Mt CO2-equiv/yr)")
+    data <- data[,c(1,2,4,3)]
+    x <- as.magpie(data,spatial=2,temporal=1,datacol=4)
+  }
+  else if (subtype == "sectoral") {
 
     sheets <- excel_sheets('GHG_ETS_ES_Projections_by_sector.xlsx')
     historical <- NULL
-    timeframe <- seq(2005,2017) #excluding WEM projections
+    timeframe <- seq(2005,2017) # excluding WEM projections
 
     for (s in sheets){
       tmp <- read_excel(path='GHG_ETS_ES_Projections_by_sector.xlsx', sheet=s, skip=1, trim_ws=T)
@@ -51,17 +77,13 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     mapping.variable <- as.data.frame(
       cbind(
         variable=c(
-          "Emi|GHG|ETS",
           "Emi|GHG|Industry|ETS",
-          "Emi|GHG|ES",
           "Emissions|CO2|Energy|Demand|Transportation",
           "Emissions|CO2|Energy|Demand|Residential and Commercial",
           "Emi|GHG|Industry|ESD"
         ), 
         label=c(
-          "Emissions Trading System (stationary installations)",
           "Other stationary installations",
-          "Effort Sharing Decision and Regulation",
           "Transport",
           "Buildings",
           "Industry and other"
