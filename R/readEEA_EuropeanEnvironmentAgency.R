@@ -24,7 +24,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
   if (subtype == "ETS"){
     data <- read.csv("ETS_Database_v38.csv", sep="\t")
     data <- data[,-c(2,5)]
-    data$year <- as.numeric(data$year)
+    data$year <- as.numeric(as.character(data$year))
     data <- data[(!(is.na(data$year))),]
     colnames(data) <- c("region","ETS_info","sector","value","period")
     data$region <- toolCountry2isocode(data$region, warn=F)
