@@ -114,9 +114,14 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "FE demand divided by technologies for different ES on the CES level."
          },
          "pm_fe_demand_EDGETbased" = {
-           weight = weight = NULL
+           weight = NULL
            unit = "EJ"
            description = "UE demand divided by technologies for different ES on the CES level."
+         },
+         "pm_bunker_share_in_nonldv_fe" = {
+           weight = get_weight(data, weightInt)
+           unit = "-"
+           description = "Share of bunkers in HDVs."
          })
 
   return(list(x           = data,
