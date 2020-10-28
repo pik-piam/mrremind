@@ -213,6 +213,9 @@ calcHistorical <- function() {
   ARIADNE_ReferenceScenarioPop <- fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="population"))
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
 
+  IEA_ETPMain <- readSource("IEA_ETP", subtype="main")
+  IEA_ETPIndustrySub <- readSource("IEA_ETP", subtype="industry_subsectors")
+
   # Calculate Emission Reference Values
   Emi_Reference <- calcOutput("EmiReference", aggregate=FALSE)
   
@@ -234,7 +237,8 @@ calcHistorical <- function() {
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
   varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat,
                   ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, 
-                  EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGES, EEA_GHGProjections, Emi_Reference)
+                  EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGES, EEA_GHGProjections, Emi_Reference, 
+                  IEA_ETPMain, IEA_ETPIndustrySub)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
