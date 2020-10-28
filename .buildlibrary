@@ -1,6 +1,8 @@
-ValidationKey: '5584754'
+ValidationKey: '6144022'
 AcceptedWarnings:
 - 'Warning: package ''.*'' was built under R version'
 - 'Warning: namespace ''.*'' is not available and has been replaced'
-AcceptedNotes: unable to verify current time
+AcceptedNotes:
+- unable to verify current time
+- Imports includes 21 non-default packages.
 AutocreateReadme: yes
