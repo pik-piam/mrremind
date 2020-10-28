@@ -328,7 +328,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          "pm_bunker_share_in_nonldv_fe" = {
            tmp = fread("EDGE_output_FEdem.csv")
            ## summarize according to the CES category
-           tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year, category)]
+           tmp = tmp[,.(value = sum(totdem)), by = .(node, GDP_scenario, EDGE_scenario, iso, year, category)]
            ## select HDVs only
            tmp = tmp[node == "HDV",]
            ## extend to necessary time steps
@@ -341,7 +341,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## calculate the share of bunkers/no bunkers on total HDV
            tmp[, value := value/sum(value), by = .(iso, year, GDP_scenario, EDGE_scenario)]
            ## select only bunkers
-           tmp = tmp[category == "Bunkers"][, category := NULL]
+           tmp = tmp[category == "Bunkers"][, c("category", "node") := NULL]
            ## set cols order
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "value"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
