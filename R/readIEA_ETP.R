@@ -4,10 +4,17 @@
 #' @param subtype data subtype. Either "main" or "industry_subsectors"
 
 readIEA_ETP <- function(subtype){
-  
+
   if(!subtype %in% c("main", "industry_subsectors")){
     stop('Not a valid subtype!')
   }
+  
+  colEnd <- NULL 
+  colStart <- NULL 
+  name <- NULL 
+  regionETP <- NULL 
+  regionREMIND <- NULL 
+  variable <- NULL 
   
   yearETP <- c(2014, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060)
   
