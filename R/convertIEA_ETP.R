@@ -1,5 +1,9 @@
-#' @importFrom madrat toolGetMapping
+#' Convert IEA ETP projections
+#' 
+#' @author Falk Benke
+#' @param x IEA ETP projection magpie object derived from readIEA_ETP function
 #' @param subtype data subtype. Either "main" or "industry_subsectors"
+#' @importFrom madrat toolGetMapping
 
 convertIEA_ETP <- function(x, subtype){
   
