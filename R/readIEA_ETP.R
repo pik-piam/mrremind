@@ -1,7 +1,9 @@
+#' Read IEA ETP projections
+#' 
 #' @author Falk Benke
+#' @param subtype data subtype. Either "main" or "industry_subsectors"
 #' @importFrom readxl read_excel
 #' @importFrom reshape2 melt
-#' @param subtype data subtype. Either "main" or "industry_subsectors"
 
 readIEA_ETP <- function(subtype){
 
