@@ -93,7 +93,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
 
            tmp_dfs <- rbindlist(tmp_dfs, fill= TRUE)
-
+           ## remove empty years (combinations of iso-vehicles that are not present)
+           tmp_dfs <- tmp_dfs[!is.na(year)]
            ## NAs in categories meant to be empty should be replaced
            tmp_dfs[is.na(tmp_dfs)] <- "tmp"
 
