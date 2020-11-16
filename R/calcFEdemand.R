@@ -685,6 +685,10 @@ calcFEdemand <- function(subtype = "FE") {
       pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
+      mutate(!!sym('Year') := as.integer(as.character(!!sym('Year')))) %>% 
+      interpolate_missing_periods(Year = as.integer(sub('^y', '', 
+                                                        getYears(reminditems))),
+                                  expand.values = TRUE) %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
              !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), 
                                               '.ue_steel_', !!sym('Data2')),
