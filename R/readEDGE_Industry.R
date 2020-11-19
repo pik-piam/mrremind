@@ -25,7 +25,7 @@
 
 readEDGE_Industry <- function(subtype) {
   
-  # list all available subtypes with functions doing all the work
+  # ---- list all available subtypes with functions doing all the work ----
   switchboard <- list(
     projections_VA_iso3c = function() {
       # this is just a dummy for getting SDP trajectories although the new 
@@ -80,6 +80,7 @@ readEDGE_Industry <- function(subtype) {
                comment = '#') %>% 
         filter(!!sym('variable') %in% c('primary.production', 
                                         'secondary.production')) %>% 
+        mutate(!!sym('variable') := gsub('\\.', '_', !!sym('variable'))) %>% 
         as.magpie()
     },
     
@@ -110,12 +111,12 @@ readEDGE_Industry <- function(subtype) {
     NULL
   )
   
-  # check if the subtype called is available
+  # ---- check if the subtype called is available ----
   if (is_empty(intersect(subtype, names(switchboard)))) {
     stop(paste('Invalid subtype -- supported subtypes are:', 
                names(switchboard)))
   } else {
-    # load data and do whatever
+    # ---- load data and do whatever ----
     return(switchboard[[subtype]]())
   }
 }

@@ -676,12 +676,10 @@ calcFEdemand <- function(subtype = "FE") {
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
       as.magpie()
     
-    industry_steel <- readSource('EDGE_Industry', 
-                                 'steel_production_scenarios') %>% 
+    industry_steel <- readSource('EDGE_Industry',
+                                 'steel_production_scenarios') %>%
       as.data.frame() %>% 
       as_tibble() %>% 
-      filter('production' == !!sym('Data3')) %>% 
-      select(-!!sym('Data3')) %>% 
       pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
@@ -777,7 +775,7 @@ calcFEdemand <- function(subtype = "FE") {
                        ', except ue_cement (Gt), ue_primary_steel and ',
                        'ue_secondary_steel (Mt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
-  }
+  } 
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
