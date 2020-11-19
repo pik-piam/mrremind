@@ -8,6 +8,8 @@
 #'     industry sector
 #'   * `steel_production_scenarios` for the projections of primary and 
 #'     secondary steel production
+#'   * `secondary_steel_limits` for the upper limits to secondary steel 
+#'     production
 #'   * `cement_chemicals_otherInd_production_scenarios` for the projections of
 #'     cement, chemicals, and other industry production
 #'   * `p29_capitalQuantity_industry` for industry subsector energy efficiency 
@@ -80,6 +82,22 @@ readEDGE_Industry <- function(subtype) {
                comment = '#') %>% 
         filter(!!sym('variable') %in% c('primary.production', 
                                         'secondary.production')) %>% 
+        mutate(!!sym('variable') := gsub('\\.', '_', !!sym('variable'))) %>% 
+        as.magpie()
+    },
+    
+    secondary_steel_limits = function() {
+      read_csv('EDGE_Industry__steel_production_scenarios.csv.gz',
+               col_names = TRUE,
+               col_types = cols(
+                 scenario = col_character(),
+                 iso3c    = col_character(),
+                 year     = col_integer(),
+                 variable = col_character(),
+                 value    = col_double()
+               ),
+               comment = '#') %>% 
+        filter('secondary.production.limit' == !!sym('variable')) %>% 
         mutate(!!sym('variable') := gsub('\\.', '_', !!sym('variable'))) %>% 
         as.magpie()
     },
