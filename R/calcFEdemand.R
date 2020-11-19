@@ -723,7 +723,9 @@ calcFEdemand <- function(subtype = "FE") {
           filter('gdp_SSP2' == !!sym('scenario')) %>% 
           select(-'scenario') %>% 
           mutate(!!sym('year') := as.integer(as.character(!!sym('year'))),
-                 !!sym('pf') := 'feel_steel') %>% 
+                 !!sym('pf') := 'feel_steel',
+                 !!sym('subsector') := sub('_production$', '', 
+                                           !!sym('subsector'))) %>% 
           pivot_wider(names_from = 'subsector', values_from = 'production'),
         
         c('region' = 'iso3c','period' = 'year', 'pf')
