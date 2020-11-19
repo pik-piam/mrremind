@@ -40,7 +40,6 @@ readEDGE_Industry <- function(subtype) {
           readSource('EDGE_Industry', 'steel_production_scenarios') %>% 
             as.data.frame() %>% 
             as_tibble() %>% 
-            filter('production' == !!sym('Data3')) %>% 
             select('scenario' = 'Data1', 'iso3c' = 'Region', 'year' = 'Year',
                    'route' = 'Data2', 'production' = 'Value') %>% 
             character.data.frame() %>% 
