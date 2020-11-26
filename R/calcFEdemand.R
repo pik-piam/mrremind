@@ -688,8 +688,9 @@ calcFEdemand <- function(subtype = "FE") {
                                                         getYears(reminditems))),
                                   expand.values = TRUE) %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
-             !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), 
-                                              '.ue_steel_', !!sym('Data2')),
+             !!sym('scenario.item') := 
+               paste0('gdp_', !!sym('scenario'), 
+                      '.ue_steel_', sub('_production', '', !!sym('Data2'))),
              # t * 1e-9 Gt/t = t
              !!sym('value') := !!sym('value') * 1e-9) %>% 
       select('Region', 'year', 'scenario.item', 'value') %>% 
