@@ -76,7 +76,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 12)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -107,7 +107,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 13)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -137,7 +137,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 11)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -160,7 +160,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 13)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -180,7 +180,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 12)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -202,7 +202,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 10)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
 
@@ -216,20 +216,19 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "year", "vehicle_type", "varname", "loadFactor"))
            setnames(tmp, old ="loadFactor", new ="value")
-           mdata <- as.magpie(tmp, spatial = 3, temporal = 4)
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 7)
          },
 
          "fe2es" = {
 
            tmp <- fread(paste0(subtype, ".cs4r"))
-
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1, datacol = 6)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -245,7 +244,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1, datacol = 6)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -255,14 +254,13 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
            tmp <- fread(paste0(subtype, ".cs4r"))
 
-
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=2, temporal=1, datacol = 8)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -282,7 +280,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 7)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -319,7 +317,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 6)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
@@ -353,7 +351,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 5)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
            }
