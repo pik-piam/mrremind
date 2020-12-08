@@ -665,7 +665,6 @@ calcFEdemand <- function(subtype = "FE") {
                     'cement_chemicals_otherInd_production_scenarios') %>% 
       as.data.frame() %>% 
       as_tibble() %>% 
-      select(-!!sym('Data3')) %>% 
       pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
@@ -719,6 +718,8 @@ calcFEdemand <- function(subtype = "FE") {
         industry_steel %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
+          extract(!!sym('Data1'), c('Data1', 'Data2'),
+                  '^(gdp_[^_]*)_(.*)$') %>% 
           select('iso3c' = 'Region', 'scenario' = 'Data1', 'year' = 'Year', 
                  'subsector' = 'Data2', 'production' = 'Value') %>% 
           filter('gdp_SSP2' == !!sym('scenario')) %>% 
