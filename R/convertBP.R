@@ -128,7 +128,7 @@ convertBP <- function(x,subtype){
     x <- x[other_africas,,invert=T]
     
     other_samicas <- c("Other South America","Other Caribbean","Central America")
-    x["Other S & Cent America",,] <- dimSums(x[c(other_samicas,"Other S & Cent America")],dim=1,na.rm = T)
+    x["Other S & Cent America",,] <- dimSums(x[c(other_samicas,"Other S & Cent America"),,],dim=1,na.rm = T)
     x <- x[other_samicas,,invert=T]
 
   
