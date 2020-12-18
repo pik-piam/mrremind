@@ -8,6 +8,8 @@
 #'     industry sector
 #'   * `steel_production_scenarios` for the projections of primary and 
 #'     secondary steel production
+#'   * `secondary_steel_limits` for the upper limits to secondary steel 
+#'     production
 #'   * `cement_chemicals_otherInd_production_scenarios` for the projections of
 #'     cement, chemicals, and other industry production
 #'   * `p29_capitalQuantity_industry` for industry subsector energy efficiency 
@@ -25,7 +27,7 @@
 
 readEDGE_Industry <- function(subtype) {
   
-  # list all available subtypes with functions doing all the work
+  # ---- list all available subtypes with functions doing all the work ----
   switchboard <- list(
     projections_VA_iso3c = function() {
       # this is just a dummy for getting SDP trajectories although the new 
@@ -38,7 +40,6 @@ readEDGE_Industry <- function(subtype) {
           readSource('EDGE_Industry', 'steel_production_scenarios') %>% 
             as.data.frame() %>% 
             as_tibble() %>% 
-            filter('production' == !!sym('Data3')) %>% 
             select('scenario' = 'Data1', 'iso3c' = 'Region', 'year' = 'Year',
                    'route' = 'Data2', 'production' = 'Value') %>% 
             character.data.frame() %>% 
@@ -80,6 +81,23 @@ readEDGE_Industry <- function(subtype) {
                comment = '#') %>% 
         filter(!!sym('variable') %in% c('primary.production', 
                                         'secondary.production')) %>% 
+        mutate(!!sym('variable') := gsub('\\.', '_', !!sym('variable'))) %>% 
+        as.magpie()
+    },
+    
+    secondary_steel_limits = function() {
+      read_csv('EDGE_Industry__steel_production_scenarios.csv.gz',
+               col_names = TRUE,
+               col_types = cols(
+                 scenario = col_character(),
+                 iso3c    = col_character(),
+                 year     = col_integer(),
+                 variable = col_character(),
+                 value    = col_double()
+               ),
+               comment = '#') %>% 
+        filter('secondary.production.limit' == !!sym('variable')) %>% 
+        mutate(!!sym('variable') := gsub('\\.', '_', !!sym('variable'))) %>% 
         as.magpie()
     },
     
@@ -110,12 +128,12 @@ readEDGE_Industry <- function(subtype) {
     NULL
   )
   
-  # check if the subtype called is available
+  # ---- check if the subtype called is available ----
   if (is_empty(intersect(subtype, names(switchboard)))) {
     stop(paste('Invalid subtype -- supported subtypes are:', 
                names(switchboard)))
   } else {
-    # load data and do whatever
+    # ---- load data and do whatever ----
     return(switchboard[[subtype]]())
   }
 }

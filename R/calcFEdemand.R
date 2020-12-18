@@ -665,7 +665,6 @@ calcFEdemand <- function(subtype = "FE") {
                     'cement_chemicals_otherInd_production_scenarios') %>% 
       as.data.frame() %>% 
       as_tibble() %>% 
-      select(-!!sym('Data3')) %>% 
       pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
@@ -676,20 +675,23 @@ calcFEdemand <- function(subtype = "FE") {
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
       as.magpie()
     
-    industry_steel <- readSource('EDGE_Industry', 
-                                 'steel_production_scenarios') %>% 
+    industry_steel <- readSource('EDGE_Industry',
+                                 'steel_production_scenarios') %>%
       as.data.frame() %>% 
       as_tibble() %>% 
-      filter('production' == !!sym('Data3')) %>% 
-      select(-!!sym('Data3')) %>% 
       pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
+      mutate(!!sym('Year') := as.integer(as.character(!!sym('Year')))) %>% 
+      interpolate_missing_periods(Year = as.integer(sub('^y', '', 
+                                                        getYears(reminditems))),
+                                  expand.values = TRUE) %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
-             !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), 
-                                              '.ue_steel_', !!sym('Data2')),
-             # Mt * 1e-3 Gt/Mt = Mt
-             !!sym('value') := !!sym('value') * 1e-3) %>% 
+             !!sym('scenario.item') := 
+               paste0('gdp_', !!sym('scenario'), 
+                      '.ue_steel_', sub('_production', '', !!sym('Data2'))),
+             # t * 1e-9 Gt/t = t
+             !!sym('value') := !!sym('value') * 1e-9) %>% 
       select('Region', 'year', 'scenario.item', 'value') %>% 
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
       as.magpie()
@@ -716,12 +718,16 @@ calcFEdemand <- function(subtype = "FE") {
         industry_steel %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
+          extract(!!sym('Data1'), c('Data1', 'Data2'),
+                  '^(gdp_[^_]*)_(.*)$') %>% 
           select('iso3c' = 'Region', 'scenario' = 'Data1', 'year' = 'Year', 
                  'subsector' = 'Data2', 'production' = 'Value') %>% 
           filter('gdp_SSP2' == !!sym('scenario')) %>% 
           select(-'scenario') %>% 
           mutate(!!sym('year') := as.integer(as.character(!!sym('year'))),
-                 !!sym('pf') := 'feel_steel') %>% 
+                 !!sym('pf') := 'feel_steel',
+                 !!sym('subsector') := sub('_production$', '', 
+                                           !!sym('subsector'))) %>% 
           pivot_wider(names_from = 'subsector', values_from = 'production'),
         
         c('region' = 'iso3c','period' = 'year', 'pf')
@@ -773,7 +779,7 @@ calcFEdemand <- function(subtype = "FE") {
                        ', except ue_cement (Gt), ue_primary_steel and ',
                        'ue_secondary_steel (Mt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
-  }
+  } 
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,

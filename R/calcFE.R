@@ -166,7 +166,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     var <- getNames(data)[1]
     data_new <- new.magpie(getRegions(data),years = getYears(data),names = getNames(data),fill=NA)
     for (i in regions$CountryCode){
-      if (!is.na(data[i,"y2010",var]) & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode],dim = 1))
+      if (!is.na(data[i,"y2010",var]) & gdp[i,,]> 0.9*dimSums(gdp[regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode,,],dim = 1))
       { data_new[i,,] <- data[i,,]
       countries <- regions[regions$RegionCode==regions[regions$CountryCode==i,]$RegionCode,]$CountryCode
       data_new[setdiff(countries,i),,] <- 0 # countries other than the "main" country

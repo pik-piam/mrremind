@@ -40,6 +40,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("Capital",   subtype = "CapitalUnit",    round=6,  file="f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round=8,  file="pm_fe_demand.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round=6,  file="pm_es_demand.cs4r")
+  calcOutput('Secondary_steel_limits', round = 8, file = 'p37_cesIO_up_steel_secondary.cs4r')
   calcOutput("EnergyEffPaths",                        round=6,  file="p29_efficiency_growth.cs4r")
   calcOutput("Floorspace",                            round=6,  file="p36_floorspace_scen.cs4r")
   calcOutput("WeightNash",                            round=6,  file="p80_eoWeights_fix.cs4r")
@@ -108,7 +109,6 @@ fullREMIND <- function(rev=0) {
   calcOutput("FEShares", subtype="ind_coal",          round=5,  file="p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype="ind_bio",           round=5,  file="p_share_ind_fesos_bio.cs4r")
   calcOutput("FEShares", subtype="ind_liq",           round=5,  file="p_share_ind_fehos.cs4r")
-  calcOutput("BunkersTransportShare",                 round=5,  file="pm_bunker_share_in_nonldv_fe.cs4r")
   calcOutput("Solar",                                 round=5,  file="f_dataRegiSolar.cs3r")
   calcOutput("CapacityEV",                            round=8,  file="pm_boundCapEV.cs4r")
   calcOutput("CapacityNuclear",                       round=5,  file="pm_NuclearConstraint.cs4r")
@@ -164,7 +164,7 @@ fullREMIND <- function(rev=0) {
                                        file=paste0(stype, ".cs4r"), aggregate=F))
          })
   
-  lapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand", "pm_fe_demand_EDGETbased"),
+  lapply(c("fe_demand_tech", "fe2es", "esCapCost", "pm_trp_demand", "pm_fe_demand_EDGETbased", "pm_bunker_share_in_nonldv_fe"),
          function(stype){
           print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype, round=8,

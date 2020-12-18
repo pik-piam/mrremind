@@ -2,9 +2,10 @@
 #' @importFrom quitte calc_addVariable
 
 calcEmiReference <-  function(){
-  eea.emi <- readSource("EEA_EuropeanEnvironmentAgency", subtype="historical")
-  eea.emi <- eea.emi[,2005,c('Emi|GHG|ETS', 'Emi|GHG|ES'), pmatch=TRUE]
-  eea.emi <- as.data.frame(eea.emi)
+  
+  eea.emi.ets <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2019), c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)")
+  eea.emi.es <- readSource("EEA_EuropeanEnvironmentAgency",subtype="ES")
+  eea.emi <- rbind(as.data.frame(eea.emi.ets[,2005,]), as.data.frame(eea.emi.es[,2005,]))
   eea.emi <- cbind(model=c("EEA"), eea.emi)
 
   eurostat.emi <- readSource("EuropeanEnergyDatasheets")
