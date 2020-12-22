@@ -192,7 +192,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          "fe2es" = {
 
            tmp <- fread(paste0(subtype, ".cs4r"))
-
+           tmp <- tmp[tall>1990]
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
@@ -222,7 +222,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "fe_demand_tech" = {
            tmp <- fread(paste0(subtype, ".cs4r"))
-           tmp <- tmp[tall>1965]
+           tmp <- tmp[tall>1990]
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
