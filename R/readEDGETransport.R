@@ -117,14 +117,13 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "harmonized_intensities" = {
            tmp <- fread(paste0(subtype, ".csv"))
-
+           tmp = tmp[!is.na(EJ_Mpkm_final)]
            tmp$varname <- subtype
            tmp$varname = gsub(".*moinputData/","",tmp$varname)
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
            setnames(tmp, old ="EJ_Mpkm_final", new ="value")
-
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
            for (j in unique(tmp$EDGE_scenario)) {
