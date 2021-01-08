@@ -122,7 +122,7 @@ readGCPT <- function(subtype) {
   retCap <- toolCountryFill(retCap,fill=0,no_remove_warning = "KOS",verbosity=2)
   regAvgRetAge <- toolAggregate(mavgRetAge,map,weight=retCap)
   regAvgRetAge[which(regAvgRetAge==0)] <- mean(regAvgRetAge)
-  mavgRetAge[which(mavgRetAge==0)] <- regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge[which(mavgRetAge==0)]))],,]
+  mavgRetAge[getRegions(mavgRetAge)[mavgRetAge == 0],,] <- regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge)[mavgRetAge == 0])],,]
   
   if (subtype=="lifespans") {
     return(mavgRetAge)
