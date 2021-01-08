@@ -2,7 +2,7 @@
 
 R package **mrremind**, version **0.38.3**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)    [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/mrremind)
+[![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)   [![R build status](https://github.com/pik-piam/mrremind/workflows/check/badge.svg)](https://github.com/pik-piam/mrremind/actions) [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/mrremind)
 
 ## Purpose and Functionality
 
