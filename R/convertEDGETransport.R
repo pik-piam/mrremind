@@ -17,27 +17,23 @@ convertEDGETransport = function(x, subtype) {
   ## load mapping
   mappingfile <- fread(toolMappingFile("regional","regionmappingH12.csv"))[, .(iso = CountryCode, region = RegionCode)]
   ## for intensive values, the weight is NULL
-  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "shares_LDV_transport", "price_nonmot")) {
+  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "shares_LDV_transport", "price_nonmot", "esCapCost", "pm_bunker_share_in_nonldv_fe")) {
     x = toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
   }
 
   ## for extensive values, the weight is GDP
-  if (subtype %in% c("esCapCost", "fe_demand_tech", "pm_bunker_share_in_nonldv_fe")) {
+  if (subtype %in% c("fe_demand_tech", "pm_trp_demand", "pm_fe_demand_EDGETbased")) {
     gdp <- calcOutput("GDPppp", aggregate = F)[,,"gdp_SSP2"]
     ## interpolate missing time steps
     gdp <- time_interpolate(gdp, getYears(x))
+    ## the time step is named differently across subtypes, select the right one
+    if (subtype == "pm_fe_demand_EDGETbased") {
+      yr = "year"
+    } else {
+      yr = "tall"
+    }
     ## rename the columns of the weight
-    getSets(gdp) <- c("iso", "tall", "variable")
-    x = toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
-  }
-
-  ## for extensive values, the weight is GDP
-  if (subtype %in% c("pm_fe_demand_EDGETbased")) {
-    gdp <- calcOutput("GDPppp", aggregate = F)[,,"gdp_SSP2"]
-    ## interpolate missing time steps
-    gdp <- time_interpolate(gdp, getYears(x))
-    ## rename the columns of the weight
-    getSets(gdp) <- c("iso", "year", "variable")
+    getSets(gdp) <- c("iso", yr, "variable")
     x = toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
   }
 

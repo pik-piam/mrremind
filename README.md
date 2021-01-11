@@ -1,8 +1,8 @@
 # MadRat REMIND Input Data Package
 
-R package **mrremind**, version **0.35.4**
+R package **mrremind**, version **0.35.5**
 
-  
+[![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)    
 
 ## Purpose and Functionality
 
@@ -38,14 +38,15 @@ In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-po
 
 To cite package **mrremind** in publications use:
 
-Baumstark L, Rodrigues R, Levesque A, Oeser
-J, Bertram C, Mouratiadou I, Malik A,
-Schreyer F, Soergel B, Rottoli M, Mishra A,
-Dirnaichner A, Pehl M, Giannousakis A, Klein
-D, Strefler J, Feldhaus L, Brecha R, Rauner
-S, Dietrich J, Bi S (2020). _mrremind:
-MadRat REMIND Input Data Package_. R package
-version 0.35.4.
+Baumstark L, Rodrigues R, Levesque A,
+Oeser J, Bertram C, Mouratiadou I,
+Malik A, Schreyer F, Soergel B,
+Rottoli M, Mishra A, Dirnaichner A,
+Pehl M, Giannousakis A, Klein D,
+Strefler J, Feldhaus L, Brecha R,
+Rauner S, Dietrich J, Bi S (2020).
+_mrremind: MadRat REMIND Input Data
+Package_. R package version 0.35.4.
 
 A BibTeX entry for LaTeX users is
 

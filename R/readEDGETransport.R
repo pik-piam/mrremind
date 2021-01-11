@@ -18,7 +18,7 @@
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
-  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- varname <- NULL
+  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- EJ_Mpkm_final <- varname <- NULL
   fuel <- region <- node <- totdem <- `.`<- category <- tall <- NULL
   switch(subtype,
 
