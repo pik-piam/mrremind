@@ -123,7 +123,7 @@ readGCPT <- function(subtype) {
   regAvgRetAge <- toolAggregate(mavgRetAge,map,weight=retCap)
   regAvgRetAge[which(regAvgRetAge==0)] <- mean(regAvgRetAge)
   mavgRetAge[getRegions(mavgRetAge)[mavgRetAge == 0],,] <- as.vector(regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge)[mavgRetAge == 0])],,])
-  
+
   if (subtype=="lifespans") {
     return(mavgRetAge)
   }

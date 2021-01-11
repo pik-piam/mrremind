@@ -669,11 +669,11 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
-             !!sym('scenario.item') := paste0('gdp_', !!sym('scenario'), '.ue_', 
-                                             !!sym('Data2'))) %>% 
-      select('Region', 'year', 'scenario.item', 'value') %>% 
+             !!sym('scenario') := paste0('gdp_', !!sym('scenario')), 
+             !!sym('item') := paste0('ue_', !!sym('Data2'))) %>% 
+      select('Region', 'year', 'scenario', 'item', 'value') %>% 
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
-      as.magpie()
+      as.magpie(tidy = TRUE)
     
     industry_steel <- readSource('EDGE_Industry',
                                  'steel_production_scenarios') %>%
@@ -687,14 +687,14 @@ calcFEdemand <- function(subtype = "FE") {
                                                         getYears(reminditems))),
                                   expand.values = TRUE) %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
-             !!sym('scenario.item') := 
-               paste0('gdp_', !!sym('scenario'), 
-                      '.ue_steel_', sub('_production', '', !!sym('Data2'))),
+             !!sym('scenario') := paste0('gdp_', !!sym('scenario')),
+             !!sym('item') := paste0('ue_steel_', 
+                                      sub('_production', '', !!sym('Data2'))),
              # t * 1e-9 Gt/t = t
              !!sym('value') := !!sym('value') * 1e-9) %>% 
-      select('Region', 'year', 'scenario.item', 'value') %>% 
+      select('Region', 'year', 'scenario', 'item', 'value') %>% 
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
-      as.magpie()
+      as.magpie(tidy = TRUE)
     
     industry_subsectors_en <- calcOutput(
       type = 'IO', subtype = 'output_Industry_subsectors', round = 8, 
@@ -718,8 +718,6 @@ calcFEdemand <- function(subtype = "FE") {
         industry_steel %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
-          extract(!!sym('Data1'), c('Data1', 'Data2'),
-                  '^(gdp_[^_]*)_(.*)$') %>% 
           select('iso3c' = 'Region', 'scenario' = 'Data1', 'year' = 'Year', 
                  'subsector' = 'Data2', 'production' = 'Value') %>% 
           filter('gdp_SSP2' == !!sym('scenario')) %>% 
@@ -767,10 +765,9 @@ calcFEdemand <- function(subtype = "FE") {
       complete(nesting(!!sym('period'), !!sym('region'), !!sym('pf'), 
                        !!sym('value')), 
                scenario = c(paste0('gdp_SSP', 1:5), 'gdp_SDP')) %>% 
-      mutate(scenario.item = paste(!!sym('scenario'), !!sym('pf'), sep = '.'),
-             year = paste0('y', !!sym('period'))) %>% 
-      select('region', 'year', 'scenario.item', 'value') %>% 
-      as.magpie()
+      mutate(year = paste0('y', !!sym('period'))) %>% 
+      select('region', 'year', 'scenario', 'item' = 'pf', 'value') %>% 
+      as.magpie(tidy = TRUE)
     
     reminditems <- mbind(reminditems, industry_subsectors_en, industry_steel, 
                          industry_subsectors_ue)
