@@ -1,7 +1,7 @@
 #' Data from the Global Coal Plant Tracker July 2020 release by Global Energy Monitor (formerly EndCoal/CoalSwarm)
 #' @description  Historical data of operating, under-construction, planned and announced Coal Plants by country (in MW) 
 #' from the Global Energy Monitor's Global Coal Plant Tracker, and extrapolations for 2025 capacity scenarios
-#' @param subtype Options are status, historical, future, retirements
+#' @param subtype Options are status, historical, future, lifespans and emissions
 #' @author Stephen Bi
 #' @importFrom readxl read_excel
 #' @importFrom dplyr %>% filter select mutate summarize group_by left_join
@@ -12,7 +12,7 @@
 readGCPT <- function(subtype) {
   map <- toolGetMapping("regionmappingH12.csv",type="regional")
   
-  if (!(subtype %in% c("historical","future","early_retire","lifespans","emissions"))) {
+  if (!(subtype %in% c("historical","future","lifespans","emissions"))) {
     stop("Invalid subtype!")
   }
   
@@ -122,31 +122,31 @@ readGCPT <- function(subtype) {
   retCap <- toolCountryFill(retCap,fill=0,no_remove_warning = "KOS",verbosity=2)
   regAvgRetAge <- toolAggregate(mavgRetAge,map,weight=retCap)
   regAvgRetAge[which(regAvgRetAge==0)] <- mean(regAvgRetAge)
-  mavgRetAge[getRegions(mavgRetAge)[mavgRetAge == 0],,] <- regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge)[mavgRetAge == 0])],,]
-  
+  mavgRetAge[getRegions(mavgRetAge)[mavgRetAge == 0],,] <- as.vector(regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge)[mavgRetAge == 0])],,])
+
   if (subtype=="lifespans") {
     return(mavgRetAge)
   }
   
   #Return national average lifespans to calculate early retirement adjustment factors 
-  if (subtype=="early_retire") {
-    retired <- retire %>% select(`Tracker ID`,Country,`Plant Age`,`Capacity (MW)`,RETIRED)
-    #Sum up capacity retired in each country in each year 2000-2020
-    early_ret <- retired %>% filter(!is.na(RETIRED)) %>% group_by(Country,.add=TRUE) %>% group_by(RETIRED,.add=TRUE) %>%
-      summarise(Retired_cap=sum(`Capacity (MW)`))
-    early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
-    early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
-    ret_rate <- new.magpie(getRegions(cap),getYears(early_ret),names="Early_Retirement",fill=0)
-    for (t in 2001:2020) {
-      ret_rate[,t,] <- dimSums(early_ret[,(t-1):t,],dim=2)/cap[,t-1,]
-    }
-    ret_rate <- replace_non_finite(ret_rate)
-    max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
-    for (reg in getRegions(ret_rate)) {
-      max_ret[reg,,] <- max(ret_rate[reg,,])
-    }
-    return(max_ret)
-  }
+  # if (subtype=="early_retire") {
+  #   retired <- retire %>% select(`Tracker ID`,Country,`Plant Age`,`Capacity (MW)`,RETIRED)
+  #   #Sum up capacity retired in each country in each year 2000-2020
+  #   early_ret <- retired %>% filter(!is.na(RETIRED)) %>% group_by(Country,.add=TRUE) %>% group_by(RETIRED,.add=TRUE) %>%
+  #     summarise(Retired_cap=sum(`Capacity (MW)`))
+  #   early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
+  #   early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
+  #   ret_rate <- new.magpie(getRegions(cap),getYears(early_ret),names="Early_Retirement",fill=0)
+  #   for (t in 2001:2020) {
+  #     ret_rate[,t,] <- dimSums(early_ret[,(t-1):t,],dim=2)/cap[,t-1,]
+  #   }
+  #   ret_rate <- replace_non_finite(ret_rate)
+  #   max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
+  #   for (reg in getRegions(ret_rate)) {
+  #     max_ret[reg,,] <- max(ret_rate[reg,,])
+  #   }
+  #   return(max_ret)
+  # }
   
   
   if (subtype=="future" || subtype=="emissions") {
@@ -336,8 +336,8 @@ readGCPT <- function(subtype) {
     reg_she_rate <- new.magpie(getRegions(regAvgRetAge),getYears(mtran),getNames(she_rate))
     
     for (phase in getNames(can_she_rate)) {
-      nonzero_countries <- getRegions(mtran[which(mtran[,,phase]!=0)])
-      zero_countries <- getRegions(mtran[which(mtran[,,phase]==0)])
+      nonzero_countries <- getRegions(mtran)[which(mtran[,,phase]!=0)]
+      zero_countries <- getRegions(mtran)[which(mtran[,,phase]==0)]
       if (phase=="newcon") {
         can_she_rate[,,phase] <- (mtran[,,"con2can"] + mtran[,,"con2she2she"])/mtran[,,"newcon"]
         she_rate[,,phase] <- mtran[,,"con2she2she"]/mtran[,,"newcon"]
@@ -350,7 +350,7 @@ readGCPT <- function(subtype) {
         #Calculate regional rates
         tmp <- toolAggregate(can_rate[nonzero_countries,,phase],rel=map[which(map$CountryCode %in% nonzero_countries),],mtran[nonzero_countries,,phase])
         #For regions which had zero projects in a certain phase, assign the global weighted mean
-        reg_can_rate <- mbind(tmp,new.magpie(getRegions(reg_can_rate[which(!(getRegions(reg_can_rate)) %in% getRegions(tmp))]),getYears(can_rate),phase,glo_can_rate))
+        reg_can_rate <- mbind(tmp,new.magpie(getRegions(reg_can_rate)[which(!(getRegions(reg_can_rate)) %in% getRegions(tmp))],getYears(can_rate),phase,glo_can_rate))
         #Assign regional rates to countries without projects in the present phase
         can_rate[zero_countries,,phase] <- as.numeric(reg_can_rate[map$RegionCode[which(map$CountryCode %in% zero_countries)],,phase])
         
@@ -368,9 +368,9 @@ readGCPT <- function(subtype) {
       
       #For regions which had zero projects in a certain phase, assign the global weighted mean
       reg_can_she_rate[,,phase] <- mbind(tmp_can_she,
-                                         new.magpie(getRegions(reg_can_she_rate[which(!(getRegions(reg_can_she_rate)) %in% getRegions(tmp_can_she))]),getYears(mtran),phase,glo_can_she_rate))
+                                         new.magpie(getRegions(reg_can_she_rate)[which(!(getRegions(reg_can_she_rate)) %in% getRegions(tmp_can_she))],getYears(mtran),phase,glo_can_she_rate))
       reg_she_rate[,,phase] <- mbind(tmp_she,
-                                     new.magpie(getRegions(reg_she_rate[which(!(getRegions(reg_she_rate)) %in% getRegions(tmp_she))]),getYears(mtran),phase,glo_she_rate))
+                                     new.magpie(getRegions(reg_she_rate)[which(!(getRegions(reg_she_rate)) %in% getRegions(tmp_she))],getYears(mtran),phase,glo_she_rate))
       
       #Assign regional rates to countries without projects in the present phase
       can_she_rate[zero_countries,,phase] <- as.numeric(reg_can_she_rate[map$RegionCode[which(map$CountryCode %in% zero_countries)],,phase])
@@ -390,16 +390,16 @@ readGCPT <- function(subtype) {
       (dimSums(cap2020,dim=3))
     
     #Nascent coal consumers AND countries without any projects in the past 6 years are assigned their regional cancellation/shelving rates
-    can_rate[which(immaturity>0.5)] <- reg_can_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity[which(immaturity>0.5)]))],,]
-    can_rate[which(can_rate==0.5)] <- reg_can_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity[which(immaturity>0.5)]))],,]
+    can_rate[which(immaturity>0.5)] <- reg_can_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity)[which(immaturity>0.5)])],,]
+    can_rate[which(can_rate==0.5)] <- reg_can_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity)[which(immaturity>0.5)])],,]
     
     comp_rate <- new.magpie(getRegions(can_she_rate),getYears(mtran),getNames(can_she_rate),fill=NA)
     comp_rate_brown <- new.magpie(getRegions(can_she_rate),getYears(mtran),getNames(can_she_rate),fill=NA)
     for (status in getNames(can_she_rate)) {
-      nonzero_countries <- getRegions(mtran[which(mtran[,,status]!=0)])
-      zero_countries <- getRegions(mtran[which(mtran[,,status]==0)])
-      can_she_rate[,,status][which(immaturity>0.5)] <- reg_can_she_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity[which(immaturity>0.5)]))],,status]
-      she_rate[,,status][which(immaturity>0.5)] <- reg_she_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity[which(immaturity>0.5)]))],,status]
+      nonzero_countries <- getRegions(mtran)[which(mtran[,,status]!=0)]
+      zero_countries <- getRegions(mtran)[which(mtran[,,status]==0)]
+      can_she_rate[,,status][which(immaturity>0.5)] <- reg_can_she_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity)[which(immaturity>0.5)])],,status]
+      she_rate[,,status][which(immaturity>0.5)] <- reg_she_rate[map$RegionCode[which(map$CountryCode %in% getRegions(immaturity)[which(immaturity>0.5)])],,status]
       # Derive completion rates to be used in the 2025 capacity estimation
       if (status=="shelved") {
         comp_rate[,,status] <- 1 - can_rate[,,status]
@@ -606,6 +606,10 @@ readGCPT <- function(subtype) {
     #   summarise(EF_w_mean = weighted.mean(`Emission factor (kg of CO2 per TJ)`,`Capacity (MW)`))
     
     if (subtype=="emissions") {
+      bau_emi <- toolCountryFill(as.magpie(bau_emi),fill=0,verbosity=2)
+      green_emi <- toolCountryFill(as.magpie(green_emi),fill=0,verbosity=2)
+      brown_emi <- toolCountryFill(as.magpie(brown_emi),fill=0,verbosity=2)
+      norm_emi <- toolCountryFill(as.magpie(norm_emi),fill=0,verbosity=2)
       return(mbind(bau_emi,green_emi,brown_emi,norm_emi))
     }
   }
