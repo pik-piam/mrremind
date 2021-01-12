@@ -30,7 +30,9 @@ calcCapacityFactor <- function(){
   ### Global Coal Plant Tracker Calcs ###
   # Read coal capacity and generation data to derive historical capacity factor rules
   # Read generation data from Energy Balances
+  setConfig(forcecache=T)
   coalgen_c <- calcOutput("IO",subtype="output",aggregate = F)[,2003:2015,"pecoal.seel"]
+  setConfig(forcecache=F)
   coalgen_c <- dimSums(coalgen_c,dim=3)
   map <- toolGetMapping(getConfig("regionmapping"),type="regional")
   coalgen_R <- toolAggregate(coalgen_c,map,weight=NULL)
@@ -56,7 +58,7 @@ calcCapacityFactor <- function(){
     }
     #Replace countries without coal power with regional capacity factor.
     coal_factor_c[,i,][which(!is.finite(coal_factor_c[,i,]))] <- 
-      coal_factor_R[map$RegionCode[which(map$CountryCode %in% getRegions(coal_factor_c[which(!is.finite(coal_factor_c[,i,]))]))],i,]
+      coal_factor_R[map$RegionCode[which(map$CountryCode %in% getRegions(coal_factor_c)[which(!is.finite(coal_factor_c[,i,]))])],i,]
     # The derived coal capacity factors for Bosnia, Ireland and Myanmar are > 1 in some years for as yet unclear reasons.
     coal_factor_c[,i,][which(coal_factor_c[,i,]>1)] <- max(coal_factor_c[,i,][which(coal_factor_c[,i,]<1)])
   }
@@ -82,8 +84,10 @@ calcCapacityFactor <- function(){
   #               aim=as.numeric(global[,,"pc"]),start_year=start_yr,end_year=conv_yr)
   # Define weight aggregation for capacity factors
   # using final energy as a proxy for the existent capacity factor to weight the capacity factor aggregation (it should be changed if the information about the existent capacity factor become available in the future)
+  setConfig(forcecache=T)
   weight <- calcOutput("FE",source="IEA",aggregate=FALSE)[,2015,"FE (EJ/yr)"]
-
+  setConfig(forcecache=F)
+  
   # Return regions aggregation weighted by final energy 
   return(list(x=output, weight=weight,
                unit="% of capacity", 
