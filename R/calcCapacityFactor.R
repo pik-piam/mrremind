@@ -1,8 +1,7 @@
 #' @title calc Capacity Factor
 #' @description provides capacity factor values
-#'
 #' @return magpie object of the capacity factor data
-#' @author Renato Rodrigues
+#' @author Renato Rodrigues, Stephen Bi
 #' @examples
 #' 
 #' \dontrun{ 
@@ -14,19 +13,78 @@ calcCapacityFactor <- function(){
   
   # Read capacity factor inputs
   global <- readSource("REMIND_11Regi", subtype="capacityFactorGlobal", convert = FALSE)
+  # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
+  global[,,"pc"] <- 0.5
   # Read capacity factor rules
   rules <- readSource("REMIND_11Regi", subtype="capacityFactorRules")
-  # Merging global and rules values
+  
   #   Creating new MAgPIE object to store the final capacity values
   output <- new.magpie(getRegions(rules),seq(2005,2150,5),getNames(global)) 
+  
+  
+  # Merging global and rules values
   # Filling MagPIE object with global values
   output[,,getNames(global)] <- global[,,getNames(global)]
-  # Overwritting MAgPie object with rules values
+
+  
+  ### Global Coal Plant Tracker Calcs ###
+  # Read coal capacity and generation data to derive historical capacity factor rules
+  # Read generation data from Energy Balances
+  coalgen_c <- calcOutput("IO",subtype="output",aggregate = F)[,2003:2015,"pecoal.seel"]
+  coalgen_c <- dimSums(coalgen_c,dim=3)
+  map <- toolGetMapping(getConfig("regionmapping"),type="regional")
+  coalgen_R <- toolAggregate(coalgen_c,map,weight=NULL)
+  getNames(coalgen_c) <- "pc"
+  getNames(coalgen_R) <- "pc"
+  
+  #Read coal capacity data from GCPT
+  hist_cap_coal_c <- readSource("GCPT",subtype="historical")
+  hist_cap_coal_R <- toolAggregate(hist_cap_coal_c,rel=map,weight=NULL)
+  
+  #Calculate historical 5-year average capacity factors by country
+  coal_factor_c <- new.magpie(getRegions(hist_cap_coal_c),years = c(2005,2010,2015),names="pc",fill=0)
+  coal_factor_R <- new.magpie(getRegions(hist_cap_coal_R),years = getYears(coal_factor_c),names="pc",fill=0)
+  for (i in c(2005,2010,2015)) {
+    if (paste0("y",(i+2)) %in% getYears(coalgen_c)) {
+      coal_factor_c[,i,] <- dimSums(coalgen_c[,(i-2):(i+2),],dim=2)/(dimSums(hist_cap_coal_c[,(i-2):(i+2),],dim=2)*365*24/277777.77778)
+      coal_factor_R[,i,] <- dimSums(coalgen_R[,(i-2):(i+2),],dim=2)/(dimSums(hist_cap_coal_R[,(i-2):(i+2),],dim=2)*365*24/277777.77778)
+      #coal_factor_c[,i,][which(dimSums(hist_cap_coal_c[,(i-2):(i+2),],dim=2)==0)] <- 0
+    }else {
+      coal_factor_c[,i,] <- dimSums(coalgen_c[,(i-2):i,],dim=2)/(dimSums(hist_cap_coal_c[,(i-2):i,],dim=2)*365*24/277777.77778)
+      coal_factor_R[,i,] <- dimSums(coalgen_R[,(i-2):i,],dim=2)/(dimSums(hist_cap_coal_R[,(i-2):i,],dim=2)*365*24/277777.77778)
+      #coal_factor_c[,i,][which(hist_cap_coal_c[,i,]==0)] <- 0
+    }
+    #Replace countries without coal power with regional capacity factor.
+    coal_factor_c[,i,][which(!is.finite(coal_factor_c[,i,]))] <- 
+      coal_factor_R[map$RegionCode[which(map$CountryCode %in% getRegions(coal_factor_c[which(!is.finite(coal_factor_c[,i,]))]))],i,]
+    # The derived coal capacity factors for Bosnia, Ireland and Myanmar are > 1 in some years for as yet unclear reasons.
+    coal_factor_c[,i,][which(coal_factor_c[,i,]>1)] <- max(coal_factor_c[,i,][which(coal_factor_c[,i,]<1)])
+  }
+  
+  #Derive coal capacity factor rule assumptions for 2020 - 2035 (linear convergence of historical trends to global default)
+  hist_yr <- "y2015"
+  start_yr <- "y2020"
+  end_yr <- "y2030"
+  conv_yr <- "y2035"
+  output[,getYears(output)[which(getYears(output)<start_yr)],"pc"] <- coal_factor_c
+  output[,getYears(output)[which(getYears(output)>=conv_yr)],"pc"] <- global[,,"pc"]
+  slope <- (output[,conv_yr,'pc'] - output[,hist_yr,'pc']) / (as.numeric(gsub("y","",conv_yr)) - as.numeric(gsub("y","",hist_yr)))
+  for (t in getYears(output)[which(getYears(output)>=start_yr & getYears(output)<=end_yr)]) {
+    output[,t,"pc"] <- output[,hist_yr,"pc"] + slope * (as.numeric(gsub("y","",t)) - as.numeric(gsub("y","",hist_yr)))
+  }
+  
+  # Overwriting MAgPie object with rules values
   output[getRegions(rules),getYears(rules),getNames(rules)] <- ifelse(rules[getRegions(rules),getYears(rules),getNames(rules)]!=0, rules[getRegions(rules),getYears(rules),getNames(rules)], output[getRegions(rules),getYears(rules),getNames(rules)]) 
+  
+  # Convergence and lin.convergence functions are not working...
+  # output[,getYears(output)[which(getYears(output)>=hist_yr & getYears(output)<=conv_yr)],"pc"] <- 
+  #   convergence(origin=output[,getYears(output)[which(getYears(output)>=hist_yr & getYears(output)<=conv_yr)],"pc"],
+  #               aim=as.numeric(global[,,"pc"]),start_year=start_yr,end_year=conv_yr)
   # Define weight aggregation for capacity factors
   # using final energy as a proxy for the existent capacity factor to weight the capacity factor aggregation (it should be changed if the information about the existent capacity factor become available in the future)
-  weight <- calcOutput("FE",aggregate=FALSE)[,2005,"FE (EJ/yr)"]
-  # Return regions aggreggation weighted by final energy 
+  weight <- calcOutput("FE",source="IEA",aggregate=FALSE)[,2015,"FE (EJ/yr)"]
+
+  # Return regions aggregation weighted by final energy 
   return(list(x=output, weight=weight,
                unit="% of capacity", 
                description="Installed capacity availability - capacity factor (fraction of the year that a plant is running)"              

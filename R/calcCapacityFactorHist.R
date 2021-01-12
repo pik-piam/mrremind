@@ -2,7 +2,7 @@
 #' @description provides capacity factor values
 #'
 #' @return magpie object of the capacity factor data
-#' @author Renato Rodrigues
+#' @author Renato Rodrigues, Stephen Bi
 #' @examples
 #' 
 #' \dontrun{ 
@@ -43,6 +43,7 @@ calcCapacityFactorHist <- function(){
   hist_gen <- hist_gen[,2015,rem_Irena_map$irena]
   getNames(hist_gen) <- rem_Irena_map$rem
   hist_gen[is.na(cf_realworld)] <- 0
+  
   return(list(x=cf_realworld, weight=hist_gen,
                unit="% of capacity", 
                description="Installed capacity availability in 2015 - capacity factor (fraction of the year that a plant is running)"              

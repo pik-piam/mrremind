@@ -124,11 +124,11 @@ convertBP <- function(x,subtype){
     getRegions(x) <- gsub("\\bUS\\b","USA",getRegions(x))
     getRegions(x) <- gsub(pattern = "China Hong Kong SAR","Hong Kong",x = getRegions(x))
     other_africas <- c("Other Northern Africa","Other Southern Africa","Middle Africa","Eastern Africa","Western Africa")
-    x["Other Africa",,] <- dimSums(x[c(other_africas,"Other Africa")],na.rm = T,dim = 1)
+    x["Other Africa",,] <- dimSums(x[c(other_africas,"Other Africa"),,],na.rm = T,dim = 1)
     x <- x[other_africas,,invert=T]
     
     other_samicas <- c("Other South America","Other Caribbean","Central America")
-    x["Other S & Cent America",,] <- dimSums(x[c(other_samicas,"Other S & Cent America")],dim=1,na.rm = T)
+    x["Other S & Cent America",,] <- dimSums(x[c(other_samicas,"Other S & Cent America"),,],dim=1,na.rm = T)
     x <- x[other_samicas,,invert=T]
 
   

@@ -1,7 +1,7 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.35.5
+Version: 0.38.4
 Date: 2021-01-11
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
@@ -60,5 +60,6 @@ Suggests:
     knitr,
     testthat,
     rmarkdown,
-    ggplot2
+    ggplot2,
+    covr
 VignetteBuilder: knitr
