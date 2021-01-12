@@ -102,7 +102,6 @@ fullREMIND <- function(rev=0) {
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
-  calcOutput("Capacity", subtype="coal2025",          round=6,  file="p47_coalCapCOVID.cs4r")
   calcOutput("CapacityFactor",                        round=6,  file="f_cf.cs3r")
   calcOutput("StorageFactor",                         round=6,  file="f32_factorStorage.cs4r")
   calcOutput("GridFactor",                            round=6,  file="p32_grid_factor.cs4r")
