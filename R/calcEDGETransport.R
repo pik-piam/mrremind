@@ -13,14 +13,13 @@
 #'
 #'@importFrom data.table as.data.table
 calcEDGETransport <- function(subtype = "logit_exponent") {
-
   value <- i.value <- NULL
 
   if (subtype %in% c("logit_exponent")) {
-    conv = FALSE
-  }else{
-    conv = TRUE
-  }
+      conv = FALSE
+   }else{
+      conv = TRUE
+   }
 
   weightInt <- calcOutput("GDPppp", aggregate = F)
   get_weight <- function(data, weightInt){
@@ -59,32 +58,27 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "Logit exponent values for transport alternatives"
          },
          "harmonized_intensities" = {
-           weight = NULL
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport: [EJ/Mpkm]; freight transport: [EJ/Mtkm]"
            description = "Energy intensity for transport modes and fuel, harmonized on IEA balances"
          },
          "value_time" = {
-           weight = NULL
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Value of time for passenger transport modes"
          },
-         "SW" = {
-           weight = NULL
-           unit = "[-]"
-           description = "Share weight, a dimensionless parameter reflecting consumer preferences."
-         },
          "pref" = {
-           weight = NULL
+           weight = get_weight(data, weightInt)
            unit = "LDVs 4wheelers: inconvenience cost [1990$/pkm]; all other modes: [-] share weight, a dimensionless parameter reflecting consumer preferences"
            description = "Inconvenience cost reflecting availability of infrastructure"
          },
          "price_nonmot" = {
-           weight = NULL
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Price for non motorized transport modes (Walking; Cycling)"
          },
          "UCD_NEC_iso" = {
-           weight = NULL
+           weight = get_weight(data, weightInt)
            unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Non energy costs for all motorized transport modes, both total and purchase for LDVs"
          },
