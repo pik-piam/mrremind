@@ -670,7 +670,8 @@ calcFEdemand <- function(subtype = "FE") {
       pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
       mutate(!!sym('year') := paste0('y', !!sym('Year')),
              !!sym('scenario') := paste0('gdp_', !!sym('scenario')), 
-             !!sym('item') := paste0('ue_', !!sym('Data2'))) %>% 
+             !!sym('item') := paste0('ue_', sub('_(production|VA)$', '',
+                                                !!sym('Data2')))) %>% 
       select('Region', 'year', 'scenario', 'item', 'value') %>% 
       filter(!!sym('year') %in% unique(getYears(reminditems))) %>% 
       as.magpie(tidy = TRUE)
