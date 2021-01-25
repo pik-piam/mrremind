@@ -214,9 +214,15 @@ calcPotentialHydro <- function() {
   data["FIN",,"maxprod"] <- data["FIN",,"maxprod"]*1.05
   data["DNK",,"maxprod"] <- data["DNK",,"maxprod"]*1.05
   data["SWE",,"maxprod"] <- data["SWE",,"maxprod"]*1.05
+  data["DEU",,"maxprod"] <- data["DEU",,"maxprod"]*1.05
   
-                  
-  
+  data["CZE",,"maxprod"] <- data["CZE",,"maxprod"]*1.05
+  data["EST",,"maxprod"] <- data["EST",,"maxprod"]*1.05
+  data["LVA",,"maxprod"] <- data["LVA",,"maxprod"]*1.05
+  data["LTU",,"maxprod"] <- data["LTU",,"maxprod"]*1.05
+  data["POL",,"maxprod"] <- data["POL",,"maxprod"]*1.05
+  data["SVK",,"maxprod"] <- data["SVK",,"maxprod"]*1.05
+
   return(list(x                 = data,
               weight            = w,
               unit              = "EJ/a",
