@@ -103,7 +103,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            description = "CES level transport demand."
          },
          "fe_demand_tech" = {
-           weight = get_weight(data, weightInt)
+           weight = NULL
            unit = "TWa"
            description = "FE demand divided by technologies for different ES on the CES level."
          },
