@@ -44,9 +44,9 @@ Malik A, Schreyer F, Soergel B, Rottoli
 M, Mishra A, Dirnaichner A, Pehl M,
 Giannousakis A, Klein D, Strefler J,
 Feldhaus L, Brecha R, Rauner S,
-Dietrich J, Bi S (2020). _mrremind:
+Dietrich J, Bi S (2021). _mrremind:
 MadRat REMIND Input Data Package_. R
-package version 0.35.4.
+package version 0.39.1.
 
 A BibTeX entry for LaTeX users is
 
