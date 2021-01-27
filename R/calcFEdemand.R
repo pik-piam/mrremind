@@ -576,7 +576,22 @@ calcFEdemand <- function(subtype = "FE") {
   getNames(reminditems) <- gsub("SDP","gdp_SDP",getNames(reminditems))
 
   if ('FE' == subtype) {
-
+    
+    # ---- _replace industry FE demand for Europe by REMIND-EU-tuned data ----
+    # read REMIND-EU data
+    replacement <- readSource(type = 'REMIND_EU',
+                              subtype = 'fixed_shares_FE_calibration_data',
+                              convert = FALSE)
+    
+    # harmonise dimension names
+    dimnames(replacement) <- setNames(
+      dimnames(replacement),
+      names(dimnames(reminditems)))
+    
+    # overwrite data
+    reminditems[getRegions(replacement),getYears(replacement),
+                getNames(replacement)] <- replacement
+    
     # ---- _modify SSP1/SSP2 data of CHN/IND further ----
     # To achieve projections more in line with local experts, apply tuning 
     # factor f to liquids and gas consumption in industry in CHN and IND. 
