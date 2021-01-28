@@ -26,17 +26,7 @@ readREMIND_EU <- function(subtype) {
                col_names = c('t', 'regi', 'SSP', 'pf', 'value'),
                col_types = 'icccd',
                comment = '*') %>% 
-        # # add useless NA data to please the all-mighty madrat god
-        # complete(nesting(t, SSP, pf), 
-        #          regi = read_delim(
-        #            file = system.file('extdata', 'iso_country.csv', 
-        #                               package = 'madrat'),
-        #            delim = ';',
-        #            col_names = 'iso3c',
-        #            col_types = '-c',
-        #            skip = 1) %>% 
-        #            pull('iso3c')) %>% 
-        as.magpie(spatial = 4, temporal = 1) %>% 
+        as.magpie(spatial = 2, temporal = 1) %>% 
         return()
     },
     
