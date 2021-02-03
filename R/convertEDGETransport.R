@@ -21,21 +21,24 @@ convertEDGETransport = function(x, subtype) {
     x = toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
   }
 
-  ## for extensive values, the weight is GDP
-  if (subtype %in% c("fe_demand_tech", "pm_trp_demand", "pm_fe_demand_EDGETbased")) {
+  ## for extensive values and the edge_esm module, the weight is ES
+  if (subtype == "fe_demand_tech") {
+    wgt = readSource("EDGETransport", subtype ="demISO")
+    ## rename the columns of the weight
+    x = toolAggregate(x = x, weight = wgt, rel = mappingfile, from = "region", to = "iso")
+  }
+
+  ## for extensive values and the complex module, the weight is GDP
+  if (subtype == "pm_fe_demand_EDGETbased") {
     gdp <- calcOutput("GDPppp", aggregate = F)[,,"gdp_SSP2"]
     ## interpolate missing time steps
     gdp <- time_interpolate(gdp, getYears(x))
-    ## the time step is named differently across subtypes, select the right one
-    if (subtype == "pm_fe_demand_EDGETbased") {
-      yr = "year"
-    } else {
-      yr = "tall"
-    }
+
     ## rename the columns of the weight
-    getSets(gdp) <- c("iso", yr, "variable")
+    getSets(gdp) <- c("iso", "year", "variable")
     x = toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
   }
+
 
   if (subtype %in% c("shares_LDV_transport")) {
     ## only ConvCase (ICE predominant LDV market and road market) is used as input data
