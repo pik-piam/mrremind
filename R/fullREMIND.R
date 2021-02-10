@@ -156,6 +156,19 @@ fullREMIND <- function(rev=0) {
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+
+  ## run EDGE-T
+  lapply(x = c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
+    FUN = generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/"),
+                           output_folder = paste0(getConfig("mainfolder"), "/output/EDGETransport/"),
+                           EDGE_scenario = x,
+                           REMIND_scenario = "SSP2",
+                           saveRDS = FALSE))
+
+  ## collect the scenarios in the corresponding source folder
+  collectScens(paste0(getConfig("mainfolder"), "/output/EDGETransport/"))
+
+  ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
            "pm_trp_demand", "pm_fe_demand_EDGETbased", "pm_bunker_share_in_nonldv_fe"),
@@ -164,12 +177,12 @@ fullREMIND <- function(rev=0) {
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,
                                        file=paste0(stype, ".cs4r"), aggregate=T))
          })
-  ## logit exponent has not to be aggregated since it is global
+
   lapply(c("logit_exponent"),
          function(stype){
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,
-                                       file=paste0(stype, ".cs4r"), aggregate=F))
+                                       file=paste0(stype, ".cs4r"), aggregate=F)) ## logit exponent has not to be aggregated since it is global
          })
 
 
