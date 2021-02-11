@@ -160,13 +160,14 @@ fullREMIND <- function(rev=0) {
   ## run EDGE-T
   lapply(x = c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
     FUN = generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/"),
-                           output_folder = paste0(getConfig("mainfolder"), "/output/EDGETransport/"),
+                           output_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/output"),
                            EDGE_scenario = x,
                            REMIND_scenario = "SSP2",
                            saveRDS = FALSE))
 
   ## collect the scenarios in the corresponding source folder
-  collectScens(paste0(getConfig("mainfolder"), "/output/EDGETransport/"))
+  collectScens(scen_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/output"),
+               out_folder = paste0(getConfig("mainfolder"), "/output/EDGETransport/"))
 
   ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
