@@ -4,7 +4,7 @@
 
 calcHistorical <- function() {
   
-  fillZeros <- function(data){
+  .fillZeros <- function(data){
     Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
     tmp <- data[Non28EUcountries,,]
     tmp[is.na(tmp)] <- 0
@@ -184,16 +184,16 @@ calcHistorical <- function() {
   emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
   
   # EEA GHG Projections
-  EEA_GHGProjections <- fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="projections"))
+  EEA_GHGProjections <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="projections"))
   
   # EEA GHG Sectoral Historical Data
-  EEA_GHGSectoral <- fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral"))
+  EEA_GHGSectoral <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral"))
   EEA_GHGSectoral <- add_dimension(EEA_GHGSectoral, dim=3.1,add="model",nm="EEA_historical")
   
-  EEA_GHGTotal <- fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="total"))
+  EEA_GHGTotal <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="total"))
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim=3.1,add="model",nm="EEA_historical")
 
-  EEA_GHGES <- fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ES"))
+  EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ES"))
   EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
     
   # EU Reference Scenario
@@ -204,13 +204,13 @@ calcHistorical <- function() {
   EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
 
   # ARIADNE Reference Scenario
-  ARIADNE_ReferenceScenarioGdp <- fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp"))
+  ARIADNE_ReferenceScenarioGdp <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp"))
   ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp, dim=3.1, add="model", nm="ARIADNE")
 
-  ARIADNE_ReferenceScenarioGdpCorona <- fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona"))
+  ARIADNE_ReferenceScenarioGdpCorona <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona"))
   ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona, dim=3.1, add="model", nm="ARIADNE - Corona")
 
-  ARIADNE_ReferenceScenarioPop <- fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="population"))
+  ARIADNE_ReferenceScenarioPop <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="population"))
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
 
   IEA_ETPMain <- readSource("IEA_ETP", subtype="main")
@@ -229,16 +229,21 @@ calcHistorical <- function() {
     setNames(eurostatEmi[,,"CH4.All sectors (excluding memo items)"],"Emi|CH4 (Mt CH4/yr)")/28,
     setNames(eurostatEmi[,,"N2O.All sectors (excluding memo items)"],"Emi|N2O (kt N2O/yr)")/(265 * 44 / 28)*1000 
   )
-  emiEurostat <- add_dimension(emiEurostat, dim=3.1, add="model",nm="Eurostat")
+  emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
+  
+  # INNOPATHS data
+  INNOPATHS <- readSource("INNOPATHS")
+  INNOPATHS <- add_dimension(INNOPATHS, dim = 3.1, add = "model", nm = "INNOPATHS")
   
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
   # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list(fe_iea,fe_weo, fe_proj, pe_iea,pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, emiMktESOthers, EU_ReferenceScenario, emiEurostat,
-                  ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop, 
-                  EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGES, EEA_GHGProjections, Emi_Reference, 
-                  IEA_ETPMain, IEA_ETPIndustrySub)
+  varlist <- list(fe_iea, fe_weo, fe_proj, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, 
+                  LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, emiMktES, emiMktETS, 
+                  emiMktESOthers, EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
+                  ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGES, EEA_GHGProjections, Emi_Reference, 
+                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
