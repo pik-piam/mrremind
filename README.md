@@ -1,6 +1,10 @@
 # MadRat REMIND Input Data Package
 
+<<<<<<< HEAD
 R package **mrremind**, version **0.42.1**
+=======
+R package **mrremind**, version **0.42.0**
+>>>>>>> Remove denpendency on bioconductor package
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)   [![R build status](https://github.com/pik-piam/mrremind/workflows/check/badge.svg)](https://github.com/pik-piam/mrremind/actions) [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/mrremind)
 
@@ -50,7 +54,11 @@ A BibTeX entry for LaTeX users is
   title = {mrremind: MadRat REMIND Input Data Package},
   author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich and Stephen Bi},
   year = {2021},
+<<<<<<< HEAD
   note = {R package version 0.42.1},
+=======
+  note = {R package version 0.42.0},
+>>>>>>> Remove denpendency on bioconductor package
 }
 ```
 

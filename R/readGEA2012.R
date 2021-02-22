@@ -10,6 +10,7 @@
 #' }
 #' 
 #' @importFrom readxl read_excel
+#' @importFrom madrat toolNAreplace
 
 readGEA2012 <- function(subtype) {
   EJ_2_TWyr <- 1/31.536
