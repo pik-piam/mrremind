@@ -127,9 +127,9 @@ readJRC_IDEES <- function(subtype)
                 'CO2 emissions|Pharmaceutical products etc. (kt CO2)',
                 
                 NA,
-                'Value added intensity|Basic chemicals (VA in 20ac2010/t of output)',
-                'Value added intensity|Other chemicals (VA in 20ac2010/t of output)',
-                'Value added intensity|Pharmaceutical products etc. (VA in 20ac2010/t of output)',
+                'Value added intensity|Basic chemicals (VA in \u20ac2010/t of output)',
+                'Value added intensity|Other chemicals (VA in \u20ac2010/t of output)',
+                'Value added intensity|Pharmaceutical products etc. (VA in \u20ac2010/t of output)',
                 NA,
                 'Energy intensity|Basic chemicals (toe/t of output)',
                 'Energy intensity|Basic chemicals|non energy (toe/t of output)',
