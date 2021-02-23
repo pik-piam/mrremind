@@ -156,18 +156,25 @@ fullREMIND <- function(rev=0) {
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+  infoConfig = getConfig()
+  print(infoConfig$regionmapping)
+  if (infoConfig$regionmapping == "regionmappingH12.csv") {
+    ## run EDGE-T
+    lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
+           function(x){
+             generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
+                              output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
+                              EDGE_scenario = x,
+                              REMIND_scenario = "SSP2",
+                              saveRDS = FALSE)
+           })
 
-  ## run EDGE-T
-  lapply(x = c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
-    FUN = generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/"),
-                           output_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/output"),
-                           EDGE_scenario = x,
-                           REMIND_scenario = "SSP2",
-                           saveRDS = FALSE))
+    ## collect the scenarios in the corresponding source folder
+    collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
+                 output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
 
-  ## collect the scenarios in the corresponding source folder
-  collectScens(scen_folder = paste0(getConfig("mainfolder"), "/output/EDGE-T_standalone/output"),
-               out_folder = paste0(getConfig("mainfolder"), "/output/EDGETransport/"))
+  }
+
 
   ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
