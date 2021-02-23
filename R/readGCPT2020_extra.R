@@ -17,10 +17,11 @@ readGCPT2020_extra <- function(subtype) {
   
   `Announced + Pre-permit + Permitted` <- NULL
   Jan15 <- NULL
-  Jul16 <- NULL
-  Jul17 <- NULL
-  Jul18 <- NULL
-  Jul19 <- NULL
+  Jan16 <- NULL
+  Jan17 <- NULL
+  Jan18 <- NULL
+  Jan19 <- NULL
+  Jan20 <- NULL
   Jul20 <- NULL
   `Tracker ID` <- NULL
   Country <- NULL
@@ -71,31 +72,93 @@ readGCPT2020_extra <- function(subtype) {
   additions <- read_excel("GCPT_data_Jul2020.xlsx",sheet="Additions",skip=3,range = c("A4:V112"))
   colnames(additions)[length(colnames(additions))]="2020"
   retirements <- read_excel("GCPT_data_Jul2020.xlsx",sheet="Retirements",skip=3,range = c("A4:V112"))
+  add_startyr <- as.numeric(colnames(additions)[2])
+  add_endyr <- as.numeric(colnames(additions)[length(additions)])
   
   mothballed <- read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx",sheet=2)
-  mothballed <- mothballed %>% select(`Tracker ID`,Country,MW,Jul20,Jul19,Jul18,Jul17,Jul16,Jan15)
-  colnames(mothballed)[4:9] <- c(2020:2015)
-  mothballed <- filter(mothballed,(`2019`=="Moth" | `2018`=="Moth" | `2017`=="Moth" | `2016`=="Moth") & `2015`!="Moth" & `2020`!="Oper")
-  cap_moth <- mothballed %>% group_by(Country) %>% summarise(Cap_Moth=sum(MW))
-  cap_moth$Country <- toolCountry2isocode(cap_moth$Country)
-  cap_moth <- as.magpie(cap_moth,spatial=1)
-  cap_moth <- toolCountryFill(cap_moth,verbosity=2,fill=0,no_remove_warning = "KOS")
+  mothballed <- mothballed %>% select(Country,MW,Jul20,Jan20,Jan19,Jan18,Jan17,Jan16,Jan15)
+  colnames(mothballed)[3:9] <- c(2020:2014)
+  status_startyr <- as.numeric(colnames(mothballed)[ncol(mothballed)])
+  status_endyr <- as.numeric(colnames(mothballed)[3])
   
-  cap <- new.magpie(getRegions(cap2020),years=2000:2020,fill = 0)
-  for (i in 2000:2019) {
-    cap_add <- additions %>% select(Country,as.character(i):`2020`)
-    cap_add <- mutate(cap_add,Added_Cap=rowSums(cap_add[,2:ncol(cap_add)]))
+  # Filter for all plants that were mothballed during this period
+  mothballed <- mothballed %>% 
+    filter(rowSums(across(everything(),~grepl("Moth",.)))>0) %>% 
+    filter(rowSums(across(everything(),~grepl("Oper",.)))>0) 
+  
+  # Calculate capacity that was mothballed or restarted each year since 2014 (to be fed into back-calculation of annual capacity below)
+  cap_moth <- new.magpie(getRegions(cap2020),years=as.numeric(colnames(additions)[2:length(additions)]),names=c("Operating","pre_status"),fill=0)
+  for (j in 4:ncol(mothballed)) {
+    # Mothballed plants in 2020 which were operating earlier
+    oper_moth <- mothballed %>% 
+      filter(mothballed[,j]=="Oper" & mothballed[,3]=="Moth") %>%
+      group_by(Country) %>%
+      summarize(sum=sum(MW))
+    oper_moth$Country <- toolCountry2isocode(oper_moth$Country)
+    oper_moth <- suppressWarnings(
+      toolCountryFill(as.magpie(oper_moth,spatial=1,temporal=as.numeric(colnames(mothballed)[j]),datacol=2),verbosity=2,fill=0,no_remove_warning = "KOS")
+    )
+    # Retired plants in 2020 which were mothballed earlier
+    moth_ret <- mothballed %>%
+      filter(mothballed[,j]=="Moth" & mothballed[,3]=="Ret") %>%
+      group_by(Country) %>%
+      summarize(sum=sum(MW))
+    moth_ret$Country <- toolCountry2isocode(moth_ret$Country)
+    moth_ret <- suppressWarnings(
+      toolCountryFill(as.magpie(moth_ret,spatial=1,temporal=as.numeric(colnames(mothballed)[j]),datacol=2),verbosity=2,fill=0,no_remove_warning = "KOS")
+    )
+    # Operating plants in 2020 which were mothballed earlier
+    moth_oper <- mothballed %>% 
+      filter(mothballed[,j]=="Moth" & mothballed[,3]=="Oper") %>%
+      group_by(Country) %>%
+      summarize(sum=sum(MW))
+    moth_oper$Country <- toolCountry2isocode(moth_oper$Country)
+    moth_oper <- suppressWarnings(
+      toolCountryFill(as.magpie(moth_oper,spatial=1,temporal=as.numeric(colnames(mothballed)[j]),datacol=2),verbosity=2,fill=0,no_remove_warning = "KOS")
+    )
+    # Currently mothballed plants which were recently under construction or in planning are added to annual capacity because they are subtracted below as "additions"
+    constr_moth <- mothballed %>% 
+      filter(mothballed[,3]=="Moth" & mothballed[,j]!="Moth" & mothballed[,j]!="Oper") %>%
+      group_by(Country) %>%
+      summarize(sum=sum(MW))
+    constr_moth$Country <- toolCountry2isocode(constr_moth$Country)
+    constr_moth <- suppressWarnings(
+      toolCountryFill(as.magpie(constr_moth,spatial=1,temporal=as.numeric(colnames(mothballed)[j]),datacol=2),verbosity=2,fill=0,no_remove_warning = "KOS")
+    )
+    
+    # Annual flux of mothballing/restarting
+    cap_moth[,as.numeric(colnames(mothballed)[j]),"Operating"] <- oper_moth + constr_moth - moth_oper - moth_ret
+  }
+  
+  # Capacity with mothballed status in the first and last year shall be added as operating capacity in years prior to status tracking 
+  moth_moth <- mothballed %>% 
+    filter(mothballed[,3]=="Moth" & mothballed[,j]=="Moth") %>%
+    group_by(Country) %>%
+    summarize(sum=sum(MW))
+  moth_moth$Country <- toolCountry2isocode(moth_moth$Country)
+  moth_moth <- suppressWarnings(
+    toolCountryFill(as.magpie(moth_moth,spatial=1,temporal=as.numeric(colnames(mothballed)[j]),datacol=2),verbosity=2,fill=0,no_remove_warning = "KOS")
+  )
+  cap_moth[,add_startyr:(as.numeric(colnames(mothballed)[j])-1),"pre_status"] <- oper_moth + constr_moth + moth_moth
+  
+  
+  # Back-calculate annual capacity by adding retired and mothballed plants and subtracting added plants each year
+  cap <- new.magpie(getRegions(cap2020),years=as.numeric(colnames(additions)[2:length(additions)]),fill = 0)
+  j <- ncol(mothballed)
+  for (i in add_startyr:(add_endyr-1)) {
+    cap_add <- additions %>% select(Country,as.character(i+1):`2020`)
+    cap_add <- mutate(cap_add,Operating=rowSums(cap_add[,2:ncol(cap_add)]))
     cap_add$Country <- toolCountry2isocode(cap_add$Country)
     cap_add <- as.magpie(cap_add,spatial=1,temporal=i)
     cap_add <- toolCountryFill(cap_add,verbosity=2,fill=0,no_remove_warning = "KOS")
     
-    cap_ret <- retirements %>% select(Country,as.character(i):`2020`)
-    cap_ret <- mutate(cap_ret,Ret_Cap=rowSums(cap_ret[,2:ncol(cap_ret)]))
+    cap_ret <- retirements %>% select(Country,as.character(i+1):`2020`)
+    cap_ret <- mutate(cap_ret,Operating=rowSums(cap_ret[,2:ncol(cap_ret)]))
     cap_ret$Country <- toolCountry2isocode(cap_ret$Country)
     cap_ret <- as.magpie(cap_ret,spatial=1,temporal=i)
     cap_ret <- toolCountryFill(cap_ret,verbosity=2,fill=0,no_remove_warning = "KOS")
     
-    cap[,i,] <- cap2020[,,"Operating"] - cap_add[,,"Added_Cap"] + cap_ret[,,"Ret_Cap"] + cap_moth
+    cap[,i,] <- cap2020[,,"Operating"] - cap_add[,,"Operating"] + cap_ret[,,"Operating"] + cap_moth[,i,"Operating"] + cap_moth[,i,"pre_status"]
   }
   cap[,2020,] <- cap2020_oper
   
@@ -129,25 +192,25 @@ readGCPT2020_extra <- function(subtype) {
     return(mavgRetAge)
   }
   
-  #Return national average lifespans to calculate early retirement adjustment factors 
-  if (subtype=="early_retire") {
-    retired <- retire %>% select(`Tracker ID`,Country,`Plant Age`,`Capacity (MW)`,RETIRED)
-    #Sum up capacity retired in each country in each year 2000-2020
-    early_ret <- retired %>% filter(!is.na(RETIRED)) %>% group_by(Country,.add=TRUE) %>% group_by(RETIRED,.add=TRUE) %>%
-      summarise(Retired_cap=sum(`Capacity (MW)`))
-    early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
-    early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
-    ret_rate <- new.magpie(getRegions(cap),getYears(early_ret),names="Early_Retirement",fill=0)
-    for (t in 2001:2020) {
-      ret_rate[,t,] <- dimSums(early_ret[,(t-1):t,],dim=2)/cap[,t-1,]
-    }
-    ret_rate <- replace_non_finite(ret_rate)
-    max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
-    for (reg in getRegions(ret_rate)) {
-      max_ret[reg,,] <- max(ret_rate[reg,,])
-    }
-    return(max_ret)
-  }
+  # #Return national average lifespans to calculate early retirement adjustment factors 
+  # if (subtype=="early_retire") {
+  #   retired <- retire %>% select(`Tracker ID`,Country,`Plant Age`,`Capacity (MW)`,RETIRED)
+  #   #Sum up capacity retired in each country in each year 2000-2020
+  #   early_ret <- retired %>% filter(!is.na(RETIRED)) %>% group_by(Country,.add=TRUE) %>% group_by(RETIRED,.add=TRUE) %>%
+  #     summarise(Retired_cap=sum(`Capacity (MW)`))
+  #   early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
+  #   early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
+  #   ret_rate <- new.magpie(getRegions(cap),getYears(early_ret),names="Early_Retirement",fill=0)
+  #   for (t in 2001:2020) {
+  #     ret_rate[,t,] <- dimSums(early_ret[,(t-1):t,],dim=2)/cap[,t-1,]
+  #   }
+  #   ret_rate <- replace_non_finite(ret_rate)
+  #   max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
+  #   for (reg in getRegions(ret_rate)) {
+  #     max_ret[reg,,] <- max(ret_rate[reg,,])
+  #   }
+  #   return(max_ret)
+  # }
   
   
   if (subtype=="future" | grepl("emissions",subtype) | grepl("2030",subtype) | grepl("comp_rates",subtype)) {
@@ -226,8 +289,8 @@ readGCPT2020_extra <- function(subtype) {
     # Read Excel sheet with time series data of plant status changes
     status_2020 <- read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx",sheet=2)
     # Remove any plants with unknown (NA) capacity
-    status_2020 <- status_2020 %>% select(`Tracker ID`,Country,MW,Jul20,Jul19,Jul18,Jul17,Jul16,Jan15) %>% filter(!is.na(MW))
-    colnames(status_2020)[4:9] <- c(2020:2015)
+    status_2020 <- status_2020 %>% select(Country,MW,Jul20,Jan20,Jan19,Jan18,Jan17,Jan16,Jan15) %>% filter(!is.na(MW))
+    colnames(status_2020)[3:9] <- c(2020:2014)
     tran <- data.frame(Country=unique(status_2020$Country),shelved=0,she2she=0,she2can=0,she2oper=0,she2ann=0,she2pre=0,pre2she=0,pre2con=0,
                        she2perm=0,she2con=0,newcon=0,con2she=0,con2she2oper=0,con2she2con=0,con2she2can=0,con2can=0,perm2she=0,perm2con=0,
                        con2oper=0,con2she2she=0,plan2she=0,ann=0,ann2oper=0,ann2can=0,ann2she=0,ann2con=0,pre=0,pre2oper=0,pre2can=0,perm=0,
@@ -238,82 +301,82 @@ readGCPT2020_extra <- function(subtype) {
       if (status_2020[i,j]=="XXX") {
         status_2020[i,which(status_2020[i,]=="XXX")] <- "Ann"
       }
-      while (j > 4) {
+      while (j > 3) {
         if (status_2020[i,j]=="She") {
           if (j==ncol(status_2020) || !("She" %in% status_2020[i,j:ncol(status_2020)])) {
             tran$shelved[which(tran$Country==status_2020$Country[i])] <- tran$shelved[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Can") {
+            if (status_2020[i,3]=="Can") {
               tran$she2can[which(tran$Country==status_2020$Country[i])]<- tran$she2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="She") {
+            }else if (status_2020[i,3]=="She") {
               tran$she2she[which(tran$Country==status_2020$Country[i])]<- tran$she2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Oper") {
+            }else if (status_2020[i,3]=="Oper") {
               tran$she2oper[which(tran$Country==status_2020$Country[i])]<- tran$she2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Ann") {
+            }else if (status_2020[i,3]=="Ann") {
               tran$she2ann[which(tran$Country==status_2020$Country[i])]<- tran$she2ann[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Pre") {
+            }else if (status_2020[i,3]=="Pre") {
               tran$she2pre[which(tran$Country==status_2020$Country[i])]<- tran$she2pre[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Perm") {
+            }else if (status_2020[i,3]=="Perm") {
               tran$she2perm[which(tran$Country==status_2020$Country[i])]<- tran$she2perm[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$she2con[which(tran$Country==status_2020$Country[i])]<- tran$she2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }
         }else if (status_2020[i,j]=="Con") {
           if (j==ncol(status_2020)  || !("Con" %in% status_2020[i,(j+1):ncol(status_2020)])) {
             tran$newcon[which(tran$Country==status_2020$Country[i])] <- tran$newcon[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Can") {
+            if (status_2020[i,3]=="Can") {
               tran$con2can[which(tran$Country==status_2020$Country[i])] <- tran$con2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="She") {
+            }else if (status_2020[i,3]=="She") {
               tran$con2she2she[which(tran$Country==status_2020$Country[i])]<- tran$con2she2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Oper") {
+            }else if (status_2020[i,3]=="Oper") {
               tran$con2oper[which(tran$Country==status_2020$Country[i])]<- tran$con2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$con2con[which(tran$Country==status_2020$Country[i])]<- tran$con2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }
         }else if (status_2020[i,j]=="Ann") {
           if (j==ncol(status_2020)  || !("Ann" %in% status_2020[i,(j+1):ncol(status_2020)])) {
             tran$ann[which(tran$Country==status_2020$Country[i])] <- tran$ann[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Can") {
+            if (status_2020[i,3]=="Can") {
               tran$ann2can[which(tran$Country==status_2020$Country[i])] <- tran$ann2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="She") {
+            }else if (status_2020[i,3]=="She") {
               tran$ann2she[which(tran$Country==status_2020$Country[i])]<- tran$ann2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Oper") {
+            }else if (status_2020[i,3]=="Oper") {
               tran$ann2oper[which(tran$Country==status_2020$Country[i])]<- tran$ann2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$ann2con[which(tran$Country==status_2020$Country[i])]<- tran$ann2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }
         }else if (status_2020[i,j]=="Pre") {
           if (j==ncol(status_2020)  || !("Pre" %in% status_2020[i,(j+1):ncol(status_2020)])) {
             tran$pre[which(tran$Country==status_2020$Country[i])] <- tran$pre[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Can") {
+            if (status_2020[i,3]=="Can") {
               tran$pre2can[which(tran$Country==status_2020$Country[i])] <- tran$pre2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="She") {
+            }else if (status_2020[i,3]=="She") {
               tran$pre2she[which(tran$Country==status_2020$Country[i])]<- tran$pre2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Oper") {
+            }else if (status_2020[i,3]=="Oper") {
               tran$pre2oper[which(tran$Country==status_2020$Country[i])]<- tran$pre2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$pre2con[which(tran$Country==status_2020$Country[i])]<- tran$pre2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }
         }else if (status_2020[i,j]=="Perm") {
           if (j==ncol(status_2020)  || !("Perm" %in% status_2020[i,(j+1):ncol(status_2020)])) {
             tran$perm[which(tran$Country==status_2020$Country[i])] <- tran$perm[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Can") {
+            if (status_2020[i,3]=="Can") {
               tran$perm2can[which(tran$Country==status_2020$Country[i])] <- tran$perm2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="She") {
+            }else if (status_2020[i,3]=="She") {
               tran$perm2she[which(tran$Country==status_2020$Country[i])]<- tran$perm2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Oper") {
+            }else if (status_2020[i,3]=="Oper") {
               tran$perm2oper[which(tran$Country==status_2020$Country[i])]<- tran$perm2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$perm2con[which(tran$Country==status_2020$Country[i])]<- tran$perm2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }
         }else if (status_2020[i,j]=="Moth") {
           if (j==ncol(status_2020)  || !("Moth" %in% status_2020[i,(j+1):ncol(status_2020)])) {
             tran$moth[which(tran$Country==status_2020$Country[i])] <- tran$moth[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Ret") {
+            if (status_2020[i,3]=="Ret") {
               tran$moth2ret[which(tran$Country==status_2020$Country[i])] <- tran$moth2ret[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }else if (any(status_2020[i,4:(j-1)]=="Oper")) {
               tran$moth2oper[which(tran$Country==status_2020$Country[i])] <- tran$moth2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
@@ -325,11 +388,11 @@ readGCPT2020_extra <- function(subtype) {
         if (status_2020[i,j]=="She") {
           if (status_2020[i,j+1]=="Con") {
             tran$con2she[which(tran$Country==status_2020$Country[i])]<- tran$con2she[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            if (status_2020[i,4]=="Oper") {
+            if (status_2020[i,3]=="Oper") {
               tran$con2she2oper[which(tran$Country==status_2020$Country[i])] <- tran$con2she2oper[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Con") {
+            }else if (status_2020[i,3]=="Con") {
               tran$con2she2con[which(tran$Country==status_2020$Country[i])] <- tran$con2she2con[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
-            }else if (status_2020[i,4]=="Can") {
+            }else if (status_2020[i,3]=="Can") {
               tran$con2she2can[which(tran$Country==status_2020$Country[i])] <- tran$con2she2can[which(tran$Country==status_2020$Country[i])] + status_2020$MW[i]
             }
           }else if (status_2020[i,j+1] %in% c("Ann","Pre","Perm")) {
