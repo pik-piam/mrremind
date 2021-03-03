@@ -166,6 +166,9 @@ fullREMIND <- function(rev=0) {
                               output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
                               EDGE_scenario = x,
                               REMIND_scenario = "SSP2",
+                              IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
+                              GDP_country = calcOutput("GDPppp", aggregate = F),
+                              POP_country = calcOutput("Population", aggregate = F),
                               saveRDS = FALSE)
            })
 
