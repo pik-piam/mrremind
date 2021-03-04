@@ -6,6 +6,7 @@
 #' @param rev data revision which should be used as input (positive numeric).
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
+#' @importFrom edgeTransport collectScens generateEDGEdata
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
