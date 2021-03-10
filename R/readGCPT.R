@@ -12,7 +12,7 @@
 readGCPT <- function(subtype) {
   map <- toolGetMapping("regionmappingH12.csv",type="regional")
   
-  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates",
+  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates",
                        "historical2020","status2020","future2020","lifespans2020","emissions2020","comp_rates2020","2030"))) {
     stop("Invalid subtype!")
   }
@@ -44,6 +44,7 @@ readGCPT <- function(subtype) {
   Jan20 <- NULL
   Jul20 <- NULL
   Country <- NULL
+  CountryCode <- NULL
   MW <- NULL
   `2015` <- NULL
   `2016` <- NULL
@@ -247,7 +248,7 @@ readGCPT <- function(subtype) {
   #Brown COVID recovery scenario: Countries extend their average lifespans by 5 years
   retireBrown <- retire %>% select(Country,`Planned Retire`,`Plant age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
     filter(Status %in% c("Operating")) %>% 
-    filter(`Planned Retire`<=2027 | `Plant age` >= (Avg_Ret_Age)) %>%
+    filter(`Planned Retire`<=2028 | `Plant age` >= (Avg_Ret_Age)) %>%
     filter(!is.na(`Capacity (MW)`)) %>%
     group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
   
@@ -258,7 +259,7 @@ readGCPT <- function(subtype) {
   #Green COVID recovery scenario: Countries maintain their historical average lifespans
   retireGreen <- retire %>% select(Country,`Planned Retire`,`Plant age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
     filter(Status %in% c("Operating")) %>% 
-    filter(`Planned Retire`<=2027 | `Plant age` >= (Avg_Ret_Age-5)) %>%
+    filter(`Planned Retire`<=2028 | `Plant age` >= (Avg_Ret_Age-5)) %>%
     filter(!is.na(`Capacity (MW)`)) %>%
     group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
   
@@ -290,7 +291,7 @@ readGCPT <- function(subtype) {
   #While non-OECD members must phase out coal power by 2050
   nonOECDppca <- ppca[which(!(ppca %in% oecdPPCA))]
   #There are several countries which have explicit plans to abandon coal power in their COVID recovery packages
-  greenNations <- c(EU27[-which(EU27=="POL")][-which(EU27 %in% ppca)],"PHL","BGD","EGY","PAK","AUS","KOR","VNM")
+  greenNations <- c(EU27[-which(EU27=="POL")][-which(EU27 %in% ppca)],"PHL","BGD","EGY","PAK","AUS","KOR","VNM","CHL")
   
   # Remove any plants with unknown (NA) capacity from plant status data frame
   plant_status <- plant_status %>% filter(!is.na(MW))
@@ -501,13 +502,17 @@ readGCPT <- function(subtype) {
     glo_comp_rate[,,status] <- weighted.mean(comp_rate[nonzero_countries,,status],mtran[nonzero_countries,,status])
     glo_comp_rate_brown[,,status] <- weighted.mean(comp_rate_brown[nonzero_countries,,status],mtran[nonzero_countries,,status])
   
-    # if (length(nonzero_countries)>0) {
-    #   reg_comp_rate[unique(filter(map,CountryCode %in% nonzero_countries)$RegionCode),,status] <- toolAggregate(comp_rate[nonzero_countries,,status],filter(map,CountryCode %in% nonzero_countries),mtran[nonzero_countries,,status],partrel = TRUE)
-    #   reg_comp_rate_brown[unique(filter(map,CountryCode %in% nonzero_countries)$RegionCode),,status] <- toolAggregate(comp_rate_brown[nonzero_countries,,status],filter(map,CountryCode %in% nonzero_countries),mtran[nonzero_countries,,status],partrel = TRUE)
-    # }else {
-    #   reg_comp_rate[,,status] <- 0
-    #   reg_comp_rate_brown[,,status] <- 0
-    # }
+    if (length(nonzero_countries)) {
+      #Calculate regional rates
+      tmp <- toolAggregate(comp_rate[nonzero_countries,,status],filter(map,CountryCode %in% nonzero_countries),mtran[nonzero_countries,,status])
+      tmp_brown <- toolAggregate(comp_rate_brown[nonzero_countries,,status],filter(map,CountryCode %in% nonzero_countries),mtran[nonzero_countries,,status])
+      #For regions which had zero projects in a certain status, assign the global weighted mean
+      reg_comp_rate[,,status] <- mbind(tmp,new.magpie(getRegions(reg_comp_rate)[which(!(getRegions(reg_comp_rate)) %in% getRegions(tmp))],getYears(comp_rate),status,glo_comp_rate))
+      reg_comp_rate_brown[,,status] <- mbind(tmp_brown,new.magpie(getRegions(reg_comp_rate_brown)[which(!(getRegions(reg_comp_rate_brown)) %in% getRegions(tmp_brown))],getYears(comp_rate_brown),status,glo_comp_rate_brown))
+    }else {
+      reg_comp_rate[,,status] <- 0
+      reg_comp_rate_brown[,,status] <- 0
+    }
   }
   
   # Countries which have indicated an anti-coal recovery plan are assumed to halve their BAU completion rates in the brown and BAU recovery scenarios
@@ -517,7 +522,6 @@ readGCPT <- function(subtype) {
   # Under-construction plants in anti-coal nations will all be completed in both scenarios
   comp_rate[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate[c(nonOECDppca,greenNations),,"newcon"]
   comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"]
-  
   
   #OECD PPCA members cannot complete any pipeline projects to meet their 2030 phase-out target
   comp_rate[oecdPPCA,,] <- 0
@@ -536,8 +540,13 @@ readGCPT <- function(subtype) {
     getNames(glo_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
     getNames(reg_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
     getNames(reg_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    out <- mbind(mbind(comp_rate,glo_comp_rate),mbind(comp_rate_brown,glo_comp_rate_brown))
-    # ,reg_comp_rate,reg_comp_rate_brown)
+    reg_mtran <- toolAggregate(
+      setNames(mtran[,,c("shelved","newcon","ann","pre","perm")],
+               c("Shelved","Construction","Announced","Pre-permit development","Permitted")),map,NULL)
+    if (grepl("reg",subtype)) {
+      reg_all_comp_rate <- toolAggregate(reg_comp_rate,weight=reg_mtran,dim=3,rel=data.frame(from=getNames(reg_mtran),to=rep("all",5)))
+      out <- mbind(reg_comp_rate,reg_all_comp_rate)
+    }else  out <- mbind(comp_rate,comp_rate_brown)
     return(out)
   }
   
