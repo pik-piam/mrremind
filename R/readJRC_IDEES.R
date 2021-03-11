@@ -50,11 +50,11 @@ readJRC_IDEES <- function(subtype)
           'CHI' = {
             tibble(
               name = c(
-                'Value added (\u20ac2010)',
-                'Value added|Chemicals and chemical products (\u20ac2010)',
-                'Value added|Chemicals and chemical products Basic chemicals (\u20ac2010)',
-                'Value added|Chemicals and chemical products Other chemicals (\u20ac2010)',
-                'Value added|Pharmaceutical products etc. (\u20ac2010)',
+                'Value added (M\u20ac2010)',
+                'Value added|Chemicals and chemical products (M\u20ac2010)',
+                'Value added|Chemicals and chemical products|Basic chemicals (M\u20ac2010)',
+                'Value added|Chemicals and chemical products|Other chemicals (M\u20ac2010)',
+                'Value added|Pharmaceutical products etc. (M\u20ac2010)',
                 
                 NA,
                 'Physical output|Basic chemicals (kt ethylene eq.)',

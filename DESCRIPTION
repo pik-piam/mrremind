@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.42.1
-Date: 2021-02-22
+Version: 0.44.1
+Date: 2021-03-10
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -39,20 +39,19 @@ Imports:
     dplyr,
     gdata,
     luscale,
-    ncdf4,
     nnls,
     quitte,
     readr,
     readxl,
     reshape,
     reshape2,
-    rhdf5,
     rlang,
     rmndt,
     tibble,
     tidyr,
     zoo,
-    mgsub
+    mgsub,
+    edgeTransport
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
