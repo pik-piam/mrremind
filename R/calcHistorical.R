@@ -217,7 +217,7 @@ calcHistorical <- function() {
   IEA_ETPIndustrySub <- readSource("IEA_ETP", subtype="industry_subsectors")
 
   # Calculate Emission Reference Values
-  Emi_Reference <- calcOutput("EmiReference", aggregate=FALSE)
+  Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate=FALSE))
   
   # Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
