@@ -40,7 +40,7 @@ convertJRC_IDEES <- function(x)
   # intensive values are not extended to missing countries
   intensive_variables <- x %>% 
     distinct(!!sym('variable'), !!sym('unit')) %>% 
-    filter(grepl('/', !!sym('unit'))) %>% 
+    filter(grepl('/', !!sym('unit')) | grepl('per', !!sym('unit')) | !!sym('unit') == "%") %>% 
     pull(!!sym('variable'))
   
   EUR_iso3c <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
@@ -59,7 +59,8 @@ convertJRC_IDEES <- function(x)
     filter(!!sym('iso3c') %in% EUR_iso3c) %>% 
     mutate(!!sym('year') := as.integer(!!sym('year')))
   
-  x <- full_join(
+  # missing values
+  x_estimated <- full_join(
     left_join(
       x %>%
         filter('EU28' != !!sym('region'),
@@ -86,21 +87,28 @@ convertJRC_IDEES <- function(x)
       
       'year'
     ),
-    
     c('variable', 'unit', 'year')
   ) %>% 
     group_by(!!!syms(c('variable', 'unit', 'year'))) %>% 
     mutate(
       !!sym('value') := ifelse(
-        !is.na(!!sym('value')), !!sym('value'), 
-        ( !!sym('GDP') * is.na(!!sym('value')) 
+        !is.na(!!sym('value')), NA, 
+        (!!sym('GDP') * is.na(!!sym('value')) 
         / sum(!!sym('GDP') * is.na(!!sym('value'))) 
         * (!!sym('value_EU28') - sum(!!sym('value'), na.rm = TRUE))
         )
       )) %>% 
     ungroup() %>% 
+    # filter estimated values and remove incorrect values produced due to poor data quality
+    filter(!!sym('value') > 0, !is.na(!!sym('value'))) %>%
     select(-'value_EU28', -'GDP', -'GDP_EU28')
   
+  x <- rbind(x %>%
+               filter(!!sym('region') != 'EU28') %>%
+               add_countrycode_(c('region' = 'eurostat'), 'iso3c') %>%
+               select(-'region'), 
+             x_estimated)
+
   x %>% 
     complete(nesting(!!!syms(c('variable', 'unit', 'year'))),
              iso3c = setNames(getISOlist(), NULL)) %>% 
