@@ -23,7 +23,8 @@ Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", ro
              person("Regina", "Brecha", role = "aut"),
              person("Sebastian", "Rauner", role = "aut"),
              person("Jan Philipp", "Dietrich", role = "aut"),
-             person("Stephen", "Bi", role= "aut"))
+             person("Stephen", "Bi", role= "aut"),
+             person('Falk', 'Benke', role = 'aut'))
 Description: The mrremind packages contains data preprocessing for the REMIND model.
 Depends:
     R(>= 2.10.0),

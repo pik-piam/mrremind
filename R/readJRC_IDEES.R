@@ -4,9 +4,9 @@
 #'
 #' @md
 #' @param subtype one of
-#'   - `Industry`: read worksheets from the Industry files
-#'   - `Emission`: read worksheets from the Emission Balance files
-#'   - `Energy`: read worksheets from the Energy Balance files
+#'   - `'Emission'`: read worksheets from the Emission Balance files
+#'   - `'Energy'`:   read worksheets from the Energy Balance files
+#'   - `'Industry'`: read worksheets from the Industry files
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -22,34 +22,210 @@
 #' @importFrom magclass as.magpie
 
 #' @export
-readJRC_IDEES <- function(subtype)
-{
-  
-  switchboard <- list(
-    `Industry` = function()
-    {
-      # ---- _ definitions of all the row names to use ----
-      # There was no easy way to extract the structure of variables from the 
-      # worksheet, since they are differentiated using cell formats (text indent)
-      # which is not available through the readxl nor openxlsx packages.
-      # 
-      # Generating these variable lists is tedious, yet straight-forward:
-      # - copy the column of row names from the Excel file to a text file
-      # - copy category names in front of variable names, separating them with bars
-      #   and removing unneeded units; e.g. 
-      #   "Physical output (kt)" + "Basic chemicals (kt ethylene eq.)" becomes
-      #   "Physical output|Basic chemicals (kt ethylene eq.)"
-      # - empty rows can be left empty, they are ignored during vector concatenation
-      # - rows to be ignored (i.e. category names w/o data) are set to NA
-      # - matching is strictly positional, no matching what so ever between row 
-      #   names and variables is required
-      # - turn everything into a data.frame/tibble and include it in the list under
-      #   the name of the worksheet; enclosing in curly braces allows for 
-      #   code-folding and better overview in RStudio
-      variable_mixer <- list(
-          'CHI' = {
-            tibble(
-              name = c(
+readJRC_IDEES <- function(subtype) {
+  # ---- subtype column information ----
+  subtypes <- list(
+    # Each subtype contains:
+    #   - a pattern to match file names against
+    #   - a list of sheets (by name) with the prefix to prepend to the variable
+    #     names
+    #   - the row names in the format "variable (unit)", either globally for the
+    #     subtype (Emission and Energy) or locally per worksheet (Industry)
+    # Use code folding in RStudio to collapse elements as needed to gain an 
+    # overview.
+    Emission = { list(
+      pattern = '^JRC-IDEES-2015_EmissionBalance_.*\\.xlsx$',
+      sheets = list(
+        'cagr'  = list(prefix = 'Agriculture+Forestry+Fishing|'),
+        'cenck' = list(prefix = 'Coke Ovens|')),
+      rows = tibble(
+        name = {
+          c(
+            'All Products (kt CO2)',
+            'Solid Fuels (kt CO2)',
+            'Hard coal and derivatives (kt CO2)',
+            'Hard Coal (kt CO2)',
+            'Anthracite (kt CO2)',
+            'Coking Coal (kt CO2)',
+            'Other Bituminous Coal (kt CO2)',
+            'Sub-bituminous Coal (kt CO2)',
+            'Patent Fuels (kt CO2)',
+            'Coke (kt CO2)',
+            'Coke Oven Coke (kt CO2)',
+            'Gas Coke (kt CO2)',
+            'Coal Tar (kt CO2)',
+            'Lignite and Derivatives (kt CO2)',
+            'Lignite/Brown Coal (kt CO2)',
+            'Peat (kt CO2)',
+            'BKB (browncoal briquettes) (kt CO2)',
+            'Peat Products (kt CO2)',
+            'Oil Shale and Oil Sands (kt CO2)',
+            'Total petroleum products (without biofuels) (kt CO2)',
+            'Crude oil, feedstocks and other hydrocarbons (kt CO2)',
+            'Crude oil and NGL (kt CO2)',
+            'Crude Oil without NGL (kt CO2)',
+            'Natural Gas Liquids (NGL) (kt CO2)',
+            'Feedstocks and other hydrocarbons (kt CO2)',
+            'Refinery Feedstocks (kt CO2)',
+            'Additives / Oxygenates (kt CO2)',
+            'Other Hydrocarbons (without biofuels) (kt CO2)',
+            'All Petroleum Products (kt CO2)',
+            'Refinery gas and Ethane (kt CO2)',
+            'Refinery Gas (not. Liquid) (kt CO2)',
+            'Ethane (kt CO2)',
+            'Liquified petroleum gas (LPG) (kt CO2)',
+            'Motor spirit (kt CO2)',
+            'Gasoline (without biofuels) (kt CO2)',
+            'Aviation Gasoline (kt CO2)',
+            'Kerosenes - Jet Fuels (kt CO2)',
+            'Gasoline Type Jet Fuel (kt CO2)',
+            'Kerosene Type Jet Fuel (kt CO2)',
+            'Other Kerosene (kt CO2)',
+            'Naphtha (kt CO2)',
+            'Gas/Diesel oil (without biofuels) (kt CO2)',
+            'Residual Fuel Oil (kt CO2)',
+            'Other Petroleum Products (kt CO2)',
+            'White Spirit and SBP (kt CO2)',
+            'Lubricants (kt CO2)',
+            'Bitumen (kt CO2)',
+            'Petroleum Coke (kt CO2)',
+            'Paraffin Waxes (kt CO2)',
+            'Other Oil Products (kt CO2)',
+            'Gases (kt CO2)',
+            'Natural gas (kt CO2)',
+            'Derived Gases (kt CO2)',
+            'Coke Oven Gas (kt CO2)',
+            'Blast Furnace Gas (kt CO2)',
+            'Gas Works gas (kt CO2)',
+            'Other recovered gases (kt CO2)',
+            'Wastes (non-renewable) (kt CO2)',
+            'Industrial wastes (kt CO2)',
+            'Municipal waste (non-renewable) (kt CO2)',
+            NA,
+            'Biomass and Renewable wastes (kt CO2)',
+            'Solid biofuels (Wood & Wood waste) (kt CO2)',
+            'Charcoal (kt CO2)',
+            'Biogas (kt CO2)',
+            'Municipal waste (renewable) (kt CO2)',
+            'Liquid biofuels (kt CO2)',
+            'Biogasoline (kt CO2)',
+            'Biodiesels (kt CO2)',
+            'Bio jet kerosene (kt CO2)',
+            'Other liquid biofuels (kt CO2)'
+          )
+        }
+      ) %>% 
+        extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+    )
+    },
+    Energy = { list(
+      pattern = '^JRC-IDEES-2015_EnergyBalance_.*\\.xlsx$',
+      sheets = list(
+        'cagr'  = list(prefix = 'Agriculture+Forestry+Fishing|'),
+        'cenbf' = list(prefix = 'Consumption in Blast Furnaces|'), 
+        'cenck' = list(prefix = 'Consumption in Coke Ovens|'), 
+        'tibf'  = list(prefix = 'Transformation input - Blast Furnaces|'), 
+        'tick'  = list(prefix = 'Transformation input - Coke Ovens|'), 
+        'tobf'  = list(prefix = 'Transformation output - Blast Furnaces|'), 
+        'tock'  = list(prefix = 'Transformation output - Coke Ovens|')),
+      rows = tibble(
+        name = {
+          c(
+            'All Products (ktoe)',
+            'Solid Fuels (ktoe)',
+            'Hard coal and derivatives (ktoe)',
+            'Hard Coal (ktoe)',
+            'Anthracite (ktoe)',
+            'Coking Coal (ktoe)',
+            'Other Bituminous Coal (ktoe)',
+            'Sub-bituminous Coal (ktoe)',
+            'Patent Fuels (ktoe)',
+            'Coke (ktoe)',
+            'Coke Oven Coke (ktoe)',
+            'Gas Coke (ktoe)',
+            'Coal Tar (ktoe)',
+            'Lignite and Derivatives (ktoe)',
+            'Lignite/Brown Coal (ktoe)',
+            'Peat (ktoe)',
+            'BKB (brown coal briquettes) (ktoe)',
+            'Peat Products (ktoe)',
+            'Oil Shale and Oil Sands (ktoe)',
+            'Total petroleum products (without biofuels) (ktoe)',
+            'Crude oil, feedstocks and other hydrocarbons (ktoe)',
+            'Crude oil and NGL (ktoe)',
+            'Crude Oil without NGL (ktoe)',
+            'Natural Gas Liquids (NGL) (ktoe)',
+            'Feedstocks and other hydrocarbons (ktoe)',
+            'Refinery Feedstocks (ktoe)',
+            'Additives / Oxygenates (ktoe)',
+            'Other Hydrocarbons (without biofuels) (ktoe)',
+            'All Petroleum Products (ktoe)',
+            'Refinery gas and Ethane (ktoe)',
+            'Refinery Gas (not. Liquid) (ktoe)',
+            'Ethane (ktoe)',
+            'Liquified petroleum gas (LPG) (ktoe)',
+            'Motor spirit (ktoe)',
+            'Gasoline (without biofuels) (ktoe)',
+            'Aviation Gasoline (ktoe)',
+            'Kerosenes - Jet Fuels (ktoe)',
+            'Gasoline Type Jet Fuel (ktoe)',
+            'Kerosene Type Jet Fuel (ktoe)',
+            'Other Kerosene (ktoe)',
+            'Naphtha (ktoe)',
+            'Gas/Diesel oil (without biofuels) (ktoe)',
+            'Residual Fuel Oil (ktoe)',
+            'Other Petroleum Products (ktoe)',
+            'White Spirit and SBP (ktoe)',
+            'Lubricants (ktoe)',
+            'Bitumen (ktoe)',
+            'Petroleum Coke (ktoe)',
+            'Paraffin Waxes (ktoe)',
+            'Other Oil Products (ktoe)',
+            'Gases (ktoe)',
+            'Natural gas (ktoe)',
+            'Derived Gases (ktoe)',
+            'Coke Oven Gas (ktoe)',
+            'Blast Furnace Gas (ktoe)',
+            'Gas Works gas (ktoe)',
+            'Other recovered gases (ktoe)',
+            'Nuclear heat (ktoe)',
+            'Derived heat (ktoe)',
+            'Renewable energies (ktoe)',
+            'Hydro power (ktoe)',
+            'Wind Power (ktoe)',
+            'Solar energy (ktoe)',
+            'Solar thermal (ktoe)',
+            'Solar Photovoltaic (ktoe)',
+            'Tide, Wave and Ocean (ktoe)',
+            'Biomass and Renewable wastes (ktoe)',
+            'Solid biofuels (Wood & Wood waste) (ktoe)',
+            'Charcoal (ktoe)',
+            'Biogas (ktoe)',
+            'Municipal waste (renewable) (ktoe)',
+            'Liquid biofuels (ktoe)',
+            'Biogasoline (ktoe)',
+            'Biodiesels (ktoe)',
+            'Bio jet kerosene (ktoe)',
+            'Other liquid biofuels (ktoe)',
+            'Geothermal (ktoe)',
+            'Electricity (ktoe)',
+            'Wastes (non-renewable) (ktoe)',
+            'Industrial wastes (ktoe)',
+            'Municipal waste (non-renewable) (ktoe)'
+          )
+        }
+      ) %>%
+        extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+    )
+    },
+    Industry = { list(
+      pattern = '^JRC-IDEES-2015_Industry_.*\\.xlsx$',
+      sheets = list(
+        'CHI' = { list(
+          prefix = 'Chemicals Industry|',
+          rows = tibble(
+            name = {
+              c(
                 'Value added (M\u20ac2010)',
                 'Value added|Chemicals and chemical products (M\u20ac2010)',
                 'Value added|Chemicals and chemical products|Basic chemicals (M\u20ac2010)',
@@ -151,14 +327,15 @@ readJRC_IDEES <- function(subtype)
                 'Emission intensity|Other chemicals (including process emissions) (kt of CO2 / ktoe energy)',
                 'Emission intensity|Pharmaceutical products etc. (kt of CO2 / ktoe energy)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Chemicals Industry|', 
-                                                 !!sym('variable')))
-          },
-          'CHI_emi' = {
-            tibble(
-              name = c(
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'CHI_emi' = { list(
+          prefix = 'Chemicals Industry|CO2 Emissions|',
+          rows = tibble(
+            name = {
+              c(
                 NA,
                 
                 'Detailed split of CO2 emissions by subsector|Basic chemicals (kt of CO2)',
@@ -404,14 +581,15 @@ readJRC_IDEES <- function(subtype)
                 'Emission Intensity|Pharmaceutical products etc.|Chemicals: Process cooling (kt of CO2 per ktoe)',
                 'Emission Intensity|Pharmaceutical products etc.|Chemicals: Generic electric process (kt of CO2 per ktoe)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Chemicals Industry|CO2 Emissions|', 
-                                                 !!sym('variable')))
-          },
-          'CHI_fec' = {
-            tibble(
-              name = c(
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'CHI_fec' = { list(
+          prefix = 'Chemicals Industry|Final Energy Consumption|',
+          rows = tibble(
+            name = {
+              c(
                 NA,
                 
                 'Detailed split of energy consumption by subsector|Basic chemicals (ktoe)',
@@ -657,14 +835,15 @@ readJRC_IDEES <- function(subtype)
                 'Pharmaceutical products etc.|Chemicals: Process cooling (kgoe per t of output)',
                 'Pharmaceutical products etc.|Chemicals: Generic electric process (kgoe per t of output)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Chemicals Industry|Final Energy Consumption|', 
-                                                 !!sym('variable')))
-          },
-          'Ind_Summary' = {
-            tibble(
-              name = c(
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'Ind_Summary' = { list(
+          prefix = 'Industry Summary|',
+          rows = tibble(
+            name = {
+              c(
                 'Value added (M\u20ac2010)',
                 'Value added|Iron and steel (M\u20ac2010)',
                 'Value added|Non Ferrous Metals (M\u20ac2010)',
@@ -843,14 +1022,15 @@ readJRC_IDEES <- function(subtype)
                 'Emission intensity|Wood and wood products (kt of CO2 / ktoe)',
                 'Emission intensity|Other Industrial Sectors (kt of CO2 / ktoe)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Industry Summary|', 
-                                                 !!sym('variable')))
-          },
-          'ISI' = {
-            tibble(
-              name = c(
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'ISI' = { list(
+          prefix = 'Iron and Steel|',
+          rows = tibble(
+            name = {
+              c(
                 'Value added (M\u20ac2010)',
                 'Value added|Integrated steelworks (M\u20ac2010)',
                 'Value added|Electric arc (M\u20ac2010)',
@@ -916,14 +1096,15 @@ readJRC_IDEES <- function(subtype)
                 'Emission intensity|Integrated steelworks (including process emissions) (kt of CO2 / ktoe)',
                 'Emission intensity|Electric arc (including process emissions) (kt of CO2 / ktoe)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Iron and Steel|', 
-                                                 !!sym('variable')))
-          },
-          'ISI_emi' = {
-            tibble(
-              name = c(
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'ISI_emi' = { list(
+          prefix = 'Iron and Steel|CO2 Emissions|',
+          rows = tibble(
+            name = {
+              c(
                 NA,
                 
                 'Detailed split of CO2 emissions by subsector|Integrated steelworks (kt of CO2)',
@@ -1077,1292 +1258,1024 @@ readJRC_IDEES <- function(subtype)
                 'Emission intensity|Electric arc (without process emissions)|Steel: Furnaces, Refining and Rolling (kt of CO2 per ktoe)',
                 'Emission intensity|Electric arc (without process emissions)|Steel: Products finishing (kt of CO2 per ktoe)'
               )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Iron and Steel|CO2 Emissions|', 
-                                                 !!sym('variable')))
-          },
-          'ISI_fec' = {  
-            tibble(
-              name = c(
-                NA,
-                
-                'Detailed split of energy consumption by subsector|Integrated steelworks (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Lighting (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Air compressors (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Motor drives (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Fans and pumps (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Solar and geothermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Coke (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Refinery gas (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Steam distributed (ktoe)',
-                'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Electric (ktoe)',
-                
-                
-                'Detailed split of energy consumption by subsector|Electric arc (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Lighting (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Air compressors (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Motor drives (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Fans and pumps (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Solar and geothermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Electric arc (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Refinery gas (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Steam distributed (ktoe)',
-                'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Electric (ktoe)',
-                
-                
-                NA,
-                
-                'Market shares of energy uses by subsector|Integrated steelworks (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Lighting (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Air compressors (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Motor drives (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Fans and pumps (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Low enthalpy heat (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Sinter/Pellet making (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam (%)',
-                'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Electric (%)',
-                
-                
-                'Market shares of energy uses by subsector|Electric arc (%)',
-                'Market shares of energy uses by subsector|Electric arc|Lighting (%)',
-                'Market shares of energy uses by subsector|Electric arc|Air compressors (%)',
-                'Market shares of energy uses by subsector|Electric arc|Motor drives (%)',
-                'Market shares of energy uses by subsector|Electric arc|Fans and pumps (%)',
-                'Market shares of energy uses by subsector|Electric arc|Low enthalpy heat (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Smelters (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Electric arc (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam (%)',
-                'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Electric (%)',
-                
-                
-                NA,
-                
-                'Energy intensity|Integrated steelworks (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Lighting (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Air compressors (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Motor drives (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Fans and pumps (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Low enthalpy heat (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Steel: Sinter/Pellet making (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Steel: Blast /Basic oxygen furnace (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Steel: Furnaces, Refining and Rolling (kgoe per t of output)',
-                'Energy intensity|Integrated steelworks|Steel: Products finishing (kgoe per t of output)',
-                
-                'Energy intensity|Electric arc (kgoe per t of output)',
-                'Energy intensity|Electric arc|Lighting (kgoe per t of output)',
-                'Energy intensity|Electric arc|Air compressors (kgoe per t of output)',
-                'Energy intensity|Electric arc|Motor drives (kgoe per t of output)',
-                'Energy intensity|Electric arc|Fans and pumps (kgoe per t of output)',
-                'Energy intensity|Electric arc|Low enthalpy heat (kgoe per t of output)',
-                'Energy intensity|Electric arc|Steel: Smelters (kgoe per t of output)',
-                'Energy intensity|Electric arc|Steel: Electric arc (kgoe per t of output)',
-                'Energy intensity|Electric arc|Steel: Furnaces, Refining and Rolling (kgoe per t of output)',
-                'Energy intensity|Electric arc|Steel: Products finishing (kgoe per t of output)'
-              )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Iron and Steel|Final Energy Consumption|', 
-                                                 !!sym('variable')))
-          },
-          'NFM_emi' = {  
-            tibble(
-              name = c(
-                NA,
-                
-                'Detailed split of CO2 emissions by subsector|Alumina production (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Electricity (kt of CO2)',
-                
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium electrolysis (smelting) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Process emissions (kt of CO2)',
-                
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Electric (kt of CO2)',
-                
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Process emissions (kt of CO2)',
-                
-                NA,
-                
-                'Market shares of CO2 emissions by subsector|Alumina production (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Alumina production|Alumina production: Refining (%)',
-                
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium electrolysis (smelting) (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating) (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - primary production|Process emissions (%)',
-                
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam (%)',
-                'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Electric (%)',
-                
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating) (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Electric (%)',
-                'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Process emissions (%)',
-                
-                NA,
-                
-                'Emission intensity|Alumina production (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Alumina production: High enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Alumina production|Alumina production: Refining (kt of CO2 per ktoe)',
-                
-                'Emission intensity|Aluminium - primary production (without process emissions) (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium electrolysis (smelting) (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium finishing (kt of CO2 per ktoe)',
-                
-                'Emission intensity|Aluminium - secondary production (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
-                'Emission intensity|Aluminium - secondary production|Aluminium finishing (kt of CO2 per ktoe)',
-                
-                'Emission intensity|Other non-ferrous metals (without process emissions) (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Other Metals: production (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Metal processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
-                'Emission intensity|Other non-ferrous metals (without process emissions)|Metal finishing (kt of CO2 per ktoe)'
-              )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Non Ferrous Metals|CO2 Emissions|', 
-                                                 !!sym('variable')))
-          },
-          'NMM' = {  
-            tibble(
-              name = c(
-                'Value added (M\u20ac2010)',
-                'Value added|Cement (M\u20ac2010)',
-                'Value added|Ceramics & other NMM (M\u20ac2010)',
-                'Value added|Glass production (M\u20ac2010)',
-                
-                NA,
-                'Physical output|Cement (kt)',
-                'Physical output|Ceramics & other NMM (kt bricks eq.)',
-                'Physical output|Glass production (kt)',
-                
-                NA,
-                'Installed capacity|Cement (kt)',
-                'Installed capacity|Ceramics & other NMM (kt bricks eq.)',
-                'Installed capacity|Glass production (kt)',
-                NA,
-                'Installed capacity|Capacity investment|Cement (kt)',
-                'Installed capacity|Capacity investment|Ceramics & other NMM (kt bricks eq.)',
-                'Installed capacity|Capacity investment|Glass production (kt)',
-                NA,
-                'Installed capacity|Decommissioned capacity|Cement (kt)',
-                'Installed capacity|Decommissioned capacity|Ceramics & other NMM (kt bricks eq.)',
-                'Installed capacity|Decommissioned capacity|Glass production (kt)',
-                NA,
-                'Idle capacity|Cement (kt)',
-                'Idle capacity|Ceramics & other NMM (kt bricks eq.)',
-                'Idle capacity|Glass production (kt)',
-                
-                NA,
-                'Energy consumption|by fuel (EUROSTAT DATA) (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Solids (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Refinery gas (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|LPG (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Diesel oil (without biofuels) (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Residual fuel oil (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Other liquids (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Gas (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Gas|Natural gas (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Gas|Derived gases (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and wastes (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Biomass and wastes (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Biogas (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Liquid biofuels (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Solar (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Geothermal (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Steam distributed (ktoe)',
-                'Energy consumption|by fuel (EUROSTAT DATA)|Electricity (ktoe)',
-                'Energy consumption|by subsector (calibration output) (ktoe)',
-                'Energy consumption|by subsector (calibration output)|Cement (ktoe)',
-                'Energy consumption|by subsector (calibration output)|Ceramics & other NMM (ktoe)',
-                'Energy consumption|by subsector (calibration output)|Glass production (ktoe)',
-                
-                'CO2 emissions (kt CO2)',
-                'CO2 emissions|energy use related (kt CO2)',
-                'CO2 emissions|process emissions (kt CO2)',
-                'CO2 emissions|by subsector (calibration output) (kt CO2)',
-                'CO2 emissions|by subsector|Cement (kt CO2)',
-                'CO2 emissions|by subsector|Ceramics & other NMM (kt CO2)',
-                'CO2 emissions|by subsector|Glass production (kt CO2)',
-                
-                NA,
-                'Value added intensity|Cement (VA in \u20ac2010/t of output)',
-                'Value added intensity|Ceramics & other NMM (VA in \u20ac2010/t of output)',
-                'Value added intensity|Glass production (VA in \u20ac2010/t of output)',
-                NA,
-                'Energy intensity|Cement (toe/t of output)',
-                'Energy intensity|Ceramics & other NMM (toe/t of output)',
-                'Energy intensity|Glass production (toe/t of output)',
-                NA,
-                'Useful energy demand intensity|Cement (toe useful/t of output)',
-                'Useful energy demand intensity|Ceramics & other NMM (toe useful/t of output)',
-                'Useful energy demand intensity|Glass production (toe useful/t of output)',
-                'Emission intensity (kt of CO2 / ktoe)',
-                'Emission intensity|Cement (including process emissions) (kt of CO2 / ktoe)',
-                'Emission intensity|Ceramics & other NMM (including process emissions) (kt of CO2 / ktoe)',
-                'Emission intensity|Glass production (including process emissions) (kt of CO2 / ktoe)'
-              )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Non-metallic mineral products|', 
-                                                 !!sym('variable')))
-          },
-          'NMM_emi' = {  
-            tibble(
-              name = c(
-                NA,
-                
-                'Detailed split of CO2 emissions by subsector|Cement (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Cement|Process emissions (kt of CO2)',
-                
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Refinery gas (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Derived gases (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Steam distributed (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Other liquids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Biomass (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Process emissions (kt of CO2)',
-                
-                'Detailed split of CO2 emissions by subsector|Glass production (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Lighting (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Air compressors (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Motor drives (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Fans and pumps (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Electricity (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Forming (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Solids (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|LPG (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Diesel oil (incl. biofuels) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Residual fuel oil (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Natural gas (incl. biogas) (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Glass: Finishing processes (kt of CO2)',
-                'Detailed split of CO2 emissions by subsector|Glass production|Process emissions (kt of CO2)',
-                
-                NA,
-                
-                'Market shares of CO2 emissions by subsector|Cement (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Process emissions (%)',
-                
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Process emissions (%)',
-                
-                'Market shares of CO2 emissions by subsector|Glass production (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Forming (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Finishing processes (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Process emissions (%)',
-                
-                NA,
-                
-                'Emission intensity|Cement (without process emissions) (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Cement: Grinding, milling of raw material (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Cement: Pre-heating and pre-calcination (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Cement: Clinker production (kilns) (kt of CO2 per ktoe)',
-                'Emission intensity|Cement (without process emissions)|Cement: Grinding, packaging (kt of CO2 per ktoe)',
-                
-                'Emission intensity|Ceramics & other NMM (without process emissions) (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Mixing of raw material (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Drying and sintering of raw material (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Primary production process (kt of CO2 per ktoe)',
-                'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Product finishing (kt of CO2 per ktoe)',
-                
-                'Emission intensity|Glass production (without process emissions) (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Lighting (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Air compressors (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Motor drives (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Glass: Melting tank (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Glass: Forming (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Glass: Annealing (kt of CO2 per ktoe)',
-                'Emission intensity|Glass production (without process emissions)|Glass: Finishing processes (kt of CO2 per ktoe)'
-              )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Non-metallic mineral products|CO2 Emissions|', 
-                                                 !!sym('variable')))
-          },
-          'NMM_fec' = {  
-            tibble(
-              name = c(
-                NA,
-                
-                'Detailed split of energy consumption by subsector|Cement (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Lighting (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Air compressors (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Motor drives (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Fans and pumps (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Solar and geothermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Grinding, milling of raw material (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Refinery gas (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Steam distributed (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Cement|Cement: Grinding, packaging (ktoe)',
-                
-                
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Lighting (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Air compressors (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Motor drives (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Fans and pumps (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Solar and geothermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Refinery gas (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Derived gases (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Steam distributed (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Other liquids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Biomass (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (ktoe)',
-                
-                
-                'Detailed split of energy consumption by subsector|Glass production (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Lighting (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Air compressors (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Motor drives (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Fans and pumps (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Solar and geothermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Electricity (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Forming (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Solids (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|LPG (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Diesel oil (incl. biofuels) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Residual fuel oil (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Natural gas (incl. biogas) (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (ktoe)',
-                'Detailed split of energy consumption by subsector|Glass production|Glass: Finishing processes (ktoe)',
-                
-                
-                NA,
-                
-                'Market shares of CO2 emissions by subsector|Cement (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (%)',
-                'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (%)',
-                
-                
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (%)',
-                'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (%)',
-                
-                
-                'Market shares of CO2 emissions by subsector|Glass production (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Lighting (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Air compressors (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Motor drives (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Fans and pumps (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Low enthalpy heat (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Forming (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (%)',
-                'Market shares of CO2 emissions by subsector|Glass production|Glass: Finishing processes (%)',
-                
-                
-                NA,
-                
-                'Energy intensity|Cement (kgoe per t of output)',
-                'Energy intensity|Cement|Lighting (kgoe per t of output)',
-                'Energy intensity|Cement|Air compressors (kgoe per t of output)',
-                'Energy intensity|Cement|Motor drives (kgoe per t of output)',
-                'Energy intensity|Cement|Fans and pumps (kgoe per t of output)',
-                'Energy intensity|Cement|Low enthalpy heat (kgoe per t of output)',
-                'Energy intensity|Cement|Cement: Grinding, milling of raw material (kgoe per t of output)',
-                'Energy intensity|Cement|Cement: Pre-heating and pre-calcination (kgoe per t of output)',
-                'Energy intensity|Cement|Cement: Clinker production (kilns) (kgoe per t of output)',
-                'Energy intensity|Cement|Cement: Grinding, packaging (kgoe per t of output)',
-                
-                'Energy intensity|Ceramics & other NMM (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Lighting (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Air compressors (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Motor drives (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Fans and pumps (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Low enthalpy heat (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Ceramics: Mixing of raw material (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Ceramics: Primary production process (kgoe per t of output)',
-                'Energy intensity|Ceramics & other NMM|Ceramics: Product finishing (kgoe per t of output)',
-                
-                'Energy intensity|Glass production (kgoe per t of output)',
-                'Energy intensity|Glass production|Lighting (kgoe per t of output)',
-                'Energy intensity|Glass production|Air compressors (kgoe per t of output)',
-                'Energy intensity|Glass production|Motor drives (kgoe per t of output)',
-                'Energy intensity|Glass production|Fans and pumps (kgoe per t of output)',
-                'Energy intensity|Glass production|Low enthalpy heat (kgoe per t of output)',
-                'Energy intensity|Glass production|Glass: Melting tank (kgoe per t of output)',
-                'Energy intensity|Glass production|Glass: Forming (kgoe per t of output)',
-                'Energy intensity|Glass production|Glass: Annealing (kgoe per t of output)',
-                'Energy intensity|Glass production|Glass: Finishing processes (kgoe per t of output)'
-              )
-            ) %>%
-              extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$') %>% 
-              mutate(!!sym('variable') := paste0('Non-metallic mineral products|Final Energy Consumption|', 
-                                                 !!sym('variable')))
-          }
-        )
-      # ---- parsing files ----
-      files <- list.files(path = '.',
-                          pattern = '^JRC-IDEES-2015_Industry_.*\\.xlsx$')
-      
-      if (is_empty(files)) {
-        stop('Could not find any JRC-IDEES-2015_Industry_.*\\.xlsx files in ', 
-             getwd())
-      }
-          
-      tmp <- tibble()
-      for (file in files)
-      {
-        region <- sub('^JRC-IDEES-2015_Industry_(.*)\\.xlsx$', '\\1', file)
-        for (sheet in names(variable_mixer))
-        {
-          tmp <- bind_rows(
-            tmp,
-            
-            read_xlsx(path = file, sheet = sheet) %>%
-              # drop empty rows
-              drop_na(1) %>%
-              # add variable and unit columns
-              bind_cols(variable_mixer[[sheet]]) %>%
-              # drop unneeded rows
-              drop_na('variable', 'unit') %>%
-              # drop rownames from worksheet
-              select(-1) %>%
-              pivot_longer(cols = c(-'variable', -'unit'), names_to = 'year',
-                           names_transform = list('year' = as.integer)) %>% 
-              mutate(region = region)
-          )
-        }
-      }
-      
-      tmp %>% 
-        select('region', 'year', 'variable', 'unit', 'value') %>% 
-        as.magpie(tidy = TRUE) %>% 
-        return()
-    },
-    `Emission` = function()
-    {
-      variable_template <- 
-        tibble(
-          name = c(
-            'All Products (kt CO2)',
-            'Solid Fuels (kt CO2)',
-            'Hard coal and derivatives (kt CO2)',
-            'Hard Coal (kt CO2)',
-            'Anthracite (kt CO2)',
-            'Coking Coal (kt CO2)',
-            'Other Bituminous Coal (kt CO2)',
-            'Sub-bituminous Coal (kt CO2)',
-            'Patent Fuels (kt CO2)',
-            'Coke (kt CO2)',
-            'Coke Oven Coke (kt CO2)',
-            'Gas Coke (kt CO2)',
-            'Coal Tar (kt CO2)',
-            'Lignite and Derivatives (kt CO2)',
-            'Lignite/Brown Coal (kt CO2)',
-            'Peat (kt CO2)',
-            'BKB (browncoal briquettes) (kt CO2)',
-            'Peat Products (kt CO2)',
-            'Oil Shale and Oil Sands (kt CO2)',
-            'Total petroleum products (without biofuels) (kt CO2)',
-            'Crude oil, feedstocks and other hydrocarbons (kt CO2)',
-            'Crude oil and NGL (kt CO2)',
-            'Crude Oil without NGL (kt CO2)',
-            'Natural Gas Liquids (NGL) (kt CO2)',
-            'Feedstocks and other hydrocarbons (kt CO2)',
-            'Refinery Feedstocks (kt CO2)',
-            'Additives / Oxygenates (kt CO2)',
-            'Other Hydrocarbons (without biofuels) (kt CO2)',
-            'All Petroleum Products (kt CO2)',
-            'Refinery gas and Ethane (kt CO2)',
-            'Refinery Gas (not. Liquid) (kt CO2)',
-            'Ethane (kt CO2)',
-            'Liquified petroleum gas (LPG) (kt CO2)',
-            'Motor spirit (kt CO2)',
-            'Gasoline (without biofuels) (kt CO2)',
-            'Aviation Gasoline (kt CO2)',
-            'Kerosenes - Jet Fuels (kt CO2)',
-            'Gasoline Type Jet Fuel (kt CO2)',
-            'Kerosene Type Jet Fuel (kt CO2)',
-            'Other Kerosene (kt CO2)',
-            'Naphtha (kt CO2)',
-            'Gas/Diesel oil (without biofuels) (kt CO2)',
-            'Residual Fuel Oil (kt CO2)',
-            'Other Petroleum Products (kt CO2)',
-            'White Spirit and SBP (kt CO2)',
-            'Lubricants (kt CO2)',
-            'Bitumen (kt CO2)',
-            'Petroleum Coke (kt CO2)',
-            'Paraffin Waxes (kt CO2)',
-            'Other Oil Products (kt CO2)',
-            'Gases (kt CO2)',
-            'Natural gas (kt CO2)',
-            'Derived Gases (kt CO2)',
-            'Coke Oven Gas (kt CO2)',
-            'Blast Furnace Gas (kt CO2)',
-            'Gas Works gas (kt CO2)',
-            'Other recovered gases (kt CO2)',
-            'Wastes (non-renewable) (kt CO2)',
-            'Industrial wastes (kt CO2)',
-            'Municipal waste (non-renewable) (kt CO2)',
-            
-            NA,
-            'Biomass and Renewable wastes (kt CO2)',
-            'Solid biofuels (Wood & Wood waste) (kt CO2)',
-            'Charcoal (kt CO2)',
-            'Biogas (kt CO2)',
-            'Municipal waste (renewable) (kt CO2)',
-            'Liquid biofuels (kt CO2)',
-            'Biogasoline (kt CO2)',
-            'Biodiesels (kt CO2)',
-            'Bio jet kerosene (kt CO2)',
-            'Other liquid biofuels (kt CO2)'
-          )
-      ) %>%  extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
-      
-      variable_mixer <- list(
-        'cagr' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Agriculture+Forestry+Fishing|', 
-                                             !!sym('variable'))),
-        'cenck' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Coke Ovens|', 
-                                             !!sym('variable')))
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'ISI_fec' = { list(
+          prefix = 'Iron and Steel|Final Energy Consumption|',
+          rows = tibble(
+            name = { c(
+              NA,
+              
+              'Detailed split of energy consumption by subsector|Integrated steelworks (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Lighting (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Air compressors (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Motor drives (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Fans and pumps (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Solar and geothermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Low enthalpy heat|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Sinter/Pellet making|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Coke (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Refinery gas (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam|Steam distributed (ktoe)',
+              'Detailed split of energy consumption by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Electric (ktoe)',
+              
+              
+              'Detailed split of energy consumption by subsector|Electric arc (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Lighting (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Air compressors (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Motor drives (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Fans and pumps (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Solar and geothermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Low enthalpy heat|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Smelters|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Electric arc (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Refinery gas (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam|Steam distributed (ktoe)',
+              'Detailed split of energy consumption by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Electric (ktoe)',
+              
+              
+              NA,
+              
+              'Market shares of energy uses by subsector|Integrated steelworks (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Lighting (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Air compressors (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Motor drives (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Fans and pumps (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Low enthalpy heat (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Sinter/Pellet making (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Blast /Basic oxygen furnace (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Thermal (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Steam (%)',
+              'Market shares of energy uses by subsector|Integrated steelworks|Steel: Products finishing|Steel: Products finishing - Electric (%)',
+              
+              
+              'Market shares of energy uses by subsector|Electric arc (%)',
+              'Market shares of energy uses by subsector|Electric arc|Lighting (%)',
+              'Market shares of energy uses by subsector|Electric arc|Air compressors (%)',
+              'Market shares of energy uses by subsector|Electric arc|Motor drives (%)',
+              'Market shares of energy uses by subsector|Electric arc|Fans and pumps (%)',
+              'Market shares of energy uses by subsector|Electric arc|Low enthalpy heat (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Smelters (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Electric arc (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Thermal (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Furnaces, Refining and Rolling|Steel: Furnaces, Refining and Rolling - Electric (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Thermal (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Steam (%)',
+              'Market shares of energy uses by subsector|Electric arc|Steel: Products finishing|Steel: Products finishing - Electric (%)',
+              
+              
+              NA,
+              
+              'Energy intensity|Integrated steelworks (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Lighting (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Air compressors (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Motor drives (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Fans and pumps (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Low enthalpy heat (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Steel: Sinter/Pellet making (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Steel: Blast /Basic oxygen furnace (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Steel: Furnaces, Refining and Rolling (kgoe per t of output)',
+              'Energy intensity|Integrated steelworks|Steel: Products finishing (kgoe per t of output)',
+              
+              'Energy intensity|Electric arc (kgoe per t of output)',
+              'Energy intensity|Electric arc|Lighting (kgoe per t of output)',
+              'Energy intensity|Electric arc|Air compressors (kgoe per t of output)',
+              'Energy intensity|Electric arc|Motor drives (kgoe per t of output)',
+              'Energy intensity|Electric arc|Fans and pumps (kgoe per t of output)',
+              'Energy intensity|Electric arc|Low enthalpy heat (kgoe per t of output)',
+              'Energy intensity|Electric arc|Steel: Smelters (kgoe per t of output)',
+              'Energy intensity|Electric arc|Steel: Electric arc (kgoe per t of output)',
+              'Energy intensity|Electric arc|Steel: Furnaces, Refining and Rolling (kgoe per t of output)',
+              'Energy intensity|Electric arc|Steel: Products finishing (kgoe per t of output)'
+            )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'NFM_emi' = { list(
+          prefix = 'Non Ferrous Metals|CO2 Emissions|',
+          rows = tibble(
+            name = { c(
+              NA,
+              
+              'Detailed split of CO2 emissions by subsector|Alumina production (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Alumina production|Alumina production: Refining|Electricity (kt of CO2)',
+              
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium electrolysis (smelting) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - primary production|Process emissions (kt of CO2)',
+              
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Electric (kt of CO2)',
+              
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Other non-ferrous metals|Process emissions (kt of CO2)',
+              
+              NA,
+              
+              'Market shares of CO2 emissions by subsector|Alumina production (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Alumina production: High enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Alumina production|Alumina production: Refining (%)',
+              
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium electrolysis (smelting) (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating) (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Steam (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Aluminium finishing|Aluminium finishing - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - primary production|Process emissions (%)',
+              
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting)|Secondary aluminium - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating)|Aluminium processing - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Steam (%)',
+              'Market shares of CO2 emissions by subsector|Aluminium - secondary production|Aluminium finishing|Aluminium finishing - Electric (%)',
+              
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Other Metals: production|Metal production - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating) (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal processing (metallurgy e.g. cast house, reheating)|Metal processing - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Thermal (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Steam (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Metal finishing|Metal finishing - Electric (%)',
+              'Market shares of CO2 emissions by subsector|Other non-ferrous metals|Process emissions (%)',
+              
+              NA,
+              
+              'Emission intensity|Alumina production (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Alumina production: High enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Alumina production|Alumina production: Refining (kt of CO2 per ktoe)',
+              
+              'Emission intensity|Aluminium - primary production (without process emissions) (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium electrolysis (smelting) (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - primary production (without process emissions)|Aluminium finishing (kt of CO2 per ktoe)',
+              
+              'Emission intensity|Aluminium - secondary production (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Secondary aluminium (incl. pre-treatment, remelting) (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Aluminium processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
+              'Emission intensity|Aluminium - secondary production|Aluminium finishing (kt of CO2 per ktoe)',
+              
+              'Emission intensity|Other non-ferrous metals (without process emissions) (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Other Metals: production (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Metal processing (metallurgy e.g. cast house, reheating) (kt of CO2 per ktoe)',
+              'Emission intensity|Other non-ferrous metals (without process emissions)|Metal finishing (kt of CO2 per ktoe)'
+            )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'NMM' = { list(
+          prefix = 'Non-metallic mineral products|',
+          rows = tibble(
+            name = { c(
+              'Value added (M\u20ac2010)',
+              'Value added|Cement (M\u20ac2010)',
+              'Value added|Ceramics & other NMM (M\u20ac2010)',
+              'Value added|Glass production (M\u20ac2010)',
+              
+              NA,
+              'Physical output|Cement (kt)',
+              'Physical output|Ceramics & other NMM (kt bricks eq.)',
+              'Physical output|Glass production (kt)',
+              
+              NA,
+              'Installed capacity|Cement (kt)',
+              'Installed capacity|Ceramics & other NMM (kt bricks eq.)',
+              'Installed capacity|Glass production (kt)',
+              NA,
+              'Installed capacity|Capacity investment|Cement (kt)',
+              'Installed capacity|Capacity investment|Ceramics & other NMM (kt bricks eq.)',
+              'Installed capacity|Capacity investment|Glass production (kt)',
+              NA,
+              'Installed capacity|Decommissioned capacity|Cement (kt)',
+              'Installed capacity|Decommissioned capacity|Ceramics & other NMM (kt bricks eq.)',
+              'Installed capacity|Decommissioned capacity|Glass production (kt)',
+              NA,
+              'Idle capacity|Cement (kt)',
+              'Idle capacity|Ceramics & other NMM (kt bricks eq.)',
+              'Idle capacity|Glass production (kt)',
+              
+              NA,
+              'Energy consumption|by fuel (EUROSTAT DATA) (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Solids (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Refinery gas (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|LPG (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Diesel oil (without biofuels) (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Residual fuel oil (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Liquids|Other liquids (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Gas (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Gas|Natural gas (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Gas|Derived gases (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and wastes (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Biomass and wastes (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Biogas (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Liquid biofuels (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Solar (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|RES and waste|Geothermal (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Steam distributed (ktoe)',
+              'Energy consumption|by fuel (EUROSTAT DATA)|Electricity (ktoe)',
+              'Energy consumption|by subsector (calibration output) (ktoe)',
+              'Energy consumption|by subsector (calibration output)|Cement (ktoe)',
+              'Energy consumption|by subsector (calibration output)|Ceramics & other NMM (ktoe)',
+              'Energy consumption|by subsector (calibration output)|Glass production (ktoe)',
+              
+              'CO2 emissions (kt CO2)',
+              'CO2 emissions|energy use related (kt CO2)',
+              'CO2 emissions|process emissions (kt CO2)',
+              'CO2 emissions|by subsector (calibration output) (kt CO2)',
+              'CO2 emissions|by subsector|Cement (kt CO2)',
+              'CO2 emissions|by subsector|Ceramics & other NMM (kt CO2)',
+              'CO2 emissions|by subsector|Glass production (kt CO2)',
+              
+              NA,
+              'Value added intensity|Cement (VA in \u20ac2010/t of output)',
+              'Value added intensity|Ceramics & other NMM (VA in \u20ac2010/t of output)',
+              'Value added intensity|Glass production (VA in \u20ac2010/t of output)',
+              NA,
+              'Energy intensity|Cement (toe/t of output)',
+              'Energy intensity|Ceramics & other NMM (toe/t of output)',
+              'Energy intensity|Glass production (toe/t of output)',
+              NA,
+              'Useful energy demand intensity|Cement (toe useful/t of output)',
+              'Useful energy demand intensity|Ceramics & other NMM (toe useful/t of output)',
+              'Useful energy demand intensity|Glass production (toe useful/t of output)',
+              'Emission intensity (kt of CO2 / ktoe)',
+              'Emission intensity|Cement (including process emissions) (kt of CO2 / ktoe)',
+              'Emission intensity|Ceramics & other NMM (including process emissions) (kt of CO2 / ktoe)',
+              'Emission intensity|Glass production (including process emissions) (kt of CO2 / ktoe)'
+            )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'NMM_emi' = {list(
+          prefix = 'Non-metallic mineral products|CO2 Emissions|',
+          rows = tibble(
+            name = { c(
+              NA,
+              
+              'Detailed split of CO2 emissions by subsector|Cement (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns)|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Cement|Process emissions (kt of CO2)',
+              
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Refinery gas (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Derived gases (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Steam distributed (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Other liquids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Biomass (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Ceramics & other NMM|Process emissions (kt of CO2)',
+              
+              'Detailed split of CO2 emissions by subsector|Glass production (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Lighting (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Air compressors (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Motor drives (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Fans and pumps (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Solar and geothermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Low enthalpy heat|Electricity (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Forming (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Solids (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|LPG (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Diesel oil (incl. biofuels) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Residual fuel oil (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Natural gas (incl. biogas) (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Glass: Finishing processes (kt of CO2)',
+              'Detailed split of CO2 emissions by subsector|Glass production|Process emissions (kt of CO2)',
+              
+              NA,
+              
+              'Market shares of CO2 emissions by subsector|Cement (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Process emissions (%)',
+              
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Process emissions (%)',
+              
+              'Market shares of CO2 emissions by subsector|Glass production (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Forming (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Finishing processes (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Process emissions (%)',
+              
+              NA,
+              
+              'Emission intensity|Cement (without process emissions) (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Cement: Grinding, milling of raw material (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Cement: Pre-heating and pre-calcination (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Cement: Clinker production (kilns) (kt of CO2 per ktoe)',
+              'Emission intensity|Cement (without process emissions)|Cement: Grinding, packaging (kt of CO2 per ktoe)',
+              
+              'Emission intensity|Ceramics & other NMM (without process emissions) (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Mixing of raw material (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Drying and sintering of raw material (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Primary production process (kt of CO2 per ktoe)',
+              'Emission intensity|Ceramics & other NMM (without process emissions)|Ceramics: Product finishing (kt of CO2 per ktoe)',
+              
+              'Emission intensity|Glass production (without process emissions) (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Lighting (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Air compressors (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Motor drives (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Fans and pumps (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Low enthalpy heat (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Glass: Melting tank (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Glass: Forming (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Glass: Annealing (kt of CO2 per ktoe)',
+              'Emission intensity|Glass production (without process emissions)|Glass: Finishing processes (kt of CO2 per ktoe)'
+            )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'NMM_fec' = { list(
+          prefix = 'Non-metallic mineral products|Final Energy Consumption|',
+          rows = tibble(
+            name = { c(
+              NA,
+              
+              'Detailed split of energy consumption by subsector|Cement (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Lighting (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Air compressors (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Motor drives (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Fans and pumps (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Solar and geothermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Low enthalpy heat|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Grinding, milling of raw material (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Refinery gas (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam|Steam distributed (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Clinker production (kilns)|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Cement|Cement: Grinding, packaging (ktoe)',
+              
+              
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Lighting (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Air compressors (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Motor drives (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Fans and pumps (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Solar and geothermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Low enthalpy heat|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Refinery gas (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Derived gases (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering|Steam distributed (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Other liquids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln|Biomass (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (ktoe)',
+              
+              
+              'Detailed split of energy consumption by subsector|Glass production (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Lighting (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Air compressors (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Motor drives (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Fans and pumps (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Solar and geothermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Low enthalpy heat|Electricity (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Forming (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Solids (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|LPG (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Diesel oil (incl. biofuels) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Residual fuel oil (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal|Natural gas (incl. biogas) (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (ktoe)',
+              'Detailed split of energy consumption by subsector|Glass production|Glass: Finishing processes (ktoe)',
+              
+              
+              NA,
+              
+              'Market shares of CO2 emissions by subsector|Cement (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, milling of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Fuel use (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Pre-heating and pre-calcination|Cement: pre-processing - Steam (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Clinker production (kilns) (%)',
+              'Market shares of CO2 emissions by subsector|Cement|Cement: Grinding, packaging (%)',
+              
+              
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Mixing of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Thermal drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Steam drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Drying and sintering of raw material|Ceramics: Microwave drying and sintering (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Thermal kiln (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Primary production process|Ceramics: Electric kiln (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Thermal furnace (%)',
+              'Market shares of CO2 emissions by subsector|Ceramics & other NMM|Ceramics: Product finishing|Ceramics: Electric furnace (%)',
+              
+              
+              'Market shares of CO2 emissions by subsector|Glass production (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Lighting (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Air compressors (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Motor drives (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Fans and pumps (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Low enthalpy heat (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Thermal melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Melting tank|Glass: Electric melting tank (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Forming (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - thermal (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Annealing|Glass: Annealing - electric (%)',
+              'Market shares of CO2 emissions by subsector|Glass production|Glass: Finishing processes (%)',
+              
+              
+              NA,
+              
+              'Energy intensity|Cement (kgoe per t of output)',
+              'Energy intensity|Cement|Lighting (kgoe per t of output)',
+              'Energy intensity|Cement|Air compressors (kgoe per t of output)',
+              'Energy intensity|Cement|Motor drives (kgoe per t of output)',
+              'Energy intensity|Cement|Fans and pumps (kgoe per t of output)',
+              'Energy intensity|Cement|Low enthalpy heat (kgoe per t of output)',
+              'Energy intensity|Cement|Cement: Grinding, milling of raw material (kgoe per t of output)',
+              'Energy intensity|Cement|Cement: Pre-heating and pre-calcination (kgoe per t of output)',
+              'Energy intensity|Cement|Cement: Clinker production (kilns) (kgoe per t of output)',
+              'Energy intensity|Cement|Cement: Grinding, packaging (kgoe per t of output)',
+              
+              'Energy intensity|Ceramics & other NMM (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Lighting (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Air compressors (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Motor drives (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Fans and pumps (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Low enthalpy heat (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Ceramics: Mixing of raw material (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Ceramics: Drying and sintering of raw material (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Ceramics: Primary production process (kgoe per t of output)',
+              'Energy intensity|Ceramics & other NMM|Ceramics: Product finishing (kgoe per t of output)',
+              
+              'Energy intensity|Glass production (kgoe per t of output)',
+              'Energy intensity|Glass production|Lighting (kgoe per t of output)',
+              'Energy intensity|Glass production|Air compressors (kgoe per t of output)',
+              'Energy intensity|Glass production|Motor drives (kgoe per t of output)',
+              'Energy intensity|Glass production|Fans and pumps (kgoe per t of output)',
+              'Energy intensity|Glass production|Low enthalpy heat (kgoe per t of output)',
+              'Energy intensity|Glass production|Glass: Melting tank (kgoe per t of output)',
+              'Energy intensity|Glass production|Glass: Forming (kgoe per t of output)',
+              'Energy intensity|Glass production|Glass: Annealing (kgoe per t of output)',
+              'Energy intensity|Glass production|Glass: Finishing processes (kgoe per t of output)'
+            )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) }
       )
-      
-      files <- list.files(path = '.',
-                          pattern = '^JRC-IDEES-2015_EmissionBalance_.*\\.xlsx$')
-      
-      if (is_empty(files)) {
-        stop('Could not find any JRC-IDEES-2015_EmissionBalance_.*\\.xlsx files in ', 
-             getwd())
-      }
-      
-      tmp <- tibble()
-      
-      for (file in files)
-      {
-        region <- sub('^JRC-IDEES-2015_EmissionBalance_(.*)\\.xlsx$', '\\1', file)
-        for (sheet in names(variable_mixer))
-        {
-          tmp <- bind_rows(
-            tmp,
-            
-            read_xlsx(path = file, sheet = sheet, col_types = c("text", "skip", rep("numeric",16))) %>%
-              # drop empty rows
-              drop_na(1) %>%
-              # add variable and unit columns
-              bind_cols(variable_mixer[[sheet]]) %>%
-              # drop unneeded rows
-              drop_na('variable', 'unit') %>%
-              # drop rownames from worksheet
-              select(-c(1)) %>%
-              pivot_longer(cols = c(-'variable', -'unit'), names_to = 'year',
-                           names_transform = list('year' = as.integer)) %>% 
-              mutate(region = region)
-          )
-        }
-      }
-      
-      tmp %>% 
-        select('region', 'year', 'variable', 'unit', 'value') %>% 
-        as.magpie(tidy = TRUE) %>% 
-        return()
-      
-    },
-    `Energy` = function()
-    {
-      variable_template <- 
-        tibble(
-          name = c(
-            'All Products (ktoe)',
-            'Solid Fuels (ktoe)',
-            'Hard coal and derivatives (ktoe)',
-            'Hard Coal (ktoe)',
-            'Anthracite (ktoe)',
-            'Coking Coal (ktoe)',
-            'Other Bituminous Coal (ktoe)',
-            'Sub-bituminous Coal (ktoe)',
-            'Patent Fuels (ktoe)',
-            'Coke (ktoe)',
-            'Coke Oven Coke (ktoe)',
-            'Gas Coke (ktoe)',
-            'Coal Tar (ktoe)',
-            'Lignite and Derivatives (ktoe)',
-            'Lignite/Brown Coal (ktoe)',
-            'Peat (ktoe)',
-            'BKB (brown coal briquettes) (ktoe)',
-            'Peat Products (ktoe)',
-            'Oil Shale and Oil Sands (ktoe)',
-            'Total petroleum products (without biofuels) (ktoe)',
-            'Crude oil, feedstocks and other hydrocarbons (ktoe)',
-            'Crude oil and NGL (ktoe)',
-            'Crude Oil without NGL (ktoe)',
-            'Natural Gas Liquids (NGL) (ktoe)',
-            'Feedstocks and other hydrocarbons (ktoe)',
-            'Refinery Feedstocks (ktoe)',
-            'Additives / Oxygenates (ktoe)',
-            'Other Hydrocarbons (without biofuels) (ktoe)',
-            'All Petroleum Products (ktoe)',
-            'Refinery gas and Ethane (ktoe)',
-            'Refinery Gas (not. Liquid) (ktoe)',
-            'Ethane (ktoe)',
-            'Liquified petroleum gas (LPG) (ktoe)',
-            'Motor spirit (ktoe)',
-            'Gasoline (without biofuels) (ktoe)',
-            'Aviation Gasoline (ktoe)',
-            'Kerosenes - Jet Fuels (ktoe)',
-            'Gasoline Type Jet Fuel (ktoe)',
-            'Kerosene Type Jet Fuel (ktoe)',
-            'Other Kerosene (ktoe)',
-            'Naphtha (ktoe)',
-            'Gas/Diesel oil (without biofuels) (ktoe)',
-            'Residual Fuel Oil (ktoe)',
-            'Other Petroleum Products (ktoe)',
-            'White Spirit and SBP (ktoe)',
-            'Lubricants (ktoe)',
-            'Bitumen (ktoe)',
-            'Petroleum Coke (ktoe)',
-            'Paraffin Waxes (ktoe)',
-            'Other Oil Products (ktoe)',
-            'Gases (ktoe)',
-            'Natural gas (ktoe)',
-            'Derived Gases (ktoe)',
-            'Coke Oven Gas (ktoe)',
-            'Blast Furnace Gas (ktoe)',
-            'Gas Works gas (ktoe)',
-            'Other recovered gases (ktoe)',
-            'Nuclear heat (ktoe)',
-            'Derived heat (ktoe)',
-            'Renewable energies (ktoe)',
-            'Hydro power (ktoe)',
-            'Wind Power (ktoe)',
-            'Solar energy (ktoe)',
-            'Solar thermal (ktoe)',
-            'Solar Photovoltaic (ktoe)',
-            'Tide, Wave and Ocean (ktoe)',
-            'Biomass and Renewable wastes (ktoe)',
-            'Solid biofuels (Wood & Wood waste) (ktoe)',
-            'Charcoal (ktoe)',
-            'Biogas (ktoe)',
-            'Municipal waste (renewable) (ktoe)',
-            'Liquid biofuels (ktoe)',
-            'Biogasoline (ktoe)',
-            'Biodiesels (ktoe)',
-            'Bio jet kerosene (ktoe)',
-            'Other liquid biofuels (ktoe)',
-            'Geothermal (ktoe)',
-            'Electricity (ktoe)',
-            'Wastes (non-renewable) (ktoe)',
-            'Industrial wastes (ktoe)',
-            'Municipal waste (non-renewable) (ktoe)'
-          )
-        ) %>%  extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
-      
-      variable_mixer <- list(
-        'cagr' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Agriculture+Forestry+Fishing|', 
-                                             !!sym('variable'))),
-        'cenbf' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Consumption in Blast Furnaces|', 
-                                             !!sym('variable'))),
-        'cenck' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Consumption in Coke Ovens|', 
-                                             !!sym('variable'))),
-        'tibf' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Transformation input - Blast Furnaces|', 
-                                             !!sym('variable'))),
-        'tick' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Transformation input - Coke Ovens|', 
-                                             !!sym('variable'))),
-        'tobf' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Transformation output - Blast Furnaces|', 
-                                             !!sym('variable'))),
-        'tock' = variable_template %>% 
-          mutate(!!sym('variable') := paste0('Transformation output - Coke Ovens|', 
-                                             !!sym('variable')))
-      )
-      
-      files <- list.files(path = '.',
-                          pattern = '^JRC-IDEES-2015_EnergyBalance_.*\\.xlsx$')
-      
-      if (is_empty(files)) {
-        stop('Could not find any JRC-IDEES-2015_EnergyBalance_.*\\.xlsx files in ', 
-             getwd())
-      }
-      
-      tmp <- tibble()
-      
-      for (file in files)
-      {
-        region <- sub('^JRC-IDEES-2015_EnergyBalance_(.*)\\.xlsx$', '\\1', file)
-        for (sheet in names(variable_mixer))
-        {
-          tmp <- bind_rows(
-            tmp,
-            
-            read_xlsx(path = file, sheet = sheet, col_types = c("text", "skip", rep("numeric",16))) %>%
-              # drop empty rows
-              drop_na(1) %>%
-              # add variable and unit columns
-              bind_cols(variable_mixer[[sheet]]) %>%
-              # drop unneeded rows
-              drop_na('variable', 'unit') %>%
-              # drop rownames from worksheet
-              select(-c(1)) %>%
-              pivot_longer(cols = c(-'variable', -'unit'), names_to = 'year',
-                           names_transform = list('year' = as.integer)) %>% 
-              mutate(region = region)
-          )
-        }
-      }
-      
-      tmp %>% 
-        select('region', 'year', 'variable', 'unit', 'value') %>% 
-        as.magpie(tidy = TRUE) %>% 
-        return()
-      
-    }
+    ) }
   )
   
-  # ---- check if the subtype called is available ----
-  if (is_empty(intersect(subtype, names(switchboard))))
-  {
-    stop(paste(
-      'Invalid subtype -- supported subtypes are:',
-      names(switchboard)
-    ))
+  # ---- guardians ----
+  if (!subtype %in% names(subtypes)) {
+    stop('Invalid subtype -- supported subtypes are: ', 
+         paste(names(subtypes), collapse = ', '))
   }
-  else
-  {
-    # ---- load data and do whatever ----
-    return(switchboard[[subtype]]())
+  
+  files <- list.files(path = '.', pattern = subtypes[[subtype]]$pattern)
+  
+  if (is_empty(files)) {
+    stop('Could not find any ', 
+         gsub('[\\^\\$]', '', subtypes[[subtype]]$pattern), ' files in ', 
+         getwd())
   }
+  
+  # ---- parse files ----
+  tmp <- tibble()
+  for (file in files) {
+    region <- sub('.*_([^_]*)\\.xlsx$', '\\1', file)
+    
+    for (sheet in names(subtypes[[subtype]]$sheets)) {
+      # Emission and Energy subtype have an empty column in the header, filter
+      # that out
+      col_names <- as.character(
+        read_xlsx(path = file, sheet = sheet, col_names = FALSE, n_max = 1,
+                  .name_repair = 'minimal'))
+      
+      if (grepl('^[0-9]{4}$', col_names[2])) {
+        col_types <- c('text', rep('numeric', length(col_names) - 1))
+      } else {
+        col_types <- c('text', 'skip', rep('numeric', length(col_names) - 2))
+      }
+      
+      tmp <- bind_rows(
+        tmp,
+        
+        read_xlsx(path = file, sheet = sheet, col_names = col_names, 
+                  col_types = col_types, skip = 1) %>%
+          # drop empty rows
+          drop_na(1) %>%
+          # add variable and unit columns
+          bind_cols(
+            if ('rows' %in% names(subtypes[[subtype]])) {
+              subtypes[[subtype]]$rows
+            } else {
+              subtypes[[subtype]]$sheets[[sheet]]$rows
+            }
+          ) %>%
+          # drop unneeded rows
+          drop_na('variable', 'unit') %>%
+          # drop rownames from worksheet
+          select(-1) %>%
+          # add variable prefix
+          mutate(variable = paste0(subtypes[[subtype]]$sheets[[sheet]]$prefix,
+                                   !!sym('variable'))) %>% 
+          pivot_longer(cols = c(-'variable', -'unit'), names_to = 'year',
+                       names_transform = list('year' = as.integer)) %>% 
+          mutate(region = region)
+      )
+    }
+  }
+  
+  # ---- return output ----
+  tmp %>% 
+    select('region', 'year', 'variable', 'unit', 'value') %>% 
+    as.magpie(tidy = TRUE) %>% 
+    return()
 }
