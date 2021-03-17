@@ -36,8 +36,8 @@ readJRC_IDEES <- function(subtype) {
     Emission = { list(
       pattern = '^JRC-IDEES-2015_EmissionBalance_.*\\.xlsx$',
       sheets = list(
-        'cagr'  = list(prefix = 'Agriculture+Forestry+Fishing|'),
-        'cenck' = list(prefix = 'Coke Ovens|')),
+        'cagr'  = list(prefix = 'Emissions|Agriculture+Forestry+Fishing|'),
+        'cenck' = list(prefix = 'Emissions|Coke Ovens|')),
       rows = tibble(
         name = {
           c(
@@ -121,13 +121,13 @@ readJRC_IDEES <- function(subtype) {
     Energy = { list(
       pattern = '^JRC-IDEES-2015_EnergyBalance_.*\\.xlsx$',
       sheets = list(
-        'cagr'  = list(prefix = 'Agriculture+Forestry+Fishing|'),
-        'cenbf' = list(prefix = 'Consumption in Blast Furnaces|'), 
-        'cenck' = list(prefix = 'Consumption in Coke Ovens|'), 
-        'tibf'  = list(prefix = 'Transformation input - Blast Furnaces|'), 
-        'tick'  = list(prefix = 'Transformation input - Coke Ovens|'), 
-        'tobf'  = list(prefix = 'Transformation output - Blast Furnaces|'), 
-        'tock'  = list(prefix = 'Transformation output - Coke Ovens|')),
+        'cagr'  = list(prefix = 'Energy|Agriculture+Forestry+Fishing|'),
+        'cenbf' = list(prefix = 'Energy|Consumption in Blast Furnaces|'), 
+        'cenck' = list(prefix = 'Energy|Consumption in Coke Ovens|'), 
+        'tibf'  = list(prefix = 'Energy|Transformation input - Blast Furnaces|'), 
+        'tick'  = list(prefix = 'Energy|Transformation input - Coke Ovens|'), 
+        'tobf'  = list(prefix = 'Energy|Transformation output - Blast Furnaces|'), 
+        'tock'  = list(prefix = 'Energy|Transformation output - Coke Ovens|')),
       rows = tibble(
         name = {
           c(
@@ -813,27 +813,27 @@ readJRC_IDEES <- function(subtype) {
                 'Energy intensity|Basic chemicals|Chemicals: Process cooling (kgoe per t of output)',
                 'Energy intensity|Basic chemicals|Chemicals: Generic electric process (kgoe per t of output)',
                 
-                'Other chemicals (kgoe per t of output)',
-                'Other chemicals|Lighting (kgoe per t of output)',
-                'Other chemicals|Air compressors (kgoe per t of output)',
-                'Other chemicals|Motor drives (kgoe per t of output)',
-                'Other chemicals|Fans and pumps (kgoe per t of output)',
-                'Other chemicals|Low enthalpy heat (kgoe per t of output)',
-                'Other chemicals|Chemicals: High enthalpy heat processing (kgoe per t of output)',
-                'Other chemicals|Chemicals: Furnaces (kgoe per t of output)',
-                'Other chemicals|Chemicals: Process cooling (kgoe per t of output)',
-                'Other chemicals|Chemicals: Generic electric process (kgoe per t of output)',
+                'Energy intensity|Other chemicals (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Lighting (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Air compressors (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Motor drives (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Fans and pumps (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Low enthalpy heat (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Chemicals: High enthalpy heat processing (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Chemicals: Furnaces (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Chemicals: Process cooling (kgoe per t of output)',
+                'Energy intensity|Other chemicals|Chemicals: Generic electric process (kgoe per t of output)',
                 
-                'Pharmaceutical products etc. (kgoe per t of output)',
-                'Pharmaceutical products etc.|Lighting (kgoe per t of output)',
-                'Pharmaceutical products etc.|Air compressors (kgoe per t of output)',
-                'Pharmaceutical products etc.|Motor drives (kgoe per t of output)',
-                'Pharmaceutical products etc.|Fans and pumps (kgoe per t of output)',
-                'Pharmaceutical products etc.|Low enthalpy heat (kgoe per t of output)',
-                'Pharmaceutical products etc.|Chemicals: High enthalpy heat processing (kgoe per t of output)',
-                'Pharmaceutical products etc.|Chemicals: Furnaces (kgoe per t of output)',
-                'Pharmaceutical products etc.|Chemicals: Process cooling (kgoe per t of output)',
-                'Pharmaceutical products etc.|Chemicals: Generic electric process (kgoe per t of output)'
+                'Energy intensity|Pharmaceutical products etc. (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Lighting (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Air compressors (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Motor drives (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Fans and pumps (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Low enthalpy heat (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Chemicals: High enthalpy heat processing (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Chemicals: Furnaces (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Chemicals: Process cooling (kgoe per t of output)',
+                'Energy intensity|Pharmaceutical products etc.|Chemicals: Generic electric process (kgoe per t of output)'
               )
             }
           ) %>%
