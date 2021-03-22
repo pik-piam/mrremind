@@ -140,7 +140,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
-
+  
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")
   calcOutput("EmiTarget", subtype="multiplier_cond",      round=4,  file="p45_factor_targetyear.cs4r")
@@ -152,7 +152,8 @@ fullREMIND <- function(rev=0) {
   calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_GHG", round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
-
+  calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
+  
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
