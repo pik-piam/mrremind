@@ -12,7 +12,7 @@
 readGCPT <- function(subtype) {
   map <- toolGetMapping("regionmappingH12.csv",type="regional")
   
-  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates",
+  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","meanAge",
                        "historical2020","status2020","future2020","lifespans2020","emissions2020","comp_rates2020","2030"))) {
     stop("Invalid subtype!")
   }
@@ -218,6 +218,14 @@ readGCPT <- function(subtype) {
 
   if (subtype=="lifespans") {
     return(mavgRetAge)
+  }else if (subtype=="meanAge") {
+    meanAge <- retire %>% select(Country,`Plant age`,`Capacity (MW)`,Status) %>% 
+      filter(Status=="Operating" & !is.na(`Capacity (MW)`) & !is.na(`Plant age`)) 
+    meanAge_c <- meanAge %>% group_by(Country) %>% summarise(meanAge=weighted.mean(`Plant age`,`Capacity (MW)`))
+    meanAge_c <- toolCountryFill(as.magpie(meanAge_c,spatial=1),fill=0)
+    capWeight <- meanAge %>% group_by(Country) %>% summarise(Capacity=sum(`Capacity (MW)`))
+    capWeight <- toolCountryFill(as.magpie(capWeight,spatial=1),fill=0)
+    return(toolAggregate(meanAge_c,map,capWeight))
   }
   
   #Return national average lifespans to calculate early retirement adjustment factors 
@@ -534,15 +542,15 @@ readGCPT <- function(subtype) {
   
   # Return completion rate magpies 
   if (grepl("comp_rates",subtype)) {
-    getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    getNames(comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    getNames(glo_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    getNames(glo_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    getNames(reg_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
-    getNames(reg_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
+    getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(glo_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(glo_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(reg_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(reg_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
     reg_mtran <- toolAggregate(
       setNames(mtran[,,c("shelved","newcon","ann","pre","perm")],
-               c("Shelved","Construction","Announced","Pre-permit development","Permitted")),map,NULL)
+               c("Shelved","Construction","Announced","Pre-permit","Permitted")),map,NULL)
     if (grepl("reg",subtype)) {
       reg_all_comp_rate <- toolAggregate(reg_comp_rate,weight=reg_mtran,dim=3,rel=data.frame(from=getNames(reg_mtran),to=rep("all",5)))
       out <- mbind(reg_comp_rate,reg_all_comp_rate)
@@ -619,14 +627,14 @@ readGCPT <- function(subtype) {
   }
   
   # Prepare completion rate data frames
-  getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
+  getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
   df_comp <- as.data.frame(comp_rate)
   colnames(df_comp)[2] <- "Country"
   df_comp <- df_comp[,-3]
   df_comp <- df_comp[,-1]
   colnames(df_comp)[2] <- "Status"
   
-  getNames(comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit development","Permitted")
+  getNames(comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
   df_comp_brown <- as.data.frame(comp_rate_brown)
   colnames(df_comp_brown)[2] <- "Country"
   df_comp_brown <- df_comp_brown[,-3]
@@ -646,20 +654,35 @@ readGCPT <- function(subtype) {
     substr(emi_data$Year[which(grepl("/",emi_data$Year,fixed=TRUE) | grepl("-",emi_data$Year,fixed=TRUE))],1,4)
   emi_data$Year <- as.numeric(emi_data$Year)
   
+  # Set operating plants with an unknown age to 50% of the national average lifespan
+  emi_data <- emi_data %>% 
+    mutate(`Plant age`=
+             ifelse(is.na(Year) & Status=="Operating",
+                    0.5 * Avg_Ret_Age,
+                    `Plant age`))
+
+  # emi_data[which(is.na(emi_data$`Plant age`)),] <- emi_data[which(is.na(emi_data$`Plant age`)),] %>% mutate(`Plant age`=Avg_Ret_Age/2)
+  
   # Set pipeline plants to appropriate ages
   for (Phase in getNames(comp_rate)) {
     
-    emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)] <- 
-      2020 - emi_data$Year[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)]
+    emi_data <- emi_data %>% 
+      mutate(`Plant age` = 
+               ifelse(Status==Phase & is.finite(Year) & Year >=2020,
+                      2020 - Year,
+                      `Plant age`))
     
-    meanAge <- mean(emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)])
+    meanAge <- emi_data %>% 
+      filter(Status==Phase & is.finite(Year) & Year >=2020) %>% 
+      summarise(age=mean(`Plant age`))
     
-    emi_data$`Plant age`[which(emi_data$Status==Phase & is.na(emi_data$`Plant age`))] <- meanAge
+    # emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)] <- 
+    #   2020 - emi_data$Year[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)]
+    
+    # meanAge <- mean(emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)])
+    
+    emi_data$`Plant age`[which(emi_data$Status==Phase & is.na(emi_data$Year))] <- meanAge$age
   }
-  
-  # Set operating plants with an unknown age to 50% of the national average lifespan
-  emi_data[which(is.na(emi_data$`Plant age`)),] <- emi_data[which(is.na(emi_data$`Plant age`)),] %>% mutate(`Plant age`=Avg_Ret_Age/2)
-  
   
   # Read in national average capacity factor assumption for each 5-year time-step
   capFac <- calcOutput("CapacityFactor",aggregate=F)[,seq(2020,2100,5),"pc"]
