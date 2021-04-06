@@ -12,7 +12,7 @@
 #' }
 #' 
 
-calcEmiReference <-  function(subtype="EEA_sectoral"){
+calcEmiReference <-  function(){
   
   eea.emi.ets <- readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral")[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]
   eea.emi.ets[is.na(eea.emi.ets)] <- 0
@@ -32,6 +32,8 @@ calcEmiReference <-  function(subtype="EEA_sectoral"){
   #eea.emi.total_EEA <- setNames(eea.emi.ets + eea.emi.esd, "Emi|GHGtot without Bunkers and LULUCF (Mt CO2-equiv/yr)") 
   
   # ETS + ESD emission target reduction in relation to 1990 = 40% reduction by 2030
+  
+  
   out <- NULL
   out <- mbind(out,
                setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*0.40,2030), "Emi|GHGtot|target|40% (Mt CO2-equiv/yr)"), # target without lulucf
@@ -40,15 +42,18 @@ calcEmiReference <-  function(subtype="EEA_sectoral"){
                )
   
   # ESD emission target - per country ESD reduction target for 2030 = reduction of 30% by 2030 compared to 2005
-  esd_target <- readSource("Eurostat_EffortSharing",subtype="target")
+  esd_target_perc <- readSource("Eurostat_EffortSharing",subtype="target")
+  esd_target <- setYears(eea.emi.esd[,2005,],NULL)*(1+esd_target_perc)
+  esd_target[esd_target==0] <- NA
   out <- mbind(out,
-               setNames(setYears(eea.emi.esd[,2005,]*(1+esd_target[,2020,]),2020), "Emi|GHG|ES|target|40% (Mt CO2-equiv/yr)"),
-               setNames(setYears(eea.emi.esd[,2005,]*(1+esd_target[,2030,]),2030), "Emi|GHG|ES|target|40% (Mt CO2-equiv/yr)")
+               setNames(esd_target[,2030,], "Emi|GHG|ES|target|40% (Mt CO2-equiv/yr)")
   )
   
   # ETS emission target (reduction of 2030 emissions by 43% compared to 2005)
+  ets_target <- setYears(eea.emi.ets[,2005,]*(1-0.43),2030)
+  ets_target[ets_target==0] <- NA
   out <- mbind(out,
-               setNames(setYears(eea.emi.ets[,2005,]*(1-0.43),2030), "Emi|GHG|ETS|target|40% (Mt CO2-equiv/yr)")
+               setNames(ets_target, "Emi|GHG|ETS|target|40% (Mt CO2-equiv/yr)")
   )
   
   return(list(x=out,weight=NULL,unit="Mt CO2-equiv/yr",description="Emission reduction targets"))
