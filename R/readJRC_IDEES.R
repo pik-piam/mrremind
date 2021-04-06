@@ -1026,6 +1026,67 @@ readJRC_IDEES <- function(subtype) {
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) },
+        'Ind_Summary_emi' = { list(
+          prefix = 'Industry Summary|CO2 Emissions|',
+          rows = tibble(
+            name = {
+              c(
+                NA,
+                
+                'All Industrial Sectors (kt of CO2)',
+                'All Industrial Sectors|Lighting (kt of CO2)',
+                'All Industrial Sectors|Air compressors (kt of CO2)',
+                'All Industrial Sectors|Motor drives (kt of CO2)',
+                'All Industrial Sectors|Fans and pumps (kt of CO2)',
+                'All Industrial Sectors|Low enthalpy heat (kt of CO2)',
+                'All Industrial Sectors|Low enthalpy heat|Diesel oil (kt of CO2)',
+                'All Industrial Sectors|Low enthalpy heat|Natural gas (kt of CO2)',
+                'All Industrial Sectors|Low enthalpy heat|Solar (kt of CO2)',
+                'All Industrial Sectors|Low enthalpy heat|Electricity (kt of CO2)',
+                'All Industrial Sectors|Steam processes (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Solids (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Refinery gas (kt of CO2)',
+                'All Industrial Sectors|Steam processes|LPG (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Diesel oil (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Residual fuel oil (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Other liquids (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Natural gas (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Derived gases (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Biomass (kt of CO2)',
+                'All Industrial Sectors|Steam processes|Steam distributed (kt of CO2)',
+                'All Industrial Sectors|Other energy use related (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Solids (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Coke (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|LPG (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Diesel oil (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Residual fuel oil (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Other liquids (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Natural gas (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Derived gases (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Biomass and wastes (kt of CO2)',
+                'All Industrial Sectors|Other energy use related|Electricity (kt of CO2)',
+                'All Industrial Sectors|Process emissions (kt of CO2)',
+                'All Industrial Sectors|Process emissions|Iron and Steel (kt of CO2)',
+                'All Industrial Sectors|Process emissions|Non-Ferrous Metals (kt of CO2)',
+                'All Industrial Sectors|Process emissions|Chemical and Petrochemical (kt of CO2)',
+                'All Industrial Sectors|Process emissions|Non-Metallic Minerals (kt of CO2)',
+                'All Industrial Sectors|Process emissions|Solvent use and other process (kt of CO2)',
+                
+                NA,
+                
+                'Market shares of CO2 emissions|All Industrial Sectors (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Lighting (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Air compressors (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Motor drives (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Fans and pumps (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Low enthalpy heat (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Steam processes (%)',
+                'Market shares of CO2 emissions|All Industrial Sectors|Other energy use related (%)'
+              )
+            }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
         'ISI' = { list(
           prefix = 'Iron and Steel|',
           rows = tibble(
