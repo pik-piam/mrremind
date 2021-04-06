@@ -12,10 +12,10 @@
 #' a <- readSource(type = "EEA_EuropeanEnvironmentAgency", subtype = "ETS")
 #' }
 #'
-#' @importFrom dplyr left_join
+#' @importFrom dplyr left_join select filter mutate
 #' @importFrom magclass as.magpie
 #' @importFrom quitte calc_addVariable
-#' @importFrom readxl read_excel
+#' @importFrom readxl read_excel excel_sheets
 #' @importFrom reshape2 melt
 #' @importFrom madrat toolCountry2isocode
 
@@ -68,7 +68,8 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
 
     for (s in sheets) {
       tmp <- read_excel(path = "GHG_ETS_ES_Projections_by_sector.xlsx", sheet = s, skip = 1, trim_ws = T)
-      tmp <- melt(tmp, id.vars = 1)
+      tmp <- melt(tmp, id.vars = 1) 
+      tmp <- mutate(tmp, !!sym("value") := ifelse(is.na(!!sym("value")), 0, !!sym("value"))) # set 0s for NAs
       colnames(tmp) <- c("label", "period", "value")
       tmp <- cbind(tmp[!is.na(tmp$value) & tmp$period %in% timeframe, ], region = s)
       historical <- rbind(historical, tmp)
@@ -97,7 +98,8 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     historical$label <- NULL
     historical <- historical[, c(1, 4, 2, 3)]
     x <- as.magpie(historical, spatial = 2, datacol = 4, temporal = 3)
-  } else if (subtype == "projections") {
+  } 
+  else if (subtype == "projections") {
 
     mapping.variable <- as.data.frame(
       cbind(
@@ -194,7 +196,8 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     x <- as.magpie(projections, spatial = 3, temporal = 4, datacol = 5)
 
     return(x)
-  } else {
+  } 
+  else {
     stop("Not a valid subtype!")
   }
 
