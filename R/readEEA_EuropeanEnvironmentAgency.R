@@ -67,7 +67,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     timeframe <- seq(2005, 2017) # excluding WEM projections
 
     for (s in sheets) {
-      tmp <- read_excel(path = "GHG_ETS_ES_Projections_by_sector.xlsx", sheet = s, skip = 1, trim_ws = T)
+      tmp <- suppressMessages(read_excel(path = "GHG_ETS_ES_Projections_by_sector.xlsx", sheet = s, skip = 1, trim_ws = T))
       tmp <- melt(tmp, id.vars = 1) 
       tmp <- mutate(tmp, !!sym("value") := ifelse(is.na(!!sym("value")), 0, !!sym("value"))) # set 0s for NAs
       colnames(tmp) <- c("label", "period", "value")
@@ -77,17 +77,27 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
 
     mapping.variable <- as.data.frame(
       cbind(
-        variable = c(
+        variable=c(
+          "Emi|GHG|ETS",
+          "Emi|GHG|Energy|ETS",
           "Emi|GHG|Industry|ETS",
-          "Emissions|CO2|Energy|Demand|Transportation",
-          "Emissions|CO2|Energy|Demand|Residential and Commercial",
-          "Emi|GHG|Industry|ESD"
-        ),
-        label = c(
+          "Emi|GHG|ESD",
+          "Emi|GHG|Transport|ESD",
+          "Emi|GHG|Buildings|ESD",
+          "Emi|GHG|Industry|ESD",
+          "Emi|GHG|Agriculture|ESD",
+          "Emi|GHG|Waste|ESD"
+        ), 
+        label=c(
+          "Emissions Trading System (stationary installations)",
+          "Energy Industries",
           "Other stationary installations",
+          "Effort Sharing Decision and Regulation",
           "Transport",
           "Buildings",
-          "Industry and other"
+          "Industry and other",
+          "Agriculture",
+          "Waste"
         )
       )
     )
