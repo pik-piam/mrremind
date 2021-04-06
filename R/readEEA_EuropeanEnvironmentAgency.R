@@ -77,16 +77,26 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     mapping.variable <- as.data.frame(
       cbind(
         variable=c(
+          "Emi|GHG|ETS",
+          "Emi|GHG|Energy|ETS",
           "Emi|GHG|Industry|ETS",
-          "Emissions|CO2|Energy|Demand|Transportation",
-          "Emissions|CO2|Energy|Demand|Residential and Commercial",
-          "Emi|GHG|Industry|ESD"
+          "Emi|GHG|ESD",
+          "Emi|GHG|Transport|ESD",
+          "Emi|GHG|Buildings|ESD",
+          "Emi|GHG|Industry|ESD",
+          "Emi|GHG|Agriculture|ESD",
+          "Emi|GHG|Waste|ESD"
         ), 
         label=c(
+          "Emissions Trading System (stationary installations)",
+          "Energy Industries",
           "Other stationary installations",
+          "Effort Sharing Decision and Regulation",
           "Transport",
           "Buildings",
-          "Industry and other"
+          "Industry and other",
+          "Agriculture",
+          "Waste"
         )
       )
     )    

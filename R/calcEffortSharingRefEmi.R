@@ -1,7 +1,7 @@
 #' @title calc Effort Sharing Reference Emissions
 #' @description provides region specific Effort Sharing Reference Emissions
 #'
-#' @param subtype type of reference emissions used to define emission reduction target fo European Effort Sharing Decision: Eurostat_GHG, REMIND_GHG or REMIND_CO2.
+#' @param subtype type of reference emissions used to define emission reduction target fo European Effort Sharing Decision: EEA_GHG, Eurostat_GHG, REMIND_GHG (deprecated) or REMIND_CO2.
 #' @return 2005 reference emissions to calculate effort sharing decision targets
 #' @author Renato Rodrigues
 #' @examples
@@ -13,7 +13,13 @@
 
 calcEffortSharingRefEmi <- function(subtype){
   
-  if(subtype=="Eurostat_GHG"){
+  if(subtype=="EEA_GHG"){
+    e <- readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral")[,2005,"Emi|GHG|ESD (Mt CO2-equiv/yr)"]
+    e[is.na(e)] <- 0
+    description <- "Effort sharing reference 2005 emissions in Mt CO2-equiv from EEA sectoral data" 
+    unit <- "Mt CO2-equiv"
+    
+  } else if(subtype=="Eurostat_GHG"){
     e <- readSource("Eurostat_EffortSharing",subtype="emissions")[,2005,] 
     description <- "Effort sharing reference 2005 emissions in Mt CO2-equiv from Eurostat" 
     unit <- "Mt CO2-equiv"
@@ -31,6 +37,7 @@ calcEffortSharingRefEmi <- function(subtype){
     e <- toolCountryFill(e,fill=0)
     description <- "Effort sharing reference 2005 emissions in Mt CO2-equiv from REMIND" 
     unit <- "Mt CO2-equiv"
+    
   } else if (subtype=="REMIND_CO2") {
     e_ES <- readSource("Eurostat_EffortSharing",subtype="emissions") 
     EU11map <- toolGetMapping("regionmapping_21_EU11.csv", type = "regional")
@@ -42,6 +49,7 @@ calcEffortSharingRefEmi <- function(subtype){
     e <- toolCountryFill(e,fill=0)
     description <- "Effort sharing reference 2005 emissions in Mt CO2 from REMIND" 
     unit <- "Mt CO2"
+    
   }
   getNames(e) <- NULL
   
