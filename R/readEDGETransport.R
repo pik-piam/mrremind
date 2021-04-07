@@ -328,38 +328,21 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
          },
 
-
-         "pm_bunker_share_in_nonldv_fe" = {
-           tmp = fread("EDGE_output_FEdem.csv")
-           ## select only Liquids as a fuel
-           tmp = tmp[fuel == "Liquids",]
+         "f35_bunkers_fe" = {
+           tmp = fread("EDGE_output_iso_FEdem.csv")
+           ## select only bunkers
+           tmp = tmp[category == "Bunkers",]
            ## summarize according to the CES category
-           tmp = tmp[,.(value = sum(totdem)), by = .(node, GDP_scenario, EDGE_scenario, region, year, category)]
-           ## select HDVs only
-           tmp = tmp[node == "HDV",]
+           tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year)]
            ## extend to necessary time steps
            tmp = approx_dt(tmp,
                            xdata = seq(2005, 2150, 5),
                            xcol = "year",
                            ycol = "value",
-                           idxcols = c("GDP_scenario", "EDGE_scenario", "region", "category"),
+                           idxcols = c("GDP_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
-           ## calculate the share of bunkers/no bunkers on total HDV
-           tmp[, value := value/sum(value), by = .(region, year, GDP_scenario, EDGE_scenario)]
-           ## select only bunkers
-           tmp = tmp[category == "Bunkers"][, c("category", "node") := NULL]
-           ## set cols order
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "value"))
-           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 5)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
-             }
-           }
+           ## create magpie object
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)
          },
 
          {
