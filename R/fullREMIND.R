@@ -6,6 +6,7 @@
 #' @param rev data revision which should be used as input (positive numeric).
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
+#' @importFrom edgeTransport collectScens generateEDGEdata
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -100,7 +101,8 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
-  calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")
+  calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
+  calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                        round=6,  file="f_cf.cs3r")
   calcOutput("StorageFactor",                         round=6,  file="f32_factorStorage.cs4r")
@@ -138,7 +140,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
-
+  
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")
   calcOutput("EmiTarget", subtype="multiplier_cond",      round=4,  file="p45_factor_targetyear.cs4r")
@@ -148,27 +150,52 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
   calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype="REMIND_GHG", round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
-
+  calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
+  
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+  infoConfig = getConfig()
+  print(infoConfig$regionmapping)
+  if (infoConfig$regionmapping == "regionmappingH12.csv") {
+    ## run EDGE-T
+    lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
+           function(x){
+             generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
+                              output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
+                              EDGE_scenario = x,
+                              REMIND_scenario = "SSP2",
+                              IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
+                              GDP_country = calcOutput("GDPppp", aggregate = F),
+                              POP_country = calcOutput("Population", aggregate = F),
+                              saveRDS = FALSE)
+           })
+
+    ## collect the scenarios in the corresponding source folder
+    collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
+                 output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
+
+  }
+
+
+  ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
-           "pm_trp_demand", "pm_fe_demand_EDGETbased", "pm_bunker_share_in_nonldv_fe"),
+           "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe"),
          function(stype){
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,
                                        file=paste0(stype, ".cs4r"), aggregate=T))
          })
-  ## logit exponent has not to be aggregated since it is global
+
   lapply(c("logit_exponent"),
          function(stype){
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,
-                                       file=paste0(stype, ".cs4r"), aggregate=F))
+                                       file=paste0(stype, ".cs4r"), aggregate=F)) ## logit exponent has not to be aggregated since it is global
          })
 
 

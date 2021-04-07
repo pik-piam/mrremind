@@ -10,7 +10,6 @@
 #' 
 
 calcCapacityFactor <- function(){
-  
   # Read capacity factor inputs
   global <- readSource("REMIND_11Regi", subtype="capacityFactorGlobal", convert = FALSE)
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
@@ -36,7 +35,7 @@ calcCapacityFactor <- function(){
   coalgen_R <- toolAggregate(coalgen_c,map,weight=NULL)
   getNames(coalgen_c) <- "pc"
   getNames(coalgen_R) <- "pc"
-  
+
   #Read coal capacity data from GCPT
   hist_cap_coal_c <- readSource("GCPT",subtype="historical")
   hist_cap_coal_R <- toolAggregate(hist_cap_coal_c,rel=map,weight=NULL)
@@ -44,11 +43,14 @@ calcCapacityFactor <- function(){
   #Calculate historical 5-year average capacity factors by country
   coal_factor_c <- new.magpie(getRegions(hist_cap_coal_c),years = c(2005,2010,2015),names="pc",fill=0)
   coal_factor_R <- new.magpie(getRegions(hist_cap_coal_R),years = getYears(coal_factor_c),names="pc",fill=0)
-  for (i in c(2005,2010,2015)) {
-    if (paste0("y",(i+2)) %in% getYears(coalgen_c)) {
+  for (i in getYears(coal_factor_c,as.integer=TRUE)) {
+    if ((i+2) %in% getYears(coalgen_c,as.integer=TRUE)) {
       coal_factor_c[,i,] <- dimSums(coalgen_c[,(i-2):(i+2),],dim=2)/(dimSums(hist_cap_coal_c[,(i-2):(i+2),],dim=2)*365*24/277777.77778)
       coal_factor_R[,i,] <- dimSums(coalgen_R[,(i-2):(i+2),],dim=2)/(dimSums(hist_cap_coal_R[,(i-2):(i+2),],dim=2)*365*24/277777.77778)
       #coal_factor_c[,i,][which(dimSums(hist_cap_coal_c[,(i-2):(i+2),],dim=2)==0)] <- 0
+    }else if ((i+1) %in% getYears(coalgen_c,as.integer=TRUE)) {
+      coal_factor_c[,i,] <- dimSums(coalgen_c[,(i-2):(i+1),],dim=2)/(dimSums(hist_cap_coal_c[,(i-2):(i+1),],dim=2)*365*24/277777.77778)
+      coal_factor_R[,i,] <- dimSums(coalgen_R[,(i-2):(i+1),],dim=2)/(dimSums(hist_cap_coal_R[,(i-2):(i+1),],dim=2)*365*24/277777.77778)
     }else {
       coal_factor_c[,i,] <- dimSums(coalgen_c[,(i-2):i,],dim=2)/(dimSums(hist_cap_coal_c[,(i-2):i,],dim=2)*365*24/277777.77778)
       coal_factor_R[,i,] <- dimSums(coalgen_R[,(i-2):i,],dim=2)/(dimSums(hist_cap_coal_R[,(i-2):i,],dim=2)*365*24/277777.77778)

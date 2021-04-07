@@ -6,7 +6,7 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Marianna Rottoli, Alois Dirnaichner
 #' @seealso \code{\link{readSource}}
-#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport
+#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
@@ -19,7 +19,7 @@
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
   vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- EJ_Mpkm_final <- varname <- NULL
-  fuel <- region <- node <- totdem <- `.`<- category <- tall <- NULL
+  fuel <- region <- iso <- node <- totdem <- `.`<- category <- tall <- all_in <-NULL
   switch(subtype,
 
          "logit_exponent" = {
@@ -236,6 +236,40 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
          },
 
+         "demISO" = {
+           tmp <- fread(paste0(subtype, ".csv"))
+	   ## adapt database with compatible column names and values
+           setnames(tmp, old = c("sector", "dem"), new = c("all_in", "value"))
+           tmp[all_in == "trn_freight", all_in := "entrp_frgt_sm"]
+           tmp[all_in == "trn_shipping_intl", all_in := "entrp_frgt_lo"]
+           tmp[all_in == "trn_pass", all_in := "entrp_pass_sm"]
+           tmp[all_in == "trn_aviation_intl", all_in := "entrp_pass_lo"]
+           ## get all the needed dimensions
+           map = data.table(all_in = c("entrp_frgt_lo", "entrp_frgt_sm", "entrp_frgt_sm", "entrp_frgt_sm",
+                                     "entrp_frgt_sm", "entrp_pass_lo", "entrp_pass_sm", "entrp_pass_sm",
+                                     "entrp_pass_sm", "entrp_pass_sm", "entrp_pass_sm"),
+                           all_enty = c("fedie", "fedie", "feelt", "fegat", "feh2t", "fedie", "fedie",
+                                        "feelt", "fegat", "feh2t", "fepet"),
+                            all_teEs = c("te_esdie_frgt_lo", "te_esdie_frgt_sm", "te_eselt_frgt_sm",
+                                        "te_esgat_frgt_sm", "te_esh2t_frgt_sm", "te_esdie_pass_lo",
+                                        "te_esdie_pass_sm", "te_eselt_pass_sm","te_esgat_pass_sm",
+                                        "te_esh2t_pass_sm", "te_espet_pass_sm"))
+           tmp = merge(tmp, map, by = "all_in", all = TRUE, allow.cartesian = T)
+
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "all_in", "all_enty", "all_teEs","value"))
+
+           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
+           mdata <- NULL
+           for (j in unique(tmp$EDGE_scenario)) {
+             tmp_EDGE <- tmp[EDGE_scenario == j]
+             for (i in unique(tmp$GDP_scenario)) {
+               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial=3, datacol = 7)
+               mdata <- mbind(mdata, tmp_EDGE_SSP)
+             }
+           }
+         },
+
          "shares_LDV_transport" = {
            tmp <- fread(paste0(subtype, ".cs4r"))
            tmp[, varname := subtype]
@@ -294,38 +328,21 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
          },
 
-
-         "pm_bunker_share_in_nonldv_fe" = {
-           tmp = fread("EDGE_output_FEdem.csv")
-           ## select only Liquids as a fuel
-           tmp = tmp[fuel == "Liquids",]
+         "f35_bunkers_fe" = {
+           tmp = fread("EDGE_output_iso_FEdem.csv")
+           ## select only bunkers
+           tmp = tmp[category == "Bunkers",]
            ## summarize according to the CES category
-           tmp = tmp[,.(value = sum(totdem)), by = .(node, GDP_scenario, EDGE_scenario, region, year, category)]
-           ## select HDVs only
-           tmp = tmp[node == "HDV",]
+           tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, EDGE_scenario, iso, year)]
            ## extend to necessary time steps
            tmp = approx_dt(tmp,
                            xdata = seq(2005, 2150, 5),
                            xcol = "year",
                            ycol = "value",
-                           idxcols = c("GDP_scenario", "EDGE_scenario", "region", "category"),
+                           idxcols = c("GDP_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
-           ## calculate the share of bunkers/no bunkers on total HDV
-           tmp[, value := value/sum(value), by = .(region, year, GDP_scenario, EDGE_scenario)]
-           ## select only bunkers
-           tmp = tmp[category == "Bunkers"][, c("category", "node") := NULL]
-           ## set cols order
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "value"))
-           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 5)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
-             }
-           }
+           ## create magpie object
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)
          },
 
          {
