@@ -218,6 +218,7 @@ calcHistorical <- function() {
 
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate=FALSE))
+  Emi_Reference <- add_dimension(Emi_Reference, dim=3.1,add="model",nm="EEA") 
   
   # Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
