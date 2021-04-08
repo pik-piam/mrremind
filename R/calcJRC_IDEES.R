@@ -11,7 +11,7 @@
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mbind mselect
 #' @importFrom rlang sym
-#' @importFrom stats 
+#' @importFrom stats aggregate
 
 calcJRC_IDEES <- function() {
   
