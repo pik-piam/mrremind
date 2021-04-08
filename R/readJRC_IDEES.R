@@ -2650,6 +2650,35 @@ readJRC_IDEES <- function(subtype) {
     Bunkers = { list(
       pattern = '^JRC-IDEES-2015_MBunkers_.*\\.xlsx$',
       sheets = list(
+        'MBunk_act' = { list(
+          prefix = 'Maritime Bunkers|',
+          rows = tibble(
+            name = { c(
+              'Transport activity (mio tkm)',
+              'Transport activity|Intra-EU (mio tkm)',
+              'Transport activity|Extra-EU (mio tkm)',
+              
+              'Vehicle-km (mio km)',
+              'Vehicle-km|Intra-EU (mio km)',
+              'Vehicle-km|Extra-EU (mio km)',
+              
+              NA,
+              
+              'Load factor of vehicles (t/movement)',
+              'Load factor of vehicles|Intra-EU (t/movement)',
+              'Load factor of vehicles|Extra-EU (t/movement)',
+              
+              NA,
+              'Market shares of activity|Intra-EU (% of tkm)',
+              'Market shares of activity|Extra-EU (% of tkm)',
+              
+              NA,
+              'Market shares of vehicle km|Intra-EU (% of tkm)',
+              'Market shares of vehicle km|Extra-EU (% of tkm)'
+            ) }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
         'MBunk_emi' = { list(
           prefix = 'Maritime Bunkers|CO2 Emissions|',
           rows = tibble(
