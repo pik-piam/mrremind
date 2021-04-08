@@ -184,7 +184,7 @@ fullREMIND <- function(rev=0) {
   ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
-           "pm_trp_demand", "pm_fe_demand_EDGETbased", "pm_bunker_share_in_nonldv_fe"),
+           "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe"),
          function(stype){
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,
