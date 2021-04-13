@@ -8,7 +8,7 @@
 #'   - `'Energy'`:   read worksheets from the Energy Balance files
 #'   - `'Industry'`: read worksheets from the Industry files
 #'   - `'Transport'`: read worksheets from the Transport files
-#'   - `'Bunkers'`: read worksheets from the Bunkers files
+#'   - `'MBunkers'`: read worksheets from the Bunkers files
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -2439,30 +2439,30 @@ readJRC_IDEES <- function(subtype) {
               'Shares of CO2 emissions|Freight transport|Coastal shipping and inland waterways|Inland waterways (%)',
               
               NA,
-              'Energy consumption|Passenger transport (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Road transport (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Road transport|Powered 2-wheelers (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Road transport|Passenger cars (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Road transport|Motor coaches, buses and trolley buses (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Rail, metro and tram (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Rail, metro and tram|Metro and tram, urban light rail (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Rail, metro and tram|Conventional passenger trains (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Rail, metro and tram|High speed passenger trains (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Aviation (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Aviation|Domestic (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Aviation|International - Intra-EU (kgoe / 000 pkm)',
-              'Energy consumption|Passenger transport|Aviation|International - Extra-EU (kgoe / 000 pkm)',
-              'Energy consumption|Freight transport (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Road transport (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Road transport|Light duty vehicles (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Road transport|Heavy duty vehicles (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Rail transport (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Aviation (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Aviation|Domestic and International - Intra-EU (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Aviation|International - Extra-EU (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Coastal shipping and inland waterways (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Coastal shipping and inland waterways|Domestic coastal shipping (kgoe / 000 tkm)',
-              'Energy consumption|Freight transport|Coastal shipping and inland waterways|Inland waterways (kgoe / 000 tkm)',
+              'Energy consumption per activity|Passenger transport (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Road transport (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Road transport|Powered 2-wheelers (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Road transport|Passenger cars (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Road transport|Motor coaches, buses and trolley buses (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Rail, metro and tram (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Rail, metro and tram|Metro and tram, urban light rail (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Rail, metro and tram|Conventional passenger trains (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Rail, metro and tram|High speed passenger trains (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Aviation (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Aviation|Domestic (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Aviation|International - Intra-EU (kgoe / 000 pkm)',
+              'Energy consumption per activity|Passenger transport|Aviation|International - Extra-EU (kgoe / 000 pkm)',
+              'Energy consumption per activity|Freight transport (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Road transport (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Road transport|Light duty vehicles (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Road transport|Heavy duty vehicles (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Rail transport (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Aviation (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Aviation|Domestic and International - Intra-EU (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Aviation|International - Extra-EU (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Coastal shipping and inland waterways (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Coastal shipping and inland waterways|Domestic coastal shipping (kgoe / 000 tkm)',
+              'Energy consumption per activity|Freight transport|Coastal shipping and inland waterways|Inland waterways (kgoe / 000 tkm)',
               
               NA,
               'Emission intensity|Passenger transport (kg of CO2 / 000 pkm)',
@@ -2489,8 +2489,7 @@ readJRC_IDEES <- function(subtype) {
               'Emission intensity|Freight transport|Coastal shipping and inland waterways (kg of CO2 / 000 tkm)',
               'Emission intensity|Freight transport|Coastal shipping and inland waterways|Domestic coastal shipping (kg of CO2 / 000 tkm)',
               'Emission intensity|Freight transport|Coastal shipping and inland waterways|Inland waterways (kg of CO2 / 000 tkm)'
-            )
-            }
+            ) }
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) },
@@ -3390,6 +3389,68 @@ readJRC_IDEES <- function(subtype) {
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) },
+        'TrAvia_emi' = { list(
+          prefix = 'Transport|Aviation|CO2 Emissions|',
+          rows = tibble(
+            name = { c(
+              NA,
+              'by fuel (kt CO2)',
+              'by fuel|Liquids (kt CO2)',
+              
+              'Split of CO2 emissions (kt CO2)',
+              'Split of CO2 emissions|Passenger transport (kt CO2)',
+              'Split of CO2 emissions|Passenger transport|Domestic (kt CO2)',
+              'Split of CO2 emissions|Passenger transport|International - Intra-EU (kt CO2)',
+              'Split of CO2 emissions|Passenger transport|International - Extra-EU (kt CO2)',
+              'Split of CO2 emissions|Freight transport (kt CO2)',
+              'Split of CO2 emissions|Freight transport|Domestic and International - Intra-EU (kt CO2)',
+              'Split of CO2 emissions|Freight transport|International - Extra-EU (kt CO2)',
+              
+              NA,
+              
+              NA,
+              'Emission factors|by fuel (kt CO2 / ktoe)',
+              'Emission factors|by fuel|Liquids (kt CO2 / ktoe)',
+              
+              'Emission intensity (kg of CO2 / 100 km)',
+              'Emission intensity|Passenger transport (kg of CO2 / 100 km)',
+              'Emission intensity|Passenger transport|Domestic (kg of CO2 / 100 km)',
+              'Emission intensity|Passenger transport|International - Intra-EU (kg of CO2 / 100 km)',
+              'Emission intensity|Passenger transport|International - Extra-EU (kg of CO2 / 100 km)',
+              'Emission intensity|Freight transport (kg of CO2 / 100 km)',
+              'Emission intensity|Freight transport|Domestic and International - Intra-EU (kg of CO2 / 100 km)',
+              'Emission intensity|Freight transport|International - Extra-EU (kg of CO2 / 100 km)',
+              
+              NA,
+              'Emission intensity over activity|Passenger transport (kg of CO2 / 000 pkm)',
+              'Emission intensity over activity|Passenger transport|Domestic (kg of CO2 / 000 pkm)',
+              'Emission intensity over activity|Passenger transport|International - Intra-EU (kg of CO2 / 000 pkm)',
+              'Emission intensity over activity|Passenger transport|International - Extra-EU (kg of CO2 / 000 pkm)',
+              'Emission intensity over activity|Freight transport (kg of CO2 / 000 tkm)',
+              'Emission intensity over activity|Freight transport|Domestic and International - Intra-EU (kg of CO2 / 000 tkm)',
+              'Emission intensity over activity|Freight transport|International - Extra-EU (kg of CO2 / 000 tkm)',
+              
+              NA,
+              'CO2 emissions per flight|Passenger transport (kg of CO2 / flight)',
+              'CO2 emissions per flight|Passenger transport|Domestic (kg of CO2 / flight)',
+              'CO2 emissions per flight|Passenger transport|International - Intra-EU (kg of CO2 / flight)',
+              'CO2 emissions per flight|Passenger transport|International - Extra-EU (kg of CO2 / flight)',
+              'CO2 emissions per flight|Freight transport (kg of CO2 / flight)',
+              'CO2 emissions per flight|Freight transport|Domestic and International - Intra-EU (kg of CO2 / flight)',
+              'CO2 emissions per flight|Freight transport|International - Extra-EU (kg of CO2 / flight)',
+              
+              NA,
+              'Shares of CO2 emissions|Passenger transport (%)',
+              'Shares of CO2 emissions|Passenger transport|Domestic (%)',
+              'Shares of CO2 emissions|Passenger transport|International - Intra-EU (%)',
+              'Shares of CO2 emissions|Passenger transport|International - Extra-EU (%)',
+              'Shares of CO2 emissions|Freight transport (%)',
+              'Shares of CO2 emissions|Freight transport|Domestic and International - Intra-EU (%)',
+              'Shares of CO2 emissions|Freight transport|International - Extra-EU (%)'
+            )}
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
         'TrAvia_ene' = { list(
           prefix = 'Transport|Aviation|Energy Consumption|',
           rows = tibble(
@@ -3403,9 +3464,9 @@ readJRC_IDEES <- function(subtype) {
               'Total energy consumption|Passenger transport|Domestic (ktoe)',
               'Total energy consumption|Passenger transport|International - Intra-EU (ktoe)',
               'Total energy consumption|Passenger transport|International - Extra-EU (ktoe)',
-              'Total energy consumption|Passenger transport|Freight transport (ktoe)',
-              'Total energy consumption|Passenger transport|Freight transport|Domestic and International - Intra-EU (ktoe)',
-              'Total energy consumption|Passenger transport|Freight transport|International - Extra-EU (ktoe)',
+              'Total energy consumption|Freight transport (ktoe)',
+              'Total energy consumption|Freight transport|Domestic and International - Intra-EU (ktoe)',
+              'Total energy consumption|Freight transport|International - Extra-EU (ktoe)',
               
               NA,
               
@@ -3414,54 +3475,54 @@ readJRC_IDEES <- function(subtype) {
               'Vehicle-efficiency - effective|Passenger transport|Domestic (kgoe/100 km)',
               'Vehicle-efficiency - effective|Passenger transport|International - Intra-EU (kgoe/100 km)',
               'Vehicle-efficiency - effective|Passenger transport|International - Extra-EU (kgoe/100 km)',
-              'Vehicle-efficiency - effective|Passenger transport|Freight transport (kgoe/100 km)',
-              'Vehicle-efficiency - effective|Passenger transport|Freight transport|Domestic and International - Intra-EU (kgoe/100 km)',
-              'Vehicle-efficiency - effective|Passenger transport|Freight transport|International - Extra-EU (kgoe/100 km)',
+              'Vehicle-efficiency - effective|Freight transport (kgoe/100 km)',
+              'Vehicle-efficiency - effective|Freight transport|Domestic and International - Intra-EU (kgoe/100 km)',
+              'Vehicle-efficiency - effective|Freight transport|International - Extra-EU (kgoe/100 km)',
               
               NA,
               'Energy intensity over activity|Passenger transport (kgoe/000 pkm)',
               'Energy intensity over activity|Passenger transport|Domestic (kgoe/000 pkm)',
               'Energy intensity over activity|Passenger transport|International - Intra-EU (kgoe/000 pkm)',
               'Energy intensity over activity|Passenger transport|International - Extra-EU (kgoe/000 pkm)',
-              'Energy intensity over activity|Passenger transport|Freight transport (kgoe/000 tkm)',
-              'Energy intensity over activity|Passenger transport|Freight transport|Domestic and International - Intra-EU (kgoe/000 tkm)',
-              'Energy intensity over activity|Passenger transport|Freight transport|International - Extra-EU (kgoe/000 tkm)',
+              'Energy intensity over activity|Freight transport (kgoe/000 tkm)',
+              'Energy intensity over activity|Freight transport|Domestic and International - Intra-EU (kgoe/000 tkm)',
+              'Energy intensity over activity|Freight transport|International - Extra-EU (kgoe/000 tkm)',
               
               NA,
               'Energy consumption per flight|Passenger transport (kgoe/flight)',
               'Energy consumption per flight|Passenger transport|Domestic (kgoe/flight)',
               'Energy consumption per flight|Passenger transport|International - Intra-EU (kgoe/flight)',
               'Energy consumption per flight|Passenger transport|International - Extra-EU (kgoe/flight)',
-              'Energy consumption per flight|Passenger transport|Freight transport (kgoe/flight)',
-              'Energy consumption per flight|Passenger transport|Freight transport|Domestic and International - Intra-EU (kgoe/flight)',
-              'Energy consumption per flight|Passenger transport|Freight transport|International - Extra-EU (kgoe/flight)',
+              'Energy consumption per flight|Freight transport (kgoe/flight)',
+              'Energy consumption per flight|Freight transport|Domestic and International - Intra-EU (kgoe/flight)',
+              'Energy consumption per flight|Freight transport|International - Extra-EU (kgoe/flight)',
               
               NA,
               'Shares of total energy consumption|Passenger transport (%)',
               'Shares of total energy consumption|Passenger transport|Domestic (%)',
               'Shares of total energy consumption|Passenger transport|International - Intra-EU (%)',
               'Shares of total energy consumption|Passenger transport|International - Extra-EU (%)',
-              'Shares of total energy consumption|Passenger transport|Freight transport (%)',
-              'Shares of total energy consumption|Passenger transport|Freight transport|Domestic and International - Intra-EU (%)',
-              'Shares of total energy consumption|Passenger transport|Freight transport|International - Extra-EU (%)',
+              'Shares of total energy consumption|Freight transport (%)',
+              'Shares of total energy consumption|Freight transport|Domestic and International - Intra-EU (%)',
+              'Shares of total energy consumption|Freight transport|International - Extra-EU (%)',
               
               'Vehicle-efficiency - theoretical (kgoe/100 km)',
               'Vehicle-efficiency - theoretical|Passenger transport (kgoe/100 km)',
               'Vehicle-efficiency - theoretical|Passenger transport|Domestic (kgoe/100 km)',
               'Vehicle-efficiency - theoretical|Passenger transport|International - Intra-EU (kgoe/100 km)',
               'Vehicle-efficiency - theoretical|Passenger transport|International - Extra-EU (kgoe/100 km)',
-              'Vehicle-efficiency - theoretical|Passenger transport|Freight transport (kgoe/100 km)',
-              'Vehicle-efficiency - theoretical|Passenger transport|Freight transport|Domestic and International - Intra-EU (kgoe/100 km)',
-              'Vehicle-efficiency - theoretical|Passenger transport|Freight transport|International - Extra-EU (kgoe/100 km)',
+              'Vehicle-efficiency - theoretical|Freight transport (kgoe/100 km)',
+              'Vehicle-efficiency - theoretical|Freight transport|Domestic and International - Intra-EU (kgoe/100 km)',
+              'Vehicle-efficiency - theoretical|Freight transport|International - Extra-EU (kgoe/100 km)',
               
               'Discrepancy between effective and theoretical efficiencies (ratio)',
               'Discrepancy between effective and theoretical efficiencies|Passenger transport (ratio)',
               'Discrepancy between effective and theoretical efficiencies|Passenger transport|Domestic (ratio)',
               'Discrepancy between effective and theoretical efficiencies|Passenger transport|International - Intra-EU (ratio)',
               'Discrepancy between effective and theoretical efficiencies|Passenger transport|International - Extra-EU (ratio)',
-              'Discrepancy between effective and theoretical efficiencies|Passenger transport|Freight transport (ratio)',
-              'Discrepancy between effective and theoretical efficiencies|Passenger transport|Freight transport|Domestic and International - Intra-EU (ratio)',
-              'Discrepancy between effective and theoretical efficiencies|Passenger transport|Freight transport|International - Extra-EU (ratio)',
+              'Discrepancy between effective and theoretical efficiencies|Freight transport (ratio)',
+              'Discrepancy between effective and theoretical efficiencies|Freight transport|Domestic and International - Intra-EU (ratio)',
+              'Discrepancy between effective and theoretical efficiencies|Freight transport|International - Extra-EU (ratio)',
               
               NA,
               NA,
@@ -3469,14 +3530,47 @@ readJRC_IDEES <- function(subtype) {
               'Discrepancy between the theoretical fuel consumption in the country to the EU28|Passenger transport|International - Intra-EU (ratio)',
               'Discrepancy between the theoretical fuel consumption in the country to the EU28|Passenger transport|International - Extra-EU (ratio)',
               NA,
-              'Discrepancy between the theoretical fuel consumption in the country to the EU28|Passenger transport|Freight transport|Domestic and International - Intra-EU (ratio)',
-              'Discrepancy between the theoretical fuel consumption in the country to the EU28|Passenger transport|Freight transport|International - Extra-EU (ratio)',
+              'Discrepancy between the theoretical fuel consumption in the country to the EU28|Freight transport|Domestic and International - Intra-EU (ratio)',
+              'Discrepancy between the theoretical fuel consumption in the country to the EU28|Freight transport|International - Extra-EU (ratio)',
               
               NA
             ) }
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) },
+        'TrNavi_emi' = { list(
+          prefix = 'Transport|Navigation|CO2 Emissions|',
+          rows = tibble(
+            name = { c(
+              NA,
+              'by fuel (kt CO2)',
+              'by fuel|Liquids (kt CO2)',
+              
+              'Split of CO2 emissions (kt CO2)',
+              'Split of CO2 emissions|Domestic coastal shipping (kt CO2)',
+              'Split of CO2 emissions|Inland waterways (kt CO2)',
+              
+              NA,
+              
+              NA,
+              'Emission factors|by fuel (kt CO2 / ktoe)',
+              'Emission factors|by fuel|Liquids (kt CO2 / ktoe)',
+              
+              'Emission intensity (kg of CO2 / 100 km)',
+              'Emission intensity|Domestic coastal shipping (kg of CO2 / 100 km)',
+              'Emission intensity|Inland waterways (kg of CO2 / 100 km)',
+              
+              'Emission intensity over activity (kg of CO2 / 000 tkm)',
+              'Emission intensity over activity|Domestic coastal shipping (kg of CO2 / 000 tkm)',
+              'Emission intensity over activity|Inland waterways (kg of CO2 / 000 tkm)',
+              
+              'Shares of CO2 emissions (%)',
+              'Shares of CO2 emissions|Domestic coastal shipping (%)',
+              'Shares of CO2 emissions|Inland waterways (%)'
+            ) }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        )},
         'TrNavi_ene' = { list(
           prefix = 'Transport|Navigation|Energy Consumption|',
           rows = tibble(
@@ -3520,7 +3614,7 @@ readJRC_IDEES <- function(subtype) {
         ) }
       )
     ) },
-    Bunkers = { list(
+    MBunkers = { list(
       pattern = '^JRC-IDEES-2015_MBunkers_.*\\.xlsx$',
       sheets = list(
         'MBunk_act' = { list(

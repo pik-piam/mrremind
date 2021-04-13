@@ -1,6 +1,9 @@
 #' Calculate selected REMIND energy and emission variables from historical JRC IDEES values 
 #' 
 #' @md
+#' @param subtype one of
+#'   - `'Industry'`: calculate REMIND Industry variables
+#'   - `'Transport'`: calculate REMIND Transport variables
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -13,31 +16,44 @@
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 
-calcJRC_IDEES <- function() {
+calcJRC_IDEES <- function(subtype) {
   
-  mapping <- toolGetMapping("Mapping_JRC_IDEES_REMIND.csv", type = "reportingVariables") %>%
+  subtypes <- c('Industry', 'Transport')
+  if (!subtype %in% subtypes) {
+    stop('Invalid subtype -- supported subtypes are: ', 
+         paste(subtypes, collapse = ', '))
+  }
+  
+  if (subtype == "Industry") {
+    ind <- readSource("JRC_IDEES", subtype = "Industry")
+    emi <- readSource("JRC_IDEES", subtype = "Emission")
+    energy <- readSource("JRC_IDEES", subtype = "Energy")
+    jrc <- mbind(ind, emi, energy)
+  } else {
+    transport <- readSource("JRC_IDEES", subtype = "Transport")
+    mbunkers <- readSource("JRC_IDEES", subtype = "MBunkers")
+    jrc <- mbind(transport, mbunkers)
+  }
+  
+  mapping <- toolGetMapping(paste0("Mapping_JRC_IDEES_REMIND_", subtype, ".csv"), type = "reportingVariables") %>%
     mutate(!!sym('conversion') := as.numeric(!!sym('Factor')) * !!sym('Weight')) %>%
     select('variable' = 'JRC_complete', 'REMIND_variable', 'conversion', 'unit' = 'Unit_JRC', 'Unit_REMIND')
-
+  
   mapping$variable <- gsub(pattern = "\\.", replacement = "_", mapping$variable) %>% trimws()
   mapping$REMIND_variable <- trimws(mapping$REMIND_variable)
-  
-  ind <- readSource("JRC_IDEES", subtype = "Industry")
-  emi <- readSource("JRC_IDEES", subtype = "Emission")
-  energy <- readSource("JRC_IDEES", subtype = "Energy")
   
   cntr <- toolGetMapping("regionmappingH12.csv")
   EU28_regions <- cntr[which(cntr$RegionCode == "EUR"),]$CountryCode
   
   x <- left_join(
-    mbind(ind, emi, energy) %>% 
+     jrc %>% 
       mselect(iso3c = EU28_regions, variable = unique(mapping$variable)) %>%
       as.data.frame() %>% 
       as_tibble() %>% 
       select('region' = 'Region', 'year' = 'Year', 'variable' = 'Data1',
              'unit' = 'Data2', 'value' = 'Value'),
     mapping,
-    by = c('variable', 'unit')
+    by = 'variable'
   ) %>% 
     mutate(!!sym('value') := ifelse(
       is.na(!!sym('value')), 0,  !!sym('value') * !!sym('conversion')),
