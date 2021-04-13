@@ -192,8 +192,15 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
       # for EU regions use JRC data instead
       JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
       JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
-      JRC_share <- JRC[JRC_reg,,"FE|Transport|LDV|Liquids (EJ/yr)"]/(JRC[JRC_reg,,"FE|Transport|non-LDV|Liquids (EJ/yr)"]+JRC[JRC_reg,,"FE|Transport|LDV|Liquids (EJ/yr)"])
-      share[JRC_reg,getYears(JRC_share),"gdp_SSP2.ConvCase.share_LDV_totliq.shares_LDV_transport"] <- JRC_share[JRC_reg,getYears(JRC_share),] 
+      JRC_share <- new.magpie(JRC_reg,getYears(share),getNames(share),fill=0)
+      # for years lower or equal to 2015 assume bunkers equal to JRC historical values
+      y1 <- getYears(JRC)[getYears(JRC, as.integer = TRUE)<=2015]
+      JRC_share[JRC_reg,y1,] <- JRC[JRC_reg,y1,"FE|Transport|LDV|Liquids (EJ/yr)"]/(JRC[JRC_reg,y1,"FE|Transport|non-LDV|Liquids (EJ/yr)"]+JRC[JRC_reg,y1,"FE|Transport|LDV|Liquids (EJ/yr)"]) 
+      # for years after 2015 assume LDV share constant and eqaul to JRC 2015 values
+      y2 <- getYears(share)[getYears(share, as.integer = TRUE)>2015]
+      JRC_share[,y2,] <- JRC_share[,2015,]
+      #setting EU shares equal to JRC values
+      share[JRC_reg,getYears(JRC_share),"gdp_SSP2.ConvCase.share_LDV_totliq.shares_LDV_transport"] <- JRC_share[JRC_reg,getYears(JRC_share),]
       # redefining LDV and non-LDV liquids
       feTotal <- dimSums(result[,,c("fepet","fedie")],dim=3.2)
       feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(result)), names = getNames(result[,,c("fepet","fedie")]))

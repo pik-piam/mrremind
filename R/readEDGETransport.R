@@ -350,7 +350,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
            JRC_bunkers <- JRC[JRC_reg,intersect(getYears(tmp_data),getYears(JRC)),"FE|Transport|Bunkers (EJ/yr)"]
            # for years after 2015 assume bunkers constant
-           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)>2015],] <- JRC_bunkers[JRC_reg,2005,]
+           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)>2015],] <- JRC_bunkers[JRC_reg,2015,]
            # for years lower or equal to 2015 assume bunkers equal to JRC historical values
            tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],] <- JRC_bunkers[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],]
            mdata <- tmp_data
