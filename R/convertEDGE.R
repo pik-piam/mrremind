@@ -186,11 +186,15 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
                           to = iso_col)
     result <- toolCountryFill(xadd,0)
     
-    
-    
     if(subtype == "FE_stationary"){
       # re-calculating fepet and fedie final energy based on updated EDGE shares
       share <- readSource(type="EDGETransport", subtype = "shares_LDV_transport")
+      # for EU regions use JRC data instead
+      JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
+      JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
+      JRC_share <- JRC[JRC_reg,,"FE|Transport|LDV|Liquids (EJ/yr)"]/(JRC[JRC_reg,,"FE|Transport|non-LDV|Liquids (EJ/yr)"]+JRC[JRC_reg,,"FE|Transport|LDV|Liquids (EJ/yr)"])
+      share[JRC_reg,getYears(JRC_share),"gdp_SSP2.ConvCase.share_LDV_totliq.shares_LDV_transport"] <- JRC_share[JRC_reg,getYears(JRC_share),] 
+      # redefining LDV and non-LDV liquids
       feTotal <- dimSums(result[,,c("fepet","fedie")],dim=3.2)
       feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(result)), names = getNames(result[,,c("fepet","fedie")]))
       feShares[,,"fepet"] <- setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL)

@@ -329,6 +329,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "f35_bunkers_fe" = {
+           ## used only in transport complex. 
+           # warning: currently assumes bunkers trajectories as fixed to "gdp_SSP2.ConvCase". Therefore bunkers are assumed unchanged in all gdp scenarios.
            tmp = fread("EDGE_output_iso_FEdem.csv")
            ## select only bunkers
            tmp = tmp[category == "Bunkers",]
@@ -342,7 +344,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                            idxcols = c("GDP_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
            ## create magpie object
-           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)
+           tmp_data <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)[,,"gdp_SSP2.ConvCase"]
+           # for EU regions use JRC data instead
+           JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
+           JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
+           JRC_bunkers <- JRC[JRC_reg,intersect(getYears(tmp_data),getYears(JRC)),"FE|Transport|Bunkers (EJ/yr)"]
+           # for years after 2015 assume bunkers constant
+           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)>2015],] <- JRC_bunkers[JRC_reg,2005,]
+           # for years lower or equal to 2015 assume bunkers equal to JRC historical values
+           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],] <- JRC_bunkers[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],]
+           mdata <- tmp_data
          },
 
          {
