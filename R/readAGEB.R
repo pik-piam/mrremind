@@ -21,12 +21,12 @@ readAGEB <- function() {
     ),
     name = c(
       "Endenergieverbrauch",
-      "Endenergieverbrauch nach Energieträgern",
-      "Endenergieverbrauch Bergbau, Gewinnung von Steinen und Erden und Verarbeitendes Gewerbe nach Energieträgern",
-      "Endenergieverbrauch Private Haushalte nach Energieträgern",
-      "Endenergieverbrauch Gewerbe, Handel, Dienstleistungen (GHD) nach Energieträgern",
-      "Endenergieverbrauch Landwirtschaft, Fischerei, Bauwirtschaft nach Energieträgern",
-      "Endenergieverbrauch Verkehr nach Energieträgern"
+      "Endenergieverbrauch nach Energietr\u00E4gern",
+      "Endenergieverbrauch Bergbau, Gewinnung von Steinen und Erden und Verarbeitendes Gewerbe nach Energietr\u00E4gern",
+      "Endenergieverbrauch Private Haushalte nach Energietr\u00E4gern",
+      "Endenergieverbrauch Gewerbe, Handel, Dienstleistungen (GHD) nach Energietr\u00E4gern",
+      "Endenergieverbrauch Landwirtschaft, Fischerei, Bauwirtschaft nach Energietr\u00E4gern",
+      "Endenergieverbrauch Verkehr nach Energietr\u00E4gern"
     ),
     range = c(
       "A2:AF14", "A2:AF13", "A2:AF13", "A2:AF13",
@@ -42,18 +42,18 @@ readAGEB <- function() {
       range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
     ) %>%
       filter(!is.na(!!sym("Einheit"))) %>%
-      mutate(Energieträger := paste0(sheets[["name"]][[i]], "|", !!sym("Energieträger")))
+      mutate(!!sym("Energietr\u00E4ger") := paste0(sheets[["name"]][[i]], "|", !!sym("Energietr\u00E4ger")))
 
     data <- bind_rows(data, tmp)
   }
 
   data <- data %>%
-    melt(id.vars = c("Energieträger", "Einheit"), variable.name = "period", value.name = "value")
+    melt(id.vars = c("Energietr\u00E4ger", "Einheit"), variable.name = "period", value.name = "value")
 
   data$region <- "DEU"
 
   data %>%
-    select("region", variable = "Energieträger", unit = "Einheit", "period", "value") %>%
+    select("region", variable = "Energietr\u00E4ger", unit = "Einheit", "period", "value") %>%
     as.magpie() %>%
     return()
 }
