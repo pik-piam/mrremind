@@ -242,7 +242,10 @@ calcHistorical <- function() {
 
   JRC_Transport <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE)
   JRC_Transport <- add_dimension(JRC_Transport, dim = 3.1, add = "model", nm = "JRC")
-  
+
+  JRC_ResCom <- calcOutput("JRC_IDEES", subtype = "ResCom", aggregate = FALSE)
+  JRC_ResCom <- add_dimension(JRC_ResCom, dim = 3.1, add = "model", nm = "JRC")
+
   # AGEB data
   AGEB_FE <- calcOutput("AGEB", aggregate = FALSE)
   AGEB_FE <- add_dimension(AGEB_FE, dim = 3.1, add = "model", nm = "AGEB")
@@ -255,7 +258,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, AGEB_FE)
+                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))

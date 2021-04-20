@@ -4,6 +4,7 @@
 #' @param subtype one of
 #'   - `'Industry'`: calculate REMIND Industry variables
 #'   - `'Transport'`: calculate REMIND Transport variables
+#'   - `'ResCom'`: calculate REMIND Residential and Commercial variables
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -18,7 +19,7 @@
 
 calcJRC_IDEES <- function(subtype) {
   
-  subtypes <- c('Industry', 'Transport')
+  subtypes <- c('Industry', 'Transport', 'ResCom')
   if (!subtype %in% subtypes) {
     stop('Invalid subtype -- supported subtypes are: ', 
          paste(subtypes, collapse = ', '))
@@ -29,10 +30,14 @@ calcJRC_IDEES <- function(subtype) {
     emi <- readSource("JRC_IDEES", subtype = "Emission")
     energy <- readSource("JRC_IDEES", subtype = "Energy")
     jrc <- mbind(ind, emi, energy)
-  } else {
+  } else if (subtype == "Transport") {
     transport <- readSource("JRC_IDEES", subtype = "Transport")
     mbunkers <- readSource("JRC_IDEES", subtype = "MBunkers")
     jrc <- mbind(transport, mbunkers)
+  } else {
+    residential <- readSource("JRC_IDEES", subtype = "Residential")
+    services <- readSource("JRC_IDEES", subtype = "Tertiary")
+    jrc <- mbind(residential, services)
   }
   
   mapping <- toolGetMapping(paste0("Mapping_JRC_IDEES_REMIND_", subtype, ".csv"), type = "reportingVariables") %>%
