@@ -160,7 +160,7 @@ fullREMIND <- function(rev=0) {
   #--------------- EDGE Transport ---------------------------------------------------------------------
   infoConfig = getConfig()
   print(infoConfig$regionmapping)
-  if (infoConfig$regionmapping == "regionmappingH12.csv") {
+  if (infoConfig$regionmapping == "regionmapping_21_EU11.csv") {
     ## run EDGE-T
     lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
            function(x){
