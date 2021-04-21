@@ -11,11 +11,11 @@
 #' @examples
 #' 
 #' \dontrun{ 
-#' calcOutput("PotentialWind")
+#' calcOutput("PotentialWindOn")
 #' 
 #' }
 #' @importFrom magclass getNames
-calcPotentialWind <- function() {
+calcPotentialWindOn <- function() {
   
   # read wind onshore data 
   nrel <- readSource("NREL",subtype="onshore")
