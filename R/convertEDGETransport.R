@@ -17,7 +17,7 @@ convertEDGETransport = function(x, subtype) {
     x[is.na(x)] <- 0
   }
   ## load mapping
-  mappingfile <- setDT(toolGetMapping("regionmappingH12.csv",type="regional"))[, .(iso = CountryCode, region = RegionCode)]
+  mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv",type="regional"))[, .(iso = CountryCode, region = RegionCode)]
   ## for intensive values, the weight is NULL
   if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "shares_LDV_transport", "price_nonmot", "esCapCost")) {
     x = toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
