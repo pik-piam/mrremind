@@ -1,9 +1,9 @@
-#' Calculate wind onshore potential
+#' Calculate wind offshore potential
 #' 
-#' Provides wind onshore potential data
+#' Provides wind offshore potential data
 #' 
 #' 
-#' @return wind onshore potential data and corresonding weights as a list of
+#' @return wind offshore potential data and corresonding weights as a list of
 #' two MAgPIE objects
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{calcOutput}}, \code{\link{readNREL}},
@@ -11,17 +11,19 @@
 #' @examples
 #' 
 #' \dontrun{ 
-#' calcOutput("PotentialWind")
+#' calcOutput("PotentialWindOff")
 #' 
 #' }
 #' @importFrom magclass getNames
-calcPotentialWind <- function() {
+calcPotentialWindOff <- function() {
   
-  # read wind onshore data 
-  nrel <- readSource("NREL",subtype="onshore")
+  # read wind data 
+  nrel <- readSource("NREL",subtype="offshore")
 
   # we use only "near" in REMIND
-  techPot <- collapseNames(nrel[,,"near"])
+  
+  Total_nearPot <- collapseNames(nrel[,,"Total"])
+  techPot <- collapseNames(Total_nearPot[,,"near"])
   
   # delete total
   techPot <- techPot[,,"total",invert=TRUE]
@@ -39,7 +41,7 @@ calcPotentialWind <- function() {
   # convert into EJ/a
   maxprod <- techPot * 1000 * 0.0036
 
-  # add "nur" data
+  # add "nur" data (CG: this is just taken to be the same as onshore for now, later can be raised when wind_off is endogenous)
   nur <- new.magpie(getRegions(maxprod),getYears(maxprod),getNames(maxprod))
   nur[,,"9"] <- 0.09
   nur[,,"8"] <- 0.20
@@ -63,7 +65,8 @@ calcPotentialWind <- function() {
   return(list(x=data,
               weight=w,
               unit="EJ/a",
-              description="wind potential",
+              description="wind offshore potential",
               mixed_aggregation=TRUE
                ))
 }
+
