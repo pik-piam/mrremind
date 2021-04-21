@@ -100,10 +100,13 @@ convertRogelj2017 <- function(x,subtype){
     data_wind_sorted <- mbind(data_wind[,,"1"],data_wind[,,"2"],data_wind[,,"3"],data_wind[,,"4"],
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
-    #data_solar <- calcOutput("Solar", aggregate = FALSE)
+    ## save the regional mapping for this mrremind iteration
+    infoconfig <- getConfig()
+    regionmapping2use <- infoconfig$regionmapping
     setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
-    setConfig(regionmapping = "regionmappingH12.csv")
+    ## re-include the official regional mapping for this iteration
+    setConfig(regionmapping = regionmapping2use)
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
     names_wind <- paste0("Wind.",getNames(data_wind_sorted))
@@ -322,11 +325,12 @@ convertRogelj2017 <- function(x,subtype){
     data_wind_sorted <- mbind(data_wind[,,"1"],data_wind[,,"2"],data_wind[,,"3"],data_wind[,,"4"],
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
-    # data_solar <- calcOutput("Solar", aggregate = FALSE)
+    ## change regional mapping to load this specific dataset
     setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))
-    setConfig(regionmapping = "regionmappingH12.csv")
+    ## go back to the oficial database
+    setConfig(regionmapping = regionmapping2use)
     names_hydro <- paste0("Hydro.",getNames(data_hydro))
     names_wind <- paste0("Wind.",getNames(data_wind_sorted))
     data_combined <- new.magpie(getRegions(data_hydro), NULL, c(names_solar,names_hydro,names_wind))
