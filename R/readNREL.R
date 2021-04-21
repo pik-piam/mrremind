@@ -13,8 +13,8 @@
 #' }
 #' 
 readNREL <- function(subtype) {
- 
-  if (subtype == "onshore") {
+
+    if (subtype == "onshore") {
     # read in data
     x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx", sheet="Onshore Energy",skip=2))
     x <- x[1:182,1:32]
@@ -26,9 +26,10 @@ readNREL <- function(subtype) {
     colnames(x)[22:31] <- paste("far",colnames(x)[22:31],sep=".")
     
   } else if (subtype == "offshore") {
+  
     # read in data
     x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx", sheet="Offshore Energy",skip=3))
-    x <- x[1:561,1:33]
+    x <- x[1:560,1:33]
     x <- x[-length(names(x))]
     names(x) <- sub("\\.[0-9]*$","",names(x))
     names(x) <- gsub(" ",".",names(x))
@@ -39,7 +40,9 @@ readNREL <- function(subtype) {
     x$IAM.country <- gsub(" Total","",x$IAM.country)
     x$IAM.country[is.na(x$IAM.country)] <- x$IAM.country[which(is.na(x$IAM.country))-1]
     x$IAM.country[is.na(x$IAM.country)] <- x$IAM.country[which(is.na(x$IAM.country))-1]
-  }
+  
+    
+    }
   
   # turn into a magclass object
   x <- as.magpie(x, spatial=1) 
