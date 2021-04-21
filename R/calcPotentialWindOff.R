@@ -5,7 +5,7 @@
 #' 
 #' @return wind offshore potential data and corresonding weights as a list of
 #' two MAgPIE objects
-#' @author Lavinia Baumstark
+#' @author Chen Chris Gong
 #' @seealso \code{\link{calcOutput}}, \code{\link{readNREL}},
 #' \code{\link{convertNREL}}, \code{\link{readSource}}
 #' @examples
