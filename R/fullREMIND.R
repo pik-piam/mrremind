@@ -157,14 +157,18 @@ fullREMIND <- function(rev=0) {
   calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
-  
+
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+
+
   infoConfig = getConfig()
   print(infoConfig$regionmapping)
-  if (infoConfig$regionmapping == "2b1450bc.csv") {
+  if (infoConfig$regionmapping == "62eff8f7.csv") {
+    regionmapping2use <- infoConfig$regionmapping
+    setConfig(regionmapping = "2b1450bc.csv")
     ## run EDGE-T
     lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
            function(x){
@@ -181,6 +185,7 @@ fullREMIND <- function(rev=0) {
     ## collect the scenarios in the corresponding source folder
     collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
                  output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
+    setConfig(regionmapping = "62eff8f7.csv")
 
   }
 
