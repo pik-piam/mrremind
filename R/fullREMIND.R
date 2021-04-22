@@ -86,7 +86,8 @@ fullREMIND <- function(rev=0) {
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round=3,  file="f_maxProdGradeRegiHydro.cs3r")
-  calcOutput("PotentialWind",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")
+  calcOutput("PotentialWindOn",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")
+  calcOutput("PotentialWindOff",                      round=3,  file="f_maxProdGradeRegiWindOff.cs3r")
   calcOutput("PotentialGeothermal",                   round=3,  file="f_maxProdGeothermal.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
@@ -101,6 +102,9 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
+  calcOutput('Clinker_to_cement_ratio', round = 2, file = 'p37_clinker-to-cement-ratio.cs3r')
+  # delete the 'dummy' line
+  system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
