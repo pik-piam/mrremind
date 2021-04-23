@@ -86,7 +86,7 @@ fullREMIND <- function(rev=0) {
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round=3,  file="f_maxProdGradeRegiHydro.cs3r")
-  calcOutput("PotentialWindOn",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")
+  calcOutput("PotentialWindOn",                       round=3,  file="f_maxProdGradeRegiWind.cs3r")
   calcOutput("PotentialWindOff",                      round=3,  file="f_maxProdGradeRegiWindOff.cs3r")
   calcOutput("PotentialGeothermal",                   round=3,  file="f_maxProdGeothermal.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
