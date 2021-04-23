@@ -326,6 +326,8 @@ convertRogelj2017 <- function(x,subtype){
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
     ## change regional mapping to load this specific dataset
+    infoconfig <- getConfig()
+    regionmapping2use <- infoconfig$regionmapping
     setConfig(regionmapping = "regionmappingTCD.csv")
     data_solar <- calcOutput("Solar")
     names_solar <- paste0("Solar.",getNames(collapseNames((mselect(data_solar,type=c("nur","maxprod"),technology="spv")),collapsedim = 2)))

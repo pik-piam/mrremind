@@ -102,6 +102,9 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
+  calcOutput('Clinker_to_cement_ratio', round = 2, file = 'p37_clinker-to-cement-ratio.cs3r')
+  # delete the 'dummy' line
+  system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
@@ -154,14 +157,18 @@ fullREMIND <- function(rev=0) {
   calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
-  
+
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+
+
   infoConfig = getConfig()
   print(infoConfig$regionmapping)
-  if (infoConfig$regionmapping == "2b1450bc.csv") {
+  if (infoConfig$regionmapping == "62eff8f7.csv") {
+    regionmapping2use <- infoConfig$regionmapping
+    setConfig(regionmapping = "2b1450bc.csv")
     ## run EDGE-T
     lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
            function(x){
@@ -178,6 +185,7 @@ fullREMIND <- function(rev=0) {
     ## collect the scenarios in the corresponding source folder
     collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
                  output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
+    setConfig(regionmapping = "62eff8f7.csv")
 
   }
 
