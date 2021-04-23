@@ -115,7 +115,7 @@ convertREN21 <- function(x,subtype){
     
     # Converting Production targets to capacity targets for solar, hydro, and wind
     # Obtaining the capacity factors (nur) values and associated maxproduction (maxprod) for Hydro, Wind, and Solar
-    data_wind <- calcOutput("PotentialWind", aggregate = FALSE)
+    data_wind <- calcOutput("PotentialWindOn", aggregate = FALSE)
     # Reordering dim=3 for data_wind so that 1st position corresponds to maxprod.nur.1 and not maxprod.nur.9
     data_wind_sorted <- mbind(data_wind[,,"1"],data_wind[,,"2"],data_wind[,,"3"],data_wind[,,"4"],
                               data_wind[,,"5"],data_wind[,,"6"],data_wind[,,"7"],data_wind[,,"8"],data_wind[,,"9"])
