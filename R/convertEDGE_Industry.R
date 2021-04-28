@@ -13,7 +13,7 @@
 #' 
 #' @seealso [`readSource()`]
 #' 
-#' @importFrom madrat toolMappingFile getConfig calcOutput
+#' @importFrom madrat toolGetMapping getConfig calcOutput
 #' @importFrom magclass as.data.frame as.magpie
 #' @importFrom dplyr as_tibble select mutate sym inner_join left_join group_by
 #'   ungroup
@@ -33,12 +33,10 @@ convertEDGE_Industry <- function(x, subtype) {
         character.data.frame() %>% 
         mutate(!!sym('period') := as.integer(!!sym('period'))) %>% 
         inner_join(
-          read_delim(
-            file = toolMappingFile('regional', getConfig('regionmapping')),
-            delim = ';',
-            col_names = c('iso3c', 'region'),
-            col_types = '-cc',
-            skip = 1),
+          toolGetMapping(name = 'regionmappingH12.csv', type = 'regional') %>% 
+            as_tibble() %>% 
+            select(iso3c = 'CountryCode', region = 'RegionCode'),
+          
           'region'
         ) %>% 
         left_join(
