@@ -1,8 +1,8 @@
-#' Convert UNFCC data
+#' Convert UNFCCC data
 #' 
 #' @md
 #' @param x A [`magpie`][magclass::magclass] object returned from 
-#'          [`readJRC_IDEES()`].
+#'          [`readUNFCCC()`].
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -17,7 +17,7 @@
 #' @importFrom tidyr complete nesting
 #' 
 #' @export
-convertUNFCC <- function(x)
+convertUNFCCC <- function(x)
 {
   x %>%
     as.data.frame() %>% 
