@@ -1,4 +1,4 @@
-#' Calculate REMIND emission variables from historical UNFCC values
+#' Calculate REMIND emission variables from historical UNFCCC values
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
@@ -11,13 +11,13 @@
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
-calcUNFCC <- function() {
+calcUNFCCC <- function() {
 
-  data <- readSource("UNFCC")
+  data <- readSource("UNFCCC")
 
-  mapping <- toolGetMapping("Mapping_UNFCC.csv", type = "reportingVariables") %>%
+  mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables") %>%
     mutate(!!sym('conversion') := as.numeric(!!sym('Factor')) * !!sym('Weight')) %>%
-    select('variable' = 'UNFCC_complete', 'REMIND_variable', 'conversion', 'unit' = 'Unit_UNFCC', 'Unit_REMIND')
+    select('variable' = 'UNFCCC_complete', 'REMIND_variable', 'conversion', 'unit' = 'Unit_UNFCCC', 'Unit_REMIND')
   
   mapping$variable <- gsub(pattern = "\\.", replacement = "_", mapping$variable) %>% trimws()
   mapping$REMIND_variable <- trimws(mapping$REMIND_variable)
@@ -43,5 +43,5 @@ calcUNFCC <- function() {
   
   return(list(x = x, weight = NULL, 
               unit = "EJ/yr",
-              description = "Historical UNFCC values as REMIND variables"))
+              description = "Historical UNFCCC values as REMIND variables"))
 }

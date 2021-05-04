@@ -1,4 +1,4 @@
-#' Read UNFCC data
+#' Read UNFCCC data
 #' 
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -15,7 +15,7 @@
 #' @importFrom rlang sym
 #' 
 #' @export
-readUNFCC <- function() {
+readUNFCCC <- function() {
   
   sheets <- list(
     "Table1s1" = list(
