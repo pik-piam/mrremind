@@ -36,7 +36,7 @@ calcEmissions <- function(datasource="CEDS16") {
       emi <- emi[,,"6B_Other-not-in-total",invert=TRUE]
       
       # aggregate and rename CEDS59 sectors to CEDS16 sectors      
-      map_CEDS59_to_CEDS16  <- read.csv(toolMappingFile("sectoral", "mappingCEDS59toCEDS16.csv"), stringsAsFactors=FALSE)
+      map_CEDS59_to_CEDS16  <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toCEDS16.csv")
       tmp <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_CEDS16, from="CEDS59",to="CEDS16")
 
       # rename emissions according to map
@@ -78,7 +78,7 @@ calcEmissions <- function(datasource="CEDS16") {
     emi <- emi[,,"6B_Other-not-in-total",invert=TRUE]
     
     # aggregate and rename CEDS59 sectors to CEDS16 sectors      
-    map_CEDS59_to_CEDS16  <- read.csv(toolMappingFile("sectoral", "mappingCEDS59toREMINDreporting.csv"), stringsAsFactors=FALSE)
+    map_CEDS59_to_CEDS16 <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting.csv")
     emi <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_CEDS16, from="CEDS59",to="REMIND")
     
     # rename emissions according to map (currently only relevant for VOC)
@@ -254,7 +254,9 @@ calcEmissions <- function(datasource="CEDS16") {
     
     getNames(em_limits, dim=2)[which(getNames(em_limits, dim=2) == "NOX")] <- "NOx" 
     
-    map <- read.csv2(toolMappingFile("sectoral", "mappingLIMITSsectorstoREMINDsectors.csv"), stringsAsFactors=TRUE)
+    map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingLIMITSsectorstoREMINDsectors.csv",
+                                    returnPathOnly = TRUE),
+                     stringsAsFactors=TRUE)
     
     em_limits[is.na(em_limits)] <- 0.0
     
@@ -280,8 +282,12 @@ calcEmissions <- function(datasource="CEDS16") {
     
     em_eclipse <- collapseNames(em_eclipse[,,"CLE"])
     
-    #map <- read.csv(toolMappingFile("sectoral", "mappingECLIPSEtoAggREMINDsectors.csv"), stringsAsFactors=TRUE)
-    map <- read.csv2(toolMappingFile("sectoral", "mappingECLIPSEsectorstoREMINDsectors.csv"), stringsAsFactors=TRUE)
+    # map <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoAggREMINDsectors.csv",
+    #                                returnPathOnly = TRUE),
+    #                 stringsAsFactors=TRUE)
+    map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingECLIPSEsectorstoREMINDsectors.csv",
+                                    returnPathOnly = TRUE),
+                     stringsAsFactors=TRUE)
     
     em_eclipse[is.na(em_eclipse)] <- 0.0
     

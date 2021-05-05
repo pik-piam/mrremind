@@ -48,7 +48,8 @@ calcTheil <- function(){
   s_i[,,] <- NA
   
   # contribution to Theil index depends on region mapping. We always use the one specified in getConfig().
-  regionmapping <- read.csv(toolMappingFile(type = 'regional', name = getConfig()$regionmapping), sep = ';', colClasses = 'character')
+  regionmapping <- read.csv(toolGetMapping(type = 'regional', name = getConfig()$regionmapping, returnPathOnly = TRUE),
+                            sep = ';', colClasses = 'character')
   # GDP per capita
   xbar_i <- GDPppp/pop
   for (rr in unique(regionmapping$RegionCode)){

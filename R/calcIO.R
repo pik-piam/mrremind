@@ -27,38 +27,40 @@
 calcIO <- function(subtype) {
   
   if(subtype=="input") {
-    mapping <- toolMappingFile("sectoral","structuremappingIO_inputs.csv") 
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", returnPathOnly = TRUE)
     target = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech")
   } else if(subtype=="output"){
-    mapping <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")   
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
     target = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech")
   } else if(subtype=="output_biomass"){
-    mapping <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")   
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
     target = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech")
   } else if(subtype=="trade"){
-    mapping <- toolMappingFile("sectoral","structuremappingIO_trade.csv")   
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_trade.csv", returnPathOnly = TRUE)
     target = c("REMINDitems_enty","REMINDitems_trade")
   } else if(subtype=="output_EDGE"){
-    mapping <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")   
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
     target = c("EDGEitems")
   } else if(subtype=="output_EDGE_buildings"){
-    mapping <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")   
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
     target = c("EDGE_buildings")
   } else if ('input_Industry_subsectors' == subtype) {
-    mapping <- toolMappingFile(
-      type = 'sectoral', 
-      name = 'structuremappingIO_inputs_Industry_subsectors.csv')
+    mapping <- toolGetMapping(
+      type = 'sectoral',
+      name = 'structuremappingIO_inputs_Industry_subsectors.csv',
+      returnPathOnly = TRUE)
     target <- c('REMINDitems_in', 'REMINDitems_out', 'REMINDitems_tech')
   } else if ('output_Industry_subsectors' == subtype) {
-    mapping <- toolMappingFile(
+    mapping <- toolGetMapping(
       type = 'sectoral',
-      name = 'structuremappingIO_outputs_Industry_subsectors.csv')
+      name = 'structuremappingIO_outputs_Industry_subsectors.csv',
+      returnPathOnly = TRUE)
     target <- c('REMINDitems_in', 'REMINDitems_out', 'REMINDitems_tech')
   } else if ('IEA_output' == subtype) {
-      mapping <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")   
+      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
       target = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech","iea_product","iea_flows")
   } else if ('IEA_input' == subtype) {
-      mapping <- toolMappingFile("sectoral","structuremappingIO_inputs.csv")   
+      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", returnPathOnly = TRUE)
       target = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech","iea_product","iea_flows")
   }else { stop("valid subtypes are 'input', 'output_EDGE', 'trade', 'output_EDGE_buildings', 'output_biomass' and 'output'")} 
   
