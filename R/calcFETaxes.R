@@ -32,9 +32,7 @@ calcFETaxes <- function(subtype="taxes") {
   }
   
   #read in energy values
-  energy          <- readSource("IIASA_subs_taxes", subtype="energy")
-  #reduce energy set to carriers that have a tax value
-  energy <- energy[,,getNames(tax)] 
+  energy <- readSource("IIASA_subs_taxes", subtype="energy")
   #energy = 0 for regions/carriers with no information on subsidies, so that they are not considered in the weighting
   energy[is.na(tax)] <- 0
   #taxes without value are considered to be zero
@@ -77,22 +75,28 @@ calcFETaxes <- function(subtype="taxes") {
                   add_dimension(setNames(energy[,,tax_map[[sector]]],names(tax_map[[sector]])), dim = 3.1, add = "sector", nm = sector))
   }
   
-  if (subtype == "subsidies"){ # convert original data from bulk values to subsidies rates for the case of subsidies 
+  # convert original data from bulk values to subsidies rates for the case of subsidies
+  if (subtype == "subsidies"){  
     Rtax <- Rtax/Renergy*1e9 #converting from billion$/GJ to $/GJ
     Rtax[is.na(Rtax)] <- 0
   }
   
   #Ex-post tax rate adjustments
-  # disabling tax for fehes and feh2t 
-  Rtax[,,c("feh2t","fehes")] <- 0
   #feelt tax rate as weighted average on industry and buildings
   Rtax[,,"trans.feelt"] <- (Rtax[,,"indst.feels"]*Renergy[,,"indst.feels"] + Rtax[,,"build.feels"]*Renergy[,,"build.feels"]) / (Renergy[,,"indst.feels"] + Renergy[,,"build.feels"])
   Rtax[,,"trans.feelt"][is.na(Rtax[,,"trans.feelt"])] <- 0
   
+  # disabling tax for fehes and feh2t 
+  Rtax[,,c("feh2t","fehes")] <- 0
+  # do not apply gas subsidies to H2
+  if (subtype == "subsidies"){
+    Rtax[,,c("feh2s")] <- 0
+  }
+  
   #Ex-post energy weight adjustments 
   Renergy[,,'build.feh2s'] <- Renergy[,,'build.fegas']
   Renergy[,,'indst.feh2s'] <- Renergy[,,'indst.fegas']
-  Renergy[,,'trans.feelt'] <- Renergy[,,"indst.feels"] + Renergy[,,"build.feels"]
+  Renergy[,,'trans.feelt'] <- Renergy[,,"build.feels"]
   Renergy[,,c("feh2t","fehes")] <- 0  
 
   #cdr sector taxes equal to industry taxes
