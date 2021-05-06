@@ -127,7 +127,7 @@ calcCapacity <- function(subtype){
     #output[emptReg,2015,"pecoal"] <- capacity2015[emptReg,2015,"pecoal.seel.pc"]
     
     #Global Coal Plant Tracker historical coal capacity data
-    remind_map <- toolGetMapping("regionmappingH12.csv",type="regional")
+    remind_map <- toolGetMapping(getConfig("regionmapping"),type="regional")
     coal_hist <- readSource("GCPT",subtype="historical")
     coal_hist <- coal_hist[,getYears(coal_hist)>="y2008",]
     ts <- as.numeric(gsub("y","",getYears(coal_hist)))

@@ -13,7 +13,7 @@
 
 calcGEA2012 <- function(subtype,datatype) {
   
-  mapping <- toolGetMapping("regionmappingH12.csv","regional")
+  mapping <- toolGetMapping(getConfig("regionmapping"),type="regional")
   regionsH12 <- c("CAZ","CHA","EUR","IND","JPN","LAM","MEA","NEU","OAS","REF","SSA","USA")
   ts1 <- 5
   ts2 <- 10
