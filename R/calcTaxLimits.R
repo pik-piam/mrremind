@@ -29,8 +29,8 @@ calcTaxLimits <- function(subtype){
     weight <- calcOutput("PE",aggregate=FALSE)[,2005,"PE (EJ/yr)"]
   } else if(subtype == "propFeSubsidy"){
     # Read proportional adjustment final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype="propFeSubsidy")[,,c("fegas","fehoi")]
-    getNames(output) <- c("fegas","fehos")
+    output <- readSource("REMIND_11Regi", subtype="propFeSubsidy")[,,c("fehoi")]
+    getNames(output) <- c("fehos")
     description <- "subsidy proportional cap to avoid liquids increasing dramatically" 
     # average weight
     weight <- new.magpie(getRegions(output),getYears(output),getNames(output),fill=1)
