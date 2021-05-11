@@ -30,9 +30,10 @@ calcEDGETrData <- function() {
                                         POP_country = calcOutput("Population", aggregate = F),
                                         saveRDS = FALSE)
                        })
-  
+
   setConfig(regionmapping = regionmapping2use)
-  
+
   return(EDGETdata)
-  
+
 }
+
