@@ -30,9 +30,13 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
       year_inter,
       extrapolation_type="constant")[,, getNames(data, dim=1)]
     ## create an empty object that has the same dimensions as data
-    weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data))
+    weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data), fill = 0)
     ## use the GPD for each SSP in data to fill up the empty weight (it needs as many repetitions as SSP* is called in data)
-    weight[,,getNames(weightInt)] <- rep(as.vector(weightInt[,,getNames(weightInt)]),length(getNames(data))/length(getNames(weightInt)))
+    for (k in seq(1,length(getNames(weightInt)),1)) {
+      weight[getRegions(weightInt),getYears(weightInt),getNames(weightInt)[k]] <- weightInt[getRegions(weightInt),
+                                                                                            getYears(weightInt),
+                                                                                            getNames(weightInt)[k]]
+    }
     return(weight)
   }
 

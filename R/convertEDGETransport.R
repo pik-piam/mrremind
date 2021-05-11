@@ -43,8 +43,8 @@ convertEDGETransport = function(x, subtype) {
 
 
   if (subtype %in% c("shares_LDV_transport")) {
-    ## only ConvCase (ICE predominant LDV market and road market) is used as input data
-    x <- x[,,"ConvCase.share_LDV_totliq", pmatch = TRUE]
+    ## only ConvCase SSP2 (ICE predominant LDV market and road market) is used as input data
+    x <- x[,,"gdp_SSP2.ConvCase.share_LDV_totliq", pmatch = TRUE]
 
     for (year in getYears(x, as.integer = T)){
       x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)
