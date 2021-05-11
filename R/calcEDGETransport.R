@@ -1,6 +1,5 @@
 #' @title Prepare EDGETransport inputs
 #'
-#' All subtypes should be used with the aggregate=FALSE flag.
 #'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Alois Dirnaichner, Marianna Rottoli
