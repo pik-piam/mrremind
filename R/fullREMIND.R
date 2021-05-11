@@ -7,6 +7,7 @@
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
 #' @importFrom edgeTransport collectScens generateEDGEdata
+#' @importFrom quitte cartesian
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -170,12 +171,16 @@ fullREMIND <- function(rev=0) {
     regionmapping2use <- infoConfig$regionmapping
     setConfig(regionmapping = "2b1450bc.csv")
     ## run EDGE-T
-    lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
-           function(x){
+    lapply(strsplit(cartesian(x = c("ConvCase", "ElecEra", "HydrHype", 
+                                    "ConvCaseWise", "ElecEraWise", 
+                                    "HydrHypeWise"),
+                              y = c('SDP', paste0('SSP', c(1, 2, 5)))),
+                    '\\.'),
+           function(x) {
              generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
                               output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
-                              EDGE_scenario = x,
-                              REMIND_scenario = "SSP2",
+                              EDGE_scenario = x[[1]],
+                              REMIND_scenario = x[[2]],
                               IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
                               GDP_country = calcOutput("GDPppp", aggregate = F),
                               POP_country = calcOutput("Population", aggregate = F),
