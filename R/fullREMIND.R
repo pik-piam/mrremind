@@ -174,7 +174,7 @@ fullREMIND <- function(rev=0) {
     lapply(strsplit(cartesian(x = c("ConvCase", "ElecEra", "HydrHype", 
                                     "ConvCaseWise", "ElecEraWise", 
                                     "HydrHypeWise"),
-                              y = c('SDP', paste0('SSP', c(1, 2, 5)))),
+                              y = c(paste0('SSP', c(1, 2, 5)))),
                     '\\.'),
            function(x) {
              generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
