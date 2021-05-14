@@ -3,7 +3,7 @@
 #'
 #' @return list of EDGEtransport iterative inputs
 #' @author Marianna Rottoli
-#' @seealso \code{\link[madrat]{calcOutput}}
+#' @seealso \code{\link{readEDGETransport}}, \code{\link[madrat]{calcOutput}}
 #'
 #' @examples
 #' \dontrun{ a <- calcOutput(type="EDGETrData", aggregate = F)
