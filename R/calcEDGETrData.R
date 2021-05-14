@@ -2,23 +2,24 @@
 #'
 #'
 #' @return magpie object of EDGEtransport iterative inputs
-#' @author Alois Dirnaichner, Marianna Rottoli
+#' @author Marianna Rottoli
 #' @seealso \code{\link{readSource}}
 #'
 #' @examples
-#' \dontrun{ a <- calcOutput(type="EDGETrData")
+#' \dontrun{ a <- calcOutput(type="EDGETrData", aggregate = F)
 #' }
 #'
 
 calcEDGETrData <- function() {
+
   infoConfig = getConfig()
   regionmapping2use <- infoConfig$regionmapping
   setConfig(regionmapping = "2b1450bc.csv")
   ## run EDGE-T
   EDGETdata = lapply(strsplit(cartesian(x = c("ConvCase", "ElecEra", "HydrHype",
-                                              "ConvCaseWise", "ElecEraWise",
-                                              "HydrHypeWise"),
-                                        y = c('SDP', paste0('SSP', c(1, 2, 5)))),
+                                       "ConvCaseWise", "ElecEraWise",
+                                       "HydrHypeWise"),
+                                        y = c(paste0('SSP', c(1, 2, 5)))),
                               '\\.'),
                      function(x) {
                        generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
@@ -31,9 +32,14 @@ calcEDGETrData <- function() {
                                         saveRDS = FALSE)
                        })
 
+
   setConfig(regionmapping = regionmapping2use)
 
-  return(EDGETdata)
+
+  return(list(x = EDGETdata,
+              class = 'list',
+              unit = NA,
+              description = NA))
+
 
 }
-
