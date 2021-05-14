@@ -1,9 +1,9 @@
 #' @title Runs EDGE-T model
 #'
 #'
-#' @return magpie object of EDGEtransport iterative inputs
+#' @return list of EDGEtransport iterative inputs
 #' @author Marianna Rottoli
-#' @seealso \code{\link{readSource}}
+#' @seealso \code{\link[madrat]{calcOutput}}
 #'
 #' @examples
 #' \dontrun{ a <- calcOutput(type="EDGETrData", aggregate = F)
@@ -39,7 +39,7 @@ calcEDGETrData <- function() {
   return(list(x = EDGETdata,
               class = 'list',
               unit = NA,
-              description = NA))
+              description = 'EDGEtransport iterative inputs'))
 
 
 }
