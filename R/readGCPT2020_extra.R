@@ -9,7 +9,7 @@
 
 
 readGCPT2020_extra <- function(subtype) {
-  map <- toolGetMapping("regionmappingH12.csv",type="regional")
+  map <- toolGetMapping(getConfig("regionmapping"),type="regional")
   # 
   # if (!(subtype %in% c("historical","future","early_retire","lifespans","emissions","emissions-ppca","2030","comp_rates"))) {
   #   stop("Invalid subtype!")
