@@ -89,12 +89,19 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
   emissions <- emissions[,c(2005,2010,2020,2030,2050),]
 
   # read in sectoral mapping (ECLIPSE (IMAGE) <> REMIND) 
-  # DK map_sectors_ECLIPSE2Agg    <- read.csv(toolMappingFile("sectoral", "mappingECLIPSEtoAggREMINDsectors.csv"), stringsAsFactors=TRUE)
-  # DK map_sectors_Agg2REMIND     <- read.csv(toolMappingFile("sectoral", "mappingAggREMINDtoREMINDsectors.csv"), stringsAsFactors=TRUE)
+  # DK map_sectors_ECLIPSE2Agg    <- read.csv(toolGetMapping(type = "sectoral",
+  #                                                          name = "mappingECLIPSEtoAggREMINDsectors.csv",
+  #                                                          returnPathOnly = TRUE),
+  #                                           stringsAsFactors=TRUE)
+  # DK map_sectors_Agg2REMIND     <- read.csv(toolGetMapping(type = "sectoral",
+  #                                                          name = "mappingAggREMINDtoREMINDsectors.csv"
+  #                                                          returnPathOnly = TRUE),
+  #                                           stringsAsFactors=TRUE)
   #map_sectors <- map_sectors[which(!is.na(map_sectors$EDGE)),] # Remove transport sector (which is not represented in EDGE)
   
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
-  map_regions  <- read.csv2(toolMappingFile("regional", p_dagg_map), stringsAsFactors=TRUE)[,c(2,3)] 
+  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = p_dagg_map, returnPathOnly = TRUE),
+                            stringsAsFactors=TRUE)[,c(2,3)]
   map_regions  <- map_regions %>%  
     filter_(~CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
     filter_(~RegionCode != "") %>% 

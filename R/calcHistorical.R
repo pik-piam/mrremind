@@ -64,11 +64,11 @@ calcHistorical <- function() {
   
   # Historical emissions from CEDS data base (Steve Smith)
     # ceds16 <- calcOutput("Emissions",datasource="CEDS16")
-    # map_CEDS16toCEDS9  <- read.csv(toolMappingFile("sectoral", "mappingCEDS16toCEDS9.csv"), stringsAsFactors=FALSE)
+    # map_CEDS16toCEDS9  <- toolGetMapping(type = "sectoral", name = "mappingCEDS16toCEDS9.csv")
     # # aggregate from CEDS16 to CEDS9 sectors
     # ceds9 <- groupAggregate(ceds16,vectorfunction = "sum",dim=3.1,query = map_CEDS16toCEDS9, from="CEDS16",to="CEDS9")
     # # Rename CEDS9 1:1 to REMIND names (no aggregation)
-    # map_CEDS9toREMIND  <- read.csv(toolMappingFile("sectoral", "mappingCEDS9toREMINDreporting.csv"), stringsAsFactors=FALSE)
+    # map_CEDS9toREMIND  <- toolGetMapping(type = "sectoral", name = "mappingCEDS9toREMINDreporting.csv")
     # ceds <-groupAggregate(ceds9,vectorfunction = "sum",dim=3.1,query = map_CEDS9toREMIND, from="CEDS9",to="REMIND")
     # 
     # # get variables names right

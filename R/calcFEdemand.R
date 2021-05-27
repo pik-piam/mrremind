@@ -35,7 +35,7 @@ calcFEdemand <- function(subtype = "FE") {
     trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
     ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-    mappingfile <- toolMappingFile("regional","regionmappingH12.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE)
     rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
 
     ## to data.table (we use gdp_SSP2 as a starting point)
@@ -223,7 +223,7 @@ calcFEdemand <- function(subtype = "FE") {
     # - cumulate the reduction factor over the time horizon
     
     SSA_countries <- read_delim(
-      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
       delim = ';',
       col_names = c('country', 'iso3c', 'region'),
       col_types = 'ccc',
@@ -347,7 +347,7 @@ calcFEdemand <- function(subtype = "FE") {
       character.data.frame()
     
     regionmapping <- read_delim(
-      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
       delim = ';',
       col_names = c('country', 'iso3c', 'region'),
       col_types = 'ccc',
@@ -477,17 +477,12 @@ calcFEdemand <- function(subtype = "FE") {
   }
 
   if (subtype %in% c( "FE","FE_for_Eff","UE_for_Eff","ES")){
-
-    mapping_path <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")
-    mapping = read.csv2(mapping_path, stringsAsFactors = F)
+    mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv")
 
     REMIND_dimensions = "REMINDitems_out"
     sets_names = getSets(data)
-
-    } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
-
-      mapping_path <- toolMappingFile("sectoral","structuremappingIO_EsUeFe.csv")
-      mapping = read.csv2(mapping_path, stringsAsFactors = F)
+  } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
+    mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv")
 
   }
   #----- PROCESS DATA ------------------
