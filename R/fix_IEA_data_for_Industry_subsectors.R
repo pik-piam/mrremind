@@ -50,7 +50,7 @@ fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     unique()
 
   region_mapping <- read_delim(
-    file = toolMappingFile('regional', getConfig('regionmapping')),
+    file = toolGetMapping(type = 'regional', name = getConfig('regionmapping'), returnPathOnly = TRUE),
     delim = ';',
     col_names = c('country', 'iso3c', 'region'),
     col_types = cols(country = col_skip(),

@@ -25,7 +25,7 @@ calcEconometricEmiParameter <- function() {
   pop   <- calcOutput("Population",aggregate=FALSE)[,2005,"pop_SSP2"] / 1000
   
   p3_country <- dimSums(edgar[,,c("2A1","2A2")],dim=3)/pop
-  mapping    <- read.csv(toolMappingFile("regional","regionmappingEconometricEmi.csv"),sep=";",stringsAsFactors=FALSE)
+  mapping    <- toolGetMapping(type = "regional", name = "regionmappingEconometricEmi.csv")
   p3         <- toolAggregate(p3_country[unique(mapping$RepCountry),,],mapping,weight=NULL)
   p3[is.na(p3)] <- 0
   getNames(p3) <- "co2cement_process.p3"

@@ -28,8 +28,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
   } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" | subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
-    mappingfile <- toolMappingFile("regional","regionmappingREMIND.csv")
-    mapping <- read.csv2(mappingfile)
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv")
     # Filtering REMIND old region mapping (selecting just regions available on data)
     mapping <- mapping[mapping[, 3] %in% getRegions(x),]
     # Replacing NA values with zero
@@ -50,8 +49,8 @@ convertREMIND_11Regi <- function(x,subtype) {
       df[df == 0] <- 1E-20 
       return(df)
     }) 
-    #  mapping
-    mapping <- read.csv(toolMappingFile("regional","regionmappingREMIND.csv"),sep=";") #original REMIND region mapping (11 regions)
+    #  mapping - original REMIND region mapping (11 regions)
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv")
     # maxExtraction (upper x limit for function estimation)
     upperBoundMaxExtractionPerCountry <- readSource("REMIND_11Regi", subtype = "ffPolyCumEx")[,,"max"]
     upperBoundMaxExtraction <- toolAggregate(upperBoundMaxExtractionPerCountry, mapping, weight=NULL)
@@ -75,8 +74,8 @@ convertREMIND_11Regi <- function(x,subtype) {
     BGRuranium  <- toolCountryFill(BGRuranium,fill=0) 
     BGRuranium[BGRuranium == 0] <- 1E-3 # assigning small uranium extraction potential for countries with none to help the curves estimation
     weight <- list(peur = BGRuranium)
-    #  mapping
-    mapping <- read.csv(toolMappingFile("regional","regionmappingREMIND.csv"),sep=";") #original REMIND region mapping (11 regions)
+    #  mapping - original REMIND region mapping (11 regions)
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv")
     # maxExtraction (upper x limit for function estimation)
     weightmaxExtraction <- toolAggregate(BGRuranium, mapping, weight=NULL) 
     totalWeightMaxExtraction <- as.numeric(colSums(weightmaxExtraction))

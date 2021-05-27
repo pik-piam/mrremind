@@ -308,7 +308,7 @@ calcEmiTarget <- function(subtype) {
     
     #------------------ weight alternative 2 -----------------------------------------
     ## calulate alternative weight for GHG emission share - assuming converging emission intensities accros countries of one region
-    #map <- read.csv(toolMappingFile("regional",getConfig("regionmapping")),sep=";")  # get current mapping
+    # map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"))  # get current mapping
     #weight_share2 <- new.magpie(getRegions(dummy),getYears(dummy),getNames(factor))
     #for(t in getYears(dummy)) {
     #  for(r in getRegions(dummy)){
