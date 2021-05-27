@@ -3,10 +3,11 @@
 #' Returns the Edge data at the Remind level
 #'
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
+#' @importFrom rlang .data
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
-#' lag arrange inner_join matches 
+#' lag arrange inner_join matches mutate
 #' @importFrom tidyr extract complete nesting replace_na crossing unite 
 #'   pivot_longer pivot_wider
 #' @importFrom readr read_delim
@@ -484,7 +485,15 @@ calcFEdemand <- function(subtype = "FE") {
     REMIND_dimensions = "REMINDitems_out"
     sets_names = getSets(data)
 
-    } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
+    # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+    mapping <- rbind(
+      mapping,
+      mapping %>%
+        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
+        mutate(REMINDitems_out = "feelb")
+    )
+
+  } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
 
       mapping_path <- toolMappingFile("sectoral","structuremappingIO_EsUeFe.csv")
       mapping = read.csv2(mapping_path, stringsAsFactors = F)
@@ -778,6 +787,8 @@ calcFEdemand <- function(subtype = "FE") {
                        'ue_secondary_steel (Mt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
   } 
+
+
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
