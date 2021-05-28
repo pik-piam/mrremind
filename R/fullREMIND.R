@@ -7,6 +7,7 @@
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
 #' @importFrom edgeTransport collectScens generateEDGEdata
+#' @importFrom quitte cartesian
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -142,7 +143,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
-  
+
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")
   calcOutput("EmiTarget", subtype="multiplier_cond",      round=4,  file="p45_factor_targetyear.cs4r")
@@ -160,35 +161,6 @@ fullREMIND <- function(rev=0) {
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
-
-
-  infoConfig = getConfig()
-  print(infoConfig$regionmapping)
-  if (infoConfig$regionmapping == "62eff8f7.csv") {
-    regionmapping2use <- infoConfig$regionmapping
-    setConfig(regionmapping = "2b1450bc.csv")
-    ## run EDGE-T
-    lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
-           function(x){
-             generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
-                              output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
-                              EDGE_scenario = x,
-                              REMIND_scenario = "SSP2",
-                              IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
-                              GDP_country = calcOutput("GDPppp", aggregate = F),
-                              POP_country = calcOutput("Population", aggregate = F),
-                              saveRDS = FALSE)
-           })
-
-    ## collect the scenarios in the corresponding source folder
-    collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
-                 output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
-    setConfig(regionmapping = "62eff8f7.csv")
-
-  }
-
-
-  ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
            "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe"),

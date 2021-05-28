@@ -10,9 +10,9 @@
 
 
 readGCPT <- function(subtype) {
-  map <- toolGetMapping("regionmappingH12.csv",type="regional")
+  map <- toolGetMapping(getConfig("regionmapping"),type="regional")
   
-  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","meanAge",
+  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","meanAge","ppca_emi",
                        "historical2020","status2020","future2020","lifespans2020","emissions2020","comp_rates2020","2030"))) {
     stop("Invalid subtype!")
   }
@@ -543,11 +543,11 @@ readGCPT <- function(subtype) {
   # Return completion rate magpies 
   if (grepl("comp_rates",subtype)) {
     getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
-    getNames(comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(comp_rate_brown) <- c("Shelved_brown","Construction_brown","Announced_brown","Pre-permit_brown","Permitted_brown")
     getNames(glo_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
-    getNames(glo_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(glo_comp_rate_brown) <- c("Shelved_brown","Construction_brown","Announced_brown","Pre-permit_brown","Permitted_brown")
     getNames(reg_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
-    getNames(reg_comp_rate_brown) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
+    getNames(reg_comp_rate_brown) <- c("Shelved_brown","Construction_brown","Announced_brown","Pre-permit_brown","Permitted_brown")
     reg_mtran <- toolAggregate(
       setNames(mtran[,,c("shelved","newcon","ann","pre","perm")],
                c("Shelved","Construction","Announced","Pre-permit","Permitted")),map,NULL)
@@ -683,12 +683,13 @@ readGCPT <- function(subtype) {
     
     emi_data$`Plant age`[which(emi_data$Status==Phase & is.na(emi_data$Year))] <- meanAge$age
   }
-  
+  setConfig(forcecache = T)
   # Read in national average capacity factor assumption for each 5-year time-step
   capFac <- calcOutput("CapacityFactor",aggregate=F)[,seq(2020,2100,5),"pc"]
   capFac <- removeColNa(as.data.frame(capFac))[,-3]
   colnames(capFac) <- c("Country","Period","Cap_Factor")
   capFac$Period <- as.numeric(as.character(capFac$Period))
+  setConfig(forcecache = F)
   
   # Assign each coal plant its country's average capacity factor per time-step
   emi_data <- emi_data %>% left_join(capFac,by="Country") %>% mutate(`Plant age`=`Plant age`+(Period-2020))
@@ -713,15 +714,19 @@ readGCPT <- function(subtype) {
   
   norm_emi <- emi_data %>% group_by(Country,.add=TRUE) %>% group_by(Status,.add=TRUE) %>% summarise(norm_emi = sum(norm_5yr_emi))
   
-  
   # Calculate total emissions from all operating & pipeline plants with 40-yr lifespans
   norm_emi <- norm_emi %>% group_by(Country) %>% summarise(norm_total_emi=sum(norm_emi)/1000)
   glo_norm_emi <- norm_emi %>% summarise(norm_global_emi=sum(norm_total_emi))
   
+  # Calculate committed emissions reduced by PPCA members based on norm assumptions
+  ppca_emi <- emi_data %>% 
+    filter(Period>=2030 & Country %in% ppca) %>% 
+    mutate(norm_5yr_emi=ifelse(Period==2030,norm_5yr_emi/2,norm_5yr_emi)) %>%
+    summarise(avoided_emissions=sum(norm_5yr_emi)/1000)
+  
   # Calculate total emissions from all operating & pipeline plants
   all_emi <- bau_emi %>% group_by(Country) %>% summarise(All_total_emi=sum(BAU_emi)/1000)
   glo_all_emi <- all_emi %>% summarise(All_global_emi=sum(All_total_emi))
-  
   
   # Calculate total emissions from operating & pipeline plants in each recovery scenario
   bau_emi <- left_join(bau_emi,df_comp,by=c("Country","Status"))
@@ -747,11 +752,14 @@ readGCPT <- function(subtype) {
   # emifac <- emi_data %>% group_by(Country,.add=TRUE) %>% group_by(Status,.add=TRUE) %>%
   #   summarise(EF_w_mean = weighted.mean(`Emission factor`,`Capacity (MW)`))
   
+  bau_emi <- toolCountryFill(as.magpie(bau_emi),fill=0,verbosity=2)
+  green_emi <- toolCountryFill(as.magpie(green_emi),fill=0,verbosity=2)
+  brown_emi <- toolCountryFill(as.magpie(brown_emi),fill=0,verbosity=2)
+  norm_emi <- toolCountryFill(as.magpie(norm_emi),fill=0,verbosity=2)
+  
   if (subtype=="emissions") {
-    bau_emi <- toolCountryFill(as.magpie(bau_emi),fill=0,verbosity=2)
-    green_emi <- toolCountryFill(as.magpie(green_emi),fill=0,verbosity=2)
-    brown_emi <- toolCountryFill(as.magpie(brown_emi),fill=0,verbosity=2)
-    norm_emi <- toolCountryFill(as.magpie(norm_emi),fill=0,verbosity=2)
     return(mbind(bau_emi,green_emi,brown_emi,norm_emi))
+  }else if (subtype=="ppca_emi") {
+    return(as.magpie(ppca_emi))
   }
 }

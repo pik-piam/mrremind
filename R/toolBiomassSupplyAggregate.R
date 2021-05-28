@@ -31,7 +31,7 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL){
   # one iso-country to obtain slope parameter b of region
   
   # get regionmapping to aggregate to
-  mapping <- toolMappingFile("regional",getConfig("regionmapping"), readcsv = T)
+  mapping <- toolGetMapping(type = "regional", name = getConfig("regionmapping"))
   
   # calculate share in agricultural land area of countries relative to MAgPIE regions
   # get agricultural land for iso-countries in 2010 from FAO

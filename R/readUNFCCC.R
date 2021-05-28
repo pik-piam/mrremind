@@ -1,4 +1,4 @@
-#' Read UNFCC data
+#' Read UNFCCC data
 #' 
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
@@ -15,10 +15,12 @@
 #' @importFrom rlang sym
 #' 
 #' @export
-readUNFCC <- function() {
+readUNFCCC <- function() {
   
   sheets <- list(
     "Table1s1" = list(
+      range = "A7:H26",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O", "NOX", "CO", "NMVOC", "SO2")),
       rows = tibble(
         name = {
           c(
@@ -47,6 +49,8 @@ readUNFCC <- function() {
       )
     ),
     "Table1s2" = list(
+      range = "A7:H36",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O", "NOX", "CO", "NMVOC", "SO2")),
       rows = tibble(
         name = {
           c(
@@ -79,7 +83,64 @@ readUNFCC <- function() {
             "CO2 emissions from biomass",
             "CO2 captured",
             "CO2 captured|For domestic storage",
-            "CO2 captured|For storage in other countries",
+            "CO2 captured|For storage in other countries"
+          )
+        }
+      )
+    ),
+    "Table1.A(a)s1" = list(
+      range = "A10:I60",
+      colnames = c(NA, NA, NA, NA, NA, paste0("kt ", c("CO2", "CH4", "N2O"))),
+      rows = tibble(
+        name = {
+          c(
+            "Fuel combustion",
+            "Fuel combustion|Liquid fuels",
+            "Fuel combustion|Solid fuels",
+            "Fuel combustion|Gaseous fuels",
+            "Fuel combustion|Other fossil fuels",
+            "Fuel combustion|Peat",
+            "Fuel combustion|Biomass",
+            "Fuel combustion|Energy industries",
+            "Fuel combustion|Energy industries|Liquid fuels",
+            "Fuel combustion|Energy industries|Solid fuels",
+            "Fuel combustion|Energy industries|Gaseous fuels",
+            "Fuel combustion|Energy industries|Other fossil fuels",
+            "Fuel combustion|Energy industries|Peat",
+            "Fuel combustion|Energy industries|Biomass",
+            "Fuel combustion|Energy industries|Public electricity and heat production",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Liquid fuels",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Solid fuels",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Gaseous fuels",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Other fossil fuels",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Peat",
+            "Fuel combustion|Energy industries|Public electricity and heat production|Biomass",
+            NA,
+            NA,
+            NA,
+            NA,
+            NA,
+            NA,
+            NA,
+            NA,
+            "Fuel combustion|Energy industries|Petroleum refining",
+            "Fuel combustion|Energy industries|Petroleum refining|Liquid fuels",
+            "Fuel combustion|Energy industries|Petroleum refining|Solid fuels",
+            "Fuel combustion|Energy industries|Petroleum refining|Gaseous fuels",
+            "Fuel combustion|Energy industries|Petroleum refining|Other fossil fuels",
+            "Fuel combustion|Energy industries|Petroleum refining|Peat",
+            "Fuel combustion|Energy industries|Petroleum refining|Biomass",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Liquid fuels",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Solid fuels",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Gaseous fuels",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Other fossil fuels",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Peat",
+            "Fuel combustion|Energy industries|Manufacture of solid fuels and other energy industries|Biomass",
+            NA,
+            NA,
+            NA,
+            NA,
             NA,
             NA,
             NA,
@@ -89,9 +150,9 @@ readUNFCC <- function() {
       )
     )
   )
-
+  
   dirs <- list.files(path = ".")
-
+  
   tmp <- NULL
   for (dir in dirs) {
     files <- list.files(path = paste0("./", dir))
@@ -101,22 +162,26 @@ readUNFCC <- function() {
       if (is.na(year)) {
         next
       }
-      for (sheet in names(sheets)) {
+      for (i in names(sheets)) {
         tmp <- bind_rows(
           tmp,
-          suppressWarnings(
-            read_xlsx(path = paste0(dir, "/", file), sheet = sheet, skip = 4) %>%
-              drop_na("GREENHOUSE GAS SOURCE AND SINK CATEGORIES") %>%
-              bind_cols(sheets[[sheet]]$rows, year = year, region = region) %>%
-              select(-1) %>%
-              drop_na("name") %>%
-              melt(id.vars = c("name", "region", "year")) %>%
-              mutate(
-                !!sym("value") := as.double(!!sym("value")),
-                !!sym("name") := paste0(!!sym("name"), "|", !!sym("variable")),
-                !!sym("variable") := paste0("kt ", !!sym("variable")),
-              ) %>%
-              select(-"name", "unit" = "variable", "variable" = "name")
+          suppressMessages(
+            suppressWarnings(
+              read_xlsx(path = paste0(dir, "/", file), sheet = i, 
+                        range = sheets[[i]][["range"]], 
+                        col_names = c("variable", sheets[[i]][["colnames"]])) %>%
+                bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
+                select(-1) %>%
+                select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
+                filter(!is.na(!!sym("name"))) %>%
+                melt(id.vars = c("name", "region", "year")) %>%
+                mutate(
+                  !!sym("value") := as.double(!!sym("value")),
+                  !!sym("name") := paste0(!!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
+                ) %>%
+                select(-"name", "unit" = "variable", "variable" = "name") %>%
+                filter(!is.na(!!sym("value")))
+            )
           )
         )
       }

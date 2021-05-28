@@ -3,7 +3,7 @@
 #' @param x MAgPIE object to be converted
 
 convertRam <- function(x){
-  mapr <- toolMappingFile(type = "regional",name = "regionmappingH12.csv",readcsv = T)
+  mapr <- toolGetMapping(type = "regional", name = "regionmappingH12.csv")
   
   #x <- readSource(type = "Ram",convert=F)
   x_final <- new.magpie(cells_and_regions = mapr$CountryCode,years = seq(2015,2050,5),names = "value")

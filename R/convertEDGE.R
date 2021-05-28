@@ -52,7 +52,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
   rem_years_hist <- seq(1990,2150,5)
   keep_years <- getYears(x)
   
-  struct_mapping_path = toolMappingFile("sectoral","structuremappingIO_outputs.csv")
+  struct_mapping_path = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
   struct_mapping = read.csv2(struct_mapping_path, na.strings = "")
   
   #Select the relevant part of the mapping
@@ -70,14 +70,14 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     # Load the regional mapping which depends upon the model used
     if (subtype == "FE_stationary"){  
       
-      mappingfile <- toolMappingFile("regional","regionmappingREMIND.csv")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", returnPathOnly = TRUE)
       mapping <- read.csv2(mappingfile)
       region_col = which(names(mapping) == "RegionCode")
       iso_col = which(names(mapping) == "CountryCode")
       
     }else if (subtype %in% c("FE_buildings")){
       
-      mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
       mapping <- read.csv2(mappingfile)
       region_col = which(names(mapping) == "RegionCodeEUR_ETP")
       iso_col = which(names(mapping) == "CountryCode")
@@ -249,7 +249,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("Capital")){
     
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -289,7 +289,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("CapitalUnit")){
    
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -302,7 +302,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("ES_buildings")){
     
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -315,7 +315,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     result = x
     
   }else if(subtype == "Floorspace"){
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
