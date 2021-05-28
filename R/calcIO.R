@@ -21,7 +21,8 @@
 #' \dontrun{ a <- calcOutput("IO", subtype = "output")
 #' }
 #' 
-#' @importFrom dplyr %>% 
+#' @importFrom rlang .data
+#' @importFrom dplyr %>% filter mutate
 #' @importFrom tidyr unite_
 
 calcIO <- function(subtype) {
@@ -71,6 +72,17 @@ calcIO <- function(subtype) {
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings ="" )
   regions  <- getRegions(data)
   years    <- getYears(data)
+
+  # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
+  if (subtype %in% c("output", "IEA_output")) {
+    ieamatch <- rbind(
+      ieamatch,
+      ieamatch %>%
+        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
+        mutate(REMINDitems_out = "feelb")
+    )
+  }
+
   #delete NAs rows
   ieamatch = ieamatch[c("iea_product","iea_flows",target,"Weight")] %>% na.omit()
   #
