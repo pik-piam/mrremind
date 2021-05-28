@@ -17,7 +17,7 @@ calcTaxLimits <- function(subtype){
   
   if(subtype == "maxFeSubsidy") {
     # Read max final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype="maxFeSubsidy")
+    output <- readSource("REMIND_11Regi", subtype="maxFeSubsidy")[,,c("fegas","fehos","fesos")]
     description <- "maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429" 
     # using final energy to weight the max subsidy levels
     weight <- calcOutput("FE",aggregate=FALSE)[,2005,"FE (EJ/yr)"]
@@ -29,7 +29,8 @@ calcTaxLimits <- function(subtype){
     weight <- calcOutput("PE",aggregate=FALSE)[,2005,"PE (EJ/yr)"]
   } else if(subtype == "propFeSubsidy"){
     # Read proportional adjustment final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype="propFeSubsidy")
+    output <- readSource("REMIND_11Regi", subtype="propFeSubsidy")[,,c("fehoi")]
+    getNames(output) <- c("fehos")
     description <- "subsidy proportional cap to avoid liquids increasing dramatically" 
     # average weight
     weight <- new.magpie(getRegions(output),getYears(output),getNames(output),fill=1)
