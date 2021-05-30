@@ -34,7 +34,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round=2,  file="f21_max_fe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round=2,  file="f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round=2,  file="f21_prop_fe_sub.cs4r")
-  calcOutput("SubsStationary", sector = "extraction", round=2,  file="p21_tau_fuEx_sub.cs4r")
+  calcOutput("PETaxes", subtype = "subsidies",        round=2,  file="f21_tau_pe_sub.cs4r")
   calcOutput("TaxXport",                              round=2,  file="p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital",                               round=6,  file="p29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round=6,  file="f29_capitalUnitProjections.cs4r")

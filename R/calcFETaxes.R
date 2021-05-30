@@ -8,7 +8,7 @@
 #' @param subtype choose between tax rates ("taxes") or subsidies rate ("subsidies") output
 #' 
 #' @return MAgPIE object
-#' @author Renato Rodrigues
+#' @author Christoph Bertram and Renato Rodrigues
 #' @seealso \code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
 #' \code{\link{convertIIASA_subs_taxes}}
 #' @examples
