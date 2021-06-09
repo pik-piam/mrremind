@@ -29,6 +29,7 @@ calcEDGETrData <- function() {
                                         IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
                                         GDP_country = calcOutput("GDPppp", aggregate = F),
                                         POP_country = calcOutput("Population", aggregate = F),
+                                        trsp_incent = readSource("TransportSubsidies", convert=T),
                                         saveRDS = FALSE)
                        })
 
