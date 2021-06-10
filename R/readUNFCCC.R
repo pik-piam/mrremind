@@ -1,11 +1,11 @@
 #' Read UNFCCC data
-#' 
+#'
 #' @return A [`magpie`][magclass::magclass] object.
-#' 
+#'
 #' @author Falk Benke
-#' 
+#'
 #' @seealso [`readSource()`]
-#' 
+#'
 #' @importFrom dplyr %>% bind_rows bind_cols mutate select
 #' @importFrom magclass as.magpie
 #' @importFrom tibble tibble
@@ -13,10 +13,10 @@
 #' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
-#' 
+#'
 #' @export
 readUNFCCC <- function() {
-  
+
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -148,11 +148,46 @@ readUNFCCC <- function() {
           )
         }
       )
+    ),
+    "Table2(I)s1" = list(
+      range = "A7:D31",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total industrial processes",
+            "Total industrial processes|Mineral industry",
+            "Total industrial processes|Mineral industry|Cement production",
+            "Total industrial processes|Mineral industry|Lime production",
+            "Total industrial processes|Mineral industry|Glass production",
+            "Total industrial processes|Mineral industry|Other process uses of carbonates",
+            "Total industrial processes|Chemical industry ",
+            "Total industrial processes|Chemical industry|Ammonia production",
+            "Total industrial processes|Chemical industry|Nitric acid production ",
+            "Total industrial processes|Chemical industry|Adipic acid production",
+            "Total industrial processes|Chemical industry|Caprolactam, glyoxal and glyoxylic acid production",
+            "Total industrial processes|Chemical industry|Carbide production",
+            "Total industrial processes|Chemical industry|Titanium dioxide production",
+            "Total industrial processes|Chemical industry|Soda ash production",
+            "Total industrial processes|Chemical industry|Petrochemical and carbon black production",
+            "Total industrial processes|Chemical industry|Fluorochemical production",
+            "Total industrial processes|Chemical industry|Other",
+            "Total industrial processes|Metal industry",
+            "Total industrial processes|Metal industry|Iron and steel production",
+            "Total industrial processes|Metal industry|Ferroalloys production",
+            "Total industrial processes|Metal industry|Aluminium production",
+            "Total industrial processes|Metal industry|Magnesium production",
+            "Total industrial processes|Metal industry|Lead production",
+            "Total industrial processes|Metal industry|Zinc production",
+            "Total industrial processes|Metal industry|Other"
+          )
+        }
+      )
     )
   )
-  
+
   dirs <- list.files(path = ".")
-  
+
   tmp <- NULL
   for (dir in dirs) {
     files <- list.files(path = paste0("./", dir))
@@ -167,9 +202,9 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0(dir, "/", file), sheet = i, 
-                        range = sheets[[i]][["range"]], 
-                        col_names = c("variable", sheets[[i]][["colnames"]])) %>%
+              read_xlsx(path = paste0(dir, "/", file), sheet = i,
+                range = sheets[[i]][["range"]],
+                col_names = c("variable", sheets[[i]][["colnames"]])) %>%
                 bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
@@ -187,9 +222,9 @@ readUNFCCC <- function() {
       }
     }
   }
-  
-  tmp %>% 
-    select('region', 'year', 'variable', 'unit', 'value') %>% 
-    as.magpie(tidy = TRUE) %>% 
+
+  tmp %>%
+    select("region", "year", "variable", "unit", "value") %>%
+    as.magpie(tidy = TRUE) %>%
     return()
 }
