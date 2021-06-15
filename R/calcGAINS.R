@@ -254,7 +254,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
     regionMean_gdppcap <- sapply(unique(map_regions$RegionCode), function(x) {mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x],,])})
     
     # low income countries (using World Bank definition < 2750 US$(2010)/Cap)
-    r_L        <- map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])]
+    r_L        <- levels(map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])])
     # high and medium income countries
     r_HM       <- setdiff(getRegions(ef), r_L)
     # High-Medium income countries with strong pollution policies in place 

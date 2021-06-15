@@ -6,13 +6,16 @@
 #' @param x MAgPIE object containing EDGE values at ISO country resolution
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque
-convertEDGE <- function(x,subtype = "FE_stationary") {
+convertEDGE <- function(x, subtype = "FE_stationary") {
   
  
   #---- Functions -------------
   noYearDim <- function(x) setYears(x,NULL)
-  addSSPname <- function(x, ssp) setNames(x, paste0(ssp,".",getNames(x)))
-  addSSPnames <- function(x) mbind(addSSPname(x, "SSP1"), addSSPname(x, "SSP2"), addSSPname(x, "SSP3"), addSSPname(x, "SSP4"), addSSPname(x, "SSP5"), addSSPname(x, "SDP"))
+  addSSPnames <- function(x) {
+    out <- lapply(c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2Ariadne"), 
+                  function(y) {setNames(x, paste0(y, ".", getNames(x)))})  
+    mbind(out)
+  }
   
   renameExtraWeights = function(magObj,magWeight, mapping){
     result = do.call(mbind,
@@ -86,7 +89,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
     #--- Load the Weights
     #--- First load the GDP data
-    wg     <- calcOutput("GDPppp", GDPpppFuture = "SSP",aggregate=F, FiveYearSteps = F)[,,]
+    wg     <- calcOutput("GDPppp", aggregate=F, FiveYearSteps = F)[,,]
     getNames(wg) <- gsub("gdp_","",getNames(wg))
     
     #--- Then load the final energy data
@@ -169,8 +172,8 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
     # until maxYear_X_in_FE this will be exclusively FE, in 2060 (depending on the threshold value above), exclusively GDP 
   
-    wfe = mbind( wfe, lambda[,exceeding_years,] * wg[,exceeding_years,]
-                      + (1- lambda[,exceeding_years,]) * ( noYearDim(wfe[,maxYear_X_in_FE,]))
+    wfe = mbind( wfe, 
+    lambda[,exceeding_years,] * wg[,exceeding_years,] + (1- lambda[,exceeding_years,]) * ( noYearDim(wfe[,maxYear_X_in_FE,]))
     )
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
@@ -207,18 +210,14 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
       feShares[,,"fepet"] <- setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL)
       feShares[,,"fedie"] <- (1-setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL))
       feTransp <- new.magpie(cells_and_regions = getRegions(share), years = getYears(feShares), names = getNames(result[,,c("fepet","fedie")]))
-      feTransp[,getYears(feShares),"SSP1.fepet"] <- feShares[,getYears(feShares),"SSP1.fepet"]*setNames(feTotal[,getYears(feShares),"SSP1"],"SSP1.fepet")
-      feTransp[,getYears(feShares),"SSP2.fepet"] <- feShares[,getYears(feShares),"SSP2.fepet"]*setNames(feTotal[,getYears(feShares),"SSP2"],"SSP2.fepet")
-      feTransp[,getYears(feShares),"SSP3.fepet"] <- feShares[,getYears(feShares),"SSP3.fepet"]*setNames(feTotal[,getYears(feShares),"SSP3"],"SSP3.fepet")
-      feTransp[,getYears(feShares),"SSP4.fepet"] <- feShares[,getYears(feShares),"SSP4.fepet"]*setNames(feTotal[,getYears(feShares),"SSP4"],"SSP4.fepet")
-      feTransp[,getYears(feShares),"SSP5.fepet"] <- feShares[,getYears(feShares),"SSP5.fepet"]*setNames(feTotal[,getYears(feShares),"SSP5"],"SSP5.fepet")
-      feTransp[,getYears(feShares),"SDP.fepet"] <- feShares[,getYears(feShares),"SDP.fepet"]*setNames(feTotal[,getYears(feShares),"SDP"],"SDP.fepet")
-      feTransp[,getYears(feShares),"SSP1.fedie"] <- feShares[,getYears(feShares),"SSP1.fedie"]*setNames(feTotal[,getYears(feShares),"SSP1"],"SSP1.fedie")
-      feTransp[,getYears(feShares),"SSP2.fedie"] <- feShares[,getYears(feShares),"SSP2.fedie"]*setNames(feTotal[,getYears(feShares),"SSP2"],"SSP2.fedie")
-      feTransp[,getYears(feShares),"SSP3.fedie"] <- feShares[,getYears(feShares),"SSP3.fedie"]*setNames(feTotal[,getYears(feShares),"SSP3"],"SSP3.fedie")
-      feTransp[,getYears(feShares),"SSP4.fedie"] <- feShares[,getYears(feShares),"SSP4.fedie"]*setNames(feTotal[,getYears(feShares),"SSP4"],"SSP4.fedie")
-      feTransp[,getYears(feShares),"SSP5.fedie"] <- feShares[,getYears(feShares),"SSP5.fedie"]*setNames(feTotal[,getYears(feShares),"SSP5"],"SSP5.fedie")
-      feTransp[,getYears(feShares),"SDP.fedie"] <- feShares[,getYears(feShares),"SDP.fedie"]*setNames(feTotal[,getYears(feShares),"SDP"],"SDP.fedie")
+      
+      for (i in c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2Ariadne")) {
+        i1 <- paste0(i, ".fepet")
+        i2 <- paste0(i, ".fedie")
+        feTransp[, getYears(feShares), i1] <- feShares[, getYears(feShares), i1] * setNames(feTotal[, getYears(feShares), i], i1)
+        feTransp[, getYears(feShares), i2] <- feShares[, getYears(feShares), i2] * setNames(feTotal[, getYears(feShares), i], i2)
+      }
+      
       # extrapolating missing historical years
       result[,getYears(feTransp),getNames(feTransp)] <- feTransp[,getYears(feTransp),getNames(feTransp)]
     }
@@ -227,7 +226,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
       # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
       # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL
       # For SSP1, SSP2 and SDP
-      names_2_change = grep("(SSP1|SSP2|SDP).*water_heating",getNames(result),value = T)
+      names_2_change = grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC|SSP2Ariadne).*water_heating", getNames(result), value = TRUE)
       names_2_change_elec = grep("elec",names_2_change,value = T)
       names_2_change_nonelec = grep("elec",names_2_change,value = T, invert = T)
       regs_OCD = c("AUS","CAN","CHE","NOR","NZL")
@@ -256,7 +255,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
     x = x[,getYears(x,T)[which(getYears(x,T) <= 2100)],]
     
-    wg     <- calcOutput("GDPppp", GDPpppFuture = "SSP",aggregate=F)
+    wg     <- calcOutput("GDPppp", aggregate=F)
     wfe    <- calcOutput("FEdemand", subtype = "FE", aggregate = F)
     
     getSets(wg) = gsub("variable","scenario",getSets(wg))
@@ -308,7 +307,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
     
     select_years = intersect(getYears(x,as.integer = T),rem_years_hist)
-    wg     <- calcOutput("GDPppp", GDPpppFuture = "SSP",     years=select_years,aggregate=F)
+    wg     <- calcOutput("GDPppp", years=select_years,aggregate=F)
     getNames(wg) = gsub("gdp_SSP","SSP", getNames(wg))
     
     x = toolAggregate(x[,select_years,],mappingfile, weight = wg[,,getNames(x,dim=1)], from = region_col, to = iso_col )
@@ -320,7 +319,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
 
-    wg     <- calcOutput("Population", PopulationFuture = "SSP",     years=rem_years_hist,aggregate=F)
+    wg <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
     getNames(x) <- paste0("pop_",getNames(x))
     getSets(wg) = gsub("variable","scenario",getSets(wg))
     wg = wg[,,getNames(x,T)[["scenario"]]]

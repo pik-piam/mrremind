@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.72.3
-Date: 2021-09-07
+Version: 0.73.0
+Date: 2021-09-09
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -30,7 +30,7 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
     madrat(>= 1.30),
-    mrcommons
+    mrcommons(>= 0.62.0)
 Imports:
     R.utils,
     assertr,
@@ -58,7 +58,7 @@ Imports:
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     knitr,
     testthat,

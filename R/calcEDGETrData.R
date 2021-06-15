@@ -19,7 +19,7 @@ calcEDGETrData <- function() {
   EDGETdata = lapply(strsplit(cartesian(x = c("ConvCase", "ElecEra", "HydrHype",
                                        "ConvCaseWise", "ElecEraWise",
                                        "HydrHypeWise"),
-                                        y = c(paste0('SSP', c(1, 2, 5)))),
+                                        y = c(paste0('SSP', c(1, 2, 5)), "SSP2Ariadne", "SDP")),
                               '\\.'),
                      function(x) {
                        generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
@@ -27,8 +27,17 @@ calcEDGETrData <- function() {
                                         EDGE_scenario = x[[1]],
                                         REMIND_scenario = x[[2]],
                                         IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
-                                        GDP_country = calcOutput("GDPppp", aggregate = F),
-                                        POP_country = calcOutput("Population", aggregate = F),
+                                        GDP_country = {
+                                            x <- calcOutput("GDPppp", aggregate = F)
+                                            getSets(x)[1] <- "ISO3"
+                                            getSets(x)[2] <- "Year"
+                                            x
+                                          },
+                                        POP_country = {
+                                            x <- calcOutput("Population", aggregate = F)
+                                            getSets(x)[1] <- "iso2c"
+                                            x
+                                          },
                                         trsp_incent = readSource("TransportSubsidies", convert=T),
                                         storeRDS = FALSE)
                        })
