@@ -15,8 +15,58 @@
 #' 
 
 calcCapacity <- function(subtype){
-  
-  if (subtype == "capacityByTech") {
+  if (subtype == "capacityByTech_windoff") {
+    
+    description <- "Historical capacity by technology."
+    
+    # Use IRENA data for world renewables capacity.
+    # Year: 2000-2017
+    # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
+    IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
+    IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Onshore wind energy", "Offshore wind energy")] # selecting data used on REMIND
+    mapping <- data.frame( IRENA_techs=c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Onshore wind energy", "Offshore wind energy"),
+                           REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind", "windoff"), stringsAsFactors = FALSE)
+    IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs") # renaming technologies to REMIND naming convention
+    IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
+    #overwriting Russia and Japan capacities for wind and spv to avoid REMIND convergence problems (this is a temporary solution that should be removed once the bounds in REMIND are reworked)
+    IRENAcap["JPN",2010,"wind"] <- 0.0012
+    IRENAcap["RUS",2010,"spv"] <- 5e-06 
+    IRENAcap["RUS",2015,"wind"] <- 2e-05
+    IRENAcap["RUS",2015,"spv"] <- 2e-05
+    
+    # Use Openmod capacity values updated by the LIMES team for the European countries.
+    # Year: 2015
+    # Technologies: "tnrs","ngcc","ngt","dot" 
+    Openmodcap <- readSource(type="Openmod") # Read Openmod capacities
+    Openmodcap <- Openmodcap[c("FIN","NOR","SWE","EST","LVA","LTU","DNK","GBR","IRL","NLD","POL","DEU","BEL","LUX","CZE","SVK","AUT","CHE","HUN","ROU","SVN","FRA","HRV","BGR","ITA","ESP","PRT","GRC"),,c("tnr","ngcc","ngt","oil")] # selecting data used on REMIND # "BAL" 
+    mapping <- data.frame( Openmod_techs=c("tnr","ngcc","ngt","oil"),
+                           REMIND_techs=c("tnrs","ngcc","ngt","dot"), stringsAsFactors = FALSE)
+    Openmodcap <- rename_dimnames(Openmodcap, dim = 3, query = mapping, from = "Openmod_techs", to="REMIND_techs") # renaming technologies to REMIND naming convention
+    Openmodcap <- Openmodcap * 1E-03 # converting GW to TW
+    
+    # Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
+    # Year: 2015
+    # Technologies: "tnrs","dot" 
+    WEOcap <- readSource(type="IEA_WEO",subtype="Capacity") # Read IEA WEO capacities
+    WEOcap <- WEOcap[c("USA","BRA","RUS","CHN","IND","JPN"),2015,c("Nuclear","Oil")] # selecting data used on REMIND
+    mapping <- data.frame( WEO_techs=c("Nuclear","Oil"),
+                           REMIND_techs=c("tnrs","dot"), stringsAsFactors = FALSE)
+    WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs") # renaming technologies to REMIND naming convention
+    WEOcap <- WEOcap * 1E-03 # converting GW to TW
+    
+    # merge IRENA, Openmod and WEO capacities data
+    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap),getRegions(WEOcap))),
+                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap))),
+                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap))),
+                         fill=0)
+    output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)]  
+    output[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)]  
+    output[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)]  
+    
+    output[is.na(output)] <- 0 #set NA to 0  
+    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    
+  } else if (subtype == "capacityByTech") {
     
     description <- "Historical capacity by technology."
     

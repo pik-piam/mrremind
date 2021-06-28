@@ -106,6 +106,7 @@ fullREMIND <- function(rev=0) {
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
+  calcOutput("Capacity", subtype="capacityByTech_windoff",    round=6,  file="pm_histCap_windoff.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                        round=6,  file="f_cf.cs3r")
   calcOutput("StorageFactor",                         round=6,  file="f32_factorStorage.cs4r")
