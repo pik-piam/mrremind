@@ -1,15 +1,16 @@
 #' @title calc Capacity Factor
 #' @description provides capacity factor values
 #'
+#' @param subtype data subtype. Either "wind" or "windoff"
+#'
 #' @return magpie object of the capacity factor data
 #' @author Renato Rodrigues, Stephen Bi
+#' @importFrom rlang .data
 #' @examples
-#' 
-#' @importFrom dplyr summarise
 #' \dontrun{ 
 #' calcOutput("CapacityFactor")
 #' }
-
+#' 
 
 
 calcCapacityFactorHist <- function(subtype){
@@ -68,26 +69,34 @@ calcCapacityFactorHist <- function(subtype){
     hist_gen2 = hist_gen[,seq(2013,2017,1),rem_Irena_map$irena]
     hist_gen3 <- as.data.frame(hist_gen2)
     hist_gen <- hist_gen3 %>%
-      group_by(Region, Data1) %>%
-      summarise(Value=sum(Value)) %>% 
+      group_by(.data$Region, .data$Data1) %>%
+      summarise(Value=sum(.data$Value)) %>% 
       mutate(Year="2015") %>% 
-      select(Year,Region,Data1,gen=Value) 
+      select(.data$Year,.data$Region,.data$Data1,.data$Value) %>% 
+      ungroup()%>% 
+      as.magpie()
     
     # sum over 5 years of capacity
     hist_cap2 = hist_cap[,seq(2013,2017,1),rem_Irena_map$irena]
     hist_cap3 <- as.data.frame(hist_cap2)
     hist_cap <- hist_cap3 %>%
-      group_by(Region, Data1) %>%
-      summarise(Value=sum(Value)) %>% 
+      group_by(.data$Region, .data$Data1) %>%
+      summarise(Value=sum(.data$Value)) %>% 
       mutate(Year="2015") %>% 
-      select(Year,Region,Data1,cap=Value) 
+      select(.data$Year,.data$Region,.data$Data1,.data$Value) %>% 
+      ungroup()%>% 
+      as.magpie()
+    
+    cf_realworld <- hist_gen/(8760*hist_cap) 
     
     #get average capfac
-    cf_realworld <- list(hist_gen, hist_cap) %>%
-      reduce(full_join) %>% 
-      mutate(Value = gen/(8760*cap)) %>% 
-      select(Year,Region,Data1,Value) %>% 
-      as.magpie()
+    # cf_realworld <- hist_cap %>% 
+    #   full_join(hist_gen) %>%
+    #   mutate(Value = gen/(8760*cap)) %>% 
+    #   select(.data$Year,.data$Region,.data$Data1,.data$Value) %>% 
+    #   as.magpie()
+    
+    # cf_realworld <- as.data.frame(cf_realworld)
     
     #rename
     getNames(cf_realworld) <- rem_Irena_map$rem
@@ -107,7 +116,6 @@ calcCapacityFactorHist <- function(subtype){
     #get rid of NAs
     cf_realworld[is.na(cf_realworld)] <- 0
     
-    # cf_realworld <- as.data.frame(cf_realworld)
     
     #weight: historic generation
     hist_gen <- hist_gen %>%
