@@ -29,10 +29,11 @@ calcCapacity <- function(subtype){
     IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs") # renaming technologies to REMIND naming convention
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
     #overwriting Russia and Japan capacities for wind and spv to avoid REMIND convergence problems (this is a temporary solution that should be removed once the bounds in REMIND are reworked)
-    IRENAcap["JPN",2010,"wind"] <- 0.0012
-    IRENAcap["RUS",2010,"spv"] <- 5e-06 
-    IRENAcap["RUS",2015,"wind"] <- 2e-05
-    IRENAcap["RUS",2015,"spv"] <- 2e-05
+    # IRENAcap["JPN",2010,"wind"] <- 0.0012
+    # IRENAcap["RUS",2010,"spv"] <- 5e-06 
+    # IRENAcap["RUS",2015,"wind"] <- 2e-05
+    # IRENAcap["RUS",2015,"spv"] <- 2e-05
+    # 
     
     # Use Openmod capacity values updated by the LIMES team for the European countries.
     # Year: 2015
@@ -80,10 +81,10 @@ calcCapacity <- function(subtype){
     IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs") # renaming technologies to REMIND naming convention
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
     #overwriting Russia and Japan capacities for wind and spv to avoid REMIND convergence problems (this is a temporary solution that should be removed once the bounds in REMIND are reworked)
-    IRENAcap["JPN",2010,"wind"] <- 0.0012
-    IRENAcap["RUS",2010,"spv"] <- 5e-06 
-    IRENAcap["RUS",2015,"wind"] <- 2e-05
-    IRENAcap["RUS",2015,"spv"] <- 2e-05
+    # IRENAcap["JPN",2010,"wind"] <- 0.0012
+    # IRENAcap["RUS",2010,"spv"] <- 5e-06 
+    # IRENAcap["RUS",2015,"wind"] <- 2e-05
+    # IRENAcap["RUS",2015,"spv"] <- 2e-05
     
     # Use Openmod capacity values updated by the LIMES team for the European countries.
     # Year: 2015
