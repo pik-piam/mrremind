@@ -90,6 +90,11 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            unit = "Passenger transport: [pass/veh]; freight transport: [ton/veh]"
            description = "Load factor for all motorized transport modes"
          },
+         "annual_mileage" = {
+           weight = get_weight(data, weightInt)
+           unit = "km/veh/year"
+           description = "Annual mileage for selected transport modes"
+         },
          "esCapCost" = {
            weight = get_weight(data, weightInt)
            unit = "Passenger transport [2005US$/pkm]; freight transport: [2005US$/tkm]"
