@@ -6,7 +6,7 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Marianna Rottoli, Alois Dirnaichner
 #' @seealso \code{\link{readSource}}
-#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO
+#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
@@ -26,7 +26,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   EDGETrData_all=list()
 
   ## all data.tables can be combined directly
-  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor")) {
+  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor", "annual_mileage")) {
     EDGETrData_all[[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
                                                function(x) {
                                                  EDGETrData[[x]][[i]]
@@ -343,6 +343,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              }
            }
          },
+
+        "annual_mileage" = {
+           tmp <- EDGETrData_all$annual_mileage
+           tmp[, varname := subtype]
+           tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
+           tmp$varname <- subtype
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "varname", "annual_mileage"))
+           setnames(tmp, old ="annual_mileage", new ="value")
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 7)
+	 },
 
          "f35_bunkers_fe" = {
            ## used only in transport complex.
