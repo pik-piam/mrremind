@@ -106,6 +106,7 @@ fullREMIND <- function(rev=0) {
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
+  calcOutput("Capacity", subtype="capacityByTech_windoff",    round=6,  file="pm_histCap_windoff.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                        round=6,  file="f_cf.cs3r")
   calcOutput("StorageFactor",                         round=6,  file="f32_factorStorage.cs4r")
@@ -136,7 +137,8 @@ fullREMIND <- function(rev=0) {
   calcOutput("EarlyRetirementAdjFactor",                               file="p_earlyRetirementAdjFactor.cs3r")
   calcOutput("DiffInvestCosts",  subtype="Invest_Costs",     round=4,  file="p_inco0.cs4r")
   calcOutput("DiffInvestCosts",  subtype="Efficiency",       round=4,  file="pm_eff.cs4r")
-  calcOutput("CapacityFactorHist",                           round=4,  file="p_histCapFac.cs4r")
+  calcOutput("CapacityFactorHist", subtype="wind",           round=4,  file="p_histCapFac.cs4r")
+  calcOutput("CapacityFactorHist", subtype="windoff",        round=4,  file="p_histCapFac_windoff.cs4r")
   calcOutput("GEA2012", subtype="coal",                          round=8,  file="p31_grades_coal.cs4r")
   calcOutput("GEA2012", subtype="gas",                           round=8,  file="p31_grades_gas.cs4r")
   calcOutput("GEA2012", subtype="oil",                           round=8,  file="p31_grades_oil.cs4r")
