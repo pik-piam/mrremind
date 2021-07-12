@@ -75,7 +75,7 @@ calcCapacityFactorHist <- function(subtype){
     # load 5 years of capacity
     hist_cap2a = hist_cap[,seq(2012,2016,1), rem_Irena_map$irena] %>% 
       as.data.frame() %>% 
-      mutate(Year = as.factor(as.integer(as.character(Year)) + 1)) %>% 
+      mutate(Year = as.factor(as.integer(as.character(.data$Year)) + 1)) %>% 
       select(.data$Year, .data$Region, .data$Data1, 'cap1' ='Value')
     
     # load 5 years of capacity
@@ -85,11 +85,11 @@ calcCapacityFactorHist <- function(subtype){
     
     hist_cap2 <- full_join(hist_cap2b, hist_cap2a) %>% 
       # filter(.data$Data1 == "Offshore wind energy",.data$Region=="USA" ) %>%
-      mutate(cap = (cap1 + cap2) / 2) %>%
+      mutate(cap = (.data$cap1 + .data$cap2) / 2) %>%
       select(.data$Year, .data$Region, .data$Data1, .data$cap)
     
     cf_year <- full_join(hist_gen2, hist_cap2) %>% 
-      mutate(Value = Value / (8760 * cap))
+      mutate(Value = .data$Value / (8760 * .data$cap))
       
     cf_year$Value[cf_year$cap < 0.2] <- 0 # remove those CFs if the installed capacity are too tiny
     
@@ -143,7 +143,7 @@ calcCapacityFactorHist <- function(subtype){
     
     cf_realworld <- full_join(cf_realworld_n0, cf_realworld_0) %>% 
       group_by(.data$Region, .data$Year) %>%
-      mutate(Data1 = factor(Data1, levels=tech_list) ) %>% 
+      mutate(Data1 = factor(.data$Data1, levels=tech_list) ) %>% 
       ungroup() %>% 
       as.magpie()
     # cf_realworld <- cf_realworld %>% 
