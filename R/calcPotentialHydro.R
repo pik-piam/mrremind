@@ -27,6 +27,7 @@ calcPotentialHydro <- function() {
   # economic potential
   ecoPot  <- wgbu[,,"Wirtschaftlich es Potenzial (TWh/a)"]
   # produced electricity
+  # 
   # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
   prodElec <- readSource("IRENA","Generation")
   prodElec <- prodElec[,2015,"Hydropower"] / 1000
@@ -208,6 +209,8 @@ calcPotentialHydro <- function() {
   data["AUS",,"maxprod"] <- 0
   data["AUS",,"maxprod.4"] <- 0.07
   
+  # AM: slightly increase hydro potential for VTM to allow REN21 targets
+  data["VNM",,"maxprod"] <- data["VNM",,"maxprod"]*1.05
   
   # FS: in Northern Central Europe region (ENC) potential is slightly below current capacity
   # increase potentials by 5% to avoid infeasibility with capacity targets in NDC2018 realization
