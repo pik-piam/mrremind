@@ -30,7 +30,7 @@ calcEDGETrData <- function() {
                                         GDP_country = calcOutput("GDPppp", aggregate = F),
                                         POP_country = calcOutput("Population", aggregate = F),
                                         trsp_incent = readSource("TransportSubsidies", convert=T),
-                                        saveRDS = FALSE)
+                                        storeRDS = FALSE)
                        })
 
 
