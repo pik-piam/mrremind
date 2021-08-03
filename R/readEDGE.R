@@ -13,7 +13,7 @@
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
-                                 "ES_buildings", "FE_transport")) {
+                                 "ES_buildings")) {
   subtype <- match.arg(subtype)
   switch(
     subtype,
@@ -71,12 +71,6 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mservices <- collapseNames(mservices)
       getSets(mservices) <- c("region", "year", "scenario")
       return(mservices)
-    },
-    FE_transport = {
-      mtransport <- read.magpie("EDGE_transport_data.csv", file_type = "csv")
-      mtransport <- collapseNames(mtransport)
-      getSets(mtransport) <- c("region", "year", "scenario")
-      return(mtransport)
     }
   )
 }
