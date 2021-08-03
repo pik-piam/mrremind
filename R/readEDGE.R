@@ -1,13 +1,13 @@
 #' Read EDGE
 #'
-#' Load an EDGE Transport or Buildings csv/cs4r file as magclass object.
+#' Load an EDGE Buildings file as magclass object.
 #'
 #' @param subtype One of the possible subtypes, see default argument.
 #' @return magclass object
 #'
 #' @examples
 #' \dontrun{
-#' x <- readSource("EDGE")
+#' a <- readSource("EDGE")
 #' }
 #' @author Antoine Levesque
 #' @seealso \code{\link{readSource}}
