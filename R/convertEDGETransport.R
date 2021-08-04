@@ -11,15 +11,15 @@
 #'
 convertEDGETransport = function(x, subtype) {
   `.` <- CountryCode <- RegionCode <- NULL
-  if (subtype %in% c("esCapCost", "fe_demand_tech", "fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor","f35_bunkers_fe")) {
+  if (subtype %in% c("esCapCost", "fe_demand_tech", "fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "annual_mileage", "f35_bunkers_fe")) {
     ## magpie object creates NA whenever the initial dt is not symmetric (entry absent in ISO1 but exists in ISO2)
     ## the NAs are therefore converted to 0
     x[is.na(x)] <- 0
   }
   ## load mapping
-  mappingfile <- setDT(toolGetMapping("regionmappingH12.csv",type="regional"))[, .(iso = CountryCode, region = RegionCode)]
+  mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv",type="regional"))[, .(iso = CountryCode, region = RegionCode)]
   ## for intensive values, the weight is NULL
-  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "shares_LDV_transport", "price_nonmot", "esCapCost")) {
+  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "annual_mileage", "shares_LDV_transport", "price_nonmot", "esCapCost")) {
     x = toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
   }
 
@@ -43,8 +43,8 @@ convertEDGETransport = function(x, subtype) {
 
 
   if (subtype %in% c("shares_LDV_transport")) {
-    ## only ConvCase (ICE predominant LDV market and road market) is used as input data
-    x <- x[,,"ConvCase.share_LDV_totliq", pmatch = TRUE]
+    ## only ConvCase SSP2 (ICE predominant LDV market and road market) is used as input data
+    x <- x[,,"gdp_SSP2.ConvCase.share_LDV_totliq", pmatch = TRUE]
 
     for (year in getYears(x, as.integer = T)){
       x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)

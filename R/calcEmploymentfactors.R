@@ -7,8 +7,8 @@
 
 calcEmploymentfactors <- function(improvements,multiplier){
   if (improvements=="None"||improvements=="CEEW"||improvements=="Dias"||improvements=="Fragkos"||improvements=="CEEW+Dias+Fragkos"){
-    mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)
-    mapping_remind <- toolMappingFile(type = "regional",name = "regionmappingH12.csv",readcsv = T)
+    mapping <- toolGetMapping(type = "regional", name = "regionalmappingWEO2014.csv")
+    mapping_remind <- toolGetMapping(type = "regional", name = "regionmappingH12.csv")
     colnames(mapping) <- c("region","country")
     mapping$country <- toolCountry2isocode(mapping$country)  
     
@@ -50,7 +50,7 @@ calcEmploymentfactors <- function(improvements,multiplier){
     }
     
     if (improvements=="Fragkos"||improvements=="CEEW+Dias+Fragkos"){
-      mapping_remind <- toolMappingFile(type = "regional",name = "regionmappingH12.csv",readcsv = T)
+      mapping_remind <- toolGetMapping(type = "regional", name = "regionmappingH12.csv")
       
       # Fragkos is the average data for OM from Fragkos and Paroussos, "Employment creation in EU related to renewables expansion", Applied Energy, 2018
       # only those OM values are used which deviate significantly from Rutovitz et al.

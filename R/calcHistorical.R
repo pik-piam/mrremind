@@ -64,11 +64,11 @@ calcHistorical <- function() {
   
   # Historical emissions from CEDS data base (Steve Smith)
     # ceds16 <- calcOutput("Emissions",datasource="CEDS16")
-    # map_CEDS16toCEDS9  <- read.csv(toolMappingFile("sectoral", "mappingCEDS16toCEDS9.csv"), stringsAsFactors=FALSE)
+    # map_CEDS16toCEDS9  <- toolGetMapping(type = "sectoral", name = "mappingCEDS16toCEDS9.csv")
     # # aggregate from CEDS16 to CEDS9 sectors
     # ceds9 <- groupAggregate(ceds16,vectorfunction = "sum",dim=3.1,query = map_CEDS16toCEDS9, from="CEDS16",to="CEDS9")
     # # Rename CEDS9 1:1 to REMIND names (no aggregation)
-    # map_CEDS9toREMIND  <- read.csv(toolMappingFile("sectoral", "mappingCEDS9toREMINDreporting.csv"), stringsAsFactors=FALSE)
+    # map_CEDS9toREMIND  <- toolGetMapping(type = "sectoral", name = "mappingCEDS9toREMINDreporting.csv")
     # ceds <-groupAggregate(ceds9,vectorfunction = "sum",dim=3.1,query = map_CEDS9toREMIND, from="CEDS9",to="REMIND")
     # 
     # # get variables names right
@@ -218,6 +218,7 @@ calcHistorical <- function() {
 
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate=FALSE))
+  Emi_Reference <- add_dimension(Emi_Reference, dim=3.1,add="model",nm="EEA") 
   
   # Eurostat emissions
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
@@ -235,6 +236,28 @@ calcHistorical <- function() {
   INNOPATHS <- readSource("INNOPATHS")
   INNOPATHS <- add_dimension(INNOPATHS, dim = 3.1, add = "model", nm = "INNOPATHS")
   
+  # JRC IDEES data
+  JRC_Industry <- calcOutput("JRC_IDEES", subtype = "Industry", aggregate = FALSE)
+  JRC_Industry <- add_dimension(JRC_Industry, dim = 3.1, add = "model", nm = "JRC")
+
+  JRC_Transport <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE)
+  JRC_Transport <- add_dimension(JRC_Transport, dim = 3.1, add = "model", nm = "JRC")
+
+  JRC_ResCom <- calcOutput("JRC_IDEES", subtype = "ResCom", aggregate = FALSE)
+  JRC_ResCom <- add_dimension(JRC_ResCom, dim = 3.1, add = "model", nm = "JRC")
+
+  # AGEB final energy data
+  AGEB_FE <- calcOutput("AGEB", aggregate = FALSE)
+  AGEB_FE <- add_dimension(AGEB_FE, dim = 3.1, add = "model", nm = "AGEB")
+  
+  # UBA Emission data
+  UBA_emi <- calcOutput("UBA", aggregate = FALSE)
+  UBA_emi <- add_dimension(UBA_emi, dim = 3.1, add = "model", nm = "UBA")
+  
+  # UNFCCC emission data
+  UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
+  UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
+  
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
@@ -243,7 +266,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS)
+                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))

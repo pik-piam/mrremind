@@ -20,7 +20,7 @@
 #' }
 #' @importFrom magclass getNames<-
 #' @importFrom readxl read_excel
-#' @importFrom madrat toolMappingFile
+#' @importFrom madrat toolGetMapping
 
 
 
@@ -66,7 +66,9 @@ calcCoolingSharesBase <- function() {
   if(!all(check==100)) { stop("sum of categorie XXX is not 100%")}
   
   # read in mapping to REMIND technologies
-  map_table <- read_excel(toolMappingFile("sectoral","TechnologyMappingDavies2REMIND.xlsx")) 
+  map_table <- read_excel(toolGetMapping(type = "sectoral",
+                                         name = "TechnologyMappingDavies2REMIND.xlsx",
+                                         returnPathOnly = TRUE))
   map <- list()
   map$davies <- paste(map_table$'Davies Source/Technology',map_table$'Davies Cooling',sep=".")
   map$remind <- paste(map_table$'REMIND Technology',map_table$'REMIND Cooling',sep=".")

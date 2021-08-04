@@ -18,7 +18,7 @@
 calcIEA_PFU <- function() {
   
   
-  mapping <- toolMappingFile("sectoral","structuremappingFE_PFU.csv") 
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingFE_PFU.csv", returnPathOnly = TRUE)
   target = c("pfu")
   
   # read in data and convert from ktoe to EJ

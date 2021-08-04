@@ -25,7 +25,7 @@ calcStorageFactor <- function(){
   getNames(w1)  <- c("spv")
   w1 <- mbind(w1,setNames(w1,"csp"))
   # for wind
-  w2 <- calcOutput("PotentialWind",aggregate=FALSE)
+  w2 <- calcOutput("PotentialWindOn",aggregate=FALSE)
   w2 <- collapseNames(dimSums(w2, dim=3))
   getSets(w2)[1] <- getSets(w1)[1]
   getSets(w2)[2] <- getSets(w1)[2]

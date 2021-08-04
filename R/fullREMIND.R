@@ -7,6 +7,7 @@
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
 #' @importFrom edgeTransport collectScens generateEDGEdata
+#' @importFrom quitte cartesian
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -27,15 +28,13 @@ fullREMIND <- function(rev=0) {
   calcOutput("GDPppp",     years=rem_years_hist,      round=8,  file="f_gdp.cs3r")
   calcOutput("RatioPPP2MER",                          round=8,  file="pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round=8,  file="p01_boundInvMacro.cs4r")
-  calcOutput("SubsStationary", sector = "transport" , round=2,  file="f21_tau_fe_sub_transport.cs4r")
-  calcOutput("TaxesStationary",sector = "transport",  round=2,  file="f21_tau_fe_tax_transport.cs4r")
-  calcOutput("SubsStationary", sector = "bit_st",     round=2,  file="f21_tau_fe_sub_bit_st.cs4r")
-  calcOutput("TaxesStationary",sector = "bit_st",     round=2,  file="f21_tau_fe_tax_bit_st.cs4r")
+  calcOutput("FETaxes", subtype = "taxes",            round=2,  file="f21_tau_fe_tax.cs4r")
+  calcOutput("FETaxes", subtype = "subsidies",        round=2,  file="f21_tau_fe_sub.cs4r")
   calcOutput("TaxConvergence",                        round=2,  file="f21_tax_convergence.cs4r")
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round=2,  file="f21_max_fe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round=2,  file="f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round=2,  file="f21_prop_fe_sub.cs4r")
-  calcOutput("SubsStationary", sector = "extraction", round=2,  file="p21_tau_fuEx_sub.cs4r")
+  calcOutput("PETaxes", subtype = "subsidies",        round=2,  file="f21_tau_pe_sub.cs4r")
   calcOutput("TaxXport",                              round=2,  file="p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital",                               round=6,  file="p29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round=6,  file="f29_capitalUnitProjections.cs4r")
@@ -86,7 +85,8 @@ fullREMIND <- function(rev=0) {
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round=3,  file="f_maxProdGradeRegiHydro.cs3r")
-  calcOutput("PotentialWind",                         round=3,  file="f_maxProdGradeRegiWind.cs3r")
+  calcOutput("PotentialWindOn",                       round=3,  file="f_maxProdGradeRegiWindOn.cs3r")
+  calcOutput("PotentialWindOff",                      round=3,  file="f_maxProdGradeRegiWindOff.cs3r")
   calcOutput("PotentialGeothermal",                   round=3,  file="f_maxProdGeothermal.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("PotentialWeathering",                   round=3,  file="f33_maxProdGradeRegiWeathering.cs3r")
@@ -101,8 +101,12 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
+  calcOutput('Clinker_to_cement_ratio', round = 2, file = 'p37_clinker-to-cement-ratio.cs3r')
+  # delete the 'dummy' line
+  system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="p_histCap.cs3r")  # will be deleted after the merge of REMIND-EU
   calcOutput("Capacity", subtype="capacityByTech",    round=6,  file="pm_histCap.cs3r")
+  calcOutput("Capacity", subtype="capacityByTech_windoff",    round=6,  file="pm_histCap_windoff.cs3r")
   calcOutput("Capacity", subtype="capacityByPE",      round=6,  file="p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                        round=6,  file="f_cf.cs3r")
   calcOutput("StorageFactor",                         round=6,  file="f32_factorStorage.cs4r")
@@ -133,14 +137,15 @@ fullREMIND <- function(rev=0) {
   calcOutput("EarlyRetirementAdjFactor",                               file="p_earlyRetirementAdjFactor.cs3r")
   calcOutput("DiffInvestCosts",  subtype="Invest_Costs",     round=4,  file="p_inco0.cs4r")
   calcOutput("DiffInvestCosts",  subtype="Efficiency",       round=4,  file="pm_eff.cs4r")
-  calcOutput("CapacityFactorHist",                           round=4,  file="p_histCapFac.cs4r")
+  calcOutput("CapacityFactorHist", subtype="wind",           round=4,  file="p_histCapFac.cs4r")
+  calcOutput("CapacityFactorHist", subtype="windoff",        round=4,  file="p_histCapFac_windoff.cs4r")
   calcOutput("GEA2012", subtype="coal",                          round=8,  file="p31_grades_coal.cs4r")
   calcOutput("GEA2012", subtype="gas",                           round=8,  file="p31_grades_gas.cs4r")
   calcOutput("GEA2012", subtype="oil",                           round=8,  file="p31_grades_oil.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
-  
+
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")
   calcOutput("EmiTarget", subtype="multiplier_cond",      round=4,  file="p45_factor_targetyear.cs4r")
@@ -153,38 +158,14 @@ fullREMIND <- function(rev=0) {
   calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
   calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
-  
+
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
-  infoConfig = getConfig()
-  print(infoConfig$regionmapping)
-  if (infoConfig$regionmapping == "regionmappingH12.csv") {
-    ## run EDGE-T
-    lapply(c("ConvCase", "ElecEra", "HydrHype", "ConvCaseWise", "ElecEraWise", "HydrHypeWise"),
-           function(x){
-             generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
-                              output_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
-                              EDGE_scenario = x,
-                              REMIND_scenario = "SSP2",
-                              IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
-                              GDP_country = calcOutput("GDPppp", aggregate = F),
-                              POP_country = calcOutput("Population", aggregate = F),
-                              saveRDS = FALSE)
-           })
-
-    ## collect the scenarios in the corresponding source folder
-    collectScens(scen_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/output"),
-                 output_folder = paste0(getConfig("mainfolder"), "/sources/EDGETransport/"))
-
-  }
-
-
-  ## EDGE-T output data
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
-           "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe"),
+           "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe", "annual_mileage"),
          function(stype){
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype=stype,

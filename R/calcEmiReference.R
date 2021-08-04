@@ -36,9 +36,9 @@ calcEmiReference <-  function(){
   
   out <- NULL
   out <- mbind(out,
-               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*0.40,2030), "Emi|GHGtot|target|40% (Mt CO2-equiv/yr)"), # target without lulucf
-               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*0.55,2030), "Emi|GHGtot|target|55% (Mt CO2-equiv/yr)"), # target without lulucf
-               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*0.65,2030), "Emi|GHGtot|target|65% (Mt CO2-equiv/yr)")  # target without lulucf
+               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*(1-0.40),2030), "Emi|GHGtot|target|40% (Mt CO2-equiv/yr)"), # target without lulucf
+               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*(1-0.55),2030), "Emi|GHGtot|target|55% (Mt CO2-equiv/yr)"), # target without lulucf
+               setNames(setYears(eea.emi.total_EEA[,1990,"Emi|GHGtot (Mt CO2-equiv/yr)"]*(1-0.65),2030), "Emi|GHGtot|target|65% (Mt CO2-equiv/yr)")  # target without lulucf
                )
   
   # ESD emission target - per country ESD reduction target for 2030 = reduction of 30% by 2030 compared to 2005

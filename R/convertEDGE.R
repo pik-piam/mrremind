@@ -52,7 +52,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
   rem_years_hist <- seq(1990,2150,5)
   keep_years <- getYears(x)
   
-  struct_mapping_path = toolMappingFile("sectoral","structuremappingIO_outputs.csv")
+  struct_mapping_path = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
   struct_mapping = read.csv2(struct_mapping_path, na.strings = "")
   
   #Select the relevant part of the mapping
@@ -70,14 +70,14 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     # Load the regional mapping which depends upon the model used
     if (subtype == "FE_stationary"){  
       
-      mappingfile <- toolMappingFile("regional","regionmappingREMIND.csv")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", returnPathOnly = TRUE)
       mapping <- read.csv2(mappingfile)
       region_col = which(names(mapping) == "RegionCode")
       iso_col = which(names(mapping) == "CountryCode")
       
     }else if (subtype %in% c("FE_buildings")){
       
-      mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
       mapping <- read.csv2(mappingfile)
       region_col = which(names(mapping) == "RegionCodeEUR_ETP")
       iso_col = which(names(mapping) == "CountryCode")
@@ -186,11 +186,22 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
                           to = iso_col)
     result <- toolCountryFill(xadd,0)
     
-    
-    
     if(subtype == "FE_stationary"){
       # re-calculating fepet and fedie final energy based on updated EDGE shares
       share <- readSource(type="EDGETransport", subtype = "shares_LDV_transport")
+      # for EU regions use JRC data instead
+      JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
+      JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
+      JRC_share <- new.magpie(JRC_reg,getYears(share),getNames(share),fill=0)
+      # for years lower or equal to 2015 assume bunkers equal to JRC historical values
+      y1 <- getYears(JRC)[getYears(JRC, as.integer = TRUE)<=2015]
+      JRC_share[JRC_reg,y1,] <- JRC[JRC_reg,y1,"FE|Transport|LDV|Liquids (EJ/yr)"]/(JRC[JRC_reg,y1,"FE|Transport|non-LDV|Liquids (EJ/yr)"]+JRC[JRC_reg,y1,"FE|Transport|LDV|Liquids (EJ/yr)"]) 
+      # for years after 2015 assume LDV share constant and eqaul to JRC 2015 values
+      y2 <- getYears(share)[getYears(share, as.integer = TRUE)>2015]
+      JRC_share[,y2,] <- JRC_share[,2015,]
+      #setting EU shares equal to JRC values
+      share[JRC_reg,getYears(JRC_share),"gdp_SSP2.ConvCase.share_LDV_totliq.shares_LDV_transport"] <- JRC_share[JRC_reg,getYears(JRC_share),]
+      # redefining LDV and non-LDV liquids
       feTotal <- dimSums(result[,,c("fepet","fedie")],dim=3.2)
       feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(result)), names = getNames(result[,,c("fepet","fedie")]))
       feShares[,,"fepet"] <- setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL)
@@ -238,7 +249,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("Capital")){
     
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -278,7 +289,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("CapitalUnit")){
    
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -291,7 +302,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
   } else if(subtype %in% c("ES_buildings")){
     
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -304,7 +315,7 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     result = x
     
   }else if(subtype == "Floorspace"){
-    mappingfile <- toolMappingFile("regional","regionmappingEDGE.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
@@ -316,96 +327,6 @@ convertEDGE <- function(x,subtype = "FE_stationary") {
     
     x = toolAggregate(x[,rem_years_hist,],mappingfile, weight = wg, from = region_col, to = iso_col )
     result = x
-  }else if(subtype=="FE_transport"){
-    
-    #--- Then load the final energy data
-    hist_fe_transport = calcOutput("IO",subtype="output", aggregate = F)
-    
-    #strings that represent the aggregate categories in the IEA data, and patterns in the detailed EDGE data
-    transport_items = c("fedie","fepet","feelt") #Transport names
-    
-    # Replace NAs
-    x[is.na(x)] <- 0 
-    
-    
-    #Select last year of X available in the historical data set
-    maxYear_X_in_FE = max(getYears(x, as.integer = T)[getYears(x, as.integer = T) %in% getYears(hist_fe_transport, as.integer = T)])
-    # Deduce the scenario periods
-    exceeding_years = getYears(x, as.integer = T)[getYears(x, as.integer = T) > maxYear_X_in_FE]
-
-    
-    # Create a temporary vector that contains the aggregate values (e.g. total fedie=fedie_pass_sm+fedie_frgt_sm+...)
-    
-    y <- NULL #create empty object
-    x_shares<-NULL
-    for (i in 1:length(transport_items)) {
-      tmp=dimSums(x[,,transport_items[i],pmatch=TRUE],dim=c(3)) #for each transport_items, sums over sub-categories
-      getNames(tmp) <- transport_items[i] #the name is the "aggregate" name now
-      y=mbind(y,tmp) #create a single magpie object
-      tmp=x[,,transport_items[i],pmatch=TRUE]/y[,,transport_items[i]]
-      x_shares=mbind(x_shares,tmp)
-    }
-    if(any(is.infinite(x_shares))){
-      print("Warning: Inf found for fuel shares for transport. Replace with 0s.")
-      x_shares[is.infinite[x_shares]] <- 0
-    }
-    
-    getSets(x_shares) = c("region","year","item","agg_CES")
-    
-    #create lambda vector that gives 0 to the historical data and 1 after 2030 
-    lambda =  calcLambda(exceeding_years,2030,getYears(x)[getYears(x,T) <= maxYear_X_in_FE ])
-    
-    #values for years that are not in the magpie object are extrapolated/interpolated
-    y = time_interpolate(y[,getYears(y)[getYears(y,T) <= maxYear_X_in_FE],], # The years exceeding maxYear might not be meaningful. Therefore we exclude them
-                         interpolated_year = c(maxYear_X_in_FE,exceeding_years),
-                         integrate_interpolated_years = T,
-                         extrapolation_type = "constant")
-    #datas are duplicated for each SSPs scenario (not present in the original magpie object)
-    y = addSSPnames(y)
-    
-    #set names are set to be equal to x
-    getSets(y)=getSets(x)
-
-    #final energy from IEA
-    fe_transport = time_interpolate(hist_fe_transport[,getYears(hist_fe_transport)[getYears(hist_fe_transport,T) <= maxYear_X_in_FE],], # The years exceeding maxYear might not be meaningful. Therefore we exclude them
-                                    interpolated_year = c(maxYear_X_in_FE,exceeding_years),
-                                    integrate_interpolated_years = T,
-                                    extrapolation_type = "constant")
-    #SSPs are added
-    fe_transport = addSSPnames(fe_transport)
-    
-    getSets(fe_transport) = c("region","period","scenario","input","output","tech")
-    
-    #aggregate IEA data so that they are not distinguished into technologies and source (secondary energy)
-    fe_transport = dimSums(fe_transport,dim = c("input","tech"))
-    
-    #the last dimension is set with the same setname as the last 2 dimensions of fe_transport
-    getSets(y)[3] <- paste0(getSets(fe_transport)[3],".",getSets(fe_transport)[4])
-    
-    y1 <- new.magpie(getRegions(y),getYears(y),getNames(y))
-    #the aggregate values for transport are matched to IEA data in the past and gradually fit the EDGE data for future values
-    y1[,,transport_items] = fe_transport[,getYears(x),transport_items] * (1 - lambda) + y[,,transport_items] * lambda
-    
-    getSets(y1) = c("region","year","scenario","agg_CES")
-  
-    #factor that tells how different are the post-IEA harmonized values and the original EDGE values
-    #the factor contains many NAs and Inf->this is a consequence of the difference in distribution of
-    #energy to ISO countries across EDGE and the IEA balances (e.g. small islands have 0 energy or >0 energy)
-    
-    #factor=y/y1
-    
-    #apply the shares of sub-energy types to the rescaled total energy. x1 represents the rescaled input value of the function.
-    x1<-NULL #create empty object
-    for (i in 1:length(transport_items)) {
-      tmp=y1[,,transport_items[i]]*x_shares[,,transport_items[i],pmatch=TRUE]
-      tmp = dimSums(tmp,dim = c("agg_CES"))
-      x1=mbind(x1,tmp)
-    }
-    
-
-    result=x1
-    
   }
-  
   return(result)
-}  
+}

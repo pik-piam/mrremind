@@ -6,7 +6,7 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Marianna Rottoli, Alois Dirnaichner
 #' @seealso \code{\link{readSource}}
-#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO
+#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
@@ -20,14 +20,36 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
   vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- EJ_Mpkm_final <- varname <- NULL
   fuel <- region <- iso <- node <- totdem <- `.`<- category <- tall <- all_in <-NULL
+
+  ## load the data from EDGE-T
+  EDGETrData = calcOutput("EDGETrData", aggregate = F)
+  EDGETrData_all=list()
+
+  ## all data.tables can be combined directly
+  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor", "annual_mileage")) {
+    EDGETrData_all[[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
+                                               function(x) {
+                                                 EDGETrData[[x]][[i]]
+                                                 return(EDGETrData[[x]][[i]])
+                                               }))
+  }
+
+  ## sub-lists have to be dealt with separately
+  for (j in c("logit_params", "vot_data", "pref_data", "complexdem")) {
+    for (i in names(EDGETrData[[1]][[j]])) {
+      EDGETrData_all[[j]][[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
+                                                                 function(x) {
+                                                                   EDGETrData[[x]][[j]][[i]]
+                                                                   return(EDGETrData[[x]][[j]][[i]])
+                                                                 }))
+    }
+  }
+
   switch(subtype,
 
          "logit_exponent" = {
            ## do not call with convert=T, there is only global data!
-           tmp <- list.files(path="./", pattern = subtype)
-           tmp_dfs <- stats::setNames(
-             object = lapply(tmp, fread),
-             nm = sub("\\..*","", tmp))
+           tmp_dfs <- EDGETrData_all$logit_params
 
            for (i in names(tmp_dfs)) {
              tmp_dfs[[i]]$varname <- i
@@ -55,10 +77,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "pref" = {
-
-
-           tmp = list.files(path="./", pattern = subtype)
-           tmp_dfs <- stats::setNames(object = lapply(tmp, fread), nm = sub("\\..*","",tmp))
+           tmp_dfs <- EDGETrData_all$pref_data
 
            for (i in names(tmp_dfs)) {
              tmp_dfs[[i]]$varname <- i
@@ -88,8 +107,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
 
          "value_time" = {
-           tmp = list.files(path="./", pattern = subtype)
-           tmp_dfs <- stats::setNames(object = lapply(tmp, fread), nm = sub("\\..*","",tmp))
+           tmp_dfs <- EDGETrData_all$vot_data
 
            for (i in names(tmp_dfs)) {
              tmp_dfs[[i]]$varname <- i
@@ -116,10 +134,9 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "harmonized_intensities" = {
-           tmp <- fread(paste0(subtype, ".csv"))
+           tmp <- EDGETrData_all$harmonized_intensities
            tmp = tmp[!is.na(EJ_Mpkm_final)]
            tmp$varname <- subtype
-           tmp$varname = gsub(".*moinputData/","",tmp$varname)
 
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
@@ -138,7 +155,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "price_nonmot" = {
-           tmp <- fread(paste0(subtype, ".csv"))
+           tmp <- EDGETrData_all$price_nonmot
            tmp$varname <- subtype
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1", "vehicle_type", "technology", "varname", "tot_price"))
@@ -158,10 +175,9 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "UCD_NEC_iso" = {
-           tmp <- fread(paste0(subtype, ".csv"))
+           tmp <- EDGETrData_all$UCD_NEC_iso
 
            tmp$varname <- subtype
-           tmp$varname = gsub(".*moinputData/","",tmp$varname)
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "technology", "type", "price_component", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
@@ -181,7 +197,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "loadFactor" = {
-           tmp <- fread(paste0(subtype, ".csv"))
+           tmp <- EDGETrData_all$loadFactor
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
            tmp$varname <- subtype
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "varname", "loadFactor"))
@@ -191,7 +207,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "fe2es" = {
 
-           tmp <- fread(paste0(subtype, ".cs4r"))
+           tmp <- EDGETrData_all$fe2es
            tmp <- tmp[tall>1990]
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
@@ -206,7 +222,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "esCapCost" = {
-           tmp <- fread(paste0(subtype, ".cs4r"))
+           tmp <- EDGETrData_all$esCapCost
            tmp <- tmp[tall>1965]
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
            mdata <- NULL
@@ -221,7 +237,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "fe_demand_tech" = {
-           tmp <- fread(paste0(subtype, ".cs4r"))
+           tmp <- EDGETrData_all$fe_demand_tech
            tmp <- tmp[tall>1990]
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
@@ -237,7 +253,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "demISO" = {
-           tmp <- fread(paste0(subtype, ".csv"))
+           tmp <- EDGETrData_all$demISO
 	   ## adapt database with compatible column names and values
            setnames(tmp, old = c("sector", "dem"), new = c("all_in", "value"))
            tmp[all_in == "trn_freight", all_in := "entrp_frgt_sm"]
@@ -271,7 +287,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          },
 
          "shares_LDV_transport" = {
-           tmp <- fread(paste0(subtype, ".cs4r"))
+           tmp <- EDGETrData_all$shares_LDV_transport
            tmp[, varname := subtype]
            tmp = data.table::melt(tmp, id.vars = c("GDP_scenario", "EDGE_scenario", "region", "year", "varname"))
            setnames(tmp, old = "variable", new = "sharetype")
@@ -292,7 +308,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
 
          "pm_fe_demand_EDGETbased" = {
-           tmp = fread("EDGE_output_FEdem.csv")
+           tmp = EDGETrData_all$complexdem$FEdem
            tmp <- tmp[year>1965]
            ## extract only ConvCase and ConvCaseWise (this subtype is only needed for calibration purposes)
            tmp = tmp[grepl("ConvCase", EDGE_scenario)]
@@ -328,8 +344,20 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
          },
 
+        "annual_mileage" = {
+           tmp <- EDGETrData_all$annual_mileage
+           tmp[, varname := subtype]
+           tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
+           tmp$varname <- subtype
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "varname", "annual_mileage"))
+           setnames(tmp, old ="annual_mileage", new ="value")
+           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 7)
+	 },
+
          "f35_bunkers_fe" = {
-           tmp = fread("EDGE_output_iso_FEdem.csv")
+           ## used only in transport complex.
+           # warning: currently assumes bunkers trajectories as fixed to "gdp_SSP2.ConvCase". Therefore bunkers are assumed unchanged in all gdp scenarios.
+           tmp = EDGETrData_all$complexdem$iso_FEdem
            ## select only bunkers
            tmp = tmp[category == "Bunkers",]
            ## summarize according to the CES category
@@ -342,7 +370,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                            idxcols = c("GDP_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
            ## create magpie object
-           mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)
+           tmp_data <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)[,,"gdp_SSP2.ConvCase"]
+           # for EU regions use JRC data instead
+           JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
+           JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
+           JRC_bunkers <- JRC[JRC_reg,intersect(getYears(tmp_data),getYears(JRC)),"FE|Transport|Bunkers (EJ/yr)"]
+           # for years after 2015 assume bunkers constant
+           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)>2015],] <- JRC_bunkers[JRC_reg,2015,]
+           # for years lower or equal to 2015 assume bunkers equal to JRC historical values
+           tmp_data[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],] <- JRC_bunkers[JRC_reg,getYears(tmp_data)[getYears(tmp_data, as.integer = TRUE)<=2015],]
+           mdata <- tmp_data
          },
 
          {

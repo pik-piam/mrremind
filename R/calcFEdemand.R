@@ -3,10 +3,11 @@
 #' Returns the Edge data at the Remind level
 #'
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
+#' @importFrom rlang .data
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
-#' lag arrange inner_join matches 
+#' lag arrange inner_join matches mutate
 #' @importFrom tidyr extract complete nesting replace_na crossing unite 
 #'   pivot_longer pivot_wider
 #' @importFrom readr read_delim
@@ -35,7 +36,7 @@ calcFEdemand <- function(subtype = "FE") {
     trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
     ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-    mappingfile <- toolMappingFile("regional","regionmappingH12.csv")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE)
     rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
 
     ## to data.table (we use gdp_SSP2 as a starting point)
@@ -223,7 +224,7 @@ calcFEdemand <- function(subtype = "FE") {
     # - cumulate the reduction factor over the time horizon
     
     SSA_countries <- read_delim(
-      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
       delim = ';',
       col_names = c('country', 'iso3c', 'region'),
       col_types = 'ccc',
@@ -347,7 +348,7 @@ calcFEdemand <- function(subtype = "FE") {
       character.data.frame()
     
     regionmapping <- read_delim(
-      file = toolMappingFile('regional', 'regionmappingH12.csv'),
+      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
       delim = ';',
       col_names = c('country', 'iso3c', 'region'),
       col_types = 'ccc',
@@ -477,18 +478,23 @@ calcFEdemand <- function(subtype = "FE") {
   }
 
   if (subtype %in% c( "FE","FE_for_Eff","UE_for_Eff","ES")){
-
-    mapping_path <- toolMappingFile("sectoral","structuremappingIO_outputs.csv")
-    mapping = read.csv2(mapping_path, stringsAsFactors = F)
+    mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv")
 
     REMIND_dimensions = "REMINDitems_out"
     sets_names = getSets(data)
 
-    } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
+    # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+    mapping <- rbind(
+      mapping,
+      mapping %>%
+        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
+        mutate(REMINDitems_out = "feelb")
+    )
 
-      mapping_path <- toolMappingFile("sectoral","structuremappingIO_EsUeFe.csv")
+  } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
+
+      mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", returnPathOnly = TRUE)
       mapping = read.csv2(mapping_path, stringsAsFactors = F)
-
   }
   #----- PROCESS DATA ------------------
 
@@ -778,6 +784,8 @@ calcFEdemand <- function(subtype = "FE") {
                        'ue_secondary_steel (Mt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
   } 
+
+
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
