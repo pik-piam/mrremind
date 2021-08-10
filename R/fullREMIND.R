@@ -82,6 +82,7 @@ fullREMIND <- function(rev=0) {
   calcOutput('GAINSEmi',       subtype="emission_factors",          round=5, file="ef_gains.cs4r")
   calcOutput('GAINSEmi',       subtype="emissions_starting_values", round=5, file="f11_emiAPexsolve.cs4r")
   calcOutput("EmissionFactors",subtype="emission_factors",          round=5, file="f11_emiFacAP.cs4r")
+  calcOutput("EmiLULUCFCountryAcc",subtype="PRIMAPhist",          round=5, file="p_EmiLULUCFCountryAcc.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round=3,  file="f_maxProdGradeRegiHydro.cs3r")
