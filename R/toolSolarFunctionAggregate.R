@@ -26,10 +26,6 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   # old part by Julian Oeser
   
   # aggregate to regions
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12.csv" #to test
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12_Aus.csv" #to test
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmapping_21_EU11.csv" #to test
-  rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmapping_country_to_country.csv"
   x <- toolAggregate(x,rel)
   getSets(x)[1] <- "Region"
   
