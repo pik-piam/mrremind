@@ -30,6 +30,7 @@ calcStorageFactor <- function(){
   getSets(w2)[1] <- getSets(w1)[1]
   getSets(w2)[2] <- getSets(w1)[2]
   getNames(w2)   <- "wind"
+  getYears(w2)   <- getYears(w1)
   # combile all weights
   w <- mbind(w1,w2)
   

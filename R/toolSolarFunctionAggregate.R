@@ -11,7 +11,8 @@
 #' 
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
 #' @export
-#' @importFrom magclass is.magpie as.data.frame as.magpie collapseNames add_columns getSets fulldim
+#' @importFrom magclass is.magpie as.data.frame as.magpie collapseNames add_columns getSets getItems
+#' setItems collapseDim
 #' @importFrom dplyr %>% mutate select rename filter left_join group_by ungroup arrange summarise desc 
 #' lag full_join
 #' @importFrom tidyr spread gather complete
@@ -40,11 +41,12 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   area.csp <- dimSums(x[,,"area"][,,"CSP"][,,c("0-50", "50-100")], dim=c(3.4, 3.3))
   
   # share of area if PV installed only where no csp can be installed
-  area.only.pv.share <- ((area.pv+1)-(area.csp+1)) / (area.pv+1)
-  x <- add_columns(x, c("PVcomp", "PVonly"), 3.2)
-  x[,,"PVonly"] <- x[,,"PV"]*area.only.pv.share[,,"PV"]
-  x[,,"PVcomp"] <- x[,,"PV"]-(x[,,"PV"]*area.only.pv.share[,,"PV"])
-  
+  area.only.pv.share <- collapseDim(((area.pv+1)-(area.csp+1)) / (area.pv+1))
+
+  xPVonly <- setItems(x[,,"PV"]*area.only.pv.share, dim = "Technology", value = "PVonly")
+  xPVcomp <- setItems(x[,,"PV"]-(x[,,"PV"]*area.only.pv.share), dim = "Technology", value = "PVcomp")
+
+  x <- mbind(x, xPVonly, xPVcomp)
   
   
   ### create new distance class: 1-100red (distance class where all between 1-100 are included and 
@@ -75,9 +77,13 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   x2.csp <- toolAggregate(x2.csp, rel=bins.csp.agg, dim=3.4)
   getSets(x2.csp) <- getSets(x1.csp)
   
-  missing.bins.pv <- fulldim(x1.pv)[[2]]$Bin[which(!(fulldim(x1.pv)[[2]]$Bin %in% fulldim(x2.pv)[[2]]$Bin))]
-  missing.bins.csp <- fulldim(x1.csp)[[2]]$Bin[which(!(fulldim(x1.csp)[[2]]$Bin %in% fulldim(x2.csp)[[2]]$Bin))]
-  
+  .missingBins <- function(x1,x2) {
+    bin1 <- getItems(x1, dim = "Bin")
+    bin2 <- getItems(x2, dim = "Bin")
+    return(bin1[which(!(bin1 %in% bin2))])
+  }
+  missing.bins.pv  <- .missingBins(x1.pv,  x2.pv)
+  missing.bins.csp <- .missingBins(x1.csp, x2.csp)
   
   x2.pv <- add_columns(x2.pv, missing.bins.pv, 3.4)
   x2.pv[,,missing.bins.pv] <- 0
