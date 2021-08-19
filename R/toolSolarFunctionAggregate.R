@@ -19,6 +19,7 @@
 #' @importFrom quitte as.quitte revalue.levels
 #' @importFrom zoo na.approx
 #' @importFrom stats weighted.mean
+#' @importFrom utils packageVersion
 
 
 toolSolarFunctionAggregate <- function(x, rel=NULL){
@@ -41,13 +42,17 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   area.csp <- dimSums(x[,,"area"][,,"CSP"][,,c("0-50", "50-100")], dim=c(3.4, 3.3))
   
   # share of area if PV installed only where no csp can be installed
-  area.only.pv.share <- collapseDim(((area.pv+1)-(area.csp+1)) / (area.pv+1))
-
-  xPVonly <- setItems(x[,,"PV"]*area.only.pv.share, dim = "Technology", value = "PVonly")
-  xPVcomp <- setItems(x[,,"PV"]-(x[,,"PV"]*area.only.pv.share), dim = "Technology", value = "PVcomp")
-
-  x <- mbind(x, xPVonly, xPVcomp)
-  
+  if(packageVersion("magclass") < 6) {
+    area.only.pv.share <- ((area.pv+1)-(area.csp+1)) / (area.pv+1)
+    x <- add_columns(x, c("PVcomp", "PVonly"), 3.2)
+    x[,,"PVonly"] <- x[,,"PV"]*area.only.pv.share[,,"PV"]
+    x[,,"PVcomp"] <- x[,,"PV"]-(x[,,"PV"]*area.only.pv.share[,,"PV"]) 
+  } else {
+    area.only.pv.share <- collapseDim(((area.pv+1)-(area.csp+1)) / (area.pv+1))
+    xPVonly <- setItems(x[,,"PV"]*area.only.pv.share, dim = "Technology", value = "PVonly")
+    xPVcomp <- setItems(x[,,"PV"]-(x[,,"PV"]*area.only.pv.share), dim = "Technology", value = "PVcomp")
+    x <- mbind(x, xPVonly, xPVcomp)
+  }
   
   ### create new distance class: 1-100red (distance class where all between 1-100 are included and 
   # far away distanced classes are reduced in FLH which accounts for transmission losses)
