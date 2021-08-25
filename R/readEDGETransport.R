@@ -176,10 +176,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "UCD_NEC_iso" = {
            tmp <- EDGETrData_all$UCD_NEC_iso
-
+           tmp[price_component == "Capital costs (purchase)", price_component := "Capital_costs_purchase"]
            tmp$varname <- subtype
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
-           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "technology", "type", "price_component", "varname", "non_fuel_price"))
+           setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "technology", "price_component", "varname", "non_fuel_price"))
            setnames(tmp, old ="non_fuel_price", new ="value")
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
@@ -188,7 +188,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 10)
+               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 3, temporal = 4, datacol = 9)
                mdata <- mbind(mdata, tmp_EDGE_SSP)
              }
 
@@ -254,12 +254,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "demISO" = {
            tmp <- EDGETrData_all$demISO
-	   ## adapt database with compatible column names and values
-           setnames(tmp, old = c("sector", "dem"), new = c("all_in", "value"))
+	         ## adapt database with compatible column names and values
+           setnames(tmp, old = c("sector", "tech_output"), new = c("all_in", "value"))
            tmp[all_in == "trn_freight", all_in := "entrp_frgt_sm"]
            tmp[all_in == "trn_shipping_intl", all_in := "entrp_frgt_lo"]
            tmp[all_in == "trn_pass", all_in := "entrp_pass_sm"]
            tmp[all_in == "trn_aviation_intl", all_in := "entrp_pass_lo"]
+           ## TODO check if really we expect the same value for all technologies within a node (as it is now calculated)
+           tmp = tmp[year == 2010]
+           tmp[, value := round(value)]
+           tmp = tmp[, .(value = sum(value)), by = c("iso", "all_in", "GDP_scenario", "EDGE_scenario")]
            ## get all the needed dimensions
            map = data.table(all_in = c("entrp_frgt_lo", "entrp_frgt_sm", "entrp_frgt_sm", "entrp_frgt_sm",
                                      "entrp_frgt_sm", "entrp_pass_lo", "entrp_pass_sm", "entrp_pass_sm",
@@ -271,7 +275,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                                         "te_esdie_pass_sm", "te_eselt_pass_sm","te_esgat_pass_sm",
                                         "te_esh2t_pass_sm", "te_espet_pass_sm"))
            tmp = merge(tmp, map, by = "all_in", all = TRUE, allow.cartesian = T)
-
+           tmp = tmp[, c("GDP_scenario", "EDGE_scenario", "iso", "all_in", "all_enty", "all_teEs","value")]
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "iso", "all_in", "all_enty", "all_teEs","value"))
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
