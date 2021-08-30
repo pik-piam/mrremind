@@ -10,6 +10,13 @@
 #' 
 
 calcCapacityFactor <- function(){
+  
+  
+  
+  
+  ### calculation of coal power capacity factor
+  
+  
   # Read capacity factor inputs
   global <- readSource("REMIND_11Regi", subtype="capacityFactorGlobal", convert = FALSE)
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
@@ -84,6 +91,19 @@ calcCapacityFactor <- function(){
   #               aim=as.numeric(global[,,"pc"]),start_year=start_yr,end_year=conv_yr)
   # Define weight aggregation for capacity factors
   # using final energy as a proxy for the existent capacity factor to weight the capacity factor aggregation (it should be changed if the information about the existent capacity factor become available in the future)
+  
+  
+  
+  
+  # change coal capacity factor in Germany to reflect observed decrease in coal electricity in recent years, note: to be checked whether necessary for other regions as well
+  # https://static.agora-energiewende.de/fileadmin/Projekte/2021/2020_01_Jahresauswertung_2020/200_A-EW_Jahresauswertung_2020_WEB.pdf
+  output["DEU",c("y2020","y2025"),"pc"] = 0.43
+  output["DEU",c("y2030"),"pc"] = 0.4
+  
+
+  
+  
+  
   weight <- calcOutput("FE",source="IEA",aggregate=FALSE)[,2015,"FE (EJ/yr)"]
 
   # Return regions aggregation weighted by final energy 
