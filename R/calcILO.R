@@ -3,7 +3,7 @@
 #' @param subtype "Reliable" and "all". ILO classifies its data per country into reliable, unreliable, and break in series (years without data). "Reliable" contains both reliable and break-in-series-data, "all" contains both reliable and unreliable data
 #' @return magpie object with employment data for different years
 
-calcILO <- function(x,subtype){
+calcILO <- function(subtype){
   x <- readSource("ILO")
   x[is.na(x)] <- 0
   
