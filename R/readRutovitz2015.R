@@ -1,7 +1,7 @@
 #' Employment factors for various power production technologies from Rutovitz et al. 2015
 #' @author Aman Malik
 #' @importFrom  tidyr gather_
-#' @importFrom dplyr rename add_row filter_ mutate_ select_ mutate_at left_join filter mutate
+#' @importFrom dplyr rename add_row filter_ mutate_ select_ left_join filter mutate
 #' @importFrom readr read_csv
 #' @importFrom mgsub mgsub
 #' @return magpie object of employment factors for different technologies and activities in Jobs/MW (all except fuel_supply) or Jobs/PJ (fuel_supply). Subtype "regional_mult" is a regional multiplier without units.
@@ -37,7 +37,8 @@ readRutovitz2015 <- function(subtype){
                              x =tech,value=T)) %>%  # removing not relevant techs 
       mutate(tech=mgsub::mgsub(tech, c("Solar Photovoltaics","Solar thermal"),
                              c("Solar|PV","Solar|CSP"))) %>%  ## renaming techs
-      mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
+      #mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
+      mutate(across(c(CI,Manf,OM,duration),as.numeric)) %>% 
       mutate(Fuel_supply=ifelse(Fuel_supply == "0.001 jobs/GWh final demand",0.001,Fuel_supply))  %>% 
       #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
       #mutate_(Manf=~Manf/duration) %>% 
@@ -46,7 +47,7 @@ readRutovitz2015 <- function(subtype){
              `Fuel_supply`=as.numeric(`Fuel_supply`)) %>% 
       pivot_longer(names_to =  "activity",values_to= "value",c(2:5))   %>% 
       # regional values exist for coal and gas and are read later
-      mutate_at(vars(tech,activity),as.factor) %>% 
+      mutate(across(c(tech,activity),as.factor)) %>% 
       mutate(value=as.numeric(value))
     
       x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
@@ -62,8 +63,8 @@ readRutovitz2015 <- function(subtype){
   input <- read_csv("regional_ef.csv",na="") %>%
     rename(tech=1,region=2,CI=3,Manf=4,OM=5,Fuel_supply=6) %>%
     filter(!is.na(tech)) %>%
-    mutate_at(vars(tech,region),as.character) %>%
-    mutate_at(vars(CI,Manf,OM,Fuel_supply),as.numeric) %>%
+    mutate(across(c(tech,region),as.character)) %>%
+    mutate(across(c(CI,Manf,OM,Fuel_supply),as.numeric)) %>%
     mutate(tech=mgsub::mgsub(tech, c("Solar PV","Solar Thermal power","Wind-offshore","Wind-onshore"),
                                    c("Solar|PV","Solar|CSP","Wind offshore","Wind onshore"))) %>%
     gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
