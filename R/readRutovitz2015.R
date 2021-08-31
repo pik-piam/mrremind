@@ -4,20 +4,20 @@
 #' @importFrom dplyr rename add_row filter_ mutate_ select_ mutate_at left_join filter mutate
 #' @importFrom readr read_csv
 #' @importFrom mgsub mgsub
-#' @return magpie object of emplyoment factors for different technologies in Jobs/MW
-#' @param subtype Either "oecd_ef","regional_ef","coal_ef","gas_ef", "regional_mult
+#' @return magpie object of employment factors for different technologies and activities in Jobs/MW (all except fuel_supply) or Jobs/PJ (fuel_supply). Subtype "regional_mult" is a regional multiplier without units.
+#' @param subtype Either "oecd_ef","regional_ef","coal_ef","gas_ef", "regional_mult"
 
 
 readRutovitz2015 <- function(subtype){
-  
-  CI <- NULL
-  Fuel_supply <- NULL
-  Manf <- NULL
-  OM <- NULL
-  activity <- NULL
+  # note: Employment factors from rutovitz2015 et al. are wt. average values from OECD countries. (Regional) Exceptions are input in subtype "regional_ef", "coal_ef" and "gas_ef"  
+  CI <- NULL # construction and installation
+  Fuel_supply <- NULL # process of extraction of resource
+  Manf <- NULL # manufacturing
+  OM <- NULL # operation and maintenance
+  activity <- NULL # all 4 categories above are "activities"
   region <- NULL
-  tech <- NULL
-  duration <- NULL
+  tech <- NULL # power production technology
+  duration <- NULL # average time (years) from start of construction to commission.
   Productivity <- NULL
   Year <- NULL
   notes <- NULL
@@ -26,32 +26,30 @@ readRutovitz2015 <- function(subtype){
   if (subtype == "oecd_ef")
     {
     
-    input <- read_csv("oecd_ef.csv",na = "",col_types = "cddddc") %>% 
-      # rename_(tech=~"X1",duration=~`Construction times`,CI=~`Construction/ Installation`,
-      #         Manf=~`Manufacturing`,OM=~`Operations & Maintenance`, Fuel_supply=`Fuel – PRIMARY ENRGY DEMAND\nEnergy Demand`) %>% 
+    input <- read_csv(file = "oecd_ef.csv",na = "",col_types = "cddddc") %>% 
       rename(tech=1,duration=2,CI=3,Manf=4,OM=5, Fuel_supply=6) %>% 
       filter(!is.na(tech)) %>% 
-      add_row(tech="CoalHP",duration=5,CI=11.2,Manf=5.4,OM=0.14*1.5,Fuel_supply="Regional") %>% 
+      add_row(tech="CoalHP",duration=5,CI=11.2,Manf=5.4,OM=0.14*1.5,Fuel_supply="Regional") %>%  # for *HP technologies, multiply OM EF by 1.5 as in rutovitz
       add_row(tech="GasHP",duration=2,CI=1.3,Manf=0.93,OM=0.14*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="Regional") %>% 
-      add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Gas EF") %>% # oil EF= Gas EF
+      add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Regional",duration=2) %>% # oil EF= Gas EF as in rutovitz
       filter(!tech %in% grep("Ocean|decommissioning|heat|diesel",
-                             x =tech,value=T)) %>%  # removing 
-    mutate(tech=mgsub::mgsub(tech, c("Solar Photovoltaics","Solar thermal"),
+                             x =tech,value=T)) %>%  # removing not relevant techs 
+      mutate(tech=mgsub::mgsub(tech, c("Solar Photovoltaics","Solar thermal"),
                              c("Solar|PV","Solar|CSP"))) %>%  ## renaming techs
-     # mutate(CI=as.numeric(CI)) %>% 
-      #mutate(Manf=as.numeric(Manf)) %>% 
-    mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
-    mutate(Fuel_supply=ifelse(Fuel_supply == "0.001 jobs/GWh final demand",0.001,Fuel_supply))  %>% 
+      mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
+      mutate(Fuel_supply=ifelse(Fuel_supply == "0.001 jobs/GWh final demand",0.001,Fuel_supply))  %>% 
       #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
       #mutate_(Manf=~Manf/duration) %>% 
       select(-duration)   %>% 
-      gather(key =   "activity",value = "value",c(2:5))   %>% 
-      mutate(value=ifelse(value == "Regional",0,value))  %>% # regional values exist for coal and gas, are read later
+      mutate(`Fuel_supply`=ifelse(`Fuel_supply` == "Regional",0,`Fuel_supply`),
+             `Fuel_supply`=as.numeric(`Fuel_supply`)) %>% 
+      pivot_longer(names_to =  "activity",values_to= "value",c(2:5))   %>% 
+      # regional values exist for coal and gas and are read later
       mutate_at(vars(tech,activity),as.factor) %>% 
       mutate(value=as.numeric(value))
     
-       x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
+      x <- as.magpie(input,temporal=NULL,spatial=NULL,datacol=3)
     return (x)
   }
   
