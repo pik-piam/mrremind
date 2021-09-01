@@ -102,6 +102,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
+  calcOutput("nonEnergyIndFE",                        round=8,  file="f37_fedemand_NonEnergyIndst.cs4r")
   calcOutput('Clinker_to_cement_ratio', round = 2, file = 'p37_clinker-to-cement-ratio.cs3r')
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
