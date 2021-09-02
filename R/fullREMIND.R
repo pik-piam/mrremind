@@ -102,6 +102,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("IO",   subtype="input",                 round=8,  file="f04_IO_input.cs4r")
   calcOutput("IO",   subtype="trade",                 round=8,  file="f_IO_trade.cs4r")
   calcOutput("ShareIndFE",                            round=3,  file="p37_shIndFE.cs3r")
+  calcOutput("nonEnergyIndFE",                        round=8,  file="f37_fedemand_NonEnergyIndst.cs4r")
   calcOutput('Clinker_to_cement_ratio', round = 2, file = 'p37_clinker-to-cement-ratio.cs3r')
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, '/p37_clinker-to-cement-ratio.cs3r'))
@@ -155,9 +156,10 @@ fullREMIND <- function(rev=0) {
   calcOutput("CapTarget", sources="REN21",                round=4,  file="f40_REN21.cs4r")
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
   calcOutput("SharedTarget", subtype="FErenewablesShare", round=3,  file="f40_FE_RenShare.cs4r")
-  calcOutput("EffortSharingTarget",                       round=3,  file="p47_EStarget.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ES_GHG_referenceEmissions.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ES_CO2_referenceEmissions.cs4r")
+  calcOutput("EffortSharingTarget",                       round=3,  file="p47_ESR_target.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="EEA_GHG"   , round=6,  file="p47_ESR_GHG_referenceEmissions.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype="REMIND_CO2", round=6,  file="p47_ESR_CO2_referenceEmissions.cs4r")
+  calcOutput("ETSRefEmi", subtype="EEA_GHG"             , round=6,  file="p47_ETS_GHG_referenceEmissions.cs4r")
   calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
 
   #-------------- historical data ---------------------------------------------------------------------

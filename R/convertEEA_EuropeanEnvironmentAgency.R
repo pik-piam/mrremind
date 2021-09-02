@@ -17,7 +17,7 @@
 #' 
  
 convertEEA_EuropeanEnvironmentAgency <- function(x,subtype) {
-  if (subtype %in% c("ETS", "ES")) { 
+  if (subtype %in% c("ETS", "ESR")) { 
     # fill up zero countries
     x <- toolCountryFill(x)
     #remove NAs

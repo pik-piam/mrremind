@@ -167,7 +167,7 @@ calcHistorical <- function() {
   eurostat <- add_dimension(eurostat, dim=3.1, add="model",nm="Eurostat")
   
   # Emissions market data
-  # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ES (Mt CO2-equiv/yr)") # Effort Sharing
+  # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ESR (Mt CO2-equiv/yr)") # Effort Sharing
   # emiMktETS <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2019), c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)") #ETS without aviation
   # # national aviation is not included in REMIND ETS yet
   # # aviation <- readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.10 Aviation")]
@@ -179,8 +179,8 @@ calcHistorical <- function() {
   # emiMktETS <- add_dimension(emiMktETS, dim=3.1, add="model",nm="EEA_historical")
   # # set remaining emissions to other market - it is missing lulucf (Land use, land-use change, and forestry)
   # totalGHG <- dimSums(eurostat[,,c("Emi|GHGtot (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Aviation (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Maritime Transport (Mt CO2-equiv/yr)")])
-  # years <- Reduce(intersect, list(getYears(totalGHG),getYears(emiMktES[,,"Emi|GHG|ES (Mt CO2-equiv/yr)"]),getYears(emiMktETS[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"])))
-  # emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ES (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ES (Mt CO2-equiv/yr)")
+  # years <- Reduce(intersect, list(getYears(totalGHG),getYears(emiMktES[,,"Emi|GHG|ESR (Mt CO2-equiv/yr)"]),getYears(emiMktETS[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"])))
+  # emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ESR (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ESR (Mt CO2-equiv/yr)")
   # emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
   
   # EEA GHG Projections
@@ -193,7 +193,7 @@ calcHistorical <- function() {
   EEA_GHGTotal <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="total"))
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim=3.1,add="model",nm="EEA_historical")
 
-  # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ES"))
+  # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
   #   
   # EU Reference Scenario
