@@ -24,14 +24,15 @@ calcDspvShare <- function(subtype)
     share_spv[,,] <- dspv/total_spv # 2015 and 2020 get 2018 values
     # few countries have share greater than 1. This is because either all their solar pv is rooftop (but error exists because of different sources of the numerator and denominator)
     # or because of disaggregation methodology in readSource(IEA_REN). In any case, these countries don't have significant solar pv installations
-    #  Force it to be 95%. 
+    #  Force it to be 95% but is only for a small number of unimportant countries
     share_spv[which(share_spv[,2015,]>1),,] <- 0.95
     share_spv[which(share_spv[,2020,]>1),,] <- 0.95
     
-    # data sources but is only for a small number of unimportant countries
+    # for all countries other than IND and JPN, shares are 0.3 in 2030. 
     share_spv[,2030,] <- 0.3
     share_spv <- time_interpolate(share_spv,2025,integrate_interpolated_years = T)
   
+    # for IND and Japan these are 40% in 2030.
     share_tmp <- share_spv[c("IND","JPN"),c(2015,2020,2030),]
     share_tmp[,2030,] <- 0.4
     share_tmp <- time_interpolate(share_tmp,2025,integrate_interpolated_years = T)
