@@ -209,6 +209,9 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
         !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2019"),
         !!sym("variable") :=  paste0(!!sym("variable"), " (Mt CO2-equiv/yr)")
       )
+    
+    projections <- projections[(!(is.na(projections$region))), ]
+    projections <- projections[(!(is.na(projections$period))), ]
 
     x <- as.magpie(projections, spatial = 3, temporal = 4, datacol = 5)
 
