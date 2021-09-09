@@ -49,14 +49,9 @@ fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     getElement('iea_product') %>%
     unique()
 
-  region_mapping <- read_delim(
-    file = toolGetMapping(type = 'regional', name = getConfig('regionmapping'), returnPathOnly = TRUE),
-    delim = ';',
-    col_names = c('country', 'iso3c', 'region'),
-    col_types = cols(country = col_skip(),
-                     iso3c   = col_character(),
-                     region  = col_character()),
-    skip = 1)
+  region_mapping <- toolGetMapping(getConfig('regionmapping'), type = "regional") %>% 
+    tibble::as.tibble() %>% 
+    dplyr::select("iso3c" = .data$CountryCode, "region" = .data$RegionCode)
 
   # ---- extend industry subsector time series ----
   # subset of data containing industry subsector products and flows

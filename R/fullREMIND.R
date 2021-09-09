@@ -40,7 +40,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("Capital",   subtype = "CapitalUnit",    round=6,  file="f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round=8,  file="pm_fe_demand.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round=6,  file="pm_es_demand.cs4r")
-  calcOutput('Secondary_steel_limits', round = 8, file = 'p37_cesIO_up_steel_secondary.cs4r')
+  calcOutput('Secondary_steel_limits',                round=8,  file='p37_cesIO_up_steel_secondary.cs4r')
   calcOutput("EnergyEffPaths",                        round=6,  file="p29_efficiency_growth.cs4r")
   calcOutput("Floorspace",                            round=6,  file="p36_floorspace_scen.cs4r")
   calcOutput("WeightNash",                            round=6,  file="p80_eoWeights_fix.cs4r")
@@ -50,7 +50,6 @@ fullREMIND <- function(rev=0) {
   calcOutput("RiskPremium",                           round=6,  file="pm_risk_premium.cs4r")
   calcOutput("NetForeignAsset",                       round=6,  file="pm_nfa_start.cs4r")
   calcOutput("NetForeignAsset",                       round=6,  file="pm_nfa_start.cs4r")
-  calcOutput("CalibrationPrices",                     round=6,  file="p29_cesdata_price.cs4r")
   calcOutput("Theil",                                 round=8,  file="f_ineqTheil.cs4r")
   calcOutput("DevelopmentState",                      round=4,  file="f_developmentState.cs3r")
 
@@ -144,9 +143,10 @@ fullREMIND <- function(rev=0) {
   calcOutput("GEA2012", subtype="coal",                          round=8,  file="p31_grades_coal.cs4r")
   calcOutput("GEA2012", subtype="gas",                           round=8,  file="p31_grades_gas.cs4r")
   calcOutput("GEA2012", subtype="oil",                           round=8,  file="p31_grades_oil.cs4r")
-  calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
-  calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
-  calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
+  # TODO: Figure out why the following doesn't work with the EU region mapping.
+  # calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
+  # calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
+  # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")

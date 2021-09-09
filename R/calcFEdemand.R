@@ -50,7 +50,7 @@ calcFEdemand <- function(subtype = "FE") {
     ## get population
     pop <- as.data.table(calcOutput("Population"))[
       , year := as.numeric(gsub("y", "", year))]
-    setnames(pop, c("variable", 'iso2c'), c("scenario", 'region'),
+    setnames(pop, c("variable", 'iso3c'), c("scenario", 'region'),
              skip_absent = TRUE)
 
     ## intrapolate missing years
