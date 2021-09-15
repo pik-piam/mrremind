@@ -39,6 +39,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("Capital",                               round=6,  file="p29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round=6,  file="f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round=8,  file="pm_fe_demand.cs4r")
+  calcOutput("FEdemand",  subtype = "FE_buildings",   round=8,  file="pm_fe_demand_build.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round=6,  file="pm_es_demand.cs4r")
   calcOutput('Secondary_steel_limits',                round=8,  file='p37_cesIO_up_steel_secondary.cs4r')
   calcOutput("EnergyEffPaths",                        round=6,  file="p29_efficiency_growth.cs4r")

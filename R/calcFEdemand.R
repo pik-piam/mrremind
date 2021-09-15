@@ -4,6 +4,7 @@
 #'
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
 #' @importFrom stats approx
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
@@ -12,12 +13,19 @@
 #'   pivot_longer pivot_wider
 #' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
+#' @importFrom magclass mselect
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 
   #----- Functions ------------------
   getScens = function(mag) {
     getNames(mag, dim = "scenario")
+  }
+
+  addDim <- function(x, addnm, dim, dimCode = 3.2) {
+    do.call("mbind", lapply(addnm, function(item) {
+      add_dimension(x, dim = dimCode, add = dim, nm = item)
+    }))
   }
 
   expand_vectors = function(x,y) {
@@ -318,13 +326,24 @@ calcFEdemand <- function(subtype = "FE") {
   }
 
   #----- READ-IN DATA ------------------
-  if (subtype %in%  c("FE","EsUeFe_in","EsUeFe_out" )){
+  if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings",
+                     "FE_for_Eff", "UE_for_Eff")) {
 
     stationary <- readSource("EDGE",subtype="FE_stationary")
     buildings  <- readSource("EDGE",subtype="FE_buildings")
     
+    # consider only fixed climate
+    if (subtype == "FE_buildings") {
+      rcps <- getItems(buildings, "rcp")
+      stationary <- addDim(stationary, rcps, "rcp")
+    } else {
+      rcps <- NULL
+      buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
+    }
+
     ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
-    if(all(stationary[, 2105, "SSP2.feelt"] == 0)){
+    if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings") &
+        all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
       stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
 
@@ -334,11 +353,23 @@ calcFEdemand <- function(subtype = "FE") {
     fill_years <- setdiff(getYears(stationary),getYears(buildings))
     buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
 
-    y = getYears(stationary)
-    data = mbind(stationary[,y,],buildings[,y,])
+    y <- if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings")) {
+      getYears(stationary)  # >= 1993
+    } else {
+      intersect(getYears(stationary), getYears(buildings))  # >= 2000
+    }
+
+    data <- mbind(stationary[, y, ], buildings[, y, ])
     
+    unit_out = "EJ"
+    description_out <- ifelse(subtype %in% c("FE_for_Eff", "UE_for_Eff"),
+      "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
+      "demand pathways for final energy in buildings and industry in the original file")
+  }
+
+  if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out")) {
     # ---- _ modify Industry FE data to carry on current trends ----
-    v <- grep('^SSP[1-5]\\.fe(..i$|ind)', getNames(data), value = TRUE)
+    v <- grep('\\.fe(..i$|ind)', getNames(data), value = TRUE)
     
     dataInd <- data[,,v] %>% 
       as.quitte() %>% 
@@ -362,61 +393,57 @@ calcFEdemand <- function(subtype = "FE") {
     dataInd <- bind_rows(
       dataInd %>% 
         filter(phasein_period[1] > !!sym('year')),
-      
-        inner_join(
-          # calculate regional trend
-          dataInd %>% 
-            # get trend period
-            filter(between(!!sym('year'), historic_trend[1], historic_trend[2]),
-                   0 != !!sym('value')) %>% 
-            # sum regional totals
-            full_join(regionmapping %>% select(-!!sym('country')), 'iso3c') %>% 
-            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf'), 
-                     !!sym('year')) %>% 
-            summarise(value = sum(!!sym('value'))) %>% 
-            ungroup() %>% 
-            # calculate average trend over trend period
-            interpolate_missing_periods(year = seq_range(historic_trend),
-                                        expand.values = TRUE) %>% 
-            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>% 
-            summarise(trend = mean(!!sym('value') / lag(!!sym('value')), 
-                                   na.rm = TRUE)) %>% 
-            ungroup() %>% 
-            # only use negative trends (decreasing energy use)
-            mutate(trend = ifelse(!!sym('trend') < 1, !!sym('trend'), NA)),
-          
-          # modify data projection
-          dataInd %>% 
-            filter(phasein_period[1] <= !!sym('year')) %>% 
-            interpolate_missing_periods(
-              year = phasein_period[1]:max(dataInd$year)) %>% 
-            group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>% 
-            mutate(
-              growth = replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>% 
-            full_join(regionmapping %>% select(-'country'), 'iso3c'),
-          
-          c('scenario', 'region', 'pf')
-        ) %>% 
+      inner_join(
+        # calculate regional trend
+        dataInd %>%
+          # get trend period
+          filter(between(!!sym('year'), historic_trend[1], historic_trend[2]),
+                 0 != !!sym('value')) %>%
+          # sum regional totals
+          full_join(regionmapping %>% select(-!!sym('country')), 'iso3c') %>%
+          group_by(!!sym('scenario'), !!sym('region'), !!sym('pf'),
+                   !!sym('year')) %>%
+          summarise(value = sum(!!sym('value'))) %>%
+          ungroup() %>%
+          # calculate average trend over trend period
+          interpolate_missing_periods(year = seq_range(historic_trend),
+                                      expand.values = TRUE) %>%
+          group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>%
+          summarise(trend = mean(!!sym('value') / lag(!!sym('value')),
+                                 na.rm = TRUE)) %>%
+          ungroup() %>%
+          # only use negative trends (decreasing energy use)
+          mutate(trend = ifelse(!!sym('trend') < 1, !!sym('trend'), NA)),
+        # modify data projection
+        dataInd %>%
+          filter(phasein_period[1] <= !!sym('year')) %>%
+          interpolate_missing_periods(
+            year = phasein_period[1]:max(dataInd$year)) %>%
           group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>% 
           mutate(
-            # replace NA (positive) trends with end. growth rates -> no change
-            trend = ifelse(is.na(!!sym('trend')), !!sym('growth'), 
-                           !!sym('trend')),
-            value_ = first(!!sym('value')) 
-            * cumprod(
-              ifelse(
-                phasein_period[1] == !!sym('year'), 1,
-                ( !!sym('trend')
-                * pmax(0, phasein_period[2] - !!sym('year') + 1)
-                + !!sym('growth') 
-                * pmin(phasein_time, !!sym('year') - phasein_period[1] - 1)
-                ) / phasein_time)),
-            value = ifelse(is.na(!!sym('value_')) | 0 == !!sym('value_'), 
-                           !!sym('value'), !!sym('value_'))) %>% 
-          ungroup() %>% 
-          select(-'region', -'value_', -'trend', -'growth') %>% 
-          filter(!!sym('year') %in% unique(dataInd$year))
-      ) %>%
+            growth = replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>%
+          full_join(regionmapping %>% select(-'country'), 'iso3c'),
+        c('scenario', 'region', 'pf')) %>%
+      group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>%
+      mutate(
+        # replace NA (positive) trends with end. growth rates -> no change
+        trend = ifelse(is.na(!!sym('trend')), !!sym('growth'),
+                       !!sym('trend')),
+        value_ = first(!!sym('value'))
+          * cumprod(
+            ifelse(
+              phasein_period[1] == !!sym('year'), 1,
+              ( !!sym('trend')
+              * pmax(0, phasein_period[2] - !!sym('year') + 1)
+              + !!sym('growth')
+              * pmin(phasein_time, !!sym('year') - phasein_period[1] - 1)
+              ) / phasein_time)),
+        value = ifelse(is.na(!!sym('value_')) | 0 == !!sym('value_'),
+                       !!sym('value'), !!sym('value_'))) %>%
+      ungroup() %>%
+      select(-'region', -'value_', -'trend', -'growth') %>%
+      filter(!!sym('year') %in% unique(dataInd$year))
+    ) %>%
       rename('region' = 'iso3c', 'item' = 'pf') %>% 
       as.magpie()
     
@@ -438,16 +465,6 @@ calcFEdemand <- function(subtype = "FE") {
         data[,y[i],v] <- data[,y[i],v] * f[i]
       }
     }
-    
-    unit_out = "EJ"
-    description_out = "demand pathways for final energy in buildings and industry in the original file"
-    
-    if ('FE' == subtype) {
-      structure_data <- paste('^gdp_(SSP[1-5]|SDP)', '(fe|ue)', sep = '\\.')
-    } else if (subtype %in% c('EsUeFe_in', 'EsUeFe_out')) {
-      structure_data <- paste('^gdp_(SSP[1-5]|SDP)', 'fe..s', 'ue.*b', 
-                              'te_ue.*b$', sep = '\\.')
-    }
 
   } else if (subtype == "ES"){
     Unit2Million = 1e-6
@@ -456,28 +473,10 @@ calcFEdemand <- function(subtype = "FE") {
     getSets(services) <- gsub("data", "item", getSets(services))
     data <- services*Unit2Million
     unit_out = "million square meters times degree [1e6.m2.C]"
-    structure_data <- paste('^SSP[1-5]', 'esswb$', sep = '\\.')
     description_out = "demand pathways for energy service in buildings"
-
-  } else if ( subtype %in% c("FE_for_Eff", "UE_for_Eff")){
-
-    stationary <- readSource("EDGE",subtype="FE_stationary")
-    buildings  <- readSource("EDGE",subtype="FE_buildings")
-
-    #common years
-
-    fill_years <- setdiff(getYears(stationary),getYears(buildings))
-    buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
-    y = intersect(getYears(stationary),getYears(buildings))
-    data = mbind(stationary[,y,],buildings[,y,])
-
-    unit_out = "EJ"
-    structure_data <- paste('^gdp_(SSP[1-5]|SDP)', 'fe.*(b|s)$', sep = '\\.')
-    description_out = "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND"
-
   }
 
-  if (subtype %in% c( "FE","FE_for_Eff","UE_for_Eff","ES")){
+  if (subtype %in% c("FE", "FE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
     mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv")
 
     REMIND_dimensions = "REMINDitems_out"
@@ -546,7 +545,13 @@ calcFEdemand <- function(subtype = "FE") {
 
   magpnames = mapping[REMIND_dimensions]
   magpnames <- unique(magpnames)
-  magpnames <- expand_vectors(scenarios,magpnames)
+  if (subtype == "FE_buildings") {
+    # filter only buildings (simple) ppf
+    magpnames <- filter(magpnames, grepl("^fe..b$", .data$REMINDitems_out))
+  }
+  magpnames <- expand_vectors(
+    if (subtype == "FE_buildings") {cartesian(scenarios, rcps)} else {scenarios},
+    magpnames)
 
   if (length(setdiff(edge_names, mapping$EDGEitems) > 0 )) stop("Not all EDGE items are in the mapping")
 
@@ -558,8 +563,12 @@ calcFEdemand <- function(subtype = "FE") {
   getSets(reminditems) <- sets_names
 
   datatmp <- data
-  #Take the names of reminditems without the scenario dimension already in data
-  names_NoScen <- sub('^[^\\.]*\\.', '', getNames(reminditems))
+  # Take the names of reminditems without scenario and rcp dimension
+  names_NoScen <- lapply(getNames(reminditems), function(name) {
+    strsplit(name, ".", fixed = TRUE)[[1]] %>%
+      `[`(!tail(getSets(reminditems), -2) %in% c("scenario", "rcp")) %>%
+      paste(collapse = ".")
+  })
 
   for (reminditem in names_NoScen){
     # Concatenate names from mapping columns so that they are comparable with names from magclass object
@@ -573,8 +582,9 @@ calcFEdemand <- function(subtype = "FE") {
     prfl <- testdf[,"EDGEitems"]
     vec <- as.numeric(mapping[rownames(testdf),"weight_Fedemand"])
     names(vec) <- prfl
-    datatmp[,,prfl] <- data[,,prfl] * as.magpie(vec)
-    reminditems[,,reminditem]<-dimSums(datatmp[,,prfl],dim="item",na.rm = TRUE)
+    mselect(datatmp, item = prfl) <- mselect(data, item = prfl) * as.magpie(vec)
+    reminditems[, , reminditem] <- dimSums(mselect(datatmp, item = prfl),
+                                           dim = "item", na.rm = TRUE)
   }
 
   #Change the scenario names for consistency with REMIND sets
@@ -785,7 +795,13 @@ calcFEdemand <- function(subtype = "FE") {
                        'ue_otherInd ($tn)')
   } 
 
-
+  structure_data <- switch(subtype,
+    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
+    FE_buildings = "^gdp_(SSP[1-5].*|SDP.*)\\..*\\.fe..b$",
+    FE_for_Eff = "^gdp_(SSP[1-5]|SDP.*)\\.fe.*(b|s)$",
+    UE_for_Eff = "^gdp_(SSP[1-5]|SDP.*)\\.fe.*(b|s)$",
+    ES = "^gdp_SSP[1-5]\\.esswb$",
+    "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
   return(list(x=reminditems,weight=NULL,
               unit = unit_out,
