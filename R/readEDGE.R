@@ -9,16 +9,26 @@
 #' \dontrun{
 #' a <- readSource("EDGE")
 #' }
-#' @author Antoine Levesque
+#' @author Antoine Levesque, Robin Krekeler
 #' @seealso \code{\link{readSource}}
-#' @importFrom magclass read.magpie
+#' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
                                  "ES_buildings")) {
   subtype <- match.arg(subtype)
+
+  # input data version
+  ver <- "1.02"
+
+  addDim <- function(x, addnm, dim, dimCode = 3.2) {
+    do.call("mbind", lapply(addnm, function(item) {
+      add_dimension(x, dim = dimCode, add = dim, nm = item)
+    }))
+  }
+
   switch(
     subtype,
     FE_stationary = {
-      mstationary <- read.magpie("EDGE_TradMod.cs4r")
+      mstationary <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       mstationary[is.na(mstationary)] <- 0
       
       # use SSP2 data also for SSP2Ariadne
@@ -36,36 +46,34 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       return(mstationary)
     },
     FE_buildings = {
-      mbuilding <- read.csv("EDGE_buildings_EDGE_EUR_ETP_CCoff.csv") 
+      mbuilding <- read.csv(file.path(ver, "EDGE_buildings_energy.csv"))
       mbuilding <- as.magpie(mbuilding)
-      # read in additional data for SDP (still called SSP1plus here...)
-      mbuilding_SSP1plus <- read.csv("EDGE_buildings_EDGE_EUR_ETP_CCoff_SSP1plus.csv") %>%
-         as.magpie()
-      
-      mbuilding_SDP <- mbuilding_SSP1plus
-      for (i in c("SDP", "SDP_EI", "SDP_RC", "SDP_MC")) {
-        getNames(mbuilding_SDP) <- gsub("SSP1plus", i, getNames(mbuilding_SSP1plus))
-        mbuilding <- mbind(mbuilding, mbuilding_SDP)
-      }   
+      getNames(mbuilding) <- gsub("rcp", "", getNames(mbuilding))
+      getNames(mbuilding) <- gsub("NoC", "fixed", getNames(mbuilding))
+      getSets(mbuilding) <- c("region", "year", "scenario", "rcp", "item")
+      # duplicate SDP scenario for SDP variants
+      mbuildingSDPs <- addDim(
+        mselect(mbuilding, scenario = "SDP", collapseNames = TRUE),
+        c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
       # use SSP2 data also for SSP2Ariadne
-      mbuilding_SSP2Ariadne <- mbuilding[,,"SSP2"]
-      getNames(mbuilding_SSP2Ariadne) <- gsub("SSP2", "SSP2Ariadne", getNames(mbuilding_SSP2Ariadne))
-      mbuilding <- mbind(mbuilding, mbuilding_SSP2Ariadne)
-      
-      getSets(mbuilding) <- c("region", "year", "scenario", "item")
+      mbuildingAriadne <- mselect(mbuilding, scenario = "SSP2")
+      getNames(mbuildingAriadne) <- gsub("SSP2", "SSP2Ariadne",
+                                         getNames(mbuildingAriadne))
+      # combine all to one magpie object
+      mbuilding <- mbind(mbuilding, mbuildingSDPs, mbuildingAriadne)
       return(mbuilding)
     },
     Capital = {
-      mcapital <- read.csv("capitalProjections.csv")
+      mcapital <- read.csv(file.path(ver, "capitalProjections.csv"))
       mcapital <- as.magpie(mcapital)
       mcapital <- collapseNames(mcapital)
       getSets(mcapital) <- c("region", "year", "scenario")
       return(mcapital)
     },
     CapitalUnit = {
-      mcapitalunitCap <- read.csv("capitalUnitCost_cap.csv")
+      mcapitalunitCap <- read.csv(file.path(ver, "capitalUnitCost_cap.csv"))
       mcapitalunitCap$type <- "cap"
-      mcapitalunitInv <- read.csv("capitalUnitCost_inv.csv")
+      mcapitalunitInv <- read.csv(file.path(ver, "capitalUnitCost_inv.csv"))
       mcapitalunitInv$type <- "inv"
       mcapitalunit <- rbind(mcapitalunitCap, mcapitalunitInv)
       mcapitalunit <- mcapitalunit[c(setdiff(colnames(mcapitalunit), "value"), "value")]
@@ -74,17 +82,18 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       return(mcapitalunit)
     },
     Floorspace = {
-      mfloor <- read.csv("EDGE_buildings_floorspace.csv")
+      mfloor <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       mfloor <- as.magpie(mfloor)
       mfloor <- collapseNames(mfloor)
       getSets(mfloor) <- c("region", "year", "scenario", "variable")
       return(mfloor)
     },
     ES_buildings = {
-      mservices <- read.csv("EDGE_buildings_services_EDGE_EUR_ETP.csv")
+      mservices <- read.csv(file.path(ver, "EDGE_buildings_service.csv"))
       mservices <- as.magpie(mservices)
-      mservices <- collapseNames(mservices)
-      getSets(mservices) <- c("region", "year", "scenario")
+      # Only consider trajectories with fixed climate for services
+      mservices <- mselect(mservices, rcp = "rcpNoC", collapseNames = TRUE)
+      getSets(mservices) <- c("region", "year", "scenario", "item")
       return(mservices)
     }
   )
