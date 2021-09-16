@@ -123,14 +123,6 @@ calcCapital <- function(subtype = "Capital") {
              'pf' = 'Data2', 'value' = 'Value') %>% 
       character.data.frame() %>% 
       mutate(!!sym('period') := as.integer(!!sym('period'))) %>% 
-      # generate SDP scenarios from SSP1
-      pivot_wider(names_from = 'scenario') %>% 
-      mutate(!!sym('gdp_SDP') := .data$gdp_SSP1,
-             !!sym('gdp_SDP_EI') := .data$gdp_SSP1,
-             !!sym('gdp_SDP_RC') := .data$gdp_SSP1,
-             !!sym('gdp_SDP_MC') := .data$gdp_SSP1,
-             !!sym('gdp_SSP2Ariadne') := .data$gdp_SSP2,) %>% 
-      pivot_longer(matches('^gdp_'), names_to = 'scenario') %>% 
       # expand missing periods at constant level
       interpolate_missing_periods(
         period = as.integer(sub('^y', '', getYears(cap_macro))),
