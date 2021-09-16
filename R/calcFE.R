@@ -33,7 +33,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     #------ PROCESS DATA ------------------------------------------
     # select data that have names
     x <- data[,,map$names_in]
-    # rename entries of data to match the rporting names
+    # rename entries of data to match the reporting names
     getNames(x) <- paste0(map$output," (EJ/yr)")
     
     # aggregate CHP and nonCHP electricity
@@ -44,27 +44,30 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     x <- mbind(x,setNames(x[,,"SE|Heat|Coal|CHP (EJ/yr)"] + x[,,"SE|Heat|Coal|HP (EJ/yr)"],"SE|Heat|Coal (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"SE|Heat|Gas|CHP (EJ/yr)"] + x[,,"SE|Heat|Gas|HP (EJ/yr)"],"SE|Heat|Gas (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"SE|Heat|Biomass|CHP (EJ/yr)"] + x[,,"SE|Heat|Biomass|HP (EJ/yr)"],"SE|Heat|Biomass (EJ/yr)"))
-    # aggregate transport diesel and petrol to liquids
-    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Diesel|Biomass (EJ/yr)"] + x[,,"FE|Transport|Liquids|Diesel|Fossil (EJ/yr)"] + x[,,"FE|Transport|Liquids|Petrol|Biomass (EJ/yr)"] + x[,,"FE|Transport|Liquids|Petrol|Fossil (EJ/yr)"],"FE|Transport|Liquids (EJ/yr)"))
+    
+    # rename Diesel/Petrol to LDV/non-LDV
+    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Diesel|Biomass (EJ/yr)"],"FE|Transport|non-LDV|Liquids|Biomass (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Diesel|Fossil (EJ/yr)"], "FE|Transport|non-LDV|Liquids|Fossil (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Petrol|Biomass (EJ/yr)"],"FE|Transport|LDV|Liquids|Biomass (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Petrol|Fossil (EJ/yr)"], "FE|Transport|LDV|Liquids|Fossil (EJ/yr)"))
     x <- x[,,c("FE|Transport|Liquids|Diesel|Biomass (EJ/yr)","FE|Transport|Liquids|Diesel|Fossil (EJ/yr)","FE|Transport|Liquids|Petrol|Biomass (EJ/yr)","FE|Transport|Liquids|Petrol|Fossil (EJ/yr)"),invert=TRUE]
+    
+    # aggregate LDV and non-LDV to Liquids|Biomass/Fossil
+    x <- mbind(x,setNames(x[,,"FE|Transport|LDV|Liquids|Biomass (EJ/yr)"] + x[,,"FE|Transport|non-LDV|Liquids|Biomass (EJ/yr)"],"FE|Transport|Liquids|Biomass (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Transport|LDV|Liquids|Fossil (EJ/yr)"] + x[,,"FE|Transport|non-LDV|Liquids|Fossil (EJ/yr)"],"FE|Transport|Liquids|Fossil (EJ/yr)"))
+    
     # aggregate biomass and fossil data
     x <- mbind(x,setNames(x[,,"FE|Buildings|Gases|Biomass (EJ/yr)"] + x[,,"FE|Buildings|Gases|Fossil (EJ/yr)"],"FE|Buildings|Gases (EJ/yr)"))
-    x <- x[,,c("FE|Buildings|Gases|Biomass (EJ/yr)","FE|Buildings|Gases|Fossil (EJ/yr)"),invert=TRUE]
     x <- mbind(x,setNames(x[,,"FE|Industry|Gases|Biomass (EJ/yr)"] + x[,,"FE|Industry|Gases|Fossil (EJ/yr)"],"FE|Industry|Gases (EJ/yr)"))
-    x <- x[,,c("FE|Industry|Gases|Biomass (EJ/yr)","FE|Industry|Gases|Fossil (EJ/yr)"),invert=TRUE]
     x <- mbind(x,setNames(x[,,"FE|Transport|Gases|Biomass (EJ/yr)"] + x[,,"FE|Transport|Gases|Fossil (EJ/yr)"],"FE|Transport|Gases (EJ/yr)"))
-    x <- x[,,c("FE|Transport|Gases|Biomass (EJ/yr)","FE|Transport|Gases|Fossil (EJ/yr)"),invert=TRUE]
-    
+
     x <- mbind(x,setNames(x[,,"FE|Buildings|Liquids|Biomass (EJ/yr)"] + x[,,"FE|Buildings|Liquids|Fossil (EJ/yr)"],"FE|Buildings|Liquids (EJ/yr)"))
-    x <- x[,,c("FE|Buildings|Liquids|Biomass (EJ/yr)","FE|Buildings|Liquids|Fossil (EJ/yr)"),invert=TRUE]
     x <- mbind(x,setNames(x[,,"FE|Industry|Liquids|Biomass (EJ/yr)"] + x[,,"FE|Industry|Liquids|Fossil (EJ/yr)"],"FE|Industry|Liquids (EJ/yr)"))
-    x <- x[,,c("FE|Industry|Liquids|Biomass (EJ/yr)","FE|Industry|Liquids|Fossil (EJ/yr)"),invert=TRUE]
+    x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Biomass (EJ/yr)"] + x[,,"FE|Transport|Liquids|Fossil (EJ/yr)"],"FE|Transport|Liquids (EJ/yr)"))
     
     x <- mbind(x,setNames(x[,,"FE|Buildings|Solids|Biomass (EJ/yr)"] + x[,,"FE|Buildings|Solids|Fossil (EJ/yr)"],"FE|Buildings|Solids (EJ/yr)"))
-    x <- x[,,c("FE|Buildings|Solids|Biomass (EJ/yr)","FE|Buildings|Solids|Fossil (EJ/yr)"),invert=TRUE]
     x <- mbind(x,setNames(x[,,"FE|Industry|Solids|Biomass (EJ/yr)"] + x[,,"FE|Industry|Solids|Fossil (EJ/yr)"],"FE|Industry|Solids (EJ/yr)"))
-    x <- x[,,c("FE|Industry|Solids|Biomass (EJ/yr)","FE|Industry|Solids|Fossil (EJ/yr)"),invert=TRUE]
-    
+
     # add more variables
     x <- mbind(x,setNames(dimSums(x[,,"FE|",pmatch=TRUE],dim=3),"FE (EJ/yr)"))
     x <- mbind(x,setNames(dimSums(x[,,"FE|",pmatch=TRUE][,,"Electricity",pmatch=TRUE],dim=3),"FE|Electricity (EJ/yr)"))
@@ -126,7 +129,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
   
   # select data that have names
   x <- data[,,map$names_in]
-  # rename entries of data to match the rporting names
+  # rename entries of data to match the reporting names
   getNames(x) <- paste0(map$output," (EJ/yr)")
   
       # add more variables
