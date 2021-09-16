@@ -16,10 +16,12 @@ calcEDGETrData <- function() {
   regionmapping2use <- infoConfig$regionmapping
   setConfig(regionmapping = "2b1450bc.csv")
   ## run EDGE-T
-  EDGETdata = lapply(strsplit(cartesian(x = c("ConvCase", "ElecEra", "HydrHype",
-                                       "ConvCaseWise", "ElecEraWise",
-                                       "HydrHypeWise"),
-                                        y = c(paste0('SSP', c(1, 2, 5)), "SSP2Ariadne", "SDP")),
+  EDGETdata = lapply(strsplit(c(cartesian(x = c("ElecEraWise"),   ## also SSP2-lowEn, when it will exist
+                                          y = c("SDP", "SSP1")),
+                                cartesian(x = c("ElecEra", "ConvCase", "HydrHype", "Mix"),
+                                          y = c("SSP2")),
+                                cartesian(x = c("ConvCase"),
+                                          y = c("SSP5"))),
                               '\\.'),
                      function(x) {
                        generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
