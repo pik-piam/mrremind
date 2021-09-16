@@ -20,7 +20,7 @@ calcEDGETrData <- function() {
                                           y = c("SDP", "SSP1")),
                                 cartesian(x = c("ElecEra", "ConvCase", "HydrHype", "Mix"),
                                           y = c("SSP2")),
-                                cartesian(x = c("ElecEra"),
+                                cartesian(x = c("Mix"),
                                           y = c("SSP2Ariadne")),
                                 cartesian(x = c("ConvCase"),
                                           y = c("SSP5"))),
