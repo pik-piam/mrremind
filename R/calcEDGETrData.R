@@ -20,14 +20,16 @@ calcEDGETrData <- function() {
                                           y = c("SDP", "SSP1")),
                                 cartesian(x = c("ElecEra", "ConvCase", "HydrHype", "Mix"),
                                           y = c("SSP2")),
+                                cartesian(x = c("ElecEra"),
+                                          y = c("SSP2Ariadne")),
                                 cartesian(x = c("ConvCase"),
                                           y = c("SSP5"))),
                               '\\.'),
                      function(x) {
                        generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
                                         output_folder = NULL,
-                                        EDGE_scenario = x[[1]],
-                                        REMIND_scenario = x[[2]],
+                                        techscen = x[[1]],
+                                        SSP_scen = x[[2]],
                                         IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
                                         GDP_country = {
                                             x <- calcOutput("GDPppp", aggregate = F)
@@ -35,6 +37,7 @@ calcEDGETrData <- function() {
                                             getSets(x)[2] <- "Year"
                                             x
                                           },
+                                        RatioPPP2MER_country = calcOutput("RatioPPP2MER", aggregate =F),
                                         POP_country = {
                                             x <- calcOutput("Population", aggregate = F)
                                             getSets(x)[1] <- "iso2c"
