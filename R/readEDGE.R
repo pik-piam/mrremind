@@ -17,7 +17,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.02"
+  ver <- "1.03"
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
@@ -55,12 +55,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mbuildingSDPs <- addDim(
         mselect(mbuilding, scenario = "SDP", collapseNames = TRUE),
         c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
-      # use SSP2 data also for SSP2Ariadne
-      mbuildingAriadne <- mselect(mbuilding, scenario = "SSP2")
-      getNames(mbuildingAriadne) <- gsub("SSP2", "SSP2Ariadne",
-                                         getNames(mbuildingAriadne))
-      # combine all to one magpie object
-      mbuilding <- mbind(mbuilding, mbuildingSDPs, mbuildingAriadne)
+      mbuilding <- mbind(mbuilding, mbuildingSDPs)
       return(mbuilding)
     },
     Capital = {
