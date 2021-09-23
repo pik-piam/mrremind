@@ -25,24 +25,19 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
     }))
   }
 
-  switch(
-    subtype,
+  switch(subtype,
     FE_stationary = {
       mstationary <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       mstationary[is.na(mstationary)] <- 0
-      
-      # use SSP2 data also for SSP2Ariadne
-      mstationary_SSP2Ariadne <- mstationary[,,"SSP2"]
-      getNames(mstationary_SSP2Ariadne) <- gsub("SSP2", "SSP2Ariadne", getNames(mstationary_SSP2Ariadne))
-      mstationary <- mbind(mstationary, mstationary_SSP2Ariadne)
-      # use SSP1 data also for SDPs
-      mstationary_SDP <- mstationary[,,"SSP1"]
-      for (i in c("SDP", "SDP_EI", "SDP_RC", "SDP_MC")) {
-         getNames(mstationary_SDP) <- gsub("SSP1", i, getNames(mstationary[,,"SSP1"]))
-         mstationary <- mbind(mstationary, mstationary_SDP)
-      }
-    
       getSets(mstationary) <- c("region", "year", "scenario", "item")
+      # duplicate: SSP2 -> SSP2Ariadne, SSP2_lowEn and SSP1 -> SDPs
+      mstationarySPP2s <- addDim(
+        mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
+        c("SSP2Ariadne", "SSP2_lowEn"), "scenario", 3.1)
+      mstationarySDPs <- addDim(
+        mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
+        c("SDP", "SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
+      mstationary <- mbind(mstationary, mstationarySPP2s, mstationarySDPs)
       return(mstationary)
     },
     FE_buildings = {
