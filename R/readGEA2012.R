@@ -11,6 +11,7 @@
 #' 
 #' @importFrom readxl read_excel
 #' @importFrom madrat toolNAreplace
+#' @importFrom dplyr relocate mutate
 
 readGEA2012 <- function(subtype) {
   EJ_2_TWyr <- 1/31.536
@@ -26,6 +27,8 @@ readGEA2012 <- function(subtype) {
   ffTypeData <- list()
   ffTypeScenData <- list()
   tmp <- NULL
+  enty <- NULL
+  scenario <- NULL
   
   #Ordering of SSPs in this vector corresponds to ordering of coded scenarios in "Scenario data XX.xlsx"
   scen <- c('SSP5','SSP2','SSP1','SSP3','SSP4')
@@ -38,6 +41,7 @@ readGEA2012 <- function(subtype) {
     rawData <- read.csv2("Scenario Data HAC_LIC.csv",header=TRUE,as.is = T)
     rawData$grade <- as.factor(rawData$grade)
     rawData$value <- as.numeric(rawData$value)
+    rawData <- rawData %>% mutate(enty="pecoal") %>% relocate(enty,.before=scenario)
     out <- setYears(as.magpie(rawData),ttot[1])
     tmp <- out
     #out <- new.magpie(unique(rawData$region),ttot,names=paste(rawData$scenario,rawData$xi,rawData$grade,sep="."),fill=0)
@@ -168,8 +172,8 @@ readGEA2012 <- function(subtype) {
       sp_IEADecRat[,,"conv"] <- c(0.041,    0.111,    0.111,    0.111,    0.041, 0.111,    0.082,    0.082,    0.082,    0.082,    0.111)
       sp_IEADecRat[,,"unconv"] <- c(0.150,    0.150,    0.150,    0.150,    0.150, 0.150,    0.150,    0.150,    0.150,    0.150,    0.150)
     }
-    mappingGEA <- toolGetMapping("regionmappingREMIND.csv","regional")
-    mappingREM11 <- toolGetMapping("regionmappingGEA2012.csv","regional")
+    mappingREM11 <- toolGetMapping("regionmappingREMIND.csv","regional")
+    mappingGEA <- toolGetMapping("regionmappingGEA2012.csv","regional")
     w <- read.csv(paste0(getConfig("sourcefolder"),"/BGR/",subtype,"_reserves.csv"),header=TRUE,sep=";")[,c("Land_Region","Reserves","Resources")]
     #Remove NAs
     w[is.na(w)] <- 0
@@ -179,8 +183,8 @@ readGEA2012 <- function(subtype) {
     w <- toolNAreplace(toolCountryFill(w,fill=0))[[1]]
     #Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
     w <- dimSums(w,dim=3)
-    sp_IEADecRat <- toolAggregate(sp_IEADecRat,mappingGEA,weight=NULL)
-    sp_IEADecRat <- toolAggregate(sp_IEADecRat,mappingREM11,weight=w)
+    sp_IEADecRat <- toolAggregate(sp_IEADecRat,mappingREM11,weight=NULL)
+    sp_IEADecRat <- toolAggregate(sp_IEADecRat,mappingGEA,weight=w)
     #ordered_names <- list(SSP1=getNames(tmp[,,'qtys'][,,"SSP1"]),SSP2=getNames(tmp[,,'qtys'][,,"SSP2"]),SSP5=getNames(tmp[,,'qtys'][,,"SSP5"]))
     ordered_names <- list(list())
     cum_qtys <- list()
@@ -201,7 +205,7 @@ readGEA2012 <- function(subtype) {
     row <- paste0(subtype,'_row')
     mea <- paste0(subtype,'_mea')
     ngrades <- length(costGrades[['SSP2']][[row]])-1
-    out <- new.magpie(regions,ttot,paste(rep(names(costGrades),each=ngrades*length(xis)),rep(xis,each=ngrades),as.character(1:ngrades),sep="."),fill=0)
+    out <- new.magpie(regions,ttot,paste(paste0("pe",subtype),rep(names(costGrades),each=ngrades*length(xis)),rep(xis,each=ngrades),as.character(1:ngrades),sep="."),fill=0)
     conv <- new.magpie(regions,ttot,paste(rep(names(costGrades),each=ngrades),"dec",as.character(1:ngrades),sep="."),fill=0)
     unconv <- new.magpie(regions,ttot,paste(rep(names(costGrades),each=ngrades),"dec",as.character(1:ngrades),sep="."),fill=0)
     
