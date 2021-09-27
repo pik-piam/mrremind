@@ -30,10 +30,10 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mstationary <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       mstationary[is.na(mstationary)] <- 0
       getSets(mstationary) <- c("region", "year", "scenario", "item")
-      # duplicate: SSP2 -> SSP2Ariadne, SSP2_lowEn and SSP1 -> SDPs
+      # duplicate: SSP2 -> SSP2EU, SSP2_lowEn and SSP1 -> SDPs
       mstationarySPP2s <- addDim(
         mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
-        c("SSP2Ariadne", "SSP2_lowEn"), "scenario", 3.1)
+        c("SSP2EU", "SSP2_lowEn"), "scenario", 3.1)
       mstationarySDPs <- addDim(
         mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
         c("SDP", "SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)

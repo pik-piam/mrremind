@@ -39,7 +39,7 @@ calcCapital <- function(subtype = "Capital") {
     gdpppp= calcOutput("GDPppp", aggregate = F)    
     gdpppp <- mselect(gdpppp, period=paste0("y",c(2005:2150,5)))
     #getNames(gdpppp) <- sub("gdp_","",getNames(gdpppp))
-    my_scen <- c("gdp_SSP1", "gdp_SSP2", "gdp_SSP3", "gdp_SSP4", "gdp_SSP5", "gdp_SSP2Ariadne", 
+    my_scen <- c("gdp_SSP1", "gdp_SSP2", "gdp_SSP3", "gdp_SSP4", "gdp_SSP5", "gdp_SSP2EU", 
                  "gdp_SDP", "gdp_SDP_EI", "gdp_SDP_RC", "gdp_SDP_MC")
     gdpppp <- mselect(gdpppp, variable = my_scen)
     
@@ -59,7 +59,7 @@ calcCapital <- function(subtype = "Capital") {
     convtime[,,"gdp_SDP_EI"] = 150
     convtime[,,"gdp_SDP_RC"] = 150  
     convtime[,,"gdp_SDP_MC"] = 150 
-    convtime[,,"gdp_SSP2Ariadne"]   = 250
+    convtime[,,"gdp_SSP2EU"]   = 250
     
     for (t in c("y1995","y2000","y2005")){
       cap_intensity_future[,t,] <- cap_intensity[,t,]
@@ -99,9 +99,9 @@ calcCapital <- function(subtype = "Capital") {
     y = intersect(getYears(cap_future), getYears(cap_macro))
     
     
-    # Add SSP2Ariadne and SDP scenarios
+    # Add SSP2EU and SDP scenarios
     cap_macro_SSP2A <- cap_macro[,,"gdp_SSP2"]
-    getNames(cap_macro_SSP2A) <- gsub("SSP2", "SSP2Ariadne", getNames(cap_macro_SSP2A))
+    getNames(cap_macro_SSP2A) <- gsub("SSP2", "SSP2EU", getNames(cap_macro_SSP2A))
     cap_macro <- mbind(cap_macro, cap_macro_SSP2A)
 
     cap_macro_SDP <- cap_macro[,,"gdp_SSP1"]

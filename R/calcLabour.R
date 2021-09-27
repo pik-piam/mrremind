@@ -61,12 +61,12 @@ calcLabour <- function() {
       data <- mbind(data,data_SDP_RC)
     }
   }
-  # add SSP2Ariadne scenario as copy of SSP2, might be substituted by real data later
+  # add SSP2EU scenario as copy of SSP2, might be substituted by real data later
   if("pop_SSP2" %in% getNames(data,dim=1)){
-     if(!("pop_SSP2Ariadne" %in% getNames(data,dim=1))){
-      data_SSP2Ariadne <- data[,,"pop_SSP1"]
-      getNames(data_SSP2Ariadne) <- gsub("pop_SSP1","pop_SSP2Ariadne",getNames(data_SSP2Ariadne))
-      data <- mbind(data,data_SSP2Ariadne)
+     if(!("pop_SSP2EU" %in% getNames(data,dim=1))){
+      data_SSP2EU <- data[,,"pop_SSP1"]
+      getNames(data_SSP2EU) <- gsub("pop_SSP1","pop_SSP2EU",getNames(data_SSP2EU))
+      data <- mbind(data,data_SSP2EU)
     }
   }
   
