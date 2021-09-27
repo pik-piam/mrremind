@@ -15,7 +15,7 @@ calcBiomassPrices <- function(){
   getNames(x) <- gsub("NPI-Base","none",getNames(x))
   
   # Introduce new SSP/SDP dimension by replacing "-" with "."
-  getNames(x) <- gsub("(SSP[0-9]|SSP2Ariadne|SDP|SDP_EI|SDP_RC|SDP_MC)-","\\1.",getNames(x))
+  getNames(x) <- gsub("(SSP[0-9]|SSP2EU|SDP|SDP_EI|SDP_RC|SDP_MC)-","\\1.",getNames(x))
   
   # if fit coefficients of a country are NA for all years (there is no supplycurve at all for this country)
   # generate artificial supplycurve with VERY high prices

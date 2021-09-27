@@ -12,7 +12,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
   #---- Functions -------------
   noYearDim <- function(x) setYears(x,NULL)
   addSSPnames <- function(x) {
-    out <- lapply(c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2Ariadne"), 
+    out <- lapply(c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2EU"), 
                   function(y) {setNames(x, paste0(y, ".", getNames(x)))})  
     mbind(out)
   }
@@ -211,7 +211,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
       feShares[,,"fedie"] <- (1-setNames(setNames(share[getRegions(share),getYears(feShares),"share_LDV_totliq"],"fepet"),NULL))
       feTransp <- new.magpie(cells_and_regions = getRegions(share), years = getYears(feShares), names = getNames(result[,,c("fepet","fedie")]))
       
-      for (i in c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2Ariadne")) {
+      for (i in c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2EU")) {
         i1 <- paste0(i, ".fepet")
         i2 <- paste0(i, ".fedie")
         feTransp[, getYears(feShares), i1] <- feShares[, getYears(feShares), i1] * setNames(feTotal[, getYears(feShares), i], i1)
@@ -226,7 +226,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
       # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
       # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL
       # For SSP1, SSP2 and SDP
-      names_2_change = grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC|SSP2Ariadne).*water_heating", getNames(result), value = TRUE)
+      names_2_change = grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC|SSP2EU).*water_heating", getNames(result), value = TRUE)
       names_2_change_elec = grep("elec",names_2_change,value = T)
       names_2_change_nonelec = grep("elec",names_2_change,value = T, invert = T)
       regs_OCD = c("AUS","CAN","CHE","NOR","NZL")

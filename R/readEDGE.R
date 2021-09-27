@@ -31,10 +31,10 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mstationary <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       mstationary[is.na(mstationary)] <- 0
       
-      # use SSP2 data also for SSP2Ariadne
-      mstationary_SSP2Ariadne <- mstationary[,,"SSP2"]
-      getNames(mstationary_SSP2Ariadne) <- gsub("SSP2", "SSP2Ariadne", getNames(mstationary_SSP2Ariadne))
-      mstationary <- mbind(mstationary, mstationary_SSP2Ariadne)
+      # use SSP2 data also for SSP2EU
+      mstationary_SSP2EU <- mstationary[,,"SSP2"]
+      getNames(mstationary_SSP2EU) <- gsub("SSP2", "SSP2EU", getNames(mstationary_SSP2EU))
+      mstationary <- mbind(mstationary, mstationary_SSP2EU)
       # use SSP1 data also for SDPs
       mstationary_SDP <- mstationary[,,"SSP1"]
       for (i in c("SDP", "SDP_EI", "SDP_RC", "SDP_MC")) {
@@ -55,9 +55,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mbuildingSDPs <- addDim(
         mselect(mbuilding, scenario = "SDP", collapseNames = TRUE),
         c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
-      # use SSP2 data also for SSP2Ariadne
+      # use SSP2 data also for SSP2EU
       mbuildingAriadne <- mselect(mbuilding, scenario = "SSP2")
-      getNames(mbuildingAriadne) <- gsub("SSP2", "SSP2Ariadne",
+      getNames(mbuildingAriadne) <- gsub("SSP2", "SSP2EU",
                                          getNames(mbuildingAriadne))
       # combine all to one magpie object
       mbuilding <- mbind(mbuilding, mbuildingSDPs, mbuildingAriadne)

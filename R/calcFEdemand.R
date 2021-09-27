@@ -646,7 +646,7 @@ calcFEdemand <- function(subtype = "FE") {
       
       mod_factors %>% 
         filter('gdp_SSP2' == .data$scenario) %>% 
-        mutate(scenario = 'gdp_SSP2Ariadne')
+        mutate(scenario = 'gdp_SSP2EU')
     )
     
     mod_r <- unique(mod_factors$region)
