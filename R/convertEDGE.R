@@ -6,6 +6,10 @@
 #' @param x MAgPIE object containing EDGE values at ISO country resolution
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque
+#' 
+#' @importFrom magclass new.magpie getItems<- getNames getSets getYears mselect
+#' mbind
+
 convertEDGE <- function(x, subtype = "FE_stationary") {
 
   #---- Functions -------------
@@ -320,6 +324,10 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
 
     wg <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
+    # duplicate SSP2 for SSP2_lowEn
+    wg_SSP2_lowEn <- mselect(wg, variable = "pop_SSP2")
+    getItems(wg_SSP2_lowEn, "variable") <- "pop_SSP2_lowEn"
+    wg <- mbind(wg, wg_SSP2_lowEn)
     getNames(x) <- paste0("pop_",getNames(x))
     getSets(wg) = gsub("variable","scenario",getSets(wg))
     wg = wg[,,getNames(x,T)[["scenario"]]]

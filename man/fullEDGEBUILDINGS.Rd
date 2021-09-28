@@ -20,7 +20,6 @@ EDGE - Buildings model.
 \dontrun{ 
 fullEDGEBUILDINGS()
 }
-
 }
 \seealso{
 \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}

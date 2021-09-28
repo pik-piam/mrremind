@@ -75,6 +75,11 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mfloor <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       mfloor <- as.magpie(mfloor)
       mfloor <- collapseNames(mfloor)
+      # duplicate SDP scenario for SDP variants
+      mfloorSDPs <- addDim(
+        mselect(mfloor, scenario = "SDP", collapseNames = TRUE),
+        c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
+      mfloor <- mbind(mfloor, mfloorSDPs)
       getSets(mfloor) <- c("region", "year", "scenario", "variable")
       return(mfloor)
     },
