@@ -6,50 +6,45 @@
 #' @param x MAgPIE object containing EDGE values at ISO country resolution
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque
+#' 
+#' @importFrom magclass new.magpie getItems<- getNames getSets getYears mselect
+#' mbind
+
 convertEDGE <- function(x, subtype = "FE_stationary") {
-  
- 
+
   #---- Functions -------------
-  noYearDim <- function(x) setYears(x,NULL)
+  noYearDim <- function(x) setYears(x, NULL)
+
   addSSPnames <- function(x) {
-    out <- lapply(c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2EU"), 
-                  function(y) {setNames(x, paste0(y, ".", getNames(x)))})  
-    mbind(out)
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
+                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
+      function(s) setNames(x, paste(s, getNames(x), sep = "."))
+    ))
   }
-  
-  renameExtraWeights = function(magObj,magWeight, mapping){
-    result = do.call(mbind,
-                     lapply(mapping[["EDGEitems"]], 
-                            function(itemIN){
-                              if (itemIN %in% getNames(magObj, dim = "item")){
-                                item_weight = mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
-                                
-                                sub_magpie = magWeight[,,item_weight]
-                                
-                                res = setNames(sub_magpie, gsub(item_weight,itemIN,getNames(sub_magpie)))
-                              } else {res = NULL}
-                              
-                              return(res)}
-                     )
-    )
-    return(result)
+
+  renameExtraWeights <- function(magObj, magWeight, mapping) {
+    do.call("mbind", lapply(mapping[["EDGEitems"]], function(itemIN) {
+      if (itemIN %in% getNames(magObj, dim = "item")) {
+        item_weight <- mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
+        sub_magpie <- magWeight[, , item_weight]
+        res <- setNames(sub_magpie, gsub(item_weight, itemIN, getNames(sub_magpie)))
+      } else {
+        res <- NULL
+      }
+      return(res)
+    }))
   }
-  
-  calcLambda <- function(exceeding_years_vec, threshold, previous_years = NULL){
-    
-    
-    exceeding_years_before = exceeding_years_vec[exceeding_years_vec <= threshold]
-    exceeding_years_after = exceeding_years_vec[exceeding_years_vec > threshold]
-    
-    lambda = c(rep(0,length(previous_years)),
-      tail(seq(0,1, length.out = length(exceeding_years_before) + 1) ,-1) ,
-      rep(1, length(exceeding_years_after))
-    )
-    names(lambda) = as.character(c(previous_years,exceeding_years_vec))
-    
+
+  calcLambda <- function(exceeding_years_vec, threshold, previous_years = NULL) {
+    exceeding_years_before <- exceeding_years_vec[exceeding_years_vec <= threshold]
+    exceeding_years_after  <- exceeding_years_vec[exceeding_years_vec > threshold]
+    lambda <- c(rep(0, length(previous_years)),
+                tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
+                rep(1, length(exceeding_years_after)))
+    names(lambda) <- as.character(c(previous_years, exceeding_years_vec))
     return(as.magpie(lambda))
   }
-  #---- End of Functions ------
+
 
   #---- Parameters and Mappings ------
   rem_years_hist <- seq(1990,2150,5)
@@ -89,16 +84,20 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     
     #--- Load the Weights
     #--- First load the GDP data
-    wg     <- calcOutput("GDPppp", aggregate=F, FiveYearSteps = F)[,,]
-    getNames(wg) <- gsub("gdp_","",getNames(wg))
+    wg <- calcOutput("GDPppp", aggregate = FALSE, FiveYearSteps = FALSE)
+    # duplicate SSP2 for SSP2_lowEn
+    wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
+    getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"
+    wg <- mbind(wg, wg_SSP2_lowEn)
+    getNames(wg) <- gsub("gdp_", "", getNames(wg))
+
     
     #--- Then load the final energy data
     hist_fe_stationary = calcOutput("IO", subtype = "output_EDGE", aggregate = F)
     hist_fe_buildings = calcOutput("IO", subtype = "output_EDGE_buildings", aggregate = F)
     hist_fe_transport = calcOutput("IO", subtype="output", aggregate = F)
    
-   wfe <- mbind(hist_fe_stationary,
-                 hist_fe_buildings)
+    wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
     
     
     #---- Process Data -----------------
@@ -172,8 +171,9 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
     # until maxYear_X_in_FE this will be exclusively FE, in 2060 (depending on the threshold value above), exclusively GDP 
   
-    wfe = mbind( wfe, 
-    lambda[,exceeding_years,] * wg[,exceeding_years,] + (1- lambda[,exceeding_years,]) * ( noYearDim(wfe[,maxYear_X_in_FE,]))
+    wfe <- mbind(wfe,
+      lambda[,exceeding_years, ] * wg[,exceeding_years, ] +
+        (1 - lambda[, exceeding_years, ]) * (noYearDim(wfe[, maxYear_X_in_FE, ]))
     )
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
@@ -307,8 +307,12 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
     
     select_years = intersect(getYears(x,as.integer = T),rem_years_hist)
-    wg     <- calcOutput("GDPppp", years=select_years,aggregate=F)
-    getNames(wg) = gsub("gdp_SSP","SSP", getNames(wg))
+    wg <- calcOutput("GDPppp", years=select_years,aggregate=F)
+    # duplicate SSP2 for SSP2_lowEn
+    wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
+    getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"
+    wg <- mbind(wg, wg_SSP2_lowEn)
+    getNames(wg) = gsub("gdp_","", getNames(wg))
     
     x = toolAggregate(x[,select_years,],mappingfile, weight = wg[,,getNames(x,dim=1)], from = region_col, to = iso_col )
     result = x
@@ -320,6 +324,10 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
 
     wg <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
+    # duplicate SSP2 for SSP2_lowEn
+    wg_SSP2_lowEn <- mselect(wg, variable = "pop_SSP2")
+    getItems(wg_SSP2_lowEn, "variable") <- "pop_SSP2_lowEn"
+    wg <- mbind(wg, wg_SSP2_lowEn)
     getNames(x) <- paste0("pop_",getNames(x))
     getSets(wg) = gsub("variable","scenario",getSets(wg))
     wg = wg[,,getNames(x,T)[["scenario"]]]
