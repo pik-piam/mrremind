@@ -37,6 +37,8 @@ Depends:
 Imports:
     assertr,
     assertthat,
+    broom,
+    car,
     countrycode,
     data.table,
     dplyr,
