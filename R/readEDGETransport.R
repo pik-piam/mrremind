@@ -360,7 +360,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "f35_bunkers_fe" = {
            ## used only in transport complex.
-           # warning: currently assumes bunkers trajectories as fixed to "gdp_SSP2.ConvCase". Therefore bunkers are assumed unchanged in all gdp scenarios.
+           ## warning: currently assumes bunkers trajectories as fixed to the first trajectory found for "gdp_SSP2". Therefore bunkers are assumed unchanged in all gdp scenarios.
            tmp = EDGETrData_all$complexdem$iso_FEdem
            ## select only bunkers
            tmp = tmp[category == "Bunkers",]
@@ -374,7 +374,9 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                            idxcols = c("GDP_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
            ## create magpie object
-           tmp_data <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)[,,"gdp_SSP2.ConvCase"]
+           tmp_data <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 5)
+           ssp2_scen <- getNames(tmp_data[,, "gdp_SSP2"])[1]
+           tmp_data <- tmp_data[,, ssp2_scen]
            # for EU regions use JRC data instead
            JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
            JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
