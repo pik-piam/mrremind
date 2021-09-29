@@ -202,8 +202,9 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
       # for years after 2015 assume LDV share constant and eqaul to JRC 2015 values
       y2 <- getYears(share)[getYears(share, as.integer = TRUE)>2015]
       JRC_share[,y2,] <- JRC_share[,2015,]
-      #setting EU shares equal to JRC values
-      share[JRC_reg,getYears(JRC_share),"gdp_SSP2.ConvCase.share_LDV_totliq.shares_LDV_transport"] <- JRC_share[JRC_reg,getYears(JRC_share),]
+      ## setting EU shares equal to JRC values
+      varname_SSP2 <- getNames(share[,, "gdp_SSP2"])[1]
+      share[JRC_reg,getYears(JRC_share), varname_SSP2] <- JRC_share[JRC_reg,getYears(JRC_share),]
       # redefining LDV and non-LDV liquids
       feTotal <- dimSums(result[,,c("fepet","fedie")],dim=3.2)
       feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share),getYears(result)), names = getNames(result[,,c("fepet","fedie")]))
