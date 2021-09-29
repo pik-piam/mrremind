@@ -43,8 +43,9 @@ convertEDGETransport = function(x, subtype) {
 
 
   if (subtype %in% c("shares_LDV_transport")) {
-    ## only ConvCase SSP2 (ICE predominant LDV market and road market) is used as input data
-    x <- x[,,"gdp_SSP2.ConvCase.share_LDV_totliq", pmatch = TRUE]
+    ## only the first EDGE-T scenario for SSP2 is used as a proxy for the LDV shares
+    varname_SSP2 <- getNames(x[,, "gdp_SSP2"])[1]
+    x <- x[,, varname_SSP2]
 
     for (year in getYears(x, as.integer = T)){
       x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)
