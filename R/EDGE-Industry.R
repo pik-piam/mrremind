@@ -133,16 +133,21 @@ calcSteel_Projections <- function()
   for (.estimate in unique(regression_data$estimate))
   {
     
-    Asym <- (regression_data %>% 
+    Asym <- regression_data %>% 
       filter(.estimate == .data$estimate) %>% 
-      pull('steel.stock.per.capita') %>% 
-      max()) * 1.1
-    
+      group_by(.data$year) %>%
+      summarise(Asym = 1.1 * wtd.quantile(x = .data$steel.stock.per.capita,
+                                          weights = .data$population,
+                                          probs = 0.99),
+                .groups = 'drop') %>% 
+      pull('Asym') %>% 
+      max()
+
     coefficients <- lm(
       formula = logit(x, adjust = 0.025) ~ y,
       data = regression_data %>%
         filter(.estimate == .data$estimate,
-               .data$steel.stock.per.capita > 0) %>%
+               between(.data$steel.stock.per.capita, 0, Asym)) %>%
         mutate(x = .data$steel.stock.per.capita  / Asym) %>%
         select(.data$x, y = .data$GDPpC)
     ) %>%
@@ -180,7 +185,7 @@ calcSteel_Projections <- function()
     full_join(
       regression_parameters,
       
-      EDGE_scenario_switches %>%
+      `EDGE-Industry_scenario_switches` %>%
         select('scenario', estimate = 'steel.stock.estimate'),
 
       'estimate'
@@ -215,7 +220,7 @@ calcSteel_Projections <- function()
     steel_stock_per_capita %>%
       filter(.data$year >= min(steel_stock_estimates$year)) %>%
       full_join(
-        EDGE_scenario_switches %>%
+        `EDGE-Industry_scenario_switches` %>%
           select('scenario', estimate = 'steel.stock.estimate'),
         
         'estimate'
@@ -271,10 +276,19 @@ calcSteel_Projections <- function()
   steel_stock_estimates <- bind_rows(
     # non-masked scenarios
     steel_stock_estimates %>% 
-      filter('SSP4' != .data$scenario),
+      anti_join(
+        `EDGE-Industry_scenario_switches` %>% 
+          select(.data$scenario, 
+                 .data$scenario.mask.OECD, .data$`scenario.mask.non-OECD`) %>% 
+          filter(  !is.na(.data$scenario.mask.OECD) 
+                 & !is.na(.data$`scenario.mask.non-OECD`)) %>% 
+          select(.data$scenario),
+        
+        'scenario'
+      ),
     
     # masked scenarios, OECD countries
-    EDGE_scenario_switches %>% 
+    `EDGE-Industry_scenario_switches` %>% 
       select('scenario', 'scenario.mask.OECD') %>% 
       filter(!is.na(.data$scenario.mask.OECD)) %>% 
       rename(scenario.mask = 'scenario',
@@ -288,7 +302,7 @@ calcSteel_Projections <- function()
       select(-'scenario', 'scenario' = 'scenario.mask'),
     
     # masked scenarios, non-OECD countries
-    EDGE_scenario_switches %>% 
+    `EDGE-Industry_scenario_switches` %>% 
       select('scenario', 'scenario.mask.non-OECD') %>% 
       filter(!is.na(.data$`scenario.mask.non-OECD`)) %>% 
       rename(scenario.mask = 'scenario',
