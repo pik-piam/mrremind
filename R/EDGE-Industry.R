@@ -3,7 +3,7 @@
 #'
 #' @return
 #'
-#' @importFrom assertr assert
+#' @importFrom assertr assert verify
 #' @importFrom broom tidy
 #' @importFrom car logit
 #' @importFrom Hmisc wtd.quantile
@@ -53,6 +53,13 @@ calcSteel_Projections <- function()
                                    type = 'regional') %>% 
     as_tibble() %>% 
     select(region = 'RegionCode', iso3c = 'CountryCode')
+  
+  ### extra region mapping for Belgium-Luxembourg ----
+  region_mapping__Belgium_Luxembourg <- region_mapping %>% 
+    filter(.data$iso3c %in% c('BEL', 'LUX')) %>% 
+    distinct(.data$region) %>% 
+    verify(1 == length(.data$region)) %>% 
+    mutate(iso3c = 'blx')
   
   ## country mapping for Müller data ----
   country_mapping <- readSource(type = 'Mueller', subtype = 'countries',
@@ -408,6 +415,118 @@ calcSteel_Projections <- function()
                                 expand.values = TRUE)
   
   # calculate steel trade ----
+  steel_yearbook_data <- madrat_mule(readSource('worldsteel', convert = FALSE))
+  
+  ## compute historic steel values ----
+  steel_historic <- bind_rows(
+    # combine Belgium and Luxembourg, because apparent steel use is reported 
+    # for both together
+    steel_yearbook_data %>% 
+      filter(!.data$iso3c %in% c('BEL', 'LUX')),
+    
+    steel_yearbook_data %>% 
+      filter(.data$iso3c %in% c('BEL', 'LUX')) %>% 
+      group_by(.data$name, .data$year) %>% 
+      summarise(value = sum(.data$value, na.rm = TRUE), 
+                iso3c = 'blx',
+                .groups = 'drop')
+  ) %>% 
+    # rename to shorter variable names
+    inner_join(
+      tribble(
+        ~name,                                           ~variable,
+        'Apparent Steel Use (Crude Steel Equivalent)',   'use',
+        'Total Production of Crude Steel',               'production',
+        'Production in Oxygen-Blown Converters',         'prod.BOF',
+        'Production in Open Hearth Furnaces',            'prod.OHF',
+        'Production in Electric Arc Furnaces',           'prod.EAF',
+        'Pig Iron Production',                           'prod.pig',
+        'DRI Production',                                'prod.DRI'),
+      
+      'name'
+    ) %>% 
+    select('iso3c', 'variable', 'year', 'value') %>% 
+    # kt/year * 1e-3 Mt/kt = Mt/year
+    mutate(value = .data$value * 1e-3) %>%
+    pivot_wider(names_from = 'variable') %>% 
+    
+    mutate(imports = pmax(0, .data$use - .data$production),
+           exports = pmin(0, .data$use - .data$production)) %>% 
+    pivot_longer(cols = c(-'iso3c', -'year'), names_to = 'variable',
+                 values_drop_na = TRUE) %>% 
+    # add region mapping
+    inner_join(
+      bind_rows(
+        region_mapping, 
+        region_mapping__Belgium_Luxembourg),
+      
+      'iso3c')
+  
+  ## compute regional/global aggregates ----
+  steel_historic <- bind_rows(
+    steel_historic,
+    
+    steel_historic %>% 
+      group_by(.data$region, .data$year, .data$variable) %>% 
+      summarise(value = sum(.data$value, na.rm = TRUE),
+                iso3c = 'Total',
+                .groups = 'drop'),
+    
+    steel_historic %>% 
+      group_by(.data$year, .data$variable) %>% 
+      summarise(value = sum(.data$value, na.rm = TRUE),
+                region = 'World',
+                .groups = 'drop')
+  )
+  
+  ## compute trade shares ----
+  # calculate regional trade shares
+  steel_trade_shares_regional <- steel_historic %>% 
+    filter('Total' != .data$iso3c, 
+           .data$variable %in% c('use', 'imports', 'exports')) %>%
+    # exclude regions that don't have valid import/export data
+    group_by(.data$iso3c, .data$year) %>% 
+    filter(3 == n()) %>% 
+    group_by(.data$region, .data$year, .data$variable) %>% 
+    summarise(value = sum(.data$value), .groups = 'drop') %>% 
+    pivot_wider(names_from = 'variable') %>% 
+    mutate(import.share = .data$imports / .data$use,
+           export.share = .data$exports / .data$use) %>% 
+    select('region', 'year', 'import.share', 'export.share') %>% 
+    pivot_longer(c('import.share', 'export.share'), names_to = 'variable')
+  
+  # calculate country trade shares, defaulting to regional shares
+  steel_trade_shares <- steel_historic %>% 
+    filter(.data$variable %in% c('imports', 'exports', 'use'),
+           !('Total' == .data$iso3c & 'use' != .data$variable)) %>% 
+    pivot_wider(names_from = 'variable') %>% 
+    full_join(
+      steel_trade_shares_regional %>% 
+        mutate(variable = paste0(.data$variable, '.regional')) %>% 
+        pivot_wider(names_from = 'variable') %>% 
+        inner_join(region_mapping, 'region'),
+      
+      c('region', 'iso3c', 'year')
+    ) %>% 
+    mutate(
+      import.share = ifelse(!is.na(.data$imports), 
+                            .data$imports / .data$use,
+                            .data$import.share.regional),
+      export.share = ifelse(!is.na(.data$exports), 
+                            .data$exports / .data$use,
+                            .data$export.share.regional),
+      imports      = ifelse(!is.na(.data$imports), 
+                            .data$imports, 
+                            .data$use * .data$import.share),
+      exports      = ifelse(!is.na(.data$exports), 
+                            .data$exports, 
+                            .data$use * .data$export.share),
+      trade        = .data$imports + .data$exports,
+      trade.share  = ifelse(!is.na(.data$use), 
+                            .data$trade / .data$use, 
+                            .data$import.share + .data$export.share)) %>% 
+    select('iso3c', 'region', 'year', 'import.share', 'export.share', 
+           'trade.share')
 
   # workbench ----
   
