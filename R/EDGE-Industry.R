@@ -36,7 +36,13 @@ calcSteel_Projections <- function()
       `scenario.mask.OECD` = 
         'EDGE-Industry_scenario.mask.OECD',
       `scenario.mask.non-OECD` = 
-        'EDGE-Industry_scenario.mask.non-OECD')
+        'EDGE-Industry_scenario.mask.non-OECD',
+      `steel.stock.lifetime.base.scenario` = 
+        'EDGE-Industry_steel.stock.lifetime.base.scenario',
+      `steel.stock.lifetime.convergence.year` = 
+        'EDGE-Industry_steel.stock.lifetime.convergence.year',
+      `steel.stock.lifetime.convergence.factor` = 
+        'EDGE-Industry_steel.stock.lifetime.convergence.factor')
   
   
       
@@ -317,9 +323,9 @@ calcSteel_Projections <- function()
   )
   
   rm(list = 'OECD_iso3c')
-
-  # workbench ----
-  steel_stock_estimates %>% 
+  
+  ## calculate regional and global totals, as well as absolute stocks ----
+  steel_stock_estimates <- steel_stock_estimates %>% 
     full_join(population, c('scenario', 'iso3c', 'year')) %>% 
     group_by(.data$scenario, .data$year, .data$region) %>% 
     sum_total_(group = 'iso3c', value = 'steel.stock.per.capita', 
@@ -330,6 +336,77 @@ calcSteel_Projections <- function()
     ungroup() %>%
     filter(!(.data$region == 'World' & .data$iso3c != 'Total')) %>%
     # absolute stocks
-    mutate(steel.stock = .data$steel.stock.per.capita * .data$population)  
+    mutate(steel.stock = .data$steel.stock.per.capita * .data$population)
+  
+  # calculate lifetime projections ----
+  
+  # steel stock lifetimes are projected to converge from regional averages in 
+  # 2010 towards the global average in 2100
+  lifetime_regions <- lifetime %>%
+    select(.data$iso3c, .data$lifetime) %>% 
+    full_join(filter(GDP, 2010 == .data$year), 'iso3c') %>% 
+    inner_join(region_mapping, 'iso3c') %>% 
+    filter(!is.na(.data$lifetime)) %>% 
+    group_by(.data$scenario, .data$region) %>% 
+    summarise(
+      lifetime = round(sum(.data$lifetime * .data$GDP) / sum(.data$GDP)),
+      .groups = 'drop')
+  
+  lifetime_global <- lifetime %>%
+    select(.data$iso3c, .data$lifetime) %>% 
+    full_join(filter(GDP, 2010 == .data$year), 'iso3c') %>%
+    inner_join(region_mapping, 'iso3c') %>%
+    filter(!is.na(lifetime)) %>%
+    group_by(.data$scenario) %>%
+    summarise(
+      lifetime = round(sum(.data$lifetime * .data$GDP) / sum(.data$GDP)),
+      .groups = 'drop')
+
+  lifetime_projections <- inner_join(
+    lifetime_regions %>%
+      rename(`2010` = .data$lifetime),
+    
+    lifetime_global %>%
+      mutate(region = 'World') %>%
+      complete(nesting(!!sym('scenario'), !!sym('lifetime')),
+               region = unique(region_mapping$region)) %>%
+      rename(`2100` = .data$lifetime),
+    
+    c('scenario', 'region')
+  ) %>%
+    pivot_longer(c(.data$`2010`, .data$`2100`), 
+                 names_to = 'year', names_transform = list(year = as.integer),
+                 values_to = 'lifetime', 
+                 values_transform = list(lifetime = as.numeric))
+  
+  # steel stock lifetimes for specific scenarios in 2100 can be defined relative
+  # to the lifetime of a <base.scenario> in a <convergence.year>, times a 
+  # <convergence.factor>
+  lifetime_projections <- bind_rows(
+    lifetime_projections %>% 
+      filter(2010 == .data$year),
+    
+    inner_join(
+      `EDGE-Industry_scenario_switches` %>% 
+        select(
+          .data$scenario,
+          base.scenario      = .data$steel.stock.lifetime.base.scenario,
+          convergence.year   = .data$steel.stock.lifetime.convergence.year,
+          convergence.factor = .data$steel.stock.lifetime.convergence.factor
+        ) %>% 
+        mutate(convergence.factor = as.numeric(.data$convergence.factor)),
+      
+      lifetime_projections,
+      
+      c('base.scenario' = 'scenario', 'convergence.year' = 'year')
+    ) %>% 
+      mutate(lifetime = round(.data$convergence.factor * .data$lifetime)) %>% 
+      select('scenario', 'region', year = 'convergence.year', 'lifetime')
+  ) %>%
+    interpolate_missing_periods(year = 1950:2150, value = 'lifetime',
+                                expand.values = TRUE)
+
+  # workbench ----
+  
     
 }
