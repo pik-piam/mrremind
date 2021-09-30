@@ -697,7 +697,7 @@ calcFEdemand <- function(subtype = "FE") {
         scenario = paste0('gdp_', .data$Data1), 
         item = paste0('ue_', sub('_(production|VA)$', '', .data$Data2))) %>% 
       select('Region', 'year', 'scenario', 'item', 'Value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>% 
+      filter(.data$year %in% unique(getYears(reminditems))) %>%
       as.magpie(tidy = TRUE)
     
     ## Steel activity ----
@@ -716,7 +716,7 @@ calcFEdemand <- function(subtype = "FE") {
              # t * 1e-9 Gt/t = t
              value = .data$Value * 1e-9) %>% 
       select('Region', 'year', 'scenario', 'item', 'value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>% 
+      filter(.data$year %in% unique(getYears(reminditems))) %>%
       as.magpie(tidy = TRUE)
     
     ## extend to SSP2_lowEn ----
@@ -724,25 +724,35 @@ calcFEdemand <- function(subtype = "FE") {
     # tech assumptions as in SDP", so that's what we do ...
     foo_pop <- calcOutput('Population', aggregate = FALSE, FiveYearSteps = FALSE)
     
-    industry_subsectors_ue <- mbind(
-      industry_subsectors_ue, 
-      
-      dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1) %>% 
-        `/`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])) %>% 
-        `*`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2'])) %>% 
-        setNames(paste('gdp_SSP2_lowEn', getNames(.data), sep = '.'))
+    industry_subsectors_ue_SSP2_lowEn <- (
+          dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1) %>% 
+      `/`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])) %>% 
+      `*`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2']))
     )
+    
+    getNames(industry_subsectors_ue_SSP2_lowEn) <- paste(
+      'gdp_SSP2_lowEn', getNames(industry_subsectors_ue_SSP2_lowEn), sep = '.')
+    
+    industry_subsectors_ue <- mbind(
+      industry_subsectors_ue,
+      industry_subsectors_ue_SSP2_lowEn
+    )
+    
+    industry_steel_SSP2_lowEn <- (
+        dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1)
+      / dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])
+      * dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])
+    )
+    
+    getNames(industry_steel_SSP2_lowEn) <- paste(
+      'gdp_SSP2_lowEn', getNames(industry_steel_SSP2_lowEn), sep = '.')
     
     industry_steel <- mbind(
-      industry_steel, 
-      
-      dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1) %>% 
-        `/`(dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])) %>% 
-        `*`(dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])) %>% 
-        setNames(paste('gdp_SSP2_lowEn', getNames(.data), sep = '.'))
+      industry_steel,
+      industry_steel_SSP2_lowEn
     )
     
-    rm(foo_pop)
+    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn, industry_steel_SSP2_lowEn)
     
     industry_subsectors_en <- calcOutput(
       type = 'IO', subtype = 'output_Industry_subsectors', round = 8, 
