@@ -21,7 +21,7 @@ calcEDGETrData <- function() {
     c("SSP2", "Mix", FALSE),
     c("SSP5", "ConvCase", FALSE),
     c("SSP2EU", "Mix", FALSE),
-    c("SDP", "ElecEraWise", TRUE)),
+    c("SDP", "ElecEra", TRUE)),
     function(x) {
       generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
                        output_folder = NULL,
