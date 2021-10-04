@@ -318,23 +318,25 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     x = toolAggregate(x[,select_years,],mappingfile, weight = wg[,,getNames(x,dim=1)], from = region_col, to = iso_col )
     result = x
     
-  }else if(subtype == "Floorspace"){
+  } else if (subtype == "Floorspace") {
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv", returnPathOnly = TRUE)
     mapping <- read.csv2(mappingfile)
     region_col = which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col = which(names(mapping) == "CountryCode")
 
+    getNames(x) <- paste0("gdp_", getNames(x))
     wg <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
-    # duplicate SSP2 for SSP2_lowEn
-    wg_SSP2_lowEn <- mselect(wg, variable = "pop_SSP2")
-    getItems(wg_SSP2_lowEn, "variable") <- "pop_SSP2_lowEn"
+    getSets(wg) <- gsub("variable", "scenario", getSets(wg))
+    getItems(wg, "scenario") <- gsub("pop_", "gdp_", getItems(wg, "scenario"))
+    # duplicate SSP2 population for SSP2_lowEn
+    wg_SSP2_lowEn <- mselect(wg, scenario = "gdp_SSP2")
+    getItems(wg_SSP2_lowEn, "scenario") <- "gdp_SSP2_lowEn"
     wg <- mbind(wg, wg_SSP2_lowEn)
-    getNames(x) <- paste0("pop_",getNames(x))
-    getSets(wg) = gsub("variable","scenario",getSets(wg))
-    wg = wg[,,getNames(x,T)[["scenario"]]]
+    wg <- wg[, , getItems(x, "scenario")]
     
-    x = toolAggregate(x[,rem_years_hist,],mappingfile, weight = wg, from = region_col, to = iso_col )
-    result = x
+    x <- toolAggregate(x[, rem_years_hist, ], mappingfile, weight = wg,
+                       from = region_col, to = iso_col )
+    result <- x
   }
   return(result)
 }
