@@ -16,12 +16,10 @@ calcEDGETrData <- function() {
   regionmapping2use <- infoConfig$regionmapping
   setConfig(regionmapping = "2b1450bc.csv")
 
-  edgetScenarios <- list(
-    c("SSP1", "ElecEra"),
-    c("SSP2", "Mix"),
-    c("SSP5", "ConvCase"),
-    c("SSP2EU", "Mix"),
-    c("SDP", "ElecEra"))
+  edgetScenarios <- strsplit(cartesian(
+    c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+    c("ElecEra", "HydrHype", "Mix", "ConvCase")), split=".", fixed=TRUE)
+
   allscens <- append(
     ## add both smartlifestyle and default lifestyle variants for all scenarios
     lapply(edgetScenarios, function(sc){c(sc, TRUE)}),
