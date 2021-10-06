@@ -15,13 +15,20 @@ calcEDGETrData <- function() {
   infoConfig = getConfig()
   regionmapping2use <- infoConfig$regionmapping
   setConfig(regionmapping = "2b1450bc.csv")
+
+  edgetScenarios <- list(
+    c("SSP1", "ElecEra"),
+    c("SSP2", "Mix"),
+    c("SSP5", "ConvCase"),
+    c("SSP2EU", "Mix"),
+    c("SDP", "ElecEra"))
+  allscens <- append(
+    ## add both smartlifestyle and default lifestyle variants for all scenarios
+    lapply(edgetScenarios, function(sc){c(sc, TRUE)}),
+    lapply(edgetScenarios, function(sc){c(sc, FALSE)}))
+
   ## run EDGE-T
-  EDGETdata = lapply(list(
-    c("SSP1", "ElecEra", TRUE),
-    c("SSP2", "Mix", FALSE),
-    c("SSP5", "ConvCase", FALSE),
-    c("SSP2EU", "Mix", FALSE),
-    c("SDP", "ElecEra", TRUE)),
+  EDGETdata = lapply(allscens,
     function(x) {
       generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
                        output_folder = NULL,
