@@ -13,7 +13,7 @@
 #' 
 #' @importFrom assertr assert not_na
 #' @importFrom dplyr filter group_by inner_join mutate pull select summarise
-#' @importFrom quitte character.data.frame interpolate_missing_periods_
+#' @importFrom quitte character.data.frame interpolate_missing_periods_ 
 #' @importFrom rlang .data sym
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete everything nesting 
@@ -84,19 +84,18 @@ calcChemicalFeedstocksShare <- function()
     select('iso3c', 'year', 'share') %>%
     assert(not_na, everything())
   
-  weight <- calcOutput('GDPppp', aggregate = FALSE, FiveYearSteps = FALSE) %>%
+  weight <- calcOutput('GDPppp', aggregate = FALSE) %>%
     `[`(,,'gdp_SSP2') %>%
     dimSums(dim = 3)
-  
-  years <- intersect(unique(x$year), getYears(weight, as.integer = TRUE))
-  
+
   return(
     list(
     x = x %>%
-      filter(.data$year %in% years) %>%
-      as.magpie(spatial = 1, temporal = 2, tidy = TRUE), 
+      filter(.data$year %in% unique(quitte::remind_timesteps$period)) %>%
+      as.magpie(spatial = 1, temporal = 2, tidy = TRUE) %>% 
+      collapseDim(dim = 3), 
     
-    weight = weight[,years,],
+    weight = weight[,unique(quitte::remind_timesteps$period),],
     
     unit = 'share',
     description = 'Share of feedstocks in chemicals FE input',
