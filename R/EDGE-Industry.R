@@ -23,8 +23,8 @@
 # library(zoo)
 
 #' @export
-calcSteel_Projections <- function(match.historic.values = TRUE)
-{
+calcSteel_Projections <- function(match.historic.values = TRUE, 
+                                  match.estimates = NULL) {
   # table of units ----
   # GDPpC = $/year
   # GDPpC_history = $/year
@@ -156,8 +156,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE)
     inner_join(population_history, c('iso3c', 'year'))
   
   regression_parameters <- tibble()
-  for (.estimate in unique(regression_data$estimate))
-  {
+  for (.estimate in unique(regression_data$estimate)) {
     
     Asym <- regression_data %>% 
       filter(.estimate == .data$estimate) %>% 
@@ -222,8 +221,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE)
     # make sure all scenarios have associated regression parameters
     assert(
       not_na, .data$Asym, .data$scal, .data$xmid, 
-      error_fun = function(errors, data)
-      { 
+      error_fun = function(errors, data) { 
         rows <- lapply(errors, function(x) { x$error_df$index }) %>% 
           unlist() %>% 
           unique()
@@ -259,8 +257,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE)
     full_join(region_mapping, 'iso3c') %>% 
     pivot_wider(names_from = 'source') %>% 
     assert(not_na, .data$computation,
-           error_fun = function(errors, data)
-           { 
+           error_fun = function(errors, data) { 
              rows <- lapply(errors, function(x) { x$error_df$index }) %>% 
                unlist() %>% 
                unique()
@@ -617,14 +614,13 @@ calcSteel_Projections <- function(match.historic.values = TRUE)
     filter('depriciation' == .data$variable) %>% 
     select(-'variable')
   
-  # workbench ----
-  if (match.historic.values)
-  {
+  # modify estimates to match historic values ----
+  if (match.historic.values) {
     ## aggregate primary and secondary production ----
     steel_historic_prod <- steel_historic %>% 
       filter(!is.na(.data$iso3c),
-             variable %in% c('production', 'prod.BOF', 'prod.OHF','prod.EAF', 
-                             'prod.DRI')) %>% 
+             .data$variable %in% c('production', 'prod.BOF', 'prod.OHF',
+                                   'prod.EAF', 'prod.DRI')) %>% 
       pivot_wider(names_from = 'variable', values_fill = 0) %>% 
       mutate(
         primary.production   = .data$prod.BOF + .data$prod.OHF + .data$prod.DRI,
