@@ -161,9 +161,9 @@ readUNFCCC <- function() {
             "Total industrial processes|Mineral industry|Lime production",
             "Total industrial processes|Mineral industry|Glass production",
             "Total industrial processes|Mineral industry|Other process uses of carbonates",
-            "Total industrial processes|Chemical industry ",
+            "Total industrial processes|Chemical industry",
             "Total industrial processes|Chemical industry|Ammonia production",
-            "Total industrial processes|Chemical industry|Nitric acid production ",
+            "Total industrial processes|Chemical industry|Nitric acid production",
             "Total industrial processes|Chemical industry|Adipic acid production",
             "Total industrial processes|Chemical industry|Caprolactam, glyoxal and glyoxylic acid production",
             "Total industrial processes|Chemical industry|Carbide production",
@@ -180,6 +180,183 @@ readUNFCCC <- function() {
             "Total industrial processes|Metal industry|Lead production",
             "Total industrial processes|Metal industry|Zinc production",
             "Total industrial processes|Metal industry|Other"
+          )
+        }
+      )
+    ),
+    "Table2(I)s2" = list(
+      range = "A7:D29",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total industrial processes|Non-energy products from fuels and solvent use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Lubricant use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Paraffin wax use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Other",
+            "Total industrial processes|Electronics industry",
+            "Total industrial processes|Electronics industry|Integrated circuit or semiconductor",
+            "Total industrial processes|Electronics industry|TFT flat panel display",
+            "Total industrial processes|Electronics industry|Photovoltaics",
+            "Total industrial processes|Electronics industry|Heat transfer fluid",
+            "Total industrial processes|Electronics industry|Other (as specified in table 2(II))",
+            "Total industrial processes|Product uses as substitutes for ODS(2)",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Refrigeration and air conditioning",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Foam blowing agents",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Fire protection",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Aerosols",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Solvents",
+            "Total industrial processes|Product uses as substitutes for ODS(2)|Other applications",
+            "Total industrial processes|Other product manufacture and use",
+            "Total industrial processes|Other product manufacture and use|Electrical equipment",
+            "Total industrial processes|Other product manufacture and use|SF6 and PFCs from other product use",
+            "Total industrial processes|Other product manufacture and use|N2O from product uses",
+            "Total industrial processes|Other product manufacture and use|Other",
+            "Total industrial processes|Other"
+          )
+        }
+      )
+    ),
+    "Table3s1" = list(
+      range = "A7:D57",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total agriculture",
+            "Total agriculture|Livestock",
+            "Total agriculture|Enteric fermentation",
+            "Total agriculture|Enteric fermentation|Cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Dairy cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Non-dairy cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Mature dairy cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Other mature cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Growing cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Other",
+            "Total agriculture|Enteric fermentation|Sheep",
+            "Total agriculture|Enteric fermentation|Swine",
+            "Total agriculture|Enteric fermentation|Other livestock",
+            "Total agriculture|Enteric fermentation|Other livestock|Buffalo",
+            "Total agriculture|Enteric fermentation|Other livestock|Deer",
+            "Total agriculture|Enteric fermentation|Other livestock|Goats",
+            "Total agriculture|Enteric fermentation|Other livestock|Horses",
+            "Total agriculture|Enteric fermentation|Other livestock|Mules and Asses",
+            "Total agriculture|Enteric fermentation|Other livestock|Poultry",
+            "Total agriculture|Enteric fermentation|Other livestock|Other",
+            "Total agriculture|Enteric fermentation|Other livestock|Rabbit",
+            "Total agriculture|Enteric fermentation|Other livestock|Ostrich",
+            "Total agriculture|Enteric fermentation|Other livestock|Fur-bearing Animals",
+            "Total agriculture|Manure management",
+            "Total agriculture|Manure management|Cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Dairy cattle",
+            "Total agriculture|Manure management|Cattle|Non-dairy cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Mature dairy cattle",
+            "Total agriculture|Manure management|Cattle|Other mature cattle",
+            "Total agriculture|Manure management|Cattle|Growing cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Other",
+            "Total agriculture|Manure management|Sheep",
+            "Total agriculture|Manure management|Swine",
+            "Total agriculture|Manure management|Other livestock",
+            "Total agriculture|Manure management|Other livestock|Buffalo",
+            "Total agriculture|Manure management|Other livestock|Deer",
+            "Total agriculture|Manure management|Other livestock|Goats",
+            "Total agriculture|Manure management|Other livestock|Horses",
+            "Total agriculture|Manure management|Other livestock|Mules and Asses",
+            "Total agriculture|Manure management|Other livestock|Poultry",
+            "Total agriculture|Manure management|Other livestock|Other",
+            "Total agriculture|Manure management|Other livestock|Rabbit",
+            "Total agriculture|Manure management|Other livestock|Ostrich",
+            "Total agriculture|Manure management|Other livestock|Fur-bearing Animals",
+            "Total agriculture|Manure management|Indirect N2O emissions"
+          )
+        }
+      )
+    ),
+    "Table3s2" = list(
+      range = "A7:D18",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total agriculture|Rice cultivation",
+            "Total agriculture|Agricultural soils",
+            "Total agriculture|Prescribed burning of savannas",
+            "Total agriculture|Field burning of agricultural residues",
+            "Total agriculture|Liming",
+            "Total agriculture|Urea application",
+            "Total agriculture|Other carbon-containing fertilizers",
+            "Total agriculture|Other",
+            "Total agriculture|Other|3B NOx Emissions",
+            "Total agriculture|Other|Digestate renewable raw material atmospheric deposition",
+            "Total agriculture|Other|Digestate renewable raw material storage of dry matter",
+            "Total agriculture|Other|Digestate renewable raw material"
+          )
+        }
+      )
+    ),
+    "Table4" = list(
+      range = "A7:D29",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total LULUCF",
+            "Total LULUCF|Forest land",
+            "Total LULUCF|Forest land|Forest land remaining forest land",
+            "Total LULUCF|Forest land|Land converted to forest land",
+            "Total LULUCF|Cropland",
+            "Total LULUCF|Cropland|Cropland remaining cropland",
+            "Total LULUCF|Cropland|Land converted to cropland",
+            "Total LULUCF|Grassland",
+            "Total LULUCF|Grassland|Grassland remaining grassland",
+            "Total LULUCF|Grassland|Land converted to grassland",
+            "Total LULUCF|Wetlands",
+            "Total LULUCF|Wetlands|Wetlands remaining wetlands",
+            "Total LULUCF|Wetlands|Land converted to wetlands",
+            "Total LULUCF|Settlements",
+            "Total LULUCF|Settlements|Settlements remaining settlements",
+            "Total LULUCF|Settlements|Land converted to settlements",
+            "Total LULUCF|Other land",
+            "Total LULUCF|Other land|Other land remaining other land",
+            "Total LULUCF|Other land|Land converted to other land",
+            "Total LULUCF|Harvested wood products",
+            "Total LULUCF|Other",
+            "Total LULUCF|Other|Settlements",
+            "Total LULUCF|Other|Other"
+          )
+        }
+      )
+    ),
+    "Table5" = list(
+      range = "A7:D24",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+          "Total waste",
+          "Total waste|Solid waste disposal",
+          "Total waste|Solid waste disposal|Managed waste disposal sites",
+          "Total waste|Solid waste disposal|Unmanaged waste disposal sites",
+          "Total waste|Solid waste disposal|Uncategorized waste disposal sites",
+          "Total waste|Biological treatment of solid waste",
+          "Total waste|Biological treatment of solid waste|Composting",
+          "Total waste|Biological treatment of solid waste|Anaerobic digestion at biogas facilities",
+          "Total waste|Incineration and open burning of waste",
+          "Total waste|Incineration and open burning of waste|Waste incineration",
+          "Total waste|Incineration and open burning of waste|Open burning of waste",
+          "Total waste|Wastewater treatment and discharge",
+          "Total waste|Wastewater treatment and discharge|Domestic wastewater",
+          "Total waste|Wastewater treatment and discharge|Industrial wastewater",
+          "Total waste|Wastewater treatment and discharge|Other",
+          "Total waste|Other",
+          "Total waste|Other|Mechanical-Biological Treatment MBT",
+          "Total waste|Other|Accidental fires"
           )
         }
       )
