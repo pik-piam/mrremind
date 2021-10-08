@@ -1,7 +1,22 @@
-
-#' Title
+#' EDGE-Industry
+#' 
+#' Functions for calculating industry activity trajectories.
+#' 
+#' @md
+#' @param match.historic.values Should steel production trajectories match 
+#'   historic values?
+#' @param match.estimates Should steel production trajectories match exogenous
+#'   estimates?  `NULL` or one of
+#'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
+#'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
+#'     until 2060, and original growth rates after that.
 #'
-#' @return
+#' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
+#'   `unit`, `description`, `min`, and `max`.
+#'   
+#' @author Michaja Pehl
+#' 
+#' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert verify
 #' @importFrom broom tidy
@@ -23,6 +38,7 @@
 # library(mrremind)
 # library(zoo)
 
+#' @rdname EDGE-Industry
 #' @export
 calcSteel_Projections <- function(match.historic.values = TRUE, 
                                   match.estimates = NULL) {
@@ -820,7 +836,8 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     #                               share, factor
     # variable: primary.production/secondary.production
     # share:    share of primary/secondary production in total production
-    # factor:   growth rate of total steel production relative to previous period
+    # factor:   growth rate of total steel production relative to previous 
+    #           period
     steel_growth_rates_after_ETP <- tmp %>% 
       filter(max(ETP_growth_rates$year) <= .data$year) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
