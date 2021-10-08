@@ -15,13 +15,13 @@
 #'   `unit`, `description`, `min`, and `max`.
 #'   
 #' @author Michaja Pehl
-#' 
+#'
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert verify
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>%
+#' @importFrom dplyr %>% case_when right_join semi_join
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom quitte madrat_mule sum_total_
 #' @importFrom stats SSlogis nls
@@ -50,20 +50,11 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
   # GDPpC_history = $/year
   # population_history = people
 
-  # get EDGE-Industry switches ----
-  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>% 
-  #   select(
-  #     'scenario', 
-  #     `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
-  #     `scenario.mask.OECD` = 
-  #       'EDGE-Industry_scenario.mask.OECD',
-  #     `scenario.mask.non-OECD` = 
-  #       'EDGE-Industry_scenario.mask.non-OECD')
   
   steel.match.estimates.baseline.scenario <- 'SSP2'
-  
+  # get EDGE-Industry switches ----
   # FIXME: remove before deploying
-  load('./R/sysdata.rda')
+  # load('./R/sysdata.rda')
   `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>% 
     select(
       'scenario', 
@@ -79,8 +70,6 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       `steel.stock.lifetime.convergence.factor` = 
         'EDGE-Industry_steel.stock.lifetime.convergence.factor')
   
-  
-      
   # load required data ----
   ## region mapping for aggregation ----
   region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
@@ -632,7 +621,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     sum_total_('iso3c') %>%
     ungroup()
   
-  ## calculate production limits of secondary steel ----
+  ## calculate production limits of secondary steel----
   # FIXME: move to separate function
   production_limits <- production_estimates %>% 
     filter('depriciation' == .data$variable) %>% 
@@ -717,72 +706,72 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
         select('region', 'iso3c', 'year', 'variable', 'value')
     ) %>% 
       assert(not_na, everything())
-    
-    tmp <- full_join(
-      # estimates after last historic year
-      production_estimates %>% 
-        filter(max(unique(steel_historic_prod$year)) <= .data$year,
+  
+  tmp <- full_join(
+    # estimates after last historic year
+    production_estimates %>% 
+      filter(max(unique(steel_historic_prod$year)) <= .data$year,
                .data$variable %in% c('primary.production', 
                                      'secondary.production'),
-               'Total' != .data$iso3c),
-      
-      # estimates up to last historic year
-      steel_historic_prod %>% 
-        rename(historic = .data$value) %>% 
-        # Mt/year * 1e6 t/Mt = t/year
-        mutate(historic = .data$historic * 1e6,
-               scenario = production_estimates[[1,'scenario']]) %>% 
-        # duplicate for all scenarios
-        complete(
+             'Total' != .data$iso3c),
+    
+    # estimates up to last historic year
+    steel_historic_prod %>% 
+      rename(historic = .data$value) %>% 
+      # Mt/year * 1e6 t/Mt = t/year
+      mutate(historic = .data$historic * 1e6,
+             scenario = production_estimates[[1,'scenario']]) %>% 
+      # duplicate for all scenarios
+      complete(
           nesting(!!!syms(c('region', 'iso3c', 'year', 'variable', 
                             'historic'))),
-          scenario = unique(pull(production_estimates, 'scenario'))) %>% 
-        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
-                 year = unique(.data$year),
-                 variable = unique(.data$variable),
-                 fill = list(historic = 0)) %>% 
-        assert(not_na, everything()),
-      
-      c('scenario', 'region', 'iso3c', 'year', 'variable')
-    )
+        scenario = unique(pull(production_estimates, 'scenario'))) %>% 
+      complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
+               year = unique(.data$year),
+               variable = unique(.data$variable),
+               fill = list(historic = 0)) %>% 
+      assert(not_na, everything()),
     
-    tmp <- bind_rows(
-      # scale country production to meet historic production in the last year
-      # for which data is available
-      tmp %>% 
-        filter(.data$year >= max(steel_historic_prod$year)) %>% 
-        group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
-        filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
+    c('scenario', 'region', 'iso3c', 'year', 'variable')
+  )
+  
+  tmp <- bind_rows(
+    # scale country production to meet historic production in the last year
+    # for which data is available
+    tmp %>% 
+      filter(.data$year >= max(steel_historic_prod$year)) %>% 
+      group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
+      filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
         mutate(value = .data$value 
                      / first(.data$value / .data$historic, 
                              order_by = .data$year)) %>% 
-        select(-'historic') %>% 
-        ungroup(),
-      
-      # countries w/o historic production fade production in over 20 years
-      tmp %>% 
-        filter(.data$year >= max(steel_historic_prod$year)) %>% 
+      select(-'historic') %>% 
+      ungroup(),
+    
+    # countries w/o historic production fade production in over 20 years
+    tmp %>% 
+      filter(.data$year >= max(steel_historic_prod$year)) %>% 
         group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
         filter(any(
           is.na(first(.data$historic, order_by = .data$year)),
           0 == first(.data$historic, order_by = .data$year))) %>% 
-        mutate(value = .data$value 
-               * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
-        select(-'historic') %>% 
-        ungroup(),
-      
+      mutate(value = .data$value 
+                   * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
+      select(-'historic') %>% 
+      ungroup(),
+    
       # data up to last historic year
-      tmp %>% 
-        filter(.data$year < max(steel_historic_prod$year)) %>% 
-        select(-'value', value = 'historic')
-    ) %>% 
+    tmp %>% 
+      filter(.data$year < max(steel_historic_prod$year)) %>% 
+      select(-'value', value = 'historic')
+  ) %>% 
       semi_join(region_mapping, c('region', 'iso3c')) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year', 
                          'variable'))) %>% 
       summarise(value = sum(.data$value), .groups = 'drop') %>%
       assert(not_na, everything()) %>% 
-      arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
-              .data$year)
+    arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
+            .data$year)
     
     # make zero values explicit ----
     tmp <- tmp %>% 
@@ -833,7 +822,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
         max(steel_historic_prod$year) == .data$year ~ 1,
         max(steel_historic_prod$year) > .data$year ~ 
             lag(.data$value,
-              default = first(.data$value, order_by = .data$year),
+                   default = first(.data$value, order_by = .data$year),
               order_by = .data$year) 
           / .data$value)) %>% 
       ungroup() %>% 
@@ -906,9 +895,9 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       filter(max(ETP_growth_rates$year) < .data$year) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
       mutate(factor = .data$value
-                    / lag(.data$value, 
+             / lag(.data$value, 
                           default = first(.data$value, order_by = .data$year),
-                          order_by = .data$year)) %>% 
+                   order_by = .data$year)) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year'))) %>% 
       mutate(share = .data$value / sum(.data$value)) %>% 
       ungroup() %>% 
@@ -965,7 +954,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
   } else {
     stop('Unknown setting \'', match.estimates, '\' for match.estimates')
   }
-  
+    
   # return statement ----
   return(list(x = x,
               weight = NULL,
