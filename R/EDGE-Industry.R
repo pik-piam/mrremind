@@ -632,10 +632,29 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     sum_total_('iso3c') %>%
     ungroup()
   
-  ## calculate production limits of secondary steel----
+  ## calculate production limits of secondary steel ----
+  # FIXME: move to separate function
   production_limits <- production_estimates %>% 
     filter('depriciation' == .data$variable) %>% 
     select(-'variable')
+  
+  ## construct output ----
+  x <- production_estimates %>% 
+    semi_join(region_mapping, c('region', 'iso3c')) %>% 
+    filter(min(steel_historic_prod$year) <= .data$year) %>% 
+    right_join(
+      tribble(
+        ~variable,                ~pf,
+        'primary.production',     'ue_steel_primary',
+        'secondary.production',   'ue_steel_secondary'),
+      
+      'variable'
+    ) %>% 
+    assert(not_na, everything()) %>% 
+    # t/year * 1e-6 Mt/t = Mt/year
+    mutate(value = .data$value * 1e-6) %>% 
+    select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
+    as.magpie(spatial = 2, temporal = 4, data = 5)
   
   # modify estimates to match historic values ----
   if (match.historic.values) {
@@ -698,65 +717,98 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
         select('region', 'iso3c', 'year', 'variable', 'value')
     ) %>% 
       assert(not_na, everything())
-  
-  tmp <- full_join(
-    # estimates after last historic year
-    production_estimates %>% 
-      filter(max(unique(steel_historic_prod$year)) <= .data$year,
-             .data$variable %in% c('primary.production', 'secondary.production'),
-             'Total' != .data$iso3c),
     
-    # estimates up to last historic year
-    steel_historic_prod %>% 
-      rename(historic = .data$value) %>% 
-      # Mt/year * 1e6 t/Mt = t/year
-      mutate(historic = .data$historic * 1e6,
-             scenario = production_estimates[[1,'scenario']]) %>% 
-      # duplicate for all scenarios
-      complete(
-        nesting(!!!syms(c('region', 'iso3c', 'year', 'variable', 'historic'))),
-        scenario = unique(pull(production_estimates, 'scenario'))) %>% 
-      complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
-               year = unique(.data$year),
-               variable = unique(.data$variable),
-               fill = list(historic = 0)) %>% 
-      assert(not_na, everything()),
+    tmp <- full_join(
+      # estimates after last historic year
+      production_estimates %>% 
+        filter(max(unique(steel_historic_prod$year)) <= .data$year,
+               .data$variable %in% c('primary.production', 
+                                     'secondary.production'),
+               'Total' != .data$iso3c),
+      
+      # estimates up to last historic year
+      steel_historic_prod %>% 
+        rename(historic = .data$value) %>% 
+        # Mt/year * 1e6 t/Mt = t/year
+        mutate(historic = .data$historic * 1e6,
+               scenario = production_estimates[[1,'scenario']]) %>% 
+        # duplicate for all scenarios
+        complete(
+          nesting(!!!syms(c('region', 'iso3c', 'year', 'variable', 
+                            'historic'))),
+          scenario = unique(pull(production_estimates, 'scenario'))) %>% 
+        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
+                 year = unique(.data$year),
+                 variable = unique(.data$variable),
+                 fill = list(historic = 0)) %>% 
+        assert(not_na, everything()),
+      
+      c('scenario', 'region', 'iso3c', 'year', 'variable')
+    )
     
-    c('scenario', 'region', 'iso3c', 'year', 'variable')
-  )
-  
-  tmp <- bind_rows(
-    # scale country production to meet historic production in the last year
-    # for which data is available
-    tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>% 
-      group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
-      filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
-      mutate(
-        value = .data$value 
-              / first(.data$value / .data$historic, order_by = .data$year)) %>% 
-      select(-'historic') %>% 
-      ungroup(),
+    tmp <- bind_rows(
+      # scale country production to meet historic production in the last year
+      # for which data is available
+      tmp %>% 
+        filter(.data$year >= max(steel_historic_prod$year)) %>% 
+        group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
+        filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
+        mutate(value = .data$value 
+                     / first(.data$value / .data$historic, 
+                             order_by = .data$year)) %>% 
+        select(-'historic') %>% 
+        ungroup(),
+      
+      # countries w/o historic production fade production in over 20 years
+      tmp %>% 
+        filter(.data$year >= max(steel_historic_prod$year)) %>% 
+        group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+        filter(any(
+          is.na(first(.data$historic, order_by = .data$year)),
+          0 == first(.data$historic, order_by = .data$year))) %>% 
+        mutate(value = .data$value 
+               * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
+        select(-'historic') %>% 
+        ungroup(),
+      
+      # data up to last historic year
+      tmp %>% 
+        filter(.data$year < max(steel_historic_prod$year)) %>% 
+        select(-'value', value = 'historic')
+    ) %>% 
+      semi_join(region_mapping, c('region', 'iso3c')) %>% 
+      group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year', 
+                         'variable'))) %>% 
+      summarise(value = sum(.data$value), .groups = 'drop') %>%
+      assert(not_na, everything()) %>% 
+      arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
+              .data$year)
     
-    # countries w/o historic production fade production in over 20 years
-    tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>% 
-      group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
-      filter(is.na(first(.data$historic, order_by = .data$year))) %>% 
-      mutate(value = .data$value 
-                   * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
-      select(-'historic') %>% 
-      ungroup(),
+    # make zero values explicit ----
+    tmp <- tmp %>% 
+      semi_join(region_mapping, c('region', 'iso3c')) %>% 
+      complete(.data$scenario, .data$variable,
+               nesting(!!sym('region'), !!sym('iso3c')),
+               year   = unique(!!sym('year')), 
+               fill = list(value = 0))
     
-    tmp %>% 
-      filter(.data$year < max(steel_historic_prod$year)) %>% 
-      select(-'value', value = 'historic')
-  ) %>% 
-    sum_total_('iso3c') %>% 
-    sum_total_('region', name = 'World') %>% 
-    filter(!('World' == .data$region & 'Total' != .data$iso3c)) %>% 
-    arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
-            .data$year)
+    ## construct output ----
+    x <- tmp %>% 
+      filter(min(steel_historic_prod$year) <= .data$year) %>% 
+      semi_join(region_mapping, c('region', 'iso3c')) %>% 
+      right_join(
+        tribble(
+          ~variable,                ~pf,
+          'primary.production',     'ue_steel_primary',
+          'secondary.production',   'ue_steel_secondary'),
+        
+        'variable'
+      ) %>%
+      assert(not_na, everything()) %>% 
+      # t/year * 1e-6 Mt/t = Mt/year
+      mutate(value = .data$value * 1e-6) %>% 
+      select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
+      as.magpie(spatial = 2, temporal = 4, data = 5)
   }
   
   # match exogenous estimates ----
@@ -773,10 +825,17 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       interpolate_missing_periods_(
         periods = list(year = seq_range(range(.$year))), method = 'spline') %>% 
       group_by(.data$region) %>% 
-      mutate(factor = .data$value 
-             / lag(.data$value, 
-                   default = first(.data$value, order_by = .data$year),
-                   order_by = .data$year)) %>% 
+      mutate(factor = case_when(
+        max(steel_historic_prod$year) < .data$year ~ 
+          .data$value / lag(.data$value,
+                            default = first(.data$value, order_by = .data$year),
+                            order_by = .data$year),
+        max(steel_historic_prod$year) == .data$year ~ 1,
+        max(steel_historic_prod$year) > .data$year ~ 
+            lag(.data$value,
+              default = first(.data$value, order_by = .data$year),
+              order_by = .data$year) 
+          / .data$value)) %>% 
       ungroup() %>% 
       select(-'value')
     
@@ -785,8 +844,10 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     #                                share, factor
     # variable: primary.production/secondary.production
     # share:    share of primary/secondary production in total production
-    # factor:   growth rate of total steel production relative to previous period
+    # factor:   growth rate of total steel production relative to previous
+    #           period
     steel_growth_rates_during_ETP <- ETP_growth_rates %>% 
+      filter(max(steel_historic_prod$year) <= .data$year) %>% 
       # expand OECD and Non-OECD regions to iso3c countries
       full_join(
         bind_rows(
@@ -807,6 +868,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       # growth-rates from tmp
       full_join(
         tmp %>% 
+          semi_join(region_mapping, c('region', 'iso3c')) %>% 
           distinct(!!!syms(c('scenario', 'region', 'iso3c'))),
         
         'iso3c'
@@ -814,17 +876,18 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       # expand across primary and secondary production
       full_join(
         tmp %>% 
+          semi_join(region_mapping, c('region', 'iso3c')) %>% 
           filter(between(.data$year, 
-                         min(ETP_growth_rates$year), 
-                         max(ETP_growth_rates$year)),
-                 'Total' != .data$iso3c) %>% 
+                         max(steel_historic_prod$year), 
+                         max(ETP_growth_rates$year))) %>% 
           group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year'))) %>% 
           filter(0 != sum(.data$value)) %>% 
           mutate(share = .data$value / sum(.data$value)) %>% 
           select(-'value') %>% 
           ungroup() %>% 
           interpolate_missing_periods_(
-            periods = list(year = unique(ETP_growth_rates$year)),
+            periods = list(year = unique(pmax(max(steel_historic_prod$year), 
+                                              ETP_growth_rates$year))),
             value = 'share',
             expand.values = TRUE),
         
@@ -839,29 +902,30 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     # factor:   growth rate of total steel production relative to previous 
     #           period
     steel_growth_rates_after_ETP <- tmp %>% 
-      filter(max(ETP_growth_rates$year) <= .data$year) %>% 
+      filter(max(steel_historic_prod$year) <= .data$year) %>% 
+      filter(max(ETP_growth_rates$year) < .data$year) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
       mutate(factor = .data$value
-             / lag(.data$value, 
-                   default = first(.data$value, 
-                                   order_by = .data$year),
-                   order_by = .data$year)) %>% 
+                    / lag(.data$value, 
+                          default = first(.data$value, order_by = .data$year),
+                          order_by = .data$year)) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year'))) %>% 
       mutate(share = .data$value / sum(.data$value)) %>% 
       ungroup() %>% 
       select(-'value')
     
     ### combine data ----
-    tmp <- bind_rows(
-      # tmp data up to the first year of ETP growth rates
+    IEA_ETP_matched <- bind_rows(
+      # tmp data up to the last historic year
       tmp %>% 
-        filter(min(ETP_growth_rates$year) > .data$year,
+        semi_join(region_mapping, c('region', 'iso3c')) %>% 
+        filter(max(steel_historic_prod$year) > .data$year,
                'Total' != .data$iso3c),
       
-      # tmp data after first year of ETP growth rates, driven by growth rates
+      # tmp data after historic production, driven by growth rates
       tmp %>% 
-        filter(min(ETP_growth_rates$year) == .data$year,
-               'Total' != .data$iso3c) %>% 
+        semi_join(region_mapping, c('region', 'iso3c')) %>% 
+        filter(max(steel_historic_prod$year) == .data$year) %>% 
         group_by(!!!syms(c('scenario', 'region', 'iso3c'))) %>% 
         summarise(value = sum(.data$value), .groups = 'drop') %>% 
         full_join(
@@ -871,14 +935,40 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
           
           c('scenario', 'region', 'iso3c')
         ) %>% 
+        group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
         #   primary/secondary production 
         # = 2014 total production
         # * primary/secondary production share
         # * cumulated ETP/tmp production growth factor
         mutate(value = .data$value * .data$share * cumprod(.data$factor)) %>% 
+        ungroup() %>% 
         select('scenario', 'region', 'iso3c', 'year', 'variable', 'value')
     )
+    
+    ## construct output ----
+    x <- IEA_ETP_matched %>% 
+      filter(min(steel_historic_prod$year) <= .data$year) %>% 
+      semi_join(region_mapping, c('region', 'iso3c')) %>% 
+      right_join(
+        tribble(
+          ~variable,                ~pf,
+          'primary.production',     'ue_steel_primary',
+          'secondary.production',   'ue_steel_secondary'),
+        
+        'variable'
+      ) %>%
+      assert(not_na, everything()) %>% 
+      # t/year * 1e-6 Mt/t = Mt/year
+      mutate(value = .data$value * 1e-6) %>% 
+      select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
+      as.magpie(spatial = 2, temporal = 4, data = 5)
   } else {
     stop('Unknown setting \'', match.estimates, '\' for match.estimates')
   }
+  
+  # return statement ----
+  return(list(x = x,
+              weight = NULL,
+              unit = 'Mt steel/year',
+              description = 'primary and secondary steel production'))
 }
