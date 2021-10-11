@@ -3,10 +3,10 @@
 #' Functions for calculating industry activity trajectories.
 #' 
 #' @md
-#' @param match.historic.values Should steel production trajectories match 
+#' @param match.steel.historic.values Should steel production trajectories match 
 #'   historic values?
-#' @param match.estimates Should steel production trajectories match exogenous
-#'   estimates?  `NULL` or one of
+#' @param match.steel.estimates Should steel production trajectories match 
+#'   exogenous estimates?  `NULL` or one of
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
@@ -41,8 +41,8 @@
 
 #' @rdname EDGE-Industry
 #' @export
-calcSteel_Projections <- function(match.historic.values = TRUE, 
-                                  match.estimates = NULL) {
+calcSteel_Projections <- function(match.steel.historic.values = TRUE, 
+                                  match.steel.estimates = NULL) {
   
   . <- NULL
   
@@ -52,7 +52,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
   # population_history = people
 
   
-  steel.match.estimates.baseline.scenario <- 'SSP2'
+  steel.match.steel.estimates.baseline.scenario <- 'SSP2'
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
@@ -647,7 +647,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
     as.magpie(spatial = 2, temporal = 4, data = 5)
   
   # modify estimates to match historic values ----
-  if (match.historic.values) {
+  if (match.steel.historic.values) {
     ## aggregate primary and secondary production ----
     steel_historic_prod <- steel_historic %>% 
       filter(!is.na(.data$iso3c),
@@ -803,7 +803,7 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
   
   # match exogenous estimates ----
   ## IEA ETP 2017 ----
-  if ('IEA_ETP' == match.estimates) {
+  if ('IEA_ETP' == match.steel.estimates) {
     ### regional IEA ETP growth rates ----
     ETP_growth_rates <- readSource('IEA_ETP', 'industry_subsectors', FALSE) %>% 
       `[`(,,'IEA_ETP_RTS.Production|Industry|Steel (Mt/yr)') %>% 
@@ -953,7 +953,8 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
       as.magpie(spatial = 2, temporal = 4, data = 5)
   } else {
-    stop('Unknown setting \'', match.estimates, '\' for match.estimates')
+    stop('Unknown setting \'', match.steel.estimates, 
+         '\' for match.steel.estimates')
   }
     
   # return statement ----
@@ -1331,8 +1332,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
              'GDPpC', 'steel.VApt'),
     
     calcOutput(type = 'Steel_Projections', 
-               match.historic.values = match.steel.historic.values, 
-               match.estimates = match.steel.estimates, 
+               match.steel.historic.values = match.steel.historic.values, 
+               match.steel.estimates = match.steel.estimates, 
                aggregate = FALSE, supplementary = FALSE) %>% 
       as.data.frame() %>% 
       as_tibble() %>% 
@@ -1355,7 +1356,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     mutate(steel.VA = .data$steel.VApt * .data$steel.production) %>% 
     select(-'steel.VApt', -'GDPpC') %>% 
     pivot_longer(c('population', 'GDP', 'steel.production', 'steel.VA')) %>% 
-    duplicate_(c(region = 'World')) %>% 
+    duplicate(region = 'World') %>% 
     sum_total_('iso3c') %>% 
     pivot_wider() %>% 
     mutate(GDPpC      = .data$GDP / .data$population, 
