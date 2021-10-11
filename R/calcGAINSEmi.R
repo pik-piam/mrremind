@@ -14,6 +14,8 @@
 #' }
 
 
+
+
 calcGAINSEmi <- function(subtype="emissions") {
   
   if (!(subtype %in% c("emission_factors", "emissions","emissions_starting_values"))) stop('subtype must be in c("emission_factors", "emissions","emissions_starting_values")')
@@ -28,7 +30,7 @@ calcGAINSEmi <- function(subtype="emissions") {
   # aggregated only
   
   # construct mappings: add waste from extended mapping to aggregated mapping
-  map_mix <- toolGetMapping(type = "sectoral", name = "mappingGAINSmixedtoREMIND17activities.csv")
+  map_mix <- read.csv(toolMappingFile("sectoral", "mappingGAINSmixedtoREMIND17activities.csv"), stringsAsFactors=FALSE)
   map_waste <- map_mix[map_mix$GAINS %in% c("Waste_Solid_Industrial","Waste_Solid_Municipal","Waste_Water_Industrial","Waste_Water_Municipal"),]
   
   # append waste ef and emi from extended to aggregated
@@ -56,7 +58,7 @@ calcGAINSEmi <- function(subtype="emissions") {
   # aggregated only
   
   # construct mappings: add waste from extended mapping to aggregated mapping
-  map_mix <- toolGetMapping(type = "sectoral", name = "mappingGAINSmixedtoREMIND17activities.csv")
+  map_mix <- read.csv(toolMappingFile("sectoral", "mappingGAINSmixedtoREMIND17activities.csv"), stringsAsFactors=FALSE)
   map_waste <- map_mix[map_mix$GAINS %in% c("Waste_Solid_Industrial","Waste_Solid_Municipal","Waste_Water_Industrial","Waste_Water_Municipal"),]
   
   # append waste ef and emi from extended to aggregated
