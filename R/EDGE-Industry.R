@@ -18,7 +18,7 @@
 #'
 #' @seealso [`calcOutput()`]
 #'
-#' @importFrom assertr assert verify
+#' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
 #' @importFrom dplyr %>% case_when right_join semi_join
@@ -27,7 +27,7 @@
 #'   madrat_mule sum_total_
 #' @importFrom stats SSlogis nls
 #' @importFrom tidyr pivot_longer pivot_wider
-#' @importFrom zoo rollmean
+#' @importFrom zoo na.approx rollmean
 
 # setup
 # library(broom)
@@ -1071,6 +1071,10 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            # $m * 1e6 $/$m = $
            GDP = .data$GDP * 1e6)
   
+  ## ---- load cement production data ----
+  data_cement_production <- readSource(type = 'vanRuijven2016', 
+                                       convert = FALSE) %>% madrat_mule()
+  
   # calc manufacturing share in GDP ----
   manufacturing_share <- INDSTAT %>% 
     filter('D' == .data$isic,
@@ -1360,6 +1364,463 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            'steel.production', 'steel.VA', 'GDPpC', 'steel.VApt')
   
   # project cement production ----
+  ## calculate regression data ----
+  regression_data_cement <- inner_join(
+    INDSTAT %>% 
+      filter(20 == .data$ctable, 
+             '26' == .data$isic, 
+             between(.data$utable, 17, 20),
+             0 < .data$value) %>% 
+      group_by(.data$iso3c, .data$year) %>% 
+      filter(max(.data$lastupdated) == .data$lastupdated) %>% 
+      ungroup() %>% 
+      select('region', 'iso3c', 'year', cement.VA = 'value'),
+    
+    data_cement_production %>%
+      rename(cement.production = 'value'),
+    
+    c('iso3c', 'year')
+  )
+  
+  ### censor nonsensical data ----
+  cement_censor <- list_to_data_frame(list(
+    BDI = 1980,
+    CIV = 1990:1993,
+    NAM = 2010,
+    HKG = 1973:1979,
+    IRQ = 1994:1997),
+    'iso3c', 'year') %>% 
+    mutate(censored = TRUE)
+  
+  regression_data_cement <- regression_data_cement %>% 
+    left_join(cement_censor, c('iso3c', 'year')) %>% 
+    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
+  
+  ### compute regional and World aggregates ----
+  regression_data_cement <- regression_data_cement %>% 
+    inner_join(
+      population %>% 
+        group_by(.data$iso3c, .data$year) %>%
+        summarise(population = calc_mode(.data$population), .groups = 'drop'), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    inner_join(
+      GDP %>% 
+        group_by(.data$iso3c, .data$year) %>%
+        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+      
+      c('iso3c', 'year')
+    ) %>% 
+    pivot_longer(c('population', 'cement.production', 'GDP', 'cement.VA')) %>% 
+    duplicate(region = 'World')
+  
+  regression_data_cement <- bind_rows(
+    regression_data_cement,
+    
+    regression_data_cement %>% 
+      filter(!.data$censored) %>% 
+      group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>% 
+      summarise(value = sum(.data$value, na.rm = TRUE),
+                iso3c = 'Total',
+                .groups = 'drop')
+  ) %>% 
+    pivot_wider()
+  
+  ## compute regression parameters ----
+  regression_parameters_cement_production <- tibble()
+  for (r in sort(unique(regression_data_cement$region))) {
+    regression_parameters_cement_production <- bind_rows(
+      regression_parameters_cement_production,
+      
+      nls(formula = cement.PpC ~ a * exp(b / GDPpC),
+          data = regression_data_cement %>%
+            filter(r == .data$region,
+                   'Total' == .data$iso3c,
+                   !.data$censored) %>% 
+            mutate(cement.PpC = .data$cement.production / .data$population,
+                   GDPpC      = .data$GDP / .data$population),
+          start = list(a = 1, b = -1000),
+          trace = FALSE) %>% 
+        tidy() %>%
+        select('term', 'estimate') %>%
+        pivot_wider(names_from = 'term', values_from = 'estimate') %>% 
+        mutate(region = r)
+    )
+  }
+  
+  ## project cement production per capita ----
+  param_a <- regression_parameters_cement_production %>% 
+    filter('World' == .data$region) %>% 
+    pull('a')
+  
+  regression_parameters_cement_production_converging <- 
+    regression_parameters_cement_production %>% 
+    filter('World' != .data$region) %>% 
+    mutate(year = as.integer(2000)) %>% 
+    complete(nesting(!!!syms(c('region', 'a', 'b'))), year = 2000:2100) %>% 
+    mutate(a = .data$a 
+             + ( (param_a - .data$a) 
+               / (2200 - 2000) 
+               * (.data$year - 2000)
+               ))
+  
+  projected_cement_data <- inner_join(
+    regression_parameters_cement_production_converging,
+    
+    GDPpC,
+    
+    c('region', 'year')
+  ) %>% 
+    mutate(cement.production = .data$a * exp(.data$b / .data$GDPpC) 
+                             * .data$population) %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP',
+           'cement.production') %>% 
+    pivot_longer(c('population', 'GDP', 'cement.production')) %>% 
+    duplicate(region = 'World') %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider() %>% 
+    mutate(GDPpC      = .data$GDP / .data$population, 
+           cement.PpC = .data$cement.production / .data$population)
+  
+  projected_cement_data <- left_join(
+    projected_cement_data %>% 
+      select(-'GDPpC', -'cement.PpC') %>% 
+      filter('Total' != .data$iso3c),
+    
+    data_cement_production %>% 
+      rename(data = 'value'),
+    
+    c('iso3c', 'year')
+  ) %>% 
+    group_by(!!!syms(c('scenario', 'region', 'iso3c'))) %>% 
+    mutate(
+      shift.factor = .data$data / .data$cement.production,
+      shift.factor = ifelse(
+        between(.data$year, 2011, 2025),
+        1 + ( (last(na.omit(.data$shift.factor)) - 1) 
+            * ((2025 - .data$year) / 14) ^ 2
+            ),
+        ifelse(2011 > .data$year, .data$shift.factor, 1)),
+      shift.factor = na.approx(object = .data$shift.factor, x = .data$year,
+                               yleft = first(na.omit(.data$shift.factor)),
+                               yright = last(na.omit(.data$shift.factor)),
+                               na.rm = FALSE),
+      cement.production = .data$shift.factor * .data$cement.production) %>% 
+    ungroup() %>% 
+    select(-'data', -'shift.factor') %>% 
+    pivot_longer(c('cement.production', 'GDP', 'population')) %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider() %>% 
+    mutate(GDPpC      = .data$GDP / .data$population,
+           cement.PpC = .data$cement.production / .data$population)
+  
+  # project cement VA ----
+  ## compute regression parameters ----
+  regression_parameters_cement <- tibble()
+  for (r in sort(unique(regression_data_cement$region))) {
+    regression_parameters_cement <- bind_rows(
+      regression_parameters_cement,
+      
+      nls(formula = cement.VApt ~ a * exp(b / GDPpC),
+          data = regression_data_cement %>%
+            filter(r == .data$region,
+                   'Total' == .data$iso3c,
+                   !.data$censored) %>% 
+            mutate(cement.VApt = .data$cement.VA / .data$cement.production,
+                   GDPpC       = .data$GDP / .data$population),
+          start = list(a = 250, b = -4000),
+          trace = FALSE) %>% 
+        tidy() %>%
+        select('term', 'estimate') %>%
+        pivot_wider(names_from = 'term', values_from = 'estimate') %>% 
+        mutate(region = r)
+    )
+  }
+  
+  # project cement VA per tonne of cement ----
+  parameter_a_world_cement <- regression_parameters_cement %>% 
+    filter('World' == .data$region) %>% 
+    pull('a')
+  
+  regression_parameters_cement_converging <- regression_parameters_cement %>% 
+    filter('World' != .data$region) %>% 
+    mutate(year = as.integer(2000)) %>% 
+    complete(nesting(!!!syms(c('region', 'a', 'b'))), year = 2000:2100) %>% 
+    mutate(a = .data$a 
+             + ( (parameter_a_world_cement - .data$a) 
+               / (2200 - 2000) 
+               * (.data$year - 2000)
+               ))
+  
+  projected_cement_data <- inner_join(
+    regression_parameters_cement_converging,
+    
+    projected_cement_data,
+    
+    c('region', 'year')
+  ) %>% 
+    filter('Total' != .data$iso3c) %>% 
+    mutate(cement.VA = .data$a * exp(.data$b / (.data$GDP / .data$population))
+                     * .data$cement.production) %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+           'cement.production', 'cement.VA') %>% 
+    pivot_longer(c('population', 'GDP', 'cement.production', 'cement.VA')) %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider()
+  
+  # project chemicals VA ----
+  ## compile regression data ----
+  regression_data_chemicals <- inner_join(
+    INDSTAT %>% 
+      filter(20 == .data$ctable, 
+             '24' == .data$isic, 
+             between(.data$utable, 17, 20),
+             0 < .data$value) %>% 
+      group_by(!!!syms(c('region', 'iso3c', 'year'))) %>% 
+      filter(max(.data$lastupdated) == .data$lastupdated) %>% 
+      ungroup() %>% 
+      select('region', 'iso3c', 'year', chemicals.VA = 'value'),
+    
+    INDSTAT %>% 
+      filter(20 == .data$ctable, 
+             'D' == .data$isic, 
+             between(.data$utable, 17, 20),
+             0 < .data$value) %>% 
+      group_by(!!!syms(c('region', 'iso3c', 'year'))) %>% 
+      filter(max(.data$lastupdated) == .data$lastupdated) %>% 
+      ungroup() %>% 
+      select('region', 'iso3c', 'year', manufacturing.VA = 'value'),
+    
+    c('region', 'iso3c', 'year')
+  ) %>% 
+    inner_join(
+      population %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(population = calc_mode(.data$population), .groups = 'drop'), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    inner_join(
+      GDP %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    duplicate(region = 'World')
+  
+  ### censor nonsensical data ----
+  chemicals_censor <- list_to_data_frame(list(
+    CIV = 1989,
+    NER = 1999:2002,
+    HKG = c(1973:1979, 2008:2015),
+    MAC = c(1978:1979)),
+    'iso3c', 'year') %>% 
+    mutate(censored = TRUE)
+  
+  regression_data_chemicals <- regression_data_chemicals %>% 
+    left_join(chemicals_censor, c('iso3c', 'year')) %>% 
+    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
+  
+  ### compute regional and World aggregates ----
+  regression_data_chemicals <- bind_rows(
+    regression_data_chemicals,
+    
+    regression_data_chemicals %>% 
+      filter(!.data$censored) %>% 
+      pivot_longer(c('population', 'GDP', 'manufacturing.VA', 
+                     'chemicals.VA')) %>% 
+      group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>% 
+      summarise(value = sum(.data$value),
+                iso3c = 'Total',
+                .groups = 'drop') %>%  
+      pivot_wider()
+  ) %>% 
+    mutate(chemicals.share = .data$chemicals.VA / .data$manufacturing.VA, 
+           GDPpC           = .data$GDP / .data$population)
+  
+  ## compute regression parameters ----
+  regression_parameters_chemicals <- tibble()
+  for (r in sort(unique(regression_data_chemicals$region))) {
+    regression_parameters_chemicals <- bind_rows(
+      regression_parameters_chemicals,
+      
+      nls(formula = chemicals.VA / population ~ a * exp(b / GDPpC),
+          data = regression_data_chemicals %>%
+            filter(r == .data$region,
+                   'Total' == .data$iso3c,
+                   !.data$censored),
+          start = list(a = 1000, b = -100),
+          trace = FALSE) %>% 
+        tidy() %>%
+        select('term', 'estimate') %>%
+        pivot_wider(names_from = 'term', values_from = 'estimate') %>% 
+        mutate(region = r)
+    )
+  }
+  
+  ## project chemicals VA and share ----
+  param_a <- regression_parameters_chemicals %>% 
+    filter('World' == .data$region) %>% 
+    pull('a')
+  
+  regression_parameters_chemicals_converging <- 
+    regression_parameters_chemicals %>% 
+    filter('World' != .data$region) %>% 
+    mutate(year = as.integer(2000)) %>% 
+    complete(nesting(!!!syms(c('region', 'a', 'b'))), year = 2000:2100) %>% 
+    mutate(a = .data$a 
+             + ( (param_a - .data$a) 
+               / (2200 - 2000) 
+               * (.data$year - 2000)
+               ))
+  
+  projected_chemicals_data <- inner_join(
+    regression_parameters_chemicals_converging,
+    
+    projected_data,
+    
+    c('region', 'year')
+  ) %>% 
+    mutate(
+      chemicals.VA = .data$a * exp(.data$b / (.data$GDP / .data$population)) 
+                   * .data$population) %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+           'manufacturing', 'chemicals.VA') %>% 
+    pivot_longer(c('population', 'GDP', 'manufacturing', 'chemicals.VA')) %>% 
+    duplicate(region = 'World') %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider() %>% 
+    mutate(GDPpC           = .data$GDP / .data$population, 
+           chemicals.share = .data$chemicals.VA / .data$manufacturing)
+  
+  # calculate other Industries Value Added projections ----
+  projections <- bind_rows(
+    projected_data %>% 
+      filter('Total' != .data$iso3c, 'World' != .data$region) %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+             manufacturing.VA = 'manufacturing') %>% 
+      pivot_longer(c('population', 'GDP', 'manufacturing.VA')),
+    
+    projected_cement_data %>%
+      filter('Total' != .data$iso3c, 'World' != .data$region) %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'cement.production', 
+             'cement.VA') %>%
+      pivot_longer(c('cement.production', 'cement.VA')),
+    
+    projected_chemicals_data %>%
+      filter('Total' != .data$iso3c, 'World' != .data$region) %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'chemicals.VA') %>% 
+      pivot_longer('chemicals.VA'),
+    
+    projected_steel_data %>% 
+      filter('Total' != .data$iso3c, 'World' != .data$region) %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'steel.production', 
+             'steel.VA') %>% 
+      pivot_longer(c('steel.production', 'steel.VA'))
+  ) %>% 
+    pivot_wider() %>% 
+    mutate(otherInd.VA = .data$manufacturing.VA 
+                       - .data$cement.VA 
+                       - .data$chemicals.VA 
+                       - .data$steel.VA)
+  
+  ## filter projections with negative VA for otherInd ----
+  tmp_negative_otherInd <- projections %>%
+    select('scenario', 'region', 'iso3c', 'year', 'otherInd.VA') %>% 
+    filter(0 > .data$otherInd.VA) %>% 
+    select(-'otherInd.VA')
+  
+  # scenario/region/year combinations with negative values for all countries
+  tmp_all_negative_otherInd <- projections %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'otherInd.VA') %>% 
+    group_by(!!!syms(c('scenario', 'region', 'year'))) %>% 
+    filter(sum(0 > .data$otherInd.VA) == n()) %>% 
+    ungroup() %>% 
+    select('scenario', 'region', 'year')
+  
+  ## calculate regional shares  ----
+  # disregarding negative VA for otherInd
+  projections_regional_shares <- projections %>% 
+    select('scenario', 'region', 'iso3c', 'year', matches('VA$')) %>% 
+    anti_join(
+      tmp_negative_otherInd %>% 
+        select(-'region'),
+      
+      c('scenario', 'iso3c', 'year')
+    ) %>% 
+    pivot_longer(matches('VA$')) %>% 
+    assert(within_bounds(0, Inf), .data$value) %>% 
+    group_by(!!!syms(c('scenario', 'region', 'year', 'name'))) %>% 
+    summarise(value = sum(.data$value), .groups = 'drop') %>% 
+    pivot_wider() %>% 
+    pivot_longer(matches('^(cement|chemicals|steel|otherInd)\\.VA$'),
+                 names_to = 'variable') %>% 
+    mutate(share = .data$value / .data$manufacturing.VA) %>% 
+    select('scenario', 'region', 'year', 'variable', 'share') %>% 
+    # fill temporal gaps arising when for some combination of 
+    # scenario/region/year the otherInd.VA for all countries are negative
+    interpolate_missing_periods_(
+      periods = list('year' = unique(projections$year)), value = 'share',
+      expand.values = TRUE)
+  
+  ## replace VA projections with negative otherInd via regional shares ----
+  projections <- bind_rows(
+    projections %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'manufacturing.VA') %>% 
+      semi_join(
+        tmp_negative_otherInd, 
+        
+        c('scenario', 'region', 'iso3c', 'year')
+      ) %>% 
+      inner_join(
+        projections_regional_shares, 
+        
+        c('scenario', 'region', 'year')
+      ) %>% 
+      mutate(value = .data$manufacturing.VA * .data$share) %>% 
+      select(-'manufacturing.VA', -'share'),
+    
+    projections %>% 
+      pivot_longer(c('population', 'GDP', 'manufacturing.VA',
+                     'cement.production', 'cement.VA', 'chemicals.VA', 
+                     'steel.production', 'steel.VA', 'otherInd.VA'),
+                   names_to = 'variable') %>% 
+      anti_join(
+        tmp_negative_otherInd %>% 
+          mutate(variable = '') %>% 
+          complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'year'))),
+                   variable = c('cement.VA', 'chemicals.VA', 'steel.VA',  
+                                       'otherInd.VA')),
+        
+        c('scenario', 'region', 'iso3c', 'year', 'variable')
+      )
+  ) %>% 
+    duplicate(region = 'World') %>% 
+    sum_total_('iso3c') %>% 
+    filter(!('World' == .data$region & 'Total' != .data$iso3c)) %>% 
+    pivot_wider(names_from = 'variable')
+  
+  # construct output ----
+  x <- projections %>% 
+    filter(2000 <= .data$year,
+           'Total' != .data$iso3c, 
+           'World' != .data$region) %>% 
+    select('scenario', 'iso3c', 'year', ue_chemicals = 'chemicals.VA', 
+           ue_otherInd = 'otherInd.VA') %>% 
+    pivot_longer(c('ue_chemicals', 'ue_otherInd')) %>% 
+    assert(not_na, everything()) %>% 
+    # $/yr * 1e-12 $tn/$ = $tn/year
+    mutate(value = .data$value * 1e-12,
+           scenario = paste0('gdp_', .data$scenario))
+  
+  # return statement ----
+  return(list(x = x %>% 
+                as.magpie(spatial = 2, temporal = 3, data = 5),
+              weight = NULL,
+              unit = '$tn/year',
+              description = 'chemicals and other industry value added'))
   
 }
 
