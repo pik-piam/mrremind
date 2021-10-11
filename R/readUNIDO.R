@@ -28,11 +28,12 @@ readUNIDO <- function(subtype)
     {
       read_csv(file = './INDSTAT2/INDSTAT2_2017_ISIC_Rev_3.csv',
                col_names = c('ctable', 'country', 'year', 'isic', 'isiccomb', 
-                             'value', 'utable', 'lastupdated', 'unit'),
-               col_types = 'cciccdc-ic',
+                             'value', 'utable', 'source', 'lastupdated', 
+                             'unit'),
+               col_types = 'iiiccdiddc',
                na = '...') %>% 
         select('ctable', 'country', 'year', 'isic', 'isiccomb', 'utable', 
-               'lastupdated', 'unit', 'value') %>% 
+               'source', 'lastupdated', 'unit', 'value') %>% 
         filter(!is.na(.data$value)) %>% 
         madrat_mule() %>% 
         return()

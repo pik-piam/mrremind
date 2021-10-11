@@ -23,7 +23,8 @@
 #' @importFrom car logit
 #' @importFrom dplyr %>% case_when right_join semi_join
 #' @importFrom Hmisc wtd.quantile
-#' @importFrom quitte madrat_mule sum_total_
+#' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame 
+#'   madrat_mule sum_total_
 #' @importFrom stats SSlogis nls
 #' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom zoo rollmean
@@ -961,3 +962,405 @@ calcSteel_Projections <- function(match.historic.values = TRUE,
               unit = 'Mt steel/year',
               description = 'primary and secondary steel production'))
 }
+
+#' @rdname EDGE-Industry
+#' @export
+calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
+                                     match.steel.estimates = NULL) {
+  # load required data ----
+  ## region mapping for aggregation ----
+  region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
+                                   type = 'regional') %>% 
+    as_tibble() %>% 
+    select(region = 'RegionCode', iso3c = 'CountryCode')
+  
+  ## UNIDO INSTATA2 data ----
+  INDSTAT <- readSource('UNIDO', 'INDSTAT2', FALSE) %>% 
+    madrat_mule()
+  
+  ### add iso3c codes and regions ----
+  # FIXME We are substituting some historic country codes by 'default' codes of
+  # current countries. Generally, they are situated in the same aggregation 
+  # region, so this has no impact on the derivation of regional statistics.
+  # This does not apply to former Yugoslavia however. Since the countries in 
+  # question (currently Slovenia and Kroatia, others might join the EU at a 
+  # later time and then require reclassification) are small compared to the 
+  # respective regions (Europe and Rest-of-World), the impact should be limited.
+  INDSTAT <- INDSTAT %>% 
+    # fix some country codes
+    filter(810 != .data$country) %>%   # SUN data synthetic anyhow
+    mutate(
+      country = ifelse(200 == .data$country, 203, .data$country),  # CSE for CSK
+      country = ifelse(530 == .data$country, 531, .data$country),  # CUW for ANT
+      country = ifelse(890 == .data$country, 688, .data$country),  # SRB for YUG
+      country = ifelse(891 == .data$country, 688, .data$country)   # SRB for SCG
+    ) %>% 
+    # add iso3c country codes
+    left_join(
+      bind_rows(
+        countrycode::codelist %>% 
+          select('iso3c', 'un') %>% 
+          filter(!is.na(.data$iso3c), !is.na(.data$un)),
+        
+        # country codes missing from package countrycode
+        tribble(
+          ~iso3c,   ~un,
+          'TWN',    158,   # Taiwan
+          'ETH',    230,   # Ethiopia and Eritrea
+          'DEU',    278,   # East Germany
+          'DEU',    280,   # West Germany
+          'PAN',    590,   # Panama
+          'SDN',    736    # Sudan
+        )
+      ),
+      
+      c('country' = 'un')
+    ) %>% 
+    assert(not_na, everything()) %>% 
+    # add regions based on country codes
+    left_join(
+      bind_rows(
+        region_mapping, 
+        tibble(iso3c = 'SUN', region = 'SUN')
+      ),
+      'iso3c') %>% 
+    assert(not_na, everything())
+  
+  ### censor unreasonable data ----
+  INDSTAT_censor <- bind_rows(
+    bind_rows(
+      tibble(iso3c = 'IRQ', year = 1994:1998),
+      tibble(iso3c = 'MDV', year = INDSTAT$year %>% unique()),
+      tibble(iso3c = 'BIH', year = 1990:1991)
+    ) %>% 
+      mutate(censor = TRUE,
+             reason = 'unreasonable'),
+    
+    bind_rows(
+      tibble(iso3c = 'HKG', year = unique(INDSTAT$year)),
+      tibble(iso3c = 'MAC', year = unique(INDSTAT$year)),
+      tibble(iso3c = 'CHN', year = min(INDSTAT$year):1997)
+    ) %>% 
+      mutate(censor = TRUE,
+             reason = 'not representative')
+  )
+  
+  ## population data ----
+  population <- calcOutput('Population', FiveYearSteps = FALSE,
+                           aggregate = FALSE) %>% 
+    as.data.frame() %>% 
+    as_tibble() %>% 
+    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year, 
+           population = .data$Value) %>% 
+    character.data.frame() %>% 
+    mutate(scenario = sub('^pop_', '', .data$scenario),
+           year = as.integer(.data$year),
+           # million people * 1e6/million = people
+           population = .data$population * 1e6)
+  
+  ## GDP data ----
+  GDP <- calcOutput(type = 'GDPppp', FiveYearSteps = FALSE, 
+                    aggregate = FALSE) %>% 
+    as.data.frame() %>% 
+    as_tibble() %>% 
+    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year, 
+           GDP = .data$Value) %>% 
+    character.data.frame() %>% 
+    mutate(scenario = sub('^gdp_', '', .data$scenario),
+           year = as.integer(.data$year),
+           # $m * 1e6 $/$m = $
+           GDP = .data$GDP * 1e6)
+  
+  # calc manufacturing share in GDP ----
+  manufacturing_share <- INDSTAT %>% 
+    filter('D' == .data$isic,
+           between(.data$utable, 17, 20)) %>% 
+    group_by(!!!syms(c('iso3c', 'year'))) %>% 
+    filter(max(.data$lastupdated) == .data$lastupdated) %>% 
+    ungroup() %>% 
+    select('region', 'iso3c', 'year', manufacturing = 'value') %>% 
+    inner_join(
+      GDP %>% 
+        filter(max(INDSTAT$year) >= .data$year) %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+      
+      c('iso3c', 'year')
+    ) %>% 
+    inner_join(
+      population %>% 
+        filter(max(INDSTAT$year) >= .data$year) %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+      
+      c('iso3c', 'year')
+    ) %>% 
+    # mark unreasonable data for exclusion
+    full_join(
+      INDSTAT_censor %>% 
+        select(-.data$reason), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    mutate(censor = ifelse(is.na(.data$censor), FALSE, TRUE))
+  
+  # regress per-capita industry value added ----
+  regression_data <- manufacturing_share %>% 
+    filter(!.data$censor) %>% 
+    duplicate(region = 'World') %>% 
+    pivot_longer(c('population', 'GDP', 'manufacturing')) %>% 
+    group_by(.data$region, .data$year, .data$name) %>% 
+    summarise(value = sum(.data$value), .groups = 'drop') %>% 
+    pivot_wider() %>% 
+    mutate(
+      # mfg.share = .data$manufacturing / .data$GDP,  FIXME
+      GDPpC     = .data$GDP / .data$population)
+  
+  regression_parameters <- tibble()
+  for (r in sort(unique(regression_data$region))) {
+    regression_parameters <- bind_rows(
+      regression_parameters,
+      
+      nls(formula = manufacturing / population ~ a * exp(b / GDPpC),
+          data = regression_data %>%
+            filter(.data$region == r),
+          start = list(a = 1000, b = -2000),
+          trace = FALSE) %>% 
+        tidy() %>%
+        select('term', 'estimate') %>%
+        pivot_wider(names_from = 'term', values_from = 'estimate') %>% 
+        mutate(region = r)
+    )
+  }
+  
+  # FIXME add scenario differentiation of regression parameters ----
+  
+  # project total manufacturing share ----
+  ## calculate GDPpC projection scenarios ----
+  GDPpC <- full_join(population, GDP, c('scenario', 'iso3c', 'year')) %>% 
+    mutate(GDPpC = .data$GDP / .data$population) %>% 
+    full_join(region_mapping, 'iso3c')
+  
+  ## converge regional towards global limit ----
+  parameter_a_world <- regression_parameters %>% 
+    filter('World' == .data$region) %>% 
+    getElement('a')
+  
+  regression_parameters_converging <- regression_parameters %>% 
+    filter('World' != .data$region) %>% 
+    mutate(year = min(regression_data$year)) %>% 
+    complete(nesting(!!!syms(c('region', 'a', 'b'))), 
+             year = min(regression_data$year):2100) %>% 
+    mutate(a = .data$a + ( (parameter_a_world - .data$a) 
+                         / (2200 - 2000) * (.data$year - 2000)
+                         )
+                       * (.data$year >= 2000))
+  
+  # calc projection ----
+  projected_data <- inner_join(
+    regression_parameters_converging, 
+    GDPpC,
+    c('region', 'year')
+  ) %>% 
+    mutate(manufacturing = .data$a * exp(.data$b / .data$GDPpC) 
+                         * .data$population) %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+           'manufacturing')
+  
+  projected_data_regions <- projected_data %>%
+    pivot_longer(c('GDP', 'population', 'manufacturing')) %>%
+    group_by(!!!syms(c('scenario', 'region', 'year', 'name'))) %>%
+    summarise(value = sum(.data$value), .groups = 'drop') %>%
+    sum_total_('region', name = 'World') %>%
+    pivot_wider() %>%
+    mutate(mfg.share = .data$manufacturing / .data$GDP,
+           GDPpC     = .data$GDP / .data$population)
+  
+  # calc VA of steel production ----
+  data_steel_production <- readSource('worldsteel', 'long', FALSE) %>% 
+    madrat_mule()
+  
+  regression_data_steel <- inner_join(
+    INDSTAT %>% 
+      filter(20 == .data$ctable, 
+             '27' == .data$isic, 
+             between(.data$utable, 17, 20),
+             0 < .data$value) %>% 
+      group_by(.data$iso3c, .data$year) %>% 
+      filter(max(.data$lastupdated) == .data$lastupdated) %>% 
+      ungroup() %>% 
+      select('region', 'iso3c', 'year', steel.VA = 'value'),
+    
+    data_steel_production %>%
+      filter(0 != .data$value) %>% 
+      rename(steel.production = 'value'),
+    
+    c('iso3c', 'year')
+  )
+  
+  # Data with an obvious mismatch between steel production and steel value added
+  # figures is excluded from the regression.
+  # Data for Hong Kong (1973-1979) is excluded, since no data for China is 
+  # available for this period and the data would bias the regression for the CHN
+  # region.
+  steel_censor <- list_to_data_frame(
+    list(BGD = 2011,
+         CHE = 1995:1996,
+         CHL = 2008,
+         HKG = 1973:1979,
+         HRV = 2012,
+         IRL = 1980,
+         LKA = 2006, 
+         MAR = 1989:2004,
+         MKD = 1996,
+         PAK = 1981:1982,
+         TUN = 2003:2006),
+    'iso3c', 'year') %>% 
+    mutate(censored = TRUE)
+  
+  regression_data_steel <- regression_data_steel %>% 
+    left_join(steel_censor, c('iso3c', 'year')) %>% 
+    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
+  
+  ## compute regional and World aggregates ----
+  regression_data_steel <- regression_data_steel %>% 
+    inner_join(
+      population %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(population = calc_mode(.data$population), .groups = 'drop'), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    inner_join(
+      GDP %>% 
+        group_by(.data$iso3c, .data$year) %>% 
+        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'), 
+      
+      c('iso3c', 'year')
+    ) %>% 
+    pivot_longer(c('population', 'steel.production', 'GDP', 'steel.VA'),
+                 names_to = 'variable', 
+                 names_transform = list(variable = factor)) %>% 
+    duplicate(region = 'World')
+  
+  regression_data_steel <- bind_rows(
+    regression_data_steel,
+    
+    regression_data_steel %>% 
+      filter(!.data$censored) %>% 
+      group_by(.data$region, .data$year, .data$censored, .data$variable) %>% 
+      summarise(value = sum(.data$value, na.rm = TRUE),
+                iso3c = 'Total',
+                .groups = 'drop')
+  ) %>% 
+    group_by(!!!syms(c('region', 'iso3c', 'year', 'censored', 'variable'))) %>% 
+    pivot_wider(names_from = 'variable')
+  
+  ## compute regression parameters ----
+  regression_parameters_steel <- tibble()
+  for (r in sort(unique(regression_data_steel$region))) {
+    regression_parameters_steel <- bind_rows(
+      regression_parameters_steel,
+      
+      nls(formula = steel.VApt ~ a * exp(b / GDPpC),
+          data = regression_data_steel %>%
+            filter(r == .data$region,
+                   'Total' == .data$iso3c,
+                   !.data$censored) %>% 
+            mutate(steel.VApt = .data$steel.VA / .data$steel.production,
+                   GDPpC      = .data$GDP / .data$population),
+          start = list(a = 500, b = 500),
+          trace = FALSE) %>% 
+        tidy() %>%
+        select('term', 'estimate') %>%
+        pivot_wider(names_from = 'term', values_from = 'estimate') %>% 
+        mutate(region = r)
+    )
+  }
+  
+  ### substitute World for AFR parameters ----
+  if ('AFR' %in% region_mapping$region) {
+    replacement_region <- 'AFR'
+  } else if ('SSA' %in% region_mapping$region) {
+    replacement_region <- 'SSA'
+  } else {
+    replacement_region <- NA
+  }
+  
+  if (!is.na(replacement_region)) {
+    regression_parameters_steel <- bind_rows(
+      regression_parameters_steel %>% 
+        filter(replacement_region != .data$region),
+      
+      regression_parameters_steel %>% 
+        filter('World' == .data$region) %>% 
+        mutate(region = replacement_region)
+    )
+    rm(replacement_region)
+  }
+  
+  ## project steel VA per tonne of steel ----
+  parameter_a_world_steel <- regression_parameters_steel %>% 
+    filter('World' == .data$region) %>% 
+    pull('a')
+  
+  regression_parameters_steel_converging <- regression_parameters_steel %>% 
+    filter('World' != .data$region) %>% 
+    mutate(year = as.integer(2000)) %>% 
+    complete(nesting(!!!syms(c('region', 'a', 'b'))), year = 2000:2100) %>% 
+    mutate(a = .data$a 
+             + ( (parameter_a_world_steel - .data$a) 
+               / (2200 - 2000) 
+               * (.data$year - 2000)
+               ))
+  
+  projected_steel_data <- inner_join(
+    inner_join(
+      regression_parameters_steel_converging,
+      
+      GDPpC,
+      
+      c('region', 'year')
+    ) %>% 
+      mutate(steel.VApt = .data$a * exp(.data$b / .data$GDPpC)) %>% 
+      select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+             'GDPpC', 'steel.VApt'),
+    
+    calcOutput(type = 'Steel_Projections', 
+               match.historic.values = match.steel.historic.values, 
+               match.estimates = match.steel.estimates, 
+               aggregate = FALSE, supplementary = FALSE) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(scenario = 'Data1', iso3c = 'Region', variable = 'Data2', 
+             year = 'Year', value = 'Value') %>% 
+      character.data.frame() %>% 
+      mutate(year = as.integer(.data$year),
+             # Mt/year * 1e6 t/Mt = t/year
+             value = .data$value * 1e6,
+             variable = sub('^ue_steel_(primary|secondary)$',
+                            '\\1.production', .data$variable)) %>% 
+      filter(between(.data$year, 2000, 2100)) %>% 
+      full_join(region_mapping, 'iso3c') %>% 
+      assert(not_na, everything()) %>% 
+      group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year'))) %>% 
+      summarise(steel.production = sum(.data$value), .groups = 'drop'),
+    
+    c('scenario', 'region', 'iso3c', 'year')
+  ) %>% 
+    mutate(steel.VA = .data$steel.VApt * .data$steel.production) %>% 
+    select(-'steel.VApt', -'GDPpC') %>% 
+    pivot_longer(c('population', 'GDP', 'steel.production', 'steel.VA')) %>% 
+    duplicate_(c(region = 'World')) %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider() %>% 
+    mutate(GDPpC      = .data$GDP / .data$population, 
+           steel.VApt = .data$steel.VA / .data$steel.production) %>% 
+    select('scenario', 'region', 'iso3c', 'year', 'population', 'GDP', 
+           'steel.production', 'steel.VA', 'GDPpC', 'steel.VApt')
+  
+  # project cement production ----
+  
+}
+
+
