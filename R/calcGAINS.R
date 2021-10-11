@@ -15,6 +15,7 @@
 #' @importFrom quitte as.quitte
 
 
+
 calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended") {
   
   if (!(subtype %in% c("emission_factors", "emissions"))) stop('subtype must be in c("emission_factors", "emissions")')
@@ -88,12 +89,19 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
   emissions <- emissions[,c(2005,2010,2020,2030,2050),]
 
   # read in sectoral mapping (ECLIPSE (IMAGE) <> REMIND) 
-  # DK map_sectors_ECLIPSE2Agg    <- read.csv(toolMappingFile("sectoral", "mappingECLIPSEtoAggREMINDsectors.csv"), stringsAsFactors=TRUE)
-  # DK map_sectors_Agg2REMIND     <- read.csv(toolMappingFile("sectoral", "mappingAggREMINDtoREMINDsectors.csv"), stringsAsFactors=TRUE)
+  # DK map_sectors_ECLIPSE2Agg    <- read.csv(toolGetMapping(type = "sectoral",
+  #                                                          name = "mappingECLIPSEtoAggREMINDsectors.csv",
+  #                                                          returnPathOnly = TRUE),
+  #                                           stringsAsFactors=TRUE)
+  # DK map_sectors_Agg2REMIND     <- read.csv(toolGetMapping(type = "sectoral",
+  #                                                          name = "mappingAggREMINDtoREMINDsectors.csv"
+  #                                                          returnPathOnly = TRUE),
+  #                                           stringsAsFactors=TRUE)
   #map_sectors <- map_sectors[which(!is.na(map_sectors$EDGE)),] # Remove transport sector (which is not represented in EDGE)
   
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
-  map_regions  <- read.csv2(toolMappingFile("regional", p_dagg_map), stringsAsFactors=TRUE)[,c(2,3)] 
+  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = p_dagg_map, returnPathOnly = TRUE),
+                            stringsAsFactors=TRUE)[,c(2,3)]
   map_regions  <- map_regions %>%  
     filter_(~CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
     filter_(~RegionCode != "") %>% 
@@ -112,9 +120,6 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
   # set of sectors for which emission factors are computed 
   dimSector_EF <- getNames(activities)[!getNames(activities) %in% c(dimSector_skipEF, dimSector_skipEF_edge)]
   
-  #Scenarios
-  scens <- c('MFR','CLE','SLE')
-  
   # calculate gdp per capita
   gdp_cap <- gdp/pop
   gdp_cap[is.na(gdp_cap)]   <- 0       # set NA to 0
@@ -131,7 +136,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
   # convert SO2 emission from TgSO2 to TgS 
   #emissions[,,"SO2"] <- emissions[,,"SO2"]*conv_ktSO2_to_ktS
   
-  # define missing SLE scenario (assumed to be 50% of the distance between CLE and MFR, according to discussion with Zig Klimont on 18th Feb 2016)
+  # define missing SLE scenario (assumed to be 3/4 of the distance between CLE and MFR, according to discussion with Zig Klimont on 18th Feb 2016)
   cle = emissions[,,"CLE"]
   getNames(cle) = gsub("CLE", "MFR", getNames(cle))
   sle = cle - (cle - emissions[,,"MFR"])*0.75
@@ -140,7 +145,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
   rm(cle,sle)
   
   # calculate emission factors (only for power and end-use sectors, and not empty activities) and convert from kt/PJ to Tg/Twa
-  ef_eclipse  <- emissions[,,scens] / activities[,,scens] * conv_kt_per_PJ_to_Tg_per_TWa
+  ef_eclipse  <- emissions[,,dimSector_EF] / activities[,,dimSector_EF] * conv_kt_per_PJ_to_Tg_per_TWa
   
   getSets(ef_eclipse) <- c("region", "year", "data1", "data2", "data3")
 
@@ -249,7 +254,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
     regionMean_gdppcap <- sapply(unique(map_regions$RegionCode), function(x) {mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x],,])})
     
     # low income countries (using World Bank definition < 2750 US$(2010)/Cap)
-    r_L        <- map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])]
+    r_L        <- levels(map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])])
     # high and medium income countries
     r_HM       <- setdiff(getRegions(ef), r_L)
     # High-Medium income countries with strong pollution policies in place 
@@ -278,8 +283,8 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
                                 setYears(allocate_c2r_ef(ef_eclipse, r_L, select_weu, 2030, "CLE")))             # 2050: CLE30 WEU, if not higher than 2030 value
   ef[r_L,2100,"SSP1"]   <- pmin(setYears(ef[r_L, 2050, "SSP1"]), setYears(ef_eclipse[r_L, 2030, "MFR"]))         # 2100: SLE30, if not higher than 2050 value
   # high income countries 
-  ef[r_HM,2030,"SSP1"]  <- 1.1 * ef_eclipse[r_HM, 2030, "MFR"]                                                  # 2030: 75% of CLE30
-  ef[r_HM,2050,"SSP1"]  <- pmin(setYears(ef[r_HM,  2030, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "MFR"]*1.1))      # 2050: SLE30, if not higher than 2030 value 
+  ef[r_HM,2030,"SSP1"]  <- 0.75 * ef_eclipse[r_HM, 2030, "CLE"]                                                  # 2030: 75% of CLE30
+  ef[r_HM,2050,"SSP1"]  <- pmin(setYears(ef[r_HM,  2030, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "SLE"]))      # 2050: SLE30, if not higher than 2030 value 
   ef[r_HM,2100,"SSP1"]  <- pmin(setYears(ef[r_HM,  2050, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "MFR"]))      # 2100: MFR, if not higher than 2050 value
   
   # Emissions
@@ -289,7 +294,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
                                                                           + 0.5*emissions_exogenous[r_L, 2030, "SLE"]))     # 2050: CLE30 WEU, if not higher than 2030 value
   emi[r_L,2100,"SSP1"]   <- pmin(setYears(emi[r_L, 2050, "SSP1"]), setYears(emissions_exogenous[r_L, 2030, "MFR"]))         # 2100: SLE30, if not higher than 2050 value
   # high income countries 
-  emi[r_HM,2030,"SSP1"]  <- 1.1 * emissions_exogenous[r_HM, 2030, "CLE"]                                                   # 2030: 75% of CLE30
+  emi[r_HM,2030,"SSP1"]  <- 0.75 * emissions_exogenous[r_HM, 2030, "CLE"]                                                   # 2030: 75% of CLE30
   emi[r_HM,2050,"SSP1"]  <- pmin(setYears(emi[r_HM,  2030, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "SLE"]))      # 2050: SLE30, if not higher than 2030 value 
   emi[r_HM,2100,"SSP1"]  <- pmin(setYears(emi[r_HM,  2050, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "MFR"]))      # 2100: MFR, if not higher than 2050 value
   
@@ -335,45 +340,27 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
                                      setYears(emissions_exogenous[r_L, 2030, "SLE"]*0.95))                                # 2100: CLE30 WEU -> 0.95*SLE30
   # DK: deleted outcommented code
   
+  # -----------------SSP1<SSP2-----------------------------------
+  
+  ef[,2030,"SSP1"]   <- pmin(setYears(ef[,2030,"SSP2"]),setYears(ef[,2030,"SSP1"]))   
+  ef[,2050,"SSP1"]   <- pmin(setYears(ef[,2050,"SSP2"]),setYears(ef[,2050,"SSP1"]))  # make sure SSP1 is not higher than SSP2
+
+  # ----------------- SSP5 --------------------------------------
+  # set SSP5 to the values of SSP1
+  ef[,,"SSP5"]  <- ef[,,"SSP1"]     
+  emi[,,"SSP5"] <- emi[,,"SSP1"] # does not really make sense...
+
+  # DK: deleted outcommented code:  
+
   # ----------------- CLE and MFR -------------------------------
   ef[,c(2005,2010,2030,2050),c("CLE","MFR")] <- ef_eclipse[,c(2005,2010,2030,2050),c("CLE","MFR")]
   ef[,2100,c("CLE","MFR")] <- setYears(ef_eclipse[,2050,c("CLE","MFR")])                           # for 2100, take the same values as in 2050
   
   emi[,c(2005,2010,2030,2050),c("CLE","MFR")] <- emissions_exogenous[,c(2005,2010,2030,2050),c("CLE","MFR")]
   emi[,2100,c("CLE","MFR")] <- setYears(emissions_exogenous[,2050,c("CLE","MFR")])                           # for 2100, take the same values as in 2050
-  
-  
-  # -----------------SSP1<SSP2-----------------------------------
 
-  ef[,2030,"SSP1"]    <- pmax(setYears(ef[,2030,"MFR"]),setYears(ef[,2030,"SSP1"]),na.rm=T)   
-  ef[,2050,"SSP1"]    <- pmax(setYears(ef[,2050,"MFR"]),setYears(ef[,2050,"SSP1"]),na.rm=T)  
-  ef[,2100,"SSP1"]    <- pmax(setYears(ef[,2100,"MFR"]),setYears(ef[,2100,"SSP1"]),na.rm=T)   
-  
-  ef[,2050,"SSP1"]    <- pmax(setYears(ef[,2100,"MFR"]),setYears(ef[,2050,"SSP1"]),na.rm=T) 
-    
-  ef[,2030,"SSP2"]    <- pmax(setYears(ef[,2030,"MFR"])*1.2,setYears(ef[,2030,"SSP2"]),na.rm=T)   
-  ef[,2050,"SSP2"]    <- pmax(setYears(ef[,2050,"MFR"])*1.2,setYears(ef[,2050,"SSP2"]),na.rm=T)  
-  ef[,2100,"SSP2"]    <- pmax(setYears(ef[,2100,"MFR"])*1.2,setYears(ef[,2100,"SSP2"]),na.rm=T)
-  
-  # < FLE
-  ef[,,"SSP2"]    <- pmin(ef[,,"FLE"]*0.95,ef[,,"SSP2"],na.rm=T) 
-  ef[,,"SSP1"]    <- pmin(ef[,,"FLE"]*0.95,ef[,,"SSP1"],na.rm=T)
- 
-  
-  
-  # ----------------- SSP5 --------------------------------------
-  # set SSP5 to the values of SSP2
-  ef[,,"SSP5"]  <- ef[,,"SSP2"]     
-  emi[,,"SSP5"] <- emi[,,"SSP2"] # does not really make sense...
-
-  # DK: deleted outcommented code:  
-
-   
-  ef[,2005,]  <- setYears(ef[,2010,])
-  emi[,2005,] <- setYears(emi[,2010,]) 
   # DK: deleted outcommented code:  
   # DK select the scenario before returning
-
 
   if (subtype == "emissions") {
     result <- time_interpolate(emi, interpolated_year=time, integrate_interpolated_years=TRUE, extrapolation_type="constant")

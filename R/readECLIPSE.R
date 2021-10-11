@@ -15,22 +15,13 @@ readECLIPSE <- function(subtype) {
   rm_unwanted = c("Sum","Total","Unattributed")
   
   if (subtype == "activities.aggregated") {
-    ap_mfr <- read_excel("ACTIVITIES_MFR_EMF30_aggregated_2021.xlsx", sheet="Air pollutants")
-    ap_mfr$'Scenario' <- 'MFR'
-    
-    ap_cle <- read_excel("ACTIVITIES_CLE_EMF30_aggregated_2021.xlsx", sheet="Air pollutants")
-    ap_cle$'Scenario' <- 'CLE'
-    
-    ap_sle <- ap_mfr
-    ap_sle$'Scenario' <- 'SLE'
-    
-    ap  <- rbind(ap_mfr,ap_cle, ap_sle)
+    ap  <- read_excel("ACTIVITIES_EMF30_aggregated_Ev5a_Nov2015.xlsx", sheet="Air pollutants")
     ap  <- ap[!is.na(ap[[1]]),]
     
     ap <- ap %>% 
-      gather_("year", "value",  setdiff(colnames(ap),c("Region","Scenario","Sector","Unit"))) %>% 
+      gather_("year", "value",  setdiff(colnames(ap),c("Region","Sector","Unit"))) %>% 
       mutate_(year=~as.numeric(paste(year))) %>% 
-      rename_(region=~Region,scenario=~Scenario, sector=~Sector, unit=~Unit) %>% 
+      rename_(region=~Region, sector=~Sector, unit=~Unit) %>% 
       mutate_(region = ~gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", region))) %>% 
       filter_(~!sector %in% c(rm_sectors, rm_unwanted), ~region!="Global") %>% 
       select_(~-unit) %>% 
@@ -41,43 +32,32 @@ readECLIPSE <- function(subtype) {
       filter_(~!(region == "Japan"  & sector == "End_Use_Residential_Coal")) %>%  # No activity data available
       filter_(~!(region == "Turkey" & sector == "End_Use_Transport_Coal"))        # No activity data available
     
-    x <- as.magpie(ap, spatial=1, temporal=4)
+    x <- as.magpie(ap, spatial=1, temporal=3)
   }
   
   if (subtype == "activities.extended") {
-    ap_mfr <- read_excel("ACTIVITIES_MFR_EMF30_extended_2021.xlsx", sheet="Air pollutants")
-    ap_mfr$'Scenario' <- 'MFR'
-    
-    ap_cle <- read_excel("ACTIVITIES_CLE_EMF30_extended_2021.xlsx", sheet="Air pollutants")
-    ap_cle$'Scenario' <- 'CLE'
-    
-    
-    ap_sle <- ap_mfr
-    ap_sle$'Scenario' <- 'SLE'
-    
-    ap  <- rbind(ap_mfr,ap_cle, ap_sle)
-
+    ap  <- read_excel("ACTIVITIES_EMF30_extended_Ev5a_Nov2015.xlsx", sheet="Air pollutants")
     ap  <- ap[!is.na(ap[[1]]),]
     
     ap <- ap %>% 
-      gather_("year", "value",  setdiff(colnames(ap),c("Region","Scenario","Sector","Unit"))) %>% 
+      gather_("year", "value",  setdiff(colnames(ap),c("Region","Sector","Unit"))) %>% 
       mutate_(year=~as.numeric(paste(year))) %>% 
-      rename_(region=~Region,scenario=~Scenario, sector=~Sector, unit=~Unit) %>% 
+      rename_(region=~Region, sector=~Sector, unit=~Unit) %>% 
       mutate_(region = ~gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", region))) %>% 
       filter_(~!sector %in% c(rm_sectors, rm_unwanted), ~region!="Global") %>% 
       select_(~-unit) %>% 
       as.data.frame()
     
-    x <- as.magpie(ap, spatial=1, temporal=4)
+    x <- as.magpie(ap, spatial=1, temporal=3)
   }
   
   if (subtype == "emissions.aggregated") {
-    species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO","PM25")
+    species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO")
     
     cle <- do.call("bind_rows", 
                    lapply(species, 
                           function(s) {
-                            out <- read_excel("EMISSIONS_CLE_EMF30_aggregated_2021.xlsx", sheet=s)
+                            out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_CLE_Nov2015.xlsx", sheet=s)
                             out  <- out[!is.na(out[[1]]),]
                             out <- out %>% 
                               gather_("year", "value",  setdiff(colnames(out),c("Region","Sector"))) %>% 
@@ -94,7 +74,7 @@ readECLIPSE <- function(subtype) {
     mfr <- do.call("bind_rows", 
                    lapply(species, 
                           function(s) {
-                            out <- read_excel("EMISSIONS_MFR_EMF30_aggregated_2021.xlsx", sheet=s)
+                            out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_MFR_Nov2015.xlsx", sheet=s)
                             out  <- out[!is.na(out[[1]]),]
                             out <- out %>% 
                               gather_("year", "value",  setdiff(colnames(out),c("Region","Sector"))) %>% 
@@ -121,12 +101,12 @@ readECLIPSE <- function(subtype) {
   }
 
   if (subtype == "emissions.extended") {
-    species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO", "PM25")
+    species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO")
     
     cle <- do.call("bind_rows", 
                    lapply(species, 
                           function(s) {
-                            out <- read_excel("EMISSIONS_CLE_EMF30_extended_2021.xlsx", sheet=s)
+                            out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_CLE_Nov2015.xlsx", sheet=s)
                             out  <- out[!is.na(out[[1]]),]
                             out <- out %>% 
                               gather_("year", "value",  setdiff(colnames(out),c("Region","Sector"))) %>% 
@@ -141,7 +121,7 @@ readECLIPSE <- function(subtype) {
     mfr <- do.call("bind_rows", 
                    lapply(species, 
                           function(s) {
-                            out <- read_excel("EMISSIONS_MFR_EMF30_extended_2021.xlsx", sheet=s)
+                            out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_MFR_Nov2015.xlsx", sheet=s)
                             out  <- out[!is.na(out[[1]]),]
                             out <- out %>% 
                               gather_("year", "value",  setdiff(colnames(out),c("Region","Sector"))) %>% 
