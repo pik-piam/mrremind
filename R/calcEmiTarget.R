@@ -1,28 +1,47 @@
 #' Output for 2 policy cases
 #' @author Aman Malik, Christoph Bertram
 #' @param subtype "share_uncond", "share_cond", "multiplier_uncond",  "multiplier_cond", "ghg_uncond" or "ghg_cond"
+#' @param realization "NDC2018" or "NDC2021"
 #' @importFrom magclass getNames
 #' @importFrom madrat setConfig getConfig
 
-calcEmiTarget <- function(subtype) {
+calcEmiTarget <- function(subtype, realization) {
   
   enable_cache <- getConfig("enablecache")
   setConfig(enablecache=F)
   ### Import NDC information
+  if (realization == "NDC2018"){
     if(length(grep("uncond",subtype))==0){##default: conditional (so "uncond" does not appear in subtype string)
-       reduction <- readSource("Rogelj2017","Emissions_Red_con",convert = FALSE)
+      reduction <- readSource("Rogelj2017", subtype="Emissions_Red_con_2018", convert = FALSE)
     } else {### only if "uncond" does appear, take the unconditional target values
-      reduction <- readSource("Rogelj2017","Emissions_Red_unc",convert = FALSE)
+      reduction <- readSource("Rogelj2017", subtype="Emissions_Red_unc_2018", convert = FALSE)
     }
-  
-    RefYear <- readSource("Rogelj2017","Emissions_Ref",convert = FALSE)
     
-    BauRefEmi <- readSource("Rogelj2017","Emissions_Emi",convert = FALSE)
+    RefYear <- readSource("Rogelj2017", subtype="Emissions_Ref_2018", convert = FALSE)
     
-    Type <- readSource("Rogelj2017","Emissions_Typ",convert = FALSE)
+    BauRefEmi <- readSource("Rogelj2017", subtype="Emissions_Emi_2018", convert = FALSE)
     
-    TarYear <- readSource("Rogelj2017","Emissions_Tar",convert = FALSE)
+    Type <- readSource("Rogelj2017", subtype="Emissions_Typ_2018", convert = FALSE)
     
+    TarYear <- readSource("Rogelj2017", subtype="Emissions_Tar_2018", convert = FALSE)
+  }
+  else if (realization == "NDC2021"){
+    if(length(grep("uncond",subtype))==0){##default: conditional (so "uncond" does not appear in subtype string)
+      reduction <- readSource("Rogelj2017", subtype="Emissions_Red_con_2021", convert = FALSE)
+    } else {### only if "uncond" does appear, take the unconditional target values
+      reduction <- readSource("Rogelj2017", subtype="Emissions_Red_unc_2021", convert = FALSE)
+    }
+    
+    RefYear <- readSource("Rogelj2017", subtype="Emissions_Ref_2021", convert = FALSE)
+    
+    BauRefEmi <- readSource("Rogelj2017", subtype="Emissions_Emi_2021", convert = FALSE)
+    
+    Type <- readSource("Rogelj2017", subtype="Emissions_Typ_2021", convert = FALSE)
+    
+    TarYear <- readSource("Rogelj2017", subtype="Emissions_Tar_2021", convert = FALSE)
+  } 
+  else {cat("\nRealization not found. Choose NDC2018 or NDC2021.")
+  }
     
     setConfig(enablecache=enable_cache)
     
@@ -249,8 +268,13 @@ calcEmiTarget <- function(subtype) {
       # factor  <-
     
       # special case EU countries: until official 2030 burden sharing is decided, apply EU target proportionally across countries (problematic for REMIND-EU runs...)
-      factor[eu28_countries,2030,] <- (1-0.4)*setYears(ghg[eu28_countries,1990,],NULL)/setYears(ghg[eu28_countries,2005,],NULL)
-    
+      if (realization == "NDC2018") {
+        factor[eu28_countries,2030,] <- (1-0.4)*setYears(ghg[eu28_countries,1990,],NULL)/setYears(ghg[eu28_countries,2005,],NULL)
+      } else if (realization == "NDC2021") {
+        factor[eu28_countries,2030,] <- (1-0.55)*setYears(ghg[eu28_countries,1990,],NULL)/setYears(ghg[eu28_countries,2005,],NULL)
+      }
+        else {cat("\nRealization not found. Choose NDC2018 or NDC2021.")
+      }
 
     #default setting: exclude countries with factor higher than the highest region average BAU growth rate (excp. China and India)
     targetCountries <- NULL
