@@ -17,10 +17,10 @@ calcUNFCCC <- function() {
 
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables") %>%
     mutate(!!sym('conversion') := as.numeric(!!sym('Factor')) * !!sym('Weight')) %>%
-    select('variable' = 'UNFCCC_complete', 'REMIND_variable', 'conversion', 'unit' = 'Unit_UNFCCC', 'Unit_REMIND')
+    select('variable' = 'UNFCCC', 'REMIND', 'conversion', 'unit' = 'Unit_UNFCCC', 'Unit_REMIND')
   
   mapping$variable <- gsub(pattern = "\\.", replacement = "_", mapping$variable) %>% trimws()
-  mapping$REMIND_variable <- trimws(mapping$REMIND_variable)
+  mapping$REMIND <- trimws(mapping$REMIND)
   
   x <- left_join(
     data %>% 
@@ -32,16 +32,17 @@ calcUNFCCC <- function() {
     mapping,
     by = 'variable'
   ) %>% 
+    filter(!!sym("REMIND") != "") %>%
     mutate(!!sym('value') := ifelse(
       is.na(!!sym('value')), 0,  !!sym('value') * !!sym('conversion')),
-      !!sym('REMIND_variable') := paste0(!!sym('REMIND_variable'),  " (", !!sym('Unit_REMIND'), ")")) %>%
-    select('variable' = 'REMIND_variable', 'region', 'year', 'value')
+      !!sym('REMIND') := paste0(!!sym('REMIND'),  " (", !!sym('Unit_REMIND'), ")")) %>%
+    select('variable' = 'REMIND', 'region', 'year', 'value')
   
   x <- aggregate(value ~ variable+region+year, x, sum) %>% 
     as.magpie() %>% 
     toolCountryFill(fill = 0)
   
   return(list(x = x, weight = NULL, 
-              unit = "EJ/yr",
+              unit = c("kt CO2", "kt CH4", "kt N2O"),
               description = "Historical UNFCCC values as REMIND variables"))
 }
