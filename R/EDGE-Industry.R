@@ -56,8 +56,9 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
-  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>% 
-    select(
+  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+      select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
       `scenario.mask.OECD` = 
@@ -642,7 +643,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
     ) %>% 
     assert(not_na, everything()) %>% 
     # t/year * 1e-6 Mt/t = Mt/year
-    mutate(value = .data$value * 1e-6) %>% 
+    mutate(value = .data$value * 1e-6,
+           scenario = paste0('gdp_', .data$scenario)) %>% 
     select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
     as.magpie(spatial = 2, temporal = 4, data = 5)
   
@@ -796,7 +798,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       ) %>%
       assert(not_na, everything()) %>% 
       # t/year * 1e-6 Mt/t = Mt/year
-      mutate(value = .data$value * 1e-6) %>% 
+      mutate(value = .data$value * 1e-6,
+             scenario = paste0('gdp_', .data$scenario)) %>% 
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
       as.magpie(spatial = 2, temporal = 4, data = 5)
   }
@@ -949,7 +952,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       ) %>%
       assert(not_na, everything()) %>% 
       # t/year * 1e-6 Mt/t = Mt/year
-      mutate(value = .data$value * 1e-6) %>% 
+      mutate(value = .data$value * 1e-6,
+             scenario = paste0('gdp_', .data$scenario)) %>% 
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
       as.magpie(spatial = 2, temporal = 4, data = 5)
   } else {
@@ -1810,15 +1814,17 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            'World' != .data$region) %>% 
     select('scenario', 'iso3c', 'year', ue_chemicals = 'chemicals.VA', 
            ue_otherInd = 'otherInd.VA') %>% 
-    pivot_longer(c('ue_chemicals', 'ue_otherInd')) %>% 
+    pivot_longer(c('ue_chemicals', 'ue_otherInd'), names_to = 'pf') %>% 
     assert(not_na, everything()) %>% 
     # $/yr * 1e-12 $tn/$ = $tn/year
     mutate(value = .data$value * 1e-12,
-           scenario = paste0('gdp_', .data$scenario))
+           scenario = paste0('gdp_', .data$scenario)) %>% 
+    interpolate_missing_periods_(periods = list(year = 1993:2150),
+                                 expand.values = TRUE)
   
   # return statement ----
   return(list(x = x %>% 
-                as.magpie(spatial = 2, temporal = 3, data = 5),
+                as.magpie(spatial = 2, temporal = 4, data = 5),
               weight = NULL,
               unit = '$tn/year',
               description = 'chemicals and other industry value added'))

@@ -698,40 +698,20 @@ calcFEdemand <- function(subtype = "FE") {
     #reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
 
     
-    # ---- Industry subsectors data stubs ----
-    ## Cement/Chemicals/other Industries activity ----
-    industry_subsectors_ue <- readSource('EDGE_Industry', 
-                    'cement_chemicals_otherInd_production_scenarios') %>% 
-      as.data.frame() %>% 
-      as_tibble() %>% 
-      mutate(
-        year = paste0('y', .data$Year),
-        scenario = paste0('gdp_', .data$Data1), 
-        item = paste0('ue_', sub('_(production|VA)$', '', .data$Data2))) %>% 
-      select('Region', 'year', 'scenario', 'item', 'Value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
-    
-    ## Steel activity ----
-    industry_steel <- readSource('EDGE_Industry',
-                                 'steel_production_scenarios') %>%
-      as.data.frame() %>% 
-      as_tibble() %>% 
-      mutate(Year = as.integer(as.character(.data$Year))) %>% 
-      interpolate_missing_periods(
-        Year = as.integer(sub('^y', '', getYears(reminditems))),
-        value = 'Value',
-                                  expand.values = TRUE) %>% 
-      mutate(year = paste0('y', .data$Year),
-             scenario = paste0('gdp_', .data$Data1),
-             item = paste0('ue_steel_', sub('_production', '', .data$Data2)),
-             # t * 1e-9 Gt/t = t
-             value = .data$Value * 1e-9) %>% 
-      select('Region', 'year', 'scenario', 'item', 'value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
-    
-    ## extend to SSP2_lowEn ----
+    # ---- Industry subsectors data and FE stubs ----
+    ## subsector activity projections ----
+    industry_subsectors_ue <- mbind(
+      calcOutput(type = 'Industry_Value_Added',
+                 match.steel.historic.value = TRUE,
+                 match.steel.estimates = 'IEA_ETP', aggregate = FALSE,
+                 years = getYears(reminditems), supplementary = FALSE),
+
+      calcOutput(type = 'Steel_Projections', match.steel.historic.value = TRUE,
+                 match.steel.estimates = 'IEA_ETP', aggregate = FALSE,
+                 years = getYears(reminditems), supplementary = FALSE)
+      )
+
+    ### extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
     # tech assumptions as in SDP".
     # But population is lower in SDP than in SSP2, per-capita energy demands are
@@ -808,7 +788,7 @@ calcFEdemand <- function(subtype = "FE") {
       summarise(value = sum(.data$value), .groups = 'drop') %>% 
       # split feel steel into primary and secondary production
       left_join(
-        industry_steel %>% 
+        industry_subsectors_ue[,,'ue_steel', pmatch = TRUE] %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(iso3c = 'Region', scenario = 'Data1', year = 'Year', 
@@ -1230,7 +1210,7 @@ calcFEdemand <- function(subtype = "FE") {
       as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
     
-    reminditems <- mbind(reminditems, industry_subsectors_en, industry_steel, 
+    reminditems <- mbind(reminditems, industry_subsectors_en, 
                          industry_subsectors_ue)
     
     unit_out <- paste0(unit_out,
