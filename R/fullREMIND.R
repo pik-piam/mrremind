@@ -151,9 +151,19 @@ fullREMIND <- function(rev=0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
-  calcOutput("EmiTarget", subtype="share_cond" ,          round=4,  file="p45_2005share_target.cs4r")
-  calcOutput("EmiTarget", subtype="multiplier_cond",      round=4,  file="p45_factor_targetyear.cs4r")
-  calcOutput("EmiTarget", subtype="ghg_cond",             round=4,  file="p45_hist_share.cs4r")
+  calcOutput("EmiTarget", subtype="share_cond", realization="NDC2018", round=4,  file="p45_2005share_target_NDC2018_cond.cs4r")
+  calcOutput("EmiTarget", subtype="share_cond", realization="NDC2021", round=4,  file="p45_2005share_target_NDC2021_cond.cs4r")
+  calcOutput("EmiTarget", subtype="multiplier_cond", realization="NDC2018", round=4,  file="p45_factor_targetyear_NDC2018_cond.cs4r")
+  calcOutput("EmiTarget", subtype="multiplier_cond", realization="NDC2021", round=4,  file="p45_factor_targetyear_NDC2021_cond.cs4r")
+  calcOutput("EmiTarget", subtype="ghg_cond", realization="NDC2018",  round=4,  file="p45_hist_share_NDC2018_cond.cs4r")
+  calcOutput("EmiTarget", subtype="ghg_cond", realization="NDC2021",  round=4,  file="p45_hist_share_NDC2021_cond.cs4r")
+  calcOutput("EmiTarget", subtype="share_uncond", realization="NDC2018", round=4,  file="p45_2005share_target_NDC2018_uncond.cs4r")
+  calcOutput("EmiTarget", subtype="share_uncond", realization="NDC2021", round=4,  file="p45_2005share_target_NDC2021_uncond.cs4r")
+  calcOutput("EmiTarget", subtype="multiplier_uncond", realization="NDC2018", round=4,  file="p45_factor_targetyear_NDC2018_uncond.cs4r")
+  calcOutput("EmiTarget", subtype="multiplier_uncond", realization="NDC2021", round=4,  file="p45_factor_targetyear_NDC2021_uncond.cs4r")
+  calcOutput("EmiTarget", subtype="ghg_uncond", realization="NDC2018",  round=4,  file="p45_hist_share_NDC2018_uncond.cs4r")
+  calcOutput("EmiTarget", subtype="ghg_cond", realization="NDC2021",  round=4,  file="p45_hist_share_NDC2021_uncond.cs4r")
+  
   calcOutput("CapTarget", sources="Rogelj2017", condition="Conditional", round = 4, file = "f40_NDC.cs4r")
   calcOutput("CapTarget", sources="REN21",                round=4,  file="f40_REN21.cs4r")
   calcOutput("CapTarget", sources="NDC+REN21+CHN_NUC",    round=4,  file="f40_NDC+REN21+CHN_NUC.cs4r")
