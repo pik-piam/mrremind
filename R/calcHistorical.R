@@ -50,15 +50,15 @@ calcHistorical <- function() {
   pop <- add_dimension(pop, dim=3.1, add="model",nm="WDI")
   
   # GDP in ppp
-  gdpp_James <- calcOutput("GDPpppPast",aggregate=FALSE) / 1000
+  gdpp_James <- calcOutput("GDPPast",aggregate=FALSE) / 1000
   getNames(gdpp_James) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_James <- add_dimension(gdpp_James, dim=3.1, add="model",nm="James_IHME")
   
-  gdpp_WB <- calcOutput("GDPpppPast",GDPpppPast="WB_USD05_PPP_pc",aggregate=FALSE) / 1000
+  gdpp_WB <- calcOutput("GDPPast",GDPPast="WB_USD05_PPP_pc",aggregate=FALSE) / 1000
   getNames(gdpp_WB) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_WB <- add_dimension(gdpp_WB, dim=3.1, add="model",nm="James_WB")
   
-  gdpp_IMF <- calcOutput("GDPpppPast",GDPpppPast="IMF_USD05_PPP_pc",aggregate=FALSE) / 1000
+  gdpp_IMF <- calcOutput("GDPPast",GDPPast="IMF_USD05_PPP_pc",aggregate=FALSE) / 1000
   getNames(gdpp_IMF) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_IMF <- add_dimension(gdpp_IMF, dim=3.1, add="model",nm="James_IMF")
   

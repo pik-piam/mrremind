@@ -110,7 +110,7 @@ calcGAINS <- function(subtype="emission_factors", sectoral_resolution="extended"
 
   # read in population and GDP data. required to compute gdp per cap
   pop <- calcOutput("Population",aggregate=FALSE)[,p_dagg_year,p_dagg_pop]
-  gdp <- calcOutput("GDPppp",    aggregate=FALSE)[,p_dagg_year,p_dagg_gdp]
+  gdp <- calcOutput("GDP",    aggregate=FALSE)[,p_dagg_year,p_dagg_gdp]
 
   #co <- map_regions$CountryCode[map_regions$RegionCode %in% c("Northern Africa","Middle East","Asia-Stan","Russia+")]
   #e <- dimSums(emissions["IRN",,"End_Use_Industry_Coal.VOC"],dim=1)

@@ -136,7 +136,7 @@ calcIO <- function(subtype) {
      n_bioshare = "bioshare"
    }
   #Read-in data to compute income per capita
-    gdp <- calcOutput("GDPpppPast", aggregate = F)
+    gdp <- calcOutput("GDPPast", aggregate = F)
     pop <- calcOutput("PopulationPast", aggregate = F)
     gdppop <- gdp[,intersect(getYears(gdp),getYears(pop)),]/pop[,intersect(getYears(gdp),getYears(pop)),]  
     #Create a lambda which is 1 for income per capita <= 10000, and 0 above 15000

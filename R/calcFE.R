@@ -173,8 +173,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     #regions <- unique(regions$RegionCode)
     
     # gdp of all countries in 2015
-    gdp <- calcOutput("GDPpppPast",aggregate = F)
-    gdp <- gdp[,"y2015",]
+    gdp <- calcOutput("GDPPast", years = 2015, aggregate = FALSE)
     
     # if 2015 gdp of a country is 90% of the GDP of the region to which it belongs
     # include result. If not, display it as NA

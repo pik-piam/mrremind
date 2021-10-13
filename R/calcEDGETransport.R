@@ -20,7 +20,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
       conv = TRUE
    }
 
-  weightInt <- calcOutput("GDPppp", aggregate = F)
+  weightInt <- calcOutput("GDP", aggregate = F)
   get_weight <- function(data, weightInt){
     year_inter = getYears(data)
     ## define weight for intensive entries (for weighted average)
