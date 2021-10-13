@@ -4,10 +4,12 @@
 \alias{calcEmiTarget}
 \title{Output for 2 policy cases}
 \usage{
-calcEmiTarget(subtype)
+calcEmiTarget(subtype, realization)
 }
 \arguments{
 \item{subtype}{"share_uncond", "share_cond", "multiplier_uncond",  "multiplier_cond", "ghg_uncond" or "ghg_cond"}
+
+\item{realization}{"NDC2018" or "NDC2021"}
 }
 \description{
 Output for 2 policy cases
