@@ -41,19 +41,6 @@ calcEDGETrData <- function() {
                        SSP_scen = x[1],
                        tech_scen = x[2],
                        smartlifestyle = x[3],
-                       IEAbal = calcOutput("IO", subtype = "IEA_output", aggregate = TRUE),
-                       GDP_country = {
-                         x <- calcOutput("GDPppp", aggregate = F)
-                         getSets(x)[1] <- "ISO3"
-                         getSets(x)[2] <- "Year"
-                         x
-                       },
-                       POP_country = {
-                         x <- calcOutput("Population", aggregate = F)
-                         getSets(x)[1] <- "iso2c"
-                         x
-                       },
-                       trsp_incent = readSource("TransportSubsidies", convert=T),
                        storeRDS = FALSE)
     })
 

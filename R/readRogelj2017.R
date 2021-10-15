@@ -12,9 +12,15 @@
 
 readRogelj2017 <- function(subtype){
   
+  if (length(grep("2018",subtype))!=0) {
+    NDC_file <- "NDC_2018.xlsx"
+  } else if (length(grep("2021",subtype))!=0) {
+    NDC_file <- "NDC_2021.xlsx"
+  }
+  
   if (subtype == "COCapacity"| subtype =="UNCapacity") {
    # Capacity/Additional Capacity targets are in GW. Generation/Production targets are in GWh.
-    NDC <- read_excel("NDC.xlsx", sheet = "Capacity_target",
+    NDC <- read_excel("NDC_2018.xlsx", sheet = "Capacity_target",
                       col_types = c("text", "skip", "numeric",
                       "text", "text", "numeric", "numeric","numeric", "numeric", "numeric"))
 
@@ -22,7 +28,7 @@ readRogelj2017 <- function(subtype){
   }
  
   if (substr(subtype,1,9) == "Emissions"){
-    input <- read_xlsx("NDC.xlsx", sheet="Emissions",skip = 3, na = c("?",""),)  
+    input <- read_xlsx(NDC_file, sheet="Emissions",skip = 3, na = c("?",""),)  
     # select the relevant columns to work upon
     input2 <- select(input,2,7:14)
     # rename columns
@@ -51,19 +57,19 @@ readRogelj2017 <- function(subtype){
     input3 <- input3[input3$Target_Year==min(input3$Target_Year),]
     input2 <- input2[!(input2$ISO_Code==input3$ISO_Code & input2$Target_Year==input3$Target_Year),]
     
-    # Dividing all data columns in seperate magpie objects
-    if (subtype == "Emissions_Ref"){ # Reference Year (e.g. BAU, 2010)
+    # Dividing all data columns in separate magpie objects
+    if (length(grep("Emissions_Ref",subtype))!=0){ # Reference Year (e.g. BAU, 2010)
       x <- as.magpie(input2[,seq(1,2)],datacol = 2) # See Warning message:  In .duplicates_check(coord) : 
       # Duplicate entries found, only the last entry will be used (duplicate entries: COG|NOTIME|Reference_Year)!
-    } else if(subtype == "Emissions_Emi"){ # Emissions in reference year or BAU
+    } else if(length(grep("Emissions_Emi",subtype))!=0){ # Emissions in reference year or BAU
       x <- as.magpie(input2[,c(1,3)],datacol = 2)
-    } else if(subtype == "Emissions_Tar"){# Target Year (2035 or 2030)
+    } else if(length(grep("Emissions_Tar",subtype))!=0){# Target Year (2035 or 2030)
       x <- as.magpie(input2[,c(1,4)],datacol = 2)
-    } else if(subtype == "Emissions_Typ"){ # Type of Emission reduction effort
+    } else if(length(grep("Emissions_Typ",subtype))!=0){ # Type of Emission reduction effort
       x <- as.magpie(input2[,c(1,5)],datacol = 2)
-    } else if(subtype == "Emissions_Red_unc"){ # Unconditional Emission reduction
+    } else if(length(grep("Emissions_Red_unc",subtype))!=0){ # Unconditional Emission reduction
       x <- as.magpie(input2[,c(1,6)],datacol = 2)
-    } else if(subtype == "Emissions_Red_con"){ # Conditional emission reductions
+    } else if(length(grep("Emissions_Red_con",subtype))!=0){ # Conditional emission reductions
       x <- as.magpie(input2[,c(1,7)],datacol = 2)
     }
     
