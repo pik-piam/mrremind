@@ -30,14 +30,18 @@
 #' @importFrom zoo na.approx rollmean
 
 # setup
+# library(mrremind)
+# library(assertr)
 # library(broom)
 # library(car)
+# library(dplyr)
 # library(Hmisc)
-# library(assertr)
-# library(tidyverse)
 # library(quitte)
-# library(mrremind)
+# library(stats)
+# library(tidyr)
 # library(zoo)
+# match.steel.historic.values <- TRUE
+# match.steel.estimates <- 'IEA_ETP'
 
 #' @rdname EDGE-Industry
 #' @export
@@ -56,8 +60,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
-  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
@@ -632,7 +636,7 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   ## construct output ----
   x <- production_estimates %>% 
     semi_join(region_mapping, c('region', 'iso3c')) %>% 
-    filter(min(steel_historic_prod$year) <= .data$year) %>% 
+    filter(min(steel_historic$year) <= .data$year) %>% 
     right_join(
       tribble(
         ~variable,                ~pf,
@@ -1348,7 +1352,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
              # Mt/year * 1e6 t/Mt = t/year
              value = .data$value * 1e6,
              variable = sub('^ue_steel_(primary|secondary)$',
-                            '\\1.production', .data$variable)) %>% 
+                            '\\1.production', .data$variable),
+             scenario = sub('^gdp_', '', .data$scenario)) %>% 
       filter(between(.data$year, 2000, 2100)) %>% 
       full_join(region_mapping, 'iso3c') %>% 
       assert(not_na, everything()) %>% 
