@@ -60,8 +60,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
-  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
