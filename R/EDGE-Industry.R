@@ -1817,13 +1817,18 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     filter(2000 <= .data$year,
            'Total' != .data$iso3c, 
            'World' != .data$region) %>% 
-    select('scenario', 'iso3c', 'year', ue_chemicals = 'chemicals.VA', 
-           ue_otherInd = 'otherInd.VA') %>% 
-    pivot_longer(c('ue_chemicals', 'ue_otherInd'), names_to = 'pf') %>% 
+    select('scenario', 'iso3c', 'year', ue_cement = 'cement.production',
+           ue_chemicals = 'chemicals.VA', ue_otherInd = 'otherInd.VA') %>% 
+    pivot_longer(matches('^ue_'), names_to = 'pf') %>% 
     assert(not_na, everything()) %>% 
-    # $/yr * 1e-12 $tn/$ = $tn/year
-    mutate(value = .data$value * 1e-12,
-           scenario = paste0('gdp_', .data$scenario)) %>% 
+    # t/year * 1e-9 Gt/t = Gt/year      | cement
+    # $/year * 1e-12 $tn/$ = $tn/year   | chemicals and other industry
+    mutate(
+      value = .data$value * case_when(
+        'ue_cement'    == pf ~ 1e-9,
+        'ue_chemicals' == pf ~ 1e-12,
+        'ue_otherInd'  == pf ~ 1e-12),
+      scenario = paste0('gdp_', .data$scenario)) %>% 
     interpolate_missing_periods_(periods = list(year = 1993:2150),
                                  expand.values = TRUE)
   
