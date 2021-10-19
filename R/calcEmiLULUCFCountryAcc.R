@@ -10,16 +10,16 @@
 calcEmiLULUCFCountryAcc <- function(subtype){
   
   
-  if (subtype=="PRIMAPhist") {
+  if (subtype=="UNFCCC") {
     
     
-    # take PRIMAPhist LULUCF data for now
-    # note: these historical LULUCF emissions data correspond neither to UNFCCC (https://di.unfccc.int/detailed_data_by_party) 
-    # nor to EEA (https://cdr.eionet.europa.eu/de/eu/mmr/art07_inventory/ghg_inventory/envxh8awg/index_html?&page=1)
-    primap <- readSource("PRIMAPhist","hist")
+    # read in UNFCCC CRF emissions data
+    unfccc <- readSource("UNFCCC")
     
-    # LULUCF CO2 emissions from PRIMAP hist database from 1990 to 2015, convert to Mt CO2/yr
-    out <- dimReduce(primap[,paste0("y",seq(1990,2015,1)),"co2_c"][,,"CAT5"]) / 12*44
+    # LULUCF CO2 emissions from UNFCCC database from, convert to Mt CO2/yr
+    out <- collapseNames(unfccc[,,"Total LULUCF|CO2"]) / 1000
+    # replace NA by 0
+    out[is.na(out)] <- 0
     
   } else {
     "Please define a valid subtype for this function."
@@ -30,7 +30,7 @@ calcEmiLULUCFCountryAcc <- function(subtype){
       list(x=out,
                 weight=NULL,
                 unit="Mt CO2/yr",
-                description="Historical LULUCF CO2 emissions data following country accounting taken from PRIMAPhist database")
+                description="Historical LULUCF CO2 emissions data following country accounting taken from UNFCCC database")
     )
 }
     
