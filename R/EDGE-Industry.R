@@ -646,8 +646,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       'variable'
     ) %>% 
     assert(not_na, everything()) %>% 
-    # t/year * 1e-6 Mt/t = Mt/year
-    mutate(value = .data$value * 1e-6,
+    # t/year * 1e-6 Gt/t = Gt/year
+    mutate(value = .data$value * 1e-9,
            scenario = paste0('gdp_', .data$scenario)) %>% 
     select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
     as.magpie(spatial = 2, temporal = 4, data = 5)
@@ -801,8 +801,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
         'variable'
       ) %>%
       assert(not_na, everything()) %>% 
-      # t/year * 1e-6 Mt/t = Mt/year
-      mutate(value = .data$value * 1e-6,
+      # t/year * 1e-9 Gt/t = Gt/year
+      mutate(value = .data$value * 1e-9,
              scenario = paste0('gdp_', .data$scenario)) %>% 
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
       as.magpie(spatial = 2, temporal = 4, data = 5)
@@ -955,12 +955,12 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
         'variable'
       ) %>%
       assert(not_na, everything()) %>% 
-      # t/year * 1e-6 Mt/t = Mt/year
-      mutate(value = .data$value * 1e-6,
+      # t/year * 1e-9 Gt/t = Gt/year
+      mutate(value = .data$value * 1e-9,
              scenario = paste0('gdp_', .data$scenario)) %>% 
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
       as.magpie(spatial = 2, temporal = 4, data = 5)
-  } else {
+  } else if ('none' != match.steel.estimates) {
     stop('Unknown setting \'', match.steel.estimates, 
          '\' for match.steel.estimates')
   }
