@@ -47,16 +47,6 @@
 #' @export
 calcSteel_Projections <- function(match.steel.historic.values = TRUE, 
                                   match.steel.estimates = NULL) {
-  
-  . <- NULL
-  
-  # table of units ----
-  # GDPpC = $/year
-  # GDPpC_history = $/year
-  # population_history = people
-
-  
-  steel.match.steel.estimates.baseline.scenario <- 'SSP2'
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
@@ -743,17 +733,20 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   )
   
   tmp <- bind_rows(
-    # scale country production to meet historic production in the last year
+    # shift country production to meet historic production in the last year
     # for which data is available
     tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>% 
-      group_by(.data$scenario, .data$region, .data$iso3c, .data$variable) %>% 
+      filter(.data$year >= max(steel_historic_prod$year)) %>%
+      group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
       filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
-        mutate(value = .data$value 
-                     / first(.data$value / .data$historic, 
-                             order_by = .data$year)) %>% 
+      mutate(value = .data$value 
+                   - lag(.data$value, 
+                         default = first(.data$value, order_by = .data$year),
+                         order_by = .data$year) 
+                   + first(.data$historic, order_by = .data$year)) %>% 
       select(-'historic') %>% 
       ungroup(),
+      
     
     # countries w/o historic production fade production in over 20 years
     tmp %>% 
