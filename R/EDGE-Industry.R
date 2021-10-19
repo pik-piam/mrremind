@@ -736,17 +736,19 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
     # shift country production to meet historic production in the last year
     # for which data is available
     tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>%
+      filter(.data$year >= max(steel_historic_prod$year)) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+      arrange(scenario, region, iso3c, variable, year) %>% 
       filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
       mutate(value = .data$value 
-                   - lag(.data$value, 
-                         default = first(.data$value, order_by = .data$year),
-                         order_by = .data$year) 
-                   + first(.data$historic, order_by = .data$year)) %>% 
+             - lag(.data$value, 
+                   default = first(.data$value, order_by = .data$year),
+                   order_by = .data$year) 
+             + first(.data$historic, order_by = .data$year),
+             value = ifelse(0 > value, NA, value)) %>% 
       select(-'historic') %>% 
-      ungroup(),
-      
+      interpolate_missing_periods_(periods = list('year' = unique(.$year)),
+                                   expand.values = TRUE),
     
     # countries w/o historic production fade production in over 20 years
     tmp %>% 
