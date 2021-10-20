@@ -584,8 +584,12 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
     inner_join(steel_trade_share_2015 %>% select(-'region'), 'iso3c') %>% 
     left_join(lifetime_projections, c('scenario', 'region', 'year')) %>%
     select(-'steel.stock.per.capita', -'population') %>% 
-    group_by(.data$scenario, .data$region, .data$iso3c) %>% 
     assert(not_na, everything()) %>% 
+    pivot_longer(c(-'scenario', -'iso3c', -'region', -'year')) %>% 
+    interpolate_missing_periods_(
+      periods = list('year' = seq_range(range(.$year)))) %>% 
+    pivot_wider() %>% 
+    group_by(.data$scenario, .data$region, .data$iso3c) %>% 
     mutate(
       stock.additions = rollmean(
         pmax(0, .data$steel.stock - lag(.data$steel.stock)),
