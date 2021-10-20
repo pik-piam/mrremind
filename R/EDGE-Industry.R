@@ -47,6 +47,9 @@
 #' @export
 calcSteel_Projections <- function(match.steel.historic.values = TRUE, 
                                   match.steel.estimates = NULL) {
+  
+  . <- NULL
+
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
@@ -738,14 +741,12 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
     tmp %>% 
       filter(.data$year >= max(steel_historic_prod$year)) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
-      arrange(scenario, region, iso3c, variable, year) %>% 
       filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
-      mutate(value = .data$value 
-             - lag(.data$value, 
-                   default = first(.data$value, order_by = .data$year),
-                   order_by = .data$year) 
-             + first(.data$historic, order_by = .data$year),
-             value = ifelse(0 > value, NA, value)) %>% 
+      mutate(
+        value = .data$value
+              / first(.data$value, order_by = .data$year)
+              * first(.data$historic, order_by = .data$year)) %>% 
+      ungroup() %>% 
       select(-'historic') %>% 
       interpolate_missing_periods_(periods = list('year' = unique(.$year)),
                                    expand.values = TRUE),
