@@ -78,14 +78,16 @@ readBP <- function(subtype) {
     data_geo_biomass <- read_excel(filename, sheet = "Geo Biomass Other - TWh", range = "A3:BE114")
     data_geo_biomass <- tidy_data(data_geo_biomass, "Generation|Geo_biomass (TWh)")
 
-    data <- merge_recurse(list(data_wind, data_solar, data_hydro, data_geo_biomass, data_nuclear, data_elec, data_elec_gas, data_elec_oil, data_elec_coal))
+    data <- merge_recurse(list(data_wind, data_solar, data_hydro, data_geo_biomass, data_nuclear,
+                               data_elec, data_elec_gas, data_elec_oil, data_elec_coal))
+  
     data <- filter(data, !grepl("\\.", data$Year))
   } else if (subtype == "Production") {
     data_oil <- read_excel(filename, sheet = "Oil Production - Tonnes", range = "A3:BE80")
     data_oil <- tidy_data(data_oil, "Oil Production (million t)")
 
     data_coal_ej <- read_excel(filename, sheet = "Coal Production - EJ", range = "A3:AO62")
-    data_coal_ej <- tidy_data(data_coal_ej, "Coal Productioon (EJ)")
+    data_coal_ej <- tidy_data(data_coal_ej, "Coal Production (EJ)")
 
     data_coal_ton <- read_excel(filename, sheet = "Coal Production - Tonnes", range = "A3:AO62")
     data_coal_ton <- tidy_data(data_coal_ton, "Coal Production (t)")

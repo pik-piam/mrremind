@@ -7,11 +7,14 @@
 #' Production (in EJ for Coal, Oil, and Gas, additionally in tonnes for coal)
 #' @author Aman Malik
 #' @importFrom dplyr filter
+#' @importFrom madrat toolGetMapping toolCountryFill
+#' 
 
 convertBP <- function(x, subtype) {
 
   Region_name <- NULL
   ISO_code <- NULL
+  
 
   if (subtype == "Capacity") {
 
@@ -21,88 +24,69 @@ convertBP <- function(x, subtype) {
       "Other S & Cent America", "Other Asia Pacific", "Other CIS"
     )
     
-    # Reading in file with mapping of 209 countries with respective BP regions
-    mapping_capacity <- read.csv("BPmappingall.csv", sep = ";", colClasses = "character")
+    .disaggegate_others <- function(x, variable){
+      
+      mapping_capacity <- toolGetMapping("regionmappingBP_Capacity.csv", type = "regional")
+      
+      countries_africa <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Africa"]
+      countries_asia <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Asia Pacific"]
+      countries_middle_east <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Middle East"]
+      countries_sc_america <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "S & C America"]
+      countries_europe <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Europe"]
+      countries_cis <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "CIS"]
+      
+      # removing countries where capacity = NA, not in the original database
+      na_countries <- getRegions(x)[is.na(x[, 2020, variable])]
+      
+      # All countries with positive value of capacity in 2020 and not in origReg
+      country2iso <- toolCountry2isocode(getRegions(x[c(origReg, na_countries), , , invert = TRUE]))
+      
+      # Finding all countries in "Other_*", i.e. n
+      other_africa <- setdiff(countries_africa, country2iso)
+      other_africa <- data.frame(Region_name = "Other Africa", ISO_code = other_africa)
+      other_asia <- setdiff(countries_asia, country2iso)
+      other_asia <- data.frame(Region_name = "Other Asia Pacific", ISO_code = other_asia)
+      other_middle_east <- setdiff(countries_middle_east, country2iso)
+      other_middle_east <- data.frame(Region_name = "Other Middle East", ISO_code = other_middle_east)
+      other_sc_america <- setdiff(countries_sc_america, country2iso)
+      other_sc_america <- data.frame(Region_name = "Other S & Cent America", ISO_code = other_sc_america)
+      other_europe <- setdiff(countries_europe, country2iso)
+      other_europe <- data.frame(Region_name = "Other Europe", ISO_code = other_europe)
+      other_cis <- setdiff(countries_cis, country2iso)
+      other_cis <- data.frame(Region_name = "Other CIS", ISO_code = other_cis)
+      
+      # Combining all countries (ISO coded) "others" in one file
+      mainmappingfile <- rbind(other_cis, other_africa, other_asia, other_middle_east, other_sc_america, other_europe)
+      mainmappingfile <- filter(mainmappingfile, ISO_code != "SUN")
+      
+      # Downscaling all "Other_*" into respective countries
+      PE <- calcOutput("PE", aggregate = FALSE)[mainmappingfile$ISO_code, 2016, "PE (EJ/yr)"]
+      
+      output <- toolAggregate(x[origReg, , variable], rel = mainmappingfile, weight = PE)
+      output[is.na(output)] <- 0
+      output <- toolCountryFill(output, fill = 0)
+      return(output)
+    }
 
     # Substituting certain country names
     getRegions(x) <- gsub("\\bUS\\b", "USA", getRegions(x))
-
-    # Step 1:Grouping countries according to their region.
-    countries_africa <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Africa"]
-    countries_asia <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Asia Pacific"]
-    countries_middle_east <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Middle East"]
-    countries_sc_america <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "S & C America"]
-    countries_europe <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "Europe"]
-    countries_cis <- mapping_capacity$ISO3.code[mapping_capacity$Region_name == "CIS"]
     
-    # Step 2: removing countries where capacity = NA, not in the original Solar database
-    na_countries_solar <- getRegions(x)[is.na(x[, 2020, "Solar"])]
+    output_solar <- .disaggegate_others(x, variable = "Capacity|Solar (MW)")
+    output_wind <- .disaggegate_others(x, variable = "Capacity|Wind (MW)")
+    output_geothermal <- .disaggegate_others(x, variable = "Capacity|Geothermal (MW)")
     
-    # All countries with positive value of capacity in 2020 and not in origReg
-    country2iso_solar <- toolCountry2isocode(getRegions(x[c(origReg, na_countries_solar), , , invert = TRUE]))
-
-    # Step 3: Finding all countries in "Other_*"
-    other_africa <- setdiff(countries_africa, country2iso_solar)
-    other_africa <- data.frame(Region_name = "Other Africa", ISO_code = other_africa)
-    other_asia <- setdiff(countries_asia, country2iso_solar)
-    other_asia <- data.frame(Region_name = "Other Asia Pacific", ISO_code = other_asia)
-    other_middle_east <- setdiff(countries_middle_east, country2iso_solar)
-    other_middle_east <- data.frame(Region_name = "Other Middle East", ISO_code = other_middle_east)
-    other_sc_america <- setdiff(countries_sc_america, country2iso_solar)
-    other_sc_america <- data.frame(Region_name = "Other S & Cent America", ISO_code = other_sc_america)
-    other_europe <- setdiff(countries_europe, country2iso_solar)
-    other_europe <- data.frame(Region_name = "Other Europe", ISO_code = other_europe)
-    other_cis <- setdiff(countries_cis, country2iso_solar)
-    other_cis <- data.frame(Region_name = "Other CIS", ISO_code = other_cis)
-
-    # Combining all countries (ISO coded) "others" in one file
-    mainmappingfile <- rbind(other_cis, other_africa, other_asia, other_middle_east, other_sc_america, other_europe)
-    mainmappingfile <- filter(mainmappingfile, ISO_code != "SUN")
-
-    # Step 4: Downscaling all "Other_*" into respective countries
-    PE <- calcOutput("PE", aggregate = FALSE)[mainmappingfile$ISO_code, 2016, "PE (EJ/yr)"]
-    output_solar <- toolAggregate(x[origReg, , "Solar"], rel = mainmappingfile, weight = PE)
-    output_solar[is.na(output_solar)] <- 0
-    output_solar <- toolCountryFill(output_solar, fill = 0)
-
-    # For Wind
-
-    # countries with NA for wind
-    na_countries_wind <- getRegions(x)[!is.na(x[, 2020, "Wind"])]
-    country2iso_wind <- toolCountry2isocode(getRegions(x[c(origReg, na_countries_wind), , , invert = TRUE]))
-
-    # countries in other.... are different than that for solar
-    other_africa <- setdiff(countries_africa, country2iso_wind)
-    other_africa <- data.frame(Region_name = c("Other Africa"), ISO_code = other_africa)
-    other_asia <- setdiff(countries_asia, country2iso_wind)
-    other_asia <- data.frame(Region_name = c("Other Asia Pacific"), ISO_code = other_asia)
-    other_middle_east <- setdiff(countries_middle_east, country2iso_wind)
-    other_middle_east <- data.frame(Region_name = c("Other Middle East"), ISO_code = other_middle_east)
-    other_sc_america <- setdiff(countries_sc_america, country2iso_wind)
-    other_sc_america <- data.frame(Region_name = c("Other S & Cent America"), ISO_code = other_sc_america)
-    other_europe <- setdiff(countries_europe, country2iso_wind)
-    other_europe <- data.frame(Region_name = c("Other Europe"), ISO_code = other_europe)
-    other_cis <- setdiff(countries_cis, country2iso_wind)
-    other_cis <- data.frame(Region_name = "Other CIS", ISO_code = other_cis)
-
-    mainmappingfile <- rbind(other_cis, other_africa, other_asia, other_middle_east, other_sc_america, other_europe)
-    mainmappingfile <- filter(mainmappingfile, ISO_code != "SUN")
-    
-    # Step 4: Downscaling all "Other_*" into respective countries
-    PE <- calcOutput("PE", aggregate = FALSE)[mainmappingfile$ISO_code, 2016, "PE (EJ/yr)"]
-    output_wind <- toolAggregate(x[origReg, , "Wind"], rel = mainmappingfile, weight = PE)
-    output_wind <- toolCountryFill(output_wind, fill = 0)
-
-    # Step5: Removing others and adding
+    # Removing others and adding
     x <- x[origReg, , invert = TRUE]
     getRegions(x) <- toolCountry2isocode(getRegions(x))
     x <- toolCountryFill(x, fill = 0)
     # set all NA to 0
     x[is.na(x)] <- 0
 
-    x[, , "Solar"] <- x[, , "Solar"] + output_solar
-    x[, , "Wind"] <- x[, , "Wind"] + output_wind
-  }
+    x[, , "Capacity|Solar (MW)"] <- x[, , "Capacity|Solar (MW)"] + output_solar
+    x[, , "Capacity|Wind (MW)"] <- x[, , "Capacity|Wind (MW)"] + output_wind
+    x[, , "Capacity|Geothermal (MW)"] <- x[, , "Capacity|Geothermal (MW)"] + output_geothermal
+
+  } 
 
   if (subtype == "Generation") {
 
@@ -125,7 +109,7 @@ convertBP <- function(x, subtype) {
     x <- x[other_samicas, , invert = T]
 
     # Downscaled regions in ISO3
-    mapping <- read.csv2("BPmapping.csv")
+    mapping <- toolGetMapping("regionmappingBP.csv", type = "regional")
     
     PE <- calcOutput("PE", aggregate = FALSE)[unique(mapping$ISO.Code), 2016, "PE (EJ/yr)"]
     
@@ -152,7 +136,7 @@ convertBP <- function(x, subtype) {
     x <- x[c("OPEC", "Non-OPEC"), , invert = T]
     getRegions(x) <- gsub("\\bUS\\b", "USA", getRegions(x))
 
-    mapping <- read.csv2("BPmapping.csv")
+    mapping <- toolGetMapping("regionmappingBP.csv", type = "regional")
     
     PE <- calcOutput("PE", aggregate = FALSE)[mapping$ISO.Code, 2016, "PE (EJ/yr)"]
     
