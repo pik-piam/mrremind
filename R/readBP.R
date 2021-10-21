@@ -79,6 +79,9 @@ readBP <- function(subtype) {
 
     data_elec <- read_excel(filename, sheet = "Electricity Generation ", range = "A3:AK113")
     data_elec <- tidy_data(data_elec, "Generation|Electricity (TWh)")
+    
+    data_elect_renewable <- read_excel(filename, sheet = "Renewables Power - EJ", range = "A3:BE114")
+    data_elect_renewable <- tidy_data(data_elect_renewable, "Generation|Electricity|Renewable (EJ)")
 
     data_elec_gas <- read_excel(filename, sheet = "Elec Gen from Gas", range = "A3:AK58")
     data_elec_gas <- tidy_data(data_elec_gas, "Generation|Electricity|Gas (TWh)")
@@ -94,7 +97,7 @@ readBP <- function(subtype) {
 
     data <- merge_recurse(list(
       data_wind, data_solar, data_hydro, data_geo_biomass, data_nuclear,
-      data_elec, data_elec_gas, data_elec_oil, data_elec_coal
+      data_elec, data_elect_renewable, data_elec_gas, data_elec_oil, data_elec_coal
     ))
 
     data <- filter(data, !grepl("\\.", data$Year))

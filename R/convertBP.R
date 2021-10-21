@@ -9,8 +9,10 @@
 #' @importFrom dplyr filter
 #' @importFrom madrat toolGetMapping toolCountryFill
 #'
+#'
 
 convertBP <- function(x, subtype) {
+
   Region_name <- NULL
   ISO_code <- NULL
 
@@ -189,6 +191,8 @@ convertBP <- function(x, subtype) {
     # Combine the two objects containing normal and disaggregated data
     x <- x + x_row
   }
+  
+  getSets(x) <- c("region", "year", "data")
   
   return(x)
 }
