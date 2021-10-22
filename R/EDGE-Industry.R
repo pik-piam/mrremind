@@ -53,8 +53,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
-  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
@@ -67,7 +67,14 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       `steel.stock.lifetime.convergence.year` = 
         'EDGE-Industry_steel.stock.lifetime.convergence.year',
       `steel.stock.lifetime.convergence.factor` = 
-        'EDGE-Industry_steel.stock.lifetime.convergence.factor')
+        'EDGE-Industry_steel.stock.lifetime.convergence.factor',
+      
+      `secondary.steel.max.share.from` = 
+      'EDGE-Industry_secondary.steel.max.share.from',
+      secondary.steel.max.share.by = 
+      'EDGE-Industry_secondary.steel.max.share.by', 
+      secondary.steel.max.share.target = 
+      'EDGE-Industry_secondary.steel.max.share.target')
   
   # load required data ----
   ## region mapping for aggregation ----
@@ -578,6 +585,140 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       pivot_longer(-'region', names_to = 'iso3c', values_to = 'trade.share')
   )
   
+  ## aggregate primary and secondary production ----
+  steel_historic_prod <- steel_historic %>% 
+    filter(!is.na(.data$iso3c),
+           .data$variable %in% c('production', 'prod.BOF', 'prod.OHF',
+                                 'prod.EAF', 'prod.DRI')) %>% 
+    pivot_wider(names_from = 'variable', values_fill = 0) %>% 
+    mutate(
+      primary.production   = .data$prod.BOF + .data$prod.OHF + .data$prod.DRI,
+      # TODO: for VEN & IRN DRI > EAF -- figure out what is going on
+      secondary.production = pmax(0, .data$prod.EAF - .data$prod.DRI),
+      primary.production   = .data$primary.production 
+      * .data$production
+      / ( .data$primary.production 
+          + .data$secondary.production),
+      secondary.production = .data$secondary.production 
+      * .data$production
+      / ( .data$primary.production 
+          + .data$secondary.production)) %>% 
+    select('iso3c', 'region', 'year', 'primary.production', 
+           'secondary.production') %>% 
+    pivot_longer(cols = c('primary.production', 'secondary.production'),
+                 names_to = 'variable') %>% 
+    filter(0 != .data$value)
+  
+  ### split Belgium and Luxembourg by population ----
+  steel_historic_prod <- bind_rows(
+    steel_historic_prod %>% 
+      filter('blx' != .data$iso3c),
+    
+    steel_historic_prod %>% 
+      filter('blx' == .data$iso3c) %>% 
+      select(-'region') %>% 
+      left_join(
+        population %>% 
+          filter(.data$iso3c %in% c('BEL', 'LUX'),
+                 .data$year %in% unique(steel_historic_prod$year)) %>% 
+          group_by(.data$year, .data$scenario) %>% 
+          summarise(population = sum(.data$population), 
+                    .groups = 'drop_last') %>% 
+          summarise(population = mean(.data$population), .groups = 'drop'),
+        
+        'year'
+      ) %>% 
+      mutate(value = .data$value / .data$population) %>% 
+      select('year', 'variable', 'value') %>% 
+      left_join(
+        population %>% 
+          filter(.data$iso3c %in% c('BEL', 'LUX'),
+                 .data$year %in% unique(steel_historic_prod$year)) %>% 
+          inner_join(region_mapping, 'iso3c') %>% 
+          group_by(.data$region, .data$iso3c, .data$year) %>% 
+          summarise(population = mean(.data$population), .groups = 'drop'),
+        
+        'year'
+      ) %>% 
+      mutate(value = .data$value * .data$population) %>% 
+      select('region', 'iso3c', 'year', 'variable', 'value')
+  ) %>% 
+    assert(not_na, everything())
+  
+  
+  secondary.steel.max.switches <- `EDGE-Industry_scenario_switches` %>% 
+    select('scenario', 
+           matches('^secondary\\.steel\\.max\\.share\\.(from|by|target)$'))
+  
+  tmp <- full_join(
+    steel_historic_prod %>% 
+      filter('Total' != .data$iso3c) %>% 
+      mutate(match = TRUE),
+    
+    secondary.steel.max.switches %>% 
+      select('scenario', 'secondary.steel.max.share.from') %>% 
+      mutate(match = TRUE,
+             secondary.steel.max.share.from = 
+               as.integer(.data$secondary.steel.max.share.from)),
+    
+    'match'
+  ) %>% 
+    select(-'match') %>% 
+    group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+    filter(between(.data$year, 
+                   unique(.data$secondary.steel.max.share.from) - 2,
+                   unique(.data$secondary.steel.max.share.from) + 2)) %>% 
+    group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+    summarise(value = mean(.data$value), .groups = 'drop') %>% 
+    sum_total_('iso3c') %>% 
+    pivot_wider(names_from = 'variable', values_fill = list(value = 0)) %>%
+    mutate(share = .data$secondary.production 
+                 / (.data$primary.production + .data$secondary.production)) %>% 
+    select('scenario', 'region', 'iso3c', 'share') %>% 
+    full_join(
+      secondary.steel.max.switches %>% 
+        select('scenario', year = 'secondary.steel.max.share.from') %>% 
+        mutate(year = as.integer(.data$year)),
+      
+      'scenario'
+    )
+  
+  secondary.steel.max.share <- bind_rows(
+      tmp,
+      
+      tmp %>% 
+        select('scenario', 'region', 'iso3c') %>% 
+        full_join(
+          secondary.steel.max.switches %>% 
+            select('scenario', year = 'secondary.steel.max.share.by',
+                   share = 'secondary.steel.max.share.target') %>% 
+            mutate(year = as.integer(.data$year),
+                   share = as.numeric(.data$share)),
+          
+          'scenario'
+        )
+    ) %>% 
+    interpolate_missing_periods_(
+      periods = list('year' = seq_range(range(steel_stock_estimates$year))),
+      value = 'share', expand.values = TRUE)
+  
+  # expand regional values to missing countries
+  secondary.steel.max.share <- bind_rows(
+    secondary.steel.max.share %>% 
+      filter('Total' != iso3c),
+    
+    secondary.steel.max.share %>% 
+      filter('Total' == .data$iso3c) %>% 
+      select(-'iso3c') %>% 
+      right_join(
+        region_mapping %>% 
+          anti_join(secondary.steel.max.share, c('region', 'iso3c')),
+        
+        'region'
+      ) %>% 
+      assert(not_na, everything())
+  )
+
   ## calculate primary and secondary production ----
   production_estimates <- steel_stock_estimates %>%
     filter('Total' != .data$iso3c) %>% 
@@ -589,7 +730,13 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
     interpolate_missing_periods_(
       periods = list('year' = seq_range(range(.$year)))) %>% 
     pivot_wider() %>% 
-    group_by(.data$scenario, .data$region, .data$iso3c) %>% 
+    full_join(
+      secondary.steel.max.share %>% 
+        rename(secondary.steel.max.share = 'share'),
+      
+      c('scenario', 'region', 'iso3c', 'year')
+    ) %>% 
+    group_by(!!!syms(c('scenario', 'region', 'iso3c'))) %>% 
     mutate(
       stock.additions = rollmean(
         pmax(0, .data$steel.stock - lag(.data$steel.stock)),
@@ -610,7 +757,9 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
                              ),
       adj.trade.share      = .data$trade / .data$new.stock,
       production           = .data$new.stock - .data$adj.trade,
-      secondary.production = pmin(0.9 * .data$production, .data$recyclable),
+      secondary.production = pmin(  .data$secondary.steel.max.share
+                                  * .data$production, 
+                                  .data$recyclable),
       primary.production   = .data$production - .data$secondary.production) %>% 
     ungroup() %>% 
     select('scenario', 'region', 'iso3c', 'year', 'steel.stock', 'depriciation', 
@@ -651,67 +800,7 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   
   # modify estimates to match historic values ----
   if (match.steel.historic.values) {
-    ## aggregate primary and secondary production ----
-    steel_historic_prod <- steel_historic %>% 
-      filter(!is.na(.data$iso3c),
-             .data$variable %in% c('production', 'prod.BOF', 'prod.OHF',
-                                   'prod.EAF', 'prod.DRI')) %>% 
-      pivot_wider(names_from = 'variable', values_fill = 0) %>% 
-      mutate(
-        primary.production   = .data$prod.BOF + .data$prod.OHF + .data$prod.DRI,
-        # TODO: for VEN & IRN DRI > EAF -- figure out what is going on
-        secondary.production = pmax(0, .data$prod.EAF - .data$prod.DRI),
-        primary.production   = .data$primary.production 
-        * .data$production
-        / ( .data$primary.production 
-            + .data$secondary.production),
-        secondary.production = .data$secondary.production 
-        * .data$production
-        / ( .data$primary.production 
-            + .data$secondary.production)) %>% 
-      select('iso3c', 'region', 'year', 'primary.production', 
-             'secondary.production') %>% 
-      pivot_longer(cols = c('primary.production', 'secondary.production'),
-                   names_to = 'variable') %>% 
-      filter(0 != .data$value)
-    
-    ## split Belgium and Luxembourg by population ----
-    steel_historic_prod <- bind_rows(
-      steel_historic_prod %>% 
-        filter('blx' != .data$iso3c),
-      
-      steel_historic_prod %>% 
-        filter('blx' == .data$iso3c) %>% 
-        select(-'region') %>% 
-        left_join(
-          population %>% 
-            filter(.data$iso3c %in% c('BEL', 'LUX'),
-                   .data$year %in% unique(steel_historic_prod$year)) %>% 
-            group_by(.data$year, .data$scenario) %>% 
-            summarise(population = sum(.data$population), 
-                      .groups = 'drop_last') %>% 
-            summarise(population = mean(.data$population), .groups = 'drop'),
-          
-          'year'
-        ) %>% 
-        mutate(value = .data$value / .data$population) %>% 
-        select('year', 'variable', 'value') %>% 
-        left_join(
-          population %>% 
-            filter(.data$iso3c %in% c('BEL', 'LUX'),
-                   .data$year %in% unique(steel_historic_prod$year)) %>% 
-            inner_join(region_mapping, 'iso3c') %>% 
-            group_by(.data$region, .data$iso3c, .data$year) %>% 
-            summarise(population = mean(.data$population), .groups = 'drop'),
-          
-          'year'
-        ) %>% 
-        mutate(value = .data$value * .data$population) %>% 
-        select('region', 'iso3c', 'year', 'variable', 'value')
-    ) %>% 
-      assert(not_na, everything())
-  
-  tmp <- full_join(
+    tmp <- full_join(
     # estimates after last historic year
     production_estimates %>% 
       filter(max(unique(steel_historic_prod$year)) <= .data$year,
