@@ -67,9 +67,30 @@ EDGE_scenario_switches <- bind_rows(
         'SSP4',      '1',
         'SSP5',      '0.75') %>% 
         pivot_longer(-'scenario', names_to = 'switch'),
+
+    # secondary steel share limits ----
+    # Linear convergence from the historic value in the year <from> to the value
+    # <target> in the year <by>.
+    # Corresponds to code in 
+    # REMIND:/modules/37_industry/subsectors/datainput.gms
+    tribble(
+        ~scenario,   ~from,   ~by,   ~target,
+        'SDP',       2015,    2050,   0.9,
+        'SDP_EI',    2015,    2050,   0.9,
+        'SDP_MC',    2015,    2050,   0.9,
+        'SDP_RC',    2015,    2050,   0.9,
+        'SSP1',      2015,    2050,   0.9,
+        'SSP2',      2015,    2050,   0.9,
+        'SSP2EU',    2015,    2050,   0.9,
+        'SSP3',      2015,    2050,   0.9,
+        'SSP4',      2015,    2050,   0.9,
+        'SSP5',      2015,    2050,   0.9) %>% 
+        pivot_longer(-'scenario', names_to = 'switch', 
+                     values_transform = list(value = as.character)) %>% 
+        mutate(switch = paste0('EDGE-Industry_secondary.steel.max.share.',
+                               switch)),
     
     NULL) %>% 
     pivot_wider(names_from = 'switch')
 
 usethis::use_data(EDGE_scenario_switches, internal = TRUE, overwrite = TRUE)
-
