@@ -3,6 +3,11 @@
 #' Functions for calculating industry activity trajectories.
 #' 
 #' @md
+#' @param subtype One of
+#'   - `production`  Returns trajectories of primary and secondary steel
+#'     production
+#'   - `secondary.steel.max.share`  Returns the maximum share of secondary steel
+#'     in total steel production.
 #' @param match.steel.historic.values Should steel production trajectories match 
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match 
@@ -45,7 +50,8 @@
 
 #' @rdname EDGE-Industry
 #' @export
-calcSteel_Projections <- function(match.steel.historic.values = TRUE, 
+calcSteel_Projections <- function(subtype = 'production',
+                                  match.steel.historic.values = TRUE, 
                                   match.steel.estimates = NULL) {
   
   . <- NULL
@@ -646,7 +652,7 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   ) %>% 
     assert(not_na, everything())
   
-  
+  ## calculate secondary steel max share ----
   secondary.steel.max.switches <- `EDGE-Industry_scenario_switches` %>% 
     select('scenario', 
            matches('^secondary\\.steel\\.max\\.share\\.(from|by|target)$'))
@@ -719,6 +725,27 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       ) %>% 
       assert(not_na, everything())
   )
+  
+  ### return secondary steel max share ----
+  if ('secondary.steel.max.share' == subtype) {
+    return(
+      list(x = secondary.steel.max.share %>% 
+             filter(.data$year %in% unique(remind_timesteps$period)) %>% 
+             mutate(scenario = paste0('gdp_', .data$scenario)) %>% 
+             select('scenario', 'iso3c', 'year', 'share') %>% 
+             as.magpie(spatial = 2, temporal = 3, data = 4),
+           weight = calcOutput(
+             type = 'Steel_Projections', 
+             match.steel.historic.values = match.steel.historic.values, 
+             match.steel.estimates = match.steel.estimates, 
+             aggregate = FALSE, years = unique(remind_timesteps$period), 
+             supplementary = FALSE) %>% 
+             dimSums(dim = 3.2),
+           unit = 'fraction',
+           description = 'maximum secondary steel production share'
+      )
+    )
+  }
 
   ## calculate primary and secondary production ----
   
