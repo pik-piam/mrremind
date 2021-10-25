@@ -53,8 +53,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
   # load('./R/sysdata.rda')
-  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
@@ -306,7 +306,8 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   steel_stock_estimates <- steel_stock_estimates %>% 
     mutate(
       l = pmax(0, pmin(1, (.data$year - fade_start) / (fade_end - fade_start))),
-      mix = .data$l * .data$computation + (1 - .data$l) * .data$Pauliuk,
+      mix = pmax(0,  .data$l       * .data$computation 
+                   + (1 - .data$l) * .data$Pauliuk),
       steel.stock.per.capita = ifelse(is.na(.data$mix), 
                                       .data$computation, .data$mix)) %>%
     select('scenario', 'iso3c', 'region', 'year', 'steel.stock.per.capita') %>% 
@@ -596,13 +597,13 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
       # TODO: for VEN & IRN DRI > EAF -- figure out what is going on
       secondary.production = pmax(0, .data$prod.EAF - .data$prod.DRI),
       primary.production   = .data$primary.production 
-      * .data$production
-      / ( .data$primary.production 
-          + .data$secondary.production),
+                           * .data$production
+                           / ( .data$primary.production 
+                             + .data$secondary.production),
       secondary.production = .data$secondary.production 
-      * .data$production
-      / ( .data$primary.production 
-          + .data$secondary.production)) %>% 
+                          * .data$production
+                          / ( .data$primary.production 
+                            + .data$secondary.production)) %>% 
     select('iso3c', 'region', 'year', 'primary.production', 
            'secondary.production') %>% 
     pivot_longer(cols = c('primary.production', 'secondary.production'),
@@ -720,6 +721,16 @@ calcSteel_Projections <- function(match.steel.historic.values = TRUE,
   )
 
   ## calculate primary and secondary production ----
+  
+  # Imports (> 0 and exports (< 0) are scaled by factors m such that they 
+  # balance globally.  If imports are twice as large as exports, the imbalance
+  # is solved by scaling imports down by a factor twice as large as the factor
+  # with which exports are scaled up.  E.g.:
+  # trade <- c(1, 2, -7)
+  # m <- (1 + sum(trade) / sum(abs(trade)) * -sign(trade))
+  # adjusted.trade <- trade * m
+  # sum(adjusted.trade) == 0
+  
   production_estimates <- steel_stock_estimates %>%
     filter('Total' != .data$iso3c) %>% 
     inner_join(steel_trade_share_2015 %>% select(-'region'), 'iso3c') %>% 
