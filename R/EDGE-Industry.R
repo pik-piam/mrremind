@@ -703,7 +703,7 @@ calcSteel_Projections <- function(subtype = 'production',
   # expand regional values to missing countries
   secondary.steel.max.share <- bind_rows(
     secondary.steel.max.share %>% 
-      filter('Total' != iso3c),
+      filter('Total' != .data$iso3c),
     
     secondary.steel.max.share %>% 
       filter('Total' == .data$iso3c) %>% 
@@ -721,7 +721,7 @@ calcSteel_Projections <- function(subtype = 'production',
   if ('secondary.steel.max.share' == subtype) {
     return(
       list(x = secondary.steel.max.share %>% 
-             filter(.data$year %in% unique(remind_timesteps$period)) %>% 
+             filter(.data$year %in% unique(quitte::remind_timesteps$period)) %>% 
              mutate(scenario = paste0('gdp_', .data$scenario)) %>% 
              select('scenario', 'iso3c', 'year', 'share') %>% 
              as.magpie(spatial = 2, temporal = 3, data = 4),
@@ -729,7 +729,7 @@ calcSteel_Projections <- function(subtype = 'production',
              type = 'Steel_Projections', 
              match.steel.historic.values = match.steel.historic.values, 
              match.steel.estimates = match.steel.estimates, 
-             aggregate = FALSE, years = unique(remind_timesteps$period), 
+             aggregate = FALSE, years = unique(quitte::remind_timesteps$period), 
              supplementary = FALSE) %>% 
              dimSums(dim = 3.2),
            unit = 'fraction',
