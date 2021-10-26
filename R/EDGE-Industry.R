@@ -672,23 +672,14 @@ calcSteel_Projections <- function(subtype = 'production',
   ) %>% 
     select(-'match') %>% 
     group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
-    filter(between(.data$year, 
-                   unique(.data$secondary.steel.max.share.from) - 2,
-                   unique(.data$secondary.steel.max.share.from) + 2)) %>% 
-    group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+    filter(.data$year <= .data$secondary.steel.max.share.from) %>% 
+    group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year', 'variable'))) %>% 
     summarise(value = mean(.data$value), .groups = 'drop') %>% 
     sum_total_('iso3c') %>% 
     pivot_wider(names_from = 'variable', values_fill = list(value = 0)) %>%
     mutate(share = .data$secondary.production 
                  / (.data$primary.production + .data$secondary.production)) %>% 
-    select('scenario', 'region', 'iso3c', 'share') %>% 
-    full_join(
-      secondary.steel.max.switches %>% 
-        select('scenario', year = 'secondary.steel.max.share.from') %>% 
-        mutate(year = as.integer(.data$year)),
-      
-      'scenario'
-    )
+    select('scenario', 'region', 'iso3c', 'year', 'share')
   
   secondary.steel.max.share <- bind_rows(
       tmp,
@@ -836,7 +827,7 @@ calcSteel_Projections <- function(subtype = 'production',
     select('scenario', 'iso3c', 'pf', 'year', 'value') %>% 
     as.magpie(spatial = 2, temporal = 4, data = 5)
   
-  # modify estimates to match historic values ----
+  # match historic values ----
   if (match.steel.historic.values) {
     tmp <- full_join(
     # estimates after last historic year
