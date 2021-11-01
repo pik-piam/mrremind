@@ -45,6 +45,8 @@ calcBP <- function() {
              'year' = 'Year', 'value' = 'Value') %>%
       return()
   }
+  
+  # prepare consumption data
 
   consumption <- readSource("BP", subtype = "Consumption")
   
@@ -67,12 +69,17 @@ calcBP <- function() {
   pe.nuclear.dea <- pe.nuclear * renewables.factors
   consumption.pe <- consumption.pe + pe.elec.renewable.dea + pe.nuclear.dea
 
+  
+  # prepare price data
+  # ...
+  
   data <- rbind(
     .convert(readSource("BP", subtype = "Capacity")),
     .convert(readSource("BP", subtype = "Generation")),
     .convert(consumption.fossils),
     .convert(consumption.renewables),
-    .convert(consumption.pe)
+    .convert(consumption.pe),
+    .convert(readSource("BP", subtype = "Trade Oil"))
   )
 
   x <- left_join(

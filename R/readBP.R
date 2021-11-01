@@ -3,9 +3,9 @@
 #' @details Data contains historical electricity renewable capacities (in MW for Wind, Solar, and Geothermal), Generation (in TWh for Nuclear, Hydro, Wind, Solar, Other Renewables, and Geo Biomass)
 #' and Production (Oil, Gas, and Oil in Tonnes/EJ)
 #'
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade", "Price"
+#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal", "Price"
 #' @return A magpie object
-#' @author Aman Malik
+#' @author Aman Malik, Falk Benke
 #' @importFrom tidyr gather
 #' @importFrom dplyr filter
 #' @importFrom readxl read_excel
@@ -21,7 +21,7 @@ readBP <- function(subtype) {
 
   tidy_data <- function(df, variable) {
     years <- as.character(c(1900:2020))
-    rows2remove <- c("Total|OECD|European|Rest of World")
+    rows2remove <- c("Total|OECD|European")
     colnames(df)[1] <- "Country"
     df$Country <- gsub("\\.", "", df$Country)
     df <- df %>%
@@ -35,22 +35,21 @@ readBP <- function(subtype) {
 
     return(df)
   }
-  
+
   tidy_data_vertical <- function(df) {
     years <- as.character(c(1900:2020))
     rows2remove <- c("Total|OECD|European")
     df$Country <- gsub("\\.", "", df$Country)
     df <- df %>%
       filter(!grepl(rows2remove, Country), Year %in% years) %>%
-      mutate(Year = as.integer(Year)) %>%
+      mutate(Year = as.integer(as.character(Year))) %>%
       mutate(Country = gsub(pattern = " and ", replacement = " & ", x = Country)) %>%
       mutate(Country = gsub(pattern = "[0-9]", replacement = "", x = Country))
     return(df)
   }
 
   # Capacity Data for Wind, Solar, and Geobiomass
-  if (subtype == "Capacity") 
-  {
+  if (subtype == "Capacity") {
     data_solar <- read_excel(filename, sheet = "Solar Capacity", range = "A4:Z72")
     data_solar <- tidy_data(data_solar, "Capacity|Solar (MW)")
 
@@ -63,8 +62,7 @@ readBP <- function(subtype) {
     data <- merge_recurse(list(data_solar, data_wind, data_geothermal))
   }
   # Generation data for Nuclear, Hydro, Solar, Wind, Geobiomass, Other Renewables
-  else if (subtype == "Generation") 
-  {
+  else if (subtype == "Generation") {
     data_nuclear <- read_excel(filename, sheet = "Nuclear Generation - TWh", range = "A3:BE114")
     data_nuclear <- tidy_data(data_nuclear, "Generation|Nuclear (TWh)")
 
@@ -79,7 +77,7 @@ readBP <- function(subtype) {
 
     data_elec <- read_excel(filename, sheet = "Electricity Generation ", range = "A3:AK113")
     data_elec <- tidy_data(data_elec, "Generation|Electricity (TWh)")
-    
+
     data_elect_renewable <- read_excel(filename, sheet = "Renewables Power - EJ", range = "A3:BE114")
     data_elect_renewable <- tidy_data(data_elect_renewable, "Generation|Electricity|Renewable (EJ)")
 
@@ -101,9 +99,7 @@ readBP <- function(subtype) {
     ))
 
     data <- filter(data, !grepl("\\.", data$Year))
-  } 
-  else if (subtype == "Production") 
-  {
+  } else if (subtype == "Production") {
     data_oil <- read_excel(filename, sheet = "Oil Production - Tonnes", range = "A3:BE80")
     data_oil <- tidy_data(data_oil, "Oil Production (million t)")
 
@@ -120,9 +116,7 @@ readBP <- function(subtype) {
     # further refining) and NGLs (natural gas liquids - ethane, LPG and naphtha separated from the production of natural gas).
     data <- merge_recurse(list(data_oil, data_coal_ej, data_coal_ton, data_gas)) # merging all datasets into one
     data <- filter(data, !grepl("\\.", data$Year))
-  } 
-  else if (subtype == "Consumption")
-  {
+  } else if (subtype == "Consumption") {
     data_pe_consumption <- read_excel(filename, sheet = "Primary Energy Consumption", range = "A3:BE114")
     data_pe_consumption <- tidy_data(data_pe_consumption, "Primary Energy Consumption (EJ)")
 
@@ -155,23 +149,34 @@ readBP <- function(subtype) {
       data_coal_consumption, data_solar_consumption, data_wind_consumption, data_nuclear_consumption,
       data_hydro_consumption
     ))
-  } else if (subtype == "Trade") {
-    
+  } else if (subtype == "Trade Oil") {
+
     # Oil Trade
     data_oil_trade <- read_excel(filename, sheet = "Oil - Trade movements", range = "A3:AP27")
     data_oil_trade_import <- tidy_data(data_oil_trade[seq(1, 8), ], "Trade|Import|Oil (kb/d)")
-    data_oil_trade_export <- tidy_data(data_oil_trade[seq(9, 24), ], "Trade|Export|Oil (kb/d))")
+    data_oil_trade_export <- tidy_data(data_oil_trade[seq(9, 24), ], "Trade|Export|Oil (kb/d)")
 
     data_oil_trade_detail <- read_excel(filename, sheet = "Oil - Trade 2019 - 2020", range = "A28:I50")
-    colnames(data_oil_trade_detail) <- c("Country", rep(c("Trade|Import|Oil|Crude (kb/d)", "Trade|Import|Oil|Product (kb/d)", 
-                                                          "Trade|Export|Oil|Crude (kb/d)", "Trade|Export|Oil|Product (kb/d)"), times = 2))
-    data_oil_trade_detail <- rbind(data_oil_trade_detail[, seq(1, 5)] %>% mutate(Year := 2019), data_oil_trade_detail[, c(1, seq(6, 9))] %>% mutate(Year := 2020)) %>% 
-                                                  tidy_data_vertical()
+    colnames(data_oil_trade_detail) <- c("Country", rep(c(
+      "Trade|Import|Oil|Crude (kb/d)", "Trade|Import|Oil|Product (kb/d)",
+      "Trade|Export|Oil|Crude (kb/d)", "Trade|Export|Oil|Product (kb/d)"
+    ), times = 2))
+    data_oil_trade_detail <- rbind(data_oil_trade_detail[, seq(1, 5)] %>%
+      mutate(Year := 2019), data_oil_trade_detail[, c(1, seq(6, 9))] %>%
+      mutate(Year := 2020)) %>%
+      tidy_data_vertical()
 
+    data <- merge_recurse(list(data_oil_trade_import, data_oil_trade_export, data_oil_trade_detail))
+
+  } else if (subtype == "Trade Coal") {
     # Coal Trade
     data_coal_trade <- read_excel(filename, sheet = "Coal - Trade movements", range = "A3:V34")
     data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)")
     data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)")
+
+    data <- merge_recurse(list(data_coal_trade_import, data_coal_trade_export))
+
+  } else if (subtype == "Trade Gas") {
 
     # Gas Trade
     data_gas_trade <- read_excel(filename, sheet = "Gas - Inter-regional trade", range = "A3:V105")
@@ -291,12 +296,8 @@ readBP <- function(subtype) {
       reshape2::melt(id.vars = c("Variable", "Country")) %>%
       reshape2::dcast(Country + variable ~ Variable, value.var = "value")
     colnames(data_gas_trade)[2] <- "Year"
-    data_gas_trade <- tidy_data_vertical(data_gas_trade)
+    data <- tidy_data_vertical(data_gas_trade)
 
-    data <- merge_recurse(list(
-      data_oil_trade_import, data_oil_trade_export, data_oil_trade_detail,
-      data_coal_trade_import, data_coal_trade_export, data_gas_trade
-    ))
   } else if (subtype == "Price") {
     data_oil_spot_crude_price <- read_excel(filename, sheet = "Oil - Spot crude prices", range = "A4:E54")
     colnames(data_oil_spot_crude_price) <- c("Year", "Price|Oil|Dubai ($/bbl)", "Price|Oil|Brent ($/bbl)", "Price|Oil|Nigerian Forcados ($/bbl)", "Price|Oil|Western Texas Intermediate ($/bbl)")
@@ -331,7 +332,6 @@ readBP <- function(subtype) {
     data_coal_price <- filter(data_coal_price, !is.na(Year))
 
     data <- merge_recurse(list(data_oil_spot_crude_price, data_oil_crude_price, data_gas_price, data_coal_price))
-  
   } else {
     stop("Not a valid subtype!")
   }
