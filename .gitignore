@@ -3,6 +3,3 @@
 .RData
 .Ruserdata
 fe_variables.csv
-.github/workflows/lucode2-check.yaml
-.buildlibrary
-
