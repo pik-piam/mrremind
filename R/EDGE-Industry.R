@@ -34,25 +34,13 @@
 #' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom zoo na.approx rollmean
 
-# setup
-# library(mrremind)
-# library(assertr)
-# library(broom)
-# library(car)
-# library(dplyr)
-# library(Hmisc)
-# library(quitte)
-# library(stats)
-# library(tidyr)
-# library(zoo)
-# match.steel.historic.values <- TRUE
-# match.steel.estimates <- 'IEA_ETP'
-
 #' @rdname EDGE-Industry
 #' @export
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE, 
                                   match.steel.estimates = NULL) {
+  
+  produce_plots_and_tables <- TRUE
   
   . <- NULL
 
