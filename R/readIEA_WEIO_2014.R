@@ -1,7 +1,11 @@
-library(tidyverse)
-library(readxl)
-library(quitte)
+#' Title
+#'
+#' @return
+#' 
+#' @importFrom quitte list_to_data_frame_
+#' @importFrom readxl read_xls
 
+#' @export
 readIEA_WEIO_2014 <- function() {
   
   # define country groups ----
@@ -162,4 +166,4 @@ readIEA_WEIO_2014 <- function() {
     group_by(.data$country.group, .data$iso3c) %>% 
     summarise(weight = pmin(1, sum(.data$weight)), .groups = 'drop') %>% 
     filter(0 < .data$weight)
-  
+}
