@@ -1596,6 +1596,20 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     sum_total_('iso3c') %>% 
     pivot_wider()
   
+  ## plot cement regressions ====
+  ggplot() +
+    geom_point(
+      data = regression_data_cement %>% 
+        filter('World' != region),
+      mapping = aes(x = GDP / population / 1000, 
+                    y = cement.production / population),
+      shape = 'x') +
+    facet_wrap(~ region, scales = 'free') +
+    expand_limits(x = 0, y = 0) +
+    labs(x = 'per-capita GDP [1000 $/year]', 
+         y = 'per-capita Cement Production [tonnes/year]') +
+    theme_minimal()
+  
   # project chemicals VA ----
   ## compile regression data ----
   regression_data_chemicals <- inner_join(
