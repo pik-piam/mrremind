@@ -10,7 +10,7 @@
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
 #' lag arrange inner_join matches mutate
 #' @importFrom tidyr extract complete nesting replace_na crossing unite 
-#'   pivot_longer pivot_wider
+#'   pivot_longer pivot_wider separate
 #' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
 #' @importFrom magclass mselect
