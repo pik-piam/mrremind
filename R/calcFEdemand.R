@@ -200,8 +200,9 @@ calcFEdemand <- function(subtype = "FE") {
         mutate(Year = as.integer(as.character(Year))) %>%
         filter(grepl('^gdp_SSP[12]$', Data1),
                Year %in% years) %>%
-        extract(Data1, c('variable', 'scenario'), '^([a-z]{3})_(.*)$') %>%
-        select(scenario, iso3c = Region, year = Year, variable, value = Value),
+        separate(col = 'Data1', into = c('variable', 'scenario'), sep = '_') %>%
+        select('scenario', iso3c = 'Region', year = 'Year', 'variable', 
+               value = 'Value'),
 
       tmp_pop <- calcOutput('Population', FiveYearSteps = FALSE,
                             aggregate = FALSE) %>%
@@ -211,13 +212,14 @@ calcFEdemand <- function(subtype = "FE") {
         mutate(Year = as.integer(as.character(Year))) %>%
         filter(grepl('^pop_SSP[12]$', Data1),
                Year %in% years) %>%
-        extract(Data1, c('variable', 'scenario'), '^([a-z]{3})_(.*)$') %>%
-        select(scenario, iso3c = Region, year = Year, variable, value = Value)
+        separate(col = 'Data1', into = c('variable', 'scenario'), sep = '_') %>%
+        select('scenario', iso3c = 'Region', year = 'Year', 'variable', 
+               value = 'Value')
     ) %>%
       mutate(scenario = paste0('gdp_', scenario)) %>%
-      spread(variable, value) %>%
-      group_by(scenario, iso3c, year) %>%
-      summarise(GDPpC = gdp / pop, .groups = 'drop')
+      pivot_wider(names_from = 'variable') %>%
+      group_by(.data$scenario, .data$iso3c, .data$year) %>%
+      summarise(GDPpC = .data$gdp / .data$pop, .groups = 'drop')
 
     # - for each country and scenario, compute a GDPpC-dependent specific energy
     #   use reduction factor according to 3e-7 * GDPpC + 0.2 [%], which is
