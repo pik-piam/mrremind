@@ -723,14 +723,27 @@ calcFEdemand <- function(subtype = "FE") {
     
     ## extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
-    # tech assumptions as in SDP", so that's what we do ...
+    # tech assumptions as in SDP".
+    # But population is lower in SDP than in SSP2, per-capita energy demands are
+    # higher.  So we apply an addition scaling factor (1 - b)^t with b linearly
+    # converging from a to a/2 over 150 years (end of model horizon).
+    a <- 0.01
+    factor_a <- tibble(year = getYears(industry_subsectors_ue, 
+                                       as.integer = TRUE)) %>% 
+      mutate(
+        x = pmax(0, .data$year - 2020),
+        factor = (1 - (a - (a / 300) * .data$x)) ^ .data$x) %>% 
+      select('year', 'factor') %>% 
+      as.magpie(temporal = 1, spatial = 0, data = 2) %>% 
+      dimSums()
+    
     foo_pop <- calcOutput('Population', aggregate = FALSE, FiveYearSteps = FALSE)
     
     industry_subsectors_ue_SSP2_lowEn <- (
-          dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1) %>% 
-      `/`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])) %>% 
-      `*`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2']))
-    )
+        dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1)
+      / dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])
+      * dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2'])
+      * factor_a)
     
     getNames(industry_subsectors_ue_SSP2_lowEn) <- paste(
       'gdp_SSP2_lowEn', getNames(industry_subsectors_ue_SSP2_lowEn), sep = '.')
@@ -744,6 +757,7 @@ calcFEdemand <- function(subtype = "FE") {
         dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1)
       / dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])
       * dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])
+      * factor_a
     )
     
     getNames(industry_steel_SSP2_lowEn) <- paste(
