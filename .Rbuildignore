@@ -7,3 +7,4 @@ carbon_stored.*
 ^\.buildlibrary$
 ^\.github$
 ^codecov\.yml$
+^.*\.RData$
