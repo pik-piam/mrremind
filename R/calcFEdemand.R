@@ -10,7 +10,7 @@
 #' @importFrom dplyr as_tibble tibble last sym between first tribble bind_rows filter ungroup
 #' lag arrange inner_join matches mutate
 #' @importFrom tidyr extract complete nesting replace_na crossing unite 
-#'   pivot_longer pivot_wider
+#'   pivot_longer pivot_wider separate
 #' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
 #' @importFrom magclass mselect
@@ -200,8 +200,9 @@ calcFEdemand <- function(subtype = "FE") {
         mutate(Year = as.integer(as.character(Year))) %>%
         filter(grepl('^gdp_SSP[12]$', Data1),
                Year %in% years) %>%
-        extract(Data1, c('variable', 'scenario'), '^([a-z]{3})_(.*)$') %>%
-        select(scenario, iso3c = Region, year = Year, variable, value = Value),
+        separate(col = 'Data1', into = c('variable', 'scenario'), sep = '_') %>%
+        select('scenario', iso3c = 'Region', year = 'Year', 'variable', 
+               value = 'Value'),
 
       tmp_pop <- calcOutput('Population', FiveYearSteps = FALSE,
                             aggregate = FALSE) %>%
@@ -211,13 +212,14 @@ calcFEdemand <- function(subtype = "FE") {
         mutate(Year = as.integer(as.character(Year))) %>%
         filter(grepl('^pop_SSP[12]$', Data1),
                Year %in% years) %>%
-        extract(Data1, c('variable', 'scenario'), '^([a-z]{3})_(.*)$') %>%
-        select(scenario, iso3c = Region, year = Year, variable, value = Value)
+        separate(col = 'Data1', into = c('variable', 'scenario'), sep = '_') %>%
+        select('scenario', iso3c = 'Region', year = 'Year', 'variable', 
+               value = 'Value')
     ) %>%
       mutate(scenario = paste0('gdp_', scenario)) %>%
-      spread(variable, value) %>%
-      group_by(scenario, iso3c, year) %>%
-      summarise(GDPpC = gdp / pop, .groups = 'drop')
+      pivot_wider(names_from = 'variable') %>%
+      group_by(.data$scenario, .data$iso3c, .data$year) %>%
+      summarise(GDPpC = .data$gdp / .data$pop, .groups = 'drop')
 
     # - for each country and scenario, compute a GDPpC-dependent specific energy
     #   use reduction factor according to 3e-7 * GDPpC + 0.2 [%], which is
@@ -721,14 +723,27 @@ calcFEdemand <- function(subtype = "FE") {
     
     ## extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
-    # tech assumptions as in SDP", so that's what we do ...
+    # tech assumptions as in SDP".
+    # But population is lower in SDP than in SSP2, per-capita energy demands are
+    # higher.  So we apply an addition scaling factor (1 - b)^t with b linearly
+    # converging from a to a/2 over 150 years (end of model horizon).
+    a <- 0.01
+    factor_a <- tibble(year = getYears(industry_subsectors_ue, 
+                                       as.integer = TRUE)) %>% 
+      mutate(
+        x = pmax(0, .data$year - 2020),
+        factor = (1 - (a - (a / 300) * .data$x)) ^ .data$x) %>% 
+      select('year', 'factor') %>% 
+      as.magpie(temporal = 1, spatial = 0, data = 2) %>% 
+      dimSums()
+    
     foo_pop <- calcOutput('Population', aggregate = FALSE, FiveYearSteps = FALSE)
     
     industry_subsectors_ue_SSP2_lowEn <- (
-          dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1) %>% 
-      `/`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])) %>% 
-      `*`(dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2']))
-    )
+        dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1)
+      / dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])
+      * dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2'])
+      * factor_a)
     
     getNames(industry_subsectors_ue_SSP2_lowEn) <- paste(
       'gdp_SSP2_lowEn', getNames(industry_subsectors_ue_SSP2_lowEn), sep = '.')
@@ -742,6 +757,7 @@ calcFEdemand <- function(subtype = "FE") {
         dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1)
       / dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])
       * dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])
+      * factor_a
     )
     
     getNames(industry_steel_SSP2_lowEn) <- paste(
