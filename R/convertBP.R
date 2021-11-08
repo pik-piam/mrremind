@@ -1,11 +1,11 @@
 #' Disaggregates and cleans BP data.
 #' @param x MAgPIE object to be converted
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", ...
+#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal"
 #' @description Disaggregates historical - capacity, generation, and production data.
 #' @return A magpie object with historical electricity capacities (in MW for Wind, Solar, and Geothermal),
 #' Generation (in TWh for Nuclear, Hydro, Wind, Solar, and Geo Biomass), AND
 #' Production (in EJ for Coal, Oil, and Gas, additionally in tonnes for coal)
-#' @author Aman Malik
+#' @author Aman Malik, Falk Benke
 #' @importFrom dplyr filter
 #' @importFrom madrat magpply toolGetMapping toolCountryFill
 #'
@@ -252,7 +252,6 @@ convertBP <- function(x, subtype) {
     x1[unchanged_regions, seq(1980, 2018, 1), ] <- trade.export.oil[unchanged_regions, seq(1980, 2018, 1), ]
     x1[to_regions, seq(1980, 2018, 1), ] <- trade.ref.export.split[, seq(1980, 2018, 1), , ]
     
-    
     from_regions <- intersect(reg2detailReg.import$BP_Region, getRegions(trade.import.oil))
     to_regions <- intersect(reg2detailReg.import$BP_Region_Detail, getRegions(trade.ref.import.oil))
     unchanged_regions <- setdiff(getRegions(trade.import.oil), from_regions)
@@ -285,10 +284,11 @@ convertBP <- function(x, subtype) {
     ctry <- toolCountry2isocode(getRegions(x.trade), warn = F)
     ctry <- ctry[!is.na(ctry)]
 
-    # exclude countries from mapping that are explicitly listed in source
     mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
     oil_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe")
-    mapping_full <- mapping_full[mapping_full$Region_name %in% oil_regions & mapping_full$ISO3.code != "SUN",]
+    
+    # exclude countries from mapping that are explicitly listed in source
+    mapping_full <- mapping_full[mapping_full$Region_name %in% oil_regions & !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN",]
     PE <- calcOutput("PE", aggregate = FALSE)[mapping_full$ISO3.code, 2016, "PE (EJ/yr)"]
 
     x2 <- toolAggregate(x.trade[oil_regions, , ], rel = mapping_full, weight = PE)
@@ -296,10 +296,40 @@ convertBP <- function(x, subtype) {
     x2[is.na(x2)] <- 0
 
     x1 <- x.trade[oil_regions, , invert = TRUE]
-    getRegions(x1) <- toolCountry2isocode(getRegions(x1))
+    getRegions(x1) <- toolCountry2isocode(getRegions(x1), warn = F)
     x1 <- toolCountryFill(x1, fill = 0)
     x1[is.na(x1)] <- 0
 
+    # Combine the two objects containing normal and disaggregated data
+    x <- x1 + x2
+  }
+  
+  if ( subtype == "Trade Gas") {
+    
+    x <- .mergeReg(x, from = c("Other Asia", "OECD Asia"), to = "Asia Pacific")
+    x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
+    x <- .mergeReg(x, from = c("Other North America"), to = "North America")
+    x <- .mergeReg(x, from = c("Other S & C America"), to = "S & C America")
+    
+    ctry <- toolCountry2isocode(getRegions(x), warn = F)
+    ctry <- ctry[!is.na(ctry)]
+    
+    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
+    gas_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe", "North America")
+    
+    # exclude countries from mapping that are explicitly listed in source
+    mapping_full <- mapping_full[mapping_full$Region_name %in% gas_regions & !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN",]
+    PE <- calcOutput("PE", aggregate = FALSE)[mapping_full$ISO3.code, 2016, "PE (EJ/yr)"]
+    
+    x2 <- toolAggregate(x[gas_regions, , ], rel = mapping_full, weight = PE)
+    x2 <- toolCountryFill(x2, fill = 0)
+    x2[is.na(x2)] <- 0
+    
+    x1 <- x[gas_regions, , invert = TRUE]
+    getRegions(x1) <- toolCountry2isocode(getRegions(x1), warn = F)
+    x1 <- toolCountryFill(x1, fill = 0)
+    x1[is.na(x1)] <- 0
+    
     # Combine the two objects containing normal and disaggregated data
     x <- x1 + x2
   }

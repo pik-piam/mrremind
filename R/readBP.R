@@ -19,9 +19,8 @@ readBP <- function(subtype) {
   Year <- NULL
   filename <- c("bp-stats-review-2021-all-data.xlsx")
 
-  tidy_data <- function(df, variable) {
+  tidy_data <- function(df, variable, rows2remove = c("Total|OECD|European")) {
     years <- as.character(c(1900:2020))
-    rows2remove <- c("Total|OECD|European")
     colnames(df)[1] <- "Country"
     df$Country <- gsub("\\.", "", df$Country)
     df <- df %>%
@@ -36,12 +35,14 @@ readBP <- function(subtype) {
     return(df)
   }
 
-  tidy_data_vertical <- function(df) {
+  tidy_data_vertical <- function(df, rows2remove = c("Total|OECD|European")) {
     years <- as.character(c(1900:2020))
-    rows2remove <- c("Total|OECD|European")
     df$Country <- gsub("\\.", "", df$Country)
+    if (!is.null(rows2remove)) {
+      df <- filter(df, !grepl(rows2remove, Country))
+    }
     df <- df %>%
-      filter(!grepl(rows2remove, Country), Year %in% years) %>%
+      filter(Year %in% years) %>%
       mutate(Year = as.integer(as.character(Year))) %>%
       mutate(Country = gsub(pattern = " and ", replacement = " & ", x = Country)) %>%
       mutate(Country = gsub(pattern = "[0-9]", replacement = "", x = Country))
@@ -186,10 +187,10 @@ readBP <- function(subtype) {
         NA,
         NA,
         NA,
-        "US|Trade|Import|Gas (bcm)",
+        "USA|Trade|Import|Gas (bcm)",
         NA,
         NA,
-        "US|Trade|Export|Gas (bcm)",
+        "USA|Trade|Export|Gas (bcm)",
         NA,
         NA,
         NA,
@@ -205,10 +206,10 @@ readBP <- function(subtype) {
         "Brazil|Trade|Export|Gas (bcm)",
         NA,
         NA,
-        "Other S&C America|Trade|Import|Gas (bcm)",
+        "Other S & C America|Trade|Import|Gas (bcm)",
         NA,
         NA,
-        "Other S&C America|Trade|Export|Gas (bcm)",
+        "Other S & C America|Trade|Export|Gas (bcm)",
         NA,
         NA,
         NA,
@@ -296,7 +297,7 @@ readBP <- function(subtype) {
       reshape2::melt(id.vars = c("Variable", "Country")) %>%
       reshape2::dcast(Country + variable ~ Variable, value.var = "value")
     colnames(data_gas_trade)[2] <- "Year"
-    data <- tidy_data_vertical(data_gas_trade)
+    data <- tidy_data_vertical(data_gas_trade, rows2remove = NULL)
 
   } else if (subtype == "Price") {
     data_oil_spot_crude_price <- read_excel(filename, sheet = "Oil - Spot crude prices", range = "A4:E54")

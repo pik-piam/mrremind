@@ -69,6 +69,17 @@ calcBP <- function() {
   pe.nuclear.dea <- pe.nuclear * renewables.factors
   consumption.pe <- consumption.pe + pe.elec.renewable.dea + pe.nuclear.dea
 
+  # calculate net oil trade
+  trade.oil <- readSource("BP", subtype = "Trade Oil")
+  trade.oil.net <- trade.oil[,,"Trade|Export|Oil (kb/d)"] - trade.oil[,,"Trade|Import|Oil (kb/d)"]
+  getNames(trade.oil.net) <- c("Net Trade|Oil (kb/d)")
+  getSets(trade.oil.net) <- c("region", "year", "data")
+  
+  # calculate net gas trade
+  trade.gas <- readSource("BP", subtype = "Trade Gas")
+  trade.gas.net <- trade.gas[,,"Trade|Export|Gas (bcm)"] - trade.gas[,,"Trade|Import|Gas (bcm)"]
+  getNames(trade.gas.net) <- c("Net Trade|Gas (bcm)")
+  getSets(trade.gas.net) <- c("region", "year", "data")
   
   # prepare price data
   # ...
@@ -79,7 +90,10 @@ calcBP <- function() {
     .convert(consumption.fossils),
     .convert(consumption.renewables),
     .convert(consumption.pe),
-    .convert(readSource("BP", subtype = "Trade Oil"))
+    .convert(trade.oil),
+    .convert(trade.oil.net),
+    .convert(trade.gas),
+    .convert(trade.gas.net)
   )
 
   x <- left_join(
