@@ -16,13 +16,11 @@
 calcBP <- function() {
   
   .readFactors <- function(){
-    filename <- c("bp-stats-review-2021-all-data.xlsx")
     
-    factors <- read_excel(filename, sheet = "Methodology", range = "B23:F34") %>% select(-3)
-    colnames(factors) <- rep(c("year", "factor"), times = 2)
+    factors <- toolGetMapping("BP_Renewable_Efficiency_Factors.csv", type = "sectoral")
+    colnames(factors) <- c("year", "factor")
     factors <- rbind(
-      factors[,c(1,2)],
-      factors[,c(3,4)],
+      factors,
       data.frame(year = seq(1965,2000,1), factor = 0.36)
     ) %>% 
     filter(!is.na(as.numeric(!!sym("year"))))
@@ -81,6 +79,14 @@ calcBP <- function() {
   getNames(trade.gas.net) <- c("Net Trade|Gas (bcm)")
   getSets(trade.gas.net) <- c("region", "year", "data")
   
+  # calculate net coal trade
+  trade.coal <- readSource("BP", subtype = "Trade Coal")
+  trade.coal.net <- trade.coal[,,"Trade|Export|Coal (EJ)"] - trade.coal[,,"Trade|Import|Coal (EJ)"]
+  getNames(trade.coal.net) <- c("Net Trade|Coal (EJ)")
+  getSets(trade.coal.net) <- c("region", "year", "data")
+  
+
+  
   # prepare price data
   # ...
   
@@ -93,7 +99,9 @@ calcBP <- function() {
     .convert(trade.oil),
     .convert(trade.oil.net),
     .convert(trade.gas),
-    .convert(trade.gas.net)
+    .convert(trade.gas.net),
+    .convert(trade.coal),
+    .convert(trade.coal.net)
   )
 
   x <- left_join(
@@ -112,7 +120,7 @@ calcBP <- function() {
     toolCountryFill(fill = 0)
   
   return(list(x = x, weight = NULL, 
-              unit = c("EJ"),
+              unit = c("EJ", "EJ/yr", "GW"), # TODO
               description = "Historical BP values as REMIND variables"))
   
 }

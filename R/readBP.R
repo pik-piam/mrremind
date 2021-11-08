@@ -152,7 +152,6 @@ readBP <- function(subtype) {
     ))
   } else if (subtype == "Trade Oil") {
 
-    # Oil Trade
     data_oil_trade <- read_excel(filename, sheet = "Oil - Trade movements", range = "A3:AP27")
     data_oil_trade_import <- tidy_data(data_oil_trade[seq(1, 8), ], "Trade|Import|Oil (kb/d)")
     data_oil_trade_export <- tidy_data(data_oil_trade[seq(9, 24), ], "Trade|Export|Oil (kb/d)")
@@ -170,16 +169,15 @@ readBP <- function(subtype) {
     data <- merge_recurse(list(data_oil_trade_import, data_oil_trade_export, data_oil_trade_detail))
 
   } else if (subtype == "Trade Coal") {
-    # Coal Trade
+
     data_coal_trade <- read_excel(filename, sheet = "Coal - Trade movements", range = "A3:V34")
-    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)")
-    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)")
+    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)", rows2remove = c("Total|OECD|European|Rest"))
+    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)", rows2remove = c("Total|OECD|European|Rest"))
 
     data <- merge_recurse(list(data_coal_trade_import, data_coal_trade_export))
 
   } else if (subtype == "Trade Gas") {
 
-    # Gas Trade
     data_gas_trade <- read_excel(filename, sheet = "Gas - Inter-regional trade", range = "A3:V105")
     colnames(data_gas_trade)[1] <- "Variable"
     variable_mapping <- {

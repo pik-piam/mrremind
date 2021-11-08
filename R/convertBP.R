@@ -16,6 +16,31 @@ convertBP <- function(x, subtype) {
     remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
     return(x[!remove, , ])
   }
+  
+  # TODO: use everywhere
+  .disaggregate_regions <- function(x, regions){
+    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
+    
+    ctry <- toolCountry2isocode(getRegions(x), warn = F)
+    ctry <- ctry[!is.na(ctry)]
+    
+    # exclude countries from mapping that are explicitly listed in source
+    mapping_full <- mapping_full[mapping_full$Region_name %in% regions & !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN",]
+    PE <- calcOutput("PE", aggregate = FALSE)[mapping_full$ISO3.code, 2016, "PE (EJ/yr)"]
+    
+    x2 <- toolAggregate(x[regions, , ], rel = mapping_full, weight = PE)
+    x2 <- toolCountryFill(x2, fill = 0)
+    x2[is.na(x2)] <- 0
+    
+    x1 <- x[regions, , invert = TRUE]
+    getRegions(x1) <- toolCountry2isocode(getRegions(x1), warn = F)
+    x1 <- toolCountryFill(x1, fill = 0)
+    x1[is.na(x1)] <- 0
+    
+    # Combine the two objects containing normal and disaggregated data
+    x <- x1 + x2
+    return(x)
+  }
 
   # TODO: use everywhere
   .mergeReg <- function(x, from, to) {
@@ -280,60 +305,45 @@ convertBP <- function(x, subtype) {
     x.trade <- .mergeReg(x.trade, from = c("Other CIS"), to = "CIS")
     x.trade <- .mergeReg(x.trade, from = c("Other Middle East"), to = "Middle East")
 
-    # get iso countries in source
-    ctry <- toolCountry2isocode(getRegions(x.trade), warn = F)
-    ctry <- ctry[!is.na(ctry)]
-
-    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
     oil_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe")
-    
-    # exclude countries from mapping that are explicitly listed in source
-    mapping_full <- mapping_full[mapping_full$Region_name %in% oil_regions & !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN",]
-    PE <- calcOutput("PE", aggregate = FALSE)[mapping_full$ISO3.code, 2016, "PE (EJ/yr)"]
-
-    x2 <- toolAggregate(x.trade[oil_regions, , ], rel = mapping_full, weight = PE)
-    x2 <- toolCountryFill(x2, fill = 0)
-    x2[is.na(x2)] <- 0
-
-    x1 <- x.trade[oil_regions, , invert = TRUE]
-    getRegions(x1) <- toolCountry2isocode(getRegions(x1), warn = F)
-    x1 <- toolCountryFill(x1, fill = 0)
-    x1[is.na(x1)] <- 0
-
-    # Combine the two objects containing normal and disaggregated data
-    x <- x1 + x2
+    x <- .disaggregate_regions(x.trade, oil_regions)
   }
   
-  if ( subtype == "Trade Gas") {
+  if (subtype == "Trade Gas") {
     
     x <- .mergeReg(x, from = c("Other Asia", "OECD Asia"), to = "Asia Pacific")
     x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
     x <- .mergeReg(x, from = c("Other North America"), to = "North America")
     x <- .mergeReg(x, from = c("Other S & C America"), to = "S & C America")
     
-    ctry <- toolCountry2isocode(getRegions(x), warn = F)
-    ctry <- ctry[!is.na(ctry)]
-    
-    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
     gas_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe", "North America")
+    x <- .disaggregate_regions(x, gas_regions)
     
-    # exclude countries from mapping that are explicitly listed in source
-    mapping_full <- mapping_full[mapping_full$Region_name %in% gas_regions & !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN",]
-    PE <- calcOutput("PE", aggregate = FALSE)[mapping_full$ISO3.code, 2016, "PE (EJ/yr)"]
-    
-    x2 <- toolAggregate(x[gas_regions, , ], rel = mapping_full, weight = PE)
-    x2 <- toolCountryFill(x2, fill = 0)
-    x2[is.na(x2)] <- 0
-    
-    x1 <- x[gas_regions, , invert = TRUE]
-    getRegions(x1) <- toolCountry2isocode(getRegions(x1), warn = F)
-    x1 <- toolCountryFill(x1, fill = 0)
-    x1[is.na(x1)] <- 0
-    
-    # Combine the two objects containing normal and disaggregated data
-    x <- x1 + x2
   }
 
+  if (subtype == "Trade Coal") {
+    
+    getRegions(x) <- gsub("\\bUS\\b", "USA", getRegions(x))
+    getRegions(x) <- gsub("S & Cent America", "S & C America", getRegions(x))
+    
+    trade.export.coal <- .removeNaRegions(x[, , "Trade|Export|Coal (EJ)"])
+    trade.export.coal <- .mergeReg(trade.export.coal, from = c("Other Asia Pacific"), to = "Asia Pacific")
+    trade.export.coal <- .mergeReg(trade.export.coal, from = c("Other CIS"), to = "CIS")
+    trade.export.coal <- .mergeReg(trade.export.coal, from = c("Other Africa"), to = "Africa")
+    
+    coal_regions <- c("Africa", "Asia Pacific", "CIS", "Europe")
+    trade.export.coal <- .disaggregate_regions(trade.export.coal, coal_regions)
+  
+    trade.import.coal <- .removeNaRegions(x[, , "Trade|Import|Coal (EJ)"])
+    trade.import.coal <- .mergeReg(trade.import.coal, from = c("Other Asia Pacific"), to = "Asia Pacific")
+
+    coal_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe")
+    trade.import.coal <- .disaggregate_regions(trade.import.coal, coal_regions)
+    
+    return(mbind(trade.export.coal, trade.import.coal))
+
+  }
+  
   getSets(x) <- c("region", "year", "data")
 
   return(x)
