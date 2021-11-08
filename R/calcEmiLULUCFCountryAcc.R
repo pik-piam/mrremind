@@ -17,7 +17,7 @@ calcEmiLULUCFCountryAcc <- function(subtype){
     unfccc <- readSource("UNFCCC")
     
     # LULUCF CO2 emissions from UNFCCC database from, convert to Mt CO2/yr
-    out <- collapseNames(unfccc[,,"Total LULUCF|CO2"]) / 1000
+    out <- collapseNames(unfccc[,,"Table4|Total LULUCF|CO2"]) / 1000
     # replace NA by 0
     out[is.na(out)] <- 0
     
