@@ -1,13 +1,13 @@
 #' Disaggregates and cleans BP data.
 #' @param x MAgPIE object to be converted
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal"
+#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @description Disaggregates historical - capacity, generation, and production data.
 #' @return A magpie object with historical electricity capacities (in MW for Wind, Solar, and Geothermal),
 #' Generation (in TWh for Nuclear, Hydro, Wind, Solar, and Geo Biomass), AND
 #' Production (in EJ for Coal, Oil, and Gas, additionally in tonnes for coal)
 #' @author Aman Malik, Falk Benke
 #' @importFrom dplyr filter
-#' @importFrom madrat magpply toolGetMapping toolCountryFill
+#' @importFrom getISOlist madrat magpply toolGetMapping toolCountryFill
 #'
 #'
 
@@ -340,8 +340,42 @@ convertBP <- function(x, subtype) {
     coal_regions <- c("Africa", "Asia Pacific", "CIS", "Middle East", "S & C America", "Europe")
     trade.import.coal <- .disaggregate_regions(trade.import.coal, coal_regions)
     
-    return(mbind(trade.export.coal, trade.import.coal))
+    x <- mbind(trade.export.coal, trade.import.coal)
 
+  }
+  
+  if (subtype == "Price") {
+    x.price <- new.magpie(getISOlist(), getYears(x), getNames(x))
+    x.price[getISOlist(),,] <- x["GLO",,]
+    
+    mapping <- toolGetMapping("regionmappingH12.csv")
+    caz <- mapping[mapping$RegionCode == "CAZ", "CountryCode"]
+    oas <- mapping[mapping$RegionCode == "OAS", "CountryCode"]
+    eur <- setdiff(mapping[mapping$RegionCode == "EUR", "CountryCode"], "GBR")
+    
+    # specific region mapping for gas prices:
+    # Japan -> JPN, Korea -> OAS, average (Netherlands, Germany) -> EUR, US-> USA, Can -> CAZ
+    price.gas <- new.magpie(c(oas, eur, caz, "USA", "GBR", "JPN"), getYears(x.price), "Price|Natural Gas ($/mbtu)")
+    price.gas["JPN",,"Price|Natural Gas ($/mbtu)"] <- x.price["JPN",,"Price|LNG|Japan|CIF ($/mbtu)"]
+    price.gas[oas,,"Price|Natural Gas ($/mbtu)"] <- x.price[oas,,"Price|LNG|Japan|Korea Marker ($/mbtu)"]
+    price.gas[eur,,"Price|Natural Gas ($/mbtu)"] <- (x.price[eur,,"Price|Natural Gas|Netherlands TTF DA Heren Index ($/mbtu)"] +
+                                           x.price[eur,,"Price|Natural Gas|Avg German Import Price ($/mbtu)"]) / 2
+    price.gas["GBR",,"Price|Natural Gas ($/mbtu)"] <- x.price["GBR",,"Price|Natural Gas|UK Heren NBP Index ($/mbtu)"]
+    price.gas["USA",,"Price|Natural Gas ($/mbtu)"] <- x.price["USA",,"Price|Natural Gas|US Henry Hub ($/mbtu)"]
+    price.gas[caz,,"Price|Natural Gas ($/mbtu)"] <- x.price[caz,,"Price|Natural Gas|Alberta ($/mbtu)"]
+    price.gas <- toolCountryFill(price.gas, fill = 0)
+    
+    # specific region mapping for coal prices:
+    # Japan steam spot -> JPN, Asian marker -> OAS, IND, NW EU -> EUR, US-> USA, Chn -> CHN
+    price.coal <- new.magpie(c(oas, eur, "USA", "GBR", "JPN", "IND", "CHN"), getYears(x.price), "Price|Coal ($/t)")
+    price.coal["JPN",,"Price|Coal ($/t)"] <- x.price["JPN",,"Price|Coal|Japan steam spot CIF price ($/t)"]
+    price.coal[c(oas, "IND"),,"Price|Coal ($/t)"] <- x.price[c(oas, "IND"),,"Price|Coal|Asian marker price (t/$)"]
+    price.coal[c(eur, "GBR"),,"Price|Coal ($/t)"] <- x.price[c(eur, "GBR"),,"Price|Coal|Northwest Europe marker price ($/t)"]
+    price.coal["USA",,"Price|Coal ($/t)"] <- x.price["USA",,"Price|Coal|US Central Appalachian coal spot price index ($/t)"]
+    price.coal["CHN",,"Price|Coal ($/t)"] <- x.price["CHN",,"Price|Coal|China Qinhuangdao spot price ($/t)"]
+    price.coal <- toolCountryFill(price.coal, fill = 0)
+    
+    x <- mbind(x.price, price.gas, price.coal)
   }
   
   getSets(x) <- c("region", "year", "data")

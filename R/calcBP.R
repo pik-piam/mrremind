@@ -85,11 +85,6 @@ calcBP <- function() {
   getNames(trade.coal.net) <- c("Net Trade|Coal (EJ)")
   getSets(trade.coal.net) <- c("region", "year", "data")
   
-
-  
-  # prepare price data
-  # ...
-  
   data <- rbind(
     .convert(readSource("BP", subtype = "Capacity")),
     .convert(readSource("BP", subtype = "Generation")),
@@ -101,7 +96,8 @@ calcBP <- function() {
     .convert(trade.gas),
     .convert(trade.gas.net),
     .convert(trade.coal),
-    .convert(trade.coal.net)
+    .convert(trade.coal.net),
+    .convert(readSource("BP", subtype = "Price"))
   )
 
   x <- left_join(
