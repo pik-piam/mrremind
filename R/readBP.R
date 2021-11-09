@@ -1,10 +1,8 @@
 #' BP Capacity and Generation Data
 #' @description  BP data. See README in input file for more details.
-#' @details Data contains historical electricity renewable capacities (in MW for Wind, Solar, and Geothermal), Generation (in TWh for Nuclear, Hydro, Wind, Solar, Other Renewables, and Geo Biomass)
-#' and Production (Oil, Gas, and Oil in Tonnes/EJ)
 #'
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal", "Price"
-#' @return A magpie object
+#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
+#' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
 #' @importFrom tidyr gather
 #' @importFrom dplyr filter
