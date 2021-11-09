@@ -28,6 +28,8 @@
 #' @importFrom car logit
 #' @importFrom dplyr %>% case_when right_join semi_join
 #' @importFrom Hmisc wtd.quantile
+#' @importFrom ggplot2 aes expand_limits facet_wrap geom_path geom_point ggplot 
+#'   labs scale_linetype_manual scale_shape_manual
 #' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame 
 #'   madrat_mule sum_total_
 #' @importFrom stats SSlogis nls
@@ -1599,7 +1601,6 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   ## plot cement regressions ====
   d_plot_region_totals <- regression_data_cement %>% 
     filter(!.data$censored,
-           'World' != .data$region,
            'Total' == .data$iso3c) %>% 
     mutate(GDPpC = .data$GDP / .data$population)
   
@@ -1717,6 +1718,13 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   ) %>% 
     mutate(value = a * exp(b / GDPpC))
   
+  y_max <- d_plot_region_totals %>% 
+    filter('World' == .data$region) %>% 
+    mutate(
+      cement.production.pC = .data$cement.production / .data$population) %>% 
+    filter(max(.data$cement.production.pC) == .data$cement.production.pC) %>% 
+    pull('cement.production.pC')
+  
   
   ggplot(mapping = aes(x = GDPpC / 1000, 
                        y = cement.production / population)) +
@@ -1728,16 +1736,17 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     geom_point(
       data = d_plot_region_totals,
       mapping = aes(shape = 'region totals')) +
-    # plot individual countries
-    geom_point(
-      data = d_plot_countries,
-      mapping = aes(shape = 'countries')) +
+    # # plot individual countries
+    # geom_point(
+    #   data = d_plot_countries,
+    #   mapping = aes(shape = 'countries')) +
     # plot projections
     geom_path(
       data = d_plot_projections,
       mapping = aes(linetype = scenario)) +
     scale_shape_manual(values = c('region totals' = 'cross', 
-                                  'countries' = '.'),
+                                  # 'countries' = '.',
+                                  NULL),
                        name = NULL) +
     scale_linetype_manual(values = c('regression' = 'longdash',
                                      'SSP1' = 'dotted',
@@ -1745,7 +1754,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
                                      'SSP5' = 'dashed'),
                           name = NULL) +
     facet_wrap(~ region, scales = 'free') +
-    expand_limits(x = 0, y = 0) +
+    expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
     labs(x = 'per-capita GDP [1000 $/year]', 
          y = 'per-capita Cement Production [tonnes/year]') +
     theme_minimal()
@@ -1879,6 +1888,91 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     pivot_wider() %>% 
     mutate(GDPpC           = .data$GDP / .data$population, 
            chemicals.share = .data$chemicals.VA / .data$manufacturing)
+  
+  ## plot chemicals regressions ================================================
+  d_plot_region_totals <- regression_data_chemicals %>% 
+    filter(!.data$censored,
+           'Total' == .data$iso3c)
+  
+  d_plot_countries <- regression_data_chemicals %>% 
+    filter(!.data$censored) %>% 
+    semi_join(
+      regression_data_chemicals %>% 
+        filter(!.data$censored,
+               'World' != .data$region,
+               'Total' != .data$iso3c) %>% 
+        distinct(.data$region, .data$iso3c) %>% 
+        group_by(.data$region) %>% 
+        filter(1 != n()) %>% 
+        ungroup(),
+      
+      c('region', 'iso3c')
+    ) %>% 
+    mutate(GDPpC = .data$GDP / .data$population)
+  
+  d_plot_regression <- full_join(
+    regression_parameters_chemicals,
+    
+    d_plot_region_totals %>% 
+      select('region', 'GDPpC') %>% 
+      group_by(.data$region) %>% 
+      filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
+      mutate(x = c(1, 100)) %>% 
+      complete(nesting(!!sym('region')), 
+               x = seq(min(!!sym('x')), max(!!sym('x'))), 
+               fill = list(GDPpC = NA)) %>% 
+      mutate(GDPpC = first(.data$GDPpC) 
+             + ( (last(.data$GDPpC) - first(.data$GDPpC)) 
+                 / (last(.data$x) - first(.data$x)) 
+                 * (.data$x - first(.data$x)))) %>% 
+      ungroup() %>% 
+      select(-'x'),
+    
+    'region'
+  ) %>% 
+    mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+  
+  d_plot_projections <- projected_chemicals_data %>% 
+    filter(.data$scenario %in% c('SSP1', 'SSP2', 'SSP5'),
+           'Total' == .data$iso3c,
+           between(.data$year, max(d_plot_region_totals$year), 2100)) %>% 
+    select('scenario', 'region', 'year', 'GDPpC', 'chemicals.VA', 
+           'population') %>% 
+    group_by(.data$region) %>% 
+    filter(.data$GDPpC <= .data$GDPpC[  'SSP2' == .data$scenario 
+                                      & 2100 == .data$year]) %>% 
+    ungroup()
+
+  ggplot(mapping = aes(x = GDPpC / 1000, 
+                       y = chemicals.VA / population)) +
+    # plot region totals
+    geom_point(
+      data = d_plot_region_totals,
+      mapping = aes(shape = 'region totals')) +
+    # # plot regression line
+    geom_path(
+      data = d_plot_regression,
+      mapping = aes(y = value, linetype = 'regression')) +
+    # # plot projections
+    geom_path(
+      data = d_plot_projections,
+      mapping = aes(linetype = scenario)) +
+    scale_shape_manual(values = c('region totals' = 'cross',
+                                  # 'countries' = '.',
+                                  NULL),
+                       name = NULL) +
+    scale_linetype_manual(values = c('regression' = 'longdash',
+                                     'SSP1' = 'dotted',
+                                     'SSP2' = 'solid',
+                                     'SSP5' = 'dashed'),
+                          name = NULL) +
+    facet_wrap(~ region, scales = 'free') +
+    expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
+    labs(x = 'per-capita GDP [1000 $/year]', 
+         y = 'per-capita Chemicals Value Added [$/year]') +
+    theme_minimal()
+  
+  # ======================================================================== ===
   
   # calculate other Industries Value Added projections ----
   projections <- bind_rows(
