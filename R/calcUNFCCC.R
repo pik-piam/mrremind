@@ -106,6 +106,6 @@ calcUNFCCC <- function() {
     x[,, "Emi|N2O (kt N2O/yr)"] / 1000 * 265
 
   return(list(x = x, weight = NULL, 
-              unit = c("kt CO2", "kt CH4", "kt N2O"),
+              unit = c("Mt CO2", "Mt CH4", "kt N2O", "Mt CO2-equiv"),
               description = "Historical UNFCCC values as REMIND variables"))
 }
