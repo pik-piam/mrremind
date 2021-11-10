@@ -17,7 +17,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.03"
+  ver <- "1.04"
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
@@ -46,11 +46,6 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getNames(mbuilding) <- gsub("rcp", "", getNames(mbuilding))
       getNames(mbuilding) <- gsub("NoC", "fixed", getNames(mbuilding))
       getSets(mbuilding) <- c("region", "year", "scenario", "rcp", "item")
-      # duplicate SDP scenario for SDP variants
-      mbuildingSDPs <- addDim(
-        mselect(mbuilding, scenario = "SDP", collapseNames = TRUE),
-        c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
-      mbuilding <- mbind(mbuilding, mbuildingSDPs)
       return(mbuilding)
     },
     Capital = {
@@ -75,11 +70,6 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mfloor <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       mfloor <- as.magpie(mfloor)
       mfloor <- collapseNames(mfloor)
-      # duplicate SDP scenario for SDP variants
-      mfloorSDPs <- addDim(
-        mselect(mfloor, scenario = "SDP", collapseNames = TRUE),
-        c("SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
-      mfloor <- mbind(mfloor, mfloorSDPs)
       getSets(mfloor) <- c("region", "year", "scenario", "variable")
       return(mfloor)
     },
