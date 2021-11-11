@@ -1,6 +1,6 @@
 #' Disaggregates and cleans BP data.
 #' @param x MAgPIE object to be converted
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
+#' @param subtype Either "Emission", "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @description Disaggregates historical data.
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
@@ -23,10 +23,11 @@ convertBP <- function(x, subtype) {
     return(x[!remove, , ])
   }
 
-  # disaggregate regions of x by mapping to iso countries not listed in x (i.e. other countries)
+  # disaggregate regions of x by mapping to iso countries belonging to that regions, but not listed in x (i.e. other countries)
   .disaggregate_regions <- function(x_in, regions) {
 
     x <- .removeNaRegions(x_in)
+
     # full mapping of regions to iso countries
     mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
 
@@ -45,7 +46,7 @@ convertBP <- function(x, subtype) {
     x2 <- toolCountryFill(x2, fill = 0, verbosity = 2)
     x2[is.na(x2)] <- 0
 
-    # iso countries in x that do not need to  be disaggregated
+    # iso countries in x that do not need to be disaggregated
     x1 <- x[regions, , invert = TRUE]
     getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
     x1 <- toolCountryFill(x1, fill = 0, verbosity = 2)
@@ -66,8 +67,26 @@ convertBP <- function(x, subtype) {
 
   getItems(x, dim = 1) <- gsub("\\bUS\\b", "USA", getItems(x, dim = 1))
   getItems(x, dim = 1) <- gsub(pattern = "China Hong Kong SAR", "Hong Kong", x = getItems(x, dim = 1))
+  
+  # for now, we exclude data from Sowjet Union (recorded until 1993)
+  x <- x["USSR",,invert = T]
 
+  if (subtype == "Emission") {
+    x <- .mergeReg(x, from = c("Central America", "Other Caribbean", "Other South America"), to = "S & C America")
+    x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
+    x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
+    x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
+    x <- .mergeReg(x, from = c("Eastern Africa", "Middle Africa", "Western Africa", "Other Northern Africa", "Other Southern Africa"), to = "Africa")
+    x <- .mergeReg(x, from = c("Other Asia Pacific"), to = "Asia Pacific")
+    
+    regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
+    
+    x <- .disaggregate_regions(x, regions)
+
+  }
+  
   if (subtype == "Capacity") {
+
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
     x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
     x <- .mergeReg(x, from = c("Other Africa"), to = "Africa")
@@ -97,9 +116,6 @@ convertBP <- function(x, subtype) {
     
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
     
-    # IMPORTANT NOTE: Generation Data has not been disaggregated for USSR before 1991.
-    x <- x["USSR",,invert = T]
-    
     x <- mbind(
       .disaggregate_regions(x[,,"Generation|Wind (TWh)"], regions),
       .disaggregate_regions(x[,,"Generation|Solar (TWh)"], regions),
@@ -126,8 +142,6 @@ convertBP <- function(x, subtype) {
     x <- .mergeReg(x, from = c("Other Asia Pacific"), to = "Asia Pacific")
     x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
 
-    x <- x[c("OPEC", "Non-OPEC", "USSR"), , invert = T]
-
     x <- mbind(
       .disaggregate_regions(x[,,"Oil Production (million t)"], regions),
       .disaggregate_regions(x[,,"Coal Production (EJ)"], regions),
@@ -138,9 +152,6 @@ convertBP <- function(x, subtype) {
 
   if (subtype == "Consumption") {
 
-    # IMPORTANT NOTE: Generation Data has not been disaggregated for USSR before 1991.
-    x <- x["USSR",,, invert = T]
-    
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
     
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
@@ -164,16 +175,13 @@ convertBP <- function(x, subtype) {
   }
 
   if (subtype == "Trade Oil") {
+    
     getItems(x, dim = 1) <- gsub("S & Cent America", "S & C America", getItems(x, dim = 1))
-
-    # for now, we exclude exports from Sowjet Union (recorded until 1993)
-    # TODO include exports from Sowjet Union until 1993 to ensure import-export balance between 1990 and 1993
-    x <- x["USSR & Central Europe", , invert = T]
 
     trade.export.oil <- .removeNaRegions(x[, , "Trade|Export|Oil (kb/d)"])
     trade.import.oil <- .removeNaRegions(x[, , "Trade|Import|Oil (kb/d)"])
 
-    # step 1: resolve to more fine granual regions based on detailed Oil Trade Data for 2019 and 2020
+    # step 1: resolve to more fine granual regions based on detailed Oil Trade Data for 2019 and 2020 available
 
     # reference data
     trade.ref.export.oil <- new.magpie(getItems(x, dim = 1), getYears(x), "Trade|Export|Oil (kb/d)")
@@ -224,7 +232,7 @@ convertBP <- function(x, subtype) {
     x.trade[, , "Trade|Export|Oil (kb/d)"] <- x1
     x.trade[, , "Trade|Import|Oil (kb/d)"] <- x2
 
-    # step 2: aggregate to regions in regionmappingBP_Full.csv, then resolve
+    # step 2: aggregate to regions in regionmappingBP_Full.csv, then resolve regions
 
     # TODO: for better precision, create a direct, more fine-granular mapping from trade regions to countries
 

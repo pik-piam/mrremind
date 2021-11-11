@@ -1,7 +1,7 @@
 #' BP Capacity and Generation Data
 #' @description  BP data. See README in input file for more details.
 #'
-#' @param subtype Either "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
+#' @param subtype Either "Emission", Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
 #' @importFrom tidyr gather
@@ -47,8 +47,12 @@ readBP <- function(subtype) {
     return(df)
   }
 
+  if (subtype == "Emission") {
+    data_emi <- read_excel(filename, sheet = "Carbon Dioxide Emissions", range = "A3:BE109")
+    data <- tidy_data(data_emi, "Emi|CO2 (Mt CO2)")
+  }
   # Capacity Data for Wind, Solar, and Geobiomass
-  if (subtype == "Capacity") {
+  else if (subtype == "Capacity") {
     data_solar <- read_excel(filename, sheet = "Solar Capacity", range = "A4:Z72")
     data_solar <- tidy_data(data_solar, "Capacity|Solar (MW)")
 
@@ -100,7 +104,7 @@ readBP <- function(subtype) {
     data <- filter(data, !grepl("\\.", data$Year))
   } 
   else if (subtype == "Production") {
-    data_oil <- read_excel(filename, sheet = "Oil Production - Tonnes", range = "A3:BE80")
+    data_oil <- read_excel(filename, sheet = "Oil Production - Tonnes", range = "A3:BE73")
     data_oil <- tidy_data(data_oil, "Oil Production (million t)")
 
     data_coal_ej <- read_excel(filename, sheet = "Coal Production - EJ", range = "A3:AO62")
@@ -109,7 +113,7 @@ readBP <- function(subtype) {
     data_coal_ton <- read_excel(filename, sheet = "Coal Production - Tonnes", range = "A3:AO62")
     data_coal_ton <- tidy_data(data_coal_ton, "Coal Production (t)")
 
-    data_gas <- read_excel(filename, sheet = "Gas Production - EJ", range = "A3:AZ78")
+    data_gas <- read_excel(filename, sheet = "Gas Production - EJ", range = "A3:AZ73")
     data_gas <- tidy_data(data_gas, "Gas Production (EJ)")
 
     # Includes crude oil, shale oil, oil sands, condensates (lease condensate or gas condensates that require
@@ -173,8 +177,10 @@ readBP <- function(subtype) {
   else if (subtype == "Trade Coal") {
 
     data_coal_trade <- read_excel(filename, sheet = "Coal - Trade movements", range = "A3:V34")
-    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)", rows2remove = c("Total|OECD|European|Rest"))
-    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)", rows2remove = c("Total|OECD|European|Rest"))
+    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)", 
+                                        rows2remove = c("Total|OECD|European|Rest"))
+    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)", 
+                                        rows2remove = c("Total|OECD|European|Rest"))
 
     data <- merge_recurse(list(data_coal_trade_import, data_coal_trade_export))
 

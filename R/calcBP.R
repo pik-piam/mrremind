@@ -4,7 +4,7 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke
-#' @param subtype Either "Capacity", "Generation", "Consumption", "Trade" or "Price"
+#' @param subtype Either "Emission", "Capacity", "Generation", "Consumption", "Trade" or "Price"
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
@@ -43,6 +43,12 @@ calcBP <- function(subtype) {
       ) %>%
       return()
   }
+  
+  if (subtype == "Emission") {
+    data <- .convert(readSource("BP", subtype = "Emission"))
+    unit <- c("Mt CO2/yr")
+  }
+  
 
   if (subtype == "Capacity") {
     data <- .convert(readSource("BP", subtype = "Capacity"))
@@ -65,13 +71,15 @@ calcBP <- function(subtype) {
       as.magpie() %>%
       dimReduce()
     renewables.vars <- c("Solar Consumption (EJ)", "Wind Consumption (EJ)", "Nuclear Consumption (EJ)", "Hydro Consumption (EJ)")
+    
+    # recalculate renewables to direct equivalent accounting
     consumption.renewables <- consumption[, , renewables.vars] * renewables.factors
 
     consumption.fossils <- consumption[, , c(renewables.vars, "Primary Energy Consumption (EJ)"), invert = T]
 
-    # recalculate to direct equivalent accounting
+    # recalculate total pe consumption to direct equivalent accounting
 
-    # 1. deduct nuclear and electricity generation by renewables
+    # 1. deduct original nuclear and electricity generation by renewables
     pe.elec.renewable <- readSource("BP", subtype = "Generation")[, , "Generation|Electricity|Renewable (EJ)"]
     pe.nuclear <- consumption[, , "Nuclear Consumption (EJ)"]
     consumption.pe <- consumption[, , "Primary Energy Consumption (EJ)"] - pe.nuclear - pe.elec.renewable
@@ -91,6 +99,7 @@ calcBP <- function(subtype) {
   }
 
   if (subtype == "Trade") {
+
     # calculate net oil trade
     trade.oil <- readSource("BP", subtype = "Trade Oil")
     trade.oil.net <- trade.oil[, , "Trade|Export|Oil (kb/d)"] - trade.oil[, , "Trade|Import|Oil (kb/d)"]

@@ -259,6 +259,8 @@ calcHistorical <- function() {
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
   # BP data
+  BP_Emi <- calcOutput("BP", subtype = "Emission", aggregate = FALSE)
+  BP_Emi <- add_dimension(BP_Emi, dim = 3.1, add = "model", nm = "BP")
   BP_Cap <- calcOutput("BP", subtype = "Capacity", aggregate = FALSE)
   BP_Cap <- add_dimension(BP_Cap, dim = 3.1, add = "model", nm = "BP")
   BP_Gen <- calcOutput("BP", subtype = "Generation", aggregate = FALSE)
@@ -279,7 +281,7 @@ calcHistorical <- function() {
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
                   IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
-                  BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price)
+                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
