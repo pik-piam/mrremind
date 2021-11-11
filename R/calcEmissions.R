@@ -233,25 +233,25 @@ calcEmissions <- function(datasource="CEDS16") {
       tmp <- emi
 
       # Add total GHG as CO2 equivalents for sectors
-      emi <- add_columns(emi, "Emi|GHG|Energy (Mt CO2-equiv/yr)", dim=3.1)
-      emi[,, "Emi|GHG|Energy (Mt CO2-equiv/yr)"] <- emi[,, "Emi|CO2|Energy (Mt CO2/yr)"] +
-        emi[,, "Emi|CH4|Energy (Mt CH4/yr)"] * 28 +
-        emi[,, "Emi|N2O|Energy (kt N2O/yr)"] / 1000 * 265
+      tmp <- add_columns(tmp, "Emi|GHG|Energy (Mt CO2-equiv/yr)", dim=3.1)
+      tmp[,, "Emi|GHG|Energy (Mt CO2-equiv/yr)"] <- tmp[,, "Emi|CO2|Energy (Mt CO2/yr)"] +
+        tmp[,, "Emi|CH4|Energy (Mt CH4/yr)"] * 28 +
+        tmp[,, "Emi|N2O|Energy (kt N2O/yr)"] / 1000 * 265
 
-      emi <- add_columns(emi, "Emi|GHG|Industrial Processes (Mt CO2-equiv/yr)", dim=3.1)
-      emi[,, "Emi|GHG|Industrial Processes (Mt CO2-equiv/yr)"] <- emi[,, "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
-        emi[,, "Emi|CH4|Industrial Processes (Mt CH4/yr)"] * 28 +
-        emi[,, "Emi|N2O|Industrial Processes (kt N2O/yr)"] / 1000 * 265
+      tmp <- add_columns(tmp, "Emi|GHG|Industrial Processes (Mt CO2-equiv/yr)", dim=3.1)
+      tmp[,, "Emi|GHG|Industrial Processes (Mt CO2-equiv/yr)"] <- tmp[,, "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
+        tmp[,, "Emi|CH4|Industrial Processes (Mt CH4/yr)"] * 28 +
+        tmp[,, "Emi|N2O|Industrial Processes (kt N2O/yr)"] / 1000 * 265
 
-      emi <- add_columns(emi, "Emi|GHG|Agriculture (Mt CO2-equiv/yr)", dim=3.1)
-      emi[,, "Emi|GHG|Agriculture (Mt CO2-equiv/yr)"] <- emi[,, "Emi|CO2|Agriculture (Mt CO2/yr)"] +
-        emi[,, "Emi|CH4|Agriculture (Mt CH4/yr)"] * 28 +
-        emi[,, "Emi|N2O|Agriculture (kt N2O/yr)"] / 1000 * 265
+      tmp <- add_columns(tmp, "Emi|GHG|Agriculture (Mt CO2-equiv/yr)", dim=3.1)
+      tmp[,, "Emi|GHG|Agriculture (Mt CO2-equiv/yr)"] <- tmp[,, "Emi|CO2|Agriculture (Mt CO2/yr)"] +
+        tmp[,, "Emi|CH4|Agriculture (Mt CH4/yr)"] * 28 +
+        tmp[,, "Emi|N2O|Agriculture (kt N2O/yr)"] / 1000 * 265
 
-      emi <- add_columns(emi, "Emi|GHG|Waste (Mt CO2-equiv/yr)", dim=3.1)
-      emi[,, "Emi|GHG|Waste (Mt CO2-equiv/yr)"] <- emi[,, "Emi|CO2|Waste (Mt CO2/yr)"] +
-        emi[,, "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
-        emi[,, "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
+      tmp <- add_columns(tmp, "Emi|GHG|Waste (Mt CO2-equiv/yr)", dim=3.1)
+      tmp[,, "Emi|GHG|Waste (Mt CO2-equiv/yr)"] <- tmp[,, "Emi|CO2|Waste (Mt CO2/yr)"] +
+        tmp[,, "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
+        tmp[,, "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
 
       description <- "historic emissions from 1750-2019"
 

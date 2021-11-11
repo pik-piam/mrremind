@@ -3,7 +3,7 @@
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' @author Falk Benke
+#' @author Falk Benke, Pascal Weigmann
 #'
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill

@@ -175,7 +175,7 @@ fullREMIND <- function(rev=0) {
   calcOutput("TransportSubsidies",                        round=8,  file="f21_vehiclesSubsidies.cs4r")
 
   #-------------- historical data ---------------------------------------------------------------------
-  calcOutput("Historical",                            round=5,  file="historical.mif", aggregate="region+global+missingH12")
+  calcOutput("Historical", round=5,  file="historical.mif", aggregate="region+global+missingH12")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
