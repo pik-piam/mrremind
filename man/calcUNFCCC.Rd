@@ -13,5 +13,5 @@ A \code{\link[magclass:magclass-package]{magpie}} object.
 Calculate REMIND emission variables from historical UNFCCC values
 }
 \author{
-Falk Benke
+Falk Benke, Pascal Weigmann
 }
