@@ -7,18 +7,14 @@
 readBP(subtype)
 }
 \arguments{
-\item{subtype}{Either "Capacity", "Generation", or "Production"}
+\item{subtype}{Either "Emission", Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
 }
 \value{
-A magpie object
+A [`magpie`][magclass::magclass] object.
 }
 \description{
 BP data. See README in input file for more details.
 }
-\details{
-Data contains historical electricity renewable capacities (in MW for Wind, Solar, and Geothermal), Generation (in TWh for Nuclear, Hydro, Wind, Solar, Other Renewables, and Geo Biomass) 
-and Production (Oil, Gas, and Oil in Tonnes/EJ)
-}
 \author{
-Aman Malik
+Aman Malik, Falk Benke
 }
