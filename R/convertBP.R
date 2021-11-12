@@ -85,7 +85,7 @@ convertBP <- function(x, subtype) {
 
   }
   
-  if (subtype == "Capacity") {
+  else if (subtype == "Capacity") {
 
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
     x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
@@ -103,7 +103,7 @@ convertBP <- function(x, subtype) {
     )
   }
 
-  if (subtype == "Generation") {
+  else if (subtype == "Generation") {
 
     x <- .mergeReg(x, from = c("Other Africa", "Other Northern Africa", "Other Southern Africa", 
                                "Middle Africa", "Eastern Africa", "Western Africa"), to = "Africa")
@@ -131,7 +131,7 @@ convertBP <- function(x, subtype) {
     
   }
 
-  if (subtype == "Production") {
+  else if (subtype == "Production") {
     
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
 
@@ -150,7 +150,7 @@ convertBP <- function(x, subtype) {
     )
   }
 
-  if (subtype == "Consumption") {
+  else if (subtype == "Consumption") {
 
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
     
@@ -174,7 +174,7 @@ convertBP <- function(x, subtype) {
     )    
   }
 
-  if (subtype == "Trade Oil") {
+  else if (subtype == "Trade Oil") {
     
     getItems(x, dim = 1) <- gsub("S & Cent America", "S & C America", getItems(x, dim = 1))
 
@@ -245,7 +245,7 @@ convertBP <- function(x, subtype) {
     x <- .disaggregate_regions(x.trade, oil_regions)
   }
 
-  if (subtype == "Trade Gas") {
+  else if (subtype == "Trade Gas") {
     x <- .mergeReg(x, from = c("Other Asia", "OECD Asia"), to = "Asia Pacific")
     x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
     x <- .mergeReg(x, from = c("Other North America"), to = "North America")
@@ -255,7 +255,7 @@ convertBP <- function(x, subtype) {
     x <- .disaggregate_regions(x, gas_regions)
   }
 
-  if (subtype == "Trade Coal") {
+  else if (subtype == "Trade Coal") {
     getItems(x, dim = 1) <- gsub("S & Cent America", "S & C America", getItems(x, dim = 1))
 
     trade.export.coal <- .removeNaRegions(x[, , "Trade|Export|Coal (EJ)"])
@@ -275,7 +275,7 @@ convertBP <- function(x, subtype) {
     x <- mbind(trade.export.coal, trade.import.coal)
   }
 
-  if (subtype == "Price") {
+  else if (subtype == "Price") {
     x.price <- new.magpie(getISOlist(), getYears(x), getNames(x))
     x.price[getISOlist(), , ] <- x["GLO", , ]
 
@@ -309,6 +309,10 @@ convertBP <- function(x, subtype) {
     x <- mbind(x.price, price.gas, price.coal)
   }
 
+  else {
+    stop("Not a valid subtype!")
+  }
+  
   getSets(x) <- c("region", "year", "data")
 
   return(x)
