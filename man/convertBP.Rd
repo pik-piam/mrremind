@@ -9,16 +9,14 @@ convertBP(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Either "Capacity" or "Generation"}
+\item{subtype}{Either "Emission", "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
 }
 \value{
-A magpie object with historical electricity capacities (in MW for Wind, Solar, and Geothermal),
-Generation (in TWh for Nuclear, Hydro, Wind, Solar, and Geo Biomass), AND
-Production (in EJ for Coal, Oil, and Gas, additionally in tonnes for coal)
+A [`magpie`][magclass::magclass] object.
 }
 \description{
-Disaggregates historical - capacity, generation, and production data.
+Disaggregates historical data.
 }
 \author{
-Aman Malik
+Aman Malik, Falk Benke
 }

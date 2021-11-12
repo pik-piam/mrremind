@@ -8,7 +8,7 @@
 #' @importFrom dplyr filter
 #' @importFrom readxl read_excel
 #' @importFrom reshape merge_recurse
-#' @importFrom reshape2 melt dcast
+#' @importFrom reshape2 melt
 #' @importFrom rlang sym
 
 readBP <- function(subtype) {
