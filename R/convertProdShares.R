@@ -11,7 +11,7 @@ convertProdShares <- function(x){
   mapping <- toolGetMapping("regionmappingH12.csv",type = "regional",where = "mappingfolder")
 
   # weight needed for disaggregation
-  wt= calcOutput(type = "GDPppp",aggregate = F)
+  wt= calcOutput(type = "GDP",aggregate = F)
   
   # Disaggregating "Europe" in spv
   mapping_eur <- mapping[mapping$RegionCode=="EUR",]

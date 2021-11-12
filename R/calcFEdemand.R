@@ -75,7 +75,7 @@ calcFEdemand <- function(subtype = "FE") {
     demPop <- pop[trpdem, on=c("year", "region", "scenario")]
     demPop[, dem_cap := value/pop * 1e3] # EJ/10^6=TJ (pop. in millions), scale to GJ/cap*yr
 
-    gdp_iso <- calcOutput("GDPppp", aggregate = F)[,, "gdp_SDP"]
+    gdp_iso <- calcOutput("GDP", aggregate = F)[,, "gdp_SDP"]
     gdp_iso <- time_interpolate(gdp_iso, getYears(rmnd_reg))
     gdp_reg <- toolAggregate(gdp_iso, mappingfile, from="CountryCode", to="RegionCode")
     getSets(gdp_reg) <- c("region", "Year", "scenario")

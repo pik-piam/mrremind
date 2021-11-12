@@ -48,7 +48,7 @@ calcPE <- function(subtype = "IEA") {
   #regions <- unique(regions$RegionCode)
   
   # gdp of all countries in 2015
-  gdp <- calcOutput("GDPpppPast",aggregate = F)
+  gdp <- calcOutput("GDPPast",aggregate = F)
   gdp <- gdp[,"y2015",]
   
   # if 2015 gdp of a country is 90% of the GDP of the region to which it belongs

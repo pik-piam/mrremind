@@ -25,7 +25,7 @@ fullREMIND <- function(rev=0) {
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years=rem_years_hist,      round=8,  file="f_pop.cs3r")
   calcOutput("Labour",     years=rem_years,           round=8,  file="f_lab.cs3r")
-  calcOutput("GDPppp",     years=rem_years_hist,      round=8,  file="f_gdp.cs3r")
+  calcOutput("GDP",     years=rem_years_hist,      round=8,  file="f_gdp.cs3r")
   calcOutput("RatioPPP2MER",                          round=8,  file="pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round=8,  file="p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round=2,  file="f21_tau_fe_tax.cs4r")

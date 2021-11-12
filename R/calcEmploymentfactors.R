@@ -49,7 +49,7 @@ calcEmploymentfactors <- function(improvements,multiplier){
       x2 <- new.magpie(mapping_remind$CountryCode,seq(2015,2050,5)) # will eventually be the regional multiplier from 2015 to 2050
       x2[,2020,] <- 1/y_lp # 2020 regional multiplier based on inverse of 2020 labour productivity
       x2[oecd_con,2020,] <- 1 # all oecd countries have the same multiplier because they have the same Employment factor 
-      y_gdpcc <- calcOutput("GDPpc",aggregate = F)[,seq(2015,2050,5),"SSP2"] # SSP2 gdp per capita projections
+      y_gdpcc <- calcOutput("GDPpc", naming = "scenario", aggregate = F)[ , seq(2015, 2050, 5), "SSP2"] # SSP2 gdp per capita projections
       y_gdpcc <- y_gdpcc/setYears(y_gdpcc[,2020,],NULL)# relative to 2020 since we only want the growth and not absolute values
       x2[,c(2015,seq(2025,2050,5)),] <- setYears(x2[,2020,],NULL)*(1/y_gdpcc[,c(2015,seq(2025,2050,5))])
       
@@ -232,7 +232,7 @@ wt[,,"Biomass.Fuel_supply"] <- y[,"y2019","Employment in agriculture"]
 
 
  # using gdp per capita fpr regional aggregation
- # gdp <-   calcOutput("GDPppp",   years=2020, aggregate = F)
+ # gdp <-   calcOutput("GDP",   years=2020, aggregate = F)
  # gdp <- gdp[,,"gdp_SSP2"]
 
  # pop <-  calcOutput("Population",aggregate = F)

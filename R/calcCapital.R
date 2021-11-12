@@ -29,15 +29,14 @@ calcCapital <- function(subtype = "Capital") {
     capital = readSource("PWT")[,,"rkna"]
     getNames(capital) <- "kap"
     capital[is.na(capital)] <- 0
-    gdpppp_hist = calcOutput("GDPpppPast", aggregate = F, GDPpppPast="PWT")
+    gdpppp_hist = calcOutput("GDPPast", GDPPast = "PWT", aggregate = F)
     #pop = calcOutput("Population", aggregate = F)
     cap_intensity <- capital / setNames(gdpppp_hist, NULL)    
 
     
     #use initial gdp as in REMIND which differs from PWT 
-    gdpppp_hist = calcOutput("GDPpppPast", aggregate = F)
-    gdpppp= calcOutput("GDPppp", aggregate = F)    
-    gdpppp <- mselect(gdpppp, period=paste0("y",c(2005:2150,5)))
+    gdpppp_hist = calcOutput("GDPPast", aggregate = F)
+    gdpppp <- calcOutput("GDP", aggregate = F, years = seq(2005, 2150, 5))  
     #getNames(gdpppp) <- sub("gdp_","",getNames(gdpppp))
     my_scen <- c("gdp_SSP1", "gdp_SSP2", "gdp_SSP3", "gdp_SSP4", "gdp_SSP5", "gdp_SSP2EU", 
                  "gdp_SDP", "gdp_SDP_EI", "gdp_SDP_RC", "gdp_SDP_MC")
