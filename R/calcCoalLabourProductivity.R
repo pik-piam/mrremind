@@ -14,9 +14,9 @@ calcCoalLabourProductivity <- function(subtype){
   dias <- dias[regs,,]
   dias <- collapseNames(dias)
   prod <- readSource("BP","Production") # coal production from BP data
-  prod <- prod[,,c("Coal_EJ","Coal_Ton")]
-  prod["ZAF","y2019","Coal_Ton"] <- 258.5 # overwriting BP value with data from national source
-  # eur <- dimSums(prod[regs,,c("Coal_Ton","Coal_EJ")],dim = 1)# since EUR is not a region in BP, summing over all countries with coal production
+  prod <- prod[,,c("Coal Production (EJ)","Coal Production (t)")]
+  prod["ZAF","y2019","Coal Production (t)"] <- 258.5 # overwriting BP value with data from national source
+  # eur <- dimSums(prod[regs,,c("Coal Production (t)","Coal Production (EJ")],dim = 1)# since EUR is not a region in BP, summing over all countries with coal production
   # getRegions(eur) <- "EUR" # making a region EUR
   # prod <- mbind(prod,eur)# adding it original data
   
@@ -35,7 +35,7 @@ calcCoalLabourProductivity <- function(subtype){
   chn_loc <- new.magpie("CHN",years = c(2000,2005,2010,2015,2018),fill = c(3.99,4.36,5.27,4.43,3.21)) # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7442150/
   chn_loc <- chn_loc*1000000*0.93 # above numbers are actually total of coal power and coal mining. Assuming 7% of labour is coal mining
   #rus_prod <- new.magpie("RUS",years = c(1995,1997,1999,2001,2003,2005,2008,2009,2011,2012),fill = c(237,306, 449,563, 648,726,1151,1174,1350,1439))# from Rutovitz 2015
-  #rus_loc <- prod["RUS",getYears(rus_prod),"Coal_Ton"]*1000000/rus_prod
+  #rus_loc <- prod["RUS",getYears(rus_prod),"Coal Production (t)"]*1000000/rus_prod
   
   all <- bind_rows(as.data.frame(usa_loc),as.data.frame(ind_loc),as.data.frame(zaf_loc),as.data.frame(aus_loc),
                    as.data.frame(chn_loc),as.data.frame(emp["IDN",c(2012:2015),"Coal and Lignite"]*1000),
@@ -59,9 +59,9 @@ if (subtype=="Employment"){
   
 if (subtype=="Employment_factor"){
   
-  x_tmp <- x/(prod[getRegions(x),getYears(x),"Coal_EJ"]*1000) # historical values
+  x_tmp <- x/(prod[getRegions(x),getYears(x),"Coal Production (EJ)"]*1000) # historical values
   
-  prod <- prod[,,"Coal_EJ"]*1000 # converting to PJ 
+  prod <- prod[,,"Coal Production (EJ)"]*1000 # converting to PJ 
   #ef <- x/prod[getRegions(x),getYears(x),]
   # employment factors in 2020, taking nearest historical value
   ef_fut <- new.magpie(c("AUS","CHN",regs,"IDN","IND","RUS","USA","ZAF"),seq(2020,2050,5),names = "EF")

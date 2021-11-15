@@ -24,9 +24,9 @@ readConferenceBoard <- function(){
 
   # Data on agri employment as percent of total employment
   agri_percent_emp <- read_excel(path = "agri_percent_employment.xls",skip = 4)
-  agri_percent_emp <- agri_percent_emp[,-c(1,4)]
+  agri_percent_emp <- agri_percent_emp[,-c(1,4, seq(4,35,1))]
   agri_percent_emp <- as.magpie(agri_percent_emp,spatial=1)
-  agri_percent_emp <- collapseNames(agri_percent_emp,preservedim = 1)
+  #agri_percent_emp <- collapseNames(agri_percent_emp,preservedim = 1)
   
   # common years and regions so that it can be merged later
   com_regions <- intersect(getRegions(input),getRegions(agri_percent_gdp))
