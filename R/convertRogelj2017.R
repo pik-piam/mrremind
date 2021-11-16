@@ -62,7 +62,7 @@ convertRogelj2017 <- function(x,subtype){
       for (j in getNames(x_tmp[,,"Nuclear"])){
         for (k in getRegions(x_tmp)){
           if(x_tmp[k,i,j]!=0)
-            x_new[k,,"Nuclear"] <- setYears(hist_gen_nuclear[k,2015,"Nuclear"])/(8760*cf_nuclear)
+            x_new[k,,"Nuclear"] <- setYears(hist_gen_nuclear[k,2015,"Generation|Nuclear (TWh)"])/(8760*cf_nuclear)
         }
       }
     }
@@ -284,7 +284,7 @@ convertRogelj2017 <- function(x,subtype){
       for (j in getNames(x_tmp[,,"Nuclear"])){
         for (k in getRegions(x_tmp)){
           if(x_tmp[k,i,j]!=0)
-            x_new[k,,"Nuclear"] <- setYears(hist_gen_nuclear[k,2015,"Nuclear"])/(8760*cf_nuclear)
+            x_new[k,,"Nuclear"] <- setYears(hist_gen_nuclear[k,2015,"Generation|Nuclear (TWh)"])/(8760*cf_nuclear)
         }
       }
     }

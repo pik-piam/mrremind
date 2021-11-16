@@ -7,7 +7,7 @@
 #' @importFrom dplyr filter
 #' @importFrom madrat getISOlist toolGetMapping toolCountryFill
 #' @importFrom magclass magpply
-#'
+#' @importFrom rlang sym
 #'
 
 convertBP <- function(x, subtype) {
@@ -69,7 +69,7 @@ convertBP <- function(x, subtype) {
   getItems(x, dim = 1) <- gsub(pattern = "China Hong Kong SAR", "Hong Kong", x = getItems(x, dim = 1))
   
   # for now, we exclude data from Sowjet Union (recorded until 1993)
-  x <- x["USSR",,invert = T]
+  x <- x["USSR & Central Europe",,invert = T]
 
   if (subtype == "Emission") {
     x <- .mergeReg(x, from = c("Central America", "Other Caribbean", "Other South America"), to = "S & C America")

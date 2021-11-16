@@ -15,7 +15,7 @@
 calcCostsTradePeFinancial <- function() {
    
   data <- readSource("ExpertGuess", subtype="costsTradePeFinancial")
-  w    <- calcOutput("GDPppp",aggregate=FALSE)[,2005,"gdp_SSP2"]
+  w    <- calcOutput("GDP",aggregate=FALSE)[,2005,"gdp_SSP2"]
   
   return(list(x=data,weight=w,
               unit="TW and ratio",

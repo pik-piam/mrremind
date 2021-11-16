@@ -19,8 +19,8 @@ fullEDGEBUILDINGS <- function(rev = 0) {
   #-------------- socio-economic data ------------------------------------------
   calcOutput("PopulationPast", aggregate = FALSE, file = "f_poppast.cs4r")
   calcOutput("Population",     aggregate = FALSE, file = "f_pop.cs4r", FiveYearSteps = FALSE)
-  calcOutput("GDPppp",         aggregate = FALSE, file = "f_gdp.cs4r", FiveYearSteps = FALSE)
-  calcOutput("GDPpppPast",     aggregate = FALSE, file = "f_gdppast.cs4r")
+  calcOutput("GDP",            aggregate = FALSE, file = "f_gdp.cs4r", FiveYearSteps = FALSE)
+  calcOutput("GDPPast",        aggregate = FALSE, file = "f_gdppast.cs4r")
   calcOutput("RatioPPP2MER",   aggregate = FALSE, file = "f_ppp2mer.cs4r")
   calcOutput("UrbanPast",      aggregate = FALSE, file = "f_urbanpast.cs4r")
   calcOutput("Urban",          aggregate = FALSE, file = "f_urban.cs4r")

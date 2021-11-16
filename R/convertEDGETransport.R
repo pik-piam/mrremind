@@ -32,7 +32,7 @@ convertEDGETransport = function(x, subtype) {
 
   ## for extensive values and the complex module, the weight is GDP
   if (subtype == "pm_fe_demand_EDGETbased") {
-    gdp <- calcOutput("GDPppp", aggregate = F)[,,"gdp_SSP2"]
+    gdp <- calcOutput("GDP", aggregate = F)[,,"gdp_SSP2"]
     ## interpolate missing time steps
     gdp <- time_interpolate(gdp, getYears(x))
 

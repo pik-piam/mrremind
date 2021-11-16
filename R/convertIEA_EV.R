@@ -24,7 +24,7 @@ convertIEA_EV <- function(x) {
       # rename countries into ISO
       getRegions(x) <- toolCountry2isocode(getRegions(x))
 	  # distribute rest on remaining countries with GDP as weight
-      GDP2015 <- calcOutput("GDPpppPast", aggregate = F)[,"y2015",]
+      GDP2015 <- calcOutput("GDPPast", aggregate = F)[,"y2015",]
 	  getSets(GDP2015)[1]<-"region"
 	  # additional countries
 	  oth <- setdiff(getRegions(GDP2015),getRegions(x))

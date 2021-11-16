@@ -101,7 +101,7 @@ calcCapTarget <- function(sources,condition){
     #                      dim = 3)
     
     # GDP 2015 to be used as weight for disaggregation of EU target to iso coutries
-    GDP2015 <- calcOutput("GDPpppPast", aggregate = F)[,"y2015",]
+    GDP2015 <- calcOutput("GDPPast", aggregate = F)[,"y2015",]
     
     
 

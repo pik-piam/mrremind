@@ -84,7 +84,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     
     #--- Load the Weights
     #--- First load the GDP data
-    wg <- calcOutput("GDPppp", aggregate = FALSE, FiveYearSteps = FALSE)
+    wg <- calcOutput("GDP", aggregate = FALSE, FiveYearSteps = FALSE)
     # duplicate SSP2 for SSP2_lowEn
     wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
     getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"
@@ -256,7 +256,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     
     x = x[,getYears(x,T)[which(getYears(x,T) <= 2100)],]
     
-    wg     <- calcOutput("GDPppp", aggregate=F)
+    wg     <- calcOutput("GDP", aggregate=F)
     wfe    <- calcOutput("FEdemand", subtype = "FE", aggregate = F)
     
     getSets(wg) = gsub("variable","scenario",getSets(wg))
@@ -308,7 +308,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
     
     select_years = intersect(getYears(x,as.integer = T),rem_years_hist)
-    wg <- calcOutput("GDPppp", years=select_years,aggregate=F)
+    wg <- calcOutput("GDP", years=select_years,aggregate=F)
     # duplicate SSP2 for SSP2_lowEn
     wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
     getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"

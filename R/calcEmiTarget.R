@@ -67,7 +67,7 @@ calcEmiTarget <- function(subtype, realization) {
     glob_ghg <- dimSums(ghg,dim=1)
     
     # Future GDP values
-    gdp <- calcOutput("GDPppp",aggregate = FALSE)
+    gdp <- calcOutput("GDP",aggregate = FALSE)
     
     
     
