@@ -2044,6 +2044,24 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     )
   }
   
+  ## replace outliers with global parameters
+  outliers_chemicals <- regression_parameters_chemicals %>% 
+    select('region', 'a') %>% 
+    filter(abs((.data$a - mean(.data$a)) / sd(.data$a)) > 3) %>% 
+    pull('region')
+  
+  regression_parameters_chemicals <- bind_rows(
+    regression_parameters_chemicals %>% 
+      filter(!.data$region %in% outliers_chemicals),
+    
+    tibble(
+      regression_parameters_chemicals %>% 
+        filter('World' == .data$region) %>% 
+        select(-'region'),
+      
+      region = outliers_chemicals)
+  )
+
   ## project chemicals VA and share ----
   param_a <- regression_parameters_chemicals %>% 
     filter('World' == .data$region) %>% 
