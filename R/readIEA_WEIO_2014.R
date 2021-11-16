@@ -1,14 +1,4 @@
-library(tidyverse)
-library(readxl)
-library(quitte)
-
-
-# - get investment data
-# - divide by depreciation factor to get capital stock
-# - spread capital stock on region countries using 
-
-# - add OECDEUR and EU28 and calculate with the sum of the countries (giving
-#   double weight to countries in both groups)
+#' @importFrom readxl read_xls
 
 readIEA_WEIO_2014 <- function() {
   # define country groups ----
