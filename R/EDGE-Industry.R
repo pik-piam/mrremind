@@ -989,7 +989,7 @@ calcSteel_Projections <- function(subtype = 'production',
   # return statement ----
   return(list(x = x,
               weight = NULL,
-              unit = 'Mt steel/year',
+              unit = 'Gt steel/year',
               description = 'primary and secondary steel production'))
 }
 
@@ -1377,8 +1377,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
              year = 'Year', value = 'Value') %>% 
       character.data.frame() %>% 
       mutate(year = as.integer(.data$year),
-             # Mt/year * 1e6 t/Mt = t/year
-             value = .data$value * 1e6,
+             # Gt/year * 1e9 t/Gt = t/year
+             value = .data$value * 1e9,
              variable = sub('^ue_steel_(primary|secondary)$',
                             '\\1.production', .data$variable),
              scenario = sub('^gdp_', '', .data$scenario)) %>% 
