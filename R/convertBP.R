@@ -70,6 +70,7 @@ convertBP <- function(x, subtype) {
   
   # for now, we exclude data from Sowjet Union (recorded until 1993)
   x <- x["USSR & Central Europe",,invert = T]
+  x <- x["USSR",,invert = T]
 
   if (subtype == "Emission") {
     x <- .mergeReg(x, from = c("Central America", "Other Caribbean", "Other South America"), to = "S & C America")

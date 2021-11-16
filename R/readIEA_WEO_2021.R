@@ -1,6 +1,12 @@
+#' IEA WEO 2021 Data
+#' @description  IEA WEO 2021 Data. See README in input file for more details.
+#'
+#' @return A [`magpie`][magclass::magclass] object.
+#' @author Falk Benke
 #' @importFrom dplyr filter %>%
 #' @importFrom rlang sym
 #' 
+
 readIEA_WEO_2021 <- function() {
   variable <- NULL
   
