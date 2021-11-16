@@ -15,7 +15,7 @@
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
-#' @param save.plots Save plots to `getOptions('outputfolder')`?
+#' @param save.plots Save plots to `getConfig('outputfolder')`?
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -996,7 +996,14 @@ calcSteel_Projections <- function(subtype = 'production',
 #' @rdname EDGE-Industry
 #' @export
 calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
-                                     match.steel.estimates = NULL) {
+                                     match.steel.estimates = NULL,
+                                     save.plots = FALSE) {
+  
+  linetype_scenarios <- c(regression = 'longdash',
+                          SSP1       = 'dotted',
+                          SSP2       = 'solid',
+                          SSP5       = 'dashed')
+  
   # load required data ----
   ## region mapping for aggregation ----
   region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
@@ -1401,7 +1408,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            !.data$censored) %>% 
     mutate(GDPpC = .data$GDP / .data$population,
            steel.VA.pt = .data$steel.VA / .data$steel.production) %>% 
-    # fitler outliers
+    # filter outliers
     filter(2000 >= .data$steel.VA.pt) %>% 
     select('region', 'year', 'GDPpC', 'steel.VA.pt')
   
@@ -1437,11 +1444,6 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   ) %>% 
     mutate(steel.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>% 
     select('region', 'GDPpC', 'steel.VA.pt')
-  
-  linetype_scenarios <- c(regression = 'longdash',
-                          SSP1       = 'dotted',
-                          SSP2       = 'solid',
-                          SSP5       = 'dashed')
   
   d_plot_projections <- projected_steel_data %>% 
     filter(.data$scenario %in% names(linetype_scenarios),
@@ -1850,11 +1852,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
                                   # 'countries' = '.',
                                   NULL),
                        name = NULL) +
-    scale_linetype_manual(values = c('regression' = 'longdash',
-                                     'SSP1' = 'dotted',
-                                     'SSP2' = 'solid',
-                                     'SSP5' = 'dashed'),
-                          name = NULL) +
+    scale_linetype_manual(values = linetype_scenarios, name = NULL) +
     facet_wrap(~ region, scales = 'free') +
     expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
     labs(x = 'per-capita GDP [1000 $/year]', 
@@ -1869,6 +1867,88 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     write_rds(x = p, 
               file = file.path(getConfig('outputfolder'), 
                                '01_Cement_regression_projection.rds'))
+  }
+  
+  # ========================================================================== =
+  
+  ## plot cement VA regressions ====
+  d_plot_region_totals <- regression_data_cement %>% 
+    ungroup() %>% 
+    filter('Total' == .data$iso3c,
+           !.data$censored) %>% 
+    mutate(GDPpC = .data$GDP / .data$population,
+           cement.VA.pt = .data$cement.VA / .data$cement.production) %>% 
+    # filter outliers
+    # filter(2000 >= .data$cement.VA.pt) %>% 
+    select('region', 'year', 'GDPpC', 'cement.VA.pt')
+  
+  d_plot_regression <- full_join(
+    regression_parameters_cement,
+    
+    d_plot_region_totals %>% 
+      select('region', 'GDPpC') %>% 
+      group_by(.data$region) %>% 
+      filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
+      group_by(.data$region) %>% 
+      complete(nesting(!!sym('region')), 
+               GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
+                           length.out = 100)) %>% 
+      ungroup(),
+    
+    'region'
+  ) %>% 
+    mutate(cement.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>% 
+    select('region', 'GDPpC', 'cement.VA.pt')
+  
+  d_plot_projections <- projected_cement_data %>% 
+    filter(.data$scenario %in% names(linetype_scenarios),
+           'Total' == .data$iso3c) %>% 
+    mutate(GDPpC = .data$GDP / .data$population,
+           cement.VA.pt = .data$cement.VA / .data$cement.production) %>% 
+    select('scenario', 'region', 'year', 'GDPpC', 'cement.VA.pt')
+  
+  d_plot_projections <- left_join(
+    d_plot_projections,
+    
+    d_plot_projections %>% 
+      select('region', 'year', 'GDPpC') %>% 
+      filter(max(.data$year) == .data$year) %>% 
+      group_by(.data$region) %>% 
+      filter(min(.data$GDPpC) == .data$GDPpC) %>% 
+      select('region', max.GDPpC = 'GDPpC'),
+    
+    'region'
+  ) %>% 
+    filter(.data$GDPpC <= .data$max.GDPpC) %>% 
+    select(-'max.GDPpC')
+  
+  p <- ggplot(mapping = aes(x = GDPpC / 1000, y = cement.VA.pt)) +
+    geom_point(data = d_plot_region_totals,
+               mapping = aes(shape = 'region totals')) +
+    scale_shape_manual(values = c('region totals' = 'cross'),
+                       name = NULL) +
+    geom_line(data = d_plot_regression,
+              mapping = aes(linetype = 'regression')) +
+    geom_line(data = d_plot_projections,
+              mapping = aes(linetype = scenario)) +
+    scale_linetype_manual(values = linetype_scenarios, name = NULL, 
+                          guide = guide_legend(direction = 'horizontal')) +
+    facet_wrap(~ region, scales = 'free') +
+    expand_limits(x = 0, y = 0) +
+    labs(x = 'per-capita GDP [1000$/yr]', 
+         y = 'specific Cement Value Added [$/t]') +
+    theme_minimal() + 
+    theme(legend.justification = c(1, 0), 
+          legend.position = c(1, 0))
+  
+  if (save.plots) {
+    ggsave(plot = p, filename = '05_Cement_VA_regressions_projections.svg',
+           device = 'svg', path = './figures/', bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+    
+    write_rds(x = p, 
+              file = file.path(getConfig('outputfolder'), 
+                               '05_Cement_VA_regressions_projections.rds'))
   }
   
   # ========================================================================== =
