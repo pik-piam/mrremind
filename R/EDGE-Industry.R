@@ -15,6 +15,7 @@
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
+#' @param save.plots Save plots to `getOptions('outputfolder')`?
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -40,7 +41,8 @@
 #' @export
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE, 
-                                  match.steel.estimates = NULL) {
+                                  match.steel.estimates = NULL,
+                                  save.plots = FALSE) {
   
   produce_plots_and_tables <- TRUE
   
@@ -1480,9 +1482,17 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     theme(legend.justification = c(1, 0), 
           legend.position = c(1, 0))
   
-  ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
-         device = 'svg', path = './figures/', bg = 'white',
-         width = 18, height = 14, units = 'cm', scale = 1.73)
+  if (save.plots) {
+    ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
+           device = 'svg', path = './figures/', bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+    
+    write_rds(x = p, 
+              file = file.path(getConfig('outputfolder'), 
+                               '04_Steel_VA_regressions_projections.rds'))
+  }
+  
+  # ========================================================================== =
   
   # project cement production ----
   ## calculate regression data ----
@@ -1818,7 +1828,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     pull('cement.production.pC')
   
   
-  ggplot(mapping = aes(x = GDPpC / 1000, 
+  p <- ggplot(mapping = aes(x = GDPpC / 1000, 
                        y = cement.production / population)) +
     # plot regression line
     geom_path(
@@ -1851,9 +1861,17 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
          y = 'per-capita Cement Production [tonnes/year]') +
     theme_minimal()
   
-
+  if (save.plots) {
+    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
+           device = 'svg', path = './figures/', bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+    
+    write_rds(x = p, 
+              file = file.path(getConfig('outputfolder'), 
+                               '01_Cement_regression_projection.rds'))
+  }
   
-  
+  # ========================================================================== =
   
   # project chemicals VA ----
   ## compile regression data ----
@@ -2035,7 +2053,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
                                       & 2100 == .data$year]) %>% 
     ungroup()
 
-  ggplot(mapping = aes(x = GDPpC / 1000, 
+  p <- ggplot(mapping = aes(x = GDPpC / 1000, 
                        y = chemicals.VA / population)) +
     # plot region totals
     geom_point(
@@ -2063,6 +2081,16 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     labs(x = 'per-capita GDP [1000 $/year]', 
          y = 'per-capita Chemicals Value Added [$/year]') +
     theme_minimal()
+  
+  if (save.plots) {
+    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
+           device = 'svg', path = './figures/', bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+    
+    write_rds(x = p, 
+              file = file.path(getConfig('outputfolder'), 
+                               '01_Cement_regression_projection.rds'))
+  }
   
   # ======================================================================== ===
   
