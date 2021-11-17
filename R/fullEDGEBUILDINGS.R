@@ -1,20 +1,17 @@
 #' fullEDGEBUILDINGS
-#' 
+#'
 #' Function that produces the complete ISO data set required for the
 #' EDGE - Buildings model.
-#' 
+#'
 #' @param rev data revision which should be used as input (positive numeric).
-#' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
-#' properly).
 #' @author Antoine Levesque
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
 #' @examples
-#' 
-#' \dontrun{ 
+#' \dontrun{
 #' fullEDGEBUILDINGS()
 #' }
-
+#'
 fullEDGEBUILDINGS <- function(rev = 0) {
   #-------------- socio-economic data ------------------------------------------
   calcOutput("PopulationPast", aggregate = FALSE, file = "f_poppast.cs4r")

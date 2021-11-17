@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.87.3
-Date: 2021-11-15
+Version: 0.87.4
+Date: 2021-11-17
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -29,7 +29,7 @@ Description: The mrremind packages contains data preprocessing for the REMIND mo
 Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
-    madrat(>= 1.30),
+    madrat(>= 2.5.1),
     mrcommons(>= 1.0.0)
 Imports:
     R.utils,

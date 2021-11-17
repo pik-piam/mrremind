@@ -7,16 +7,13 @@
 fullREMIND(rev = 0)
 }
 \arguments{
-\item{rev}{data revision which should be used as input (positive numeric).
-\code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
-properly).}
+\item{rev}{data revision which should be used as input (positive numeric).}
 }
 \description{
 Function that produces the complete regional data set required for the
 REMIND model.
 }
 \examples{
-
 \dontrun{
 fullREMIND()
 }
