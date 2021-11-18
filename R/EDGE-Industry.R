@@ -1486,7 +1486,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   
   if (save.plots) {
     ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
-           device = 'svg', path = './figures/', bg = 'white',
+           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
     
     write_rds(x = p, 
@@ -1861,7 +1861,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   
   if (save.plots) {
     ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = './figures/', bg = 'white',
+           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
     
     write_rds(x = p, 
@@ -1943,7 +1943,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   
   if (save.plots) {
     ggsave(plot = p, filename = '05_Cement_VA_regressions_projections.svg',
-           device = 'svg', path = './figures/', bg = 'white',
+           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
     
     write_rds(x = p, 
@@ -2182,7 +2182,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
   
   if (save.plots) {
     ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = './figures/', bg = 'white',
+           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
     
     write_rds(x = p, 
@@ -2299,6 +2299,41 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     filter(!('World' == .data$region & 'Total' != .data$iso3c)) %>% 
     pivot_wider(names_from = 'variable')
   
+  # plot otherInd VA ===========================================================
+  
+   p <- ggplot() +
+    geom_area(
+      data = projections %>% 
+        select('scenario', 'region', 'iso3c', 'year', 'cement.VA', 
+               'chemicals.VA', 'steel.VA', 'otherInd.VA') %>% 
+        filter('SSP2' == .data$scenario, 
+               2000 <= .data$year,
+               'Total' == .data$iso3c) %>% 
+        select(-'scenario', -'iso3c') %>% 
+        pivot_longer(matches('\\.VA$')) %>% 
+        mutate(name = sub('\\.VA$', '', .data$name)) %>% 
+        order.levels(
+          name = c('cement', 'chemicals', 'steel', 'otherInd')),
+      mapping = aes(x = year, y = value / 1e12, fill = name)) +
+    scale_fill_discrete(name = NULL, 
+                        guide = guide_legend(direction = 'horizontal')) +
+    facet_wrap(~ region, scales = 'free_y') +
+    labs(x = NULL, y = 'Value Added [$tn/year]') +
+    theme_minimal() +
+    theme(legend.justification = c(1, 0), legend.position = c(1, 0))
+  
+  if (save.plots) {
+    ggsave(plot = p, filename = '05_Value_Added_projection.svg',
+           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+    
+    write_rds(x = p, 
+              file = file.path(getConfig('outputfolder'), 
+                               '05_Value_Added_projection.rds'))
+  }
+  
+  # ========================================================================== =
+  
   # construct output ----
   x <- projections %>% 
     filter(2000 <= .data$year,
@@ -2327,5 +2362,3 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
               description = 'chemicals and other industry value added'))
   
 }
-
-
