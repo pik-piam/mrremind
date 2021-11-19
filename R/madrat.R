@@ -1,19 +1,15 @@
 #' @importFrom madrat vcat
 
 .onAttach <- function(libname, pkgname) {
-  madrat::setConfig(packages = c(madrat::getConfig("packages"), pkgname), .cfgchecks = FALSE, .verbose = FALSE)
+  madrat::madratAttach(pkgname)
 }
 
 .onDetach <- function(libpath) {
-  pkgname <- basename(libpath)
-  madrat::setConfig(packages = setdiff(madrat::getConfig("packages"), pkgname), .cfgchecks = FALSE, .verbose = FALSE)
+  madrat::madratDetach(libpath)
 }
 
-# create an own warning function which redirects calls to vcat (package internal)
+# redirect standard messaging functions to vcat
+cat     <- function(...) vcat(1, ...)
+message <- function(...) vcat(1, ...)
 warning <- function(...) vcat(0, ...)
-
-# create a own stop function which redirects calls to stop (package internal)
-stop <- function(...) vcat(-1, ...)
-
-# create an own cat function which redirects calls to cat (package internal)
-cat <- function(...) vcat(1, ...)
+stop    <- function(...) vcat(-1, ...)

@@ -12,10 +12,6 @@
 
 calcEDGETrData <- function() {
 
-  infoConfig = getConfig()
-  regionmapping2use <- infoConfig$regionmapping
-  setConfig(regionmapping = "2b1450bc.csv")
-
   ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
   edgetScenarios <- strsplit(cartesian(
     c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
@@ -43,10 +39,6 @@ calcEDGETrData <- function() {
                        smartlifestyle = x[3],
                        storeRDS = FALSE)
     })
-
-
-  setConfig(regionmapping = regionmapping2use)
-
 
   return(list(x = EDGETdata,
               class = 'list',

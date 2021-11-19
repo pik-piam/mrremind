@@ -7,6 +7,6 @@ repos:
     -   id: check-yaml
     -   id: check-merge-conflict
     -   id: fix-byte-order-marker
-# these two are useful as well, but very much not followed in remind ATM
-#    -   id: end-of-file-fixer
-#    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+ci:
+    autoupdate_schedule: quarterly
