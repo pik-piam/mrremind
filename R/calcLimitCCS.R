@@ -22,4 +22,3 @@ calcLimitCCS <- function(){
   ))
   
 }
-

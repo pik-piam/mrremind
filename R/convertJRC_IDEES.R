@@ -1,12 +1,12 @@
 #' Convert JRC IDEES data
 #' 
-#' @md
 #' Missing data for EU-28 countries is added, by distributing the difference of
 #' `EU28` and the sum of country-values based on countries share in EU-28 GDP.
-#'
+#' 
+#' @md
 #' @param x A [`magpie`][magclass::magclass] object returned from 
 #'          [`readJRC_IDEES()`].
-#'
+#' 
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
 #' @author Michaja Pehl

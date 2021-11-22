@@ -7,3 +7,6 @@ carbon_stored.*
 ^\.buildlibrary$
 ^\.github$
 ^codecov\.yml$
+^.*\.RData$
+^.pre-commit-config.yaml$
+^\.pre-commit-config\.yaml$

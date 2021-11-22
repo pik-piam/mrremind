@@ -44,4 +44,3 @@ calcSharedTarget <- function(subtype){
               description=description             
   )) 
 }
-

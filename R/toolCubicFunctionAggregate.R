@@ -319,5 +319,3 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
 
   return(output)
 }
-
-

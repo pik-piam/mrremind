@@ -50,61 +50,27 @@ calcHistorical <- function() {
   pop <- add_dimension(pop, dim=3.1, add="model",nm="WDI")
   
   # GDP in ppp
-  gdpp_James <- calcOutput("GDPpppPast",aggregate=FALSE) / 1000
+  gdpp_James <- calcOutput("GDPPast",aggregate=FALSE) / 1000
   getNames(gdpp_James) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_James <- add_dimension(gdpp_James, dim=3.1, add="model",nm="James_IHME")
   
-  gdpp_WB <- calcOutput("GDPpppPast",GDPpppPast="WB_USD05_PPP_pc",aggregate=FALSE) / 1000
+  gdpp_WB <- calcOutput("GDPPast",GDPPast="WB_USD05_PPP_pc",aggregate=FALSE) / 1000
   getNames(gdpp_WB) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_WB <- add_dimension(gdpp_WB, dim=3.1, add="model",nm="James_WB")
   
-  gdpp_IMF <- calcOutput("GDPpppPast",GDPpppPast="IMF_USD05_PPP_pc",aggregate=FALSE) / 1000
+  gdpp_IMF <- calcOutput("GDPPast",GDPPast="IMF_USD05_PPP_pc",aggregate=FALSE) / 1000
   getNames(gdpp_IMF) <- paste0("GDP|PPP (billion US$2005/yr)")
   gdpp_IMF <- add_dimension(gdpp_IMF, dim=3.1, add="model",nm="James_IMF")
   
-  # Historical emissions from CEDS data base (Steve Smith)
-    # ceds16 <- calcOutput("Emissions",datasource="CEDS16")
-    # map_CEDS16toCEDS9  <- read.csv(toolMappingFile("sectoral", "mappingCEDS16toCEDS9.csv"), stringsAsFactors=FALSE)
-    # # aggregate from CEDS16 to CEDS9 sectors
-    # ceds9 <- groupAggregate(ceds16,vectorfunction = "sum",dim=3.1,query = map_CEDS16toCEDS9, from="CEDS16",to="CEDS9")
-    # # Rename CEDS9 1:1 to REMIND names (no aggregation)
-    # map_CEDS9toREMIND  <- read.csv(toolMappingFile("sectoral", "mappingCEDS9toREMINDreporting.csv"), stringsAsFactors=FALSE)
-    # ceds <-groupAggregate(ceds9,vectorfunction = "sum",dim=3.1,query = map_CEDS9toREMIND, from="CEDS9",to="REMIND")
-    # 
-    # # get variables names right
-    # ceds[,,"N2O"] <- ceds[,,"N2O"] * 1000 # Mt -> kt
-    # # change order, add "Emissions|": Waste.SO2.harm -> Emissions|SO2|Waste|harm
-    # tmp <- gsub("^([^\\.]*)\\.(.*$)","Emi|\\2|\\1 (Mt \\2/yr)",getNames(ceds))
-    # tmp <- gsub("Mt N2O","kt N2O",tmp)
-    # tmp <- gsub("\\|SO2\\|","\\|Sulfur\\|",tmp)
-    # # Add full scenario name
-    # getNames(ceds) <- tmp
-    # getSets(ceds) <- c("region","year","variable")
-    # ceds <- add_dimension(ceds, dim=3.1, add="model",nm="CEDS")
-    #
-    # # Add some sectoral sums
-    # # Emi|CO2|Energy and Industrial Processes, 
-    # new_trans <- setNames(ceds[,,"Emi|CO2|Energy|Demand|Transportation|Aviation (Mt CO2/yr)"] +
-    #                       ceds[,,"Emi|CO2|Energy|Demand|Transportation|International Shipping (Mt CO2/yr)"] +
-    #                       ceds[,,"Emi|CO2|Energy|Demand|Transportation|Ground Transportation (Mt CO2/yr)"],
-    #                       "Emi|CO2|Energy|Demand|Transportation (Mt CO2/yr)")
-    # 
-    # new_energy_ind <- setNames(ceds[,,"Emi|CO2|Energy|Demand|Transportation|Aviation (Mt CO2/yr)"] +
-    #                            ceds[,,"Emi|CO2|Energy|Demand|Transportation|International Shipping (Mt CO2/yr)"] +
-    #                            ceds[,,"Emi|CO2|Energy|Demand|Transportation|Ground Transportation (Mt CO2/yr)"],
-    #                            "Emi|CO2|Energy|Demand|Transportation (Mt CO2/yr)")
-    # 
-    # tmp <- setNames(ceds[,,"Emi|CO2|Energy|Supply (Mt CO2/yr)"] + ceds[,,],"Emi|CO2|Energy (Mt CO2/yr)")
-    # ceds <- mbind(ceds, tmp)
-    
-  # Historical emissions from CEDS data base (Steve Smith)
-  ceds <- calcOutput("Emissions",datasource="CEDS2REMIND",aggregate=FALSE)
-  getNames(ceds) <- gsub("Energy and Industrial Processes","Fossil Fuels and Industry",getNames(ceds))
+  # Historical emissions from CEDS data base
+  ceds <- calcOutput("Emissions", datasource="CEDS2021", aggregate=FALSE)
   
-  # Add GHG total 
-  ceds <- add_columns(ceds,"Emi|GHGtot (Mt CO2-equiv/yr)",dim=3.1)
-  ceds[,,"Emi|GHGtot (Mt CO2-equiv/yr)"] <- ceds[,,"Emi|CO2 (Mt CO2/yr)"] + ceds[,,"Emi|CH4 (Mt CH4/yr)"]*28 + ceds[,,"Emi|N2O (kt N2O/yr)"]/1000*265
-  ceds <- add_dimension(ceds, dim=3.1, add="model",nm="CEDS")
+  # Add GHG total (removed while Land-Use Change is not available)
+  #ceds <- add_columns(ceds,"Emi|GHGtot (Mt CO2-equiv/yr)",dim=3.1)
+  #ceds[,,"Emi|GHGtot (Mt CO2-equiv/yr)"] <- ceds[,,"Emi|CO2 (Mt CO2/yr)"] +
+  #  ceds[,,"Emi|CH4 (Mt CH4/yr)"]*28 +
+  #  ceds[,,"Emi|N2O (kt N2O/yr)"]/1000*265
+  ceds <- add_dimension(ceds, dim=3.1, add="model", nm="CEDS")
 
   # Historical emissions from EDGAR data base
   edgar <- calcOutput("Emissions",datasource="EDGAR",aggregate=FALSE)
@@ -167,7 +133,7 @@ calcHistorical <- function() {
   eurostat <- add_dimension(eurostat, dim=3.1, add="model",nm="Eurostat")
   
   # Emissions market data
-  # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ES (Mt CO2-equiv/yr)") # Effort Sharing
+  # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ESR (Mt CO2-equiv/yr)") # Effort Sharing
   # emiMktETS <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2019), c("2_ Verified emissions.20-99 All stationary installations","3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]),"Emi|GHG|ETS (Mt CO2-equiv/yr)") #ETS without aviation
   # # national aviation is not included in REMIND ETS yet
   # # aviation <- readSource("EEA_EuropeanEnvironmentAgency",subtype="ETS")[,seq(2005,2018),c("2_ Verified emissions.10 Aviation")]
@@ -179,8 +145,8 @@ calcHistorical <- function() {
   # emiMktETS <- add_dimension(emiMktETS, dim=3.1, add="model",nm="EEA_historical")
   # # set remaining emissions to other market - it is missing lulucf (Land use, land-use change, and forestry)
   # totalGHG <- dimSums(eurostat[,,c("Emi|GHGtot (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Aviation (Mt CO2-equiv/yr)","Emi|GHG|Bunkers|International Maritime Transport (Mt CO2-equiv/yr)")])
-  # years <- Reduce(intersect, list(getYears(totalGHG),getYears(emiMktES[,,"Emi|GHG|ES (Mt CO2-equiv/yr)"]),getYears(emiMktETS[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"])))
-  # emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ES (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ES (Mt CO2-equiv/yr)")
+  # years <- Reduce(intersect, list(getYears(totalGHG),getYears(emiMktES[,,"Emi|GHG|ESR (Mt CO2-equiv/yr)"]),getYears(emiMktETS[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"])))
+  # emiMktESOthers <- setNames(collapseNames(totalGHG[,years,] - emiMktES[,years,"Emi|GHG|ESR (Mt CO2-equiv/yr)"] - emiMktETS[,years,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]),"Emi|GHG|other - Non ETS and ESR (Mt CO2-equiv/yr)")
   # emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
   
   # EEA GHG Projections
@@ -193,7 +159,7 @@ calcHistorical <- function() {
   EEA_GHGTotal <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="total"))
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim=3.1,add="model",nm="EEA_historical")
 
-  # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ES"))
+  # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
   #   
   # EU Reference Scenario
@@ -250,10 +216,28 @@ calcHistorical <- function() {
   AGEB_FE <- calcOutput("AGEB", aggregate = FALSE)
   AGEB_FE <- add_dimension(AGEB_FE, dim = 3.1, add = "model", nm = "AGEB")
   
+  # UBA Emission data
+  UBA_emi <- calcOutput("UBA", aggregate = FALSE)
+  UBA_emi <- add_dimension(UBA_emi, dim = 3.1, add = "model", nm = "UBA")
+  
   # UNFCCC emission data
   UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
+  # BP data
+  BP_Emi <- calcOutput("BP", subtype = "Emission", aggregate = FALSE)
+  BP_Emi <- add_dimension(BP_Emi, dim = 3.1, add = "model", nm = "BP")
+  BP_Cap <- calcOutput("BP", subtype = "Capacity", aggregate = FALSE)
+  BP_Cap <- add_dimension(BP_Cap, dim = 3.1, add = "model", nm = "BP")
+  BP_Gen <- calcOutput("BP", subtype = "Generation", aggregate = FALSE)
+  BP_Gen <- add_dimension(BP_Gen, dim = 3.1, add = "model", nm = "BP")
+  BP_Consump <- calcOutput("BP", subtype = "Consumption", aggregate = FALSE)
+  BP_Consump <- add_dimension(BP_Consump, dim = 3.1, add = "model", nm = "BP")
+  BP_Trad <- calcOutput("BP", subtype = "Trade", aggregate = FALSE)
+  BP_Trad <- add_dimension(BP_Trad, dim = 3.1, add = "model", nm = "BP")
+  BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
+  BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
+
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
@@ -262,7 +246,8 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UNFCCC)
+                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
+                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))

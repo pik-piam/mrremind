@@ -1,11 +1,11 @@
 #' Read UNFCCC data
-#' 
+#'
 #' @return A [`magpie`][magclass::magclass] object.
-#' 
+#'
 #' @author Falk Benke
-#' 
+#'
 #' @seealso [`readSource()`]
-#' 
+#'
 #' @importFrom dplyr %>% bind_rows bind_cols mutate select
 #' @importFrom magclass as.magpie
 #' @importFrom tibble tibble
@@ -13,10 +13,10 @@
 #' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
-#' 
+#'
 #' @export
 readUNFCCC <- function() {
-  
+
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -65,12 +65,12 @@ readUNFCCC <- function() {
             "Total Energy|Fugitive emissions from fuels|Solid fuels",
             "Total Energy|Fugitive emissions from fuels|Solid fuels|Coal mining and handling",
             "Total Energy|Fugitive emissions from fuels|Solid fuels|Solid fuel transformation",
-            "Total Energy|Fugitive emissions from fuels|Solid fuels|Other (as specified in table 1.B.1)",
+            "Total Energy|Fugitive emissions from fuels|Solid fuels|Other",
             "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production",
             "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production|Oil",
             "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production|Natural gas",
             "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production|Venting and flaring",
-            "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production|Other (as specified in table 1.B.2)",
+            "Total Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production|Other",
             "Total Energy|Fugitive emissions from fuels|CO2 Transport and storage",
             "Total Energy|Fugitive emissions from fuels|CO2 Transport and storage|Transport of CO2",
             "Total Energy|Fugitive emissions from fuels|CO2 Transport and storage|Injection and storage",
@@ -148,11 +148,411 @@ readUNFCCC <- function() {
           )
         }
       )
+    ),
+    "Table1.A(a)s2" = list(
+      range = "A9:I64",
+      colnames = c(NA, NA, NA, NA, NA, paste0("kt ", c("CO2", "CH4", "N2O"))),
+      rows = tibble(
+        name = {
+          c(
+            "Manufacturing industries and construction",
+            "Manufacturing industries and construction|Liquid fuels",
+            "Manufacturing industries and construction|Solid fuels",
+            "Manufacturing industries and construction|Gaseous fuels",
+            "Manufacturing industries and construction|Other fossil fuels",
+            "Manufacturing industries and construction|Peat",
+            "Manufacturing industries and construction|Biomass",
+            "Manufacturing industries and construction|Iron and steel",
+            "Manufacturing industries and construction|Iron and steel|Liquid fuels",
+            "Manufacturing industries and construction|Iron and steel|Solid fuels",
+            "Manufacturing industries and construction|Iron and steel|Gaseous fuels",
+            "Manufacturing industries and construction|Iron and steel|Other fossil fuels",
+            "Manufacturing industries and construction|Iron and steel|Peat",
+            "Manufacturing industries and construction|Iron and steel|Biomass",
+            "Manufacturing industries and construction|Non-ferrous metals",
+            "Manufacturing industries and construction|Non-ferrous metals|Liquid fuels",
+            "Manufacturing industries and construction|Non-ferrous metals|Solid fuels",
+            "Manufacturing industries and construction|Non-ferrous metals|Gaseous fuels",
+            "Manufacturing industries and construction|Non-ferrous metals|Other fossil fuels",
+            "Manufacturing industries and construction|Non-ferrous metals|Peat",
+            "Manufacturing industries and construction|Non-ferrous metals|Biomass",
+            "Manufacturing industries and construction|Chemicals",
+            "Manufacturing industries and construction|Chemicals|Liquid fuels",
+            "Manufacturing industries and construction|Chemicals|Solid fuels",
+            "Manufacturing industries and construction|Chemicals|Gaseous fuels",
+            "Manufacturing industries and construction|Chemicals|Other fossil fuels",
+            "Manufacturing industries and construction|Chemicals|Peat",
+            "Manufacturing industries and construction|Chemicals|Biomass",
+            "Manufacturing industries and construction|Pulp, paper and print",
+            "Manufacturing industries and construction|Pulp, paper and print|Liquid fuels",
+            "Manufacturing industries and construction|Pulp, paper and print|Solid fuels",
+            "Manufacturing industries and construction|Pulp, paper and print|Gaseous fuels",
+            "Manufacturing industries and construction|Pulp, paper and print|Other fossil fuels",
+            "Manufacturing industries and construction|Pulp, paper and print|Peat",
+            "Manufacturing industries and construction|Pulp, paper and print|Biomass",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Liquid fuels",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Solid fuels",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Gaseous fuels",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Other fossil fuels",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Peat",
+            "Manufacturing industries and construction|Food processing, beverages and tobacco|Biomass",
+            "Manufacturing industries and construction|Non-metallic minerals",
+            "Manufacturing industries and construction|Non-metallic minerals|Liquid fuels",
+            "Manufacturing industries and construction|Non-metallic minerals|Solid fuels",
+            "Manufacturing industries and construction|Non-metallic minerals|Gaseous fuels",
+            "Manufacturing industries and construction|Non-metallic minerals|Other fossil fuels",
+            "Manufacturing industries and construction|Non-metallic minerals|Peat",
+            "Manufacturing industries and construction|Non-metallic minerals|Biomass",
+            "Manufacturing industries and construction|Other",
+            "Manufacturing industries and construction|Other|Off-road vehicles and other machinery",
+            "Manufacturing industries and construction|Other|Off-road vehicles and other machinery|Liquid Fuels",
+            "Manufacturing industries and construction|Other|Off-road vehicles and other machinery|Gaseous Fuels",
+            "Manufacturing industries and construction|Other|Off-road vehicles and other machinery|Other Fossil Fuels",
+            "Manufacturing industries and construction|Other|Off-road vehicles and other machinery|Biomass",
+            "Manufacturing industries and construction|Other|Other"
+          )
+        }
+      )
+    ),
+    "Table1.A(b)" = list(
+      range = "C8:S50",
+      colnames = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "kt CO2"),
+      rows = tibble(
+        name = {
+          c(
+            "Fuel Types|Liquid fossil|Primary fuels|Crude oil",
+            "Fuel Types|Liquid fossil|Primary fuels|Orimulsion",
+            "Fuel Types|Liquid fossil|Primary fuels|Natural gas liquids",
+            "Fuel Types|Liquid fossil|Secondary fuels|Gasoline",
+            "Fuel Types|Liquid fossil|Secondary fuels|Jet kerosene",
+            "Fuel Types|Liquid fossil|Secondary fuels|Other kerosene",
+            "Fuel Types|Liquid fossil|Secondary fuels|Shale oil",
+            "Fuel Types|Liquid fossil|Secondary fuels|Gas/diesel oil",
+            "Fuel Types|Liquid fossil|Secondary fuels|Residual fuel oil",
+            "Fuel Types|Liquid fossil|Secondary fuels|Liquefied petroleum gases (LPG)",
+            "Fuel Types|Liquid fossil|Secondary fuels|Ethane",
+            "Fuel Types|Liquid fossil|Secondary fuels|Naphtha",
+            "Fuel Types|Liquid fossil|Secondary fuels|Bitumen",
+            "Fuel Types|Liquid fossil|Secondary fuels|Lubricants",
+            "Fuel Types|Liquid fossil|Secondary fuels|Petroleum coke",
+            "Fuel Types|Liquid fossil|Secondary fuels|Refinery feedstocks",
+            "Fuel Types|Liquid fossil|Secondary fuels|Other oil",
+            "Fuel Types|Other liquid fossil",
+            "Fuel Types|Liquid fossil totals",
+            "Fuel Types|Primary fuels|Anthracite",
+            "Fuel Types|Primary fuels|Coking coal",
+            "Fuel Types|Primary fuels|Other bituminous coal",
+            "Fuel Types|Secondary fuels|Sub-bituminous coal",
+            "Fuel Types|Secondary fuels|Lignite",
+            "Fuel Types|Secondary fuels|Oil shale and tar sand",
+            "Fuel Types|Secondary fuels|BKB and patent fuel",
+            "Fuel Types|Secondary fuels|Coke oven/gas coke",
+            "Fuel Types|Secondary fuels|Coal tar",
+            "Fuel Types|Other solid fossil",
+            "Fuel Types|Solid fossil totals",
+            "Fuel Types|Gaseous fossil|Natural gas (dry)",
+            "Fuel Types|Other gaseous fossil",
+            "Fuel Types|Gaseous fossil totals",
+            "Fuel Types|Waste (non-biomass fraction)",
+            "Fuel Types|Other fossil fuels",
+            "Fuel Types|Waste",
+            "Fuel Types|Peat",
+            "Fuel Types|Total",
+            "Fuel Types|Biomass total",
+            "Fuel Types|Solid biomass",
+            "Fuel Types|Liquid biomass",
+            "Fuel Types|Gas biomass",
+            "Fuel Types|Other non-fossil fuels (biogenic waste)"
+          )
+        }
+      )
+    ),
+    "Table2(I)s1" = list(
+      range = "A7:D31",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total industrial processes",
+            "Total industrial processes|Mineral industry",
+            "Total industrial processes|Mineral industry|Cement production",
+            "Total industrial processes|Mineral industry|Lime production",
+            "Total industrial processes|Mineral industry|Glass production",
+            "Total industrial processes|Mineral industry|Other process uses of carbonates",
+            "Total industrial processes|Chemical industry",
+            "Total industrial processes|Chemical industry|Ammonia production",
+            "Total industrial processes|Chemical industry|Nitric acid production",
+            "Total industrial processes|Chemical industry|Adipic acid production",
+            "Total industrial processes|Chemical industry|Caprolactam, glyoxal and glyoxylic acid production",
+            "Total industrial processes|Chemical industry|Carbide production",
+            "Total industrial processes|Chemical industry|Titanium dioxide production",
+            "Total industrial processes|Chemical industry|Soda ash production",
+            "Total industrial processes|Chemical industry|Petrochemical and carbon black production",
+            "Total industrial processes|Chemical industry|Fluorochemical production",
+            "Total industrial processes|Chemical industry|Other",
+            "Total industrial processes|Metal industry",
+            "Total industrial processes|Metal industry|Iron and steel production",
+            "Total industrial processes|Metal industry|Ferroalloys production",
+            "Total industrial processes|Metal industry|Aluminium production",
+            "Total industrial processes|Metal industry|Magnesium production",
+            "Total industrial processes|Metal industry|Lead production",
+            "Total industrial processes|Metal industry|Zinc production",
+            "Total industrial processes|Metal industry|Other"
+          )
+        }
+      )
+    ),
+    "Table2(I)s2" = list(
+      range = "A7:D29",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total industrial processes|Non-energy products from fuels and solvent use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Lubricant use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Paraffin wax use",
+            "Total industrial processes|Non-energy products from fuels and solvent use|Other",
+            "Total industrial processes|Electronics industry",
+            "Total industrial processes|Electronics industry|Integrated circuit or semiconductor",
+            "Total industrial processes|Electronics industry|TFT flat panel display",
+            "Total industrial processes|Electronics industry|Photovoltaics",
+            "Total industrial processes|Electronics industry|Heat transfer fluid",
+            "Total industrial processes|Electronics industry|Other",
+            "Total industrial processes|Product uses as substitutes for ODS",
+            "Total industrial processes|Product uses as substitutes for ODS|Refrigeration and air conditioning",
+            "Total industrial processes|Product uses as substitutes for ODS|Foam blowing agents",
+            "Total industrial processes|Product uses as substitutes for ODS|Fire protection",
+            "Total industrial processes|Product uses as substitutes for ODS|Aerosols",
+            "Total industrial processes|Product uses as substitutes for ODS|Solvents",
+            "Total industrial processes|Product uses as substitutes for ODS|Other applications",
+            "Total industrial processes|Other product manufacture and use",
+            "Total industrial processes|Other product manufacture and use|Electrical equipment",
+            "Total industrial processes|Other product manufacture and use|SF6 and PFCs from other product use",
+            "Total industrial processes|Other product manufacture and use|N2O from product uses",
+            "Total industrial processes|Other product manufacture and use|Other",
+            "Total industrial processes|Other"
+          )
+        }
+      )
+    ),
+    "Table3s1" = list(
+      range = "A7:D57",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total agriculture",
+            "Total agriculture|Livestock",
+            "Total agriculture|Enteric fermentation",
+            "Total agriculture|Enteric fermentation|Cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Dairy cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Non-dairy cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Mature dairy cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Other mature cattle",
+            "Total agriculture|Enteric fermentation|Cattle|Growing cattle",
+            NA,
+            "Total agriculture|Enteric fermentation|Cattle|Other",
+            "Total agriculture|Enteric fermentation|Sheep",
+            "Total agriculture|Enteric fermentation|Swine",
+            "Total agriculture|Enteric fermentation|Other livestock",
+            "Total agriculture|Enteric fermentation|Other livestock|Buffalo",
+            "Total agriculture|Enteric fermentation|Other livestock|Deer",
+            "Total agriculture|Enteric fermentation|Other livestock|Goats",
+            "Total agriculture|Enteric fermentation|Other livestock|Horses",
+            "Total agriculture|Enteric fermentation|Other livestock|Mules and Asses",
+            "Total agriculture|Enteric fermentation|Other livestock|Poultry",
+            "Total agriculture|Enteric fermentation|Other livestock|Other",
+            "Total agriculture|Enteric fermentation|Other livestock|Rabbit",
+            "Total agriculture|Enteric fermentation|Other livestock|Ostrich",
+            "Total agriculture|Enteric fermentation|Other livestock|Fur-bearing Animals",
+            "Total agriculture|Manure management",
+            "Total agriculture|Manure management|Cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Dairy cattle",
+            "Total agriculture|Manure management|Cattle|Non-dairy cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Mature dairy cattle",
+            "Total agriculture|Manure management|Cattle|Other mature cattle",
+            "Total agriculture|Manure management|Cattle|Growing cattle",
+            NA,
+            "Total agriculture|Manure management|Cattle|Other",
+            "Total agriculture|Manure management|Sheep",
+            "Total agriculture|Manure management|Swine",
+            "Total agriculture|Manure management|Other livestock",
+            "Total agriculture|Manure management|Other livestock|Buffalo",
+            "Total agriculture|Manure management|Other livestock|Deer",
+            "Total agriculture|Manure management|Other livestock|Goats",
+            "Total agriculture|Manure management|Other livestock|Horses",
+            "Total agriculture|Manure management|Other livestock|Mules and Asses",
+            "Total agriculture|Manure management|Other livestock|Poultry",
+            "Total agriculture|Manure management|Other livestock|Other",
+            "Total agriculture|Manure management|Other livestock|Rabbit",
+            "Total agriculture|Manure management|Other livestock|Ostrich",
+            "Total agriculture|Manure management|Other livestock|Fur-bearing Animals",
+            "Total agriculture|Manure management|Indirect N2O emissions"
+          )
+        }
+      )
+    ),
+    "Table3s2" = list(
+      range = "A7:D18",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total agriculture|Rice cultivation",
+            "Total agriculture|Agricultural soils",
+            "Total agriculture|Prescribed burning of savannas",
+            "Total agriculture|Field burning of agricultural residues",
+            "Total agriculture|Liming",
+            "Total agriculture|Urea application",
+            "Total agriculture|Other carbon-containing fertilizers",
+            "Total agriculture|Other",
+            "Total agriculture|Other|3B NOx Emissions",
+            "Total agriculture|Other|Digestate renewable raw material atmospheric deposition",
+            "Total agriculture|Other|Digestate renewable raw material storage of dry matter",
+            "Total agriculture|Other|Digestate renewable raw material"
+          )
+        }
+      )
+    ),
+    "Table4" = list(
+      range = "A7:D29",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Total LULUCF",
+            "Total LULUCF|Forest land",
+            "Total LULUCF|Forest land|Forest land remaining forest land",
+            "Total LULUCF|Forest land|Land converted to forest land",
+            "Total LULUCF|Cropland",
+            "Total LULUCF|Cropland|Cropland remaining cropland",
+            "Total LULUCF|Cropland|Land converted to cropland",
+            "Total LULUCF|Grassland",
+            "Total LULUCF|Grassland|Grassland remaining grassland",
+            "Total LULUCF|Grassland|Land converted to grassland",
+            "Total LULUCF|Wetlands",
+            "Total LULUCF|Wetlands|Wetlands remaining wetlands",
+            "Total LULUCF|Wetlands|Land converted to wetlands",
+            "Total LULUCF|Settlements",
+            "Total LULUCF|Settlements|Settlements remaining settlements",
+            "Total LULUCF|Settlements|Land converted to settlements",
+            "Total LULUCF|Other land",
+            "Total LULUCF|Other land|Other land remaining other land",
+            "Total LULUCF|Other land|Land converted to other land",
+            "Total LULUCF|Harvested wood products",
+            "Total LULUCF|Other",
+            "Total LULUCF|Other|Settlements",
+            "Total LULUCF|Other|Other"
+          )
+        }
+      )
+    ),
+    "Table5" = list(
+      range = "A7:D24",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+          "Total waste",
+          "Total waste|Solid waste disposal",
+          "Total waste|Solid waste disposal|Managed waste disposal sites",
+          "Total waste|Solid waste disposal|Unmanaged waste disposal sites",
+          "Total waste|Solid waste disposal|Uncategorized waste disposal sites",
+          "Total waste|Biological treatment of solid waste",
+          "Total waste|Biological treatment of solid waste|Composting",
+          "Total waste|Biological treatment of solid waste|Anaerobic digestion at biogas facilities",
+          "Total waste|Incineration and open burning of waste",
+          "Total waste|Incineration and open burning of waste|Waste incineration",
+          "Total waste|Incineration and open burning of waste|Open burning of waste",
+          "Total waste|Wastewater treatment and discharge",
+          "Total waste|Wastewater treatment and discharge|Domestic wastewater",
+          "Total waste|Wastewater treatment and discharge|Industrial wastewater",
+          "Total waste|Wastewater treatment and discharge|Other",
+          "Total waste|Other",
+          "Total waste|Other|Mechanical-Biological Treatment MBT",
+          "Total waste|Other|Accidental fires"
+          )
+        }
+      )
+    ),
+    "Summary1.As1" = list(
+      range = "A7:D28",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Net emissions",
+            "Net Emissions|Energy",
+            "Net Emissions|Energy|Fuel combustion|Reference approach",
+            "Net Emissions|Energy|Fuel combustion|Sectoral approach",
+            "Net Emissions|Energy|Fuel combustion|Energy industries",
+            "Net Emissions|Energy|Fuel combustion|Manufacturing industries and construction ",
+            "Net Emissions|Energy|Fuel combustion|Transport",
+            "Net Emissions|Energy|Fuel combustion|Other sectors",
+            "Net Emissions|Energy|Fuel combustion|Other",
+            "Net Emissions|Energy|Fugitive emissions from fuels",
+            "Net Emissions|Energy|Fugitive emissions from fuels|Solid fuels",
+            "Net Emissions|Energy|Fugitive emissions from fuels|Oil and natural gas and other emissions from energy production",
+            "Net Emissions|Energy|CO2 Transport and storage",
+            "Net Emissions|Industrial processes and product use",
+            "Net Emissions|Industrial processes and product use|Mineral industry",
+            "Net Emissions|Industrial processes and product use|Chemical industry",
+            "Net Emissions|Industrial processes and product use|Metal industry",
+            "Net Emissions|Industrial processes and product use|Non-energy products from fuels and solvent use ",
+            "Net Emissions|Industrial processes and product use|Electronic industry ",
+            "Net Emissions|Industrial processes and product use|Product uses as substitutes for ODS",
+            "Net Emissions|Industrial processes and product use|Other product manufacture and use ",
+            "Net Emissions|Industrial processes and product use|Other"
+          )
+        }
+      )
+    ),
+    "Summary1.As2" = list(
+      range = "A8:D34",
+      colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
+      rows = tibble(
+        name = {
+          c(
+            "Net Emissions|Agriculture",
+            "Net Emissions|Agriculture|Enteric fermentation",
+            "Net Emissions|Agriculture|Manure management",
+            "Net Emissions|Agriculture|Rice cultivation",
+            "Net Emissions|Agriculture|Agricultural soils",
+            "Net Emissions|Agriculture|Prescribed burning of savannas",
+            "Net Emissions|Agriculture|Field burning of agricultural residues",
+            "Net Emissions|Agriculture|Liming",
+            "Net Emissions|Agriculture|Urea application",
+            "Net Emissions|Agriculture|Other carbon-contining fertilizers",
+            "Net Emissions|Agriculture|Other ",
+            "Net Emissions|Land use, land-use change and forestry ",
+            "Net Emissions|Land use, land-use change and forestry|Forest land",
+            "Net Emissions|Land use, land-use change and forestry|Cropland",
+            "Net Emissions|Land use, land-use change and forestry|Grassland",
+            "Net Emissions|Land use, land-use change and forestry|Wetlands",
+            "Net Emissions|Land use, land-use change and forestry|Settlements",
+            "Net Emissions|Land use, land-use change and forestry|Other land",
+            "Net Emissions|Land use, land-use change and forestry|Harvested wood products",
+            "Net Emissions|Land use, land-use change and forestry|Other ",
+            "Net Emissions|Waste",
+            "Net Emissions|Waste|Solid waste disposal",
+            "Net Emissions|Waste|Biological treatment of solid waste",
+            "Net Emissions|Waste|Incineration and open burning of waste",
+            "Net Emissions|Waste|Wastewater treatment and discharge",
+            "Net Emissions|Waste|Other",
+            "Net Emissions|Other"
+          )
+        }
+      )
     )
   )
-  
+
   dirs <- list.files(path = ".")
-  
+
   tmp <- NULL
   for (dir in dirs) {
     files <- list.files(path = paste0("./", dir))
@@ -167,9 +567,9 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0(dir, "/", file), sheet = i, 
-                        range = sheets[[i]][["range"]], 
-                        col_names = c("variable", sheets[[i]][["colnames"]])) %>%
+              read_xlsx(path = paste0(dir, "/", file), sheet = i,
+                range = sheets[[i]][["range"]],
+                col_names = c("variable", sheets[[i]][["colnames"]])) %>%
                 bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
@@ -177,7 +577,7 @@ readUNFCCC <- function() {
                 melt(id.vars = c("name", "region", "year")) %>%
                 mutate(
                   !!sym("value") := as.double(!!sym("value")),
-                  !!sym("name") := paste0(!!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
+                  !!sym("name") := paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
                 ) %>%
                 select(-"name", "unit" = "variable", "variable" = "name") %>%
                 filter(!is.na(!!sym("value")))
@@ -187,9 +587,9 @@ readUNFCCC <- function() {
       }
     }
   }
-  
-  tmp %>% 
-    select('region', 'year', 'variable', 'unit', 'value') %>% 
-    as.magpie(tidy = TRUE) %>% 
+
+  tmp %>%
+    select("region", "year", "variable", "unit", "value") %>%
+    as.magpie(tidy = TRUE) %>%
     return()
 }

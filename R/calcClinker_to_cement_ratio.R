@@ -14,7 +14,7 @@
 calcClinker_to_cement_ratio <- function() {
   list(x = `getYears<-`(readSource('ADVANCE_WP2', 'clinker-to-cement-ratio'), 
                         2005),
-       weight = calcOutput('GDPpppPast', aggregate = FALSE)[,2015,],
+       weight = calcOutput('GDPPast', aggregate = FALSE)[,2015,],
        unit = 'ratio',
        description = 'clinker-to-cement ratio') %>% 
     return()

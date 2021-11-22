@@ -5,7 +5,7 @@ calcMacroInvestments <- function() {
   # read in investment share 
   shInv <- readSource("PWT")[,2005,"csh_i"]
   # read in gdp
-  gdp <- calcOutput("GDPppp",aggregate=FALSE)[,2005,"gdp_SSP2"]
+  gdp <- calcOutput("GDP",aggregate=FALSE)[,2005,"gdp_SSP2"]
   
   # BS 01-03-2019: updated to use new toolFillWithRegionAvg function
   shInv_new <- toolFillWithRegionAvg(shInv, valueToReplace = 0, weight = gdp)

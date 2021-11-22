@@ -24,7 +24,7 @@ calcRLDCCoefficients <- function(subtype="LoB"){
     # create object with only unique elements (non duplicated data)
     coeff <- unique(data[,,uniqueCoeff])
     # get current region mapping
-    map <- read.csv(toolMappingFile("regional",getConfig("regionmapping")),sep=";")
+    map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"))
     #loading output values based on coefficients with higher sum of weight factor in relation to unique elements (original region data)
     for (newRegion in unique(map$RegionCode)){ # loop through new region mapping
       totalPE <- new.magpie(getRegions(coeff), getYears(coeff),"TotalPE",fill=0) #initializing region dependent weight factor

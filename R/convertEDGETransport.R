@@ -11,7 +11,7 @@
 #'
 convertEDGETransport = function(x, subtype) {
   `.` <- CountryCode <- RegionCode <- NULL
-  if (subtype %in% c("esCapCost", "fe_demand_tech", "fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor","f35_bunkers_fe")) {
+  if (subtype %in% c("esCapCost", "fe_demand_tech", "fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "annual_mileage", "f35_bunkers_fe")) {
     ## magpie object creates NA whenever the initial dt is not symmetric (entry absent in ISO1 but exists in ISO2)
     ## the NAs are therefore converted to 0
     x[is.na(x)] <- 0
@@ -19,7 +19,7 @@ convertEDGETransport = function(x, subtype) {
   ## load mapping
   mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv",type="regional"))[, .(iso = CountryCode, region = RegionCode)]
   ## for intensive values, the weight is NULL
-  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "shares_LDV_transport", "price_nonmot", "esCapCost")) {
+  if (subtype %in% c("fe2es", "UCD_NEC_iso", "harmonized_intensities", "value_time", "pref", "loadFactor", "annual_mileage", "shares_LDV_transport", "price_nonmot", "esCapCost")) {
     x = toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
   }
 
@@ -32,7 +32,7 @@ convertEDGETransport = function(x, subtype) {
 
   ## for extensive values and the complex module, the weight is GDP
   if (subtype == "pm_fe_demand_EDGETbased") {
-    gdp <- calcOutput("GDPppp", aggregate = F)[,,"gdp_SSP2"]
+    gdp <- calcOutput("GDP", aggregate = F)[,,"gdp_SSP2"]
     ## interpolate missing time steps
     gdp <- time_interpolate(gdp, getYears(x))
 
@@ -43,8 +43,9 @@ convertEDGETransport = function(x, subtype) {
 
 
   if (subtype %in% c("shares_LDV_transport")) {
-    ## only ConvCase (ICE predominant LDV market and road market) is used as input data
-    x <- x[,,"ConvCase.share_LDV_totliq", pmatch = TRUE]
+    ## only the first EDGE-T scenario for SSP2 is used as a proxy for the LDV shares
+    varname_SSP2 <- getNames(x[,, "gdp_SSP2"])[1]
+    x <- x[,, varname_SSP2]
 
     for (year in getYears(x, as.integer = T)){
       x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)

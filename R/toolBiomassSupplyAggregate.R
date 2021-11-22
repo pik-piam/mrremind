@@ -21,8 +21,7 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL){
   region <- NULL
   value <- NULL
   Total <- NULL
-  CountryCode <- NULL
-  RegionCode <- NULL
+  country <- NULL
   
   # FS: aggregate from iso-countries to regions
   # inverse of the disaggregation described in convertMAgPIE.R (subytpe = "supplyCurve_magpie_40")
@@ -30,27 +29,24 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL){
   # multiply agricultural land share of iso-country in region with iso-country slope parameter b for
   # one iso-country to obtain slope parameter b of region
   
-  # get regionmapping to aggregate to
-  mapping <- toolMappingFile("regional",getConfig("regionmapping"), readcsv = T)
-  
   # calculate share in agricultural land area of countries relative to MAgPIE regions
   # get agricultural land for iso-countries in 2010 from FAO
-  AgrLandIso <- calcOutput("FAOLand", aggregate = F)[,"y2010","6610|Agricultural area.area"]
+  AgrLandIso <- calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",]
   # aggregate agricultural land to regions in regionmapping
-  AgrLandReg <- toolAggregate(AgrLandIso, mapping)
+  AgrLandReg <- toolAggregate(AgrLandIso, rel)
   
   # calculate share of agricultural land area for each iso-country relative to the MAgPIE region it is in
   AgrLandShare <- as.quitte(AgrLandIso) %>% 
     select(region, value) %>% 
-    rename(CountryCode = region) %>% 
-    left_join(mapping) %>% 
+    rename(country = region) %>% 
+    left_join(rel) %>% 
     left_join((as.quitte(AgrLandReg) %>% 
                  select(region, value) %>% 
-                 rename(RegionCode = region, Total = value))) %>% 
+                 rename(Total = value))) %>% 
     mutate(value = value / Total) %>%
     # if no agricultural area at all -> assume very low share of 1e-5
     mutate( value = ifelse(value == 0, 1e-5, value)) %>% 
-    select(CountryCode, value) %>% 
+    select(country, value) %>% 
     as.magpie(spatial = 1, datacol=2) %>%  
     dimReduce()
   
@@ -60,16 +56,16 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL){
   
   # select one country per region (first country in alphabet) to set weight = 1, 
   # rest of countries weight 0
-  mapping.sort <- mapping %>% 
-                    arrange(RegionCode)
-  iso.sel <- mapping.sort$CountryCode[cumsum(table(mapping.sort$RegionCode))]
+  rel.sort <- rel %>% 
+                    arrange(region)
+  iso.sel <- rel.sort$country[cumsum(table(rel.sort$region))]
   
   weight <- new.magpie(getRegions(x), fill = 0)
   weight[iso.sel,,] <- 1
   
   # aggregate to regionmapping, take a and b value only of one country within the region, 
   # other weights are 0
-  y <- toolAggregate(x, mapping, weight = weight)
+  y <- toolAggregate(x, rel, weight = weight)
   
   return(y)
 }

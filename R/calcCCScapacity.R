@@ -14,4 +14,3 @@ calcCCScapacity <- function(){
   ))
   
 }
-

@@ -6,33 +6,38 @@
 #'
 #' @author Michaja Pehl
 #' 
-#' @importFrom dplyr as_tibble filter matches mutate select sym
+#' @importFrom assertr verify
+#' @importFrom dplyr as_tibble filter matches mutate n select
 #' @importFrom madrat readSource
 #' @importFrom magclass as.data.frame as.magpie getYears 
 #' @importFrom quitte interpolate_missing_periods
+#' @importFrom rlang .data
 #' @importFrom tidyr pivot_longer pivot_wider
 
 #' @export
 calcSecondary_steel_limits <- function() {
   .years <- getYears(readSource('EDGE', subtype = 'FE_stationary'))
   x <- readSource(type = 'EDGE_Industry', 
-                            subtype = 'secondary_steel_limits') %>%
+                  subtype = 'secondary_steel_limits') %>%
     as.data.frame() %>% 
     as_tibble() %>% 
     select(-'Data2') %>% 
-    pivot_wider(names_from = 'Data1', values_from = 'Value') %>% 
-    mutate(!!sym('SDP') := !!sym('SSP1')) %>% 
-    pivot_longer(matches('^S[SD]P[1-5]?$'), names_to = 'scenario') %>% 
-    mutate(!!sym('Year') := as.integer(as.character(!!sym('Year')))) %>% 
+    mutate(Year = as.integer(as.character(.data$Year))) %>% 
     interpolate_missing_periods(
       Year = as.integer(sub('^y', '', .years)),
+      value = 'Value',
       expand.values = TRUE) %>% 
-    mutate(!!sym('year') := paste0('y', !!sym('Year')),
-           !!sym('scenario') := paste0('gdp_', !!sym('scenario')),
+    mutate(year = paste0('y', .data$Year),
+           scenario = paste0('gdp_', .data$Data1),
            # t * 1e-9 Gt/t = t
-           !!sym('value') := !!sym('value') * 1e-9) %>% 
+           value = .data$Value * 1e-9) %>% 
     select('Region', 'year', 'scenario', 'value') %>% 
-    filter(!!sym('year') %in% .years) %>% 
+    filter(.data$year %in% .years) %>% 
+    group_by(.data$Region, .data$year, .data$scenario) %>% 
+    mutate(count = n()) %>% 
+    verify(1 == .data$count) %>% 
+    ungroup() %>% 
+    select(-'count') %>% 
     as.magpie()
   
   return(
@@ -41,6 +46,6 @@ calcSecondary_steel_limits <- function() {
          unit = 'Gt/year',
          description = paste('Upper limit to secondary steel production due',
                              'to scrap availability'),
-         structure.data = '^gdp_(SSP[1-5]|SDP)')
+         structure.data = '^gdp_(SSP|SDP)')
   )
 }

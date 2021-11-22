@@ -13,7 +13,7 @@ convertRutovitz2015 <- function(x,subtype) {
   tech <- NULL
   activity <- NULL
   
-  mapping <- toolMappingFile(type = "regional",name = "regionalmappingWEO2014.csv",readcsv = T)
+  mapping <- toolGetMapping(type = "regional", name = "regionalmappingWEO2014.csv")
   colnames(mapping) <- c("region","country")
   mapping$country <- toolCountry2isocode(mapping$country)  
   
@@ -149,4 +149,3 @@ convertRutovitz2015 <- function(x,subtype) {
   
   return (x)
 }
-

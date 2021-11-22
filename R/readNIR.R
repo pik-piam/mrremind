@@ -32,7 +32,3 @@ readNIR<- function(subtype) {
   getYears(x) <- years
   return(x)
 }
-
-
-
-

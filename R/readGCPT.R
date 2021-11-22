@@ -10,7 +10,7 @@
 
 
 readGCPT <- function(subtype) {
-  map <- toolGetMapping(getConfig("regionmapping"),type="regional")
+  map <- toolGetMapping(getConfig("regionmapping"), type="regional")
   
   if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","meanAge","ppca_emi",
                        "historical2020","status2020","future2020","lifespans2020","emissions2020","comp_rates2020","2030"))) {
@@ -683,13 +683,11 @@ readGCPT <- function(subtype) {
     
     emi_data$`Plant age`[which(emi_data$Status==Phase & is.na(emi_data$Year))] <- meanAge$age
   }
-  setConfig(forcecache = T)
   # Read in national average capacity factor assumption for each 5-year time-step
   capFac <- calcOutput("CapacityFactor",aggregate=F)[,seq(2020,2100,5),"pc"]
   capFac <- removeColNa(as.data.frame(capFac))[,-3]
   colnames(capFac) <- c("Country","Period","Cap_Factor")
   capFac$Period <- as.numeric(as.character(capFac$Period))
-  setConfig(forcecache = F)
   
   # Assign each coal plant its country's average capacity factor per time-step
   emi_data <- emi_data %>% left_join(capFac,by="Country") %>% mutate(`Plant age`=`Plant age`+(Period-2020))

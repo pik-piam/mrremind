@@ -7,7 +7,7 @@ convertINNOPATHS <- function(x) {
   # calculate GDP per Capita to be used as weight for disaggregation
   # TODO: revise this weight in case a bigger disaggregation than the 21 regions 
   # remind-eu disaggregation should be introduced
-  GDPppp <- calcOutput("GDPppp", GDPpppFuture = "SSP", aggregate = FALSE)
+  GDPppp <- calcOutput("GDP", aggregate = FALSE)
   population <- calcOutput("Population", aggregate = FALSE)
   gdpPerCapita <- GDPppp[,,"gdp_SSP2"] / population[,,"pop_SSP2"]
   

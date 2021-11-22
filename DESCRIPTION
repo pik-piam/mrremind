@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.59.3
-Date: 2021-05-06
+Version: 0.88.0
+Date: 2021-11-22
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -29,41 +29,42 @@ Description: The mrremind packages contains data preprocessing for the REMIND mo
 Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
-    madrat(>= 1.30),
-    mrcommons
+    madrat(>= 2.5.1),
+    mrcommons(>= 1.0.0)
 Imports:
-    R.utils,
     assertr,
     assertthat,
     countrycode,
     data.table,
     dplyr,
+    edgeTransport,
     gdata,
     luscale,
     magrittr,
+    mgsub,
     nnls,
     quitte,
+    readODS,
     readr,
     readxl,
     reshape,
     reshape2,
     rlang,
     rmndt,
+    R.utils,
     tibble,
     tidyr,
     tidyselect,
     zoo,
-    mgsub,
-    edgeTransport
 License: LGPL-3 | file LICENSE
 LazyData: no
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
-    knitr,
-    testthat,
-    rmarkdown,
+    covr,
     ggplot2,
-    covr
+    knitr,
+    rmarkdown,
+    testthat,
 URL: https://github.com/pik-piam/mrremind
 VignetteBuilder: knitr

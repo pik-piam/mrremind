@@ -28,14 +28,14 @@ calcTheil <- function(){
   TheilT <- TheilT.from.sigma(sigma.from.Gini(Gini))
   
   # population (in 1e6)
-  pop <- calcOutput(type = 'Population', PopulationFuture="SSP_completed", aggregate = FALSE)
+  pop <- calcOutput(type = 'Population', aggregate = FALSE)
   sspnames <- c(paste0('SSP',1:5),"SDP")
   pop <- pop[,years,paste0('pop_',sspnames)]
   getNames(pop) <- sspnames
   getSets(pop) <- c("iso3c","year","scenario")
   
   # GDP (in million $ PPP 2005)
-  GDPppp <- calcOutput(type = 'GDPppp', GDPpppFuture="SSP_completed", aggregate = FALSE)
+  GDPppp <- calcOutput(type = 'GDPppp', aggregate = FALSE)
   GDPnames <- paste0('gdp_',sspnames)
   GDPppp <- GDPppp[,years,GDPnames]
   getNames(GDPppp) <- sspnames
@@ -48,7 +48,8 @@ calcTheil <- function(){
   s_i[,,] <- NA
   
   # contribution to Theil index depends on region mapping. We always use the one specified in getConfig().
-  regionmapping <- read.csv(toolMappingFile(type = 'regional', name = getConfig()$regionmapping), sep = ';', colClasses = 'character')
+  regionmapping <- read.csv(toolGetMapping(type = 'regional', name = getConfig()$regionmapping, returnPathOnly = TRUE),
+                            sep = ';', colClasses = 'character')
   # GDP per capita
   xbar_i <- GDPppp/pop
   for (rr in unique(regionmapping$RegionCode)){
@@ -86,6 +87,3 @@ sigma.from.Gini <- function(G){
   sigma <- sqrt(2)*qnorm((G+1)/2)
   return(sigma)
 }
-
-
-

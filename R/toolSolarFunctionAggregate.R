@@ -11,13 +11,15 @@
 #' 
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
 #' @export
-#' @importFrom magclass is.magpie as.data.frame as.magpie collapseNames add_columns getSets fulldim
+#' @importFrom magclass is.magpie as.data.frame as.magpie collapseNames add_columns getSets getItems
+#' setItems collapseDim
 #' @importFrom dplyr %>% mutate select rename filter left_join group_by ungroup arrange summarise desc 
 #' lag full_join
 #' @importFrom tidyr spread gather complete
 #' @importFrom quitte as.quitte revalue.levels
 #' @importFrom zoo na.approx
 #' @importFrom stats weighted.mean
+#' @importFrom utils packageVersion
 
 
 toolSolarFunctionAggregate <- function(x, rel=NULL){
@@ -26,9 +28,6 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   # old part by Julian Oeser
   
   # aggregate to regions
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12.csv" #to test
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmappingH12_Aus.csv" #to test
-  #rel <- "C:/work/Rscripts/inputdata/mappings/regional/regionmapping_21_EU11.csv" #to test
   x <- toolAggregate(x,rel)
   getSets(x)[1] <- "Region"
   
@@ -43,12 +42,17 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   area.csp <- dimSums(x[,,"area"][,,"CSP"][,,c("0-50", "50-100")], dim=c(3.4, 3.3))
   
   # share of area if PV installed only where no csp can be installed
-  area.only.pv.share <- ((area.pv+1)-(area.csp+1)) / (area.pv+1)
-  x <- add_columns(x, c("PVcomp", "PVonly"), 3.2)
-  x[,,"PVonly"] <- x[,,"PV"]*area.only.pv.share[,,"PV"]
-  x[,,"PVcomp"] <- x[,,"PV"]-(x[,,"PV"]*area.only.pv.share[,,"PV"])
-  
-  
+  if(packageVersion("magclass") < 6) {
+    area.only.pv.share <- ((area.pv+1)-(area.csp+1)) / (area.pv+1)
+    x <- add_columns(x, c("PVcomp", "PVonly"), 3.2)
+    x[,,"PVonly"] <- x[,,"PV"]*area.only.pv.share[,,"PV"]
+    x[,,"PVcomp"] <- x[,,"PV"]-(x[,,"PV"]*area.only.pv.share[,,"PV"]) 
+  } else {
+    area.only.pv.share <- collapseDim(((area.pv+1)-(area.csp+1)) / (area.pv+1))
+    xPVonly <- setItems(x[,,"PV"]*area.only.pv.share, dim = "Technology", value = "PVonly")
+    xPVcomp <- setItems(x[,,"PV"]-(x[,,"PV"]*area.only.pv.share), dim = "Technology", value = "PVcomp")
+    x <- mbind(x, xPVonly, xPVcomp)
+  }
   
   ### create new distance class: 1-100red (distance class where all between 1-100 are included and 
   # far away distanced classes are reduced in FLH which accounts for transmission losses)
@@ -78,9 +82,13 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   x2.csp <- toolAggregate(x2.csp, rel=bins.csp.agg, dim=3.4)
   getSets(x2.csp) <- getSets(x1.csp)
   
-  missing.bins.pv <- fulldim(x1.pv)[[2]]$Bin[which(!(fulldim(x1.pv)[[2]]$Bin %in% fulldim(x2.pv)[[2]]$Bin))]
-  missing.bins.csp <- fulldim(x1.csp)[[2]]$Bin[which(!(fulldim(x1.csp)[[2]]$Bin %in% fulldim(x2.csp)[[2]]$Bin))]
-  
+  .missingBins <- function(x1,x2) {
+    bin1 <- getItems(x1, dim = "Bin")
+    bin2 <- getItems(x2, dim = "Bin")
+    return(bin1[which(!(bin1 %in% bin2))])
+  }
+  missing.bins.pv  <- .missingBins(x1.pv,  x2.pv)
+  missing.bins.csp <- .missingBins(x1.csp, x2.csp)
   
   x2.pv <- add_columns(x2.pv, missing.bins.pv, 3.4)
   x2.pv[,,missing.bins.pv] <- 0
@@ -294,14 +302,19 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
     # 1. for regions/technologies where highest FLH data point (DLR) is outisde first grade (s.t. first grade would be NA)
     # create equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins
     if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] >= grade.breaks[8]) {
+      # if lowest DRL FLH grade is below maximum of grade breaks, distribute grades equally from minimum to maximum DLR data point
+      if (df.OutsideBreaks$Min[i] > grade.breaks[8]) {
+        new.grade.breaks <- seq(df.OutsideBreaks$Min[i]-1e-5,df.OutsideBreaks$Max[i]+1e-5,length.out = length(grade.breaks))
+      } else {
       grades.to.shift <- grade.breaks[grade.breaks>df.OutsideBreaks$Min[i]]
       new.grade.breaks <- seq(df.OutsideBreaks$Min[i]-1e-5,min(grades.to.shift), length.out = (9-length(grades.to.shift)+1))
       new.grade.breaks <- c(new.grade.breaks, grades.to.shift[-1])
+      }
     # 2. if highest FLH data point (DLR) outside first grade and (!) 
       # total potential below lower bound of last grade -> 
       # equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins and (!)
       # split last grade into multiple equally spaced grades
-    } else if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] < grade.breaks[8]) {
+    } else if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] < grade.breaks[8] & nrow(df.map.temp) > 0) {
       grades.to.shift <- grade.breaks[grade.breaks>df.OutsideBreaks$Min[i]]
       new.grade.breaks <- seq(df.OutsideBreaks$Min[i]-1e-5,min(grades.to.shift), length.out = (9-length(grades.to.shift)+1))
       new.grade.breaks <- c(new.grade.breaks, grades.to.shift[-1])

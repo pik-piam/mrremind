@@ -15,7 +15,8 @@ convertExpertGuess <- function(x,subtype)
   if (subtype == "costsTradePeFinancial"){
     # use data for each country that belongs to a region
     # No weighting for spatial aggregation
-    out <- toolAggregate(x, toolMappingFile("regional","regionmappingH12.csv"), weight=NULL)  
+    out <- toolAggregate(x, toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE),
+                         weight=NULL)
   } else { 
     out <- x
   }

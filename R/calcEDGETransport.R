@@ -1,6 +1,5 @@
 #' @title Prepare EDGETransport inputs
 #'
-#' All subtypes should be used with the aggregate=FALSE flag.
 #'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Alois Dirnaichner, Marianna Rottoli
@@ -21,7 +20,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
       conv = TRUE
    }
 
-  weightInt <- calcOutput("GDPppp", aggregate = F)
+  weightInt <- calcOutput("GDP", aggregate = F)
   get_weight <- function(data, weightInt){
     year_inter = getYears(data)
     ## define weight for intensive entries (for weighted average)
@@ -30,9 +29,13 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
       year_inter,
       extrapolation_type="constant")[,, getNames(data, dim=1)]
     ## create an empty object that has the same dimensions as data
-    weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data))
+    weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data), fill = 0)
     ## use the GPD for each SSP in data to fill up the empty weight (it needs as many repetitions as SSP* is called in data)
-    weight[,,getNames(weightInt)] <- rep(as.vector(weightInt[,,getNames(weightInt)]),length(getNames(data))/length(getNames(weightInt)))
+    for (k in seq(1,length(getNames(weightInt)),1)) {
+      weight[getRegions(weightInt),getYears(weightInt),getNames(weightInt)[k]] <- weightInt[getRegions(weightInt),
+                                                                                            getYears(weightInt),
+                                                                                            getNames(weightInt)[k]]
+    }
     return(weight)
   }
 
@@ -86,6 +89,11 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            weight = get_weight(data, weightInt)
            unit = "Passenger transport: [pass/veh]; freight transport: [ton/veh]"
            description = "Load factor for all motorized transport modes"
+         },
+         "annual_mileage" = {
+           weight = get_weight(data, weightInt)
+           unit = "km/veh/year"
+           description = "Annual mileage for selected transport modes"
          },
          "esCapCost" = {
            weight = get_weight(data, weightInt)
