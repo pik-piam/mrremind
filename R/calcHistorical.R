@@ -237,9 +237,8 @@ calcHistorical <- function() {
   BP_Trad <- add_dimension(BP_Trad, dim = 3.1, add = "model", nm = "BP")
   BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
   BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
-  
-  # WEO 2021 (primarily global data)
-  WEO_2021 <- calcOutput("IEA_WEO_2021", aggregate = F)
+
+  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
 
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 

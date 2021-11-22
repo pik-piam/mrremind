@@ -2,7 +2,7 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#'
+#' @param subtype Either "GLO" or "regional"
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping
@@ -11,7 +11,7 @@
 #' @export
 
 
-calcIEA_WEO_2021 <- function() {
+calcIEA_WEO_2021 <- function(subtype = "GLO") {
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")")) %>%
@@ -19,7 +19,7 @@ calcIEA_WEO_2021 <- function() {
 
   mapping$variable <- trimws(mapping$variable)
 
-  data <- readSource("IEA_WEO_2021")
+  data <- readSource("IEA_WEO_2021", subtype = subtype)
 
   data <- as.data.frame(data) %>%
     as_tibble() %>%
@@ -39,26 +39,28 @@ calcIEA_WEO_2021 <- function() {
         is.na(!!sym("value")), 0, !!sym("value") * !!sym("Conversion")
       ),
       !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
-      !!sym("model") := paste0("IEA WEO 2020 ", !!sym("scenario"))
+      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario"))
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
   x <- as.magpie(x, spatial = 1, temporal = 2, data = 5)
 
-  x <- add_columns(x, "Cap|Electricity|Biomass|w/o CCS (GW)", dim = 3.2)
-  x[, , "Cap|Electricity|Biomass|w/o CCS (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CCS (GW)"]
+  if (subtype == "GLO") {
+    x <- add_columns(x, "Cap|Electricity|Biomass|w/o CCS (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Biomass|w/o CCS (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CCS (GW)"]
 
-  x <- add_columns(x, "Cap|Electricity|Coal (GW)", dim = 3.2)
-  x[, , "Cap|Electricity|Coal (GW)"] <- x[, , "Cap|Electricity|Coal|w/o CCS (GW)"] + x[, , "Cap|Electricity|Coal|w/ CCS (GW)"]
+    x <- add_columns(x, "Cap|Electricity|Coal (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Coal (GW)"] <- x[, , "Cap|Electricity|Coal|w/o CCS (GW)"] + x[, , "Cap|Electricity|Coal|w/ CCS (GW)"]
 
-  x <- add_columns(x, "Cap|Electricity|Solar (GW)", dim = 3.2)
-  x[, , "Cap|Electricity|Solar (GW)"] <- x[, , "Cap|Electricity|Solar|CSP (GW)"] + x[, , "Cap|Electricity|Solar|PV (GW)"]
+    x <- add_columns(x, "Cap|Electricity|Solar (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Solar (GW)"] <- x[, , "Cap|Electricity|Solar|CSP (GW)"] + x[, , "Cap|Electricity|Solar|PV (GW)"]
 
-  x <- add_columns(x, "Cap|Electricity|Fossil (GW)", dim = 3.2)
-  x[, , "Cap|Electricity|Fossil (GW)"] <- x[, , "Cap|Electricity|Fossil|w/o CCS (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CCS (GW)"]
+    x <- add_columns(x, "Cap|Electricity|Fossil (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Fossil (GW)"] <- x[, , "Cap|Electricity|Fossil|w/o CCS (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CCS (GW)"]
 
-  x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
-  x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CCS (GW)"] + x[, , "Cap|Electricity|Gas|w/ CCS (GW)"]
+    x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CCS (GW)"] + x[, , "Cap|Electricity|Gas|w/ CCS (GW)"]
+  }
 
   return(list(
     x = x,
