@@ -138,4 +138,3 @@ convertREMIND_11Regi <- function(x,subtype) {
   }
 return(y)
 }
-

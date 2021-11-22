@@ -215,4 +215,3 @@ calcDiffInvestCosts <- function(subtype){
  
     
   }
-

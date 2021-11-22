@@ -364,5 +364,3 @@ calcEmiTarget <- function(subtype, realization) {
       return(list(x=dummy2,weight=ghg, unit="1",description = description))
     }
 }
-
-

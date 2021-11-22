@@ -23,4 +23,3 @@ calcTaxConvergence <- function(){
   ))
   
 }
-

@@ -77,5 +77,3 @@ readRogelj2017 <- function(subtype){
   
   return(x)
 }
-
-
