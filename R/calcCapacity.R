@@ -205,4 +205,3 @@ calcCapacity <- function(subtype){
               description=description             
   )) 
 }
-

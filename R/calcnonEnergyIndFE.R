@@ -16,4 +16,3 @@ calcnonEnergyIndFE <- function() {
               unit        = "EJ",
               description = "Final energy demand for feedstocks (non-energy use)"))
 }
-

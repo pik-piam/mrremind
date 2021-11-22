@@ -69,4 +69,3 @@ calcPotentialWindOff <- function() {
               mixed_aggregation=TRUE
                ))
 }
-

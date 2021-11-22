@@ -23,4 +23,3 @@ readGlobalCCSinstitute<- function() {
    x[is.na(x)] <- 0
   return(x)
 }
-
