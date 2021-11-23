@@ -36,7 +36,3 @@ calcFEShares <- function(subtype) {
               unit = "dimensionless",
               description = descr))
 }
-
-
-
-

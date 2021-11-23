@@ -25,4 +25,3 @@ calcETSRefEmi <- function(subtype){
   
   return(list(x=e, weight=NULL,unit=unit,description=description)) 
 }
-

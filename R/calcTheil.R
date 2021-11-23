@@ -87,6 +87,3 @@ sigma.from.Gini <- function(G){
   sigma <- sqrt(2)*qnorm((G+1)/2)
   return(sigma)
 }
-
-
-

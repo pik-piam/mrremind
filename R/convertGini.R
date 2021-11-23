@@ -44,4 +44,3 @@ convertGini <- function(x){
 
   return(x)
 }
-

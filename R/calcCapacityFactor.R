@@ -113,4 +113,3 @@ calcCapacityFactor <- function(){
   ))
   
 }
-

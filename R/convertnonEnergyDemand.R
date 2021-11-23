@@ -23,4 +23,3 @@ convertnonEnergyDemand <- function(x) {
 
 return(y)
 }
-

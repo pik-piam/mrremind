@@ -169,4 +169,3 @@ calcCapacityFactorHist <- function(subtype){
   }
   
 }
-
