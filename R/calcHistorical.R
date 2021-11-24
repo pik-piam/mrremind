@@ -238,6 +238,8 @@ calcHistorical <- function() {
   BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
   BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
 
+  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
+
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
@@ -247,7 +249,7 @@ calcHistorical <- function() {
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
                   IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
-                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price)
+                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
