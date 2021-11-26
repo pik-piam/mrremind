@@ -182,8 +182,7 @@ calcHistorical <- function() {
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, 
                                                 dim = 3.1, add = "model", nm = "ARIADNE")
 
-  IEA_ETPMain <- readSource("IEA_ETP", subtype="main")
-  IEA_ETPIndustrySub <- readSource("IEA_ETP", subtype="industry_subsectors")
+  IEA_ETP <- calcOutput("IEA_ETP")
 
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate=FALSE))
@@ -251,7 +250,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETPMain, IEA_ETPIndustrySub, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
+                  IEA_ETP, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
                   BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
