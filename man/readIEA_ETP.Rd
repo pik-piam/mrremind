@@ -7,7 +7,7 @@
 readIEA_ETP(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "main" or "industry_subsectors"}
+\item{subtype}{data subtype. Either "industry", "buildings", "summary", or "transport"}
 }
 \description{
 Read IEA ETP projections
