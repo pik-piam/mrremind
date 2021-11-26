@@ -10,6 +10,9 @@
 #' @importFrom magclass as.magpie
 
 readIEA_ETP <- function(subtype) {
+  
+  region <- NULL
+  
   subtypes <- list(
     industry = {
       list(
