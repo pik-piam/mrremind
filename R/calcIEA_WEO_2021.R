@@ -4,7 +4,7 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #' @param subtype Either "GLO" or "regional"
 #' @author Falk Benke
-#' @importFrom dplyr select mutate left_join
+#' @importFrom dplyr select mutate left_join case_when
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
 #' @importFrom rlang sym
@@ -26,6 +26,12 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
     select(
       "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
       "year" = "Year", "value" = "Value"
+    ) %>% 
+    mutate(!!sym("scenario_short") := case_when(
+        scenario == "Stated Policies Scenario" ~ "SPS",
+        scenario == "Announced Pledges Scenario" ~ "APS",
+        scenario == "Sustainable Development Scenario" ~ "SDS",
+        scenario == "Net Zero Emissions by 2050 Scenario" ~ "Net2050")
     )
 
   x <- left_join(
@@ -39,7 +45,7 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
         is.na(!!sym("value")), 0, !!sym("value") * !!sym("Conversion")
       ),
       !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
-      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario"))
+      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short"), " ", subtype)
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
