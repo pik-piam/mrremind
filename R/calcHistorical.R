@@ -72,11 +72,10 @@ calcHistorical <- function() {
   #  ceds[,,"Emi|N2O (kt N2O/yr)"]/1000*265
   ceds <- add_dimension(ceds, dim=3.1, add="model", nm="CEDS")
 
-  # Historical emissions from EDGAR data base
-  edgar <- calcOutput("Emissions",datasource="EDGAR",aggregate=FALSE)
-  getNames(edgar) <- gsub("Emissions","Emi",getNames(edgar))
-  edgar <- add_dimension(edgar, dim=3.1, add="model",nm="EDGAR")
-  
+  # Historical emissions from EDGAR v5.0 and v6.0
+  edgar6 <- calcOutput("Emissions", datasource="EDGAR6", aggregate=FALSE)
+  edgar6 <- add_dimension(edgar6, dim=3.1, add="model", nm="EDGAR6")
+
   # Historical emissions from PRIMAPhist data base
   primap <- readSource("PRIMAPhist","hist")[,,"CAT0"]  # select total
   primap <- primap[,,c("co2_c","kyotoghgar4_co2eq_c")] / 12*44  # select CO2 and total GHG and convert into Co2
@@ -246,8 +245,7 @@ calcHistorical <- function() {
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
-  # varlist <- list( fe, fe_proj, pe, trade, pop, gdpp, ceds, edgar, cdiac, LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, LU_IPCC, LU_Nsurplus2)
-  varlist <- list(fe_iea, fe_weo, fe_proj, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar, primap, cdiac, 
+  varlist <- list(fe_iea, fe_weo, fe_proj, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
