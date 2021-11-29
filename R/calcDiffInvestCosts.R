@@ -49,8 +49,7 @@ calcDiffInvestCosts <- function(subtype){
   # list of original technologies with a REMIND tech mapping
   techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
   # create new magpie object with names of corresponding REMIND technologies
-  x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
-  x_new[is.na(x_new)] <- 0
+  x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x),fill = 0)
   # for "pc" add all types of coal plants so each country has one value of "pc"
   x_new[,,"pc"] <- x[,,"Coal.Steam Coal - SUBCRITICAL"] + x[,,"Coal.Steam Coal - SUPERCRITICAL"] + 
     x[,,"Coal.Steam Coal - ULTRASUPERCRITICAL"]
@@ -65,7 +64,8 @@ calcDiffInvestCosts <- function(subtype){
   x_new[,,"biochp"] <- 0.75*x[,,"Renewables.Biomass CHP Medium"] + 0.25*x[,,"Renewables.Biomass CHP Small"]
   
   # for rest of technologies, simply match 
-  x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
+  further_techs_to_map <- techs[!techs %in% c("pc", "spv", "hydro", "biochp")]
+  x_new[,, further_techs_to_map] <- as.numeric(x[,, match(further_techs_to_map, tech_mapping[,2])])
   x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
   
   # overwrite investmetn costs vor renewables with data form REN21
