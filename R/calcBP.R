@@ -49,18 +49,17 @@ calcBP <- function(subtype) {
     unit <- c("Mt CO2/yr")
   }
   
-
-  if (subtype == "Capacity") {
+  else if (subtype == "Capacity") {
     data <- .convert(readSource("BP", subtype = "Capacity"))
     unit <- c("GW")
   }
-
-  if (subtype == "Generation") {
+  
+  else if (subtype == "Generation") {
     data <- .convert(readSource("BP", subtype = "Generation"))
     unit <- c("EJ/yr")
   }
-
-  if (subtype == "Consumption") {
+  
+  else if (subtype == "Consumption") {
 
     # prepare consumption data
 
@@ -98,7 +97,7 @@ calcBP <- function(subtype) {
     unit <- c("EJ/yr")
   }
 
-  if (subtype == "Trade") {
+  else if (subtype == "Trade") {
 
     # calculate net oil trade
     trade.oil <- readSource("BP", subtype = "Trade Oil")
@@ -129,9 +128,11 @@ calcBP <- function(subtype) {
     unit <- c("EJ/yr")
   }
 
-  if (subtype == "Price") {
+  else if (subtype == "Price") {
     data <- .convert(readSource("BP", subtype = "Price"))
     unit <- c("US$2005/GJ")
+  } else {
+    stop("Not a valid subtype!")
   }
 
   x <- left_join(
