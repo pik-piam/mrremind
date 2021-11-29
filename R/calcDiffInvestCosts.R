@@ -7,9 +7,10 @@
 #' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
 #' @author Aman Malik
 #' @importFrom magclass new.magpie
+#' @importFrom dplyr filter
 
 calcDiffInvestCosts <- function(subtype){
-  if (subtype=="Invest_Costs"){
+  if (subtype == "Invest_Costs"){
     x       <- readSource("IEA_WEO",subtype="Invest_Costs")
     x_REN21 <- readSource("REN21",subtype="investmentCosts")
     x_IEA_PVPS <- readSource("IEA_PVPS", subtype="CAPEX")
@@ -46,8 +47,7 @@ calcDiffInvestCosts <- function(subtype){
   }
   tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral")
   techs <- unique(tech_mapping$tech[!is.na(tech_mapping$tech)]) # remove all names with no corresponding REMIND name
-  # list of original technologies with a REMIND tech mapping
-  techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
+  
   # create new magpie object with names of corresponding REMIND technologies
   x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
   x_new[is.na(x_new)] <- 0
@@ -64,10 +64,10 @@ calcDiffInvestCosts <- function(subtype){
   # and Biomass CHP
   x_new[,,"biochp"] <- 0.75*x[,,"Renewables.Biomass CHP Medium"] + 0.25*x[,,"Renewables.Biomass CHP Small"]
   
-  # for rest of technologies, simply match 
-  x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
-  x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
-  
+  # for rest of technologies, simply match
+  t <- filter(tech_mapping, !(!!sym("tech") %in% c("pc","spv","hydro","biochp")), !is.na(!!sym("tech")))
+  x_new[, , t$tech] <- as.numeric(x[,,t$IEA])
+  x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = T)
   # overwrite investmetn costs vor renewables with data form REN21
   
   x_REN21_wa <- collapseNames(x_REN21[,,"wa"]) # use weighted average
