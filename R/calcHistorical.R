@@ -174,14 +174,14 @@ calcHistorical <- function() {
   EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
 
   # ARIADNE Reference Scenario
-  #ARIADNE_ReferenceScenarioGdp <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp"))
-  #ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp, dim=3.1, add="model", nm="ARIADNE")
+  ARIADNE_ReferenceScenarioGdp <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp"))
+  ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp, dim=3.1, add="model", nm="ARIADNE")
 
-  #ARIADNE_ReferenceScenarioGdpCorona <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona"))
-  #ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona, dim=3.1, add="model", nm="ARIADNE - Corona")
+  ARIADNE_ReferenceScenarioGdpCorona <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="gdp_corona"))
+  ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona, dim=3.1, add="model", nm="ARIADNE - Corona")
 
-  #ARIADNE_ReferenceScenarioPop <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="population"))
-  #ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
+  ARIADNE_ReferenceScenarioPop <- .fillZeros(readSource("ARIADNE_ReferenceScenario", subtype="population"))
+  ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, dim=3.1, add="model", nm="ARIADNE")
 
   IEA_ETPMain <- readSource("IEA_ETP", subtype="main")
   IEA_ETPIndustrySub <- readSource("IEA_ETP", subtype="industry_subsectors")
