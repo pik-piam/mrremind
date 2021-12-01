@@ -1,6 +1,6 @@
 # MadRat REMIND Input Data Package
 
-R package **mrremind**, version **0.90.3**
+R package **mrremind**, version **0.91.1**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)  [![R build status](https://github.com/pik-piam/mrremind/workflows/check/badge.svg)](https://github.com/pik-piam/mrremind/actions) [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/mrremind) [![r-universe](https://pik-piam.r-universe.dev/badges/mrremind)](https://pik-piam.r-universe.dev/ui#builds)
 
