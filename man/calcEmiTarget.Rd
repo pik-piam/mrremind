@@ -4,16 +4,16 @@
 \alias{calcEmiTarget}
 \title{Output for 2 policy cases}
 \usage{
-calcEmiTarget(subtype, realization)
+calcEmiTarget(sources, subtype)
 }
 \arguments{
-\item{subtype}{"share_uncond", "share_cond", "multiplier_uncond",  "multiplier_cond", "ghg_uncond" or "ghg_cond"}
+\item{sources}{currently only UNFCCC_NDC}
 
-\item{realization}{"NDC2018" or "NDC2021"}
+\item{subtype}{"Ghgshare2005", "Ghgfactor", "Ghghistshare"}
 }
 \description{
 Output for 2 policy cases
 }
 \author{
-Aman Malik, Christoph Bertram
+Aman Malik, Christoph Bertram, Oliver Richters
 }
