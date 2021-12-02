@@ -759,12 +759,24 @@ calcSteel_Projections <- function(subtype = 'production',
     ) %>% 
     group_by(!!!syms(c('scenario', 'region', 'iso3c'))) %>% 
     mutate(
+      # stock additions: rolling average of stock changes (stocks might decrease
+      #     with decreasing population, but still become obsolete and need 
+      #     replacement) over five years
       stock.additions = rollmean(
-        pmax(0, .data$steel.stock - lag(.data$steel.stock)),
+        pmax(0, 
+             .data$steel.stock - lag(.data$steel.stock, order_by = .data$year,
+                                     default = first(.data$steel.stock))),
         k = 5, fill = 'extend', na.rm = TRUE),
-      depriciation    = lag(.data$steel.stock) / lag(.data$lifetime),
-      recyclable      = 0.9 * .data$depriciation, # FIXME: pull parameter out
-      new.stock       = .data$stock.additions + .data$depriciation,
+      # depreciation: last years steel stock deprecated by 1/lifetime
+      depreciation    = lag(x = .data$steel.stock, order_by = .data$year,
+                            default = first(.data$steel.stock)) 
+                      / lag(.data$lifetime, order_by = .data$year,
+                            default = first(.data$lifetime)),
+      # new stock: stock increases and replacements for deprecated old stock
+      new.stock       = .data$stock.additions + .data$depreciation,
+      # recycable: 90 % of deprecated steel stock are assumed to be recycled
+      recyclable      = 0.9 * .data$depreciation, # FIXME: pull parameter out
+      # trade: share of new stock serviced by trade
       trade           = .data$new.stock * .data$trade.share) %>% 
     group_by(.data$scenario, .data$year) %>% 
     mutate(m.factor = ( sum(.data$trade, na.rm = TRUE) 
@@ -783,11 +795,11 @@ calcSteel_Projections <- function(subtype = 'production',
                                   .data$recyclable),
       primary.production   = .data$production - .data$secondary.production) %>% 
     ungroup() %>% 
-    select('scenario', 'region', 'iso3c', 'year', 'steel.stock', 'depriciation', 
+    select('scenario', 'region', 'iso3c', 'year', 'steel.stock', 'depreciation', 
            'primary.production', 'secondary.production', 
            trade = 'adj.trade') %>% 
     filter(min(.data$year) < .data$year) %>% 
-    pivot_longer(c('steel.stock', 'depriciation', 'primary.production', 
+    pivot_longer(c('steel.stock', 'depreciation', 'primary.production', 
                    'secondary.production', 'trade'),
                  names_to = 'variable') %>% 
     group_by(.data$scenario, .data$region, .data$year, .data$variable) %>% 
@@ -797,7 +809,7 @@ calcSteel_Projections <- function(subtype = 'production',
   ## calculate production limits of secondary steel----
   # FIXME: move to separate function
   production_limits <- production_estimates %>% 
-    filter('depriciation' == .data$variable) %>% 
+    filter('depreciation' == .data$variable) %>% 
     select(-'variable')
   
   ## construct output ----
