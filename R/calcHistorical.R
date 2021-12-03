@@ -28,8 +28,10 @@ calcHistorical <- function() {
   fe_proj_ssp2 <- add_dimension(fe_proj_ssp2, dim=3.1, add="model",nm="EDGE_SSP2")
   fe_proj = mbind(fe_proj_ssp1,fe_proj_ssp2)
   fe_proj <- fe_proj[,getYears(fe_proj,T)[which(getYears(fe_proj,T) <= 2100)],] # get rid of periods after 2100
-  
-  
+
+  # Final Energy - Heat Roadmap Europe
+  fe_hre <- calcOutput("HRE")
+
   # Primary Energy
   pe_iea <- calcOutput("PE",subtype="IEA",aggregate=FALSE)
   pe_iea <- add_dimension(pe_iea, dim=3.1, add="model",nm="IEA")
@@ -245,7 +247,7 @@ calcHistorical <- function() {
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
-  varlist <- list(fe_iea, fe_weo, fe_proj, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
+  varlist <- list(fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
