@@ -35,7 +35,7 @@ calcTheil <- function(){
   getSets(pop) <- c("iso3c","year","scenario")
   
   # GDP (in million $ PPP 2005)
-  GDPppp <- calcOutput(type = 'GDPppp', aggregate = FALSE)
+  GDPppp <- calcOutput(type = "GDP", aggregate = FALSE)
   GDPnames <- paste0('gdp_',sspnames)
   GDPppp <- GDPppp[,years,GDPnames]
   getNames(GDPppp) <- sspnames

@@ -62,7 +62,7 @@ calcCementShare <- function() {
       expand.values = TRUE) %>% 
     as.magpie(),
   
-  weight = calcOutput('GDPppp', aggregate = FALSE) %>% 
+  weight = calcOutput('GDP', aggregate = FALSE) %>% 
     `[`(,unique(quitte::remind_timesteps$period),'gdp_SSP2') %>% 
     dimSums(dim = 3),
   
