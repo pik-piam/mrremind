@@ -160,13 +160,9 @@ calcHistorical <- function() {
 
   # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
-  #   
+
   # EU Reference Scenario
-  EU_ReferenceScenario <- readSource("EU_ReferenceScenario")
-  EU_ReferenceScenarioEU <- EU_ReferenceScenario[EUcountries,,]
-  EU_ReferenceScenarioEU[is.na(EU_ReferenceScenarioEU)] <- 0
-  EU_ReferenceScenario[EUcountries,,] <- EU_ReferenceScenarioEU[EUcountries,,]
-  EU_ReferenceScenario <- add_dimension(EU_ReferenceScenario, dim=3.1, add="model",nm="EU_ReferenceScenario")
+  EU_ReferenceScenario <- calcOutput("EU_ReferenceScenario", aggregate = F)
 
   # ARIADNE Reference Scenario
   ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE", subtype = "gdp")
