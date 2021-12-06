@@ -3,9 +3,6 @@
 \name{convertEU_ReferenceScenario}
 \alias{convertEU_ReferenceScenario}
 \title{Convert EU Reference Scenario}
-\source{
-EU Reference Scenario public database http://data.europa.eu/euodp/en/data/dataset/energy-modelling
-}
 \usage{
 convertEU_ReferenceScenario(x)
 }
@@ -19,8 +16,8 @@ converted EU Reference Scenario magpie object
 Converts EU Reference Scenario magpie object into appropriate form for the REMIND model
 }
 \examples{
-\dontrun{test <- readSource("EU_ReferenceScenario",convert=TRUE)}
+\dontrun{test <- readSource("EU_ReferenceScenario", subtype = "2020", convert=TRUE)}
 }
 \author{
-Renato Rodrigues
+Renato Rodrigues, Falk Benke
 }
