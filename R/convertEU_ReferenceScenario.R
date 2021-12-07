@@ -4,10 +4,9 @@
 #' 
 #' @param x EU Reference Scenario magpie object derived from readEU_ReferenceScenario function
 #' @return converted EU Reference Scenario magpie object
-#' @author Renato Rodrigues
-#' @source EU Reference Scenario public database http://data.europa.eu/euodp/en/data/dataset/energy-modelling
+#' @author Renato Rodrigues, Falk Benke
 #' @examples
-#' \dontrun{test <- readSource("EU_ReferenceScenario",convert=TRUE)}
+#' \dontrun{test <- readSource("EU_ReferenceScenario", subtype = "2020", convert=TRUE)}
 
 convertEU_ReferenceScenario <- function(x){
   iso3 <- read.csv2("isotwo2iso3Mapping.csv",stringsAsFactors = FALSE)
