@@ -192,7 +192,7 @@ calcFEdemand <- function(subtype = "FE") {
 
     tmp_GDPpC <- bind_rows(
       # load GDP projections
-      tmp_GDP <- calcOutput('GDPppp', FiveYearSteps = FALSE,
+      tmp_GDP <- calcOutput('GDP', FiveYearSteps = FALSE,
                             aggregate = FALSE) %>%
         as.data.frame() %>%
         as_tibble() %>%

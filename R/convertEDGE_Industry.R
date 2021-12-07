@@ -40,7 +40,7 @@ convertEDGE_Industry <- function(x, subtype) {
           'region'
         ) %>% 
         left_join(
-          calcOutput(type = 'GDPppp', aggregate = FALSE, 
+          calcOutput(type = 'GDP', aggregate = FALSE, 
                      years = unique(quitte::remind_timesteps$period)) %>% 
             as.data.frame() %>% 
             as_tibble() %>% 

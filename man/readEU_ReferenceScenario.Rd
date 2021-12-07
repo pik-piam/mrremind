@@ -3,11 +3,11 @@
 \name{readEU_ReferenceScenario}
 \alias{readEU_ReferenceScenario}
 \title{Read EU Reference Scenario}
-\source{
-EU Reference Scenario public database http://data.europa.eu/euodp/en/data/dataset/energy-modelling
-}
 \usage{
-readEU_ReferenceScenario()
+readEU_ReferenceScenario(subtype)
+}
+\arguments{
+\item{subtype}{data subtype. Either "2016" or "2020"}
 }
 \value{
 magpie object of EU reference scenario data by country. Units follow REMIND report conventions and conversion factor is defined in EUReferenceScenario2REMIND.xlsx file.
@@ -16,8 +16,10 @@ magpie object of EU reference scenario data by country. Units follow REMIND repo
 Read EU Reference Scenario .xlsx file as magpie object
 }
 \examples{
-\dontrun{test <- readSource("EU_ReferenceScenario",convert=FALSE)}
+\dontrun{
+test <- readSource("EU_ReferenceScenario", subtype = "2020", convert = FALSE)
+}
 }
 \author{
-Renato Rodrigues
+Renato Rodrigues, Falk Benke
 }

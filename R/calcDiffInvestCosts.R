@@ -7,9 +7,10 @@
 #' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
 #' @author Aman Malik
 #' @importFrom magclass new.magpie
+#' @importFrom dplyr filter %>%
 
 calcDiffInvestCosts <- function(subtype){
-  if (subtype=="Invest_Costs"){
+  if (subtype == "Invest_Costs"){
     x       <- readSource("IEA_WEO",subtype="Invest_Costs")
     x_REN21 <- readSource("REN21",subtype="investmentCosts")
     x_IEA_PVPS <- readSource("IEA_PVPS", subtype="CAPEX")
@@ -44,13 +45,11 @@ calcDiffInvestCosts <- function(subtype){
       c("Coal.Steam Coal - SUPERCRITICAL",
         "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
   }
-  tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral")
-  techs <- unique(tech_mapping$tech[!is.na(tech_mapping$tech)]) # remove all names with no corresponding REMIND name
-  # list of original technologies with a REMIND tech mapping
-  techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
+  tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral") %>% filter(!is.na(!!sym("tech")))
+
   # create new magpie object with names of corresponding REMIND technologies
-  x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
-  x_new[is.na(x_new)] <- 0
+  x_new <- new.magpie(getRegions(x),names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
+  
   # for "pc" add all types of coal plants so each country has one value of "pc"
   x_new[,,"pc"] <- x[,,"Coal.Steam Coal - SUBCRITICAL"] + x[,,"Coal.Steam Coal - SUPERCRITICAL"] + 
     x[,,"Coal.Steam Coal - ULTRASUPERCRITICAL"]
@@ -64,10 +63,11 @@ calcDiffInvestCosts <- function(subtype){
   # and Biomass CHP
   x_new[,,"biochp"] <- 0.75*x[,,"Renewables.Biomass CHP Medium"] + 0.25*x[,,"Renewables.Biomass CHP Small"]
   
-  # for rest of technologies, simply match 
-  x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
-  x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
+  # for rest of technologies, simply match
+  further_techs_to_map <- filter(tech_mapping, !(!!sym("tech") %in% c("pc","spv","hydro","biochp")))
+  x_new[, , further_techs_to_map$tech] <- as.numeric(x[,,further_techs_to_map$IEA])
   
+  x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = T)
   # overwrite investmetn costs vor renewables with data form REN21
   
   x_REN21_wa <- collapseNames(x_REN21[,,"wa"]) # use weighted average
@@ -186,19 +186,19 @@ calcDiffInvestCosts <- function(subtype){
         c("Coal.Steam Coal - SUPERCRITICAL",
           "Coal.Steam Coal - ULTRASUPERCRITICAL")] <- 0
     }
-    tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral")
-    techs <- unique(tech_mapping$tech[!is.na(tech_mapping$tech)]) # remove all names with no corresponding REMIND name
-    # list of original technologies with a REMIND tech mapping
-    techs2 <- unique(tech_mapping$IEA[!is.na(tech_mapping$tech)])
+    tech_mapping <- toolGetMapping("comparison.csv",where = "mappingfolder",type = "sectoral") %>% filter(!is.na(!!sym("tech")))
+
     # create new magpie object with names of corresponding REMIND technologies
-    x_new <- new.magpie(getRegions(x),names = techs,years = getYears(x)) 
-    x_new[is.na(x_new)] <- 0
+    x_new <- new.magpie(getRegions(x), names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
+    
     # for "pc" add all types of coal plants so each country has one value of "pc"
     x_new[,,"pc"] <- x[,,"Coal.Steam Coal - SUBCRITICAL"] + x[,,"Coal.Steam Coal - SUPERCRITICAL"] + 
       x[,,"Coal.Steam Coal - ULTRASUPERCRITICAL"]
     
     # for rest of technologies, simply match 
-    x_new[,,techs[-c(1,13,15,16)]] <- as.numeric(x[,,getNames(x,dim=2)[getNames(x,dim=2) %in% techs2[-c(1:3,15,16,18:21)]]])
+    further_techs_to_map <- filter(tech_mapping, !(!!sym("tech") %in% c("pc","spv","hydro","biochp")))
+    x_new[, , further_techs_to_map$tech] <- as.numeric(x[,,further_techs_to_map$IEA])
+    
     x_new <- time_interpolate(x_new,c(2025,2035),integrate_interpolated_years = T)
     
     return(list(x = x_new,weight= x_new ,unit="NA",description="Efficiency data" ))
