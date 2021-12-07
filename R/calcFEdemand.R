@@ -13,7 +13,7 @@
 #'   pivot_longer pivot_wider separate
 #' @importFrom readr read_delim
 #' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
-#' @importFrom magclass mselect
+#' @importFrom magclass mselect getItems getItems<-
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 
@@ -332,14 +332,15 @@ calcFEdemand <- function(subtype = "FE") {
 
   #----- READ-IN DATA ------------------
   if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings",
-                     "FE_for_Eff", "UE_for_Eff")) {
+                     "UE_buildings", "FE_for_Eff", "UE_for_Eff")) {
 
     stationary <- readSource("EDGE",subtype="FE_stationary")
     buildings  <- readSource("EDGE",subtype="FE_buildings")
     
     # consider only fixed climate
     if (subtype == "FE_buildings") {
-      rcps <- getItems(buildings, "rcp")
+      rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
+      getItems(buildings, "rcp") <- rcps
       stationary <- addDim(stationary, rcps, "rcp")
     } else {
       rcps <- NULL
@@ -347,7 +348,7 @@ calcFEdemand <- function(subtype = "FE") {
     }
 
     ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
-    if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings") &
+    if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings", "UE_buildings") &
         all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
       stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
@@ -358,7 +359,7 @@ calcFEdemand <- function(subtype = "FE") {
     fill_years <- setdiff(getYears(stationary),getYears(buildings))
     buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
 
-    y <- if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings")) {
+    y <- if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings", "UE_Buildings")) {
       getYears(stationary)  # >= 1993
     } else {
       intersect(getYears(stationary), getYears(buildings))  # >= 2000
@@ -480,7 +481,7 @@ calcFEdemand <- function(subtype = "FE") {
     description_out = "demand pathways for energy service in buildings"
   }
 
-  if (subtype %in% c("FE", "FE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
+  if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
     mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv")
 
     REMIND_dimensions = "REMINDitems_out"
@@ -549,9 +550,18 @@ calcFEdemand <- function(subtype = "FE") {
 
   magpnames = mapping[REMIND_dimensions]
   magpnames <- unique(magpnames)
-  if (subtype == "FE_buildings") {
+  if (subtype %in% c("FE_buildings", "UE_buildings")) {
     # filter only buildings (simple) ppf
-    magpnames <- filter(magpnames, grepl("^fe..b$", .data$REMINDitems_out))
+    magpnames <- filter(magpnames, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
+  }
+  if (subtype == "UE_buildings") {
+    # change mapping from FE to UE
+    mapping <- mapping %>%
+      mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
+             REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
+      rbind(mapping)
+    magpnames <- magpnames %>%
+      mutate(REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]]))
   }
   magpnames <- expand_vectors(
     if (subtype == "FE_buildings") {cartesian(scenarios, rcps)} else {scenarios},
@@ -858,10 +868,17 @@ calcFEdemand <- function(subtype = "FE") {
                        'ue_secondary_steel (Mt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
   } 
+  if (subtype == "UE_buildings") {
+    # change item names back from UE to FE
+    getItems(reminditems, "item") <- gsub("^ue", "fe",
+                                          getItems(reminditems, "item"))
+    description_out <- "useful energy demand in buildings"
+  }
 
   structure_data <- switch(subtype,
     FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
     FE_buildings = "^gdp_(SSP[1-5].*|SDP.*)\\..*\\.fe..b$",
+    UE_buildings = "^gdp_(SSP[1-5].*|SDP.*)\\..*\\.fe..b$",
     FE_for_Eff = "^gdp_(SSP[1-5].*|SDP.*)\\.fe.*(b|s)$",
     UE_for_Eff = "^gdp_(SSP[1-5].*|SDP.*)\\.fe.*(b|s)$",
     ES = "^gdp_(SSP[1-5].*|SDP.*)\\.esswb$",
