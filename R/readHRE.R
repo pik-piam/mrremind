@@ -24,7 +24,7 @@ readHRE <- function() {
   
   # combine category columns to one variable column
   df$variable <- paste(df$Category, df$SourceType, df$Source, sep = "|")
-  df <- select(df, c(Country, year, model, DataType, variable, Unit, Value))
+  df <- select(df, c("Country", "year", "model", "DataType", "variable", "Unit", "Value"))
 
   # convert to magpie object
   x <- as.magpie(df, spatial="Country", temporal="year", tidy = TRUE)

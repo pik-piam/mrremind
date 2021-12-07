@@ -30,7 +30,7 @@ calcHistorical <- function() {
   fe_proj <- fe_proj[,getYears(fe_proj,T)[which(getYears(fe_proj,T) <= 2100)],] # get rid of periods after 2100
 
   # Final Energy - Heat Roadmap Europe
-  fe_hre <- calcOutput("HRE")
+  fe_hre <- calcOutput("HRE", aggregate=FALSE)
 
   # Primary Energy
   pe_iea <- calcOutput("PE",subtype="IEA",aggregate=FALSE)
