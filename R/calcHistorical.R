@@ -196,7 +196,7 @@ calcHistorical <- function() {
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
   # INNOPATHS data
-  INNOPATHS <- readSource("INNOPATHS")
+  INNOPATHS <- calcOutput("INNOPATHS")
   INNOPATHS <- add_dimension(INNOPATHS, dim = 3.1, add = "model", nm = "INNOPATHS")
   
   # JRC IDEES data

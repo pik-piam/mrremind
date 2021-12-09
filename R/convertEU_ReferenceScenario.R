@@ -35,7 +35,6 @@ convertEU_ReferenceScenario <- function(x, subtype) {
   x.eu <- x[EU,,]
   x.eu[is.na(x.eu)] <- 0
   x[EU, , ] <- x.eu[EU, , ]
-  x <- add_dimension(x, dim = 3.1, add = "model", nm = paste0("EU_ReferenceScenario_", subtype))
 
   return(x)
 }

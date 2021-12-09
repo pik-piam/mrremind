@@ -5,6 +5,7 @@ calcEU_ReferenceScenario <- function() {
   EU_ReferenceScenario_2020 <- add_columns(EU_ReferenceScenario_2020, "y2000", dim = 2)
   
   x <- mbind(EU_ReferenceScenario_2016, EU_ReferenceScenario_2020)
+  x <- add_dimension(x, dim = 3.1, add = "model", nm = paste0("EU_ReferenceScenario_", subtype))
   
   weights <- x
   weights[,,] <- NA
