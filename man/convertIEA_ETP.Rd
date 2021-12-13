@@ -9,7 +9,7 @@ convertIEA_ETP(x, subtype)
 \arguments{
 \item{x}{IEA ETP projection magpie object derived from readIEA_ETP function}
 
-\item{subtype}{data subtype. Either "main" or "industry_subsectors"}
+\item{subtype}{data subtype. Either "industry", "buildings", "summary", or "transport"}
 }
 \description{
 Convert IEA ETP projections

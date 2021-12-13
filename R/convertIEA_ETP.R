@@ -2,7 +2,7 @@
 #'
 #' @author Falk Benke
 #' @param x IEA ETP projection magpie object derived from readIEA_ETP function
-#' @param subtype data subtype. Either "main" or "industry_subsectors"
+#' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
 #' @importFrom madrat toolGetMapping getISOlist
 #' @importFrom dplyr %>%
 #'
@@ -70,6 +70,6 @@ convertIEA_ETP <- function(x, subtype) {
   x.full[getItems(x.eu, dim = 1), , v.full] <- x.eu
   x.full[getItems(x.ctry, dim = 1), , v.full] <- x.ctry
   x.full[getItems(x.oecd.other, dim = 1), , v.full] <- x.oecd.other
-  
+
   return(x.full)
 }
