@@ -1,3 +1,17 @@
+#' Calculate REMIND emission variables from IEA ETP values
+#'
+#' @md
+#' @return A [`magpie`][magclass::magclass] object.
+#'
+#' @author Falk Benke
+#'
+#' @importFrom dplyr select mutate left_join
+#' @importFrom madrat toolGetMapping
+#' @importFrom magclass as.magpie
+#' @importFrom rlang sym
+#' @importFrom stats aggregate na.pass
+#' @export
+
 calcIEA_ETP <- function() {
   
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables") %>%
@@ -29,19 +43,16 @@ calcIEA_ETP <- function() {
   ) %>%
     filter(!!sym("REMIND") != "") %>%
     mutate(
-      !!sym("value") := ifelse(
-        is.na(!!sym("value")), 0, !!sym("value") * !!sym("Conversion")
-      ),
+      !!sym("value") := !!sym("value") * !!sym("Conversion"),
       !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
       !!sym("model") := paste0("IEA ETP ", !!sym("scenario")),
       !!sym("year") := as.numeric(as.character(!!sym("year")))
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
   
-  x <- aggregate(value ~ region + year + model + variable, x, sum) %>%
-    as.magpie() %>%
-    toolCountryFill(fill = 0)
-  
+  x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.pass) %>%
+    as.magpie()
+
   return(list(
     x = x, 
     weight = NULL,
