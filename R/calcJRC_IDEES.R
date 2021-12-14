@@ -63,15 +63,17 @@ calcJRC_IDEES <- function(subtype) {
     mapping,
     by = "variable"
   ) %>%
-    mutate(!!sym("value") := ifelse(
-      is.na(!!sym("value")), 0,  !!sym("value") * !!sym("conversion")),
+    mutate(!!sym("value") :=  !!sym("value") * !!sym("conversion"),
       !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"),  " (", !!sym("Unit_REMIND"), ")")) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
-    toolCountryFill(fill = 0)
+    toolCountryFill(fill = NA)
 
+  # fill smaller EU-countries with 0s to allow for aggregation of EU-region
+  x[c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY"),,] <- 0
+  
   return(list(x = x, weight = NULL,
               unit = "billion US$2005/yr, EJ/yr, Mt CO2/yr, Mt/yr",
               description = "Historical JRC IDEES values as REMIND variables"))
