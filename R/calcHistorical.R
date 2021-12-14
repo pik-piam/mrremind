@@ -221,6 +221,8 @@ calcHistorical <- function() {
   
   # UNFCCC emission data
   UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
+  # remove years before 1990 due to incomplete data
+  UNFCCC <- UNFCCC[,seq(1986,1989,1),,invert = T]
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
   # BP data
