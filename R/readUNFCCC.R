@@ -14,9 +14,9 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
 #'
+#'
 #' @export
 readUNFCCC <- function() {
-
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -458,24 +458,24 @@ readUNFCCC <- function() {
       rows = tibble(
         name = {
           c(
-          "Total waste",
-          "Total waste|Solid waste disposal",
-          "Total waste|Solid waste disposal|Managed waste disposal sites",
-          "Total waste|Solid waste disposal|Unmanaged waste disposal sites",
-          "Total waste|Solid waste disposal|Uncategorized waste disposal sites",
-          "Total waste|Biological treatment of solid waste",
-          "Total waste|Biological treatment of solid waste|Composting",
-          "Total waste|Biological treatment of solid waste|Anaerobic digestion at biogas facilities",
-          "Total waste|Incineration and open burning of waste",
-          "Total waste|Incineration and open burning of waste|Waste incineration",
-          "Total waste|Incineration and open burning of waste|Open burning of waste",
-          "Total waste|Wastewater treatment and discharge",
-          "Total waste|Wastewater treatment and discharge|Domestic wastewater",
-          "Total waste|Wastewater treatment and discharge|Industrial wastewater",
-          "Total waste|Wastewater treatment and discharge|Other",
-          "Total waste|Other",
-          "Total waste|Other|Mechanical-Biological Treatment MBT",
-          "Total waste|Other|Accidental fires"
+            "Total waste",
+            "Total waste|Solid waste disposal",
+            "Total waste|Solid waste disposal|Managed waste disposal sites",
+            "Total waste|Solid waste disposal|Unmanaged waste disposal sites",
+            "Total waste|Solid waste disposal|Uncategorized waste disposal sites",
+            "Total waste|Biological treatment of solid waste",
+            "Total waste|Biological treatment of solid waste|Composting",
+            "Total waste|Biological treatment of solid waste|Anaerobic digestion at biogas facilities",
+            "Total waste|Incineration and open burning of waste",
+            "Total waste|Incineration and open burning of waste|Waste incineration",
+            "Total waste|Incineration and open burning of waste|Open burning of waste",
+            "Total waste|Wastewater treatment and discharge",
+            "Total waste|Wastewater treatment and discharge|Domestic wastewater",
+            "Total waste|Wastewater treatment and discharge|Industrial wastewater",
+            "Total waste|Wastewater treatment and discharge|Other",
+            "Total waste|Other",
+            "Total waste|Other|Mechanical-Biological Treatment MBT",
+            "Total waste|Other|Accidental fires"
           )
         }
       )
@@ -551,11 +551,11 @@ readUNFCCC <- function() {
     )
   )
 
-  dirs <- list.files(path = ".")
+  dirs <- list.files(path = "./data")
 
   tmp <- NULL
   for (dir in dirs) {
-    files <- list.files(path = paste0("./", dir))
+    files <- list.files(path = paste0("./data/", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
     for (file in files) {
       year <- as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file))
@@ -567,9 +567,11 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0(dir, "/", file), sheet = i,
+              read_xlsx(
+                path = paste0("data/", dir, "/", file), sheet = i,
                 range = sheets[[i]][["range"]],
-                col_names = c("variable", sheets[[i]][["colnames"]])) %>%
+                col_names = c("variable", sheets[[i]][["colnames"]])
+              ) %>%
                 bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
