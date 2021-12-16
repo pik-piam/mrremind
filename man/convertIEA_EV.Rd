@@ -17,9 +17,10 @@ level
 Convert IEA_EV on ISO country level.
 }
 \examples{
-
-\dontrun{ a <- convertIEA_EV(x)
+\dontrun{
+a <- convertIEA_EV(x)
 }
+
 }
 \seealso{
 \code{\link{readIEA_EV}}
