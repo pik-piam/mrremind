@@ -79,10 +79,12 @@ calcHistorical <- function() {
   edgar6 <- add_dimension(edgar6, dim=3.1, add="model", nm="EDGAR6")
 
   # Historical emissions from PRIMAPhist data base
-  primap <- readSource("PRIMAPhist","hist")[,,"CAT0"]  # select total
-  primap <- primap[,,c("co2_c","kyotoghgar4_co2eq_c")] / 12*44  # select CO2 and total GHG and convert into Co2
-  getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)","Emi|GHGtot (Mt CO2-equiv/yr)")
-  primap <- add_dimension(primap, dim=3.1, add="model",nm="PRIMAPhist")
+  # select total
+  primap <- readSource("PRIMAPhist", "hist")[, , "CAT0"]
+  # select CO2 and total GHG and convert into Co2
+  primap <- primap[, , c("co2_c", "kyotoghgar4_co2eq_c")] / 12 * 44 
+  getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)", "Emi|GHG (Mt CO2eq/yr)")
+  primap <- add_dimension(primap, dim = 3.1, add = "model", nm = "PRIMAPhist")
 
   # Historical emissions from CDIAC data base
   cdiac <- calcOutput("Emissions",datasource="CDIAC",aggregate=FALSE)
