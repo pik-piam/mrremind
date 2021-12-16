@@ -13,6 +13,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
+#' 
 #'
 #'
 #' @export
@@ -550,7 +551,6 @@ readUNFCCC <- function() {
       )
     )
   )
-
   dirs <- list.files(path = "./data")
 
   tmp <- NULL
@@ -567,8 +567,7 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(
-                path = paste0("data/", dir, "/", file), sheet = i,
+              read_xlsx(path = paste0("data/", dir, "/", file), sheet = i,
                 range = sheets[[i]][["range"]],
                 col_names = c("variable", sheets[[i]][["colnames"]])
               ) %>%
