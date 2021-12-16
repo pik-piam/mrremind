@@ -4,7 +4,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke, Pascal Weigmann
-#'
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect

@@ -13,6 +13,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
+#' 
 #'
 #' @export
 readUNFCCC <- function() {
@@ -550,12 +551,12 @@ readUNFCCC <- function() {
       )
     )
   )
-
-  dirs <- list.files(path = ".")
+  
+  dirs <- list.files(path = "./data")
 
   tmp <- NULL
   for (dir in dirs) {
-    files <- list.files(path = paste0("./", dir))
+    files <- list.files(path = paste0("./data/", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
     for (file in files) {
       year <- as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file))
@@ -567,7 +568,7 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0(dir, "/", file), sheet = i,
+              read_xlsx(path = paste0("data/", dir, "/", file), sheet = i,
                 range = sheets[[i]][["range"]],
                 col_names = c("variable", sheets[[i]][["colnames"]])) %>%
                 bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
