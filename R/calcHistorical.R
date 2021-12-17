@@ -28,8 +28,10 @@ calcHistorical <- function() {
   fe_proj_ssp2 <- add_dimension(fe_proj_ssp2, dim=3.1, add="model",nm="EDGE_SSP2")
   fe_proj = mbind(fe_proj_ssp1,fe_proj_ssp2)
   fe_proj <- fe_proj[,getYears(fe_proj,T)[which(getYears(fe_proj,T) <= 2100)],] # get rid of periods after 2100
-  
-  
+
+  # Final Energy - Heat Roadmap Europe
+  fe_hre <- calcOutput("HRE", aggregate=FALSE)
+
   # Primary Energy
   pe_iea <- calcOutput("PE",subtype="IEA",aggregate=FALSE)
   pe_iea <- add_dimension(pe_iea, dim=3.1, add="model",nm="IEA")
@@ -77,10 +79,12 @@ calcHistorical <- function() {
   edgar6 <- add_dimension(edgar6, dim=3.1, add="model", nm="EDGAR6")
 
   # Historical emissions from PRIMAPhist data base
-  primap <- readSource("PRIMAPhist","hist")[,,"CAT0"]  # select total
-  primap <- primap[,,c("co2_c","kyotoghgar4_co2eq_c")] / 12*44  # select CO2 and total GHG and convert into Co2
-  getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)","Emi|GHGtot (Mt CO2-equiv/yr)")
-  primap <- add_dimension(primap, dim=3.1, add="model",nm="PRIMAPhist")
+  # select total
+  primap <- readSource("PRIMAPhist", "hist")[, , "CAT0"]
+  # select CO2 and total GHG and convert into Co2
+  primap <- primap[, , c("co2_c", "kyotoghgar4_co2eq_c")] / 12 * 44 
+  getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)", "Emi|GHG (Mt CO2eq/yr)")
+  primap <- add_dimension(primap, dim = 3.1, add = "model", nm = "PRIMAPhist")
 
   # Historical emissions from CDIAC data base
   cdiac <- calcOutput("Emissions",datasource="CDIAC",aggregate=FALSE)
@@ -196,7 +200,7 @@ calcHistorical <- function() {
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
   # INNOPATHS data
-  INNOPATHS <- readSource("INNOPATHS")
+  INNOPATHS <- calcOutput("INNOPATHS", aggregate = F)
   INNOPATHS <- add_dimension(INNOPATHS, dim = 3.1, add = "model", nm = "INNOPATHS")
   
   # JRC IDEES data
@@ -219,6 +223,8 @@ calcHistorical <- function() {
   
   # UNFCCC emission data
   UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
+  # remove years before 1990 due to incomplete data
+  UNFCCC <- UNFCCC[,seq(1986,1989,1),,invert = T]
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
   # BP data
@@ -241,7 +247,7 @@ calcHistorical <- function() {
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
   
-  varlist <- list(fe_iea, fe_weo, fe_proj, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
+  varlist <- list(fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES

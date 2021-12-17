@@ -45,14 +45,18 @@ readEU_ReferenceScenario <- function(subtype) {
     countrySheet <- countrySheet[, seq(1, no_rows)]
     # replace with remind mapping
     countrySheet$REMIND <- mapping[[type]]$REMIND[-1]
-    countrySheet <- countrySheet[, -1] # removing extra name column
-    countrySheet[, -length(colnames(countrySheet))] <- sapply(countrySheet[, -length(colnames(countrySheet))], as.numeric) # making sure the data is numeric
-    countrySheet[, -length(colnames(countrySheet))] <- countrySheet[, -length(colnames(countrySheet))] * mapping[[type]]$factor[-1] # converting unit to REMIND unit
-
-    countrySheet <- countrySheet[-which(is.na(countrySheet$REMIND)), ] # remove NAs
-    countrySheet <- cbind(region, countrySheet) # adding region column
+    # removing extra name column
+    countrySheet <- countrySheet[, -1] 
+    # making sure the data is numeric
+    countrySheet[, -length(colnames(countrySheet))] <- sapply(countrySheet[, -length(colnames(countrySheet))], as.numeric)
+    # converting unit to REMIND unit
+    countrySheet[, -length(colnames(countrySheet))] <- countrySheet[, -length(colnames(countrySheet))] * mapping[[type]]$factor[-1] 
+    # remove empty rows
+    countrySheet <- countrySheet[-which(is.na(countrySheet$REMIND)), ]
+    countrySheet <- cbind(region, countrySheet)
     countrySheet[is.na(countrySheet)] <- 0
-    countrySheet <- aggregate(. ~ REMIND + region, data = countrySheet, FUN = sum) # merge repeated items
+    # merge repeated items
+    countrySheet <- aggregate(. ~ REMIND + region, data = countrySheet, FUN = sum)
     return(countrySheet)
   })
   # merge into single dataframe

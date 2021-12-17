@@ -4,7 +4,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke, Pascal Weigmann
-#'
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
@@ -14,7 +13,7 @@
 calcUNFCCC <- function() {
 
   data <- readSource("UNFCCC")
-
+  
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables") %>%
     mutate(!!sym('conversion') := as.numeric(!!sym('Factor')) * !!sym('Weight')) %>%
     select('variable' = 'UNFCCC', 'REMIND', 'conversion', 'unit' = 'Unit_UNFCCC', 'Unit_REMIND')
@@ -33,14 +32,11 @@ calcUNFCCC <- function() {
     by = 'variable'
   ) %>% 
     filter(!!sym("REMIND") != "") %>%
-    mutate(!!sym('value') := ifelse(
-      is.na(!!sym('value')), 0,  !!sym('value') * !!sym('conversion')),
+    mutate(!!sym('value') := !!sym('value') * !!sym('conversion'),
       !!sym('REMIND') := paste0(!!sym('REMIND'),  " (", !!sym('Unit_REMIND'), ")")) %>%
     select('variable' = 'REMIND', 'region', 'year', 'value')
 
-  x <- aggregate(value ~ variable+region+year, x, sum) %>% 
-    as.magpie() %>% 
-    toolCountryFill(fill = 0)
+  x <- aggregate(value ~ variable+region+year, x, sum) %>% as.magpie() %>% toolCountryFill(fill = NA)
 
   # aggregate pollutants
   x <- add_columns(x, "Emi|CH4 (Mt CH4/yr)", dim=3.1)

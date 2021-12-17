@@ -31,16 +31,13 @@ calcUBA <- function() {
     by = "variable"
   ) %>%
     mutate(
-      !!sym("value") := ifelse(
-        is.na(!!sym("value")), 0, !!sym("value")
-      ),
       !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
     ) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
   
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
-    as.magpie() %>%
-    toolCountryFill(fill = 0)
+    as.magpie()  %>%
+    toolCountryFill(fill = NA)
   
   return(list(
     x = x, weight = NULL,

@@ -16,8 +16,8 @@ IEA data on electric vehicles as magpie object
 Read-in IEA_EV
 }
 \examples{
-
-\dontrun{ a <- readSource(type="IEA_EV")
+\dontrun{
+a <- readSource(type = "IEA_EV")
 }
 }
 \seealso{
