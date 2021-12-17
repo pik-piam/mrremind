@@ -17,7 +17,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.04"
+  ver <- "1.05"
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
