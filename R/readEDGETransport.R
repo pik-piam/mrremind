@@ -314,8 +314,8 @@ readEDGETransport <- function(subtype = "logit_exponent") {
          "pm_fe_demand_EDGETbased" = {
            tmp = EDGETrData_all$complexdem$FEdem
            tmp <- tmp[year>1965]
-           ## extract only ConvCase and ConvCaseWise (this subtype is only needed for calibration purposes)
-           tmp = tmp[grepl("ConvCase", EDGE_scenario)]
+           ## extract only Mix1 and Mix1Wise (this subtype is only needed for calibration purposes)
+           tmp = tmp[grepl("Mix1", EDGE_scenario)]
            ## convert from final energy to useful energy
            tmp[fuel == "BEV", totdem := totdem*3] ## battery electric LDV
            tmp[fuel == "FCEV" & node == "LDV", totdem := totdem*2.5] ## FCEV vehicles LDV
