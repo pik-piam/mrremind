@@ -1201,11 +1201,11 @@ calcFEdemand <- function(subtype = "FE") {
 
   structure_data <- switch(subtype,
     FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5].*|SDP.*)\\..*\\.fe..b$",
-    UE_buildings = "^gdp_(SSP[1-5].*|SDP.*)\\..*\\.fe..b$",
-    FE_for_Eff = "^gdp_(SSP[1-5].*|SDP.*)\\.fe.*(b|s)$",
-    UE_for_Eff = "^gdp_(SSP[1-5].*|SDP.*)\\.fe.*(b|s)$",
-    ES = "^gdp_(SSP[1-5].*|SDP.*)\\.esswb$",
+    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe..b$",
+    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\.fe..b$",
+    FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
+    UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
+    ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
     "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
   return(list(x=reminditems,weight=NULL,
