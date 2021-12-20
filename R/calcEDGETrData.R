@@ -15,7 +15,8 @@ calcEDGETrData <- function() {
   ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
   edgetScenarios <- strsplit(cartesian(
     c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-    c("Mix1", "Mix2", "Mix3", "Mix4")), split=".", fixed=TRUE)
+    c("ConvCase", "ElecEra", "HydrHype", "Mix",
+      "Mix1", "Mix2", "Mix3", "Mix4")), split=".", fixed=TRUE)
 
   ## add both smartlifestyle and default lifestyle variants for all scenarios
   allscens <- append(
