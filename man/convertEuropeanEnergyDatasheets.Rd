@@ -7,19 +7,24 @@
 European Energy Datasheets public database https://ec.europa.eu/energy/en/data-analysis/country
 }
 \usage{
-convertEuropeanEnergyDatasheets(x)
+convertEuropeanEnergyDatasheets(x, subtype)
 }
 \arguments{
 \item{x}{European Energy Datasheets magpie object derived from readEuropeanEnergyDatasheets function}
+
+\item{subtype}{data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)}
 }
 \value{
 converted European Energy Datasheets magpie object
 }
 \description{
-Converts European Energy Datasheets magpie object into appropriate form for the REMIND model
+Convert European Energy Datasheets
 }
 \examples{
-\dontrun{test <- readSource("EuropeanEnergyDatasheets",convert=TRUE)}
+\dontrun{
+test <- readSource("EuropeanEnergyDatasheets", subtype = "EU27", convert = TRUE)
+}
+
 }
 \author{
 Renato Rodrigues and Atreya Shankar
