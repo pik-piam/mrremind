@@ -128,12 +128,8 @@ calcHistorical <- function() {
   
   #====== Region specific historical data ===================
   # European Eurostat data
-  eurostat <- readSource("EuropeanEnergyDatasheets")
-  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
-  eurostatEU <- eurostat[EUcountries,,]
-  eurostatEU[is.na(eurostatEU)] <- 0
-  eurostat[EUcountries,,] <- eurostatEU[EUcountries,,]
-  eurostat <- add_dimension(eurostat, dim=3.1, add="model",nm="Eurostat")
+  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = F)
+  eurostat <- add_dimension(eurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
   # Emissions market data
   # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ESR (Mt CO2-equiv/yr)") # Effort Sharing
@@ -188,6 +184,7 @@ calcHistorical <- function() {
   Emi_Reference <- add_dimension(Emi_Reference, dim=3.1,add="model",nm="EEA") 
   
   # Eurostat emissions
+  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
   eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
   eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
   emiEurostatEU <- eurostatEmi[EUcountries,,]
