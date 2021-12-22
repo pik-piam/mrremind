@@ -69,8 +69,8 @@ convertIEA_EVOutlook <- function(x) {
     dim = 1, weight = w[unique(m$CountryCode), , ]
   )
 
-  # if no finer disaggregation of Europe (countires + Other Europe) is available,
-  # use the coars disaggregation (Europe to 28 countries) 
+  # if no finer disaggregation of Europe (countries + Other Europe) is available,
+  # use the coarse disaggregation (Europe to 28 countries) 
   for (v in getNames(europe)) {
     if (all(is.na(data[getRegions(europe), , v]))) {
       data[getRegions(europe), , v] <- europe[, , v]

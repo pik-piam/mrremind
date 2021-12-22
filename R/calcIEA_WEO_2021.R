@@ -21,18 +21,23 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
 
   data <- readSource("IEA_WEO_2021", subtype = subtype)
 
+  # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
+  for (s in getNames(data, dim = 1)) {
+    data[, c("y2010", "y2019", "y2020"), s] <- data[, c("y2010", "y2019", "y2020"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
+  }
+
   data <- as.data.frame(data) %>%
     as_tibble() %>%
     select(
       "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
       "year" = "Year", "value" = "Value"
-    ) %>% 
+    ) %>%
     mutate(!!sym("scenario_short") := case_when(
-        scenario == "Stated Policies Scenario" ~ "SPS",
-        scenario == "Announced Pledges Scenario" ~ "APS",
-        scenario == "Sustainable Development Scenario" ~ "SDS",
-        scenario == "Net Zero Emissions by 2050 Scenario" ~ "Net2050")
-    )
+      scenario == "Stated Policies Scenario" ~ "SPS",
+      scenario == "Announced Pledges Scenario" ~ "APS",
+      scenario == "Sustainable Development Scenario" ~ "SDS",
+      scenario == "Net Zero Emissions by 2050 Scenario" ~ "Net2050"
+    ))
 
   x <- left_join(
     data,
