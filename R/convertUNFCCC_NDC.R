@@ -16,7 +16,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
     if (FALSE %in% (getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)) {
-      cat("Table read from readRogelj2017 contains unknown target types: ",
+      cat("Table read from UNFCCC_NDC contains unknown target types: ",
       getNames(x[, , ], fulldim = TRUE)$`Type of target`[!(getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)])
     }
     techList <- c("Wind", "Solar", "Hydro", "Nuclear", "Biomass")
@@ -28,8 +28,8 @@ convertUNFCCC_NDC <- function(x, subtype) {
       x <- x[, , "conditional", invert = TRUE, drop = TRUE] # keep only unconditional policies
     } else { # conditional policies
       # loop to make conditional targets at least as good as unconditional targets
-      for (r in getRegions(x)) {
-        for (t in getYears(x)) {
+      for (r in getItems(x, dim = "ISO")) {
+        for (t in getItems(x, dim ="Target Year")) {
           for (tech in getNames(x[, , "conditional", drop = TRUE])) {
             if (is.na(x[r, t, paste0("conditional", ".", tech)])) {
               x[r, t, paste0("conditional", ".", tech)] <- x[r, t, paste0("unconditional", ".", tech)]
@@ -94,7 +94,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     hist_gen_nuclear <- readSource("BP", subtype = "Generation") * 1000 # TWh to GWh
     for (i in targetYears) {
       for (j in getNames(x_mod5[, , "Nuclear"])) {
-        for (k in getRegions(x_mod5)) {
+        for (k in getItems(x_mod5, dim = "region")) {
           if (x_mod5[k, i, j] != 0)
             x_capacity[k, , "Nuclear"] <- setYears(hist_gen_nuclear[k, 2015, "Generation|Nuclear (TWh)"]) / (8760 * cf_nuclear)
         }
@@ -109,7 +109,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     # Converting additional capacity targets to absolute capacity targets
     x_capacity_abs[, , c("Nuclear", "Biomass", "Wind", "Solar")] <- x_current[, , c("Nuclear", "Biomass", "Wind", "Solar")] +
       x_mod5[, , c("AC-Absolute.Nuclear", "AC-Absolute.Biomass", "AC-Absolute.Wind", "AC-Absolute.Solar"), drop = TRUE]
-    x_capacity_abs[, , "Hydro"] <- x_current[, , "Hydro"] + x_mod5[, , "AC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getRegions(x_mod5), , ] * 8760)
+    x_capacity_abs[, , "Hydro"] <- x_current[, , "Hydro"] + x_mod5[, , "AC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ] * 8760)
 
     # Converting Production targets (GWh) to Capacity targets (TIC-Absolute) (GW) for nuclear and biomass
     # pmax used to always take the higher value from existing capacity and new capacity (from production)
@@ -119,7 +119,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     # Total installed capacity Targets
     # target in target year should be the maximum from the target year and the current capacity
     x_capacity_tic[, , c("Nuclear", "Biomass", "Wind", "Solar")] <- pmax(x_current[, , c("Nuclear", "Biomass", "Wind", "Solar")], x_mod5[, , c("Nuclear", "Biomass", "Wind", "Solar")][, , "TIC-Absolute", drop = TRUE])
-    x_capacity_tic[, , "Hydro"] <- pmax(x_current[, , "Hydro"], x_mod5[, , "TIC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getRegions(x_mod5), , ]))
+    x_capacity_tic[, , "Hydro"] <- pmax(x_current[, , "Hydro"], x_mod5[, , "TIC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ]))
 
     # Converting Production targets to capacity targets for solar (pv and csp), hydro, and wind
     # Obtaining the capacity factors (nur) values and associated maxproduction (maxprod) for Hydro, Wind, and Solar
@@ -137,7 +137,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     data_combined[, , "Wind"] <- data_wind_sorted
     data_combined[c("TCD", "JPN"), , "Solar"][, , "maxprod"]  <- as.vector(data_solar[c("TCD", "JPN"), , "maxprod"][, , "spv"])
     data_combined[c("TCD", "JPN"), , "Solar"][, , "nur"]  <- as.vector(data_solar[c("TCD", "JPN"), , "nur"][, , "spv"])
-    data_combined <- data_combined[getRegions(x_mod5), , ]
+    data_combined <- data_combined[getItems(x_mod5, dim = "region"), , ]
     for (n in getNames(data_combined, dim = 1)) {
       name <- paste0(n, ".maxprod")
       # Conversion from EJ/a to GWh
@@ -146,8 +146,8 @@ convertUNFCCC_NDC <- function(x, subtype) {
 
     data_combined[is.na(data_combined)] <- 0
     # Production/Generation targets are converted into capacity targets by alloting production to certain capacity factors based on maxprod.
-    final <- numeric(length(getRegions(x_mod5)))
-    names(final) <- getRegions(x_mod5)
+    final <- numeric(length(getItems(x_mod5, dim = "region")))
+    names(final) <- getItems(x_mod5, dim = "region")
     tmp_target <- numeric(10)
 
     # x_mod5[,,"Production-Absolute.Hydro"] <- pmax(x_mod5[,,"Production-Absolute.Hydro"],x_capacity[,,"Hydro"])
@@ -225,7 +225,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     x_capacity[, , "Hydro"] <- x_capacity_gen[, , "Hydro"]
 
     #  # Making sure that targets in subsequent years are always same or greater than the proceeding year
-    for (r in getRegions(x_mod5)) {
+    for (r in getItems(x_mod5, dim = "region")) {
       for (t in techList) {
         for (i in head(targetYears, -1)) {
           if (x_capacity[r, i + 5, t] < setYears(x_capacity[r, i, t])) {
