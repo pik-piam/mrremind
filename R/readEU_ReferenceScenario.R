@@ -29,38 +29,44 @@ readEU_ReferenceScenario <- function(subtype) {
     sheets <- excel_sheets(source_file)
     sheets <- sheets[-c(1, 2, 3, length(sheets))]
     no_rows <- 12
+    columns <- c("REMIND")
   } else {
     source_file <- "ref2020_energy-transport-ghg.xlsx"
     sheets <- excel_sheets(source_file)
     sheets <- sheets[-c(1, 2, 3)]
     no_rows <- 11
+    columns <- c("REMIND", "REMIND_2")
   }
 
+  data <- NULL
   # looping through regions, filtering and converting values
-  data <- lapply(sheets, function(sheet) {
-    type <- substr(sheet, nchar(sheet), nchar(sheet)) # A or B
-    region <- substr(sheet, start = 1, stop = 2)
-    countrySheet <- suppressMessages(read_excel(source_file, sheet = sheet, skip = 1))
-    # cleaning sheet
-    countrySheet <- countrySheet[, seq(1, no_rows)]
-    # replace with remind mapping
-    countrySheet$REMIND <- mapping[[type]]$REMIND[-1]
-    # removing extra name column
-    countrySheet <- countrySheet[, -1] 
-    # making sure the data is numeric
-    countrySheet[, -length(colnames(countrySheet))] <- sapply(countrySheet[, -length(colnames(countrySheet))], as.numeric)
-    # converting unit to REMIND unit
-    countrySheet[, -length(colnames(countrySheet))] <- countrySheet[, -length(colnames(countrySheet))] * mapping[[type]]$factor[-1] 
-    # remove empty rows
-    countrySheet <- countrySheet[-which(is.na(countrySheet$REMIND)), ]
-    countrySheet <- cbind(region, countrySheet)
-    countrySheet[is.na(countrySheet)] <- 0
-    # merge repeated items
-    countrySheet <- aggregate(. ~ REMIND + region, data = countrySheet, FUN = sum)
-    return(countrySheet)
-  })
-  # merge into single dataframe
-  data <- do.call("rbind", data)
+  for (sheet in sheets) {
+    for (column in columns) {
+      type <- substr(sheet, nchar(sheet), nchar(sheet)) # A or B
+      region <- substr(sheet, start = 1, stop = 2)
+      countrySheet <- suppressMessages(read_excel(source_file, sheet = sheet, skip = 1))
+      # cleaning sheet
+      countrySheet <- countrySheet[, seq(1, no_rows)]
+      # replace with remind mapping
+      countrySheet$REMIND <- mapping[[type]][[column]][-1]
+      # removing extra name column
+      countrySheet <- countrySheet[, -1]
+      # making sure the data is numeric
+      countrySheet[, -length(colnames(countrySheet))] <- sapply(countrySheet[, -length(colnames(countrySheet))], as.numeric)
+      # converting unit to REMIND unit
+      countrySheet[, -length(colnames(countrySheet))] <- countrySheet[, -length(colnames(countrySheet))] * mapping[[type]]$factor[-1]
+      # remove empty rows
+      countrySheet <- countrySheet[-which(is.na(countrySheet$REMIND)), ]
+      countrySheet <- cbind(region, countrySheet)
+      countrySheet[is.na(countrySheet)] <- 0
+      # merge repeated items
+      countrySheet <- aggregate(. ~ REMIND + region, data = countrySheet, FUN = sum)
+      data <- rbind(data, countrySheet)
+    }
+  }
+
+  data <- aggregate(. ~ REMIND + region, data = data, FUN = sum)
+  
   # long format
   data <- melt(data, id.vars = 1:2)
   colnames(data) <- c("variable", "region", "period", "value")
