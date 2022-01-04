@@ -11,7 +11,7 @@
 
 convertUNFCCC_NDC <- function(x, subtype) {
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-    # for testing: subtype="Capacity_2021_cond"; x <- readSource("UNFCCC_NDC", subtype=subtype, convert=F);
+    # for testing: subtype="Capacity_2021_cond"; x <- readSource("UNFCCC_NDC", subtype=subtype, convert=FALSE);
 
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
@@ -29,7 +29,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     } else { # conditional policies
       # loop to make conditional targets at least as good as unconditional targets
       for (r in getItems(x, dim = "ISO")) {
-        for (t in getItems(x, dim ="Target Year")) {
+        for (t in getItems(x, dim = "Target Year")) {
           for (tech in getNames(x[, , "conditional", drop = TRUE])) {
             if (is.na(x[r, t, paste0("conditional", ".", tech)])) {
               x[r, t, paste0("conditional", ".", tech)] <- x[r, t, paste0("unconditional", ".", tech)]
@@ -50,7 +50,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     targetYears <- seq(2020, max(2035, 4 + max(getYears(x, as.integer = TRUE))), by = 5)
 
     # generate new object x_mod5 that has values only for targetYears and transfer those from x
-    x_mod5 <- new.magpie(getRegions(x), targetYears, getNames(x), fill = 0)
+    x_mod5 <- new.magpie(getItems(x, dim = "ISO"), targetYears, getNames(x), fill = 0)
     for (i in getYears(x, as.integer = TRUE)) {
       if (i %% 5 == 0) {
         x_mod5[, i, ] <- x[, i, ]
@@ -66,7 +66,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     }
 
     # Creating magpie object which at the end will only contain capacity targets
-    x_capacity <- new.magpie(getRegions(x_mod5), targetYears, techList)
+    x_capacity <- new.magpie(getItems(x_mod5, dim = "region"), targetYears, techList)
     x_capacity[is.na(x_capacity)] <- 0
 
     # reading historical data
@@ -85,11 +85,11 @@ convertUNFCCC_NDC <- function(x, subtype) {
     # using cf_hydro_realworld directly causes converges errors because some are very small. Second term needed such that cf_hydro has right structure
 
     # Initialising all capacities for all model years to current capacities and converting generation to capacity
-    x_capacity[, , c("Wind", "Solar")]  <- setYears(hist_cap[getRegions(x_mod5), 2015, c("Wind", "Solar")])
-    x_capacity[, , "Biomass"]           <- setYears(hist_cap[getRegions(x_mod5), 2015, "Bioenergy"])
+    x_capacity[, , c("Wind", "Solar")]  <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, c("Wind", "Solar")])
+    x_capacity[, , "Biomass"]           <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, "Bioenergy"])
 
     # special case for hydro.
-    x_capacity[, , "Hydro"]             <- setYears(hist_gen[getRegions(x_capacity), 2015, "Hydropower"])
+    x_capacity[, , "Hydro"]             <- setYears(hist_gen[getItems(x_capacity, dim = "region"), 2015, "Hydropower"])
     # Special case for nuclear
     hist_gen_nuclear <- readSource("BP", subtype = "Generation") * 1000 # TWh to GWh
     for (i in targetYears) {
@@ -132,7 +132,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     names_solar <- paste0("Solar.", getNames(collapseNames((mselect(data_solar, type = c("nur", "maxprod"), technology = "spv")), collapsedim = 2)))
     names_hydro <- paste0("Hydro.", getNames(data_hydro))
     names_wind <- paste0("Wind.", getNames(data_wind_sorted))
-    data_combined <- new.magpie(getRegions(data_hydro), NULL, c(names_solar, names_hydro, names_wind))
+    data_combined <- new.magpie(getItems(data_hydro, dim = "region"), NULL, c(names_solar, names_hydro, names_wind))
     data_combined[, , "Hydro"] <- data_hydro
     data_combined[, , "Wind"] <- data_wind_sorted
     data_combined[c("TCD", "JPN"), , "Solar"][, , "maxprod"]  <- as.vector(data_solar[c("TCD", "JPN"), , "maxprod"][, , "spv"])
@@ -237,7 +237,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
       }
     }
     # countries not in the database
-    rest_regions <- getRegions(hist_cap)[!(getRegions(hist_cap) %in% getRegions(x_capacity))]
+    rest_regions <- getItems(hist_cap, dim = "Country/area")[!(getItems(hist_cap, dim = "Country/area") %in% getItems(x_capacity, dim = "region"))]
     x_other <- new.magpie(rest_regions, targetYears, techList)
     x_other[, , c("Wind", "Solar")]  <- setYears(hist_cap[rest_regions, 2015, c("Solar", "Wind")])
     x_other[, , "Nuclear"] <- 0
@@ -289,7 +289,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
       if (nregions(data) != 1 || nyears(data) != 1) {
         cat("function calcGhgfactor(data) should be called with one single region and year as data only")
       }
-      regi <- getRegions(data)
+      regi <- getItems(data, dim = "ISO_Code")
       year <- getYears(data)
       ghgtarget <- NA
       if (allowedType[data[regi, year, "Type"]] == "GHG-Absolute") {
@@ -321,12 +321,12 @@ convertUNFCCC_NDC <- function(x, subtype) {
 
     # ghgfactor compared to 2005, first set to NA
     # this copy of the gdp structure is needed because of the different SSP
-    ghgfactor <- gdp[unique(c(getRegions(reductionData)[getRegions(reductionData) != "EUR"], eu28_countries)), getYears(reductionData), ]
+    ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"], eu28_countries)), getYears(reductionData), ]
     ghgfactor[, , ] <- NA
     # define string that can be used to assess magpie variables
     uncond_or_cond <- ifelse (length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
     # loop through regions and years
-    for (regi in getRegions(reductionData)) {
+    for (regi in getItems(reductionData, dim = "ISO_Code")) {
       for (year in getYears(reductionData)) {
         if (!is.na(reductionData[regi, year, uncond_or_cond])[1]) {  # check whether a target exists
           if (regi != "EUR") { # call function calc_ghgfactor and divide by 2005 ghg data to get the ghgfactor
@@ -349,7 +349,7 @@ convertUNFCCC_NDC <- function(x, subtype) {
     }
 
     # exclude country targets with factor higher than 2.5, which is about the highest region average BAU growth rate (but always use China and India)
-    for (regi in getRegions(ghgfactor)) {
+    for (regi in getItems(ghgfactor, dim = "iso3c")) {
       if (!regi %in% c("IND", "CHN")) {
         ghgfactor[regi, , ][ghgfactor[regi, , ] > 2.5] <- NA
       }
