@@ -1149,6 +1149,52 @@ calcFEdemand <- function(subtype = "FE") {
                         * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))) %>% 
       ungroup() %>% 
       select(-'alpha')
+    
+    ### converge subsector en shares to global value ----
+    # calculate global shares, weighted by subsector activity
+    industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>% 
+      inner_join(
+        mbind(industry_subsectors_ue, industry_steel) %>% 
+          as.data.frame() %>% 
+          as_tibble() %>% 
+          select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
+                 pf = 'Data2', level = 'Value') %>% 
+          character.data.frame() %>% 
+          mutate(year = as.integer(as.character(.data$year))) %>% 
+          extract('pf', 'subsector', '^ue_(.*)$') %>% 
+          inner_join(region_mapping_21, 'iso3c') %>% 
+          group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>% 
+          summarise(level = sum(.data$level), .groups = 'drop'),
+        
+        c('scenario', 'region', 'year', 'subsector')
+      ) %>% 
+      group_by(!!!syms(c('scenario', 'year', 'subsector', 'pf'))) %>% 
+      summarise(
+        share.global = sum(.data$share * .data$level) / sum(.data$level),
+        .groups = 'drop_last') %>% 
+      mutate(share.global = .data$share.global / sum(.data$share.global)) %>% 
+      ungroup()
+    
+    # converge
+    industry_subsectors_en_shares <- inner_join(
+      industry_subsectors_en_shares,
+      industry_subsectors_en_shares_global,
+      
+      c('scenario', 'year', 'subsector', 'pf')
+    ) %>% 
+      mutate(
+        # converge from 2015 to 2100
+        foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
+        share = (1 - .data$foo) * .data$share
+              # use minimum of regional and global share, so regions doing
+              # better than the average don't regress
+              + .data$foo       * pmin(.data$share, .data$share.global)) %>% 
+      select(-'foo', -'share.global') %>% 
+      # fill possible gaps in the time steps
+      interpolate_missing_periods_(
+        periods = list(year = getYears(reminditems, TRUE)),
+        value = 'share',
+        expand.values = TRUE)
       
     industry_subsectors_en <- inner_join(
       industry_subsectors_specific_energy %>% 
