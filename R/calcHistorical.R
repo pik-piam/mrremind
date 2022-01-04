@@ -182,8 +182,8 @@ calcHistorical <- function() {
   IEA_EVOutlook <- calcOutput("IEA_EVOutlook", aggregate = F)
 
   # Calculate Emission Reference Values
-  Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate=FALSE))
-  Emi_Reference <- add_dimension(Emi_Reference, dim=3.1,add="model",nm="EEA") 
+  Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate = FALSE))
+  Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
   
   # Eurostat emissions
   EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
