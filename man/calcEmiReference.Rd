@@ -13,8 +13,7 @@ calcEmiReference()
 provides European 2030 emission targets in relation to 1990 and 2005 emissions
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("EmiReference")
 }
 

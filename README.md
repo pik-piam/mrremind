@@ -1,6 +1,6 @@
 # MadRat REMIND Input Data Package
 
-R package **mrremind**, version **0.99.0**
+R package **mrremind**, version **0.100.1**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)  [![R build status](https://github.com/pik-piam/mrremind/workflows/check/badge.svg)](https://github.com/pik-piam/mrremind/actions) [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/mrremind) [![r-universe](https://pik-piam.r-universe.dev/badges/mrremind)](https://pik-piam.r-universe.dev/ui#builds)
 
@@ -38,7 +38,7 @@ In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-po
 
 To cite package **mrremind** in publications use:
 
-Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O (2022). _mrremind: MadRat REMIND Input Data Package_. R package version 0.99.0.
+Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O (2022). _mrremind: MadRat REMIND Input Data Package_. R package version 0.100.1.
 
 A BibTeX entry for LaTeX users is
 
