@@ -7,7 +7,7 @@
 readUNFCCC_NDC(subtype)
 }
 \arguments{
-\item{subtype}{Capacity_2021_cond (or 2018 or uncond) for capacity target, Emissions_2021_cond (or 2018 or uncond) for Emissions targets}
+\item{subtype}{Capacity_2022_cond (or 2018/2021 or uncond) for capacity target, Emissions_2022_cond (or 2018/2021 or uncond) for Emissions targets}
 }
 \value{
 magpie object

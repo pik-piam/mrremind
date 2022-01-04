@@ -42,16 +42,18 @@ calcEmiTarget <- function(sources, subtype) {
       "2018_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2018_cond"),
       "2018_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2018_uncond"),
       "2021_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2021_cond"),
-      "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2021_uncond")
+      "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2021_uncond"),
+      "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2022_cond"),
+      "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2022_uncond")
     )
 
-    listYears   <- lapply(listGhgfactors, getYears) %>% unlist() %>% unique() %>% sort()
-    listRegions <- lapply(listGhgfactors, getRegions) %>% unlist() %>% unique() %>% sort()
+    listYears   <- lapply(listGhgfactors, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
+    listRegions <- lapply(listGhgfactors, getItems, dim = "iso3c") %>% unlist() %>% unique() %>% sort()
 
     # expand all magpies to listYears
     expandMagpieYears <- function(x) {
       y <- new.magpie(cells_and_regions = listRegions, years = listYears, names = getNames(x))
-      for (year in getYears(x)) {
+      for (year in getItems(x, dim = "year")) {
         y[, year, ] <- x[, year, ]
       }
       return(y)
@@ -74,8 +76,8 @@ calcEmiTarget <- function(sources, subtype) {
     } else if (grepl("Ghgshare2005", subtype, fixed = TRUE)) { # p45_2005share_target.cs3r
       # calculate growth for GDP weight for GHG emission share
       # assuming constant relative emission intensities across countries of one region
-      gdpWeight <- new.magpie(getRegions(dummy1), getYears(dummy1), getNames(ghgfactor))
-      for (t in getYears(dummy1)) {
+      gdpWeight <- new.magpie(getItems(dummy1, dim = "region"), getItems(dummy1, dim = "year"), getNames(ghgfactor))
+      for (t in getItems(dummy1, dim = "year")) {
         gdpWeight[, t, ] <- setYears(ghg[, 2005, ] / gdp[, 2005, ], NULL) * gdp[, t, ]
       }
       description <- "2005 GHG emission share of countries with quantifyable emissions under NDC in particular region per target year"
@@ -83,7 +85,7 @@ calcEmiTarget <- function(sources, subtype) {
 
     } else if (grepl("Ghghistshare", subtype, fixed = TRUE)) {
       # make ghgTarget only represent countries with 2030 data
-      dummy2 <- new.magpie(cells_and_regions = listRegions, years = getYears(ghg), names = names(listGhgfactors))
+      dummy2 <- new.magpie(cells_and_regions = listRegions, years = getItems(ghg, dim = "year"), names = names(listGhgfactors))
       dummy2[, , ] <- dummy1[, "y2030", ]
       description <- "GHG emissions share of countries with quantifyable 2030 target in particular region"
       return(list(x = dummy2, weight = ghg, unit = "1", description = description))

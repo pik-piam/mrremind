@@ -1,7 +1,7 @@
 #' Capacity targets from two sources
 #' @description The capacity targets (GW)  at regional level are produced from two different databases-
-#' Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables report
-#' The Rogelj2017 capacity targets are further broken down to conditional and unconditional targets.
+#' UNFCCC_NDC database, an update of the Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables report
+#' The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
 #' @author Aman Malik, Oliver Richters
 #' @param sources Database source
 #' @importFrom dplyr %>% filter
@@ -26,16 +26,18 @@ calcCapTarget <- function(sources) {
       "2018_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2018_cond"),
       "2018_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2018_uncond"),
       "2021_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2021_cond"),
-      "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2021_uncond")
+      "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2021_uncond"),
+      "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2022_cond"),
+      "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2022_uncond")
     )
 
-    listYears   <- lapply(listCapacitiesNDC, getYears) %>% unlist() %>% unique() %>% sort()
-    listRegions <- lapply(listCapacitiesNDC, getRegions) %>% unlist() %>% unique() %>% sort()
+    listYears   <- lapply(listCapacitiesNDC, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
+    listRegions <- lapply(listCapacitiesNDC, getItems, dim = "region") %>% unlist() %>% unique() %>% sort()
 
     # expand all magpies to listYears
     expandMagpieYears <- function(x) {
       y <- new.magpie(cells_and_regions = listRegions, years = listYears, names = getNames(x))
-      for (year in getYears(x)) {
+      for (year in getItems(x, dim = "year")) {
         y[, year, ] <- x[, year, ]
       }
       return(y)

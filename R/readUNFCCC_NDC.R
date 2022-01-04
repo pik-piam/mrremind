@@ -4,7 +4,7 @@
 #' @details Country name is ISO coded. Capacity/Additional Capacity targets are in GW. Generation/Production targets are in GWh.
 #' @return  magpie object
 #' @author  Aman Malik, Christoph Bertram, Oliver Richters
-#' @param subtype Capacity_2021_cond (or 2018 or uncond) for capacity target, Emissions_2021_cond (or 2018 or uncond) for Emissions targets
+#' @param subtype Capacity_2022_cond (or 2018/2021 or uncond) for capacity target, Emissions_2022_cond (or 2018/2021 or uncond) for Emissions targets
 #' @importFrom readxl read_xlsx
 #' @importFrom dplyr select
 #' @importFrom gdata duplicated2
@@ -13,9 +13,11 @@ readUNFCCC_NDC <- function(subtype) {
 
   if (grepl("2018", subtype, fixed = TRUE)) {
     NDCfile <- "NDC_2018.xlsx"
-  } else {
+  } else if (grepl("2021", subtype, fixed = TRUE)) {
     NDCfile <- "NDC_2021.xlsx"
-    if (!grepl("2021", subtype, fixed = TRUE)) {
+  } else {
+    NDCfile <- "NDC_2022.xlsx"
+    if (!grepl("2022", subtype, fixed = TRUE)) {
       cat("\nNo data for year in ", subtype, " available. Choose default: ", NDCfile)
     }
   }
