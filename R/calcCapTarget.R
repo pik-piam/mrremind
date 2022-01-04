@@ -68,7 +68,7 @@ calcCapTarget <- function(sources) {
     c(getNames(NDC), getNames(REN21), paste(names(listCapacitiesNDC), "apCarElT", sep = ".")) %>%
       unique() %>% sort() -> techNames
 
-    x <- new.magpie(getRegions(REN21), getYears(REN21), techNames)
+    x <- new.magpie(getItems(REN21, dim = "region"), getYears(REN21), techNames)
     # China's nuclear target
     common_tech <- intersect(
       getNames(REN21) %>% unlist() %>% unique(),
@@ -105,7 +105,7 @@ calcCapTarget <- function(sources) {
     H2Target.reg["EUR", "y2030", ] <- 40
 
     # Country Targets
-    H2Target.country <- new.magpie(getRegions(x), getYears(x), "elh2", fill = 0)
+    H2Target.country <- new.magpie(getItems(x, dim = "region"), getYears(x), "elh2", fill = 0)
     # iso countries with a country target that belong to the EU
     country.target.regs <- c("DEU")
     # Germany Target: https://www.bmbf.de/files/die-nationale-wasserstoffstrategie.pdf
@@ -118,12 +118,12 @@ calcCapTarget <- function(sources) {
     H2Target["EUR", , "elh2"] <- H2Target.reg["EUR", , "elh2"] - H2Target.CountryAgg["EUR", , "elh2"]
 
     # # SE VRE Production in 2015 to be used as weight for disaggregation EU target to iso countries
-    # SEHistVRE <- dimSums(calcOutput("FE", aggregate = F)[,"y2015",c("SE|Electricity|Solar (EJ/yr)",
+    # SEHistVRE <- dimSums(calcOutput("FE", aggregate = FALSE)[,"y2015",c("SE|Electricity|Solar (EJ/yr)",
     #                                                                 "SE|Electricity|Wind (EJ/yr)")],
     #                      dim = 3)
 
     # GDP 2015 to be used as weight for disaggregation of EU target to iso coutries
-    GDP2015 <- calcOutput("GDPPast", aggregate = F)[, "y2015", ]
+    GDP2015 <- calcOutput("GDPPast", aggregate = FALSE)[, "y2015", ]
 
     # regionmapping without countries that already have a country target
     CountryCode <- NULL
