@@ -1235,7 +1235,7 @@ calcFEdemand <- function(subtype = "FE") {
     
     unit_out <- paste0(unit_out,
                        ', except ue_cement (Gt), ue_primary_steel and ',
-                       'ue_secondary_steel (Mt) and ue_chemicals and ',
+                       'ue_secondary_steel (Gt) and ue_chemicals and ',
                        'ue_otherInd ($tn)')
   } 
   if (subtype == "UE_buildings") {

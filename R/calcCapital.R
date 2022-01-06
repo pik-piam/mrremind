@@ -2,6 +2,7 @@
 #' @importFrom dplyr as_tibble select mutate sym
 #' @importFrom quitte character.data.frame interpolate_missing_periods
 #' @importFrom tidyr pivot_wider pivot_longer
+#' @importFrom zoo rollmean
 
 calcCapital <- function(subtype = "Capital") {
 
@@ -126,6 +127,9 @@ calcCapital <- function(subtype = "Capital") {
       interpolate_missing_periods(
         period = as.integer(sub('^y', '', getYears(cap_macro))),
         expand.values = TRUE) %>% 
+      group_by(!!!syms(c('iso3c', 'scenario', 'pf'))) %>% 
+      arrange(!!!syms(c('iso3c', 'scenario', 'pf', 'period'))) %>% 
+      mutate(value = rollmean(.data$value, 4, 'extend')) %>% 
       select('iso3c', 'period', 'scenario', 'pf', 'value') %>% 
       as.magpie(spatial = 1, temporal = 2)
     
