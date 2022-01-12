@@ -204,6 +204,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
         "`Emi|GHG|Industry`" = "`Emi|GHG|Industry|ETS` + `Emi|GHG|Industry|ESR`",
         completeMissing = T
       ) %>%
+      filter(!is.na(!!sym("scenario"))) %>%
       mutate(
         !!sym("value") := ifelse(is.na(!!sym("value")), 0, !!sym("value") / 1000),
         !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2019"),
