@@ -57,20 +57,20 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
   x <- as.magpie(x, spatial = 1, temporal = 2, data = 5)
 
   if (subtype == "GLO") {
-    x <- add_columns(x, "Cap|Electricity|Biomass|w/o CCS (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Biomass|w/o CCS (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CCS (GW)"]
+    x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
+    x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Coal (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Coal (GW)"] <- x[, , "Cap|Electricity|Coal|w/o CCS (GW)"] + x[, , "Cap|Electricity|Coal|w/ CCS (GW)"]
+    x[, , "Cap|Electricity|Coal (GW)"] <- x[, , "Cap|Electricity|Coal|w/o CC (GW)"] + x[, , "Cap|Electricity|Coal|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Solar (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Solar (GW)"] <- x[, , "Cap|Electricity|Solar|CSP (GW)"] + x[, , "Cap|Electricity|Solar|PV (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Fossil (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Fossil (GW)"] <- x[, , "Cap|Electricity|Fossil|w/o CCS (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CCS (GW)"]
+    x[, , "Cap|Electricity|Fossil (GW)"] <- x[, , "Cap|Electricity|Fossil|w/o CC (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CCS (GW)"] + x[, , "Cap|Electricity|Gas|w/ CCS (GW)"]
+    x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
   }
 
   return(list(
