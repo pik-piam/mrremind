@@ -240,8 +240,11 @@ calcHistorical <- function() {
   BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
   BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
 
-  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
-  WEO_2021_reg <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
+  # currently we don't include global data because regional disaggregation is too unprecise to 
+  # compare the data on any other than global level
+  # WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
+  
+  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
 
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
@@ -251,7 +254,7 @@ calcHistorical <- function() {
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
                   IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
-                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021, WEO_2021_reg)
+                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
@@ -259,8 +262,8 @@ calcHistorical <- function() {
   
   # create empty object with full temporal, regional and data dimensionality
   data <- new.magpie(getRegions(fe_iea),y,n,fill=NA)
-  getSets(data)[3]<- "model"
-  getSets(data)[4]<- "variable"
+  getSets(data)[3] <- "model"
+  getSets(data)[4] <- "variable"
 
   # transfer data of existing years
   for (i in varlist) {

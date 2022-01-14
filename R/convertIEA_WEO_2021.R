@@ -25,8 +25,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     weight <- PE[, 2016, "PE (EJ/yr)"]
     x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
     return(x.world)
-  } 
-  else if (subtype == "regional") {
+  } else if (subtype == "regional") {
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
@@ -70,7 +69,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
       return(x)
     }
 
-    # exclude all regions we don't want to disaggregate due to reduncancies or lack of accuracy
+    # exclude all regions we don't want to disaggregate due to redundancies or lack of accuracy
     x.reg <- x[c(
       "Atlantic Basin", "East of Suez", "NonOPEC", "OPEC", "Japan and Korea",
       "Southeast Asia", "Other", "European Union", "World"
@@ -79,6 +78,9 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     # remove all-na variables
     remove <- magpply(x.reg, function(y) all(is.na(y)), MARGIN = 3)
     x.reg <- x.reg[, , !remove]
+
+    # remove 2040 as year, as source has no regional data for this year
+    x.reg <- x.reg[, 2040, , invert = T]
 
     regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe", "Eurasia", "Middle East", "North America")
 
@@ -118,8 +120,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
 
     x.regional <- x.regional[, , "dummy", invert = T]
     return(x.regional)
-  } 
-  else {
+  } else {
     stop("Not a valid subtype!")
   }
 }
