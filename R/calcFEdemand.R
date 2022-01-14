@@ -704,32 +704,65 @@ calcFEdemand <- function(subtype = "FE") {
                     'cement_chemicals_otherInd_production_scenarios') %>% 
       as.data.frame() %>% 
       as_tibble() %>% 
-      mutate(
-        year = paste0('y', .data$Year),
-        scenario = paste0('gdp_', .data$Data1), 
-        item = paste0('ue_', sub('_(production|VA)$', '', .data$Data2))) %>% 
-      select('Region', 'year', 'scenario', 'item', 'Value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
+      select(iso3c = 'Region', scenario = 'Data1', item = 'Data2', 
+             year = 'Year', value = 'Value') %>% 
+      mutate(year = as.integer(as.character(.data$year)),
+             item = paste0('ue_', sub('_(production|VA)$', '', .data$item))) %>% 
+      character.data.frame()
     
     ## Steel activity ----
     industry_steel <- readSource('EDGE_Industry',
                                  'steel_production_scenarios') %>%
       as.data.frame() %>% 
       as_tibble() %>% 
-      mutate(Year = as.integer(as.character(.data$Year))) %>% 
-      interpolate_missing_periods(
-        Year = as.integer(sub('^y', '', getYears(reminditems))),
-        value = 'Value',
-                                  expand.values = TRUE) %>% 
-      mutate(year = paste0('y', .data$Year),
-             scenario = paste0('gdp_', .data$Data1),
-             item = paste0('ue_steel_', sub('_production', '', .data$Data2)),
-             # t * 1e-9 Gt/t = t
-             value = .data$Value * 1e-9) %>% 
-      select('Region', 'year', 'scenario', 'item', 'value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
+        select(iso3c = 'Region', scenario = 'Data1', item = 'Data2',
+               year = 'Year', value = 'Value') %>% 
+        mutate(year = as.integer(as.character(.data$year)),
+               item = paste0('ue_', sub('_production$', '', .data$item)),
+               # t * 1e-9 Gt/t = t
+               value = .data$value * 1e-9) %>% 
+        character.data.frame()
+      
+      # filter(.data$year %in% unique(getYears(reminditems))) %>%
+      # as.magpie(tidy = TRUE)
+
+    material_efficiency_factors <- tribble(
+      # parameters for different scenarios
+      ~scenario,   ~a,        ~b,
+      'SSP1',      0.0075,    200,
+      'SSP2',      0,           1,
+      'SSP5',      0.0125,    100) %>% 
+      # missing scenarios get default parameters a = 0 and b = 1
+      complete(scenario = unique(industry_subsectors_ue$scenario),
+               fill = list(a = 0, b = 1)) %>% 
+      # expand across years and calculate factor
+      mutate(year = first(industry_subsectors_ue$year)) %>% 
+      complete(nesting(!!sym('scenario'), !!sym('a'), !!sym('b')),
+               year = unique(industry_subsectors_ue$year)) %>% 
+      # 'factor' to reduce values by c per year, where c moves from a to a/2 
+      # over b years; factor is constant afterwards
+       mutate(x = pmax(0, .data$year - 2020),
+             c = .data$a - .data$a / 2 * pmin(1, .data$x / .data$b),
+             factor = (1 - .data$c) ^ pmin(.data$x, .data$b)) %>% 
+      select('scenario', 'year', 'factor') %>% 
+      assert(is.finite, .data$factor)
+    
+    industry_subsectors_ue <- industry_subsectors_ue %>% 
+      left_join(material_efficiency_factors, c('scenario', 'year')) %>% 
+      mutate(value = .data$value * .data$factor,
+             scenario = paste0('gdp_', .data$scenario)) %>% 
+      select('iso3c', 'year', 'scenario', 'item', 'value') %>% 
+      filter(
+        .data$year %in% unique(getYears(reminditems, as.integer = TRUE))) %>%
+      as.magpie(spatial = 1, temporal = 2, datacol = 5)
+    
+    industry_steel <- industry_steel %>% 
+      left_join(material_efficiency_factors, c('scenario', 'year')) %>% 
+      mutate(value = .data$value * .data$factor) %>% 
+      select('iso3c', 'year', 'scenario', 'item', 'value') %>% 
+      filter(
+        .data$year %in% unique(getYears(reminditems, as.integer = TRUE))) %>% 
+      as.magpie(spatial = 1, temporal = 2, datacol = 5)
     
     ## extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
