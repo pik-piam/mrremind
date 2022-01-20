@@ -23,10 +23,17 @@ convertBP <- function(x, subtype) {
     return(x[!remove, , ])
   }
 
+  .removeNaYears <- function(x) {
+    remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 2)
+    return(x[,!remove, ])
+  }
+  
+  
   # disaggregate regions of x by mapping to iso countries belonging to that regions, but not listed in x (i.e. other countries)
   .disaggregate_regions <- function(x_in, regions) {
 
     x <- .removeNaRegions(x_in)
+    x <- .removeNaYears(x)
 
     # full mapping of regions to iso countries
     mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
@@ -50,19 +57,23 @@ convertBP <- function(x, subtype) {
     x1 <- x[regions, , invert = TRUE]
     getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
     x1 <- toolCountryFill(x1, fill = 0, verbosity = 2)
-    x1[is.na(x1)] <- 0
 
     # combine the two objects
     x <- x1 + x2
+    x <- add_columns(x, setdiff(getItems(x_in, dim = 2), getItems(x, dim = 2)), dim = 2)
     return(x)
   }
 
+
   .mergeReg <- function(x, from, to) {
-    x1 <- mbind(
-      new.magpie(to, getYears(x), getNames(x), fill = dimSums(x[from, , ], dim = 1, na.rm = T)),
-      x[from, , invert = T]
-    )
-    return(x1)
+    x1 <- new.magpie(to, getYears(x), getNames(x), fill = NA)
+    for (n in getNames(x)) {
+      tmp <- x[, , n]
+      tmp <- .removeNaYears(tmp)
+      x1[, getItems(tmp, dim = 2), n] <- dimSums(tmp[intersect(getItems(x, dim = 1), from), , ], dim = 1, na.rm = T)
+    }
+
+    return(mbind(x[from, , invert = T], x1))
   }
 
   getItems(x, dim = 1) <- gsub("\\bUS\\b", "USA", getItems(x, dim = 1))
