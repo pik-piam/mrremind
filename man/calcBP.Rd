@@ -4,10 +4,7 @@
 \alias{calcBP}
 \title{Calculate REMIND variables from historical BP values}
 \usage{
-calcBP(subtype)
-}
-\arguments{
-\item{subtype}{Either "Emission", "Capacity", "Generation", "Consumption", "Trade" or "Price"}
+calcBP()
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

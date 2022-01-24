@@ -5,7 +5,7 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
 #' @importFrom tidyr gather
-#' @importFrom dplyr filter %>%
+#' @importFrom dplyr filter %>% mutate
 #' @importFrom readxl read_excel
 #' @importFrom reshape merge_recurse
 #' @importFrom reshape2 melt

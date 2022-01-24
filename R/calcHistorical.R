@@ -227,18 +227,8 @@ calcHistorical <- function() {
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
   # BP data
-  BP_Emi <- calcOutput("BP", subtype = "Emission", aggregate = FALSE)
-  BP_Emi <- add_dimension(BP_Emi, dim = 3.1, add = "model", nm = "BP")
-  BP_Cap <- calcOutput("BP", subtype = "Capacity", aggregate = FALSE)
-  BP_Cap <- add_dimension(BP_Cap, dim = 3.1, add = "model", nm = "BP")
-  BP_Gen <- calcOutput("BP", subtype = "Generation", aggregate = FALSE)
-  BP_Gen <- add_dimension(BP_Gen, dim = 3.1, add = "model", nm = "BP")
-  BP_Consump <- calcOutput("BP", subtype = "Consumption", aggregate = FALSE)
-  BP_Consump <- add_dimension(BP_Consump, dim = 3.1, add = "model", nm = "BP")
-  BP_Trad <- calcOutput("BP", subtype = "Trade", aggregate = FALSE)
-  BP_Trad <- add_dimension(BP_Trad, dim = 3.1, add = "model", nm = "BP")
-  BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
-  BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
+  BP <- calcOutput("BP", aggregate = FALSE)
+  BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
   # currently we don't include global data because regional disaggregation is too unprecise to 
   # compare the data on any other than global level
@@ -253,8 +243,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
-                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021)
+                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
