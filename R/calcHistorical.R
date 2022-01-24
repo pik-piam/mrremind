@@ -186,15 +186,20 @@ calcHistorical <- function() {
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
   
   # Eurostat emissions
-  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
-  eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
-  eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
-  emiEurostatEU <- eurostatEmi[EUcountries,,]
+  EUcountries <- c("ALA", "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FRO", "FIN", "FRA", "DEU", "GIB", "GRC", "GGY", "HUN", "IRL", "IMN", "ITA", "JEY", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "GBR")
+  eurostatEmi <- readSource(type = "Eurostat", subtype = "emissions")
+  eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)], , ] <- NA
+  emiEurostatEU <- eurostatEmi[EUcountries, , ]
   emiEurostatEU[is.na(emiEurostatEU)] <- 0
   emiEurostat <- NULL
+  # conversion factors between CO2eq and N2O / CH4 are derived by Eurostat webtool comparison
   emiEurostat <- mbind(
-    setNames(eurostatEmi[,,"CH4.All sectors (excluding memo items)"],"Emi|CH4 (Mt CH4/yr)")/28,
-    setNames(eurostatEmi[,,"N2O.All sectors (excluding memo items)"],"Emi|N2O (kt N2O/yr)")/(265 * 44 / 28)*1000 
+    setNames(eurostatEmi[, , "CH4.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)") / 25,
+    setNames(eurostatEmi[, , "N2O.Total (excluding memo items)"], "Emi|N2O (kt N2O/yr)") / 298 * 1000,
+    setNames(eurostatEmi[, , "GHG.Land use, land use change, and forestry (LULUCF)"], "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"),
+    setNames(eurostatEmi[, , "CO2.Land use, land use change, and forestry (LULUCF)"], "Emi|CO2|Land-Use Change (Mt CO2/yr)"),
+    setNames(eurostatEmi[, , "CH4.Land use, land use change, and forestry (LULUCF)"], "Emi|CH4|Land-Use Change (Mt CH4/yr)") / 25,
+    setNames(eurostatEmi[, , "N2O.Land use, land use change, and forestry (LULUCF)"], "Emi|N2O|Land-Use Change (kt N2O/yr)") / 298 * 1000
   )
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
