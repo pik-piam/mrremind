@@ -194,12 +194,12 @@ calcHistorical <- function() {
   emiEurostat <- NULL
   # conversion factors between CO2eq and N2O / CH4 are derived by Eurostat webtool comparison
   emiEurostat <- mbind(
-    setNames(eurostatEmi[, , "CH4.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)") / 25,
-    setNames(eurostatEmi[, , "N2O.Total (excluding memo items)"], "Emi|N2O (kt N2O/yr)") / 298 * 1000,
+    setNames(eurostatEmi[, , "CH4_native.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)"),
+    setNames(eurostatEmi[, , "N2O_native.Total (excluding memo items)"], "Emi|N2O (kt N2O/yr)") * 1000,
     setNames(eurostatEmi[, , "GHG.Land use, land use change, and forestry (LULUCF)"], "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"),
     setNames(eurostatEmi[, , "CO2.Land use, land use change, and forestry (LULUCF)"], "Emi|CO2|Land-Use Change (Mt CO2/yr)"),
-    setNames(eurostatEmi[, , "CH4.Land use, land use change, and forestry (LULUCF)"], "Emi|CH4|Land-Use Change (Mt CH4/yr)") / 25,
-    setNames(eurostatEmi[, , "N2O.Land use, land use change, and forestry (LULUCF)"], "Emi|N2O|Land-Use Change (kt N2O/yr)") / 298 * 1000
+    setNames(eurostatEmi[, , "CH4_native.Land use, land use change, and forestry (LULUCF)"], "Emi|CH4|Land-Use Change (Mt CH4/yr)"),
+    setNames(eurostatEmi[, , "N2O_native.Land use, land use change, and forestry (LULUCF)"], "Emi|N2O|Land-Use Change (kt N2O/yr)") * 1000
   )
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
