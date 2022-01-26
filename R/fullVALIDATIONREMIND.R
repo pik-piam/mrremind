@@ -1,4 +1,4 @@
-#' fullValidationREMIND
+#' fullVALIDATIONREMIND
 #'
 #' Function that generates the historical regional dataset against which the
 #' REMIND model results can be compared.
@@ -9,10 +9,10 @@
 #' \code{\link{fullREMIND}},\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
 #' @examples
 #' \dontrun{
-#' fullValidationREMIND()
+#' fullVALIDATIONREMIND()
 #' }
 #'
-fullValidationREMIND <- function(rev = 0) {
+fullVALIDATIONREMIND <- function(rev = 0) {
 
   #-------------- historical data ---------------------------------------------------------------------
   calcOutput("Historical", round = 5,  file = "historical.mif", aggregate = "region+global+missingH12")
