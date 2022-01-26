@@ -166,8 +166,9 @@ fullREMIND <- function(rev = 0) {
   calcOutput("TransportSubsidies",                        round = 8,  file = "f21_vehiclesSubsidies.cs4r")
 
   #-------------- historical data ---------------------------------------------------------------------
-  # has been moved to separate function mrremind::fullVALIDATIONREMIND
-  
+  # will be moved to separate function mrremind::fullVALIDATIONREMIND
+  calcOutput("Historical", round = 5,  file = "historical.mif", aggregate = "region+global+missingH12")
+
   #--------------- EDGE Transport ---------------------------------------------------------------------
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
