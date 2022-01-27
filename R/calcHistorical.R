@@ -240,6 +240,47 @@ calcHistorical <- function() {
   # WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
   
   WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
+  
+  #World of steel
+  worldsteel <- readSource('worldsteel', convert = FALSE) %>% 
+    madrat_mule() %>% 
+    filter(.data$name %in% c('Production in Oxygen-Blown Converters',
+                             'Production in Open Hearth Furnaces',
+                             'DRI Production',
+                             'Production in Electric Arc Furnaces'),
+           .data$iso3c %in% (toolGetMapping(name = getConfig('regionmapping'), 
+                                            type = 'regional') %>% 
+                               pull('CountryCode'))) %>% 
+    pivot_wider(values_fill = 0) %>% 
+    mutate(
+
+            `Production|Industry|Steel (Mt)` 
+      = (.data$`Production in Oxygen-Blown Converters`
+      + .data$`Production in Open Hearth Furnaces`
+      + .data$`Production in Electric Arc Furnaces`)
+      *1e-3,
+      
+      `Production|Industry|Steel|Secondary (Mt)` = 
+        pmax(0,
+             .data$`Production in Electric Arc Furnaces`
+             - .data$`DRI Production`)
+      *1e-3,
+      
+      `Production|Industry|Steel|Primary (Mt)` 
+      = (.data$`Production|Industry|Steel`
+      - .data$`Production|Industry|Steel|Secondary`)
+      *1e-3
+      
+    ) %>% 
+    select('iso3c', 'year', 'Production|Industry|Steel', 
+           'Production|Industry|Steel|Primary', 
+           'Production|Industry|Steel|Secondary') %>% 
+    pivot_longer(c('Production|Industry|Steel', 
+                   'Production|Industry|Steel|Primary', 
+                   'Production|Industry|Steel|Secondary')) %>% 
+    as.magpie(spatial = 1, temporal = 2, data = 4)
+                
+  
 
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
@@ -248,7 +289,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, WEO_2021)
+                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, worldsteel, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
