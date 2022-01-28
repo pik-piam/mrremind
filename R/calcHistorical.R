@@ -241,7 +241,7 @@ calcHistorical <- function() {
   
   WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
   
-  #World of steel
+  # Steel Production ----
   worldsteel <- readSource('worldsteel', convert = FALSE) %>% 
     madrat_mule() %>% 
     filter(.data$name %in% c('Production in Oxygen-Blown Converters',
@@ -251,34 +251,43 @@ calcHistorical <- function() {
            .data$iso3c %in% (toolGetMapping(name = getConfig('regionmapping'), 
                                             type = 'regional') %>% 
                                pull('CountryCode'))) %>% 
+    # kt/year * 1e-3 Mt/kt = Mt/year
+    mutate(value = .data$value * 1e-3) %>% 
     pivot_wider(values_fill = 0) %>% 
     mutate(
-
-            `Production|Industry|Steel (Mt)` 
-      = (.data$`Production in Oxygen-Blown Converters`
+      `Production|Industry|Steel (Mt/yr)` 
+      = .data$`Production in Oxygen-Blown Converters`
       + .data$`Production in Open Hearth Furnaces`
-      + .data$`Production in Electric Arc Furnaces`)
-      *1e-3,
+      + .data$`Production in Electric Arc Furnaces`,
       
-      `Production|Industry|Steel|Secondary (Mt)` = 
+      `Production|Industry|Steel|Secondary (Mt/yr)` = 
+        # Secondary steel production is production from EAF that does not use
+        # inputs from DRI.  If mostly DRI is used for EAF, the difference might
+        # be negative (different mass bases due to e.g. carbon content), so 
+        # limit to zero.
         pmax(0,
-             .data$`Production in Electric Arc Furnaces`
-             - .data$`DRI Production`)
-      *1e-3,
+               .data$`Production in Electric Arc Furnaces`
+             - .data$`DRI Production`
+        ),
       
-      `Production|Industry|Steel|Primary (Mt)` 
-      = (.data$`Production|Industry|Steel`
-      - .data$`Production|Industry|Steel|Secondary`)
-      *1e-3
-      
+      `Production|Industry|Steel|Primary (Mt/yr)` 
+      = ( .data$`Production|Industry|Steel (Mt/yr)`
+        - .data$`Production|Industry|Steel|Secondary (Mt/yr)`
+        ),
+      source = 'Worldsteel'
     ) %>% 
-    select('iso3c', 'year', 'Production|Industry|Steel', 
-           'Production|Industry|Steel|Primary', 
-           'Production|Industry|Steel|Secondary') %>% 
-    pivot_longer(c('Production|Industry|Steel', 
-                   'Production|Industry|Steel|Primary', 
-                   'Production|Industry|Steel|Secondary')) %>% 
-    as.magpie(spatial = 1, temporal = 2, data = 4)
+    select('iso3c', 'year', 'source', 'Production|Industry|Steel (Mt/yr)', 
+           'Production|Industry|Steel|Primary (Mt/yr)', 
+           'Production|Industry|Steel|Secondary (Mt/yr)') %>% 
+    pivot_longer(c('Production|Industry|Steel (Mt/yr)', 
+                   'Production|Industry|Steel|Primary (Mt/yr)', 
+                   'Production|Industry|Steel|Secondary (Mt/yr)')) %>% 
+    complete(nesting(!!!syms(c('year', 'source', 'name'))),
+             iso3c = toolGetMapping(name = getConfig('regionmapping'), 
+                                    type = 'regional') %>% 
+               pull('CountryCode'), 
+             fill = list(value = 0)) %>% 
+    as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
                 
   
 
