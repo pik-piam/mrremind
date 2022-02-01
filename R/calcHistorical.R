@@ -235,10 +235,6 @@ calcHistorical <- function() {
   BP <- calcOutput("BP", aggregate = FALSE)
   BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
-  # currently we don't include global data because regional disaggregation is too unprecise to 
-  # compare the data on any other than global level
-  # WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
-  
   WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
 
   #====== start: blow up to union of years ===================

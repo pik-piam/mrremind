@@ -12,6 +12,10 @@
 
 
 calcIEA_WEO_2021 <- function(subtype = "GLO") {
+  if (!subtype %in% c("GLO", "regional")) {
+    stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
+  }
+
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")")) %>%
@@ -46,11 +50,9 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
   ) %>%
     filter(!!sym("REMIND") != "") %>%
     mutate(
-      !!sym("value") := ifelse(
-        is.na(!!sym("value")), 0, !!sym("value") * !!sym("Conversion")
-      ),
+      !!sym("value") := !!sym("value") * !!sym("Conversion"),
       !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
-      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short"), " ", subtype)
+      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short"))
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
