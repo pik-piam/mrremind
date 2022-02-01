@@ -6,7 +6,7 @@
 #' @param rel relation matrix containing a region mapping.
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
-#' 
+#' @param weight aggregation weight (should be FE|Electricity (EJ/yr) in 2015)
 #' @return return: returns region aggregated solar data
 #' 
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
@@ -22,8 +22,7 @@
 #' @importFrom utils packageVersion
 
 
-toolSolarFunctionAggregate <- function(x, rel=NULL){
-  
+toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", aggregate = FALSE)[,"y2015","FE|Electricity (EJ/yr)"]){
   
   # old part by Julian Oeser
   
@@ -154,12 +153,9 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   techs <- c("CSP", "PV") # technologies to aggregate
   dist <- "1-100red" # distance class to aggregate
 
-  # get 2015 FE electricity from IEA for iso-countries
-  IEA.FE <- calcOutput("FE")[,"y2015","FE|Electricity (EJ/yr)"]
-
   # reference for grade distinction = 2015 production
   # assign 0.01 EJ/yr as reference for grade distinction to countries with zero 2015 production
-  MaxProd.Norm <- IEA.FE
+  MaxProd.Norm <- toolAggregate(weight, rel)
   MaxProd.Norm[MaxProd.Norm == 0] <- 0.01 
 
   # convert data to quitte format because more convenient for the following operations

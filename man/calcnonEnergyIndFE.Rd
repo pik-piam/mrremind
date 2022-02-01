@@ -7,7 +7,7 @@
 calcnonEnergyIndFE()
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Final energy demand for feedstocks (non-energy use)

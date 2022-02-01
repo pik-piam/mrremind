@@ -7,7 +7,7 @@
 calcClinker_to_cement_ratio()
 }
 \value{
-A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},
+A list with a \code{\link[magclass:magclass]{magpie}} object \code{x}, \code{weight},
 \code{unit}, and \code{description}.
 }
 \description{
