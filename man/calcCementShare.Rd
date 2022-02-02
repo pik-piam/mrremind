@@ -7,7 +7,7 @@
 calcCementShare()
 }
 \value{
-A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},
+A list with a \code{\link[magclass:magclass]{magpie}} object \code{x}, \code{weight},
 \code{unit}, \code{description}, \code{min}, and \code{max}.
 }
 \description{

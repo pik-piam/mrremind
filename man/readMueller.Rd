@@ -16,7 +16,7 @@ Müller et al. 2013 SI2
 }}
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Read data from Müller et al. 2013 (http://dx.doi.org/10.1021/es402618m).

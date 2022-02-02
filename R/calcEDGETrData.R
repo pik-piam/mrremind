@@ -33,7 +33,7 @@ calcEDGETrData <- function() {
   ## run EDGE-T
   EDGETdata = lapply(allscens,
     function(x) {
-      generateEDGEdata(input_folder = paste0(getConfig("mainfolder"), "/sources/EDGE-T_standalone/"),
+      generateEDGEdata(input_folder = paste0(getConfig("sourcefolder"), "/EDGE-T_standalone/"),
                        output_folder = NULL,
                        SSP_scen = x[1],
                        tech_scen = x[2],

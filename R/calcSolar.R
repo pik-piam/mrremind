@@ -57,7 +57,7 @@ calcSolar <- function() {
   x[,,"100-inf"][x[,,"100-inf"]<0] <- 0
   
   return(list(x=x,
-              weight=NULL,
+              weight=calcOutput("FE", aggregate = FALSE)[,"y2015","FE|Electricity (EJ/yr)"],
               unit="Area in km2; Capacity factor in share of year; Energy in EJ",
               description="Area (limitGeopot), Capacity factor (nur) and Energy (maxprod) for photovoltaics (spv) and contentrated solar power (csp)",
               aggregationFunction=toolSolarFunctionAggregate
