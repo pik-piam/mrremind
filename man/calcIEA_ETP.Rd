@@ -7,7 +7,7 @@
 calcIEA_ETP()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculate REMIND emission variables from IEA ETP values

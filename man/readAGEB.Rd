@@ -7,7 +7,7 @@
 readAGEB()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read AGEB

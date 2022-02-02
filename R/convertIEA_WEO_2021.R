@@ -14,7 +14,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     x.world <- x["World", , ]
 
     # to integrate the data in historical.mif, we need to disaggregate to country level
-    # the disaggregation is very unprecise and therefore values below gloabl granularity
+    # the disaggregation is very unprecise and therefore values below global granularity
     # are not reliable
 
     mapping_world <- tibble(
@@ -50,22 +50,20 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
 
       # disaggregation of other regions to iso countries
       x2 <- toolAggregate(x[regions, , ], rel = mapping_regions, weight = weight)
-      x2 <- toolCountryFill(x2, fill = 0, verbosity = 2)
-      x2[is.na(x2)] <- 0
 
       # iso countries in x that do not need to be disaggregated
       x1 <- x[regions, , invert = TRUE]
 
       if (length(getRegions(x1)) == 0) {
-        return(x2)
+        return(toolCountryFill(x2, fill = NA, verbosity = 2))
       }
 
       getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
-      x1 <- toolCountryFill(x1, fill = 0, verbosity = 2)
-      x1[is.na(x1)] <- 0
-      # combine the two objects
-      x <- x1 + x2
 
+      # combine the two objects
+      x <- mbind(x1, x2)
+      x <- toolCountryFill(x, fill = NA, verbosity = 2)
+      
       return(x)
     }
 
@@ -82,7 +80,8 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     # remove 2040 as year, as source has no regional data for this year
     x.reg <- x.reg[, 2040, , invert = T]
 
-    regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe", "Eurasia", "Middle East", "North America")
+    regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe",
+                 "Eurasia", "Middle East", "North America")
 
     x.regional <- new.magpie(getISOlist(), getYears(x.reg), names = NULL)
 
@@ -119,8 +118,12 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     }
 
     x.regional <- x.regional[, , "dummy", invert = T]
+
+    Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
+    x.regional[Non28EUcountries,,] <- 0
+    
     return(x.regional)
   } else {
-    stop("Not a valid subtype!")
+    stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
   }
 }

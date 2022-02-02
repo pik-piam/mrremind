@@ -16,7 +16,7 @@ developments in IAM models - A Modeling Guide for the Cement Industry}
 }}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read ADVANCE WP2 Data

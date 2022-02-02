@@ -7,7 +7,7 @@
 readvanRuijven2016()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read data from van Ruijven et al. 2016,
