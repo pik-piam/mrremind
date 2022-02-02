@@ -7,11 +7,11 @@
 convertAGEB(x)
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass]{magpie}} object returned from
+\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
 \code{\link[=readJRC_IDEES]{readJRC_IDEES()}}.}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Convert AGEB data

@@ -65,7 +65,7 @@ convertIEA_ETP <- function(x, subtype) {
   # for variables with OECD/nonOECD data and addtl. region and country data
   # 1) we disaggregate the more fine-granular regions ASEAN and European Union first
   # 2) then calculate the values for the OECD/nonOECD regions minus the values for explicitly listed countries/regions
-  # and disaggregate them to the countries not listed explicity
+  # and disaggregate them to the countries not listed explicitly
   x.full[getItems(x.asean, dim = 1), , v.full] <- x.asean
   x.full[getItems(x.eu, dim = 1), , v.full] <- x.eu
   x.full[getItems(x.ctry, dim = 1), , v.full] <- x.ctry

@@ -7,7 +7,7 @@
 calcIEA_EVOutlook()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculate REMIND variables from IEA EV Outlook data

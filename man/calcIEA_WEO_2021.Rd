@@ -10,7 +10,7 @@ calcIEA_WEO_2021(subtype = "GLO")
 \item{subtype}{Either "GLO" or "regional"}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculate REMIND variables from IEA WEO 2021 data

@@ -7,7 +7,7 @@
 calcShareIndFE()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculates industry subsector shares in final energy carrier use for the

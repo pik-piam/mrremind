@@ -19,7 +19,7 @@ readJRC_IDEES(subtype)
 }}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read the \href{https://data.jrc.ec.europa.eu/dataset/jrc-10110-10001/resource/f590b6f1-60e5-49a6-a972-60bc2b2e34b3}{IDEES data base from JRC}

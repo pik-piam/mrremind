@@ -118,6 +118,10 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     }
 
     x.regional <- x.regional[, , "dummy", invert = T]
+
+    Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
+    x.regional[Non28EUcountries,,] <- 0
+    
     return(x.regional)
   } else {
     stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
