@@ -177,8 +177,6 @@ calcHistorical <- function() {
   ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop, 
                                                 dim = 3.1, add = "model", nm = "ARIADNE")
 
-  IEA_ETP <- calcOutput("IEA_ETP", aggregate = F)
-  
   IEA_EVOutlook <- calcOutput("IEA_EVOutlook", aggregate = F)
 
   # Calculate Emission Reference Values
@@ -235,8 +233,6 @@ calcHistorical <- function() {
   BP <- calcOutput("BP", aggregate = FALSE)
   BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
-  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
-  
   # Steel Production ----
   worldsteel <- readSource('worldsteel', convert = FALSE) %>% 
     madrat_mule() %>% 
@@ -294,7 +290,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, worldsteel, WEO_2021)
+                  IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, worldsteel)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
