@@ -1,3 +1,4 @@
+#' Gather global reference data from various sources. Call this function with aggregate = "global".
 #' @importFrom magclass setNames getNames getSets add_columns
 #' @importFrom luscale rename_dimnames
 #' @importFrom madrat getISOlist

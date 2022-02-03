@@ -1,3 +1,4 @@
+#' Gather reference data from various sources.
 #' @importFrom magclass setNames getNames getSets add_columns
 #' @importFrom luscale rename_dimnames
 

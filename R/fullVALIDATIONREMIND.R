@@ -21,6 +21,5 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput("HistoricalGlobal", round = 5,  file = "historical_global.mif", aggregate = "global")
   
   calcOutput("HistoricalRegion", round = 5,  file = "historical_region.mif", aggregate = "region")
-  
 
-}
+  }
