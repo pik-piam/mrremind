@@ -26,6 +26,7 @@
 #' @importFrom quitte add_countrycode_ madrat_mule
 #' @importFrom readr read_delim
 #' @importFrom readODS read_ods
+#' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
 #' @importFrom tidyr pivot_longer
 #' 
@@ -36,6 +37,8 @@ readworldsteel <- function(subtype = 'detailed') {
   # ---- list all available subtypes with functions doing all the work ----
   switchboard <- list(
     'detailed' = function() {
+      . <- NULL
+
       d <- lapply(
         # read these worksheets
         c('Pig Iron Production',
@@ -80,8 +83,9 @@ readworldsteel <- function(subtype = 'detailed') {
       
       # split historic aggregates into current countries
       d %>% 
+        complete(crossing(!!!syms(setdiff(colnames(.), 'value'))),
+                 fill = list(value = 0)) %>% 
         as.magpie(spatial = 1, temporal = 2, tidy = TRUE) %>% 
-        replace_na(0) %>% 
         toolISOhistorical(
           mapping = read_delim(
             file = system.file('extdata', 'ISOhistorical.csv', 
