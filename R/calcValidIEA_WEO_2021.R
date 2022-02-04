@@ -10,8 +10,8 @@
 #' @importFrom rlang sym
 #' @export
 
+calcValidIEA_WEO_2021 <- function(subtype = "GLO") {
 
-calcIEA_WEO_2021 <- function(subtype = "GLO") {
   if (!subtype %in% c("GLO", "regional")) {
     stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
   }
@@ -74,6 +74,8 @@ calcIEA_WEO_2021 <- function(subtype = "GLO") {
     x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
   }
+  
+  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
 
   return(list(
     x = x,

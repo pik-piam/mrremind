@@ -16,10 +16,21 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   #-------------- historical data ---------------------------------------------------------------------
   
-  calcOutput("Historical", round = 5,  file = "historical.mif", aggregate = "region+global+missingH12")
+  valfile <- "historical.mif"
   
-  calcOutput("HistoricalGlobal", round = 5,  file = "historical_global.mif", aggregate = "global")
+  calcOutput("Historical", round = 5,  file = valfile, aggregate = "region+global+missingH12",
+             append = FALSE, na_warning = FALSE, try = TRUE)
   
-  calcOutput("HistoricalRegion", round = 5,  file = "historical_region.mif", aggregate = "region")
+  calcOutput(type = "ValidIEA_ETP", aggregate = "GLO", file = valfile,
+             append = TRUE, na_warning = FALSE, try = TRUE, varSet = "all")
+  
+  calcOutput(type = "ValidIEA_ETP", aggregate = "region", file = valfile,
+             append = TRUE, na_warning = FALSE, try = TRUE, varSet = "only_regi_meaningful")
 
-  }
+  calcOutput(type = "ValidIEA_WEO_2021", aggregate = "GLO", file = valfile,
+             append = TRUE, na_warning = FALSE, try = TRUE, subtype = "GLO")
+  
+  calcOutput(type = "ValidIEA_WEO_2021", aggregate = "region", file = valfile,
+             append = TRUE, na_warning = FALSE, try = TRUE, subtype = "regional")
+
+}
