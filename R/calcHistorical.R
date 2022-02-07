@@ -186,15 +186,20 @@ calcHistorical <- function() {
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
   
   # Eurostat emissions
-  EUcountries <- c("ALA","AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FRO","FIN","FRA","DEU","GIB","GRC","GGY","HUN","IRL","IMN","ITA","JEY","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE","GBR")
-  eurostatEmi <- readSource(type="Eurostat",subtype="emissions")
-  eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)],,] <- NA 
-  emiEurostatEU <- eurostatEmi[EUcountries,,]
+  EUcountries <- c("ALA", "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FRO", "FIN", "FRA", "DEU", "GIB", "GRC", "GGY", "HUN", "IRL", "IMN", "ITA", "JEY", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "GBR")
+  eurostatEmi <- readSource(type = "Eurostat", subtype = "emissions")
+  eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)], , ] <- NA
+  emiEurostatEU <- eurostatEmi[EUcountries, , ]
   emiEurostatEU[is.na(emiEurostatEU)] <- 0
   emiEurostat <- NULL
+  # conversion factors between CO2eq and N2O / CH4 are derived by Eurostat webtool comparison
   emiEurostat <- mbind(
-    setNames(eurostatEmi[,,"CH4.All sectors (excluding memo items)"],"Emi|CH4 (Mt CH4/yr)")/28,
-    setNames(eurostatEmi[,,"N2O.All sectors (excluding memo items)"],"Emi|N2O (kt N2O/yr)")/(265 * 44 / 28)*1000 
+    setNames(eurostatEmi[, , "CH4_native.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)"),
+    setNames(eurostatEmi[, , "N2O_native.Total (excluding memo items)"], "Emi|N2O (kt N2O/yr)") * 1000,
+    setNames(eurostatEmi[, , "GHG.Land use, land use change, and forestry (LULUCF)"], "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"),
+    setNames(eurostatEmi[, , "CO2.Land use, land use change, and forestry (LULUCF)"], "Emi|CO2|Land-Use Change (Mt CO2/yr)"),
+    setNames(eurostatEmi[, , "CH4_native.Land use, land use change, and forestry (LULUCF)"], "Emi|CH4|Land-Use Change (Mt CH4/yr)"),
+    setNames(eurostatEmi[, , "N2O_native.Land use, land use change, and forestry (LULUCF)"], "Emi|N2O|Land-Use Change (kt N2O/yr)") * 1000
   )
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
   
@@ -227,21 +232,60 @@ calcHistorical <- function() {
   UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
   
   # BP data
-  BP_Emi <- calcOutput("BP", subtype = "Emission", aggregate = FALSE)
-  BP_Emi <- add_dimension(BP_Emi, dim = 3.1, add = "model", nm = "BP")
-  BP_Cap <- calcOutput("BP", subtype = "Capacity", aggregate = FALSE)
-  BP_Cap <- add_dimension(BP_Cap, dim = 3.1, add = "model", nm = "BP")
-  BP_Gen <- calcOutput("BP", subtype = "Generation", aggregate = FALSE)
-  BP_Gen <- add_dimension(BP_Gen, dim = 3.1, add = "model", nm = "BP")
-  BP_Consump <- calcOutput("BP", subtype = "Consumption", aggregate = FALSE)
-  BP_Consump <- add_dimension(BP_Consump, dim = 3.1, add = "model", nm = "BP")
-  BP_Trad <- calcOutput("BP", subtype = "Trade", aggregate = FALSE)
-  BP_Trad <- add_dimension(BP_Trad, dim = 3.1, add = "model", nm = "BP")
-  BP_Price <- calcOutput("BP", subtype = "Price", aggregate = FALSE)
-  BP_Price <- add_dimension(BP_Price, dim = 3.1, add = "model", nm = "BP")
+  BP <- calcOutput("BP", aggregate = FALSE)
+  BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
-  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "GLO", aggregate = F)
-  WEO_2021_reg <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
+  WEO_2021 <- calcOutput("IEA_WEO_2021", subtype = "regional", aggregate = F)
+  
+  # Steel Production ----
+  worldsteel <- readSource('worldsteel', convert = FALSE) %>% 
+    madrat_mule() %>% 
+    filter(.data$name %in% c('Production in Oxygen-Blown Converters',
+                             'Production in Open Hearth Furnaces',
+                             'DRI Production',
+                             'Production in Electric Arc Furnaces'),
+           .data$iso3c %in% (toolGetMapping(name = getConfig('regionmapping'), 
+                                            type = 'regional') %>% 
+                               pull('CountryCode'))) %>% 
+    # kt/year * 1e-3 Mt/kt = Mt/year
+    mutate(value = .data$value * 1e-3) %>% 
+    pivot_wider(values_fill = 0) %>% 
+    mutate(
+      `Production|Industry|Steel (Mt/yr)` 
+      = .data$`Production in Oxygen-Blown Converters`
+      + .data$`Production in Open Hearth Furnaces`
+      + .data$`Production in Electric Arc Furnaces`,
+      
+      `Production|Industry|Steel|Secondary (Mt/yr)` = 
+        # Secondary steel production is production from EAF that does not use
+        # inputs from DRI.  If mostly DRI is used for EAF, the difference might
+        # be negative (different mass bases due to e.g. carbon content), so 
+        # limit to zero.
+        pmax(0,
+               .data$`Production in Electric Arc Furnaces`
+             - .data$`DRI Production`
+        ),
+      
+      `Production|Industry|Steel|Primary (Mt/yr)` 
+      = ( .data$`Production|Industry|Steel (Mt/yr)`
+        - .data$`Production|Industry|Steel|Secondary (Mt/yr)`
+        ),
+      source = 'Worldsteel'
+    ) %>% 
+    select('iso3c', 'year', 'source', 'Production|Industry|Steel (Mt/yr)', 
+           'Production|Industry|Steel|Primary (Mt/yr)', 
+           'Production|Industry|Steel|Secondary (Mt/yr)') %>% 
+    pivot_longer(c('Production|Industry|Steel (Mt/yr)', 
+                   'Production|Industry|Steel|Primary (Mt/yr)', 
+                   'Production|Industry|Steel|Secondary (Mt/yr)')) %>% 
+    complete(nesting(!!!syms(c('year', 'source', 'name'))),
+             iso3c = toolGetMapping(name = getConfig('regionmapping'), 
+                                    type = 'regional') %>% 
+               pull('CountryCode'), 
+             fill = list(value = 0)) %>% 
+    as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
+                
+  
 
   #====== start: blow up to union of years ===================
   # find all existing years (y) and variable names (n) 
@@ -250,8 +294,7 @@ calcHistorical <- function() {
                   LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers, 
                   EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
                   ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC,
-                  BP_Emi, BP_Cap, BP_Gen, BP_Consump, BP_Trad, BP_Price, WEO_2021, WEO_2021_reg)
+                  IEA_ETP, IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, worldsteel, WEO_2021)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
@@ -259,8 +302,8 @@ calcHistorical <- function() {
   
   # create empty object with full temporal, regional and data dimensionality
   data <- new.magpie(getRegions(fe_iea),y,n,fill=NA)
-  getSets(data)[3]<- "model"
-  getSets(data)[4]<- "variable"
+  getSets(data)[3] <- "model"
+  getSets(data)[4] <- "variable"
 
   # transfer data of existing years
   for (i in varlist) {

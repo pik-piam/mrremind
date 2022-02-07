@@ -52,6 +52,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("NetForeignAsset",                       round = 6,  file = "pm_nfa_start.cs4r")
   calcOutput("Theil",                                 round = 8,  file = "f_ineqTheil.cs4r")
   calcOutput("DevelopmentState",                      round = 4,  file = "f_developmentState.cs3r")
+  calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f50_pop.cs3r", aggregate = FALSE)
+  calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f50_gdp.cs3r", aggregate = FALSE)
 
   #-------------- energy services parameter -----------------------------------------------------------
   calcOutput("FEdemand", subtype = "EsUeFe_in",       round = 8, file = "p36_serviceInputs.cs4r")
@@ -164,7 +166,7 @@ fullREMIND <- function(rev = 0) {
   calcOutput("TransportSubsidies",                        round = 8,  file = "f21_vehiclesSubsidies.cs4r")
 
   #-------------- historical data ---------------------------------------------------------------------
-  calcOutput("Historical", round = 5,  file = "historical.mif", aggregate = "region+global+missingH12")
+  # has been moved to separate function mrremind::fullVALIDATIONREMIND
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",

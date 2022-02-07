@@ -13,7 +13,8 @@
 #' }
 #' 
 #' @importFrom dplyr %>% 
-#' @importFrom tidyr unite_
+#' @importFrom tidyr unite
+#' @importFrom tidyselect all_of
 
 calcIEA_PFU <- function() {
   
@@ -31,7 +32,7 @@ calcIEA_PFU <- function() {
   #delete NAs rows
   ieamatch = ieamatch[c("iea_product","iea_flows",target)] %>% na.omit()
   #
-  ieamatch = ieamatch %>% unite_("target",target, sep = ".")
+  ieamatch = ieamatch %>% unite('target', all_of(target), sep = '.')
   magpnames = ieamatch[["target"]]
   magpnames <- unique(magpnames)
   

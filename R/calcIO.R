@@ -23,7 +23,8 @@
 #' 
 #' @importFrom rlang .data
 #' @importFrom dplyr %>% filter mutate
-#' @importFrom tidyr unite_
+#' @importFrom tidyr unite
+#' @importFrom tidyselect all_of
 
 calcIO <- function(subtype) {
   
@@ -86,12 +87,12 @@ calcIO <- function(subtype) {
   #delete NAs rows
   ieamatch = ieamatch[c("iea_product","iea_flows",target,"Weight")] %>% na.omit()
   #
-  ieamatch = ieamatch %>% unite_("target",target, sep = ".")
+  ieamatch = ieamatch %>% unite('target', all_of(target), sep = '.')
   magpnames = ieamatch[["target"]]
   magpnames <- unique(magpnames)
   
   if ('output_Industry_subsectors' == subtype) {
-    # apply corrections to IEA data to cope with fragmentary time series
+    # apply corrections to IEA data to cope with fragmentary time series ----
     data <- fix_IEA_data_for_Industry_subsectors(data, ieamatch)
   }
   if (subtype == "output_biomass"){
