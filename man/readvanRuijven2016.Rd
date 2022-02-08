@@ -13,7 +13,8 @@ A \code{\link[magclass:magclass-package]{magpie}} object.
 Read data from van Ruijven et al. 2016,
 (http://dx.doi.org/10.1016/j.resconrec.2016.04.016,
 https://www.zotero.org/groups/52011/rd3/items/itemKey/6QMNBEHQ), obtained
-through personal communication (e-mail to Michaja Pehl).
+through personal communication (e-mail to Michaja Pehl).  Units are tonnes
+per year.
 }
 \seealso{
 \code{\link[=readSource]{readSource()}}
