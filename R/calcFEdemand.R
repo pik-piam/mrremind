@@ -922,7 +922,7 @@ calcFEdemand <- function(subtype = "FE") {
       complete(nesting(!!!syms(c('region', 'subsector', 'fety'))),
                year = unique(.data$year)) %>% 
       interpolate_missing_periods_(
-        periods = list(year = unique(.data$year))) %>% 
+        periods = list(year = unique(.$year))) %>% 
       # calculate otherInd as total - cement - chemicals - steel
       pivot_wider(names_from = 'subsector', values_fill = 0) %>% 
       mutate(otherInd = .data$total 
