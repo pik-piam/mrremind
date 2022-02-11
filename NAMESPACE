@@ -217,11 +217,8 @@ importFrom(stats,complete.cases)
 importFrom(stats,lm)
 importFrom(stats,na.exclude)
 importFrom(stats,na.omit)
-<<<<<<< HEAD
 importFrom(stats,na.pass)
-=======
 importFrom(stats,nls)
->>>>>>> c34cc73 (stash stuff)
 importFrom(stats,qnorm)
 importFrom(stats,reshape)
 importFrom(stats,uniroot)
