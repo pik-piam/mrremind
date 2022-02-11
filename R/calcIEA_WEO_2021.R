@@ -2,7 +2,8 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "GLO" or "regional"
+#' @param subtype Either "GLO" or "regional", i.e. global or regional data from source
+#' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
 #' @importFrom madrat toolGetMapping
@@ -10,8 +11,7 @@
 #' @importFrom rlang sym
 #' @export
 
-calcValidIEA_WEO_2021 <- function(subtype = "GLO") {
-
+calcIEA_WEO_2021 <- function(subtype = "GLO", isValidation = FALSE) {
   if (!subtype %in% c("GLO", "regional")) {
     stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
   }
@@ -74,11 +74,14 @@ calcValidIEA_WEO_2021 <- function(subtype = "GLO") {
     x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
   }
-  
-  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
+
+  if (isValidation) {
+    x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
+  }
 
   return(list(
     x = x,
+    weight = NULL,
     unit = c("GW", "EJ/yr", "Mt CO2/yr"),
     description = "IEA WEO 2021 values as REMIND variables"
   ))

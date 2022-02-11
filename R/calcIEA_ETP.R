@@ -5,6 +5,8 @@
 #'
 #' @author Falk Benke
 #'
+#' @param filterOutput either "only_regi_meaningful" to filter variables that are too imprecise on regional level, or NULL
+#' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
@@ -12,7 +14,7 @@
 #' @importFrom stats aggregate na.pass
 #' @export
 
-calcIEA_ETP <- function() {
+calcIEA_ETP <- function(filterOutput = NULL, isValidation = FALSE) {
   
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
@@ -52,6 +54,18 @@ calcIEA_ETP <- function() {
   
   x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.pass) %>%
     as.magpie()
+  
+  
+  if (!is.null(filterOutput) && filterOutput == "only_regi_meaningful") {
+    x <- x[, , c(
+      "Production|Industry|Cement (Mt/yr)",
+      "Production|Industry|Steel (Mt/yr"
+    ), pmatch = T, invert = T]
+  }
+  
+  if (isValidation) {
+    x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
+  }
 
   return(list(
     x = x, 
