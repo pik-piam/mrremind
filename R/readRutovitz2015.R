@@ -1,6 +1,7 @@
 #' Employment factors for various power production technologies from Rutovitz et al. 2015
+#' @description Rutovitz, J., Dominish, E., & Downes, J. (2015). Calculating global energy sector jobs—2015 methodology update. Institute for Sustainable Futures, University of Technology, Sydney. https://opus.lib.uts.edu.au/bitstream/10453/43718/1/Rutovitzetal2015Calculatingglobalenergysectorjobsmethodology.pdf
 #' @author Aman Malik
-#' @importFrom  tidyr gather_
+#' @importFrom  tidyr pivot_longer
 #' @importFrom dplyr rename add_row filter_ mutate_ select_ left_join filter mutate
 #' @importFrom readr read_csv
 #' @importFrom mgsub mgsub
@@ -34,10 +35,9 @@ readRutovitz2015 <- function(subtype){
       add_row(tech="BiomassHP",duration=2,CI=14,Manf=2.9,OM=1.5*1.5,Fuel_supply="Regional") %>% 
       add_row(tech="Oil",CI=1.3,Manf=0.93,OM=0.14,Fuel_supply="Regional",duration=2) %>% # oil EF= Gas EF as in rutovitz
       filter(!tech %in% grep("Ocean|decommissioning|heat|diesel",
-                             x =tech,value=T)) %>%  # removing not relevant techs 
+                             x =tech,value=T)) %>%  # removing  techs not relevant
       mutate(tech=mgsub::mgsub(tech, c("Solar Photovoltaics","Solar thermal"),
                              c("Solar|PV","Solar|CSP"))) %>%  ## renaming techs
-      #mutate_at(vars(CI,Manf,OM,duration),as.numeric) %>% 
       mutate(across(c(CI,Manf,OM,duration),as.numeric)) %>% 
       mutate(Fuel_supply=ifelse(Fuel_supply == "0.001 jobs/GWh final demand",0.001,Fuel_supply))  %>% 
       #mutate_(CI=~CI/duration) %>% # dividing employment intensity by construction period
@@ -58,17 +58,16 @@ readRutovitz2015 <- function(subtype){
   if (subtype == "regional_ef")
     {
     
-  #const <- data.frame(tech=c("Nuclear","Biomass","Hydro","Wind","Solar|PV","Solar|CSP","Wind offshore"),
-       #                 duration=c(10,2,2,2,1,2,4))
-  input <- read_csv("regional_ef.csv",na="") %>%
-    rename(tech=1,region=2,CI=3,Manf=4,OM=5,Fuel_supply=6) %>%
-    filter(!is.na(tech)) %>%
-    mutate(across(c(tech,region),as.character)) %>%
-    mutate(across(c(CI,Manf,OM,Fuel_supply),as.numeric)) %>%
+
+  input <- read_csv("regional_ef.csv",na="",col_types = "ccdddd") %>% 
+    rename(tech=1,region=2,CI=3,Manf=4,OM=5,Fuel_supply=6) %>% 
+    filter(!is.na(tech)) %>% 
+ #   mutate(across(c(tech,region),as.character)) %>%
+  #  mutate(across(c(CI,Manf,OM,Fuel_supply),as.numeric)) %>%
     mutate(tech=mgsub::mgsub(tech, c("Solar PV","Solar Thermal power","Wind-offshore","Wind-onshore"),
-                                   c("Solar|PV","Solar|CSP","Wind offshore","Wind onshore"))) %>%
-    gather_(gather_cols= c("CI","Manf","OM","Fuel_supply","value"),key_col = "activity",value_col= "value") %>% 
-    filter(!grepl("average",region))%>% 
+                                   c("Solar|PV","Solar|CSP","Wind offshore","Wind onshore"))) %>% 
+    pivot_longer(c("CI","Manf","OM","Fuel_supply"),names_to = "activity",values_to = "value") %>% 
+    filter(!grepl("average",region)) %>%  # removed OECD average values
     na.omit() %>% 
     #left_join(const,by="tech") %>% 
     #mutate(region=ifelse(region=="OECD North America","OECD Americas",region))
@@ -83,7 +82,7 @@ readRutovitz2015 <- function(subtype){
 
   if(subtype=="coal_ef")
     {
-   input <- read_csv("coal_ef.csv",na="") %>% 
+   input <- read_csv("coal_ef.csv",col_types = "cddd") %>% 
      select(-Year,-Productivity) %>% 
      rename(region=1,value=2) %>% 
      filter(!is.na(region)) %>% 
@@ -102,12 +101,10 @@ readRutovitz2015 <- function(subtype){
 
   if(subtype=="gas_ef")
     {
-  input2 <- data.frame(region=c("India","Latin America","Developing Asia","Middle East"),value=15.1)
-  
-  input <- read_csv("gas_ef.csv",na="") %>% 
+  input <- read_csv("gas_ef.csv",na="",col_types = "cdcc") %>% 
     rename(region=1,value=2,notes=3) %>% 
-    select(-notes)  %>% 
-    rbind(input2) %>% 
+    select(-notes,-Sources) %>% 
+    rbind(data.frame(region=c("India","Latin America","Developing Asia","Middle East"),value=15.1)) %>% # using world average values from dataset
     filter(!is.na(value)) %>% 
     filter(!grepl("World",region))  %>% 
     mutate(region=ifelse(region=="Eastern Europe/Eurasia","Eurasia",region)) %>% 
@@ -121,9 +118,8 @@ readRutovitz2015 <- function(subtype){
   return(x)  
 }  
   if(subtype=="regional_mult"){
-    input <- read_csv("regional_mult.csv",na="") %>% 
-    rename(region=1) %>% 
-    gather(2:4,key="year",value="value") %>% 
+    input <- read_csv("regional_mult.csv",na="",col_types = "c") %>% 
+    pivot_longer(cols = c(`2015`,`2020`,`2030`), names_to = "year") %>% 
     mutate(region=ifelse(region=="Eastern Europe/Eurasia","Eurasia",region))
   
   x <- as.magpie(input,spatial=1,temporal=2)
