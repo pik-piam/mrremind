@@ -700,16 +700,34 @@ calcFEdemand <- function(subtype = "FE") {
     
     # ---- Industry subsectors data and FE stubs ----
     ## subsector activity projections ----
+    China_Production <-  tribble(
+      ~period,   ~total.production,
+      2005,       375,
+      2010,       640,
+      2015,       820,
+      2020,      1000,
+      2025,      1000,
+      2030,       875,
+      2035,       650,
+      2040,       500,
+      2045,       425,
+      2050,       400)
+    
     industry_subsectors_ue <- mbind(
       calcOutput(type = 'Industry_Value_Added',
                  match.steel.historic.value = TRUE,
-                 match.steel.estimates = 'IEA_ETP', aggregate = FALSE,
+                 match.steel.estimates = 'IEA_ETP', 
+                 China_Production = China_Production,
+                 aggregate = FALSE,
                  years = getYears(reminditems), supplementary = FALSE),
-
-      calcOutput(type = 'Steel_Projections', match.steel.historic.value = TRUE,
-                 match.steel.estimates = 'IEA_ETP', aggregate = FALSE,
+      
+      calcOutput(type = 'Steel_Projections', 
+                 match.steel.historic.value = TRUE,
+                 match.steel.estimates = 'IEA_ETP', 
+                 China_Production = China_Production,
+                 aggregate = FALSE,
                  years = getYears(reminditems), supplementary = FALSE)
-      )
+    )
 
     ### extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also

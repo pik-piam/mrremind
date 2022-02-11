@@ -16,6 +16,9 @@
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
 #' @param save.plots Save plots to `getConfig('outputfolder')`?
+#' @param China_Production A data frame with columns `period` and 
+#'     `total.production` prescribing total production for China to have, 
+#'     disregarding results from the stock saturation model.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -29,12 +32,14 @@
 #' @importFrom car logit
 #' @importFrom dplyr %>% case_when right_join semi_join
 #' @importFrom Hmisc wtd.quantile
-#' @importFrom ggplot2 aes expand_limits facet_wrap geom_path geom_point ggplot 
-#'   labs scale_linetype_manual scale_shape_manual
+#' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line 
+#'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete 
+#'   scale_linetype_manual scale_shape_manual theme theme_minimal 
 #' @importFrom madrat calcOutput readSource toolGetMapping
 #' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame 
-#'   madrat_mule sum_total_
-#' @importFrom stats SSlogis nls
+#'   madrat_mule order.levels sum_total_
+#' @importFrom readr write_rds
+#' @importFrom stats nls SSlogis sd
 #' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom zoo na.approx rollmean
 
@@ -52,9 +57,100 @@ calcSteel_Projections <- function(subtype = 'production',
 
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
-  load('./R/sysdata.rda')
+  EDGE_scenario_switches <- bind_rows(
+    tribble(
+      ~scenario,   ~`EDGE-Industry_steel.stock.estimate`,
+      'SDP',       'low',
+      'SDP_EI',    'low',
+      'SDP_MC',    'low',
+      'SDP_RC',    'low',
+      'SSP1',      'low',
+      'SSP2',      'med',
+      'SSP2EU',    'med',  
+      'SSP3',      'med',
+      'SSP4',      'med',
+      'SSP5',      'high') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    tribble(
+      ~scenario,   ~`EDGE-Industry_scenario.mask.OECD`,
+      'SSP4',      'SSP2') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    tribble(
+      ~scenario,   ~`EDGE-Industry_scenario.mask.non-OECD`,
+      'SSP4',      'SSP1') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    # steel stock lifetime convergence ----
+    tribble(
+      ~scenario,   ~`EDGE-Industry_steel.stock.lifetime.base.scenario`,
+      'SDP',       'SSP2',
+      'SDP_EI',    'SSP2',
+      'SDP_MC',    'SSP2',
+      'SDP_RC',    'SSP2',
+      'SSP1',      'SSP2',
+      'SSP2',      'SSP2',
+      'SSP2EU',    'SSP2',  
+      'SSP3',      'SSP2',
+      'SSP4',      'SSP4',
+      'SSP5',      'SSP2') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    tribble(
+      ~scenario,   ~`EDGE-Industry_steel.stock.lifetime.convergence.year`,
+      'SDP',       '2100',
+      'SDP_EI',    '2100',
+      'SDP_MC',    '2100',
+      'SDP_RC',    '2100',
+      'SSP1',      '2100',
+      'SSP2',      '2100',
+      'SSP2EU',    '2100',  
+      'SSP3',      '2100',
+      'SSP4',      '2010',
+      'SSP5',      '2100') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    tribble(
+      ~scenario,   ~`EDGE-Industry_steel.stock.lifetime.convergence.factor`,
+      'SDP',       '1.25',
+      'SDP_EI',    '1.25',
+      'SDP_MC',    '1.25',
+      'SDP_RC',    '1.25',
+      'SSP1',      '1.25',
+      'SSP2',      '1',
+      'SSP2EU',    '1',  
+      'SSP3',      '1',
+      'SSP4',      '1',
+      'SSP5',      '0.75') %>% 
+      pivot_longer(-'scenario', names_to = 'switch'),
+    
+    # secondary steel share limits ----
+    # Linear convergence from the historic value in the year <from> to the value
+    # <target> in the year <by>.
+    # Corresponds to code in 
+    # REMIND:/modules/37_industry/subsectors/datainput.gms
+    tribble(
+      ~scenario,   ~from,   ~by,   ~target,
+      'SDP',       2015,    2050,   0.9,
+      'SDP_EI',    2015,    2050,   0.9,
+      'SDP_MC',    2015,    2050,   0.9,
+      'SDP_RC',    2015,    2050,   0.9,
+      'SSP1',      2015,    2050,   0.9,
+      'SSP2',      2015,    2050,   0.9,
+      'SSP2EU',    2015,    2050,   0.9,
+      'SSP3',      2015,    2050,   0.9,
+      'SSP4',      2015,    2050,   0.9,
+      'SSP5',      2015,    2050,   0.9) %>% 
+      pivot_longer(-'scenario', names_to = 'switch', 
+                   values_transform = list(value = as.character)) %>% 
+      mutate(switch = paste0('EDGE-Industry_secondary.steel.max.share.',
+                             switch)),
+    
+    NULL) %>% 
+    pivot_wider(names_from = 'switch')
+  
   `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
@@ -211,8 +307,8 @@ calcSteel_Projections <- function(subtype = 'production',
     regression_parameters <- bind_rows(
       regression_parameters,
       
-      nls(formula = steel.stock.per.capita
-          ~ Asym / (1 + exp((xmid - GDPpC) / scal)),
+      nls(formula = steel.stock.per.capita 
+                  ~ Asym / (1 + exp((xmid - GDPpC) / scal)),
           weights = population,
           data = regression_data %>%
             filter(.estimate == .data$estimate),
@@ -799,10 +895,10 @@ calcSteel_Projections <- function(subtype = 'production',
   if (is.data.frame(China_Production)) {
     production_estimates <- production_estimates %>% 
       ungroup() %>% 
-      select(scenario, iso3c, year, production) %>% 
-      filter('SSP2EU' == scenario, 
-             'CHN' == iso3c,
-             max(steel_historic_prod$year) < year) %>% 
+      select('scenario', 'iso3c', 'year', 'production') %>% 
+      filter('SSP2EU' == .data$scenario, 
+             'CHN' == .data$iso3c,
+             max(steel_historic_prod$year) < .data$year) %>% 
       left_join(
         China_Production %>% 
         interpolate_missing_periods(period = seq_range(range(.$period)),
@@ -812,7 +908,7 @@ calcSteel_Projections <- function(subtype = 'production',
         
         c('year' = 'period')
       ) %>% 
-      mutate(value = total.production / production) %>% 
+      mutate(value = .data$total.production / .data$production) %>% 
       select('iso3c', 'year', 'value') %>% 
       expand_grid(scenario = unique(production_estimates$scenario)) %>% 
       complete(nesting(!!sym('scenario')),
@@ -1046,8 +1142,9 @@ calcSteel_Projections <- function(subtype = 'production',
 #' @rdname EDGE-Industry
 #' @export
 calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
-                                     match.steel.estimates = NULL,
-                                     save.plots = FALSE) {
+                                     match.steel.estimates = 'none',
+                                     save.plots = FALSE,
+                                     China_Production = NULL) {
   
   linetype_scenarios <- c(regression = 'longdash',
                           SSP1       = 'dotted',
@@ -1146,8 +1243,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            population = .data$population * 1e6)
   
   ## GDP data ----
-  GDP <- calcOutput(type = 'GDPppp', FiveYearSteps = FALSE, 
-                    aggregate = FALSE) %>% 
+  GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, aggregate = FALSE) %>% 
     as.data.frame() %>% 
     as_tibble() %>% 
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year, 
@@ -1420,6 +1516,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     calcOutput(type = 'Steel_Projections', 
                match.steel.historic.values = match.steel.historic.values, 
                match.steel.estimates = match.steel.estimates, 
+               China_Production = China_Production,
                aggregate = FALSE, supplementary = FALSE) %>% 
       as.data.frame() %>% 
       as_tibble() %>% 
@@ -1463,17 +1560,19 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     select('region', 'year', 'GDPpC', 'steel.VA.pt')
   
   d_plot_region_totals %>% 
-    filter('SSA' == region) %>% 
+    filter('SSA' == .data$region) %>% 
     select('region', 'steel.VA.pt') %>% 
-    mutate(cuts = cut(
-      x = steel.VA.pt, breaks = seq_range(range(steel.VA.pt), length.out = 31),
+    mutate(cuts = cut(x = .data$steel.VA.pt, 
+                      breaks = seq_range(range(.data$steel.VA.pt), 
+                                         length.out = 31),
       labels = 1:30, include.lowest = TRUE)) %>%
-    group_by(region, cuts) %>% 
+    group_by(!!!syms(c('region', 'cuts'))) %>% 
     summarise(count = n(), .groups = 'drop_last') %>% 
     mutate(cuts = as.integer(.data$cuts)) %>% 
+    ungroup() %>% 
     complete(nesting(!!sym('region')), cuts = 1:30) %>% 
-    mutate(foo = cumsum(is.na(count))) %>% 
-    filter(cumsum(is.na(count)) > 30 / 2) %>% 
+    mutate(foo = cumsum(is.na(.data$count))) %>% 
+    filter(cumsum(is.na(.data$count)) > 30 / 2) %>% 
     head(n = 1) %>% 
     select(-'count', -'foo')
   
@@ -1484,11 +1583,11 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
       select('region', 'GDPpC') %>% 
       group_by(.data$region) %>% 
       filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
-      group_by(.data$region) %>% 
+      ungroup() %>% 
+      
       complete(nesting(!!sym('region')), 
                GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
-                           length.out = 100)) %>% 
-      ungroup(),
+                           length.out = 100)),
     
     'region'
   ) %>% 
@@ -1515,7 +1614,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     filter(.data$GDPpC <= .data$max.GDPpC) %>% 
     select(-'max.GDPpC')
   
-  p <- ggplot(mapping = aes(x = GDPpC / 1000, y = steel.VA.pt)) +
+  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000, 
+                            y = !!sym('steel.VA.pt'))) +
     geom_point(data = d_plot_region_totals,
                mapping = aes(shape = 'region totals')) +
     scale_shape_manual(values = c('region totals' = 'cross'),
@@ -1523,10 +1623,10 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     geom_line(data = d_plot_regression,
               mapping = aes(linetype = 'regression')) +
     geom_line(data = d_plot_projections,
-              mapping = aes(linetype = scenario)) +
+              mapping = aes(linetype = !!sym('scenario'))) +
     scale_linetype_manual(values = linetype_scenarios, name = NULL, 
                           guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ region, scales = 'free') +
+    facet_wrap(~ !!sym('region'), scales = 'free') +
     expand_limits(x = 0, y = 0) +
     labs(x = 'per-capita GDP [1000$/yr]', 
          y = 'specific Steel Value Added [$/t]') +
@@ -1827,7 +1927,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     
     d_plot_projections %>% 
       group_by(.data$scenario, .data$region) %>% 
-      filter(year %in% c(max(d_plot_region_totals$year), max(.data$year))) %>% 
+      filter(.data$year %in% c(max(d_plot_region_totals$year), 
+                               max(.data$year))) %>% 
       select('scenario', 'region', 'year', 'GDPpC'),
     
     'region'
@@ -1846,6 +1947,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
       group_by(.data$region) %>% 
       filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
       mutate(x = c(1, 100)) %>% 
+      ungroup() %>% 
       complete(nesting(!!sym('region')), 
                x = seq(min(!!sym('x')), max(!!sym('x'))), 
                fill = list(GDPpC = NA)) %>% 
@@ -1853,7 +1955,6 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
              + ( (last(.data$GDPpC) - first(.data$GDPpC)) 
                  / (last(.data$x) - first(.data$x)) 
                  * (.data$x - first(.data$x)))) %>% 
-      ungroup() %>% 
       select(-'x'),
     
     'region'
@@ -1865,12 +1966,13 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     
     d_plot_projections %>% 
       group_by(.data$scenario, .data$region) %>% 
-      filter(year %in% c(max(d_plot_region_totals$year), max(.data$year))) %>% 
+      filter(.data$year %in% c(max(d_plot_region_totals$year), 
+                               max(.data$year))) %>% 
       select('scenario', 'region', 'year', 'GDPpC'),
     
     'region'
   ) %>% 
-    mutate(value = a * exp(b / GDPpC))
+    mutate(value = .data$a * exp(.data$b / .data$GDPpC))
   
   y_max <- d_plot_region_totals %>% 
     filter('World' == .data$region) %>% 
@@ -1880,12 +1982,13 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     pull('cement.production.pC')
   
   
-  p <- ggplot(mapping = aes(x = GDPpC / 1000, 
-                       y = cement.production / population)) +
+  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000, 
+                            y = !!sym('cement.production') 
+                              / !!sym('population'))) +
     # plot regression line
     geom_path(
       data = d_plot_regression,
-      mapping = aes(y = value, linetype = 'regression')) +
+      mapping = aes(y = !!sym('value'), linetype = 'regression')) +
     # plot region totals
     geom_point(
       data = d_plot_region_totals,
@@ -1897,13 +2000,13 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     # plot projections
     geom_path(
       data = d_plot_projections,
-      mapping = aes(linetype = scenario)) +
+      mapping = aes(linetype = !!sym('scenario'))) +
     scale_shape_manual(values = c('region totals' = 'cross', 
                                   # 'countries' = '.',
                                   NULL),
                        name = NULL) +
     scale_linetype_manual(values = linetype_scenarios, name = NULL) +
-    facet_wrap(~ region, scales = 'free') +
+    facet_wrap(~ !!sym('region'), scales = 'free') +
     expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
     labs(x = 'per-capita GDP [1000 $/year]', 
          y = 'per-capita Cement Production [tonnes/year]') +
@@ -1939,11 +2042,10 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
       select('region', 'GDPpC') %>% 
       group_by(.data$region) %>% 
       filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
-      group_by(.data$region) %>% 
+      ungroup() %>% 
       complete(nesting(!!sym('region')), 
                GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
-                           length.out = 100)) %>% 
-      ungroup(),
+                           length.out = 100)),
     
     'region'
   ) %>% 
@@ -1972,7 +2074,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     filter(.data$GDPpC <= .data$max.GDPpC) %>% 
     select(-'max.GDPpC')
   
-  p <- ggplot(mapping = aes(x = GDPpC / 1000, y = cement.VA.pt)) +
+  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000, 
+                            y = !!sym('cement.VA.pt'))) +
     geom_point(data = d_plot_region_totals,
                mapping = aes(shape = 'region totals')) +
     scale_shape_manual(values = c('region totals' = 'cross'),
@@ -1980,10 +2083,10 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     geom_line(data = d_plot_regression,
               mapping = aes(linetype = 'regression')) +
     geom_line(data = d_plot_projections,
-              mapping = aes(linetype = scenario)) +
+              mapping = aes(linetype = !!sym('scenario'))) +
     scale_linetype_manual(values = linetype_scenarios, name = NULL, 
                           guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ region, scales = 'free') +
+    facet_wrap(~ !!sym('region'), scales = 'free') +
     expand_limits(x = 0, y = 0) +
     labs(x = 'per-capita GDP [1000$/yr]', 
          y = 'specific Cement Value Added [$/t]') +
@@ -2176,6 +2279,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
       group_by(.data$region) %>% 
       filter(.data$GDPpC %in% range(.data$GDPpC)) %>% 
       mutate(x = c(1, 100)) %>% 
+      ungroup() %>% 
       complete(nesting(!!sym('region')), 
                x = seq(min(!!sym('x')), max(!!sym('x'))), 
                fill = list(GDPpC = NA)) %>% 
@@ -2183,7 +2287,6 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
              + ( (last(.data$GDPpC) - first(.data$GDPpC)) 
                  / (last(.data$x) - first(.data$x)) 
                  * (.data$x - first(.data$x)))) %>% 
-      ungroup() %>% 
       select(-'x'),
     
     'region'
@@ -2201,8 +2304,8 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
                                       & 2100 == .data$year]) %>% 
     ungroup()
 
-  p <- ggplot(mapping = aes(x = GDPpC / 1000, 
-                       y = chemicals.VA / population)) +
+  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000, 
+                            y = !!sym('chemicals.VA') / !!sym('population'))) +
     # plot region totals
     geom_point(
       data = d_plot_region_totals,
@@ -2210,11 +2313,11 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     # # plot regression line
     geom_path(
       data = d_plot_regression,
-      mapping = aes(y = value, linetype = 'regression')) +
+      mapping = aes(y = !!sym('value'), linetype = 'regression')) +
     # # plot projections
     geom_path(
       data = d_plot_projections,
-      mapping = aes(linetype = scenario)) +
+      mapping = aes(linetype = !!sym('scenario'))) +
     scale_shape_manual(values = c('region totals' = 'cross',
                                   # 'countries' = '.',
                                   NULL),
@@ -2224,7 +2327,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
                                      'SSP2' = 'solid',
                                      'SSP5' = 'dashed'),
                           name = NULL) +
-    facet_wrap(~ region, scales = 'free') +
+    facet_wrap(~ !!sym('region'), scales = 'free') +
     expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
     labs(x = 'per-capita GDP [1000 $/year]', 
          y = 'per-capita Chemicals Value Added [$/year]') +
@@ -2364,10 +2467,11 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
         mutate(name = sub('\\.VA$', '', .data$name)) %>% 
         order.levels(
           name = c('cement', 'chemicals', 'steel', 'otherInd')),
-      mapping = aes(x = year, y = value / 1e12, fill = name)) +
+      mapping = aes(x = !!sym('year'), y = !!sym('value') / 1e12, 
+                    fill = !!sym('name'))) +
     scale_fill_discrete(name = NULL, 
                         guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ region, scales = 'free_y') +
+    facet_wrap(~ !!sym('region'), scales = 'free_y') +
     labs(x = NULL, y = 'Value Added [$tn/year]') +
     theme_minimal() +
     theme(legend.justification = c(1, 0), legend.position = c(1, 0))
