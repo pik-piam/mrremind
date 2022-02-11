@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.106.4
-Date: 2022-02-10
+Version: 0.106.5
+Date: 2022-02-11
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -32,7 +32,7 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
     madrat(>= 2.5.1),
-    mrcommons(>= 1.0.0)
+    mrcommons(>= 1.6.7)
 Imports:
     assertr,
     assertthat,

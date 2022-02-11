@@ -5,9 +5,8 @@
 \title{Calc Input Output}
 \usage{
 calcIO(
-  subtype = c("input", "output", "output_biomass", "trade", "output_EDGE",
-    "output_EDGE_buildings", "input_Industry_subsectors", "output_Industry_subsectors",
-    "IEA_output", "IEA_input")
+  subtype = c("input", "output", "output_biomass", "trade",
+    "input_Industry_subsectors", "output_Industry_subsectors", "IEA_output", "IEA_input")
 )
 }
 \arguments{
