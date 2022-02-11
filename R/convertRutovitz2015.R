@@ -25,14 +25,17 @@ convertRutovitz2015 <- function(x,subtype) {
   # oecd countries from mapping file
   oecd_con <- mapping[mapping$region %in% oecd,]$country
   
+  
   # since x cannot directly be changed to accept OECD countries and years,
   # make a new magpie object
   oecd_ef <- new.magpie(unique(oecd_con),c(2015,2020,2030),names = getNames(x))
+  getSets(oecd_ef) <- getSets(x)
   
   # assign all countries and techs, same value as x
   oecd_ef[,,] <- x
   oecd_ef[is.na(oecd_ef)] <- 0
   x <- toolCountryFill(oecd_ef,fill=0) 
+
   
   }
   if (subtype=="regional_mult"){
@@ -54,6 +57,7 @@ convertRutovitz2015 <- function(x,subtype) {
       select(country,year,value) 
     
     x <- as.magpie(reg_mult2)
+
     x <- toolCountryFill(x,fill=0)
     x["CYP",,] <- as.numeric(x["DEU",,]) # cyprus gets oecd values
   
@@ -64,7 +68,7 @@ convertRutovitz2015 <- function(x,subtype) {
     
     # Changing names of column "regions" in mapping to better match both data frames
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
-    getRegions(x) <- gsub(getRegions(x),replacement = c("OECD Americas"),pattern = c("OECD North America")) # replace OECD Americas with OECD North America
+    getItems(x,dim=1) <- gsub(getRegions(x),replacement = c("OECD Americas"),pattern = c("OECD North America")) # replace OECD Americas with OECD North America
     
     
     x_df <- as.data.frame(x) %>% select(2,4,5,6) %>% 
@@ -84,10 +88,13 @@ convertRutovitz2015 <- function(x,subtype) {
     
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
     
-    getRegions(x) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
-    getRegions(x) <-  gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
-    getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
+    # getRegions(x) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
+    # getRegions(x) <-  gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
+    # getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
     
+    getItems(x,dim = 1) <- gsub("OECD North America","OECD Americas",x = getItems(x,dim=1))
+    getItems(x,dim = 1) <- gsub("OECD Pacific","OECD Asia Oceania",x = getItems(x,dim=1))
+    getItems(x,dim = 1) <- gsub("Developing Asia","Non-OECD Asia",x = getItems(x,dim=1))
     
     # assign countries to all regions in Rutovitz for coal employment factors
       x_df <- as.data.frame(x) %>% 
@@ -110,9 +117,13 @@ convertRutovitz2015 <- function(x,subtype) {
    }
   if(subtype=="gas_ef"){  
  #   x <- readSource(type = "Rutovitz2015",subtype = "gas_ef",convert = F)
-    getRegions(x) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
-    getRegions(x) <-  gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
-    getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
+   # getRegions(x) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
+   # getRegions(x) <-  gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
+   # getRegions(x) <-  gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
+    getItems(x,dim = 1) <- gsub("OECD North America","OECD Americas",x = getRegions(x))
+    getItems(x,dim = 1) <- gsub("OECD Pacific","OECD Asia Oceania",x = getRegions(x))
+    getItems(x,dim = 1) <- gsub("Developing Asia","Non-OECD Asia",x = getRegions(x))
+  
     
     mapping$region <- gsub("Central Africa|West Africa|Southern Africa|East Africa|North Africa","Africa",x = mapping$region)
 
