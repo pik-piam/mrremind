@@ -24,7 +24,7 @@ calcBiomassPrices <- function(){
     
 
   return(list(x           = x,
-              weight      = NULL,
+              weight      = calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",],
               unit        = "none",
               description = "coefficients for the bioenergy supplycurve",
               aggregationFunction=toolBiomassSupplyAggregate))
