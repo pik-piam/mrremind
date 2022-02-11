@@ -151,9 +151,9 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "f45_2005share_target.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor",    round = 4, file = "f45_factor_targetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", round = 4, file = "f45_hist_share.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor",    round = 4, file = "fm_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", round = 4, file = "fm_histShare.cs3r")
 
   calcOutput("CapTarget", sources = "UNFCCC_NDC",               round = 4, file = "f40_NDC.cs3r")
   calcOutput("CapTarget", sources = "REN21",                    round = 4, file = "f40_REN21.cs4r")
