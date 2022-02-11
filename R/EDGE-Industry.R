@@ -31,6 +31,7 @@
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_path geom_point ggplot 
 #'   labs scale_linetype_manual scale_shape_manual
+#' @importFrom madrat calcOutput readSource toolGetMapping
 #' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame 
 #'   madrat_mule sum_total_
 #' @importFrom stats SSlogis nls
@@ -41,8 +42,9 @@
 #' @export
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE, 
-                                  match.steel.estimates = NULL,
-                                  save.plots = FALSE) {
+                                  match.steel.estimates = 'none',
+                                  save.plots = FALSE,
+                                  China_Production = NULL) {
   
   produce_plots_and_tables <- TRUE
   
@@ -50,9 +52,9 @@ calcSteel_Projections <- function(subtype = 'production',
 
   # get EDGE-Industry switches ----
   # FIXME: remove before deploying
-  # load('./R/sysdata.rda')
-  # `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
-  `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
+  load('./R/sysdata.rda')
+  `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
+  # `EDGE-Industry_scenario_switches` <- mrremind:::EDGE_scenario_switches %>%
       select(
       'scenario', 
       `steel.stock.estimate` = 'EDGE-Industry_steel.stock.estimate',
@@ -150,8 +152,7 @@ calcSteel_Projections <- function(subtype = 'production',
            population = .data$population * 1e6)
   
   ## GDP projections ----
-  GDP <- calcOutput(type = 'GDPppp', FiveYearSteps = FALSE, 
-                    aggregate = FALSE) %>% 
+  GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, aggregate = FALSE) %>% 
     as.data.frame() %>% 
     as_tibble() %>% 
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year, 
@@ -380,6 +381,10 @@ calcSteel_Projections <- function(subtype = 'production',
     # absolute stocks
     mutate(steel.stock = .data$steel.stock.per.capita * .data$population) %>% 
     assert(not_na, everything())
+  
+  if ('steel_stock_estimates' == subtype) {
+    return(steel_stock_estimates)
+  }
   
   # calculate lifetime projections ----
   
@@ -677,7 +682,7 @@ calcSteel_Projections <- function(subtype = 'production',
       tmp,
       
       tmp %>% 
-        select('scenario', 'region', 'iso3c') %>% 
+        distinct(.data$scenario, .data$region, .data$iso3c) %>% 
         full_join(
           secondary.steel.max.switches %>% 
             select('scenario', year = 'secondary.steel.max.share.by',
@@ -760,8 +765,8 @@ calcSteel_Projections <- function(subtype = 'production',
     group_by(!!!syms(c('scenario', 'region', 'iso3c'))) %>% 
     mutate(
       # stock additions: rolling average of stock changes (stocks might decrease
-      #     with decreasing population, but still become obsolete and need 
-      #     replacement) over five years
+      # with decreasing population, but still become obsolete and need 
+      # replacement) over five years
       stock.additions = rollmean(
         pmax(0, 
              .data$steel.stock - lag(.data$steel.stock, order_by = .data$year,
@@ -789,12 +794,45 @@ calcSteel_Projections <- function(subtype = 'production',
                                        1 + .data$m.factor)
                              ),
       adj.trade.share      = .data$trade / .data$new.stock,
-      production           = .data$new.stock - .data$adj.trade,
-      secondary.production = pmin(  .data$secondary.steel.max.share
-                                  * .data$production, 
-                                  .data$recyclable),
+      production           = .data$new.stock - .data$adj.trade)
+  
+  if (is.data.frame(China_Production)) {
+    production_estimates <- production_estimates %>% 
+      ungroup() %>% 
+      select(scenario, iso3c, year, production) %>% 
+      filter('SSP2EU' == scenario, 
+             'CHN' == iso3c,
+             max(steel_historic_prod$year) < year) %>% 
+      left_join(
+        China_Production %>% 
+        interpolate_missing_periods(period = seq_range(range(.$period)),
+                                    value = 'total.production',
+                                    method = 'spline') %>% 
+        mutate(total.production = .data$total.production * 1e6),
+        
+        c('year' = 'period')
+      ) %>% 
+      mutate(value = total.production / production) %>% 
+      select('iso3c', 'year', 'value') %>% 
+      expand_grid(scenario = unique(production_estimates$scenario)) %>% 
+      complete(nesting(!!sym('scenario')),
+               iso3c = unique(production_estimates$iso3c),
+               year = unique(production_estimates$year)) %>% 
+      mutate(value = case_when(
+        max(steel_historic_prod$year) >= .data$year ~ 1,
+        is.na(.data$value) ~ last(na.omit(.data$value)),
+        TRUE ~ .data$value)) %>% 
+      left_join(production_estimates, c('scenario', 'iso3c', 'year')) %>% 
+      mutate(production = .data$production * .data$value) %>% 
+      select(-'value')
+  }
+  
+  production_estimates <- production_estimates %>% 
+    mutate(
+      secondary.production = pmin(
+        .data$secondary.steel.max.share * .data$production, 
+        .data$recyclable),
       primary.production   = .data$production - .data$secondary.production) %>% 
-    ungroup() %>% 
     select('scenario', 'region', 'iso3c', 'year', 'steel.stock', 'depreciation', 
            'primary.production', 'secondary.production', 
            trade = 'adj.trade') %>% 
@@ -861,46 +899,46 @@ calcSteel_Projections <- function(subtype = 'production',
     c('scenario', 'region', 'iso3c', 'year', 'variable')
   )
   
-  tmp <- bind_rows(
-    # shift country production to meet historic production in the last year
-    # for which data is available
-    tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>% 
-      group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
-      filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
-      mutate(
-        value = .data$value
-              / first(.data$value, order_by = .data$year)
-              * first(.data$historic, order_by = .data$year)) %>% 
-      ungroup() %>% 
-      select(-'historic') %>% 
-      interpolate_missing_periods_(periods = list('year' = unique(.$year)),
-                                   expand.values = TRUE),
-    
-    # countries w/o historic production fade production in over 20 years
-    tmp %>% 
-      filter(.data$year >= max(steel_historic_prod$year)) %>% 
+    tmp <- bind_rows(
+      # shift country production to meet historic production in the last year
+      # for which data is available
+      tmp %>% 
+        filter(.data$year >= max(steel_historic_prod$year)) %>% 
+        group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
+        filter(!is.na(first(.data$historic, order_by = .data$year))) %>% 
+        mutate(
+          value = .data$value
+                / first(.data$value, order_by = .data$year)
+                * first(.data$historic, order_by = .data$year)) %>% 
+        ungroup() %>% 
+        select(-'historic') %>% 
+        interpolate_missing_periods_(periods = list('year' = unique(.$year)),
+                                     expand.values = TRUE),
+      
+      # countries w/o historic production fade production in over 20 years
+      tmp %>% 
+        filter(.data$year >= max(steel_historic_prod$year)) %>% 
         group_by(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))) %>% 
         filter(any(
           is.na(first(.data$historic, order_by = .data$year)),
           0 == first(.data$historic, order_by = .data$year))) %>% 
-      mutate(value = .data$value 
-                   * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
-      select(-'historic') %>% 
-      ungroup(),
-    
+        mutate(value = .data$value 
+               * pmin(1, (.data$year - first(.data$year)) / 20)) %>% 
+        select(-'historic') %>% 
+        ungroup(),
+      
       # data up to last historic year
-    tmp %>% 
-      filter(.data$year < max(steel_historic_prod$year)) %>% 
-      select(-'value', value = 'historic')
-  ) %>% 
+      tmp %>% 
+        filter(.data$year < max(steel_historic_prod$year)) %>% 
+        select(-'value', value = 'historic')
+    ) %>% 
       semi_join(region_mapping, c('region', 'iso3c')) %>% 
       group_by(!!!syms(c('scenario', 'region', 'iso3c', 'year', 
                          'variable'))) %>% 
       summarise(value = sum(.data$value), .groups = 'drop') %>%
       assert(not_na, everything()) %>% 
-    arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
-            .data$year)
+      arrange(.data$scenario, .data$region, .data$iso3c, .data$variable, 
+              .data$year)
     
     # make zero values explicit ----
     tmp <- tmp %>% 
@@ -940,8 +978,8 @@ calcSteel_Projections <- function(subtype = 'production',
         group_by(.data$region, .data$year) %>% 
         summarise(value = sum(.data$value) * 1e-6, .groups = 'drop'),
       
-      readSource('IEA_ETP', 'industry_subsectors', FALSE) %>% 
-        `[`(,,'IEA_ETP_RTS.Production|Industry|Steel (Mt/yr)') %>% 
+      readSource('IEA_ETP', 'industry', FALSE) %>% 
+        `[`(,,'RTS.Industry|Materials production|Crude steel.Mt') %>% 
         as.data.frame() %>% 
         as_tibble() %>% 
         select(region = 'Region', year = 'Year', ETP = 'Value') %>% 
