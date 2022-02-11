@@ -98,7 +98,7 @@ readRutovitz2015 <- function(subtype) {
   if (subtype == "gas_ef") {
   input <- read_csv("gas_ef.csv", na = "", col_types = "cdcc") %>%
     rename(region = 1, value = 2, notes = 3, Sources = 4) %>%
-    select(-notes, -Sources) %>%
+    select(region, value) %>%
     rbind(data.frame(region = c("India", "Latin America", "Developing Asia", "Middle East"), value = 15.1)) %>% # using world average values from dataset
     filter(!is.na(value)) %>%
     filter(!grepl("World", region))  %>%
