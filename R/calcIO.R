@@ -22,7 +22,7 @@
 #' @importFrom dplyr %>% filter mutate
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
-calcIO <- function(subtype = c("input", "output", "output_biomass", "trade", "output_EDGE", "output_EDGE_buildings",
+calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors", "IEA_output", "IEA_input")) {
   subtype <- match.arg(subtype)
   switch(
@@ -42,14 +42,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade", "ou
     trade = {
       mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_trade.csv", returnPathOnly = TRUE)
       target <- c("REMINDitems_enty", "REMINDitems_trade")
-    },
-    output_EDGE = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
-      target <- "EDGEitems"
-    },
-    output_EDGE_buildings = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE)
-      target <- "EDGE_buildings"
     },
     input_Industry_subsectors = {
       mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs_Industry_subsectors.csv",
@@ -125,51 +117,11 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade", "ou
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
-  if (subtype %in% c("output_EDGE", "output_EDGE_buildings")) {
-    if (subtype ==  "output_EDGE") {
-      nBiotrad <- "feresbiotrad"
-      nBiomod <- "feresbiomod"
-      nBioshare <- "feresbioshare"
-    } else if (subtype == "output_EDGE_buildings") {
-      nBiotrad <- "biotrad"
-      nBiomod <- "biomod"
-      nBioshare <- "bioshare"
-    }
-    # Read-in data to compute income per capita
-    gdp <- calcOutput("GDPPast", aggregate = FALSE)
-    pop <- calcOutput("PopulationPast", aggregate = FALSE)
-    gdppop <- gdp[, intersect(getYears(gdp), getYears(pop)), ] / pop[, intersect(getYears(gdp), getYears(pop)), ]
-    # Create a lambda which is 1 for income per capita <= 10000, and 0 above 15000
-    # the multiplication by gdppop was necessary to avoid error from vector length.
-    lambda <- pmin(gdppop * 0 + 1, pmax(0 * gdppop, (15000 - gdppop) / (15000 - 10000)))
-    lambda <- time_interpolate(lambda, getYears(reminditems), extrapolation_type = "constant")
-
-    # Split Bioshare (residential PRIMSBIO) between traditional and modern biomass according to lambda
-    bioshareTrad <- setNames(reminditems[, , nBioshare] * lambda, nBiotrad)
-    bioshareMod <- setNames(reminditems[, , nBioshare] - bioshareTrad, nBiomod)
-
-    # In case biomod and biotrad do not exist yet in the data set, create dummy items
-    if (!any(nBiomod %in% getNames(reminditems))) {
-      reminditems <- mbind(reminditems,
-                           setNames(reminditems[, , nBioshare] * 0, nBiomod))
-    }
-    if (!any(nBiotrad %in% getNames(reminditems))) {
-      reminditems <- mbind(reminditems,
-                           setNames(reminditems[, , nBioshare] * 0, nBiotrad))
-    }
-
-    # Add the values from bioshare to the other modern and traditional biomass
-    reminditems[, , nBiotrad] <- reminditems[, , nBiotrad] + bioshareTrad
-    reminditems[, , nBiomod] <- reminditems[, , nBiomod] + bioshareMod
-
-    # Remove the bioshare item
-    reminditems <- reminditems[, , nBioshare, invert = TRUE]
-
-  } else if (subtype %in% c("output", "input", "output_Industry_subsectors", "input_Industry_subsectors")) {
+  if (subtype %in% c("output", "input", "output_Industry_subsectors", "input_Industry_subsectors")) {
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
-    edgeBio <- calcOutput("IO", subtype = "output_EDGE_buildings", aggregate = FALSE)
+    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
     feBio <- calcOutput("IO", subtype = "output_biomass", aggregate = FALSE)
     shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
     shareBiotrad[is.na(shareBiotrad)] <- 0
