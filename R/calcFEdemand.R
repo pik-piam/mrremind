@@ -761,22 +761,7 @@ calcFEdemand <- function(subtype = "FE") {
       industry_subsectors_ue_SSP2_lowEn
     )
     
-    industry_steel_SSP2_lowEn <- (
-        dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1)
-      / dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])
-      * dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])
-      * factor_a
-    )
-    
-    getNames(industry_steel_SSP2_lowEn) <- paste(
-      'gdp_SSP2_lowEn', getNames(industry_steel_SSP2_lowEn), sep = '.')
-    
-    industry_steel <- mbind(
-      industry_steel,
-      industry_steel_SSP2_lowEn
-    )
-    
-    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn, industry_steel_SSP2_lowEn)
+    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn)
     
     ## subsector FE shares ----
     . <- NULL
@@ -972,7 +957,8 @@ calcFEdemand <- function(subtype = "FE") {
         filter('feel' == .data$fety, 'steel' == .data$subsector) %>% 
         select(-'fety', -'subsector') %>% 
         inner_join(
-          industry_steel %>% 
+          industry_subsectors_ue %>% 
+            `[`(,,'ue_steel_', pmatch = TRUE) %>% 
             as.data.frame() %>% 
             as_tibble() %>% 
             select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
@@ -1033,7 +1019,7 @@ calcFEdemand <- function(subtype = "FE") {
              'share') %>% 
       # weight by subsector activity
       left_join(
-        mbind(industry_subsectors_ue, industry_steel) %>% 
+        industry_subsectors_ue %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(iso3c = 'Region', period = 'Year', scenario = 'Data1',
@@ -1103,7 +1089,7 @@ calcFEdemand <- function(subtype = "FE") {
         group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>% 
         summarise(value = sum(.data$value), .groups = 'drop'),
       
-      mbind(industry_subsectors_ue, industry_steel) %>% 
+      industry_subsectors_ue %>% 
         as.data.frame() %>% 
         as_tibble() %>% 
         select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
@@ -1152,7 +1138,7 @@ calcFEdemand <- function(subtype = "FE") {
     # calculate global shares, weighted by subsector activity
     industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>% 
       inner_join(
-        mbind(industry_subsectors_ue, industry_steel) %>% 
+        industry_subsectors_ue %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
@@ -1200,7 +1186,7 @@ calcFEdemand <- function(subtype = "FE") {
         full_join(region_mapping_21, 'region') %>% 
         select(-'region'),
     
-      mbind(industry_subsectors_ue, industry_steel) %>% 
+      industry_subsectors_ue %>% 
         as.data.frame() %>% 
         as_tibble() %>% 
         select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
