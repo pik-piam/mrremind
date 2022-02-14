@@ -25,8 +25,8 @@ readvanRuijven2016 <- function() {
                   'LVA', 'MDA', 'RUS', 'TJK', 'TKM', 'UKR', 'UZB') 
   
   x <- read_excel(
-    # path = './Cement_data_from_Bas.xlsx',
-    path = '~/PIK/swap/inputdata/sources/vanRuijven2016/Cement_data_from_Bas.xlsx',
+    path = './Cement_data_from_Bas.xlsx',
+    # path = '~/PIK/swap/inputdata/sources/vanRuijven2016/Cement_data_from_Bas.xlsx',
     sheet = 'Production',
     range = 'A4:AS321') %>% 
     filter(999 != .data$`Region #`) %>% 
