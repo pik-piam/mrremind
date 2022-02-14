@@ -24,7 +24,7 @@ Mapping structure example: IEA product ANTCOAL used for IEA flow TPATFUEL, contr
 coaltr for generating sesofos from pecoal (REMIND names)
 
 When using subtype \code{output_Industry_subsectors}, additional corrections
-are applied to the IEA data in \code{\link{fix_IEA_data_for_Industry_subsectors}}.
+are applied to the IEA data in \code{\link{toolFixIEAdataForIndustrySubsectors}}.
 }
 \examples{
 \dontrun{

@@ -7,7 +7,7 @@
 #' coaltr for generating sesofos from pecoal (REMIND names)
 #'
 #' When using subtype \code{output_Industry_subsectors}, additional corrections
-#' are applied to the IEA data in \code{\link{fix_IEA_data_for_Industry_subsectors}}.
+#' are applied to the IEA data in \code{\link{toolFixIEAdataForIndustrySubsectors}}.
 #'
 #' @param subtype Data subtype. See default argument for possible values.
 #' @return IEA data as MAgPIE object aggregated to country level
@@ -84,7 +84,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   if (subtype == "output_Industry_subsectors") {
     # apply corrections to IEA data to cope with fragmentary time series
-    data <- fix_IEA_data_for_Industry_subsectors(data, ieamatch)
+    data <- toolFixIEAdataForIndustrySubsectors(data, ieamatch)
   }
   if (subtype == "output_biomass") {
     magpieNames <- grep("(fesob|fesoi)", magpieNames, value = TRUE)
