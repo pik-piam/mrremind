@@ -1,8 +1,8 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.107.1
-Date: 2022-02-14
+Version: 0.108.0
+Date: 2022-02-15
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
              person("Antoine", "Levesque", role = "aut"),
@@ -52,7 +52,6 @@ Imports:
     quitte,
     readODS,
     readr,
-    readODS,
     readxl,
     reshape,
     reshape2,
@@ -69,7 +68,6 @@ Encoding: UTF-8
 RoxygenNote: 7.1.2
 Suggests: 
     covr,
-    ggplot2,
     knitr,
     rmarkdown,
     testthat,
