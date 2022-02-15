@@ -36,7 +36,7 @@
 #' @importFrom tidyr spread gather complete nesting_
 #' @importFrom magclass getRegions getYears getNames
 
-toolFixIEAdataForIndustrySubsectors <- function(data, ieamatch) {
+fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
   
   # all industry subsector flows
   flows_to_fix <- c('IRONSTL', 'CHEMICAL', 'NONFERR', 'NONMET', 'TRANSEQ', 
