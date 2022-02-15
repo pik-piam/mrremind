@@ -29,4 +29,3 @@ calcpm_delta_kap_industry <- function() {
          description = paste('Depreciation rate of industry energy-efficiency',
                              'capital (EEK).')))
 }
-
