@@ -49,7 +49,6 @@ fullREMIND <- function(rev = 0) {
   calcOutput("CO2Prices",                             round = 2,  file = "pm_taxCO2eqHist.cs4r")
   calcOutput("RiskPremium",                           round = 6,  file = "pm_risk_premium.cs4r")
   calcOutput("NetForeignAsset",                       round = 6,  file = "pm_nfa_start.cs4r")
-  calcOutput("NetForeignAsset",                       round = 6,  file = "pm_nfa_start.cs4r")
   calcOutput("Theil",                                 round = 8,  file = "f_ineqTheil.cs4r")
   calcOutput("DevelopmentState",                      round = 4,  file = "f_developmentState.cs3r")
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f50_pop.cs3r", aggregate = FALSE)

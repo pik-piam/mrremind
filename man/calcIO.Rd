@@ -4,12 +4,13 @@
 \alias{calcIO}
 \title{Calc Input Output}
 \usage{
-calcIO(subtype)
+calcIO(
+  subtype = c("input", "output", "output_biomass", "trade",
+    "input_Industry_subsectors", "output_Industry_subsectors", "IEA_output", "IEA_input")
+)
 }
 \arguments{
-\item{subtype}{data subtype. Valid subtypes are 'input', 'output_EDGE', 
-'trade', 'output_EDGE_buildings', 'output' and 
-'output_Industry_subsectors'}
+\item{subtype}{Data subtype. See default argument for possible values.}
 }
 \value{
 IEA data as MAgPIE object aggregated to country level
@@ -22,13 +23,12 @@ and a mapping that corresponds to the structure of "products" and "flows" of IEA
 Mapping structure example: IEA product ANTCOAL used for IEA flow TPATFUEL, contributes via REMIND technology
 coaltr for generating sesofos from pecoal (REMIND names)
 
-When using subtype \code{output_Industry_subsectors}, additional correctons 
-are applied to the IEA data in 
-\code{\link{fix_IEA_data_for_Industry_subsectors}}.
+When using subtype \code{output_Industry_subsectors}, additional corrections
+are applied to the IEA data in \code{\link{toolFixIEAdataForIndustrySubsectors}}.
 }
 \examples{
-
-\dontrun{ a <- calcOutput("IO", subtype = "output")
+\dontrun{
+a <- calcOutput("IO", subtype = "output")
 }
 
 }
