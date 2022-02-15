@@ -715,14 +715,14 @@ calcFEdemand <- function(subtype = "FE") {
     
     industry_subsectors_ue <- mbind(
       calcOutput(type = 'Industry_Value_Added',
-                 match.steel.historic.value = TRUE,
+                 match.steel.historic.values = TRUE,
                  match.steel.estimates = 'IEA_ETP', 
                  China_Production = China_Production,
                  aggregate = FALSE,
                  years = getYears(reminditems), supplementary = FALSE),
       
       calcOutput(type = 'Steel_Projections', 
-                 match.steel.historic.value = TRUE,
+                 match.steel.historic.values = TRUE,
                  match.steel.estimates = 'IEA_ETP', 
                  China_Production = China_Production,
                  aggregate = FALSE,
