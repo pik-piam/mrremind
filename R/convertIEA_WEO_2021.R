@@ -1,14 +1,14 @@
 #' Disaggregates IEA WEO 2021 Data
 #' @param x MAgPIE object to be converted
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "GLO" or "regional"
+#' @param subtype Either "global" or "region"
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
 
-convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
+convertIEA_WEO_2021 <- function(x, subtype = "global") {
   PE <- calcOutput("PE", aggregate = FALSE)
-  if (subtype == "GLO") {
+  if (subtype == "global") {
 
     # for now, we only have complete data on global level
     x.world <- x["World", , ]
@@ -25,7 +25,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     weight <- PE[, 2016, "PE (EJ/yr)"]
     x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
     return(x.world)
-  } else if (subtype == "regional") {
+  } else if (subtype == "region") {
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
@@ -124,6 +124,6 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     
     return(x.regional)
   } else {
-    stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
+    stop("Not a valid subtype! Must be either \"region\" or \"global\"")
   }
 }

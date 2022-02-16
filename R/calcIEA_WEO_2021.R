@@ -2,7 +2,7 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "GLO" or "regional", i.e. global or regional data from source
+#' @param aggregate Boolean indicating whether output data aggregation should be performed or not
 #' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
@@ -11,9 +11,10 @@
 #' @importFrom rlang sym
 #' @export
 
-calcIEA_WEO_2021 <- function(subtype = "GLO", isValidation = FALSE) {
-  if (!subtype %in% c("GLO", "regional")) {
-    stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
+calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
+
+  if (!aggregate %in% c("global", "region")) {
+    aggregate <- "global"
   }
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021.csv", type = "reportingVariables") %>%
@@ -23,7 +24,7 @@ calcIEA_WEO_2021 <- function(subtype = "GLO", isValidation = FALSE) {
 
   mapping$variable <- trimws(mapping$variable)
 
-  data <- readSource("IEA_WEO_2021", subtype = subtype)
+  data <- readSource("IEA_WEO_2021", subtype = aggregate)
 
   # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
   for (s in getNames(data, dim = 1)) {
@@ -58,7 +59,7 @@ calcIEA_WEO_2021 <- function(subtype = "GLO", isValidation = FALSE) {
 
   x <- as.magpie(x, spatial = 1, temporal = 2, data = 5)
 
-  if (subtype == "GLO") {
+  if (aggregate == "global") {
     x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
 
