@@ -7,6 +7,7 @@
 #' 
 #' @param x magclass object that should be aggregated
 #' @param rel relation matrix containing a region mapping.
+#' @param weight aggregation weight
 #' @author Felix Schreyer
 #' @export
 #' @importFrom magclass as.magpie dimReduce
@@ -15,7 +16,7 @@
 
 
 
-toolBiomassSupplyAggregate <- function(x, rel=NULL){
+toolBiomassSupplyAggregate <- function(x, rel=NULL, weight = calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",]){
   
   # variable definitions needed for data.frame operations below
   region <- NULL
@@ -31,7 +32,7 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL){
   
   # calculate share in agricultural land area of countries relative to MAgPIE regions
   # get agricultural land for iso-countries in 2010 from FAO
-  AgrLandIso <- calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",]
+  AgrLandIso <- weight
   # aggregate agricultural land to regions in regionmapping
   AgrLandReg <- toolAggregate(AgrLandIso, rel)
   
