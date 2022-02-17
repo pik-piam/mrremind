@@ -4,12 +4,12 @@
 \alias{convertIEA_WEO_2021}
 \title{Disaggregates IEA WEO 2021 Data}
 \usage{
-convertIEA_WEO_2021(x, subtype = "GLO")
+convertIEA_WEO_2021(x, subtype = "global")
 }
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Either "GLO" or "regional"}
+\item{subtype}{Either "global" or "region"}
 }
 \value{
 A [`magpie`][magclass::magclass] object.
