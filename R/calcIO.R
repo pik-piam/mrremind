@@ -77,9 +77,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   # delete NAs rows
-  ieamatch <- ieamatch[c("iea_product", "iea_flows", target, "Weight")] %>%
+  ieamatch <- ieamatch[, union(c("iea_product", "iea_flows", "Weight"), target)] %>%
     na.omit() %>%
-    unite("target", all_of(target), sep = ".")
+    unite("target", all_of(target), sep = ".", remove = FALSE)
   magpieNames <- ieamatch[["target"]] %>% unique()
 
   if (subtype == "output_Industry_subsectors") {
@@ -94,13 +94,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     }
   }
 
-  # in case we include IEA categories in the output, iea categories in `ieamatch` got renamed
   ieapname <- "iea_product"
   ieafname <- "iea_flows"
-  if (subtype %in% c("IEA_output", "IEA_input")) {
-    ieapname <- "iea_product.1"
-    ieafname <- "iea_flows.1"
-  }
 
   reminditems <-  do.call(mbind,
                           lapply(magpieNames, function(item) {
@@ -137,18 +132,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   # replace IEA data for 1st generation biomass with data that also MAgPIE uses
-  if (subtype == "input") {
-    bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
-    reminditems[, , "pebios.seliqbio.bioeths"] <-
-      time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),
-                       integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-    reminditems[, , "pebioil.seliqbio.biodiesel"] <-
-      time_interpolate(bio1st[, , "pebioil"], interpolated_year = getYears(reminditems),
-                       integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-  }
-
-  # replace IEA data for 1st generation biomass with data that also MAgPIE uses
-  if (subtype %in% c("output", "output_Industry_subsectors")) {
+  if (subtype %in% c("input", "output", "output_Industry_subsectors")) {
     bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
     reminditems[, , "pebios.seliqbio.bioeths"] <-
       time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),
