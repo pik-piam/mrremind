@@ -1113,16 +1113,18 @@ calcFEdemand <- function(subtype = "FE") {
       interpolate_missing_periods_(
         periods = list(year = unique(industry_subsectors_en_shares$year)),
         value = 'specific.energy', expand.values = TRUE) %>% 
-      # decrease values by alpha p.a. (this is just dummy data to get the 
-      # calibration rolling)
+      # decrease values by alpha p.a. 
+      # FIXME this factors should be derived from region data
+      # since the IEA data needs fixing first, they were derived manually for
+      # now
       inner_join(
         tribble(
           ~subsector,          ~alpha,
-          'cement',            0.005,
-          'chemicals',         0.005,
-          'steel_primary',     0.005,
-          'steel_secondary',   0.005,
-          'otherInd',          0.005),
+          'cement',            0.0073,   # 1 - (3.1 / 5.8) ^ (1 / (2100 - 2015))
+          'chemicals',         0.03,     # fat cats 2022-02-25-0932
+          'steel_primary',     0.0021,   # 1 - (10 / 12) ^ (1 / (2100 - 2015))
+          'steel_secondary',   0.0048,   # 1 - (2.8 / 4.2) ^ (1 / (2100 - 2015))
+          'otherInd',          0.03),
         
         'subsector'
       ) %>% 
