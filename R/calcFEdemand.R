@@ -1077,6 +1077,18 @@ calcFEdemand <- function(subtype = "FE") {
     # scale industry subsector total FE by subsector activity and exogenous
     # energy efficiency gains 
     
+    industry_subsectors_specific_FE <- calcOutput(
+      type = 'industry_subsectors_specific', subtype = 'FE', 
+      scenarios = unique(IEA_ETP_Ind_FE_shares$scenario), 
+      regions = unique(IEA_ETP_Ind_FE_shares$region), 
+      aggregate = FALSE
+    ) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(scenario = 'Data1', region = 'Data2', subsector = 'Data3', 
+             alpha = 'Value') %>% 
+      character.data.frame()
+    
     industry_subsectors_specific_energy <- inner_join(
       industry_subsectors_en %>% 
         mutate(subsector = sub('^[^_]+_', '', .data$pf),
@@ -1118,23 +1130,37 @@ calcFEdemand <- function(subtype = "FE") {
       # since the IEA data needs fixing first, they were derived manually for
       # now
       inner_join(
+        industry_subsectors_specific_FE,
+        
+        c('scenario', 'region', 'subsector')
+      ) %>% 
+      inner_join(
         tribble(
-          ~subsector,          ~alpha,
-          'cement',            0.0073,   # 1 - (3.1 / 5.8) ^ (1 / (2100 - 2015))
-          'chemicals',         0.03,     # fat cats 2022-02-25-0932
-          'steel_primary',     0.0021,   # 1 - (10 / 12) ^ (1 / (2100 - 2015))
-          'steel_secondary',   0.0048,   # 1 - (2.8 / 4.2) ^ (1 / (2100 - 2015))
-          'otherInd',          0.03),
+          ~subsector,          ~type,        ~limit,
+          'cement',            'absolute',   1.8,
+          'steel_primary',     'absolute',   8,
+          'steel_secondary',   'absolute',   1.3,
+          'chemicals',         'relative',   0.1,
+          'otherInd',          'relative',   0.1,),
         
         'subsector'
       ) %>% 
       group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>% 
       arrange(.data$year) %>% 
       mutate(
-        specific.energy = .data$specific.energy 
-                        * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))) %>% 
+        specific.energy = ifelse(
+          'absolute' == .data$type,
+            ( (.data$specific.energy - .data$limit) 
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+            )
+          + .data$limit,
+          
+          ( .data$specific.energy * (1 - .data$limit)
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+            )
+          + (.data$specific.energy * .data$limit))) %>% 
       ungroup() %>% 
-      select(-'alpha')
+      select('scenario', 'region', 'year', 'subsector', 'specific.energy')
     
     ### converge subsector en shares to global value ----
     # calculate global shares, weighted by subsector activity
