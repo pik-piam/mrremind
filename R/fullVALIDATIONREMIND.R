@@ -13,27 +13,29 @@
 #' }
 #'
 fullVALIDATIONREMIND <- function(rev = 0) {
-  
+
   #-------------- warn if there are duplicate column names --------------------------------------------
-  
+
   # read region mappings
   mappings <- c(getConfig("regionmapping"), getConfig("extramappings"))
   rel <- NULL
-  for (r in 1:length(mappings)) {
+  for (r in seq_len(length(mappings))) {
     # read mapping file
-    new <- colnames(toolGetMapping(mappings[r], type = "regional", activecalc = type))
+    new <- colnames(toolGetMapping(mappings[r], type = "regional"))
     # ignore "X" and "CountryCode"
-    new <- new[!new %in% c("X","CountryCode")]
+    new <- new[!new %in% c("X", "CountryCode")]
     # check if columns of current mapping exist in any mapping read before
-    if (any(new %in% rel)) warning("The following column(s) from ",mappings[r]," exist in another mapping an will be ignored: ",paste(new[new %in% rel], collapse = ", "))
+    if (any(new %in% rel)) warning("The following column(s) from ", mappings[r],
+                                   " exist in another mapping an will be ignored: ",
+                                   paste(new[new %in% rel], collapse = ", "))
     # append new columns removing duplicates
-    rel <- unique(c(rel,new))
+    rel <- unique(c(rel, new))
   }
-  
+
   #-------------- use columns from all regionmappings for aggregation ---------------------------------
-  
-  columnsForAggregation <- gsub("RegionCode","region",paste0(c(rel,"global"), collapse = "+"))
-  
+
+  columnsForAggregation <- gsub("RegionCode", "region", paste0(c(rel, "global"), collapse = "+"))
+
   #-------------- historical data ---------------------------------------------------------------------
 
   valfile <- "historical.mif"
