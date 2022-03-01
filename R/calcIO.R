@@ -6,9 +6,10 @@
 #' Mapping structure example: IEA product ANTCOAL used for IEA flow TPATFUEL, contributes via REMIND technology
 #' coaltr for generating sesofos from pecoal (REMIND names)
 #'
-#' When using subtype \code{output_Industry_subsectors}, additional corrections
-#' are applied to the IEA data in \code{\link{toolFixIEAdataForIndustrySubsectors}}.
-#'
+#' When using subtype `output_Industry_subsectors`, additional corrections are
+#' applied to the IEA data in [`tool_fix_IEA_data_for_Industry_subsectors`].
+#' 
+#' @md
 #' @param subtype Data subtype. See default argument for possible values.
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis
@@ -64,7 +65,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   )
 
   # read in data and convert from ktoe to EJ
-  data <- readSource("IEA", subtype = "EnergyBalances") * 0.0000418680000
+  data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5
 
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
@@ -76,16 +77,33 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                         mutate(REMINDitems_out = "feelb"))
   }
 
-  # delete NAs rows
-  ieamatch <- ieamatch[c("iea_product", "iea_flows", target, "Weight")] %>%
-    na.omit() %>%
-    unite("target", all_of(target), sep = ".")
-  magpieNames <- ieamatch[["target"]] %>% unique()
-
   if (subtype == "output_Industry_subsectors") {
     # apply corrections to IEA data to cope with fragmentary time series
-    data <- toolFixIEAdataForIndustrySubsectors(data, ieamatch)
+    names_data_before <- getNames(data)
+    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch)
+    # check that no dimensions not present in the mapping has been added to the 
+    # data
+    if (!is_empty(setdiff(getNames(data), names_data_before))) {
+      stop('Product/flow combinations not present in mapping added by ',
+           'fix_IEA_data_for_Industry_subsectors():\n',
+           paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
+    }
+    # FIXME remove product/flow combinations from the mapping that have been 
+    # removed from the data while replacing coke oven and blast furnace outputs
+    ieamatch <- ieamatch %>% 
+      as_tibble() %>% 
+      filter(paste(.data$iea_product, .data$iea_flows, sep = '.') 
+             %in% getNames(data))
   }
+
+  # delete NAs rows
+  ieamatch <- ieamatch %>% 
+    as_tibble() %>% 
+    select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>% 
+    na.omit() %>%
+    unite("target", all_of(target), sep = ".", remove = FALSE)
+  magpieNames <- ieamatch[["target"]] %>% unique()
+  
   if (subtype == "output_biomass") {
     magpieNames <- grep("(fesob|fesoi)", magpieNames, value = TRUE)
     if (is.null(magpieNames)) {
@@ -94,26 +112,28 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     }
   }
 
-  # in case we include IEA categories in the output, iea categories in `ieamatch` got renamed
-  ieapname <- "iea_product"
-  ieafname <- "iea_flows"
-  if (subtype %in% c("IEA_output", "IEA_input")) {
-    ieapname <- "iea_product.1"
-    ieafname <- "iea_flows.1"
-  }
-
-  reminditems <-  do.call(mbind,
-                          lapply(magpieNames, function(item) {
-                            testdf <- ieamatch[ieamatch$target == item, c(ieapname, ieafname, "Weight")]
-                            prfl <- paste(testdf[, ieapname], testdf[, ieafname], sep = ".")
-                            vec <- as.numeric(ieamatch[rownames(testdf), "Weight"])
-                            names(vec) <- prfl
-                            tmp <- data[, , prfl] * as.magpie(vec)
-                            tmp <- dimSums(tmp, dim = 3, na.rm = TRUE)
-                            getNames(tmp) <- item
-                            return(tmp)
-
-                          })
+  reminditems <-  do.call(
+    mbind,
+    lapply(magpieNames, 
+           function(item) {
+             product_flow <- ieamatch %>% 
+               filter(item == .data$target) %>% 
+               unite('product.flow', c('iea_product', 'iea_flows'), 
+                     sep = '.') %>% 
+               pull('product.flow')
+             
+             weights <- ieamatch %>% 
+               filter(item == .data$target) %>% 
+               pull('Weight') %>% 
+               as.numeric()
+             
+             tmp <- dimSums(  data[,,product_flow] 
+                            * setNames(as.magpie(weights), product_flow),
+                            dim = 3, na.rm = TRUE)
+             getNames(tmp) <- item
+             
+             return(tmp)
+             })
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
@@ -137,18 +157,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   # replace IEA data for 1st generation biomass with data that also MAgPIE uses
-  if (subtype == "input") {
-    bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
-    reminditems[, , "pebios.seliqbio.bioeths"] <-
-      time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),
-                       integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-    reminditems[, , "pebioil.seliqbio.biodiesel"] <-
-      time_interpolate(bio1st[, , "pebioil"], interpolated_year = getYears(reminditems),
-                       integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-  }
-
-  # replace IEA data for 1st generation biomass with data that also MAgPIE uses
-  if (subtype %in% c("output", "output_Industry_subsectors")) {
+  if (subtype %in% c("input", "output", "output_Industry_subsectors")) {
     bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
     reminditems[, , "pebios.seliqbio.bioeths"] <-
       time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),

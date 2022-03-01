@@ -893,21 +893,19 @@ calcSteel_Projections <- function(subtype = 'production',
       production           = .data$new.stock - .data$adj.trade)
   
   if (is.data.frame(China_Production)) {
+    China_Production <- China_Production %>% 
+      interpolate_missing_periods(period = seq_range(range(.$period)),
+                                  value = 'total.production',
+                                  method = 'spline') %>% 
+      mutate(total.production = .data$total.production * 1e6)
+    
     production_estimates <- production_estimates %>% 
       ungroup() %>% 
       select('scenario', 'iso3c', 'year', 'production') %>% 
       filter('SSP2EU' == .data$scenario, 
              'CHN' == .data$iso3c,
              max(steel_historic_prod$year) < .data$year) %>% 
-      left_join(
-        China_Production %>% 
-        interpolate_missing_periods(period = seq_range(range(.$period)),
-                                    value = 'total.production',
-                                    method = 'spline') %>% 
-        mutate(total.production = .data$total.production * 1e6),
-        
-        c('year' = 'period')
-      ) %>% 
+      left_join(China_Production, c('year' = 'period')) %>% 
       mutate(value = .data$total.production / .data$production) %>% 
       select('iso3c', 'year', 'value') %>% 
       expand_grid(scenario = unique(production_estimates$scenario)) %>% 
@@ -1067,20 +1065,62 @@ calcSteel_Projections <- function(subtype = 'production',
   # match exogenous estimates ----
   ## IEA ETP 2017 ----
   if ('IEA_ETP' == match.steel.estimates) {
-    scaling_factor <- inner_join(
-      tmp %>% 
+    # projected SSP2 production aggregated into OECD/Non-OECD regions
+    # w/o Chinese production if that is exogenously prescribed
+    if (!is.data.frame(China_Production)) {
+      projected_production <- tmp %>% 
         filter('SSP2' == .data$scenario) %>% 
-        mutate(region = ifelse(.data$iso3c %in% OECD_iso3c, 'OECD', 'Non-OECD')) %>% 
+        mutate(
+          region = ifelse(.data$iso3c %in% OECD_iso3c, 'OECD', 'Non-OECD')) %>% 
         group_by(.data$region, .data$year) %>% 
-        summarise(value = sum(.data$value) * 1e-6, .groups = 'drop'),
-      
-      readSource('IEA_ETP', 'industry', FALSE) %>% 
-        `[`(,,'RTS.Industry|Materials production|Crude steel.Mt') %>% 
-        as.data.frame() %>% 
-        as_tibble() %>% 
-        select(region = 'Region', year = 'Year', ETP = 'Value') %>% 
-        character.data.frame() %>% 
-        mutate(year = as.integer(.data$year)),
+        summarise(value = sum(.data$value) * 1e-6, .groups = 'drop')
+    } else  {
+      projected_production <- tmp %>% 
+        filter('SSP2' == .data$scenario,
+               'CHN' != .data$iso3c) %>% 
+        mutate(
+          region = ifelse(.data$iso3c %in% OECD_iso3c, 'OECD', 'Non-OECD')) %>% 
+        group_by(.data$region, .data$year) %>% 
+        summarise(value = sum(.data$value) * 1e-6, .groups = 'drop')
+    }
+    
+    # IEA ETP RTS production, minus Chinese production if exogenously prescribed
+    ETP_production <- readSource('IEA_ETP', 'industry', FALSE) %>% 
+      `[`(,,'RTS.Industry|Materials production|Crude steel.Mt') %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(region = 'Region', year = 'Year', ETP = 'Value') %>% 
+      filter(.data$region %in% c('OECD', 'Non-OECD')) %>% 
+      character.data.frame() %>% 
+      mutate(year = as.integer(.data$year))
+    
+    if (is.data.frame(China_Production)) {
+      ETP_production <- bind_rows(
+        ETP_production %>% 
+          filter('OECD' == .data$region),
+        
+        ETP_production %>% 
+          filter('Non-OECD' == .data$region) %>% 
+          left_join(
+            China_Production %>% 
+              mutate(total.production = .data$total.production * 1e-6), 
+            
+            c('year' = 'period')
+          ) %>% 
+          mutate(total.production = ifelse(!is.na(.data$total.production),
+                                           .data$total.production,
+                                           last(na.omit(.data$total.production))),
+                 ETP = .data$ETP - .data$total.production) %>% 
+          select(-'total.production')
+      ) %>% 
+        verify(expr = .data$ETP > 0,
+               description = paste('exogenous Chinese production does not exceed',
+                                   'IEA ETP Non-OECD production'))
+    }
+    
+    scaling_factor <- inner_join(
+      projected_production,
+      ETP_production,
       
       c('region', 'year')
     ) %>% 
@@ -1098,16 +1138,34 @@ calcSteel_Projections <- function(subtype = 'production',
                                 yright = last(na.omit(.data$factor)))) %>% 
       ungroup()
     
-    IEA_ETP_matched <- tmp %>% 
-      mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c, 
-                                  'OECD', 'Non-OECD')) %>% 
-      full_join(scaling_factor, c('year', 'OECD.region' = 'region')) %>% 
-      mutate(value = .data$value * .data$factor) %>% 
-      select(-'factor', -'OECD.region') %>% 
-      complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))),
-               year = unique(.$year),
-               fill = list(value = 0)) %>% 
-      arrange('scenario', 'region', 'iso3c', 'year', 'variable')
+    if (!is.data.frame(China_Production)) {
+      IEA_ETP_matched <- tmp %>% 
+        mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c, 
+                                    'OECD', 'Non-OECD')) %>% 
+        full_join(scaling_factor, c('year', 'OECD.region' = 'region')) %>% 
+        mutate(value = .data$value * .data$factor) %>% 
+        select(-'factor', -'OECD.region') %>% 
+        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))),
+                 year = unique(.$year),
+                 fill = list(value = 0)) %>% 
+        arrange('scenario', 'region', 'iso3c', 'year', 'variable')
+    } else {
+      IEA_ETP_matched <- tmp %>% 
+        filter('CHN' != .data$iso3c) %>% 
+        mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c, 
+                                    'OECD', 'Non-OECD')) %>% 
+        full_join(scaling_factor, c('year', 'OECD.region' = 'region')) %>% 
+        mutate(value = .data$value * .data$factor) %>% 
+        select(-'factor', -'OECD.region') %>% 
+        bind_rows(
+          tmp %>% 
+            filter('CHN' == .data$iso3c)
+        ) %>% 
+        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))),
+                 year = unique(.$year),
+                 fill = list(value = 0)) %>% 
+        arrange('scenario', 'region', 'iso3c', 'year', 'variable')
+    }
     
     ## construct output ----
     x <- IEA_ETP_matched %>% 
