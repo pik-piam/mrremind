@@ -3,6 +3,7 @@
 #' Returns the Edge data at the Remind level
 #'
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
+#' @importFrom assertr verify
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table := 
@@ -1161,6 +1162,31 @@ calcFEdemand <- function(subtype = "FE") {
           + (.data$specific.energy * .data$limit))) %>% 
       ungroup() %>% 
       select('scenario', 'region', 'year', 'subsector', 'specific.energy')
+    
+    industry_subsectors_specific_energy <- industry_subsectors_specific_energy %>% 
+      anti_join(
+        industry_subsectors_specific_energy %>% 
+          filter(0 == .data$specific.energy),
+        
+        c('scenario', 'region', 'year', 'subsector')
+      ) %>% 
+      bind_rows(
+        left_join(
+          industry_subsectors_specific_energy %>% 
+            filter(0 == .data$specific.energy) %>% 
+            select(-'specific.energy'),
+          
+          industry_subsectors_specific_energy %>% 
+            filter(0 != .data$specific.energy) %>% 
+            group_by(!!!syms(c('scenario', 'year', 'subsector'))) %>% 
+            summarise(specific.energy = mean(.data$specific.energy), 
+                      .groups = 'drop'),
+          
+          c('scenario', 'year', 'subsector')
+        )
+      ) %>% 
+      verify(expr = 0 < .data$specific.energy,
+             description = 'All specific energy factors above 0')
     
     ### converge subsector en shares to global value ----
     # calculate global shares, weighted by subsector activity
