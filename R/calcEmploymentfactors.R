@@ -2,8 +2,12 @@
 #' @description Collects and combines employment factors for different technologies and activities, from different sources. For all activities except Fuel_supply, units are Full Time Equivalent (FTE)/MW. For Fuel supply, units are FTE/PJ; for nuclear FTE/GWh. The param improvements denotes specific country-level data and is considered an improvement over stock data from rutovitz2015(none)
 #' @author Aman Malik
 #' @param improvements Either "None", "CEEW", "Dias", "Rutovitz_aus","Solar_found" or "All". Use "All" for all improvements. 
-#' @param multiplier source of regional multiplier. Either "Ram", "Rutovitz", "own" or "static"
+#' @param multiplier source of regional multiplier. Either "Ram", "Rutovitz", "own" or "static". By default use "own"
+#' \dontrun{ 
+#' calcOutput("Employmentfactors", improvements = "All", multiplier = "own")
+#' }
 #' @return employment factors aggregated by region for certain techs and activities
+#' @export
 
 calcEmploymentfactors <- function(improvements,multiplier){
   if (improvements=="None"||improvements=="CEEW"||improvements=="Dias"||improvements=="Rutovitz_aus"||improvements=="Solar_found"||improvements=="All"){
@@ -114,7 +118,7 @@ calcEmploymentfactors <- function(improvements,multiplier){
     x1[,,"Wind onshore.CI"] <- 3.3 # from IRENA (2017)   Renewable energy benefits: Leveraging capacity for wind onshore
     x1[,,"Wind onshore.Manf"] <- 1.7 # 
     x1[,,"Wind onshore.OM"] <- 0.19 # Fragkos is the average data for OM from Fragkos and Paroussos, "Employment creation in EU related to renewables expansion", Applied Energy, 2018
-    # only those OM values are used which deviate significantly from Rutovitz et al. These are assumed to be for all OECD countries
+      # only those OM values are used which deviate significantly from Rutovitz et al. These are assumed to be for all OECD countries
     x1[,,"Solar|PV-utility.OM"] <- 0.15 # Fragkos
     x1[,,"Biomass.OM"] <- 0.25 # Fragkos
     
