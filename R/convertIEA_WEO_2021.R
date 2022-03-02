@@ -1,14 +1,14 @@
 #' Disaggregates IEA WEO 2021 Data
 #' @param x MAgPIE object to be converted
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "GLO" or "regional"
+#' @param subtype Either "global" or "region"
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
 
-convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
+convertIEA_WEO_2021 <- function(x, subtype = "global") {
   PE <- calcOutput("PE", aggregate = FALSE)
-  if (subtype == "GLO") {
+  if (subtype == "global") {
 
     # for now, we only have complete data on global level
     x.world <- x["World", , ]
@@ -25,7 +25,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     weight <- PE[, 2016, "PE (EJ/yr)"]
     x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
     return(x.world)
-  } else if (subtype == "regional") {
+  } else if (subtype == "region") {
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
@@ -39,7 +39,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
       regions <- intersect(regions_in, getItems(x, dim = 1))
 
       # iso countries in x
-      ctry <- toolCountry2isocode(getItems(x, dim = 1), warn = F)
+      ctry <- toolCountry2isocode(getItems(x, dim = 1), warn = FALSE)
       ctry <- ctry[!is.na(ctry)]
 
       # mapping of regions to iso countries other than in ctry (i.e. other regions)
@@ -58,12 +58,12 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
         return(toolCountryFill(x2, fill = NA, verbosity = 2))
       }
 
-      getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
+      getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = FALSE)
 
       # combine the two objects
       x <- mbind(x1, x2)
       x <- toolCountryFill(x, fill = NA, verbosity = 2)
-      
+
       return(x)
     }
 
@@ -71,14 +71,14 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
     x.reg <- x[c(
       "Atlantic Basin", "East of Suez", "NonOPEC", "OPEC", "Japan and Korea",
       "Southeast Asia", "Other", "European Union", "World"
-    ), , , invert = T]
+    ), , , invert = TRUE]
 
     # remove all-na variables
     remove <- magpply(x.reg, function(y) all(is.na(y)), MARGIN = 3)
     x.reg <- x.reg[, , !remove]
 
     # remove 2040 as year, as source has no regional data for this year
-    x.reg <- x.reg[, 2040, , invert = T]
+    x.reg <- x.reg[, 2040, , invert = TRUE]
 
     regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe",
                  "Eurasia", "Middle East", "North America")
@@ -117,13 +117,13 @@ convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
       x.regional <- mbind(x.regional, .disaggregate_regions(x_in = j, regions_in = regions))
     }
 
-    x.regional <- x.regional[, , "dummy", invert = T]
+    x.regional <- x.regional[, , "dummy", invert = TRUE]
 
     Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
-    x.regional[Non28EUcountries,,] <- 0
-    
+    x.regional[Non28EUcountries, , ] <- 0
+
     return(x.regional)
   } else {
-    stop("Not a valid subtype! Must be either \"regional\" or \"GLO\"")
+    stop("Not a valid subtype! Must be either \"region\" or \"global\"")
   }
 }

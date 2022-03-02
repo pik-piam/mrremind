@@ -698,40 +698,38 @@ calcFEdemand <- function(subtype = "FE") {
     #reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
 
     
-    # ---- Industry subsectors data stubs ----
-    ## Cement/Chemicals/other Industries activity ----
-    industry_subsectors_ue <- readSource('EDGE_Industry', 
-                    'cement_chemicals_otherInd_production_scenarios') %>% 
-      as.data.frame() %>% 
-      as_tibble() %>% 
-      mutate(
-        year = paste0('y', .data$Year),
-        scenario = paste0('gdp_', .data$Data1), 
-        item = paste0('ue_', sub('_(production|VA)$', '', .data$Data2))) %>% 
-      select('Region', 'year', 'scenario', 'item', 'Value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
+    # ---- Industry subsectors data and FE stubs ----
+    ## subsector activity projections ----
+    China_Production <-  tribble(
+      ~period,   ~total.production,
+      2005,       375,
+      2010,       640,
+      2015,       820,
+      2020,      1000,
+      2025,      1000,
+      2030,       875,
+      2035,       650,
+      2040,       500,
+      2045,       425,
+      2050,       400)
     
-    ## Steel activity ----
-    industry_steel <- readSource('EDGE_Industry',
-                                 'steel_production_scenarios') %>%
-      as.data.frame() %>% 
-      as_tibble() %>% 
-      mutate(Year = as.integer(as.character(.data$Year))) %>% 
-      interpolate_missing_periods(
-        Year = as.integer(sub('^y', '', getYears(reminditems))),
-        value = 'Value',
-                                  expand.values = TRUE) %>% 
-      mutate(year = paste0('y', .data$Year),
-             scenario = paste0('gdp_', .data$Data1),
-             item = paste0('ue_steel_', sub('_production', '', .data$Data2)),
-             # t * 1e-9 Gt/t = t
-             value = .data$Value * 1e-9) %>% 
-      select('Region', 'year', 'scenario', 'item', 'value') %>% 
-      filter(.data$year %in% unique(getYears(reminditems))) %>%
-      as.magpie(tidy = TRUE)
-    
-    ## extend to SSP2_lowEn ----
+    industry_subsectors_ue <- mbind(
+      calcOutput(type = 'Industry_Value_Added',
+                 match.steel.historic.values = TRUE,
+                 match.steel.estimates = 'IEA_ETP', 
+                 China_Production = China_Production,
+                 aggregate = FALSE,
+                 years = getYears(reminditems), supplementary = FALSE),
+      
+      calcOutput(type = 'Steel_Projections', 
+                 match.steel.historic.values = TRUE,
+                 match.steel.estimates = 'IEA_ETP', 
+                 China_Production = China_Production,
+                 aggregate = FALSE,
+                 years = getYears(reminditems), supplementary = FALSE)
+    )
+
+    ### extend to SSP2_lowEn ----
     # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
     # tech assumptions as in SDP".
     # But population is lower in SDP than in SSP2, per-capita energy demands are
@@ -763,22 +761,7 @@ calcFEdemand <- function(subtype = "FE") {
       industry_subsectors_ue_SSP2_lowEn
     )
     
-    industry_steel_SSP2_lowEn <- (
-        dimSums(industry_steel[,,'gdp_SDP'], dim = 3.1)
-      / dimSums(foo_pop[,getYears(industry_steel),'pop_SDP'])
-      * dimSums(foo_pop[,getYears(industry_steel),'pop_SSP2'])
-      * factor_a
-    )
-    
-    getNames(industry_steel_SSP2_lowEn) <- paste(
-      'gdp_SSP2_lowEn', getNames(industry_steel_SSP2_lowEn), sep = '.')
-    
-    industry_steel <- mbind(
-      industry_steel,
-      industry_steel_SSP2_lowEn
-    )
-    
-    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn, industry_steel_SSP2_lowEn)
+    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn)
     
     ## subsector FE shares ----
     . <- NULL
@@ -808,7 +791,7 @@ calcFEdemand <- function(subtype = "FE") {
       summarise(value = sum(.data$value), .groups = 'drop') %>% 
       # split feel steel into primary and secondary production
       left_join(
-        industry_steel %>% 
+        industry_subsectors_ue[,,'ue_steel', pmatch = TRUE] %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(iso3c = 'Region', scenario = 'Data1', year = 'Year', 
@@ -974,7 +957,8 @@ calcFEdemand <- function(subtype = "FE") {
         filter('feel' == .data$fety, 'steel' == .data$subsector) %>% 
         select(-'fety', -'subsector') %>% 
         inner_join(
-          industry_steel %>% 
+          industry_subsectors_ue %>% 
+            `[`(,,'ue_steel_', pmatch = TRUE) %>% 
             as.data.frame() %>% 
             as_tibble() %>% 
             select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
@@ -1035,7 +1019,7 @@ calcFEdemand <- function(subtype = "FE") {
              'share') %>% 
       # weight by subsector activity
       left_join(
-        mbind(industry_subsectors_ue, industry_steel) %>% 
+        industry_subsectors_ue %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(iso3c = 'Region', period = 'Year', scenario = 'Data1',
@@ -1105,7 +1089,7 @@ calcFEdemand <- function(subtype = "FE") {
         group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>% 
         summarise(value = sum(.data$value), .groups = 'drop'),
       
-      mbind(industry_subsectors_ue, industry_steel) %>% 
+      industry_subsectors_ue %>% 
         as.data.frame() %>% 
         as_tibble() %>% 
         select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
@@ -1154,7 +1138,7 @@ calcFEdemand <- function(subtype = "FE") {
     # calculate global shares, weighted by subsector activity
     industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>% 
       inner_join(
-        mbind(industry_subsectors_ue, industry_steel) %>% 
+        industry_subsectors_ue %>% 
           as.data.frame() %>% 
           as_tibble() %>% 
           select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
@@ -1202,7 +1186,7 @@ calcFEdemand <- function(subtype = "FE") {
         full_join(region_mapping_21, 'region') %>% 
         select(-'region'),
     
-      mbind(industry_subsectors_ue, industry_steel) %>% 
+      industry_subsectors_ue %>% 
         as.data.frame() %>% 
         as_tibble() %>% 
         select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
@@ -1230,7 +1214,7 @@ calcFEdemand <- function(subtype = "FE") {
       as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
     
-    reminditems <- mbind(reminditems, industry_subsectors_en, industry_steel, 
+    reminditems <- mbind(reminditems, industry_subsectors_en, 
                          industry_subsectors_ue)
     
     unit_out <- paste0(unit_out,

@@ -93,8 +93,8 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
 
     
     #--- Then load the final energy data
-    hist_fe_stationary = calcOutput("IO", subtype = "output_EDGE", aggregate = F)
-    hist_fe_buildings = calcOutput("IO", subtype = "output_EDGE_buildings", aggregate = F)
+    hist_fe_stationary = calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = F)
+    hist_fe_buildings = calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = F)
     hist_fe_transport = calcOutput("IO", subtype="output", aggregate = F)
    
     wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
@@ -106,7 +106,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     x[is.na(x)] <- 0 
     
     if (any(wfe < 0 )){
-      warning("calcOutput('IO', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0")
+      warning("calcOutput('IOEdgeBuildings', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0")
       wfe[wfe < 0 ] = 0 
     }
     
