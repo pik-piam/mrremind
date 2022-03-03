@@ -3,11 +3,8 @@
 #' @author Aman Malik
 #' @param improvements Either "None", "CEEW", "Dias", "Rutovitz_aus","Solar_found" or "All". Use "All" for all improvements. 
 #' @param multiplier source of regional multiplier. Either "Ram", "Rutovitz", "own" or "static". By default use "own"
-#' \dontrun{ 
-#' calcOutput("Employmentfactors", improvements = "All", multiplier = "own")
-#' }
+
 #' @return employment factors aggregated by region for certain techs and activities
-#' @export
 
 calcEmploymentfactors <- function(improvements,multiplier){
   if (improvements=="None"||improvements=="CEEW"||improvements=="Dias"||improvements=="Rutovitz_aus"||improvements=="Solar_found"||improvements=="All"){

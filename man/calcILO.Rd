@@ -17,3 +17,6 @@ magpie object with employment data for different years
 calcILO
 ILO data for employment in oil and gas; coal and lignite
 }
+\author{
+Aman Malik
+}
