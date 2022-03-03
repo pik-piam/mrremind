@@ -7,13 +7,13 @@
 calcCoalLabourProductivity <- function(subtype){
   Year <- NULL
   emp <- calcOutput("ILO",subtype="all",aggregate = F)[,,"Coal and Lignite"]
-  dias <- readSource("Dias", subtype = "Employment")
+  dias <- readSource("Dias", subtype = "Employment") # Employment data from Dias et al. for EU
   dias <- dias[,,"direct.Fuel_supply.Coal"]
   #regs <- setdiff(getRegions(dias)[which(dias>0)],c("HUN","ITA","GBR")) #countries in Europe with coal employment
   regs <- getRegions(dias)[which(dias>0)]
   dias <- dias[regs,,]
   dias <- collapseNames(dias)
-  prod <- readSource("BP","Production") # coal production from BP data
+  prod <- readSource(type = "BP",subtype = "Production") # coal production from BP data
   prod <- prod[,,c("Coal Production (EJ)","Coal Production (t)")]
   prod["ZAF","y2019","Coal Production (t)"] <- 258.5 # overwriting BP value with data from national source
   # eur <- dimSums(prod[regs,,c("Coal Production (t)","Coal Production (EJ")],dim = 1)# since EUR is not a region in BP, summing over all countries with coal production
