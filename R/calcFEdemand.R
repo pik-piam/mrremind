@@ -13,7 +13,8 @@
 #' @importFrom tidyr extract complete nesting replace_na crossing unite 
 #'   pivot_longer pivot_wider separate
 #' @importFrom readr read_delim
-#' @importFrom quitte seq_range interpolate_missing_periods character.data.frame cartesian
+#' @importFrom quitte seq_range interpolate_missing_periods character.data.frame
+#'   cartesian 
 #' @importFrom magclass mselect getItems getItems<-
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
@@ -729,41 +730,158 @@ calcFEdemand <- function(subtype = "FE") {
                  aggregate = FALSE,
                  years = getYears(reminditems), supplementary = FALSE)
     )
-
-    ### extend to SSP2_lowEn ----
-    # SSP2_lowEn is described as "per capita energy demands similar to SDP, also
-    # tech assumptions as in SDP".
-    # But population is lower in SDP than in SSP2, per-capita energy demands are
-    # higher.  So we apply an addition scaling factor (1 - b)^t with b linearly
-    # converging from a to a/2 over 150 years (end of model horizon).
-    a <- 0.01
-    factor_a <- tibble(year = getYears(industry_subsectors_ue, 
-                                       as.integer = TRUE)) %>% 
-      mutate(
-        x = pmax(0, .data$year - 2020),
-        factor = (1 - (a - (a / 300) * .data$x)) ^ .data$x) %>% 
-      select('year', 'factor') %>% 
-      as.magpie(temporal = 1, spatial = 0, data = 2) %>% 
-      dimSums()
     
-    foo_pop <- calcOutput('Population', aggregate = FALSE, FiveYearSteps = FALSE)
+    ## re-curve specific industry activity per unit GDP ----
+    foo <- full_join(
+      industry_subsectors_ue %>% 
+        as.data.frame() %>% 
+        as_tibble() %>% 
+        select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
+               subsector = 'Data2', value = 'Value') %>% 
+        character.data.frame() %>% 
+        mutate(year = as.integer(.data$year)),
+      
+      calcOutput(type = 'GDP', FiveYearSteps = FALSE, 
+                 years = getYears(reminditems), aggregate = FALSE,
+                 supplementary = FALSE) %>% 
+        as.data.frame() %>% 
+        as_tibble() %>% 
+        select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
+               GDP = 'Value') %>% 
+        character.data.frame() %>% 
+        mutate(year = as.integer(.data$year)),
+      
+      c('iso3c', 'year', 'scenario')
+    ) %>% 
+      assert(not_na, everything())
     
-    industry_subsectors_ue_SSP2_lowEn <- (
-        dimSums(industry_subsectors_ue[,,'gdp_SDP'], dim = 3.1)
-      / dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SDP'])
-      * dimSums(foo_pop[,getYears(industry_subsectors_ue),'pop_SSP2'])
-      * factor_a)
+    industry_subsectors_material_alpha <- tribble(
+      ~scenario,            ~subsector, ~alpha,
+      'gdp_SSP1',           'cement',            0.03,
+      'gdp_SSP1',           'chemicals',         0.05,
+      'gdp_SSP1',           'steel_primary',     0.06,
+      'gdp_SSP1',           'steel_secondary',   0.06,
+      'gdp_SSP1',           'otherInd',          0.02,
+      'gdp_SSP2EU_lowEn',   'cement',            0.03,
+      'gdp_SSP2EU_lowEn',   'chemicals',         0.05,
+      'gdp_SSP2EU_lowEn',   'steel_primary',     0.06,
+      'gdp_SSP2EU_lowEn',   'steel_secondary',   0.06,
+      'gdp_SSP2EU_lowEn',   'otherInd',          0.02) %>% 
+      mutate(subsector = paste0('ue_', .data$subsector))
     
-    getNames(industry_subsectors_ue_SSP2_lowEn) <- paste(
-      'gdp_SSP2_lowEn', getNames(industry_subsectors_ue_SSP2_lowEn), sep = '.')
+    industry_subsectors_material_relative <- tribble(
+      ~scenario,      ~base,          ~subsector,         ~factor,
+      'gdp_SDP',      'gdp_SSP1',     'cement',            1,
+      'gdp_SDP',      'gdp_SSP1',     'chemicals',         1,
+      'gdp_SDP',      'gdp_SSP1',     'steel_primary',     1,
+      'gdp_SDP',      'gdp_SSP1',     'steel_secondary',   1,
+      'gdp_SDP',      'gdp_SSP1',     'otherInd',          1,
+      'gdp_SDP_EI',   'gdp_SSP1',     'cement',            0.9,
+      'gdp_SDP_EI',   'gdp_SSP1',     'chemicals',         0.9,
+      'gdp_SDP_EI',   'gdp_SSP1',     'steel_primary',     0.9,
+      'gdp_SDP_EI',   'gdp_SSP1',     'steel_secondary',   0.9,
+      'gdp_SDP_EI',   'gdp_SSP1',     'otherInd',          0.9,
+      'gdp_SDP_MC',   'gdp_SSP1',     'cement',            0.85,
+      'gdp_SDP_MC',   'gdp_SSP1',     'chemicals',         0.85,
+      'gdp_SDP_MC',   'gdp_SSP1',     'steel_primary',     0.85,
+      'gdp_SDP_MC',   'gdp_SSP1',     'steel_secondary',   0.85,
+      'gdp_SDP_MC',   'gdp_SSP1',     'otherInd',          0.85,
+      'gdp_SDP_RC',   'gdp_SSP1',     'cement',            1.1,
+      'gdp_SDP_RC',   'gdp_SSP1',     'chemicals',         1.1,
+      'gdp_SDP_RC',   'gdp_SSP1',     'steel_primary',     1.1,
+      'gdp_SDP_RC',   'gdp_SSP1',     'steel_secondary',   1.1,
+      'gdp_SDP_RC',   'gdp_SSP1',     'otherInd',          1.1,
+      'gdp_SSP2',     'gdp_SSP2EU',   'cement',            1,
+      'gdp_SSP2',     'gdp_SSP2EU',   'chemicals',         1,
+      'gdp_SSP2',     'gdp_SSP2EU',   'steel_primary',     1,
+      'gdp_SSP2',     'gdp_SSP2EU',   'steel_secondary',   1,
+      'gdp_SSP2',     'gdp_SSP2EU',   'otherInd',          1,
+      'gdp_SSP3',     'gdp_SSP2EU',   'cement',            1,
+      'gdp_SSP3',     'gdp_SSP2EU',   'chemicals',         1,
+      'gdp_SSP3',     'gdp_SSP2EU',   'steel_primary',     1,
+      'gdp_SSP3',     'gdp_SSP2EU',   'steel_secondary',   1,
+      'gdp_SSP3',     'gdp_SSP2EU',   'otherInd',          1,
+      'gdp_SSP4',     'gdp_SSP2EU',   'cement',            1,
+      'gdp_SSP4',     'gdp_SSP2EU',   'chemicals',         1,
+      'gdp_SSP4',     'gdp_SSP2EU',   'steel_primary',     1,
+      'gdp_SSP4',     'gdp_SSP2EU',   'steel_secondary',   1,
+      'gdp_SSP4',     'gdp_SSP2EU',   'otherInd',          1,
+      'gdp_SSP5',     'gdp_SSP2EU',   'cement',            1,
+      'gdp_SSP5',     'gdp_SSP2EU',   'chemicals',         1,
+      'gdp_SSP5',     'gdp_SSP2EU',   'steel_primary',     1,
+      'gdp_SSP5',     'gdp_SSP2EU',   'steel_secondary',   1,
+      'gdp_SSP5',     'gdp_SSP2EU',   'otherInd',          1) %>% 
+      mutate(subsector = paste0('ue_', .data$subsector))
     
-    industry_subsectors_ue <- mbind(
-      industry_subsectors_ue,
-      industry_subsectors_ue_SSP2_lowEn
+    foo2 <- bind_rows(
+      # SSP2EU is the default scenario
+      foo %>% 
+        filter('gdp_SSP2EU' == .data$scenario),
+      
+      # these scenarios are pegged to SSP2EU
+      industry_subsectors_material_alpha %>% 
+        full_join(
+          foo %>% 
+            filter('gdp_SSP2EU' == .data$scenario) %>% 
+            group_by(!!!syms(c('subsector', 'iso3c', 'year'))) %>% 
+            summarise(specific.production = .data$value / .data$GDP, 
+                      .groups = 'drop'),
+          
+          'subsector'
+        ) %>% 
+        group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>% 
+        mutate(specific.production = ifelse(
+          2015 >= .data$year,
+          .data$specific.production,
+          ( .data$specific.production[2015 == .data$year]
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+          ))) %>% 
+        ungroup() %>% 
+        left_join(
+          bind_rows(
+            foo, 
+            
+            
+            foo %>% 
+              filter('gdp_SSP2EU' == .data$scenario) %>% 
+              mutate(scenario = 'gdp_SSP2EU_lowEn')
+          ),
+          
+          c('scenario', 'subsector', 'iso3c', 'year')
+        ) %>% 
+        mutate(value = .data$specific.production * .data$GDP) %>% 
+        select(all_of(colnames(foo))) %>% 
+        assert(not_na, everything())
     )
     
-    rm(foo_pop, industry_subsectors_ue_SSP2_lowEn)
     
+    foo3 <- bind_rows(
+      foo2,
+      
+      industry_subsectors_material_relative %>% 
+        left_join(
+          foo2 %>% 
+            mutate(specific.production = .data$value / .data$GDP) %>% 
+            select(base = 'scenario', 'subsector', 'iso3c', 'year', 
+                   'specific.production'),
+          
+          c('base', 'subsector')
+        ) %>% 
+        left_join(
+          foo %>% 
+            select('scenario', 'subsector', 'iso3c', 'year', 'GDP'),
+          
+          c('scenario', 'subsector', 'iso3c', 'year')
+        ) %>% 
+        assert(not_na, everything()) %>% 
+        mutate(value = .data$specific.production * .data$GDP) %>% 
+        select(all_of(colnames(foo)))
+    )
+    
+    industry_subsectors_ue <- foo3 %>% 
+      select('iso3c', 'year', 'scenario', pf = 'subsector', 'value') %>% 
+      as.magpie(spatial = 1, temporal = 2, data = ncol(.))
+
     ## subsector FE shares ----
     . <- NULL
     
