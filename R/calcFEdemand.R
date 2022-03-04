@@ -732,6 +732,101 @@ calcFEdemand <- function(subtype = "FE") {
     )
     
     ## re-curve specific industry activity per unit GDP ----
+    GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, 
+                      years = getYears(reminditems), aggregate = FALSE,
+                      supplementary = FALSE) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
+             GDP = 'Value') %>% 
+      character.data.frame() %>% 
+      mutate(year = as.integer(.data$year))
+    
+    ### fix missing GDP numbers ----
+    # (see https://github.com/pik-piam/mrdrivers/issues/40)
+    if (any(0 == GDP$GDP)) {
+      GDP_fuckup_point <- GDP %>% 
+        filter(0 == .data$GDP) %>% 
+        group_by(!!!syms(c('iso3c', 'scenario'))) %>% 
+        filter(min(.data$year) == .data$year) %>% 
+        ungroup()
+      
+      GDP_replacement_scenario <- setdiff(
+        unique(GDP$scenario),
+        
+        GDP_fuckup_point %>% 
+          pull('scenario') %>% 
+          unique()
+      ) %>% 
+        first()
+      
+      GDP_fuckup_point <- GDP_fuckup_point %>% 
+        group_by(!!!syms(c('iso3c', 'scenario'))) %>% 
+        mutate(base.year = getYears(reminditems, TRUE) %>% 
+                 `[`(which(getYears(reminditems, TRUE) == !!sym('year')) - 1),
+               base.scenario = GDP_replacement_scenario) %>% 
+        ungroup() %>% 
+        select(-'GDP')
+      
+      GDP_replacement <- full_join(
+        GDP %>% 
+          semi_join(
+            GDP_fuckup_point,
+            
+            c('iso3c', 'scenario')
+          ) %>% 
+          left_join(
+            GDP_fuckup_point %>% 
+              select('iso3c', 'scenario', 'base.year'),
+            
+            c('iso3c', 'scenario')
+          ) %>% 
+          filter(.data$year >= .data$base.year) %>% 
+          select('iso3c', 'year', 'scenario', 'GDP'),
+        
+        GDP %>% 
+          semi_join(
+            GDP_fuckup_point,
+            
+            c('iso3c', scenario = 'base.scenario')
+          ) %>% 
+          left_join(
+            GDP_fuckup_point %>% 
+              select('iso3c', 'base.year', scenario = 'base.scenario') %>% 
+              distinct(),
+            
+            c('iso3c', 'scenario')
+          ) %>% 
+          filter(.data$year >= .data$base.year) %>% 
+          select(-'base.year') %>% 
+          group_by(!!!syms(c('iso3c', 'scenario'))) %>% 
+          mutate(factor = .data$GDP / lag(.data$GDP, default = first(.data$GDP),
+                                          order_by = .data$year)) %>% 
+          ungroup() %>% 
+          select('iso3c', 'year', 'factor'),
+        
+        c('iso3c', 'year')
+      ) %>% 
+        group_by(!!!syms(c('iso3c', 'scenario'))) %>% 
+        mutate(GDP = first(.data$GDP) * .data$factor) %>% 
+        ungroup() %>% 
+        select(all_of(colnames(GDP)))
+      
+      GDP <- bind_rows(
+        GDP %>% 
+          anti_join(
+            GDP_replacement, 
+            
+            c('iso3c', 'scenario', 'year')
+          ),
+        
+        GDP_replacement
+      ) %>% 
+        verify(expr = 0 < .data$GDP,
+               description = 'All GDP numbers > 0')
+    }
+
+    ### calculate specific material demand factors ----
     foo <- full_join(
       industry_subsectors_ue %>% 
         as.data.frame() %>% 
@@ -741,15 +836,7 @@ calcFEdemand <- function(subtype = "FE") {
         character.data.frame() %>% 
         mutate(year = as.integer(.data$year)),
       
-      calcOutput(type = 'GDP', FiveYearSteps = FALSE, 
-                 years = getYears(reminditems), aggregate = FALSE,
-                 supplementary = FALSE) %>% 
-        as.data.frame() %>% 
-        as_tibble() %>% 
-        select(iso3c = 'Region', year = 'Year', scenario = 'Data1', 
-               GDP = 'Value') %>% 
-        character.data.frame() %>% 
-        mutate(year = as.integer(.data$year)),
+       GDP,
       
       c('iso3c', 'year', 'scenario')
     ) %>% 
