@@ -892,13 +892,18 @@ calcFEdemand <- function(subtype = "FE") {
       'gdp_SSP4',     'gdp_SSP2EU',   'chemicals',         1,
       'gdp_SSP4',     'gdp_SSP2EU',   'steel_primary',     1,
       'gdp_SSP4',     'gdp_SSP2EU',   'steel_secondary',   1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'otherInd',          1,
-      'gdp_SSP5',     'gdp_SSP2EU',   'cement',            1,
-      'gdp_SSP5',     'gdp_SSP2EU',   'chemicals',         1,
-      'gdp_SSP5',     'gdp_SSP2EU',   'steel_primary',     1,
-      'gdp_SSP5',     'gdp_SSP2EU',   'steel_secondary',   1,
-      'gdp_SSP5',     'gdp_SSP2EU',   'otherInd',          1) %>% 
+      'gdp_SSP4',     'gdp_SSP2EU',   'otherInd',          1) %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
+    
+    industry_subsectors_material_relative_change <- tribble(
+      ~scenario,    ~base.scenario,   ~subsector,         ~factor,
+      'gdp_SSP5',   'gdp_SSP2EU',    'cement',            0.5,
+      'gdp_SSP5',   'gdp_SSP2EU',    'chemicals',         0.5,
+      'gdp_SSP5',   'gdp_SSP2EU',    'steel_primary',     0.5,
+      'gdp_SSP5',   'gdp_SSP2EU',    'steel_secondary',   0.5,
+      'gdp_SSP5',   'gdp_SSP2EU',    'otherInd',          0.5) %>% 
+      mutate(subsector = paste0('ue_', .data$subsector))
+    
     
     foo2 <- bind_rows(
       # SSP2EU is the default scenario
@@ -962,7 +967,36 @@ calcFEdemand <- function(subtype = "FE") {
         ) %>% 
         assert(not_na, everything()) %>% 
         mutate(value = .data$specific.production * .data$GDP) %>% 
-        select(all_of(colnames(foo)))
+        select(all_of(colnames(foo))),
+      
+      full_join(
+        industry_subsectors_material_relative_change,
+        
+        foo %>% 
+          semi_join(
+            industry_subsectors_material_relative_change,
+            
+            c('scenario' = 'base.scenario', 'subsector')
+          ),
+        
+        c('base.scenario' = 'scenario', 'subsector')
+      ) %>% 
+        select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP', 
+               'factor') %>%
+        group_by(!!!syms(c('scenario', 'iso3c', 'subsector'))) %>% 
+        mutate(specific.production = .data$value / .data$GDP,
+               change = ifelse(2015 >= .data$year,
+                               1, 
+                               ( ( .data$specific.production 
+                                 / .data$specific.production[2015 == .data$year]
+                                 )
+                               * .data$factor
+                               )),
+               change = ifelse(is.finite(.data$change), .data$change, 1),
+               specific.production = .data$specific.production * .data$change,
+               value = .data$specific.production * .data$GDP) %>% 
+        ungroup() %>% 
+        select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP')
     )
     
     industry_subsectors_ue <- foo3 %>% 
