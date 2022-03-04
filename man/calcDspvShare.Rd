@@ -18,3 +18,6 @@ Calculates the share of distributed solar pv, wind-onshore/offshore, hydro-small
 \details{
 Known limitations - source for distributed spv (IEA Renewables 2019) is different than source for total spv (IRENA 2019)
 }
+\author{
+Aman Malik
+}

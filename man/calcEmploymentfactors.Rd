@@ -9,7 +9,7 @@ calcEmploymentfactors(improvements, multiplier)
 \arguments{
 \item{improvements}{Either "None", "CEEW", "Dias", "Rutovitz_aus","Solar_found" or "All". Use "All" for all improvements.}
 
-\item{multiplier}{source of regional multiplier. Either "Ram", "Rutovitz", "own" or "static"}
+\item{multiplier}{source of regional multiplier. Either "Ram", "Rutovitz", "own" or "static". By default use "own"}
 }
 \value{
 employment factors aggregated by region for certain techs and activities

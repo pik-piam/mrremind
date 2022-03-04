@@ -1,6 +1,7 @@
 #' calcILO
 #' ILO data for employment in oil and gas; coal and lignite
 #' @param subtype "Reliable" and "all". ILO classifies its data per country into reliable, unreliable, and break in series (years without data). "Reliable" contains both reliable and break-in-series-data, "all" contains both reliable and unreliable data
+#' @author Aman Malik
 #' @return magpie object with employment data for different years
 
 calcILO <- function(subtype){

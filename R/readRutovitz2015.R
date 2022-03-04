@@ -21,7 +21,6 @@ readRutovitz2015 <- function(subtype) {
   duration <- NULL # average time (years) from start of construction to commission.
   Productivity <- NULL
   Year <- NULL
-  notes <- NULL
   value <- NULL
   if (subtype == "oecd_ef") {
 
