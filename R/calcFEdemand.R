@@ -849,11 +849,11 @@ calcFEdemand <- function(subtype = "FE") {
       'gdp_SSP1',           'steel_primary',     0.06,
       'gdp_SSP1',           'steel_secondary',   0.06,
       'gdp_SSP1',           'otherInd',          0.02,
-      'gdp_SSP2EU_lowEn',   'cement',            0.03,
-      'gdp_SSP2EU_lowEn',   'chemicals',         0.05,
-      'gdp_SSP2EU_lowEn',   'steel_primary',     0.06,
-      'gdp_SSP2EU_lowEn',   'steel_secondary',   0.06,
-      'gdp_SSP2EU_lowEn',   'otherInd',          0.02) %>% 
+      'gdp_SSP2_lowEn',   'cement',            0.03,
+      'gdp_SSP2_lowEn',   'chemicals',         0.05,
+      'gdp_SSP2_lowEn',   'steel_primary',     0.06,
+      'gdp_SSP2_lowEn',   'steel_secondary',   0.06,
+      'gdp_SSP2_lowEn',   'otherInd',          0.02) %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
     
     industry_subsectors_material_relative <- tribble(
@@ -936,7 +936,7 @@ calcFEdemand <- function(subtype = "FE") {
             
             foo %>% 
               filter('gdp_SSP2EU' == .data$scenario) %>% 
-              mutate(scenario = 'gdp_SSP2EU_lowEn')
+              mutate(scenario = 'gdp_SSP2_lowEn')
           ),
           
           c('scenario', 'subsector', 'iso3c', 'year')
