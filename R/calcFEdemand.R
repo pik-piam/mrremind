@@ -843,12 +843,12 @@ calcFEdemand <- function(subtype = "FE") {
       assert(not_na, everything())
     
     industry_subsectors_material_alpha <- tribble(
-      ~scenario,            ~subsector, ~alpha,
-      'gdp_SSP1',           'cement',            0.03,
-      'gdp_SSP1',           'chemicals',         0.05,
-      'gdp_SSP1',           'steel_primary',     0.06,
-      'gdp_SSP1',           'steel_secondary',   0.06,
-      'gdp_SSP1',           'otherInd',          0.02,
+      ~scenario,          ~subsector,          ~alpha,
+      'gdp_SSP1',         'cement',            0.03,
+      'gdp_SSP1',         'chemicals',         0.05,
+      'gdp_SSP1',         'steel_primary',     0.06,
+      'gdp_SSP1',         'steel_secondary',   0.06,
+      'gdp_SSP1',         'otherInd',          0.02,
       'gdp_SSP2_lowEn',   'cement',            0.03,
       'gdp_SSP2_lowEn',   'chemicals',         0.05,
       'gdp_SSP2_lowEn',   'steel_primary',     0.06,
@@ -946,7 +946,6 @@ calcFEdemand <- function(subtype = "FE") {
         assert(not_na, everything())
     )
     
-    
     foo3 <- bind_rows(
       foo2,
       
@@ -969,32 +968,57 @@ calcFEdemand <- function(subtype = "FE") {
         mutate(value = .data$specific.production * .data$GDP) %>% 
         select(all_of(colnames(foo))),
       
+      # changes of specific production relative to base scenario
       full_join(
-        industry_subsectors_material_relative_change,
-        
+        # base scenario data
         foo %>% 
+          rename(base.scenario = 'scenario') %>% 
           semi_join(
             industry_subsectors_material_relative_change,
             
-            c('scenario' = 'base.scenario', 'subsector')
+            c('base.scenario', 'subsector')
           ),
         
-        c('base.scenario' = 'scenario', 'subsector')
+        # change parameters
+        industry_subsectors_material_relative_change,
+        
+        c('base.scenario', 'subsector')
       ) %>% 
-        select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP', 
-               'factor') %>%
+        select('scenario', 'iso3c', 'subsector', 'year', 
+               base.value = 'value', base.GDP = 'GDP', 'factor') %>% 
+        # GDP trajectories of target scenarios
+        left_join(
+          foo %>% 
+            select('scenario', 'iso3c', 'subsector', 'year', 'GDP'),
+          
+          c('scenario', 'iso3c', 'subsector', 'year')
+        ) %>% 
         group_by(!!!syms(c('scenario', 'iso3c', 'subsector'))) %>% 
-        mutate(specific.production = .data$value / .data$GDP,
-               change = ifelse(2015 >= .data$year,
-                               1, 
-                               ( ( .data$specific.production 
-                                 / .data$specific.production[2015 == .data$year]
-                                 )
-                               * .data$factor
-                               )),
-               change = ifelse(is.finite(.data$change), .data$change, 1),
-               specific.production = .data$specific.production * .data$change,
-               value = .data$specific.production * .data$GDP) %>% 
+        mutate(
+          # specific production of base scenarios
+          base.specific.production = .data$base.value / .data$base.GDP,
+          # change in specific production of base scenarios relative to 2015
+          base.change = ifelse(
+            2015 >= .data$year, 1,
+            ( .data$base.specific.production
+            / .data$base.specific.production[2015 == .data$year]
+            )),
+          # modified change of target scenarios
+          # if base change is below (above) 1, i.e. material efficiency is
+          # improving (deteriorating), efficiency gains (losses) are halved 
+          # (doubled)
+          change = ifelse(
+            !is.finite(.data$base.change), 1,
+            ( ( (.data$base.change - 1) 
+              * .data$factor ^ sign(1 - .data$base.change)
+              )
+            + 1
+            )),
+          specific.production = 
+            ( .data$base.specific.production[2015 == .data$year]
+            * .data$change
+            ),
+          value = .data$specific.production * .data$GDP) %>% 
         ungroup() %>% 
         select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP')
     )
@@ -1279,9 +1303,9 @@ calcFEdemand <- function(subtype = "FE") {
                        sum(.data$share * .data$activity) / sum(.data$activity)),
         .groups = 'drop_last') %>%
       # re-normalise shares
-      mutate(share = ifelse(0 == sum(.data$share),
-                            0,
-                            .data$share / sum(.data$share))) %>% 
+      mutate(share = case_when(
+        0 == sum(.data$share) ~ 1 / n(),
+        TRUE                  ~ .data$share / sum(.data$share))) %>% 
       verify(expr = is.finite(.data$share),
              description = paste('Finite IEA ETP industry FE shares after time',
                                  'horizon extension.')) %>% 
@@ -1327,7 +1351,6 @@ calcFEdemand <- function(subtype = "FE") {
     ### calculate industry total FE level ----
     # scale industry subsector total FE by subsector activity and exogenous
     # energy efficiency gains 
-    
     industry_subsectors_specific_FE <- calcOutput(
       type = 'industry_subsectors_specific', subtype = 'FE', 
       scenarios = unique(IEA_ETP_Ind_FE_shares$scenario), 
@@ -1413,6 +1436,7 @@ calcFEdemand <- function(subtype = "FE") {
       ungroup() %>% 
       select('scenario', 'region', 'year', 'subsector', 'specific.energy')
     
+    # replace 0 specific energy (e.g. primary steel NEN) with global averages
     industry_subsectors_specific_energy <-
       industry_subsectors_specific_energy %>% 
       anti_join(
