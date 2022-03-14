@@ -30,7 +30,7 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when right_join semi_join
+#' @importFrom dplyr %>% case_when n right_join semi_join
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line 
 #'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete 
@@ -1617,7 +1617,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     filter(2000 >= .data$steel.VA.pt) %>% 
     select('region', 'year', 'GDPpC', 'steel.VA.pt')
   
-  d_plot_region_totals %>% 
+d_plot_region_totals %>% 
     filter('SSA' == .data$region) %>% 
     select('region', 'steel.VA.pt') %>% 
     mutate(cuts = cut(x = .data$steel.VA.pt, 
