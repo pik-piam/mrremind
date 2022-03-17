@@ -6,7 +6,7 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Marianna Rottoli, Alois Dirnaichner
 #' @seealso \code{\link{readSource}}
-#' @param subtype logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage
+#' @param subtype logit_exponents, SW, pref, ptab4W, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
@@ -26,7 +26,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   EDGETrData_all=list()
 
   ## all data.tables can be combined directly
-  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor", "annual_mileage")) {
+  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor", "annual_mileage", "ptab4W")) {
     EDGETrData_all[[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
                                                function(x) {
                                                  EDGETrData[[x]][[i]]
@@ -356,6 +356,15 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "region", "year", "vehicle_type", "varname", "annual_mileage"))
            setnames(tmp, old ="annual_mileage", new ="value")
            mdata <- as.magpie(tmp, spatial = 3, temporal = 4, datacol = 7)
+	 },
+
+	     "ptab4W" = {
+	         tmp <- EDGETrData_all$ptab4W
+	         tmp[, varname := subtype]
+	         tmp$varname <- subtype
+	         setnames(tmp, old = c("SSPscen", "techscen"), new = c("GDP_scenario", "EDGE_scenario"))
+	         setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "param", "varname", "value"))
+	         mdata <- as.magpie(tmp, datacol = 5)
 	 },
 
          "f35_bunkers_fe" = {

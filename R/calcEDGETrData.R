@@ -18,10 +18,6 @@ calcEDGETrData <- function() {
     c("ConvCase", "ElecEra", "HydrHype", "Mix",
       "Mix1", "Mix2", "Mix3", "Mix4")), split=".", fixed=TRUE)
 
-  ## add both smartlifestyle and default lifestyle variants for all scenarios
-  allscens <- append(
-    lapply(edgetScenarios, function(sc){c(sc, TRUE)}),
-    lapply(edgetScenarios, function(sc){c(sc, FALSE)}))
   ## SHAPE scenarios are coupled to specific technologies
   allscens <- append(
     allscens,
@@ -29,6 +25,8 @@ calcEDGETrData <- function() {
       c("SDP_EI", "ElecEra", FALSE),
       c("SDP_MC", "ElecEra", TRUE),
       c("SDP_RC", "ElecEra", TRUE)))
+  ## add default lifestyle variants for all scenarios (exclude lifestyle)
+  allscens <- lapply(edgetScenarios, function(sc){c(sc, FALSE)})
 
   ## run EDGE-T
   EDGETdata = lapply(allscens,

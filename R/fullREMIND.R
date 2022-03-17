@@ -176,11 +176,11 @@ fullREMIND <- function(rev = 0) {
                                        file = paste0(stype, ".cs4r"), aggregate = TRUE))
          })
 
-  lapply(c("logit_exponent"),
+  lapply(c("logit_exponent", "ptab4W"),
          function(stype) {
            print(sprintf("Loading %s", stype))
            suppressWarnings(calcOutput("EDGETransport", subtype = stype,
-                                       file = paste0(stype, ".cs4r"), aggregate = FALSE)) ## logit exponent has not to be aggregated since it is global
+                                       file = paste0(stype, ".cs4r"), aggregate = FALSE)) ## not to be aggregated as global
          })
 
 
