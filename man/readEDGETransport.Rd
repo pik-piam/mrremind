@@ -7,7 +7,7 @@
 readEDGETransport(subtype = "logit_exponent")
 }
 \arguments{
-\item{subtype}{logit_exponents, SW, pref, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage}
+\item{subtype}{logit_exponents, SW, pref, ptab4W, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage}
 }
 \value{
 magpie object of EDGEtransport iterative inputs

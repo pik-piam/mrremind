@@ -14,7 +14,7 @@
 calcEDGETransport <- function(subtype = "logit_exponent") {
   value <- i.value <- NULL
 
-  if (subtype %in% c("logit_exponent")) {
+  if (subtype %in% c("logit_exponent", "ptab4W")) {
       conv = FALSE
    }else{
       conv = TRUE
@@ -74,6 +74,11 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
            weight = get_weight(data, weightInt)
            unit = "LDVs 4wheelers: inconvenience cost [1990$/pkm]; all other modes: [-] share weight, a dimensionless parameter reflecting consumer preferences"
            description = "Inconvenience cost reflecting availability of infrastructure"
+         },
+         "ptab4W" = {
+           weight = NULL
+           unit = "[-]"
+           description = "LDVs 4wheelers: factors for the inconvenience costs."
          },
          "price_nonmot" = {
            weight = get_weight(data, weightInt)
