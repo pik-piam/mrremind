@@ -386,13 +386,9 @@ calcFEdemand <- function(subtype = "FE") {
              'value') %>% 
       character.data.frame()
     
-    regionmapping <- read_delim(
-      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
-      delim = ';',
-      col_names = c('country', 'iso3c', 'region'),
-      col_types = 'ccc',
-      skip = 1)
-    
+    regionmapping <- toolGetMapping(type = 'regional', 
+                                    name = 'regionmappingH12.csv') %>% 
+      select(country = 'X', iso3c = 'CountryCode', region = 'RegionCode')
     
     historic_trend <- c(2004, 2015)
     phasein_period <- c(2015, 2050)
@@ -904,7 +900,6 @@ calcFEdemand <- function(subtype = "FE") {
       'gdp_SSP5',   'gdp_SSP2EU',    'otherInd',          0.5) %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
     
-    
     foo2 <- bind_rows(
       # SSP2EU is the default scenario
       foo %>% 
@@ -917,22 +912,33 @@ calcFEdemand <- function(subtype = "FE") {
             filter('gdp_SSP2EU' == .data$scenario) %>% 
             group_by(!!!syms(c('subsector', 'iso3c', 'year'))) %>% 
             summarise(specific.production = .data$value / .data$GDP, 
-                      .groups = 'drop'),
+                      .groups = 'drop') %>% 
+            interpolate_missing_periods_(
+              periods = list(year = seq_range(range(.$year))),
+              value = 'specific.production',
+              method = 'linear'),
           
           'subsector'
         ) %>% 
         group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>% 
-        mutate(specific.production = ifelse(
-          2015 >= .data$year,
-          .data$specific.production,
-          ( .data$specific.production[2015 == .data$year]
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
-          ))) %>% 
+        mutate(
+          specific.production = ifelse(
+            2015 >= .data$year, .data$specific.production,
+            ( .data$specific.production[2015 == .data$year]
+            * cumprod(
+                ifelse(
+                  2015 >= .data$year, 1, 
+                  1 - .data$alpha * (1 - pmin(1, (.data$year - 2015) / 50))
+                )
+              )
+            )
+          )
+        ) %>% 
         ungroup() %>% 
+        filter(.data$year %in% unique(foo$year)) %>% 
         left_join(
           bind_rows(
             foo, 
-            
             
             foo %>% 
               filter('gdp_SSP2EU' == .data$scenario) %>% 
@@ -1375,19 +1381,19 @@ calcFEdemand <- function(subtype = "FE") {
         group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>% 
         summarise(value = sum(.data$value), .groups = 'drop'),
       
-      industry_subsectors_ue %>% 
-        as.data.frame() %>% 
-        as_tibble() %>% 
-        select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
-               pf = 'Data2', level = 'Value') %>% 
-        character.data.frame() %>% 
-        mutate(year = as.integer(as.character(.data$year))) %>% 
-        filter(.data$year %in% unique(industry_subsectors_en$year)) %>% 
-        # aggregate regions
-        full_join(region_mapping_21, 'iso3c') %>% 
-        group_by(!!!syms(c('scenario', 'region', 'year', 'pf'))) %>% 
-        summarise(level = sum(.data$level), .groups = 'drop') %>% 
-        extract('pf', 'subsector', '^ue_(.*)$'),
+        industry_subsectors_ue %>% 
+          as.data.frame() %>% 
+          as_tibble() %>% 
+          select(scenario = 'Data1', iso3c = 'Region', year = 'Year', 
+                 pf = 'Data2', level = 'Value') %>% 
+          character.data.frame() %>% 
+          mutate(year = as.integer(as.character(.data$year))) %>% 
+          filter(.data$year %in% unique(industry_subsectors_en$year)) %>% 
+          # aggregate regions
+          full_join(region_mapping_21, 'iso3c') %>% 
+          group_by(!!!syms(c('scenario', 'region', 'year', 'pf'))) %>% 
+          summarise(level = sum(.data$level), .groups = 'drop') %>% 
+          extract('pf', 'subsector', '^ue_(.*)$'),
       
       c('scenario', 'region', 'year', 'subsector')
     ) %>% 
