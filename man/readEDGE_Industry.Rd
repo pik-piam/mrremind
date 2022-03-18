@@ -13,6 +13,8 @@ readEDGE_Industry(subtype)
 industry sector
 \item \code{steel_production_scenarios} for the projections of primary and
 secondary steel production
+\item \code{secondary_steel_limits} for the upper limits to secondary steel
+production
 \item \code{cement_chemicals_otherInd_production_scenarios} for the projections of
 cement, chemicals, and other industry production
 \item \code{p29_capitalQuantity_industry} for industry subsector energy efficiency
