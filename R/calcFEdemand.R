@@ -386,13 +386,9 @@ calcFEdemand <- function(subtype = "FE") {
              'value') %>% 
       character.data.frame()
     
-    regionmapping <- read_delim(
-      file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
-      delim = ';',
-      col_names = c('country', 'iso3c', 'region'),
-      col_types = 'ccc',
-      skip = 1)
-    
+    regionmapping <- toolGetMapping(type = 'regional', 
+                                    name = 'regionmappingH12.csv') %>% 
+      select(country = 'X', iso3c = 'CountryCode', region = 'RegionCode')
     
     historic_trend <- c(2004, 2015)
     phasein_period <- c(2015, 2050)
