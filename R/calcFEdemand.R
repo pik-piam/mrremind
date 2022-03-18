@@ -18,7 +18,7 @@
 #' @importFrom magclass mselect getItems getItems<-
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
-
+  
   #----- Functions ------------------
   getScens = function(mag) {
     getNames(mag, dim = "scenario")
@@ -583,14 +583,15 @@ calcFEdemand <- function(subtype = "FE") {
   })
 
   for (reminditem in names_NoScen){
-    # Concatenate names from mapping columns so that they are comparable with names from magclass object
+    # Concatenate names from mapping columns so that they are comparable with
+    # names from magclass object
     if (length(REMIND_dimensions) > 1) {
       names_mapping = apply(mapping[REMIND_dimensions],1,paste,collapse=".")
     } else {
       names_mapping = mapping[[REMIND_dimensions]]
     }
-    #Only select EDGE variables which correspond to the remind
-    testdf = mapping[names_mapping == reminditem ,c("EDGEitems","weight_Fedemand")]
+    # Only select EDGE variables which correspond to the remind
+    testdf = mapping[names_mapping == reminditem,c("EDGEitems", "weight_Fedemand")]
     prfl <- testdf[,"EDGEitems"]
     vec <- as.numeric(mapping[rownames(testdf),"weight_Fedemand"])
     names(vec) <- prfl
@@ -838,68 +839,54 @@ calcFEdemand <- function(subtype = "FE") {
     ) %>% 
       assert(not_na, everything())
     
-    industry_subsectors_material_alpha <- tribble(
-      ~scenario,          ~subsector,          ~alpha,
-      'gdp_SSP1',         'cement',            0.03,
-      'gdp_SSP1',         'chemicals',         0.05,
-      'gdp_SSP1',         'steel_primary',     0.06,
-      'gdp_SSP1',         'steel_secondary',   0.06,
-      'gdp_SSP1',         'otherInd',          0.02,
-      'gdp_SSP2_lowEn',   'cement',            0.03,
-      'gdp_SSP2_lowEn',   'chemicals',         0.05,
-      'gdp_SSP2_lowEn',   'steel_primary',     0.06,
-      'gdp_SSP2_lowEn',   'steel_secondary',   0.06,
-      'gdp_SSP2_lowEn',   'otherInd',          0.02) %>% 
+    region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv', 
+                                        'regional') %>% 
+      as_tibble() %>% 
+      select(iso3c = 'CountryCode', region = 'RegionCode')
+    
+    industry_subsectors_material_alpha <- calcOutput(
+      type = 'industry_subsectors_specific', subtype = 'material_alpha', 
+      scenarios = getNames(x = industry_subsectors_ue, dim = 1), 
+      regions = unique(region_mapping_21$region), 
+      aggregate = FALSE
+    ) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(scenario = 'Data1', region = 'Data2', subsector = 'Data3', 
+             name = 'Data4', value = 'Value') %>% 
+      character.data.frame() %>% 
+      pivot_wider() %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
     
-    industry_subsectors_material_relative <- tribble(
-      ~scenario,      ~base,          ~subsector,         ~factor,
-      'gdp_SDP',      'gdp_SSP1',     'cement',            1,
-      'gdp_SDP',      'gdp_SSP1',     'chemicals',         1,
-      'gdp_SDP',      'gdp_SSP1',     'steel_primary',     1,
-      'gdp_SDP',      'gdp_SSP1',     'steel_secondary',   1,
-      'gdp_SDP',      'gdp_SSP1',     'otherInd',          1,
-      'gdp_SDP_EI',   'gdp_SSP1',     'cement',            0.9,
-      'gdp_SDP_EI',   'gdp_SSP1',     'chemicals',         0.9,
-      'gdp_SDP_EI',   'gdp_SSP1',     'steel_primary',     0.9,
-      'gdp_SDP_EI',   'gdp_SSP1',     'steel_secondary',   0.9,
-      'gdp_SDP_EI',   'gdp_SSP1',     'otherInd',          0.9,
-      'gdp_SDP_MC',   'gdp_SSP1',     'cement',            0.85,
-      'gdp_SDP_MC',   'gdp_SSP1',     'chemicals',         0.85,
-      'gdp_SDP_MC',   'gdp_SSP1',     'steel_primary',     0.85,
-      'gdp_SDP_MC',   'gdp_SSP1',     'steel_secondary',   0.85,
-      'gdp_SDP_MC',   'gdp_SSP1',     'otherInd',          0.85,
-      'gdp_SDP_RC',   'gdp_SSP1',     'cement',            1.1,
-      'gdp_SDP_RC',   'gdp_SSP1',     'chemicals',         1.1,
-      'gdp_SDP_RC',   'gdp_SSP1',     'steel_primary',     1.1,
-      'gdp_SDP_RC',   'gdp_SSP1',     'steel_secondary',   1.1,
-      'gdp_SDP_RC',   'gdp_SSP1',     'otherInd',          1.1,
-      'gdp_SSP2',     'gdp_SSP2EU',   'cement',            1,
-      'gdp_SSP2',     'gdp_SSP2EU',   'chemicals',         1,
-      'gdp_SSP2',     'gdp_SSP2EU',   'steel_primary',     1,
-      'gdp_SSP2',     'gdp_SSP2EU',   'steel_secondary',   1,
-      'gdp_SSP2',     'gdp_SSP2EU',   'otherInd',          1,
-      'gdp_SSP3',     'gdp_SSP2EU',   'cement',            1,
-      'gdp_SSP3',     'gdp_SSP2EU',   'chemicals',         1,
-      'gdp_SSP3',     'gdp_SSP2EU',   'steel_primary',     1,
-      'gdp_SSP3',     'gdp_SSP2EU',   'steel_secondary',   1,
-      'gdp_SSP3',     'gdp_SSP2EU',   'otherInd',          1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'cement',            1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'chemicals',         1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'steel_primary',     1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'steel_secondary',   1,
-      'gdp_SSP4',     'gdp_SSP2EU',   'otherInd',          1) %>% 
+    industry_subsectors_material_relative <- calcOutput(
+      type = 'industry_subsectors_specific', subtype = 'material_relative', 
+      scenarios = getNames(x = industry_subsectors_ue, dim = 1), 
+      regions = unique(region_mapping_21$region), 
+      aggregate = FALSE
+    ) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3', 
+             subsector = 'Data4', name = 'Data5', value = 'Value') %>% 
+      character.data.frame() %>% 
+      pivot_wider() %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
     
-    industry_subsectors_material_relative_change <- tribble(
-      ~scenario,    ~base.scenario,   ~subsector,         ~factor,
-      'gdp_SSP5',   'gdp_SSP2EU',    'cement',            0.5,
-      'gdp_SSP5',   'gdp_SSP2EU',    'chemicals',         0.5,
-      'gdp_SSP5',   'gdp_SSP2EU',    'steel_primary',     0.5,
-      'gdp_SSP5',   'gdp_SSP2EU',    'steel_secondary',   0.5,
-      'gdp_SSP5',   'gdp_SSP2EU',    'otherInd',          0.5) %>% 
+    industry_subsectors_material_relative_change <- calcOutput(
+      type = 'industry_subsectors_specific', 
+      subtype = 'material_relative_change', 
+      scenarios = getNames(x = industry_subsectors_ue, dim = 1), 
+      regions = unique(region_mapping_21$region), 
+      aggregate = FALSE
+    ) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3', 
+             subsector = 'Data4', name = 'Data5', value = 'Value') %>% 
+      character.data.frame() %>% 
+      pivot_wider() %>% 
       mutate(subsector = paste0('ue_', .data$subsector))
-    
+
     foo2 <- bind_rows(
       # SSP2EU is the default scenario
       foo %>% 
@@ -916,9 +903,10 @@ calcFEdemand <- function(subtype = "FE") {
             interpolate_missing_periods_(
               periods = list(year = seq_range(range(.$year))),
               value = 'specific.production',
-              method = 'linear'),
+              method = 'linear') %>% 
+            full_join(region_mapping_21, 'iso3c'),
           
-          'subsector'
+          c('region', 'subsector')
         ) %>% 
         group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>% 
         mutate(
@@ -959,10 +947,11 @@ calcFEdemand <- function(subtype = "FE") {
         left_join(
           foo2 %>% 
             mutate(specific.production = .data$value / .data$GDP) %>% 
-            select(base = 'scenario', 'subsector', 'iso3c', 'year', 
-                   'specific.production'),
+            select(base.scenario = 'scenario', 'subsector', 'iso3c', 'year', 
+                   'specific.production') %>% 
+            full_join(region_mapping_21, 'iso3c'),
           
-          c('base', 'subsector')
+          c('base.scenario', 'region', 'subsector')
         ) %>% 
         left_join(
           foo %>% 
@@ -983,14 +972,15 @@ calcFEdemand <- function(subtype = "FE") {
             industry_subsectors_material_relative_change,
             
             c('base.scenario', 'subsector')
-          ),
+          ) %>% 
+          full_join(region_mapping_21, 'iso3c'),
         
         # change parameters
         industry_subsectors_material_relative_change,
         
-        c('base.scenario', 'subsector')
+        c('base.scenario', 'region', 'subsector')
       ) %>% 
-        select('scenario', 'iso3c', 'subsector', 'year', 
+        select('scenario', 'iso3c', 'region', 'subsector', 'year', 
                base.value = 'value', base.GDP = 'GDP', 'factor') %>% 
         # GDP trajectories of target scenarios
         left_join(
@@ -1036,11 +1026,6 @@ calcFEdemand <- function(subtype = "FE") {
     ## subsector FE shares ----
     . <- NULL
     
-    region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv', 
-                                        'regional') %>% 
-      as_tibble() %>% 
-      select(iso3c = 'CountryCode', region = 'RegionCode')
-
     ### get 1993-2015 industry FE ----
     industry_subsectors_en <- calcOutput(type = 'IO', 
                                          subtype = 'output_Industry_subsectors',
@@ -1386,8 +1371,9 @@ calcFEdemand <- function(subtype = "FE") {
       as.data.frame() %>% 
       as_tibble() %>% 
       select(scenario = 'Data1', region = 'Data2', subsector = 'Data3', 
-             alpha = 'Value') %>% 
-      character.data.frame()
+             name = 'Data4', value = 'Value') %>% 
+      character.data.frame() %>% 
+      pivot_wider()
     
     industry_subsectors_specific_energy <- inner_join(
       industry_subsectors_en %>% 
