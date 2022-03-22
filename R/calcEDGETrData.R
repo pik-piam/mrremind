@@ -9,24 +9,32 @@
 #' \dontrun{ a <- calcOutput(type="EDGETrData", aggregate = F)
 #' }
 #'
+#' @importFrom dplyr bind_rows
+#' @importFrom tibble tribble
+#' @importFrom tidyr expand_grid
 
 calcEDGETrData <- function() {
+  
+  allscens <- bind_rows(
+    ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
+    expand_grid(
+      SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+      tech_scen = c("ConvCase", "ElecEra", "HydrHype", 
+                    "Mix", "Mix1", "Mix2", "Mix3", "Mix4"),
+      smartlifestyle = 'FALSE'),
+    
+    ## SHAPE scenarios are coupled to specific technologies
+    tribble(
+      ~SSP_scen,   ~tech_scen,   ~smartlifestyle,
+      'SDP_EI',    'ElecEra',    'FALSE',
+      'SDP_MC',    'ElecEra',    'FALSE',
+      'SDP_RC',    'ElecEra',    'FALSE')
+  )
 
-  ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
-  edgetScenarios <- strsplit(cartesian(
-    c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-    c("ConvCase", "ElecEra", "HydrHype", "Mix",
-      "Mix1", "Mix2", "Mix3", "Mix4")), split=".", fixed=TRUE)
-  ## SHAPE scenarios are coupled to specific technologies
-  allscens <- append(
-    allscens,
-    list(
-      c("SDP_EI", "ElecEra", FALSE),
-      c("SDP_MC", "ElecEra", FALSE),
-      c("SDP_RC", "ElecEra", FALSE)))
-
-  ## add default lifestyle variants for all scenarios (exclude lifestyle)
-  allscens <- lapply(allscens, function(sc){c(sc, FALSE)})
+  # generate list from data frame rows
+  allscens <- lapply(1:nrow(allscens), function(x) {
+    setNames(unlist(allscens[x, ]), NULL)
+  })
 
   ## run EDGE-T
   EDGETdata = lapply(allscens,
