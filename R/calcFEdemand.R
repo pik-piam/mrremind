@@ -1544,6 +1544,9 @@ calcFEdemand <- function(subtype = "FE") {
         
         c('scenario', 'iso3c', 'year', 'subsector')
       ) %>% 
+      group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>% 
+      mutate(share = .data$share / sum(.data$share)) %>% 
+      ungroup() %>% 
       mutate(value = .data$value * .data$share) %>% 
       select('scenario', region = 'iso3c', 'year', item = 'pf', 'value') %>% 
       verify(expr = is.finite(.data$value),
