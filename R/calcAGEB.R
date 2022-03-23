@@ -16,7 +16,8 @@ calcAGEB <- function() {
 
   mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables") %>%
     mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
-    select("variable" = "AGEB_variable", "REMIND_variable", "conversion", "unit" = "Unit_AGEB", "Unit_REMIND")
+    select("variable" = "AGEB_variable", "REMIND_variable", "conversion", "unit" = "Unit_AGEB", "Unit_REMIND") %>%
+    filter(!!sym("REMIND_variable") != "")
 
   x <- left_join(
     ageb %>%
@@ -38,7 +39,7 @@ calcAGEB <- function() {
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
-    toolCountryFill(fill = NA)
+    toolCountryFill(fill = NA, verbosity = 2)
 
   return(list(
     x = x, weight = NULL,
