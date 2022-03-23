@@ -1112,6 +1112,14 @@ calcFEdemand <- function(subtype = "FE") {
       ungroup() %>% 
       select(-'value')
     
+    failed_share_sum <- industry_subsectors_en_shares %>% 
+      group_by(!!!syms(c('year', 'region', 'subsector'))) %>% 
+      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+    
+    if (any(failed_share_sum$failed)) {
+      stop('industry_subsectors_en_shares don\'t add up to 1.')
+    }
+    
     ### future subsector FE shares from IEA ETP 2017 ----
     IEA_ETP_Ind_FE_shares <- readSource('IEA_ETP', 'industry', FALSE) %>% 
       # filter for OECD and Non-OECD regions and RTS scenario
@@ -1330,7 +1338,11 @@ calcFEdemand <- function(subtype = "FE") {
           value = 'share',
           expand.values = TRUE) %>% 
         select('scenario', 'year', 'region', 'pf', 'subsector', 
-               share.hist = 'share'),
+               share.hist = 'share') %>% 
+        # re-normalise steel_primary to extended feel_steel_primary
+        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>% 
+        mutate(share.hist = .data$share.hist / sum(.data$share.hist)) %>% 
+        ungroup(),
       
       IEA_ETP_Ind_FE_shares %>%
         interpolate_missing_periods_(
@@ -1353,6 +1365,14 @@ calcFEdemand <- function(subtype = "FE") {
              description = paste('Finite industry FE shares after combining',
                                  'historic and future values')) %>%
       select(-'foo', -'share.hist', -'share.future')
+    
+    failed_share_sum <- industry_subsectors_en_shares %>% 
+      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>% 
+      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+    
+    if (any(failed_share_sum$failed)) {
+      stop('industry_subsectors_en_shares don\'t add up to 1.')
+    }
       
     ### calculate industry total FE level ----
     # scale industry subsector total FE by subsector activity and exogenous
@@ -1513,7 +1533,18 @@ calcFEdemand <- function(subtype = "FE") {
       interpolate_missing_periods_(
         periods = list(year = getYears(reminditems, TRUE)),
         value = 'share',
-        expand.values = TRUE)
+        expand.values = TRUE) %>% 
+      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>% 
+      mutate(share = .data$share / sum(.data$share)) %>% 
+      ungroup()
+    
+    failed_share_sum <- industry_subsectors_en_shares %>% 
+      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>% 
+      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+    
+    if (any(failed_share_sum$failed)) {
+      stop('industry_subsectors_en_shares don\'t add up to 1.')
+    }
       
     industry_subsectors_en <- inner_join(
       industry_subsectors_specific_energy %>% 
