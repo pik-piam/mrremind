@@ -67,12 +67,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
          },
          "value_time" = {
            weight = get_weight(data, weightInt)
-           unit = "Passenger transport: [2005US$/pkm]; freight transport: [2005US$/tkm]"
+           unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Value of time for passenger transport modes"
          },
          "pref" = {
            weight = get_weight(data, weightInt)
-           unit = "LDVs 4wheelers: inconvenience cost [2005US$/pkm]; all other modes: [-] share weight, a dimensionless parameter reflecting consumer preferences"
+           unit = "LDVs 4wheelers: inconvenience cost [1990$/pkm]; all other modes: [-] share weight, a dimensionless parameter reflecting consumer preferences"
            description = "Inconvenience cost reflecting availability of infrastructure"
          },
          "ptab4W" = {
@@ -82,12 +82,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
          },
          "price_nonmot" = {
            weight = get_weight(data, weightInt)
-           unit = "Passenger transport: [2005US$/pkm]; freight transport: [2005US$/tkm]"
+           unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Price for non motorized transport modes (Walking; Cycling)"
          },
          "UCD_NEC_iso" = {
            weight = get_weight(data, weightInt)
-           unit = "Passenger transport: [2005US$/pkm]; freight transport: [2005US$/tkm]"
+           unit = "Passenger transport: [1990$/pkm]; freight transport: [1990$/tkm]"
            description = "Non energy costs for all motorized transport modes, both total and purchase for LDVs"
          },
          "loadFactor" = {
