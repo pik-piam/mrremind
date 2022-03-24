@@ -17,7 +17,12 @@ calcindustry_subsectors_specific(
 \item{subtype}{One of
 \itemize{
 \item \code{FE} for specific final energy demand change factors
-\item \code{material} for specific material demand change factors
+\item \code{material_alpha} for alpha factors and convergence time of specific
+material demand decreases relative to the \code{SSP2EU} scenario
+\item \code{material_relative} for scaling factors of specific material demand
+relative to baseline scenarios
+\item \code{material_relative_change} for scaling factors of specific material
+demand \emph{change} relative to baseline scenarios
 }}
 
 \item{scenarios}{A vector of scenarios for which factors are to be returned.}
@@ -27,10 +32,11 @@ calcindustry_subsectors_specific(
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
 
-Factors are read from the files \code{specific_FE.csv} and
-\code{specific_material.csv}, respectively.  \code{NA} is used to mark defaults for the
-\code{scenario} and \code{region} columns, and specified values will overwrite these
-defaults.
+Factors are read from the files \code{specific_FE.csv},
+\code{specific_material_alpha.csv}, \code{specific_material_relative.csv}, and
+\code{specific_material_relative_change.csv}, respectively.  \code{NA} is used to mark
+defaults for the \code{scenario} and \code{region} columns, and specified values will
+overwrite these defaults.
 
 So
 \itemize{
