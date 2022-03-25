@@ -1362,6 +1362,15 @@ calcFEdemand <- function(subtype = "FE") {
     ### calculate industry total FE level ----
     # scale industry subsector total FE by subsector activity and exogenous
     # energy efficiency gains 
+    
+    specific_FE_limits <- tribble(
+      ~subsector,          ~type,        ~limit,
+      'cement',            'absolute',   1.8,
+      'steel_primary',     'absolute',   8,
+      'steel_secondary',   'absolute',   1.3,
+      'chemicals',         'relative',   0.1,
+      'otherInd',          'relative',   0.1,)
+    
     industry_subsectors_specific_FE <- calcOutput(
       type = 'industry_subsectors_specific', subtype = 'FE', 
       scenarios = unique(IEA_ETP_Ind_FE_shares$scenario), 
@@ -1406,46 +1415,6 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(specific.energy = .data$value / .data$level,
              specific.energy = ifelse(is.finite(.data$specific.energy),
                                       .data$specific.energy, 0)) %>% 
-      select('scenario', 'region', 'year', 'subsector', 'specific.energy') %>% 
-      # extend time horizon
-      interpolate_missing_periods_(
-        periods = list(year = unique(industry_subsectors_en_shares$year)),
-        value = 'specific.energy', expand.values = TRUE) %>% 
-      # decrease values by alpha p.a. 
-      # FIXME this factors should be derived from region data
-      # since the IEA data needs fixing first, they were derived manually for
-      # now
-      inner_join(
-        industry_subsectors_specific_FE,
-        
-        c('scenario', 'region', 'subsector')
-      ) %>% 
-      inner_join(
-        tribble(
-          ~subsector,          ~type,        ~limit,
-          'cement',            'absolute',   1.8,
-          'steel_primary',     'absolute',   8,
-          'steel_secondary',   'absolute',   1.3,
-          'chemicals',         'relative',   0.1,
-          'otherInd',          'relative',   0.1,),
-        
-        'subsector'
-      ) %>% 
-      group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>% 
-      arrange(.data$year) %>% 
-      mutate(
-        specific.energy = ifelse(
-          'absolute' == .data$type,
-            ( (.data$specific.energy - .data$limit) 
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
-            )
-          + .data$limit,
-          
-          ( .data$specific.energy * (1 - .data$limit)
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
-            )
-          + (.data$specific.energy * .data$limit))) %>% 
-      ungroup() %>% 
       select('scenario', 'region', 'year', 'subsector', 'specific.energy')
     
     # replace 0 specific energy (e.g. primary steel NEN) with global averages
@@ -1453,7 +1422,7 @@ calcFEdemand <- function(subtype = "FE") {
       industry_subsectors_specific_energy %>% 
       anti_join(
         industry_subsectors_specific_energy %>% 
-          filter(0 == .data$specific.energy),
+            filter(0 == .data$specific.energy),
         
         c('scenario', 'region', 'year', 'subsector')
       ) %>% 
@@ -1475,6 +1444,87 @@ calcFEdemand <- function(subtype = "FE") {
       verify(expr = 0 < .data$specific.energy,
              description = 'All specific energy factors above 0')
     
+    # extend time horizon
+    industry_subsectors_specific_energy <-
+      industry_subsectors_specific_energy %>% 
+      interpolate_missing_periods_(
+        periods = list(year = unique(industry_subsectors_en_shares$year)),
+        value = 'specific.energy', expand.values = TRUE)
+    
+    # correct lower-then-thermodynamic limit projections
+    too_low_projections <- industry_subsectors_specific_energy %>% 
+      left_join(
+        specific_FE_limits %>% 
+          filter('absolute' == .data$type) %>% 
+          select(-'type'),
+        
+        'subsector'
+      ) %>% 
+      filter(2015 < .data$year, 
+             !is.na(.data$limit),
+             .data$specific.energy < .data$limit) %>% 
+      select('scenario', 'region', 'subsector', 'year')
+    
+    industry_subsectors_specific_energy <- bind_rows(
+      industry_subsectors_specific_energy %>% 
+        anti_join(
+          too_low_projections,
+          
+          c('scenario', 'region', 'subsector', 'year')
+        ),
+      
+      industry_subsectors_specific_energy %>% 
+        semi_join(
+          too_low_projections %>% 
+            select(-'region'),
+          
+          c('scenario', 'subsector', 'year')
+        ) %>% 
+        anti_join(
+          too_low_projections,
+          
+          c('scenario', 'region', 'subsector', 'year')
+        ) %>% 
+        group_by(!!!syms(c('scenario', 'subsector', 'year'))) %>% 
+        summarise(specific.energy = mean(.data$specific.energy), 
+                  .groups = 'drop') %>% 
+        full_join(
+          too_low_projections,
+          
+          c('scenario', 'subsector', 'year')
+        ) %>% 
+        assert(not_na, everything())
+    )
+    
+    # decrease values by alpha p.a. 
+    industry_subsectors_specific_energy <- 
+      industry_subsectors_specific_energy %>% 
+      # FIXME this factors should be derived from region data
+      # since the IEA data needs fixing first, they were derived manually for
+      # now
+      inner_join(
+        industry_subsectors_specific_FE,
+        
+        c('scenario', 'region', 'subsector')
+      ) %>% 
+      inner_join(specific_FE_limits, 'subsector') %>% 
+      group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>% 
+      arrange(.data$year) %>% 
+      mutate(
+        specific.energy = ifelse(
+          'absolute' == .data$type,
+          ( (.data$specific.energy - .data$limit) 
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+          )
+          + .data$limit,
+          
+          ( .data$specific.energy * (1 - .data$limit)
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+          )
+          + (.data$specific.energy * .data$limit))) %>% 
+      ungroup() %>% 
+      select('scenario', 'region', 'year', 'subsector', 'specific.energy')
+
     ### converge subsector en shares to global value ----
     # calculate global shares, weighted by subsector activity
     industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>% 
