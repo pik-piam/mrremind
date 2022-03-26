@@ -188,9 +188,10 @@ calcHistorical <- function() {
   EUcountries <- c("ALA", "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FRO", "FIN", "FRA", "DEU", "GIB", "GRC", "GGY", "HUN", "IRL", "IMN", "ITA", "JEY", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "GBR")
   eurostatEmi <- readSource(type = "Eurostat", subtype = "emissions")
   eurostatEmi[getRegions(eurostatEmi)[-which(getRegions(eurostatEmi) %in% EUcountries)], , ] <- NA
-  emiEurostatEU <- eurostatEmi[EUcountries, , ]
-  emiEurostatEU[is.na(emiEurostatEU)] <- 0
-  emiEurostat <- NULL
+  # set values for EU countries with no values to 0
+  noData <- getItems(eurostatEmi[EUcountries,,],dim=1)[dimSums(abs(eurostatEmi[EUcountries,,]), dim=c(2,3), na.rm=TRUE)==0]
+  eurostatEmi[noData,,] <- 0
+  
   # conversion factors between CO2eq and N2O / CH4 are derived by Eurostat webtool comparison
   emiEurostat <- mbind(
     setNames(eurostatEmi[, , "CH4_native.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)"),
