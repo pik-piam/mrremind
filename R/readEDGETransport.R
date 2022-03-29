@@ -362,7 +362,6 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 	         tmp <- EDGETrData_all$ptab4W
 	         tmp[, varname := subtype]
 	         tmp$varname <- subtype
-	         setnames(tmp, old = c("SSPscen", "techscen"), new = c("GDP_scenario", "EDGE_scenario"))
 	         setcolorder(tmp, c("GDP_scenario", "EDGE_scenario", "param", "varname", "value"))
 	         mdata <- as.magpie(tmp, datacol = 5)
 	 },
