@@ -14,15 +14,17 @@
 #' @importFrom tidyr expand_grid
 
 calcEDGETrData <- function() {
-  
+
+  "!# @monitor edgeTransport:::generateEDGEdata"
+
   allscens <- bind_rows(
     ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
     expand_grid(
       SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      tech_scen = c("ConvCase", "ElecEra", "HydrHype", 
+      tech_scen = c("ConvCase", "ElecEra", "HydrHype",
                     "Mix", "Mix1", "Mix2", "Mix3", "Mix4"),
       smartlifestyle = 'FALSE'),
-    
+
     ## SHAPE scenarios are coupled to specific technologies
     tribble(
       ~SSP_scen,   ~tech_scen,   ~smartlifestyle,
