@@ -23,14 +23,13 @@ calcEDGETrData <- function() {
       SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
       tech_scen = c("ConvCase", "ElecEra", "HydrHype",
                     "Mix", "Mix1", "Mix2", "Mix3", "Mix4"),
-      smartlifestyle = 'FALSE'),
-
+      smartlifestyle = 'FALSE')
     ## SHAPE scenarios are coupled to specific technologies
-    tribble(
-      ~SSP_scen,   ~tech_scen,   ~smartlifestyle,
-      'SDP_EI',    'Mix4',    'FALSE',
-      'SDP_MC',    'Mix4',    'FALSE',
-      'SDP_RC',    'Mix3',    'FALSE')
+    ## tribble(
+    ##   ~SSP_scen,   ~tech_scen,   ~smartlifestyle,
+    ##   'SDP_EI',    'Mix4',    'FALSE',
+    ##   'SDP_MC',    'Mix4',    'FALSE',
+    ##   'SDP_RC',    'Mix3',    'FALSE')
   )
 
   # generate list from data frame rows
