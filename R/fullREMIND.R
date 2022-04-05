@@ -6,6 +6,7 @@
 #' @param rev data revision which should be used as input (positive numeric).
 #' @importFrom edgeTransport collectScens generateEDGEdata
 #' @importFrom quitte cartesian
+#' @importFrom madrat madratAttach
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -18,6 +19,8 @@ fullREMIND <- function(rev = 0) {
 
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
+
+  madratAttach('edgeTransport')   # enable madrat caching for edgeTransport
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,      round = 8,  file = "f_pop.cs3r")

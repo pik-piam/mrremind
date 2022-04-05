@@ -34,7 +34,6 @@ Depends:
     magclass(>= 3.17),
     madrat(>= 2.5.1),
     mrcommons(>= 1.7.1),
-    edgeTransport(>= 0.7.0),
 Imports:
     assertr,
     assertthat,
@@ -43,6 +42,7 @@ Imports:
     countrycode,
     data.table,
     dplyr,
+    edgeTransport(>= 0.7.0),
     gdata,
     ggplot2,
     Hmisc,
