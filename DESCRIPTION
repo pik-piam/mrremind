@@ -1,7 +1,7 @@
 Package: mrremind
 Type: Package
 Title: MadRat REMIND Input Data Package
-Version: 0.124.0
+Version: 0.124.1
 Date: 2022-04-05
 Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
              person("Renato", "Rodrigues", role = "aut"),
@@ -33,7 +33,8 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 3.17),
     madrat(>= 2.5.1),
-    mrcommons(>= 1.7.1)
+    mrcommons(>= 1.7.1),
+    edgeTransport(>= 0.7.0),
 Imports:
     assertr,
     assertthat,
@@ -42,7 +43,6 @@ Imports:
     countrycode,
     data.table,
     dplyr,
-    edgeTransport,
     gdata,
     ggplot2,
     Hmisc,
