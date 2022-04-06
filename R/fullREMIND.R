@@ -39,6 +39,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
+  calcOutput(type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
+             file = 'p37_steel_secondary_max_share.cs4r')
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "UE_buildings",   round = 8,  file = "f36_uedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round = 6,  file = "f29_esdemand.cs4r")
