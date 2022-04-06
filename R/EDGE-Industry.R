@@ -1024,19 +1024,20 @@ calcSteel_Projections <- function(subtype = 'production',
     ## update max secondary steel shares ----
     update.secondary.steel.max.share <- function(production,
                                                  secondary.steel.max.share) {
-      left_join(
+      full_join(
+        secondary.steel.max.share %>%
+          rename(max.share = 'share'),
+
         production %>%
           pivot_wider(names_from = 'variable') %>%
           mutate(share = .data$secondary.production
                  / (.data$primary.production + .data$secondary.production)),
 
-        secondary.steel.max.share %>%
-          rename(max.share = 'share'),
-
         c('scenario', 'region', 'iso3c', 'year')
       ) %>%
-        mutate(share = pmax(.data$share, .data$max.share)) %>%
-        select(all_of(colnames(secondary.steel.max.share)))
+        mutate(share = pmax(.data$share, .data$max.share, na.rm = TRUE)) %>%
+        select(all_of(colnames(secondary.steel.max.share))) %>%
+        assert(not_na, everything())
     }
 
     secondary.steel.max.share <- update.secondary.steel.max.share(
@@ -1125,18 +1126,21 @@ calcSteel_Projections <- function(subtype = 'production',
       c('region', 'year')
     ) %>%
       group_by(.data$region) %>%
-      mutate(factor = .data$ETP / .data$value,
-             factor = .data$factor / first(.data$factor, order_by = .data$year)) %>%
+      mutate(
+        factor = .data$ETP / .data$value,
+        factor = .data$factor / first(.data$factor, order_by = .data$year)) %>%
       select(-'value', -'ETP') %>%
       bind_rows(
         tibble(
           year = c(max(steel_historic_prod$year), 2100), factor = 1)) %>%
       complete(year = unique(tmp$year)) %>%
+      filter(!is.na(.data$region)) %>%
       mutate(factor = na.approx(object = .data$factor,
                                 x = .data$year,
                                 yleft = first(na.omit(.data$factor)),
                                 yright = last(na.omit(.data$factor)))) %>%
-      ungroup()
+      ungroup() %>%
+      assert(not_na, everything())
 
     if (!is.data.frame(China_Production)) {
       IEA_ETP_matched <- tmp %>%
