@@ -5,8 +5,9 @@
 #'
 #' @param rev data revision which should be used as input (positive numeric).
 #' @importFrom edgeTransport collectScens generateEDGEdata
-#' @importFrom quitte cartesian
 #' @importFrom madrat madratAttach
+#' @importFrom magrittr %>%
+#' @importFrom quitte cartesian madrat_mule
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -39,6 +40,14 @@ fullREMIND <- function(rev = 0) {
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
+  calcOutput(
+    type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
+    file = 'p37_steel_secondary_max_share.cs4r',
+    match.steel.historic.values = TRUE, match.steel.estimates = 'IEA_ETP',
+    China_Production = readSource(type = 'ExpertGuess',
+                                  subtype = 'Chinese_Steel_Production',
+                                  convert = FALSE) %>%
+      madrat_mule())
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "UE_buildings",   round = 8,  file = "f36_uedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round = 6,  file = "f29_esdemand.cs4r")
