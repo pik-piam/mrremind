@@ -699,33 +699,29 @@ calcFEdemand <- function(subtype = "FE") {
 
     # ---- Industry subsectors data and FE stubs ----
     ## subsector activity projections ----
-    China_Production <-  tribble(
-      ~period,   ~total.production,
-      2005,       375,
-      2010,       640,
-      2015,       820,
-      2020,      1000,
-      2025,      1000,
-      2030,       875,
-      2035,       650,
-      2040,       500,
-      2045,       425,
-      2050,       400)
-
     industry_subsectors_ue <- mbind(
-      calcOutput(type = 'Industry_Value_Added',
-                 match.steel.historic.values = TRUE,
-                 match.steel.estimates = 'IEA_ETP',
-                 China_Production = China_Production,
-                 aggregate = FALSE,
-                 years = getYears(reminditems), supplementary = FALSE),
+      calcOutput(
+        type = 'Industry_Value_Added',
+        match.steel.historic.values = TRUE,
+        match.steel.estimates = 'IEA_ETP',
+        China_Production = readSource(type = 'ExpertGuess',
+                                      subtype = 'Chinese_Steel_Production',
+                                      convert = FALSE) %>%
+          madrat_mule(),
+        aggregate = FALSE,
+        years = getYears(reminditems), supplementary = FALSE),
 
-      calcOutput(type = 'Steel_Projections',
-                 match.steel.historic.values = TRUE,
-                 match.steel.estimates = 'IEA_ETP',
-                 China_Production = China_Production,
-                 aggregate = FALSE,
-                 years = getYears(reminditems), supplementary = FALSE)
+      calcOutput(
+        type = 'Steel_Projections',
+        subtype = 'production',
+        match.steel.historic.values = TRUE,
+        match.steel.estimates = 'IEA_ETP',
+        China_Production = readSource(type = 'ExpertGuess',
+                                      subtype = 'Chinese_Steel_Production',
+                                      convert = FALSE) %>%
+          madrat_mule(),
+        aggregate = FALSE,
+        years = getYears(reminditems), supplementary = FALSE)
     )
 
     ## re-curve specific industry activity per unit GDP ----
