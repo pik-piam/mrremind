@@ -1105,7 +1105,7 @@ calcFEdemand <- function(subtype = "FE") {
     }
 
     ### future subsector FE shares from IEA ETP 2017 ----
-    IEA_ETP_Ind_FE_shares <- readSource('IEA_ETP', 'industry', FALSE) %>%
+    IEA_ETP_Ind_FE_shares <- readSource('IEA_ETP', 'industry', convert = FALSE) %>%
       # filter for OECD and Non-OECD regions and RTS scenario
       `[`(c('OECD', 'Non-OECD'),,'RTS', pmatch = 'left') %>%
       # convert to data frame
