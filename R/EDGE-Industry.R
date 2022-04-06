@@ -1086,7 +1086,7 @@ calcSteel_Projections <- function(subtype = 'production',
     }
 
     # IEA ETP RTS production, minus Chinese production if exogenously prescribed
-    ETP_production <- readSource('IEA_ETP', 'industry', FALSE) %>%
+    ETP_production <- readSource('IEA_ETP', 'industry', convert = FALSE) %>%
       `[`(,,'RTS.Industry|Materials production|Crude steel.Mt') %>%
       as.data.frame() %>%
       as_tibble() %>%
@@ -1246,7 +1246,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
   ## UNIDO INSTATA2 data ----
-  INDSTAT <- readSource('UNIDO', 'INDSTAT2', FALSE) %>%
+  INDSTAT <- readSource('UNIDO', 'INDSTAT2', convert = FALSE) %>%
     madrat_mule()
 
   ### add iso3c codes and regions ----
@@ -1451,7 +1451,7 @@ calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
            GDPpC     = .data$GDP / .data$population)
 
   # calc VA of steel production ----
-  data_steel_production <- readSource('worldsteel', 'long', FALSE) %>%
+  data_steel_production <- readSource('worldsteel', 'long', convert = FALSE) %>%
     madrat_mule()
 
   regression_data_steel <- inner_join(
