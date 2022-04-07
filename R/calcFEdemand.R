@@ -942,6 +942,7 @@ calcFEdemand <- function(subtype = "FE") {
     foo3 <- bind_rows(
       foo2,
 
+      # specific production relative to base scenario
       industry_subsectors_material_relative %>%
         left_join(
           foo2 %>%
@@ -993,27 +994,28 @@ calcFEdemand <- function(subtype = "FE") {
           # specific production of base scenarios
           base.specific.production = .data$base.value / .data$base.GDP,
           # change in specific production of base scenarios relative to 2015
-          base.change = ifelse(
-            2015 >= .data$year, 1,
-            ( .data$base.specific.production
-            / .data$base.specific.production[2015 == .data$year]
-            )),
+          base.change = ( .data$base.specific.production
+                        / .data$base.specific.production[2015 == .data$year]),
           # modified change of target scenarios
-          # if base change is below (above) 1, i.e. material efficiency is
+          # If base change is below (above) 1, i.e. material efficiency is
           # improving (deteriorating), efficiency gains (losses) are halved
-          # (doubled)
-          change = ifelse(
-            !is.finite(.data$base.change), 1,
-            ( ( (.data$base.change - 1)
-              * .data$factor ^ sign(1 - .data$base.change)
-              )
-            + 1
-            )),
+          # (doubled).  Changes of historic values (i.e. before 2015) are
+          # identical to base scenario.  Not finite changes (e.g. division by
+          # zero) lead to constant values.
+          change = case_when(
+            !is.finite(.data$base.change) ~ 1,
+            2015 >= .data$year ~ .data$base.change,
+            TRUE ~  ( ( (.data$base.change - 1)
+                      * .data$factor ^ sign(1 - .data$base.change)
+                      )
+                    + 1)),
           specific.production =
             ( .data$base.specific.production[2015 == .data$year]
             * .data$change
             ),
-          value = .data$specific.production * .data$GDP) %>%
+          value = ifelse(!is.finite(.data$base.change),
+                         .data$base.value,
+                         .data$specific.production * .data$GDP)) %>%
         ungroup() %>%
         select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP')
     )
