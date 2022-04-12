@@ -1087,6 +1087,11 @@ calcFEdemand <- function(subtype = "FE") {
       select(-'feel_steel') %>%
       pivot_longer(matches('^fe.*'), names_to = 'pf', values_drop_na = TRUE)
 
+    # can be removed once feelwlth is replaced by feel in all mappings for
+    # calcIO()
+    industry_subsectors_en <- industry_subsectors_en %>%
+      mutate(pf = sub('^feelwlth_', 'feel_', .data$pf))
+
     ### calculate 1993-2015 industry subsector FE shares ----
     industry_subsectors_en_shares <- industry_subsectors_en %>%
       mutate(subsector = sub('^[^_]+_', '', .data$pf),
@@ -1186,29 +1191,17 @@ calcFEdemand <- function(subtype = "FE") {
 
     ### split feel shares and extend to SSP scenarios ----
     IEA_ETP_Ind_FE_shares <- bind_rows(
-      bind_rows(
-        # all pf that don't need splitting
-        IEA_ETP_Ind_FE_shares %>%
-          semi_join(
-            industry_subsectors_en %>%
-              distinct(.data$pf) %>%
-              separate('pf', c('fety', 'subsector'), sep = '_', extra = 'merge'),
+      # all pf that don't need splitting
+      IEA_ETP_Ind_FE_shares %>%
+        semi_join(
+          industry_subsectors_en %>%
+            distinct(.data$pf) %>%
+            separate('pf', c('fety', 'subsector'), sep = '_',
+                     extra = 'merge'),
 
-            c('fety', 'subsector')
-          ) %>%
-          unite('pf', c('fety', 'subsector'), sep = '_'),
-
-        # split feelhth and feelwlth for chemicals and otherInd
-        IEA_ETP_Ind_FE_shares %>%
-          filter(.data$subsector %in% c('chemicals', 'otherInd'),
-                 'feel' == .data$fety) %>%
-          mutate(feelhth = .data$share * 1e-3,
-                 feelwlth = .data$share * (1 - 1e-3)) %>%
-          select(-'fety', -'share') %>%
-          pivot_longer(cols = c('feelhth', 'feelwlth'), names_to = 'fety',
-                       values_to = 'share') %>%
-          unite('pf', c('fety', 'subsector'), sep = '_')
-      ) %>%
+          c('fety', 'subsector')
+        ) %>%
+        unite('pf', c('fety', 'subsector'), sep = '_') %>%
         # extend to SSP scenarios
         mutate(scenario = 'gdp_SSP1') %>%
         complete(nesting(!!sym('year'), !!sym('region'), !!sym('pf'),
@@ -1253,7 +1246,7 @@ calcFEdemand <- function(subtype = "FE") {
           = .data$share
           - ( (9 * .data$ue_steel_secondary * .data$share)
             / (9 * .data$ue_steel_secondary + .data$ue_steel_primary)
-            ),
+          ),
           feel_steel_secondary = 1) %>%
         select(-'share', -'ue_steel_primary', -'ue_steel_secondary') %>%
         pivot_longer(c('feel_steel_primary', 'feel_steel_secondary'),
@@ -1351,6 +1344,75 @@ calcFEdemand <- function(subtype = "FE") {
              description = paste('Finite industry FE shares after combining',
                                  'historic and future values')) %>%
       select(-'foo', -'share.hist', -'share.future')
+
+    failed_share_sum <- industry_subsectors_en_shares %>%
+      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+
+    if (any(failed_share_sum$failed)) {
+      stop('industry_subsectors_en_shares don\'t add up to 1.')
+    }
+
+    ### extend to H2 and HTH_el shares ----
+    feh2_share_in_fega <- 0.3
+    # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from 2020
+    # to 2050 and are constant afterwards
+    industry_subsectors_en_shares <- bind_rows(
+      industry_subsectors_en_shares %>%
+        filter(!grepl('^fega', .data$pf)),
+
+      industry_subsectors_en_shares %>%
+      filter(grepl('^fega', .data$pf)) %>%
+      extract('pf', c('pf.fety', 'pf.subsector'), '^([^_]*)_(.*)') %>%
+      complete(nesting(!!!syms(setdiff(colnames(.), 'pf.fety'))),
+               pf.fety = c('fega', 'feh2')) %>%
+      pivot_wider(names_from = 'pf.fety', values_from = 'share') %>%
+      mutate(feh2 = pmin(feh2_share_in_fega,
+                         pmax(0.01,
+                                feh2_share_in_fega
+                              * (.data$year - 2020) / (2050 - 2020)))
+                  * .data$fega,
+             fega = .data$fega - .data$feh2) %>%
+      pivot_longer(c('fega', 'feh2'), names_to = 'pf.fety',
+                   values_to = 'share') %>%
+      unite('pf', c('pf.fety', 'pf.subsector'), sep = '_')
+    )
+
+    feelhth_share_in_fuel <- 0.08
+    # HTH_el shares grow linearly from 0.1 % to feelhth_share_in_fuel of all FE
+    # but feel from 2020 to 2050 and are constant afterwards
+    industry_subsectors_en_shares <- bind_rows(
+      # subsectors w/o HTH_el
+      industry_subsectors_en_shares %>%
+        filter(!.data$subsector %in% c('chemicals', 'otherInd')),
+
+      # WLTH_el
+      industry_subsectors_en_shares %>%
+        filter(.data$subsector %in% c('chemicals', 'otherInd'),
+               grepl('^feel', .data$pf)) %>%
+        mutate(pf = sub('^feel_', 'feelwlth_', .data$pf)),
+
+      # HTH_el based on share of fuels
+      industry_subsectors_en_shares %>%
+        filter(.data$subsector %in% c('chemicals', 'otherInd'),
+               !grepl('^feel', .data$pf)) %>%
+        mutate(pf = sub('(_[^_]+)$', '', .data$pf)) %>%
+        group_by(!!!syms(setdiff(colnames(.), c('pf', 'share')))) %>%
+        mutate(feelhth = pmin(feelhth_share_in_fuel,
+                              pmax(0.01,
+                                     feelhth_share_in_fuel
+                                   * (.data$year - 2020) / (2050 - 2020)))
+                       * sum(.data$share),
+               share = .data$share
+                     / sum(.data$share)
+                     * (sum(.data$share) - .data$feelhth)) %>%
+        ungroup() %>%
+        pivot_wider(names_from = 'pf', values_from = 'share') %>%
+        pivot_longer(c(-'scenario', -'year', -'region', -'subsector'),
+                     names_to = 'pf', values_to = 'share',
+                     values_drop_na = TRUE) %>%
+        mutate(pf = paste(.data$pf, .data$subsector, sep = '_'))
+    )
 
     failed_share_sum <- industry_subsectors_en_shares %>%
       group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%

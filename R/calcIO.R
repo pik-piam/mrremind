@@ -8,7 +8,7 @@
 #'
 #' When using subtype `output_Industry_subsectors`, additional corrections are
 #' applied to the IEA data in [`tool_fix_IEA_data_for_Industry_subsectors`].
-#' 
+#'
 #' @md
 #' @param subtype Data subtype. See default argument for possible values.
 #' @return IEA data as MAgPIE object aggregated to country level
@@ -81,29 +81,29 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # apply corrections to IEA data to cope with fragmentary time series
     names_data_before <- getNames(data)
     data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch)
-    # check that no dimensions not present in the mapping has been added to the 
+    # check that no dimensions not present in the mapping has been added to the
     # data
     if (!is_empty(setdiff(getNames(data), names_data_before))) {
       stop('Product/flow combinations not present in mapping added by ',
            'fix_IEA_data_for_Industry_subsectors():\n',
            paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
     }
-    # FIXME remove product/flow combinations from the mapping that have been 
+    # FIXME remove product/flow combinations from the mapping that have been
     # removed from the data while replacing coke oven and blast furnace outputs
-    ieamatch <- ieamatch %>% 
-      as_tibble() %>% 
-      filter(paste(.data$iea_product, .data$iea_flows, sep = '.') 
+    ieamatch <- ieamatch %>%
+      as_tibble() %>%
+      filter(paste(.data$iea_product, .data$iea_flows, sep = '.')
              %in% getNames(data))
   }
 
   # delete NAs rows
-  ieamatch <- ieamatch %>% 
-    as_tibble() %>% 
-    select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>% 
+  ieamatch <- ieamatch %>%
+    as_tibble() %>%
+    select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     na.omit() %>%
     unite("target", all_of(target), sep = ".", remove = FALSE)
   magpieNames <- ieamatch[["target"]] %>% unique()
-  
+
   if (subtype == "output_biomass") {
     magpieNames <- grep("(fesob|fesoi)", magpieNames, value = TRUE)
     if (is.null(magpieNames)) {
@@ -114,24 +114,24 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   reminditems <-  do.call(
     mbind,
-    lapply(magpieNames, 
+    lapply(magpieNames,
            function(item) {
-             product_flow <- ieamatch %>% 
-               filter(item == .data$target) %>% 
-               unite('product.flow', c('iea_product', 'iea_flows'), 
-                     sep = '.') %>% 
+             product_flow <- ieamatch %>%
+               filter(item == .data$target) %>%
+               unite('product.flow', c('iea_product', 'iea_flows'),
+                     sep = '.') %>%
                pull('product.flow')
-             
-             weights <- ieamatch %>% 
-               filter(item == .data$target) %>% 
-               pull('Weight') %>% 
+
+             weights <- ieamatch %>%
+               filter(item == .data$target) %>%
+               pull('Weight') %>%
                as.numeric()
-             
-             tmp <- dimSums(  data[,,product_flow] 
+
+             tmp <- dimSums(  data[,,product_flow]
                             * setNames(as.magpie(weights), product_flow),
                             dim = 3, na.rm = TRUE)
              getNames(tmp) <- item
-             
+
              return(tmp)
              })
   )
@@ -165,19 +165,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     reminditems[, , "pebioil.seliqbio.biodiesel"] <-
       time_interpolate(bio1st[, , "pebioil"], interpolated_year = getYears(reminditems),
                        integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-  }
-
-  # split off a 1e-4 fraction of chemicals/otherInd electricity for high
-  # temperature heat electricity
-  if (subtype == "output_Industry_subsectors") {
-    hth <- 1e-4
-    reminditems <- mbind(reminditems[, , "feelwlth_", pmatch = TRUE, invert = TRUE],
-                         setNames(reminditems[, , "seel.feelwlth_chemicals.tdelwlth_chemicals"] * hth,
-                                  "seel.feelhth_chemicals.tdelhth_chemicals"),
-                         reminditems[, , "seel.feelwlth_chemicals.tdelwlth_chemicals"] * (1 - hth),
-                         setNames(reminditems[, , "seel.feelwlth_otherInd.tdelwlth_otherInd"] * hth,
-                                  "seel.feelhth_otherInd.tdelhth_otherInd"),
-                         reminditems[, , "seel.feelwlth_otherInd.tdelwlth_otherInd"] * (1 - hth))
   }
 
   if (subtype %in% c("input", "output")) {
