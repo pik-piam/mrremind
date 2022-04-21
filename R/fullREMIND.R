@@ -21,7 +21,7 @@ fullREMIND <- function(rev = 0) {
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
 
-  madratAttach('edgeTransport')   # enable madrat caching for edgeTransport
+  madratAttach("edgeTransport")   # enable madrat caching for edgeTransport
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,      round = 8,  file = "f_pop.cs3r")
@@ -36,16 +36,16 @@ fullREMIND <- function(rev = 0) {
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
+  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r") # not default, overwritten with 0
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
   calcOutput(
-    type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
-    file = 'p37_steel_secondary_max_share.cs4r',
-    match.steel.historic.values = TRUE, match.steel.estimates = 'IEA_ETP',
-    China_Production = readSource(type = 'ExpertGuess',
-                                  subtype = 'Chinese_Steel_Production',
+    type = "Steel_Projections", subtype = "secondary.steel.max.share",
+    file = "p37_steel_secondary_max_share.cs4r",
+    match.steel.historic.values = TRUE, match.steel.estimates = "IEA_ETP",
+    China_Production = readSource(type = "ExpertGuess",
+                                  subtype = "Chinese_Steel_Production",
                                   convert = FALSE) %>%
       madrat_mule())
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
@@ -179,6 +179,8 @@ fullREMIND <- function(rev = 0) {
   # has been moved to separate function mrremind::fullVALIDATIONREMIND
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+  calcOutput("TransportGDPshare", round = 6,  file = "f35_transportGDPshare.cs4r")
+
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
            "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe", "annual_mileage"),
