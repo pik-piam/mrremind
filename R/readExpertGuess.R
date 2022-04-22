@@ -50,8 +50,13 @@ readExpertGuess<-function(subtype){
 
   if ('Chinese_Steel_Production' == subtype) {
     out <- read_csv(file = 'Chinese_Steel_Production.csv',
-             comment = '#',
-             show_col_types = FALSE) %>%
+                    comment = '#',
+                    show_col_types = FALSE) %>%
+      madrat_mule()
+  } else if ('industry_specific_FE_limits' == subtype) {
+    out <- read_csv(file = 'industry_specific_FE_limits.csv',
+                    comment = '#',
+                    show_col_types = FALSE) %>%
       madrat_mule()
   }
 
