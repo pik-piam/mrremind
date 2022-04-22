@@ -53,7 +53,7 @@ calcTransportGDPshare <- function() {
 
   share <- collapseDim(share)
 
-  weight <- calcOutput("GDPppp", aggregate = FALSE)[, getYears(share), "gdp_SSP2"]
+  weight <- calcOutput("GDP", aggregate = FALSE, years = getYears(share, as.integer = TRUE))[, , "gdp_SSP2"]
   weight <- collapseDim(weight)
 
   #Returning capacity values
