@@ -36,16 +36,16 @@ fullREMIND <- function(rev = 0) {
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r") # not default, overwritten with 0
+  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
   calcOutput(
-    type = "Steel_Projections", subtype = "secondary.steel.max.share",
-    file = "p37_steel_secondary_max_share.cs4r",
-    match.steel.historic.values = TRUE, match.steel.estimates = "IEA_ETP",
-    China_Production = readSource(type = "ExpertGuess",
-                                  subtype = "Chinese_Steel_Production",
+    type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
+    file = 'p37_steel_secondary_max_share.cs4r',
+    match.steel.historic.values = TRUE, match.steel.estimates = 'IEA_ETP',
+    China_Production = readSource(type = 'ExpertGuess',
+                                  subtype = 'Chinese_Steel_Production',
                                   convert = FALSE) %>%
       madrat_mule())
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
@@ -159,6 +159,8 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
+  calcOutput('industry_specific_FE_limits', aggregate = FALSE,
+             file = 'pm_energy_limit.csv')
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
