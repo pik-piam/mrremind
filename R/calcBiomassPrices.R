@@ -18,10 +18,10 @@ calcBiomassPrices <- function(){
   getNames(xSSP2EU) <- gsub("SSP2", "SSP2EU", getNames(xSSP2EU))
   x <- mbind(x, xSSP2EU)
   # Replace scenarios with nocc with the respective RCPs, do the old scenarios separately
-  getNames(x) <- gsub("NDC-nocc-PkBudg500","rcp20",getNames(x)) 
-  getNames(x) <- gsub("NDC-nocc-PkBudg1150","rcp26",getNames(x))
-  getNames(x) <- gsub("NDC-nocc-NDC","rcp45",getNames(x))
-  getNames(x) <- gsub("NPI-nocc-Base","none",getNames(x))
+  getNames(x) <- gsub("NDC-nocc-PkBudg500","rcp20", getNames(x)) 
+  getNames(x) <- gsub("NDC-nocc-PkBudg1150","rcp26", getNames(x))
+  getNames(x) <- gsub("NDC-nocc-NDC","rcp45", getNames(x))
+  getNames(x) <- gsub("NPI-nocc-Base","none", getNames(x))
   # Remove unused nocc scenarios
   x <- x[,,!grepl("nocc", getNames(x))]
 
