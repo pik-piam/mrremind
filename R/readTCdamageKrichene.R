@@ -31,4 +31,3 @@ readTCdamageKrichene <- function(subtype){
     }
 	return(out)
 }
-

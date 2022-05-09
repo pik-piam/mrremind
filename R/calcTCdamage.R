@@ -22,4 +22,3 @@ calcTCdamage <- function(subtype){
               unit        = "dimensionless", 
               description = description))
 }
-
