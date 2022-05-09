@@ -1,4 +1,3 @@
-ead TC damage parameters
 #' 
 #' Reads country-specific damage coefficients for tropical cyclones from Krichene et al. (in prep.). Data has been provided by the authors, but will be made publicly available as well.
 #' This contains data for 41 countries (those exposed to tropical cyclones), and two coefficients (constant and linear temperature)

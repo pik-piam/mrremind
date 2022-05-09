@@ -5,6 +5,6 @@
 #' @return MAgPIE object containing values for all 249 ISO countries
 
 convertTCdamage <- function(x){
-	out <- toolCountryFill(x,fill=0,verbosity=3)
+	out <- toolCountryFill(x,fill=0,verbosity=1)
 	return(out)
 }
