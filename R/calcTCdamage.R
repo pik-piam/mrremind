@@ -2,6 +2,7 @@
 #' they are country-specific and should not be aggregated to the regional level at all
 
 #' @author Franziska Piontek
+#' @param subtype "const", "tasK"
 #' @return MAgPIE object of damage parameters for country level tropical cyclone damage function
 
 calcTCdamage <- function(subtype){
