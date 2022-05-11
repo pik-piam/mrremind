@@ -18,7 +18,7 @@ readTCdamageKrichene <- function(subtype){
 	for(s in unique(a$tc_ssp)){
 		for(p in unique(a$persistence)){
 			for(q in quant){
-				a2 <- subset(a,tc_ssp == s & persistence == p)
+				a2 <- a[which(a$tc_ssp == s & a$persistence == p),]
 				col <- which(colnames(a2) == paste0("estimates_",q))
 				if(s == unique(a$tc_ssp)[1] & p == 0 & q == quant[1]){
 					out <- new.magpie(a2$iso, NULL, paste0(s,".",p,".",q), a2[,col],sets = c("CountryCode","year","SSP.persistence.quantile"))
