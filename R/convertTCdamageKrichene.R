@@ -4,7 +4,7 @@
 #' @param x is MAgPIE object containing the damage parameters for the TC-prone countries
 #' @return MAgPIE object containing values for all 249 ISO countries
 
-convertTCdamage <- function(x){
+convertTCdamageKrichene <- function(x){
 	out <- toolCountryFill(x,fill=0,verbosity=1)
 	return(out)
 }
