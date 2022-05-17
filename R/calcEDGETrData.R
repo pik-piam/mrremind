@@ -15,6 +15,11 @@
 
 calcEDGETrData <- function() {
 
+  if (!'edgeTransport' %in% unique(getCalculations('calc')$package)) {
+    stop(paste('calcEDGETrData() requires package edgeTransport to be loaded',
+               '(manually)'))
+  }
+
   ## monitor edgeTransport functions
   "#! @monitor edgeTransport:::compScenEDGET"
   "#! @monitor edgeTransport:::generateEDGEdata"
