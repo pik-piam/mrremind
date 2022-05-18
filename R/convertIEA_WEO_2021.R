@@ -83,7 +83,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
     regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe",
                  "Eurasia", "Middle East", "North America")
 
-    x.regional <- new.magpie(getISOlist(), getYears(x.reg), names = NULL)
+    x.regional <- NULL
 
     for (i in getNames(x.reg)) {
       j <- x.reg[, , i]
@@ -116,8 +116,6 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
 
       x.regional <- mbind(x.regional, .disaggregate_regions(x_in = j, regions_in = regions))
     }
-
-    x.regional <- x.regional[, , "dummy", invert = TRUE]
 
     Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
     x.regional[Non28EUcountries, , ] <- 0
