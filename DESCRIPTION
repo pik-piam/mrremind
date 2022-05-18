@@ -50,7 +50,7 @@ Imports:
     magrittr,
     mgsub,
     nnls,
-    quitte,
+    quitte (>= 0.3100.0),
     readODS,
     readr,
     readxl,
