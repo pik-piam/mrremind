@@ -22,7 +22,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
       country = getISOlist()
     )
 
-    weight <- PE[, 2016, "PE (EJ/yr)"]
+    weight <- PE[, 2014, "PE (EJ/yr)"]
     x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
     return(x.world)
   } else if (subtype == "region") {
@@ -46,7 +46,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
       mapping_regions <- mapping_full[mapping_full$Region_name %in% regions &
         !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN", ]
 
-      weight <- PE[mapping_regions$ISO3.code, 2016, "PE (EJ/yr)"]
+      weight <- PE[mapping_regions$ISO3.code, 2014, "PE (EJ/yr)"]
 
       # disaggregation of other regions to iso countries
       x2 <- toolAggregate(x[regions, , ], rel = mapping_regions, weight = weight)
