@@ -3,8 +3,8 @@
 \name{toolBiomassSupplyAggregate}
 \alias{toolBiomassSupplyAggregate}
 \title{toolBiomassSupplyAggregate
-The function aggregates biomass supply curves to regionmapping different from H12. 
-It only works if all regions are subregions of H12 regions. The offset parameter (a) is taken from the H12 region. 
+The function aggregates biomass supply curves to regionmapping different from H12.
+It only works if all regions are subregions of H12 regions. The offset parameter (a) is taken from the H12 region.
 The slope parameter (b) is multiplied by a weight. The weight is the inverse of the share of agricultural area of the subregion in the H12 region.}
 \usage{
 toolBiomassSupplyAggregate(
@@ -25,8 +25,8 @@ return: returns region aggregated biomass supply curve data
 }
 \description{
 toolBiomassSupplyAggregate
-The function aggregates biomass supply curves to regionmapping different from H12. 
-It only works if all regions are subregions of H12 regions. The offset parameter (a) is taken from the H12 region. 
+The function aggregates biomass supply curves to regionmapping different from H12.
+It only works if all regions are subregions of H12 regions. The offset parameter (a) is taken from the H12 region.
 The slope parameter (b) is multiplied by a weight. The weight is the inverse of the share of agricultural area of the subregion in the H12 region.
 }
 \author{

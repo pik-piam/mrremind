@@ -1426,13 +1426,10 @@ calcFEdemand <- function(subtype = "FE") {
     # scale industry subsector total FE by subsector activity and exogenous
     # energy efficiency gains
 
-    specific_FE_limits <- tribble(
-      ~subsector,          ~type,        ~limit,
-      'cement',            'absolute',   1.8,
-      'steel_primary',     'absolute',   8,
-      'steel_secondary',   'absolute',   1.3,
-      'chemicals',         'relative',   0.1,
-      'otherInd',          'relative',   0.1,)
+    specific_FE_limits <- readSource(type = 'ExpertGuess',
+                                     subtype = 'industry_specific_FE_limits',
+                                     convert = FALSE) %>%
+      madrat_mule()
 
     industry_subsectors_specific_FE <- calcOutput(
       type = 'industry_subsectors_specific', subtype = 'FE',
