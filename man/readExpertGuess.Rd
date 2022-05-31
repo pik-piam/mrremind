@@ -7,7 +7,12 @@
 readExpertGuess(subtype)
 }
 \arguments{
-\item{subtype}{Type of data that should be read.}
+\item{subtype}{Type of data that should be read.  One of
+\itemize{
+\item \code{Chinese_Steel_Production}: "Smooth" production estimates by Robert
+Pietzcker (2022).
+\item Any of the others nobody cared to document.
+}}
 }
 \value{
 magpie object of the data

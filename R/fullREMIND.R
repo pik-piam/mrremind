@@ -5,7 +5,9 @@
 #'
 #' @param rev data revision which should be used as input (positive numeric).
 #' @importFrom edgeTransport collectScens generateEDGEdata
-#' @importFrom quitte cartesian
+#' @importFrom madrat madratAttach
+#' @importFrom magrittr %>%
+#' @importFrom quitte cartesian madrat_mule
 #' @author Lavinia Baumstark
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
@@ -18,6 +20,8 @@ fullREMIND <- function(rev = 0) {
 
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
+
+  madratAttach("edgeTransport")   # enable madrat caching for edgeTransport
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,      round = 8,  file = "f_pop.cs3r")
@@ -36,6 +40,14 @@ fullREMIND <- function(rev = 0) {
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
+  calcOutput(
+    type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
+    file = 'p37_steel_secondary_max_share.cs4r',
+    match.steel.historic.values = TRUE, match.steel.estimates = 'IEA_ETP',
+    China_Production = readSource(type = 'ExpertGuess',
+                                  subtype = 'Chinese_Steel_Production',
+                                  convert = FALSE) %>%
+      madrat_mule())
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "UE_buildings",   round = 8,  file = "f36_uedemand_build.cs4r")
   calcOutput("FEdemand",  subtype = "ES",             round = 6,  file = "f29_esdemand.cs4r")
@@ -52,6 +64,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("DevelopmentState",                      round = 4,  file = "f_developmentState.cs3r")
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f50_pop.cs3r", aggregate = FALSE)
   calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f50_gdp.cs3r", aggregate = FALSE)
+  calcOutput("TCdamage", subtype = "const",           round=8, file="f50_TC_df_const.cs4r", aggregate=FALSE)
+  calcOutput("TCdamage", subtype = "tasK",            round=8, file="f50_TC_df_tasK.cs4r", aggregate=FALSE)
 
   #-------------- energy services parameter -----------------------------------------------------------
   calcOutput("FEdemand", subtype = "EsUeFe_in",       round = 8, file = "p36_serviceInputs.cs4r")
@@ -147,6 +161,8 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
+  calcOutput('industry_specific_FE_limits', aggregate = FALSE,
+             file = 'pm_energy_limit.csv')
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
@@ -167,6 +183,8 @@ fullREMIND <- function(rev = 0) {
   # has been moved to separate function mrremind::fullVALIDATIONREMIND
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+  calcOutput("TransportGDPshare", round = 6,  file = "f35_transportGDPshare.cs4r")
+
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
            "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe", "annual_mileage"),

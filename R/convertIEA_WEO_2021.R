@@ -22,7 +22,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
       country = getISOlist()
     )
 
-    weight <- PE[, 2016, "PE (EJ/yr)"]
+    weight <- PE[, 2014, "PE (EJ/yr)"]
     x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
     return(x.world)
   } else if (subtype == "region") {
@@ -46,7 +46,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
       mapping_regions <- mapping_full[mapping_full$Region_name %in% regions &
         !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN", ]
 
-      weight <- PE[mapping_regions$ISO3.code, 2016, "PE (EJ/yr)"]
+      weight <- PE[mapping_regions$ISO3.code, 2014, "PE (EJ/yr)"]
 
       # disaggregation of other regions to iso countries
       x2 <- toolAggregate(x[regions, , ], rel = mapping_regions, weight = weight)
@@ -83,7 +83,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
     regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe",
                  "Eurasia", "Middle East", "North America")
 
-    x.regional <- new.magpie(getISOlist(), getYears(x.reg), names = NULL)
+    x.regional <- NULL
 
     for (i in getNames(x.reg)) {
       j <- x.reg[, , i]
@@ -116,8 +116,6 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") {
 
       x.regional <- mbind(x.regional, .disaggregate_regions(x_in = j, regions_in = regions))
     }
-
-    x.regional <- x.regional[, , "dummy", invert = TRUE]
 
     Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
     x.regional[Non28EUcountries, , ] <- 0
