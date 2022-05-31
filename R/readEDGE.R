@@ -9,7 +9,7 @@
 #' \dontrun{
 #' a <- readSource("EDGE")
 #' }
-#' @author Antoine Levesque, Robin Krekeler
+#' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
