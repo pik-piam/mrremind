@@ -10,7 +10,8 @@
 
 calcSteelStock <- function() {
   steel_stock_per_capita <- readSource(type = "Mueller", subtype = "stocks", convert = TRUE)[, , "Steel stock per-capita|med (t)"]
-  population <- calcOutput("PopulationPast", aggregate = FALSE)
+  population <- calcOutput("PopulationPast", PopulationPast = 'UN_PopDiv', aggregate = FALSE)
+
   y <- intersect(getItems(steel_stock_per_capita, 2), getItems(population, 2))
 
   stock <- steel_stock_per_capita[, y, ] * population[, y, ]
