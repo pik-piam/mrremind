@@ -340,8 +340,9 @@ calcFEdemand <- function(subtype = "FE") {
     buildings  <- readSource("EDGE",subtype="FE_buildings")
     
     # consider only fixed climate
-    if (subtype == "FE_buildings") {
+    if (subtype %in% c("FE_buildings", "UE_buildings")) {
       rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
+      rcps <- gsub("rcpfixed", "none", rcps)
       getItems(buildings, "rcp") <- rcps
       stationary <- addDim(stationary, rcps, "rcp")
     } else {
@@ -562,16 +563,19 @@ calcFEdemand <- function(subtype = "FE") {
       mutate(REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]]))
   }
   magpnames <- expand_vectors(
-    if (subtype == "FE_buildings") {cartesian(scenarios, rcps)} else {scenarios},
+    if (subtype %in% c("FE_buildings", "UE_buildings")) {
+      cartesian(scenarios, rcps)
+    } else {
+      scenarios
+    },
     magpnames)
 
   if (length(setdiff(edge_names, mapping$EDGEitems) > 0 )) stop("Not all EDGE items are in the mapping")
 
 
   # make an empty new magpie object
-
-  reminditems <- as.magpie(array(dim=c(length(regions), length(years), length(magpnames)),
-                               dimnames=list(regions, years, magpnames)))
+  reminditems <- as.magpie(array(dim = c(length(regions), length(years), length(magpnames)),
+                                 dimnames = list(regions, years, magpnames)))
   getSets(reminditems) <- sets_names
 
   datatmp <- data
@@ -582,16 +586,17 @@ calcFEdemand <- function(subtype = "FE") {
       paste(collapse = ".")
   })
 
-  for (reminditem in names_NoScen){
+  for (reminditem in names_NoScen) {
     # Concatenate names from mapping columns so that they are comparable with
     # names from magclass object
     if (length(REMIND_dimensions) > 1) {
-      names_mapping = apply(mapping[REMIND_dimensions],1,paste,collapse=".")
+      names_mapping <- apply(mapping[REMIND_dimensions], 1, paste, collapse = ".")
     } else {
-      names_mapping = mapping[[REMIND_dimensions]]
+      names_mapping <- mapping[[REMIND_dimensions]]
     }
     # Only select EDGE variables which correspond to the remind
-    testdf = mapping[names_mapping == reminditem,c("EDGEitems", "weight_Fedemand")]
+    testdf <- mapping[names_mapping == reminditem,
+                      c("EDGEitems", "weight_Fedemand")]
     prfl <- testdf[,"EDGEitems"]
     vec <- as.numeric(mapping[rownames(testdf),"weight_Fedemand"])
     names(vec) <- prfl
@@ -1638,8 +1643,8 @@ calcFEdemand <- function(subtype = "FE") {
 
   structure_data <- switch(subtype,
     FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe..b$",
-    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\.fe..b$",
+    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
     FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
     UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
     ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
