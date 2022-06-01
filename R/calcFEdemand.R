@@ -965,7 +965,7 @@ calcFEdemand <- function(subtype = "FE") {
           c('scenario', 'subsector', 'iso3c', 'year')
         ) %>%
         assert(not_na, everything()) %>%
-        mutate(value = .data$specific.production * .data$GDP) %>%
+        mutate(value = .data$specific.production * .data$GDP * .data$factor) %>%
         select(all_of(colnames(foo))),
 
       # changes of specific production relative to base scenario
