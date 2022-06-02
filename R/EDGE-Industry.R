@@ -945,32 +945,32 @@ calcSteel_Projections <- function(subtype = 'production',
   # match historic values ----
   if (match.steel.historic.values) {
     tmp <- full_join(
-    # estimates after last historic year
-    production_estimates %>%
-      filter(max(unique(steel_historic_prod$year)) <= .data$year,
+      # estimates after last historic year
+      production_estimates %>%
+        filter(max(unique(steel_historic_prod$year)) <= .data$year,
                .data$variable %in% c('primary.production',
                                      'secondary.production'),
-             'Total' != .data$iso3c),
+               'Total' != .data$iso3c),
 
-    # estimates up to last historic year
-    steel_historic_prod %>%
-      rename(historic = .data$value) %>%
-      # Mt/year * 1e6 t/Mt = t/year
-      mutate(historic = .data$historic * 1e6,
-             scenario = production_estimates[[1,'scenario']]) %>%
-      # duplicate for all scenarios
-      complete(
+      # estimates up to last historic year
+      steel_historic_prod %>%
+        rename(historic = .data$value) %>%
+        # Mt/year * 1e6 t/Mt = t/year
+        mutate(historic = .data$historic * 1e6,
+               scenario = production_estimates[[1,'scenario']]) %>%
+        # duplicate for all scenarios
+        complete(
           nesting(!!!syms(c('region', 'iso3c', 'year', 'variable',
                             'historic'))),
-        scenario = unique(pull(production_estimates, 'scenario'))) %>%
-      complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
-               year = unique(.data$year),
-               variable = unique(.data$variable),
-               fill = list(historic = 0)) %>%
-      assert(not_na, everything()),
+          scenario = unique(pull(production_estimates, 'scenario'))) %>%
+        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
+                 year = unique(.data$year),
+                 variable = unique(.data$variable),
+                 fill = list(historic = 0)) %>%
+        assert(not_na, everything()),
 
-    c('scenario', 'region', 'iso3c', 'year', 'variable')
-  )
+      c('scenario', 'region', 'iso3c', 'year', 'variable')
+    )
 
     tmp <- bind_rows(
       # shift country production to meet historic production in the last year
@@ -1128,7 +1128,26 @@ calcSteel_Projections <- function(subtype = 'production',
       group_by(.data$region) %>%
       mutate(
         factor = .data$ETP / .data$value,
-        factor = .data$factor / first(.data$factor, order_by = .data$year)) %>%
+        factor = .data$factor / first(.data$factor, order_by = .data$year))
+
+    # If exogenous Chinese production trajectories gobble up all Non-OECD
+    # production, temper the scaling factor to only meet 2060 production exactly
+    if (is.data.frame(China_Production)) {
+      scaling_factor <- scaling_factor %>%
+      mutate(factor = ( .data$factor
+                      + ( first(.data$factor, order_by = .data$year)
+                        + ( ( last(.data$factor, order_by = .data$year)
+                            - first(.data$factor, order_by = .data$year)
+                            )
+                          / (max(.data$year) - min(.data$year))
+                          * (.data$year - min(.data$year))
+                          )
+                        )
+                      )
+                    / 2)
+      }
+
+      scaling_factor <- scaling_factor %>%
       select(-'value', -'ETP') %>%
       bind_rows(
         tibble(
