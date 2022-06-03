@@ -983,12 +983,16 @@ calcFEdemand <- function(subtype = "FE") {
         ) %>%
         left_join(
           foo %>%
-            select('scenario', 'subsector', 'iso3c', 'year', 'GDP'),
+            select('scenario', 'subsector', 'iso3c', 'year', 'GDP', 'value'),
 
           c('scenario', 'subsector', 'iso3c', 'year')
         ) %>%
         assert(not_na, everything()) %>%
-        mutate(value = .data$specific.production * .data$GDP * .data$factor) %>%
+        # scale factor in from 2015-30
+        mutate(l = pmin(1, pmax(0, (.data$year - 2015) / (2030 - 2015))),
+               value = .data$specific.production
+                     * .data$GDP
+                     * (.data$factor * .data$l + 1 * (1 - .data$l))) %>%
         select(all_of(colnames(foo))),
 
       # changes of specific production relative to base scenario
