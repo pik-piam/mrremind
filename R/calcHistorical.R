@@ -1,6 +1,10 @@
 #' Gather reference data from various sources.
 #' @importFrom magclass setNames getNames getSets add_columns
 #' @importFrom luscale rename_dimnames
+#' @importFrom dplyr %>% filter group_by mutate select ungroup
+#' @importFrom quitte madrat_mule
+#' @importFrom rlang syms
+#' @importFrom tidyr complete nesting
 
 
 calcHistorical <- function() {
@@ -116,7 +120,7 @@ calcHistorical <- function() {
   LU_FAO_EmisAg <- LU_FAO_EmisAg[,,which(!duplicated(getNames(LU_FAO_EmisAg)))]
 
 
-  #====== Capacities historical data ===================
+  # Capacities historical data ====
 
   #IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
   IRENAcap <- readSource(type="IRENA",subtype="Capacity")[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
@@ -127,7 +131,7 @@ calcHistorical <- function() {
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
 
-  #====== Region specific historical data ===================
+  # Region specific historical data ====
   # European Eurostat data
   eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = F)
   eurostat <- add_dimension(eurostat, dim = 3.1, add = "model", nm = "Eurostat")
@@ -235,6 +239,26 @@ calcHistorical <- function() {
   BP <- calcOutput("BP", aggregate = FALSE)
   BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
+  # Cement Production ----
+  USGS_cement <- readSource(type = 'USGS', subtype = 'cement',
+                            convert = FALSE) %>%
+    madrat_mule() %>%
+    group_by(!!!syms(c('iso3c', 'year'))) %>%
+    filter(max(.data$reporting.year) == .data$reporting.year) %>%
+    ungroup() %>%
+    select(-'reporting.year') %>%
+    # t/year * 1e-6 Mt/t = Mt/year
+    mutate(value = .data$value * 1e-6,
+           model = 'USGS',
+           variable = 'Production|Industry|Cement (Mt/yr)') %>%
+    select('iso3c', 'year', 'model', 'variable', 'value') %>%
+    complete(iso3c = unname(getISOlist()),
+             year  = unique(.data$year),
+             fill = list(model = 'USGS',
+                         variable = 'Production|Industry|Cement (Mt/yr)',
+                         value = 0)) %>%
+    as.magpie(spatial = 1, temporal = 2, tidy = TRUE)
+
   # Steel Production ----
   worldsteel <- readSource('worldsteel', convert = FALSE) %>%
     madrat_mule() %>%
@@ -283,21 +307,24 @@ calcHistorical <- function() {
              fill = list(value = 0)) %>%
     as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
 
-
-
-
   # Steel Stock ----
   steelStock <- calcOutput("SteelStock", aggregate = F)
   steelStock <- add_dimension(steelStock, dim = 3.1, add = "model", nm = "Mueller")
 
-  #====== start: blow up to union of years ===================
+  # blow up to union of years ====
   # find all existing years (y) and variable names (n)
 
-  varlist <- list(fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James, gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac,
-                  LU_EDGAR_LU, LU_CEDS, LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat, #emiMktES, emiMktETS, emiMktESOthers,
-                  EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp, ARIADNE_ReferenceScenarioGdpCorona,
-                  ARIADNE_ReferenceScenarioPop, EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference, #, EEA_GHGES
-                  IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE, UBA_emi, UNFCCC, BP, worldsteel, steelStock)
+  varlist <- list(
+    fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
+    gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat,
+    # emiMktES, emiMktETS, emiMktESOthers,
+    EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp,
+    ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
+    EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
+    # EEA_GHGES,
+    IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE,
+    UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
@@ -312,9 +339,8 @@ calcHistorical <- function() {
   for (i in varlist) {
     data[,getYears(i),getNames(i)] <- i
   }
-  #====== end: blow up to union of years ===================
 
-  # add scenario dimension
+  # add scenario dimension ====
   data <- add_dimension(data,dim=3.1,add="scenario",nm="historical")
   # rename dimension "data" into "variable"
   getSets(data)[5] <- "variable"
