@@ -479,7 +479,10 @@ calcSteel_Projections <- function(subtype = 'production',
     assert(not_na, everything())
 
   if ('steel_stock_estimates' == subtype) {
-    return(steel_stock_estimates)
+    return(list(
+      x = steel_stock_estimates %>%
+        madrat_mule(),
+      weight = NULL))
   }
 
   # calculate lifetime projections ----
