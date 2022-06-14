@@ -3881,6 +3881,48 @@ readJRC_IDEES <- function(subtype) {
             }
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'RES_hh_num' = { list(
+          prefix = 'Residential|',
+          rows = tibble(
+            name = { c(
+              "Stock of households (no)",
+
+              "Stock of households|Space heating (no)",
+              "Stock of households|Space heating|Solids (no)",
+              "Stock of households|Space heating|Liquified petroleum gas (LPG) (no)",
+              "Stock of households|Space heating|Gas/Diesel oil incl. biofuels (GDO) (no)",
+              "Stock of households|Space heating|Gases incl. biogas (no)",
+              "Stock of households|Space heating|Biomass and wastes (no)",
+              "Stock of households|Space heating|Geothermal energy (no)",
+              "Stock of households|Space heating|Derived heat (no)",
+              "Stock of households|Space heating|Advanced electric heating (no)",
+              "Stock of households|Space heating|Conventional electric heating (no)",
+              "Stock of households|Space heating|Circulation (no)",
+
+              "Stock of households|Space cooling (no)",
+              "Stock of households|Space cooling|Air conditioning (no)",
+
+              "Stock of households|Water heating (no)",
+              "Stock of households|Water heating|Solids (no)",
+              "Stock of households|Water heating|Liquified petroleum gas (LPG) (no)",
+              "Stock of households|Water heating|Gas/Diesel oil incl. biofuels (GDO) (no)",
+              "Stock of households|Water heating|Gases incl. biogas (no)",
+              "Stock of households|Water heating|Biomass and wastes (no)",
+              "Stock of households|Water heating|Geothermal energy (no)",
+              "Stock of households|Water heating|Derived heat (no)",
+              "Stock of households|Water heating|Electricity (no)",
+              "Stock of households|Water heating|Solar (no)",
+
+              "Stock of households|Cooking (no)",
+              "Stock of households|Cooking|Solids (no)",
+              "Stock of households|Cooking|Liquified petroleum gas (LPG) (no)",
+              "Stock of households|Cooking|Gases incl. biogas (no)",
+              "Stock of households|Cooking|Biomass and wastes (no)",
+              "Stock of households|Cooking|Electricity (no)"
+            ) }
+          ) %>%
+            extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) }
       )  }
     ) },
@@ -4075,6 +4117,49 @@ readJRC_IDEES <- function(subtype) {
             }
           ) %>%
             extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
+        ) },
+        'SER_hh_num' = { list(
+          prefix = 'Tertiary|',
+          rows = tibble(
+            name = { c(
+              "Stock of buildings (no)",
+
+              "Stock of buildings|Space heating (no)",
+              "Stock of buildings|Space heating|Solids (no)",
+              "Stock of buildings|Space heating|Liquified petroleum gas (LPG) (no)",
+              "Stock of buildings|Space heating|Gas/Diesel oil incl. biofuels (GDO) (no)",
+              "Stock of buildings|Space heating|Gas heat pumps (no)",
+              "Stock of buildings|Space heating|Conventional gas heaters (no)",
+              "Stock of buildings|Space heating|Biomass and wastes (no)",
+              "Stock of buildings|Space heating|Geothermal energy (no)",
+              "Stock of buildings|Space heating|Derived heat (no)",
+              "Stock of buildings|Space heating|Advanced electric heating (no)",
+              "Stock of buildings|Space heating|Conventional electric heating (no)",
+              "Stock of buildings|Space heating|Circulation, other electricity (no)",
+
+              "Stock of buildings|Space cooling (no)",
+              "Stock of buildings|Space cooling|Gas heat pumps (no)",
+              "Stock of buildings|Space cooling|Electric space cooling (no)",
+
+              "Stock of buildings|Hot water (no)",
+              "Stock of buildings|Hot water|Solids (no)",
+              "Stock of buildings|Hot water|Liquified petroleum gas (LPG) (no)",
+              "Stock of buildings|Hot water|Gas/Diesel oil incl. biofuels (GDO) (no)",
+              "Stock of buildings|Hot water|Gases incl. biogas (no)",
+              "Stock of buildings|Hot water|Biomass and wastes (no)",
+              "Stock of buildings|Hot water|Derived heat (no)",
+              "Stock of buildings|Hot water|Electricity (no)",
+              "Stock of buildings|Hot water|Solar (no)",
+              NA,
+              "Stock of buildings|Catering (no)",
+              "Stock of buildings|Catering|Liquified petroleum gas (LPG) (no)",
+              "Stock of buildings|Catering|Gases incl. biogas (no)",
+              "Stock of buildings|Catering|Biomass and wastes (no)",
+              "Stock of buildings|Catering|Electricity (no)"
+            ) 
+          }
+        ) %>%
+          extract('name', c('variable', 'unit'), '^(.*) \\((.*)\\)$')
         ) }
       )  }
     ) }
