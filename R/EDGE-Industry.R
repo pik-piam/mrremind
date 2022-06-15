@@ -4,10 +4,14 @@
 #'
 #' @md
 #' @param subtype One of
-#'   - `production`  Returns trajectories of primary and secondary steel
-#'     production
-#'   - `secondary.steel.max.share`  Returns the maximum share of secondary steel
-#'     in total steel production.
+#'   - `production` Returns trajectories of primary and secondary steel
+#'     production (`calcSteel_Projections()`).
+#'   - `secondary.steel.max.share` Returns the maximum share of secondary steel
+#'     in total steel production (`calcSteel_Projections()`).
+#'   - `physical` Returns physical production trajectories for cement
+#'     (`calcIndustry_Value_Added()`).
+#'   - `economic` Returns value added trajectories for all subsectors
+#'     (`calcIndustry_Value_Added()`).
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
@@ -1230,7 +1234,8 @@ calcSteel_Projections <- function(subtype = 'production',
 
 #' @rdname EDGE-Industry
 #' @export
-calcIndustry_Value_Added <- function(match.steel.historic.values = TRUE,
+calcIndustry_Value_Added <- function(subtype = 'physical',
+                                     match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = FALSE,
                                      China_Production = NULL) {
@@ -2578,25 +2583,41 @@ d_plot_region_totals %>%
   # ========================================================================== =
 
   # construct output ----
-  x <- projections %>%
-    filter(2000 <= .data$year,
-           'Total' != .data$iso3c,
-           'World' != .data$region) %>%
-    select('scenario', 'iso3c', 'year', ue_cement = 'cement.production',
-           ue_chemicals = 'chemicals.VA', ue_otherInd = 'otherInd.VA') %>%
-    pivot_longer(matches('^ue_'), names_to = 'pf') %>%
-    assert(not_na, everything()) %>%
-    # t/year * 1e-9 Gt/t = Gt/year      | cement
-    # $/year * 1e-12 $tn/$ = $tn/year   | chemicals and other industry
-    mutate(
-      value = .data$value * case_when(
-        'ue_cement'    == pf ~ 1e-9,
-        'ue_chemicals' == pf ~ 1e-12,
-        'ue_otherInd'  == pf ~ 1e-12),
-      scenario = paste0('gdp_', .data$scenario)) %>%
-    interpolate_missing_periods_(periods = list(year = 1993:2150),
-                                 expand.values = TRUE) %>%
-    select('scenario', 'iso3c', 'pf', 'year', 'value')
+  if ('physical' == subtype) {
+    x <- projections %>%
+      filter(2000 <= .data$year,
+             'Total' != .data$iso3c,
+             'World' != .data$region) %>%
+      select('scenario', 'iso3c', 'year', ue_cement = 'cement.production',
+             ue_chemicals = 'chemicals.VA', ue_otherInd = 'otherInd.VA') %>%
+      pivot_longer(matches('^ue_'), names_to = 'pf') %>%
+      assert(not_na, everything()) %>%
+      # t/year * 1e-9 Gt/t = Gt/year      | cement
+      # $/year * 1e-12 $tn/$ = $tn/year   | chemicals and other industry
+      mutate(
+        value = .data$value * case_when(
+          'ue_cement'    == pf ~ 1e-9,
+          'ue_chemicals' == pf ~ 1e-12,
+          'ue_otherInd'  == pf ~ 1e-12),
+        scenario = paste0('gdp_', .data$scenario)) %>%
+      interpolate_missing_periods_(periods = list(year = 1993:2150),
+                                   expand.values = TRUE) %>%
+      select('scenario', 'iso3c', 'pf', 'year', 'value')
+  }
+
+  if ('economic' == subtype) {
+    x <- projections %>%
+      filter(2000 <= .data$year,
+             'Total' != .data$iso3c,
+             'World' != .data$region) %>%
+      select('scenario', 'iso3c', 'year', 'cement.VA', 'chemicals.VA',
+             'steel.VA', 'otherInd.VA') %>%
+      pivot_longer(matches('\\.VA$')) %>%
+      # $/yr * 1e12 $tn/$ = $tn/yr
+      mutate(value = .data$value * 1e-12,
+             scenario = paste0('gdp_', .data$scenario)) %>%
+      select('scenario', 'iso3c', 'name', 'year', 'value')
+  }
 
   # return statement ----
   return(list(x = x %>%
