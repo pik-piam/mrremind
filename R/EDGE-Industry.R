@@ -30,7 +30,7 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when n right_join semi_join
+#' @importFrom dplyr %>% case_when n right_join semi_join distinct
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
 #'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete

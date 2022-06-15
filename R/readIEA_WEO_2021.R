@@ -3,7 +3,7 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Falk Benke
-#' @importFrom dplyr filter %>%
+#' @importFrom dplyr filter %>% distinct group_by ungroup
 #' @importFrom rlang sym
 #' 
 
