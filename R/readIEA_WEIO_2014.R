@@ -20,11 +20,11 @@
 readIEA_WEIO_2014 <- function() {
   # define file paths ----
   # (for easier debugging)
-  # file_country_groups <- '~/PIK/swap/inputdata/sources/IEA_WEIO_2014/IEA_WEO_country_groups.csv'
-  file_country_groups <- 'IEA_WEO_country_groups.csv'
+  # path <- '~/PIK/swap/inputdata/sources/IEA_WEIO_2014/'
+  path <- './'
 
-  # file_data <- '~/PIK/swap/inputdata/sources/IEA_WEIO_2014/WEIO2014AnnexA.xls'
-  file_data <- 'WEIO2014AnnexA.xls'
+  file_country_groups <- file.path(path, 'IEA_WEO_country_groups.csv')
+  file_data <- file.path(path, 'WEIO2014AnnexA.xls')
 
   # read country groups ----
   country_groups <- read_csv(file = file_country_groups,
@@ -84,10 +84,25 @@ readIEA_WEIO_2014 <- function() {
       anti_join(region_modifications, c('IEA region' = 'superset')),
 
     region_modifications %>%
+      distinct(!!!syms(c('IEA region', 'superset'))) %>%
       left_join(country_groups, c('superset' = 'IEA region')) %>%
-      anti_join(country_groups, c('subsets' = 'IEA region', 'iso3c')) %>%
-      distinct(!!!syms(c('IEA region', 'iso3c')))
-  )
+      select('IEA region', 'iso3c') %>%
+      anti_join(
+        region_modifications %>%
+          group_by(!!sym('IEA region')) %>%
+          left_join(country_groups, c('subsets' = 'IEA region')) %>%
+          distinct(!!!syms(c('IEA region', 'iso3c'))) %>%
+          rename(remove_iso3c = 'iso3c'),
+
+        c('iso3c' = 'remove_iso3c')
+      )
+  ) %>%
+    group_by(.data$iso3c) %>%
+    mutate(count = n()) %>%
+    ungroup() %>%
+    verify(expr = 1 == .data$count,
+           description = 'duplicate countries in country groups') %>%
+    select(-'count')
 
   ## calculate region data ----
   d <- bind_rows(
