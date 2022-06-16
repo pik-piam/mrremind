@@ -9,7 +9,7 @@
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table :=
 #' @importFrom stats approx
 #' @importFrom dplyr arrange as_tibble between bind_rows count filter first last
-#'   tibble tribble ungroup
+#'   tibble tribble ungroup distinct
 #' lag inner_join matches mutate right_join semi_join
 #' @importFrom tidyr extract complete nesting replace_na crossing unite
 #'   pivot_longer pivot_wider separate

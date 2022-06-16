@@ -2,7 +2,7 @@
 #' 
 #' @md
 #' @param x A [`magpie`][magclass::magclass] object returned from 
-#'          [`readJRC_IDEES()`].
+#'          [`readUBA()`].
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' 
