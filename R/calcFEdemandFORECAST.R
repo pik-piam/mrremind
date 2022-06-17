@@ -15,6 +15,9 @@ calcFEdemandFORECAST <- function() {
 
   x <- readSource("FORECAST")["DEU", , vars] %>% collapseDim()
 
+  # reduce COVID dip in 2020
+  x[, 2020, ] <- (x[, 2020, ] + x[, 2018, ]) / 2
+
   # 2. calculate baseline trajectories for production variables ----
 
   # read in baseline-to-policy ratios from a previous REMIND run
@@ -31,21 +34,26 @@ calcFEdemandFORECAST <- function() {
   getItems(baseline, dim = 3) <- c("ue_steel_primary", "ue_steel_secondary", "ue_cement")
 
   # 3. calculate total FE ----
+
+  # calculate SEC cement from REMIND
+  fe.carriers.cement <- c("feel_cement", "fega_cement", "feli_cement", "feso_cement")
+  dem <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)["DEU", 2015, "gdp_SSP2EU"]
+  sec.cement <- as.numeric(dimSums(dem[, , fe.carriers.cement], dim = 3) / dem[, , "ue_cement"])
+
   # multiply with FORECAST "Specific Energy Consumption": Production [Mt/yr] * SEC [GJ/t] = [PJ/yr] / 1000 = [EJ/yr]
   fc.overwrite <- mbind(
     baseline,
     setNames(baseline[, , "ue_steel_primary"] * 22 / 1000, "fe_steel_primary"),
     setNames(baseline[, , "ue_steel_secondary"] * 4.5 / 1000, "fe_steel_secondary"),
-    setNames(baseline[, , "ue_cement"] * 6.5 / 1000, "fe_cement")
+    setNames(baseline[, , "ue_cement"] * sec.cement / 1000, "fe_cement")
   )
 
-  years <- getItems(fc.overwrite, dim = 2)
+  # convert Production [Mt/yr] to [Gt/yr]
+  fc.overwrite[, , c("ue_steel_primary", "ue_steel_secondary", "ue_cement")] <- fc.overwrite[, , c("ue_steel_primary", "ue_steel_secondary", "ue_cement")] / 1000
 
   # 4. calculate share of FE carriers from SSP2EU REMIND trajectories ----
-  fe.carriers.cement <- c("feel_cement", "fega_cement", "feli_cement", "feso_cement")
   fe.carriers <- c(fe.carriers.cement, "fega_steel", "feli_steel", "feso_steel", "feel_steel_primary", "feel_steel_secondary")
-  fe.carriers.steel.primary <- c(fe.carriers.cement, "fega_steel", "feli_steel", "feso_steel", "feel_steel_primary")
-  fe.carriers.steel.secondary <- c(fe.carriers.cement, "fega_steel", "feli_steel", "feso_steel", "feel_steel_secondary")
+  fe.carriers.steel.primary <- c("fega_steel", "feli_steel", "feso_steel", "feel_steel_primary")
 
   fe <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)["DEU", , fe.carriers][, , "gdp_SSP2EU"] %>% collapseDim()
 
@@ -79,7 +87,7 @@ calcFEdemandFORECAST <- function() {
   )
 
 
-  # 5. create new SSP2EU-ariadne demand scenario from SSP2EU
+  # 5. create new SSP2EU-ariadne demand scenario from SSP2EU ----
   demand <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)[, , "gdp_SSP2EU"]
   vars <- intersect(getNames(fc.overwrite), getNames(demand, dim = 2))
   getItems(demand, dim = 3.1) <- "gdp_SSP2EU-ariadne"
@@ -89,7 +97,7 @@ calcFEdemandFORECAST <- function() {
 
   return(list(
     x = demand, weight = NULL,
-    unit = c("Mt/yr", "EJ/yr"),
+    unit = c("Gt/yr", "EJ/yr"),
     description = "demand pathways for final energy in buildings and industry, industry harmonized with FORECAST"
   ))
 }
