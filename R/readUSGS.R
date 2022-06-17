@@ -12,7 +12,7 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom countrycode countrycode
-#' @importFrom dplyr bind_rows mutate pull rename select
+#' @importFrom dplyr bind_rows mutate pull rename select distinct
 #' @importFrom readxl read_excel
 #' @importFrom tibble tibble
 #' @importFrom tidyr pivot_longer
