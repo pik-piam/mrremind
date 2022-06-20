@@ -2615,7 +2615,8 @@ d_plot_region_totals %>%
         'ue_otherInd'  == pf ~ 1e-12),
       scenario = paste0('gdp_', .data$scenario)) %>%
     interpolate_missing_periods_(periods = list(year = 1993:2150),
-                                 expand.values = TRUE)
+                                 expand.values = TRUE) %>%
+    select('scenario', 'iso3c', 'pf', 'year', 'value')
 
   # return statement ----
   return(list(x = x %>%
