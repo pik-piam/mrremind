@@ -16,22 +16,30 @@ calcFEdemandFORECAST <- function() {
   x <- readSource("FORECAST")["DEU", , vars] %>% collapseDim()
 
   # reduce COVID dip in 2020
-  x[, 2020, ] <- (x[, 2020, ] + x[, 2018, ]) / 2
+  x[, 2020, ] <- (x[, 2025, ] + x[, 2018, ]) / 2
 
   # 2. calculate baseline trajectories for production variables ----
 
   # read in baseline-to-policy ratios from a previous REMIND run
-  factors <- suppressMessages(read_xlsx(
-    toolGetMapping(type = "cell", name = "FORECAST_baseline-to-policy-ratio.xlsx", returnPathOnly = TRUE),
-    range = "B3:H11"
-  ))[, c(1, 4, 7)]
-  names(factors) <- vars
-  factors$period <- c(2018, seq(2020, 2050, 5))
-  factors$region <- "DEU"
-  factors <- melt(factors, id.vars = c("region", "period")) %>% as.magpie()
+  # factors <- suppressMessages(read_xlsx(
+  #   toolGetMapping(type = "cell", name = "FORECAST_baseline-to-policy-ratio.xlsx", returnPathOnly = TRUE),
+  #   range = "B3:H11"
+  # ))[, c(1, 4, 7)]
+  # names(factors) <- vars
+  # factors$period <- c(2018, seq(2020, 2050, 5))
+  # factors$region <- "DEU"
+  # factors <- melt(factors, id.vars = c("region", "period")) %>% as.magpie()
 
+  factors <- data.frame(
+    region = c("DEU"),
+    period = c(2018, seq(2020, 2050, 5)),
+    ue_steel_primary = c(1, approx(c(1, 1.3), n = 7)$y),
+    ue_steel_secondary = c(1),
+    ue_cement = c(1, approx(c(1, 1.2), n = 7)$y)
+  ) %>% as.magpie()
+
+  getItems(x, dim = 3) <- c("ue_steel_primary", "ue_steel_secondary", "ue_cement")
   baseline <- x * factors
-  getItems(baseline, dim = 3) <- c("ue_steel_primary", "ue_steel_secondary", "ue_cement")
 
   # 3. calculate total FE ----
 
