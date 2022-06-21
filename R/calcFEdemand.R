@@ -1609,36 +1609,38 @@ calcFEdemand <- function(subtype = "FE") {
              .data$specific.energy < .data$limit) %>%
       select('scenario', 'region', 'subsector', 'year')
 
-    industry_subsectors_specific_energy <- bind_rows(
-      industry_subsectors_specific_energy %>%
-        anti_join(
-          too_low_projections,
+    if (0 != nrow(too_low_projections)) {
+      industry_subsectors_specific_energy <- bind_rows(
+        industry_subsectors_specific_energy %>%
+          anti_join(
+            too_low_projections,
 
-          c('scenario', 'region', 'subsector', 'year')
-        ),
+            c('scenario', 'region', 'subsector', 'year')
+          ),
 
-      industry_subsectors_specific_energy %>%
-        semi_join(
-          too_low_projections %>%
-            select(-'region'),
+        industry_subsectors_specific_energy %>%
+          semi_join(
+            too_low_projections %>%
+              select(-'region'),
 
-          c('scenario', 'subsector', 'year')
-        ) %>%
-        anti_join(
-          too_low_projections,
+            c('scenario', 'subsector', 'year')
+          ) %>%
+          anti_join(
+            too_low_projections,
 
-          c('scenario', 'region', 'subsector', 'year')
-        ) %>%
-        group_by(!!!syms(c('scenario', 'subsector', 'year'))) %>%
-        summarise(specific.energy = mean(.data$specific.energy),
-                  .groups = 'drop') %>%
-        full_join(
-          too_low_projections,
+            c('scenario', 'region', 'subsector', 'year')
+          ) %>%
+          group_by(!!!syms(c('scenario', 'subsector', 'year'))) %>%
+          summarise(specific.energy = mean(.data$specific.energy),
+                    .groups = 'drop') %>%
+          full_join(
+            too_low_projections,
 
-          c('scenario', 'subsector', 'year')
-        ) %>%
-        assert(not_na, everything())
-    )
+            c('scenario', 'subsector', 'year')
+          ) %>%
+          assert(not_na, everything())
+      )
+    }
 
     # decrease values by alpha p.a.
     industry_subsectors_specific_energy <-
