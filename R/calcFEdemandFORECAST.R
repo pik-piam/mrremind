@@ -51,8 +51,8 @@ calcFEdemandFORECAST <- function() {
   # multiply with FORECAST "Specific Energy Consumption": Production [Mt/yr] * SEC [GJ/t] = [PJ/yr] / 1000 = [EJ/yr]
   fc.overwrite <- mbind(
     baseline,
-    setNames(baseline[, , "ue_steel_primary"] * 22 / 1000, "fe_steel_primary"),
-    setNames(baseline[, , "ue_steel_secondary"] * 4.5 / 1000, "fe_steel_secondary"),
+    setNames(baseline[, , "ue_steel_primary"] * 15.4 / 1000, "fe_steel_primary"),
+    setNames(baseline[, , "ue_steel_secondary"] * 2.3 / 1000, "fe_steel_secondary"),
     setNames(baseline[, , "ue_cement"] * sec.cement / 1000, "fe_cement")
   )
 
