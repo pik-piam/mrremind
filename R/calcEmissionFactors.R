@@ -28,8 +28,10 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
 
     # Get minimum values across country group
     tmp <- as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
-      group_by_(~data1, ~data2) %>%
-      summarise_(value = ~ ifelse(all(value == 0), 0, min(value[value > 0], na.rm = TRUE))) %>%  # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
+      group_by(!!!syms(c('data1', 'data2'))) %>%
+      summarise(value = ifelse(all(.data$value == 0), 0,
+                               min(.data$value[.data$value > 0], na.rm = TRUE))
+                ) %>%  # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
       ungroup() %>%
       as.data.frame() %>%
       as.quitte() %>%
@@ -125,10 +127,12 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE),
                             stringsAsFactors = TRUE)[, c(2, 3)]
   map_regions  <- map_regions %>%
-    filter_(~ CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
-    filter_(~ RegionCode != "") %>%
-    mutate_(RegionCode = ~ gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", RegionCode)))) %>%
-    mutate_(CountryCode = ~ factor(CountryCode))
+    filter(.data$CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
+    filter(.data$RegionCode != "") %>%
+    mutate(RegionCode = gsub("\\ \\+", "\\+",
+                             gsub("^\\s+|\\s+$", "",
+                                  gsub("[0-9]", "", .data$RegionCode)))) %>%
+    mutate(CountryCode = factor(.data$CountryCode))
 
   # read in population and GDP data. required to compute gdp per cap
   pop <- calcOutput("Population", aggregate = FALSE)[, p_dagg_year, p_dagg_pop]
