@@ -94,13 +94,12 @@ calcFEdemandFORECAST <- function() {
     setNames(fc.overwrite[, , "fe_cement"] * fe.shares[, , "share_feel_cement"], "feel_cement")
   )
 
-
   # 5. create new SSP2EU-ariadne demand scenario from SSP2EU ----
   demand <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)[, , "gdp_SSP2EU"]
   vars <- intersect(getNames(fc.overwrite), getNames(demand, dim = 2))
-  getItems(demand, dim = 3.1) <- "gdp_SSP2EU-ariadne"
+  # getItems(demand, dim = 3.1) <- "gdp_SSP2EU-ariadne"
   demand["DEU", seq(2020, 2050, 5), vars] <- fc.overwrite[, seq(2020, 2050, 5), vars]
-  demand["DEU", seq(2005, 2015, 5), vars] <- fc.overwrite[, 2018, vars]
+  demand["DEU", 2015, vars] <- fc.overwrite[, 2018, vars]
   demand["DEU", seq(2055, 2150, 5), vars] <- fc.overwrite[, 2050, vars]
 
   return(list(
