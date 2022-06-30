@@ -11,3 +11,5 @@ carbon_stored.*
 ^.pre-commit-config.yaml$
 ^\.pre-commit-config\.yaml$
 ^workflow$
+^.lintr$
+^tests/.lintr$
