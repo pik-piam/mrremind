@@ -41,21 +41,23 @@ readAGEB <- function() {
       "6.6 Endenergieverbrauch Verkehr nach Energietraegern"
     ),
     range = c(
-      "A2:AF11", "A2:AF13", "A2:AF13", "A2:AF13", "A2:AF8",
-      "A2:AF13", "A2:AF14",
-      "A2:AF13",
-      "A2:AF13", "A2:AF13",
-      "A2:AF13", "A2:AF13", "A2:AF13", "A2:AF13", "A2:AF13", "A2:AF13"
+      "B4:AH13", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH10",
+      "B4:AH15", "B4:AH16",
+      "B4:AH15",
+      "B4:AH15", "B4:AH15",
+      "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15"
     )
   )
 
   data <- NULL
 
   for (i in seq(1:nrow(sheets))) {
-    tmp <- read_xlsx(
-      path = "awt_2019.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
-      col_types = c("text", "text", rep("numeric", 30)),
-      range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
+    tmp <- suppressWarnings(
+      read_xlsx(
+        path = "awt_2020_d.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
+        col_types = c("text", "text", rep("numeric", 31)),
+        range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
+      )
     ) %>%
       filter(!is.na(!!sym("Einheit"))) %>%
       mutate(!!sym("Energietraeger") := paste0(sheets[["name"]][[i]], "|", !!sym("Energietr\u00E4ger"))) %>%
