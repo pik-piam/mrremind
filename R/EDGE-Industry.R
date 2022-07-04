@@ -132,16 +132,16 @@ calcSteel_Projections <- function(subtype = 'production',
     # REMIND:/modules/37_industry/subsectors/datainput.gms
     tribble(
       ~scenario,   ~from,   ~by,   ~target,
-      'SDP',       2015,    2050,   0.9,
-      'SDP_EI',    2015,    2050,   0.9,
-      'SDP_MC',    2015,    2050,   0.9,
-      'SDP_RC',    2015,    2050,   0.9,
-      'SSP1',      2015,    2050,   0.9,
-      'SSP2',      2015,    2050,   0.9,
-      'SSP2EU',    2015,    2050,   0.9,
-      'SSP3',      2015,    2050,   0.9,
-      'SSP4',      2015,    2050,   0.9,
-      'SSP5',      2015,    2050,   0.9) %>%
+      'SDP',       2015,    2100,   0.81,
+      'SDP_EI',    2015,    2100,   0.81,
+      'SDP_MC',    2015,    2100,   0.81,
+      'SDP_RC',    2015,    2100,   0.81,
+      'SSP1',      2015,    2100,   0.81,
+      'SSP2',      2015,    2100,   0.81,
+      'SSP2EU',    2015,    2100,   0.81,
+      'SSP3',      2015,    2100,   0.81,
+      'SSP4',      2015,    2100,   0.81,
+      'SSP5',      2015,    2100,   0.81) %>%
       pivot_longer(-'scenario', names_to = 'switch',
                    values_transform = list(value = as.character)) %>%
       mutate(switch = paste0('EDGE-Industry_secondary.steel.max.share.',
