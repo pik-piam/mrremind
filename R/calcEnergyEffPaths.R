@@ -23,10 +23,12 @@ calcEnergyEffPaths <- function() {
 
  # Fill NAs and Os, and replace with 50% efficiency for fully empty entries
  output = output %>% as.quitte() %>%
-   mutate_(value = ~ifelse((is.na(value) | value == 0),NA,value)) %>%
-   group_by_(~scenario,~region,~item) %>%
-   mutate_(tmp = ~all(is.na(value)), value = ~ifelse(tmp,0.5,value)) %>%  # , value = ifelse(all(is.na(value)),0.5,value) overwrites entries if !all(is.na)
-   select_(~-tmp) %>% ungroup() %>%
+   mutate(value = ifelse((is.na(.data$value) | .data$value == 0), NA,
+                         .data$value)) %>%
+   group_by(!!!syms(c('scenario', 'region', 'item'))) %>%
+   mutate(tmp = all(is.na(.data$value)),
+          value = ifelse(.data$tmp, 0.5, .data$value)) %>%  # , value = ifelse(all(is.na(value)),0.5,value) overwrites entries if !all(is.na)
+   select(-'tmp') %>% ungroup() %>%
    interpolate_missing_periods_(list(period = getYears(output,T)),expand.values = T) %>%
    removeColNa() %>%
    select('scenario', 'region', 'period', 'item', 'value') %>%

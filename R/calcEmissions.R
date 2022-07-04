@@ -445,8 +445,9 @@ calcEmissions <- function(datasource="CEDS16") {
       tmp_limits <- collapseNames(em_limits[,,kap])
 
       tmp_map <- map %>%
-        filter_(~limits_sector %in% getNames(tmp_limits, dim=1)) %>%
-        mutate_(remind_sector = ~paste(sub("POLLUTANT", kap, remind_sector), "(Mt/yr)"))
+        filter(.data$limits_sector %in% getNames(tmp_limits, dim = 1)) %>%
+        mutate(remind_sector = paste(sub("POLLUTANT", kap, .data$remind_sector),
+				     "(Mt/yr)"))
 
       tmp <- mbind(tmp, toolAggregate(tmp_limits, tmp_map, dim=3.1))
 
@@ -476,8 +477,9 @@ calcEmissions <- function(datasource="CEDS16") {
       tmp_eclipse <- collapseNames(em_eclipse[,,kap])
 
       tmp_map <- map %>%
-        filter_(~eclipse_sector %in% getNames(tmp_eclipse, dim=1)) %>%
-        mutate_(remind_sector = ~paste(sub("POLLUTANT", kap, remind_sector), "(Mt/yr)"))
+        filter(.data$eclipse_sector %in% getNames(tmp_eclipse, dim = 1)) %>%
+        mutate(remind_sector = paste(sub("POLLUTANT", kap, .data$remind_sector),
+                                     "(Mt/yr)"))
 
       tmp <- mbind(tmp, toolAggregate(tmp_eclipse, tmp_map, dim=3.1))
 
