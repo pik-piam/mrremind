@@ -19,10 +19,8 @@ readECLIPSE <- function(subtype) {
     ap  <- ap[!is.na(ap[[1]]),]
 
     ap <- ap %>%
-      pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                         c("Region", "Sector", "Unit"))),
-                   names_to = 'year') %>%
-      mutate(year = as.numeric(paste(.data$year))) %>%
+      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
+                   names_transform = list(year = as.numeric)) %>%
       rename(region = 'Region', sector = 'Sector', unit = 'Unit') %>%
       mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
       filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
@@ -43,13 +41,12 @@ readECLIPSE <- function(subtype) {
     ap  <- ap[!is.na(ap[[1]]),]
 
     ap <- ap %>%
-      pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                         c("Region", "Sector", "Unit"))),
-                   names_to = 'year') %>%
-      mutate(year = as.numeric(paste(.data$year))) %>%
+      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
+                   names_transform = list(year = as.numeric)) %>%
       rename(region = 'Region', sector = 'Sector', unit = 'Unit') %>%
       mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
-      filter(!.data$sector %in% c(rm_sectors, rm_unwanted), ~region!="Global") %>%
+      filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
+             .data$region != "Global") %>%
       select(-'unit') %>%
       as.data.frame()
 
@@ -59,41 +56,44 @@ readECLIPSE <- function(subtype) {
   if (subtype == "emissions.aggregated") {
     species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO")
 
-    cle <- do.call("bind_rows",
-                   lapply(species,
-                          function(s) {
-                            out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_CLE_Nov2015.xlsx", sheet=s)
-                            out  <- out[!is.na(out[[1]]),]
-                            out <- out %>%
-                              pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                                                 c("Region", "Sector"))),
-                                           names_to = 'year') %>%
-                              mutate(year = as.numeric(paste(.data$year))) %>%
-                              rename(region = 'Region', sector = 'Sector') %>%
-                              mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
-                              mutate(variable = s) %>%
-                              filter(!.data$sector %in% c(rm_sectors, rm_unwanted), ~region != "Global")
+    cle <- do.call(
+      "bind_rows",
+      lapply(species,
+             function(s) {
+               out <-
+                 read_excel("EMISSIONS_EMF30_aggregated_Ev5a_CLE_Nov2015.xlsx",
+                            sheet = s)
+               out  <- out[!is.na(out[[1]]), ]
+               out <- out %>%
+                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
+                              names_transform = list(year = as.numeric)) %>%
+                 rename(region = 'Region', sector = 'Sector') %>%
+                 mutate(region = gsub("^\\s+|\\s+$", "",
+                                      gsub("[0-9]", "", .data$region))) %>%
+                 mutate(variable = s) %>%
+                 filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
+                        .data$region != "Global")
 
-                            return(out)
-                          })) %>%
+               return(out)
+             })) %>%
       mutate(scenario = "CLE")
 
-    mfr <- do.call("bind_rows",
-                   lapply(species,
-                          function(s) {
-                            out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_MFR_Nov2015.xlsx", sheet=s)
-                            out  <- out[!is.na(out[[1]]),]
-                            out <- out %>%
-                              pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                                                 c("Region", "Sector"))),
-                                           names_to = 'year') %>%
-                              mutate(year = as.numeric(paste(.data$year))) %>%
-                              rename(region = 'Region', sector = 'Sector') %>%
-                              mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
-                              mutate(variable = s) %>%
-                              filter(!.data$sector %in% c(rm_sectors, rm_unwanted), ~region != "Global")
-                            return(out)
-                          })) %>%
+    mfr <- do.call(
+      "bind_rows",
+      lapply(species,
+             function(s) {
+               out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_MFR_Nov2015.xlsx", sheet=s)
+               out  <- out[!is.na(out[[1]]),]
+               out <- out %>%
+                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
+                              names_transform = list(year = as.numeric)) %>%
+                 rename(region = 'Region', sector = 'Sector') %>%
+                 mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
+                 mutate(variable = s) %>%
+                 filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
+                        .data$region != "Global")
+               return(out)
+             })) %>%
       mutate(scenario = "MFR")
 
     # MFR only has 2030 and 2050, so add CLE values for other years
@@ -112,38 +112,36 @@ readECLIPSE <- function(subtype) {
   if (subtype == "emissions.extended") {
     species <- c("SO2", "NH3", "NOx", "VOC", "BC", "OC", "CO")
 
-    cle <- do.call("bind_rows",
-                   lapply(species,
-                          function(s) {
-                            out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_CLE_Nov2015.xlsx", sheet=s)
-                            out  <- out[!is.na(out[[1]]),]
-                            out <- out %>%
-                              pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                                                 c("Region", "Sector"))),
-                                           names_to = 'year') %>%
-                              rename(region = 'Region', sector = 'Sector') %>%
-                              mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
-                              mutate(variable = s) %>%
-                              filter(!.data$sector %in% c(rm_sectors, rm_unwanted), .data$region != "Global")
-                            return(out)
-                          })) %>%
+    cle <- do.call(
+      "bind_rows",
+      lapply(species,
+             function(s) {
+               out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_CLE_Nov2015.xlsx", sheet=s)
+               out  <- out[!is.na(out[[1]]),]
+               out <- out %>%
+                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
+                 rename(region = 'Region', sector = 'Sector') %>%
+                 mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
+                 mutate(variable = s) %>%
+                 filter(!.data$sector %in% c(rm_sectors, rm_unwanted), .data$region != "Global")
+               return(out)
+             })) %>%
       mutate(scenario = "CLE")
 
-    mfr <- do.call("bind_rows",
-                   lapply(species,
-                          function(s) {
-                            out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_MFR_Nov2015.xlsx", sheet=s)
-                            out  <- out[!is.na(out[[1]]),]
-                            out <- out %>%
-                              pivot_longer(cols = all_of(setdiff(colnames(.data),
-                                                                 c("Region", "Sector"))),
-                                           names_to = 'year') %>%
-                              rename(region = 'Region', sector = 'Sector') %>%
-                              mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
-                              mutate(variable = s) %>%
-                              filter(!.data$sector %in% c(rm_sectors, rm_unwanted), .data$region != "Global")
-                            return(out)
-                          })) %>%
+    mfr <- do.call(
+      "bind_rows",
+      lapply(species,
+             function(s) {
+               out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_MFR_Nov2015.xlsx", sheet=s)
+               out  <- out[!is.na(out[[1]]),]
+               out <- out %>%
+                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
+                 rename(region = 'Region', sector = 'Sector') %>%
+                 mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
+                 mutate(variable = s) %>%
+                 filter(!.data$sector %in% c(rm_sectors, rm_unwanted), .data$region != "Global")
+               return(out)
+             })) %>%
       mutate(scenario = "MFR")
 
     # MFR only has 2030 and 2050, so add CLE values for other years
