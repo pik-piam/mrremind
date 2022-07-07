@@ -125,28 +125,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP5',      '0.75') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
-    # secondary steel share limits ----
-    # Linear convergence from the historic value in the year <from> to the value
-    # <target> in the year <by>.
-    # Corresponds to code in
-    # REMIND:/modules/37_industry/subsectors/datainput.gms
-    tribble(
-      ~scenario,   ~from,   ~by,   ~target,
-      'SDP',       2015,    2050,   0.9,
-      'SDP_EI',    2015,    2050,   0.9,
-      'SDP_MC',    2015,    2050,   0.9,
-      'SDP_RC',    2015,    2050,   0.9,
-      'SSP1',      2015,    2050,   0.9,
-      'SSP2',      2015,    2050,   0.9,
-      'SSP2EU',    2015,    2050,   0.9,
-      'SSP3',      2015,    2050,   0.9,
-      'SSP4',      2015,    2050,   0.9,
-      'SSP5',      2015,    2050,   0.9) %>%
-      pivot_longer(-'scenario', names_to = 'switch',
-                   values_transform = list(value = as.character)) %>%
-      mutate(switch = paste0('EDGE-Industry_secondary.steel.max.share.',
-                             switch)),
-
     NULL) %>%
     pivot_wider(names_from = 'switch')
 
@@ -163,14 +141,7 @@ calcSteel_Projections <- function(subtype = 'production',
       `steel.stock.lifetime.convergence.year` =
         'EDGE-Industry_steel.stock.lifetime.convergence.year',
       `steel.stock.lifetime.convergence.factor` =
-        'EDGE-Industry_steel.stock.lifetime.convergence.factor',
-
-      `secondary.steel.max.share.from` =
-      'EDGE-Industry_secondary.steel.max.share.from',
-      secondary.steel.max.share.by =
-      'EDGE-Industry_secondary.steel.max.share.by',
-      secondary.steel.max.share.target =
-      'EDGE-Industry_secondary.steel.max.share.target')
+        'EDGE-Industry_steel.stock.lifetime.convergence.factor')
 
   # load required data ----
   ## region mapping for aggregation ----
@@ -749,9 +720,18 @@ calcSteel_Projections <- function(subtype = 'production',
     assert(not_na, everything())
 
   ## calculate secondary steel max share ----
-  secondary.steel.max.switches <- `EDGE-Industry_scenario_switches` %>%
-    select('scenario',
-           matches('^secondary\\.steel\\.max\\.share\\.(from|by|target)$'))
+  secondary.steel.max.switches <- calcOutput(
+    type = 'industry_max_secondary_steel_share',
+    scenarios = unique(population$scenario),
+    regions = unique(region_mapping$region),
+    aggregate = FALSE) %>%
+    as.data.frame() %>%
+    as_tibble() %>%
+    select(scenario = 'Data1', region = 'Data2', name = 'Data3',
+           value = 'Value') %>%
+    mutate(name = paste0('secondary.steel.max.share.', .data$name)) %>%
+    pivot_wider() %>%
+    character.data.frame()
 
   tmp <- full_join(
     steel_historic_prod %>%
@@ -784,12 +764,12 @@ calcSteel_Projections <- function(subtype = 'production',
         distinct(.data$scenario, .data$region, .data$iso3c) %>%
         full_join(
           secondary.steel.max.switches %>%
-            select('scenario', year = 'secondary.steel.max.share.by',
+            select('scenario', 'region', year = 'secondary.steel.max.share.by',
                    share = 'secondary.steel.max.share.target') %>%
             mutate(year = as.integer(.data$year),
                    share = as.numeric(.data$share)),
 
-          'scenario'
+          c('scenario', 'region')
         )
     ) %>%
     interpolate_missing_periods_(

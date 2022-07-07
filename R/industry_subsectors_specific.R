@@ -105,73 +105,14 @@ calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
     stop('Region definitions missing.')
   }
 
-  expand_tibble <- function(d, scenarios, regions) {
-
-    . <- NULL
-
-    # entries with both scenarios and regions defined
-    d.scenario.region <- d %>%
-      filter(!is.na(.data$scenario), .data$scenario %in% scenarios,
-             !is.na(.data$region), .data$region %in% regions)
-
-    # entries with only scenarios defined
-    d.scenario <- d %>%
-      filter(!is.na(.data$scenario), .data$scenario %in% scenarios,
-             is.na(.data$region)) %>%
-      complete(nesting(!!!syms(setdiff(colnames(.), 'region'))),
-               region = regions) %>%
-      filter(!is.na(.data$region))
-
-    # entries with only regions defined
-    d.region <- d %>%
-      filter(is.na(.data$scenario),
-             !is.na(.data$region), .data$region %in% regions) %>%
-      complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
-               scenario = scenarios) %>%
-      filter(!is.na(.data$scenario))
-
-    # entries with neither scenario nor regions defined
-    d.global <- d %>%
-      filter(is.na(.data$scenario), is.na(.data$region)) %>%
-      complete(nesting(!!!syms(setdiff(colnames(.), c('scenario', 'region')))),
-               scenario = scenarios,
-               region = regions) %>%
-      filter(!is.na(.data$scenario), !is.na(.data$region))
-
-    # combine all entries
-    d.global %>%
-      # scenarios overwrite global data
-      anti_join(
-        d.scenario,
-
-        c('scenario', 'region', 'subsector')
-      ) %>%
-      bind_rows(d.scenario) %>%
-      # regions overwrite global and scenario data
-      anti_join(
-        d.region,
-
-        c('scenario', 'region', 'subsector')
-      ) %>%
-      bind_rows(d.region) %>%
-      # specific data overwrites everything
-      anti_join(
-        d.scenario.region,
-
-        c('scenario', 'region', 'subsector')
-      ) %>%
-      bind_rows(d.scenario.region) %>%
-      select(all_of(colnames(d))) %>%
-      return()
-  }
-
   . <- NULL
 
   return(list(
     x = readSource(type = 'industry_subsectors_specific', subtype = subtype,
                    convert = FALSE) %>%
       madrat_mule() %>%
-      expand_tibble(scenarios, regions) %>%
+      tool_expand_tibble(scenarios, regions,
+                         structure.columns = 'subsector') %>%
       pivot_longer(
         !all_of(names(which('character' == unlist(lapply(., typeof)))))) %>%
       as.magpie(spatial = 0, temporal = 0, data = ncol(.)),
