@@ -20,7 +20,7 @@ readAGEB <- function() {
       "2.1", "2.2",
       "3.1",
       "4.1", "4.2",
-      "6.1", "6.2", "6.3", "6.4", "6.5", "6.6"
+      "6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.8"
     ),
     name = c(
       "1.1 Primaerenergiegewinnung im Inland nach Energietraegern",
@@ -38,14 +38,15 @@ readAGEB <- function() {
       "6.3 Endenergieverbrauch Private Haushalte nach Energietraegern",
       "6.4 Endenergieverbrauch Gewerbe, Handel, Dienstleistungen (GHD) nach Energietraegern",
       "6.5 Endenergieverbrauch Landwirtschaft, Fischerei, Bauwirtschaft nach Energietraegern",
-      "6.6 Endenergieverbrauch Verkehr nach Energietraegern"
+      "6.6 Endenergieverbrauch Verkehr nach Energietraegern",
+      "6.8 Endenergieverbrauch im Subsektor Strassenverkehr nach Energietraegern"
     ),
     range = c(
       "B4:AH13", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH10",
       "B4:AH15", "B4:AH16",
       "B4:AH15",
       "B4:AH15", "B4:AH15",
-      "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15"
+      "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH12"
     )
   )
 
