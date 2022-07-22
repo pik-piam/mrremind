@@ -1,40 +1,47 @@
-Package: mrremind
 Type: Package
+Package: mrremind
 Title: MadRat REMIND Input Data Package
 Version: 0.139.1
 Date: 2022-07-22
-Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
-             person("Renato", "Rodrigues", role = "aut"),
-             person("Antoine", "Levesque", role = "aut"),
-             person("Julian", "Oeser", role = "aut"),
-             person("Christoph", "Bertram", role = "aut"),
-             person("Ioanna", "Mouratiadou", role = "aut"),
-             person("Aman", "Malik", role = "aut"),
-             person("Felix", "Schreyer", role = "aut"),
-             person("Bjoern", "Soergel", role = "aut"),
-             person("Marianna", "Rottoli", role = "aut"),
-             person("Abhijeet", "Mishra", role = "aut"),
-             person("Alois", "Dirnaichner", role = "aut"),
-             person("Michaja", "Pehl", role = "aut"),
-             person("Anastasis", "Giannousakis", role = "aut"),
-             person("David", "Klein", role = "aut"),
-             person("Jessica", "Strefler", role = "aut"),
-             person("Lukas", "Feldhaus", role = "aut"),
-             person("Regina", "Brecha", role = "aut"),
-             person("Sebastian", "Rauner", role = "aut"),
-             person("Jan Philipp", "Dietrich", role = "aut"),
-             person("Stephen", "Bi", role = "aut"),
-             person("Falk", "Benke", role = "aut"),
-             person("Pascal", "Weigmann", role = "aut"),
-             person("Oliver", "Richters", role = "aut"),
-             person("Robin", "Hasse", role = "aut"))
-Description: The mrremind packages contains data preprocessing for the REMIND model.
+Authors@R: c(
+    person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
+    person("Renato", "Rodrigues", role = "aut"),
+    person("Antoine", "Levesque", role = "aut"),
+    person("Julian", "Oeser", role = "aut"),
+    person("Christoph", "Bertram", role = "aut"),
+    person("Ioanna", "Mouratiadou", role = "aut"),
+    person("Aman", "Malik", role = "aut"),
+    person("Felix", "Schreyer", role = "aut"),
+    person("Bjoern", "Soergel", role = "aut"),
+    person("Marianna", "Rottoli", role = "aut"),
+    person("Abhijeet", "Mishra", role = "aut"),
+    person("Alois", "Dirnaichner", role = "aut"),
+    person("Michaja", "Pehl", role = "aut"),
+    person("Anastasis", "Giannousakis", role = "aut"),
+    person("David", "Klein", role = "aut"),
+    person("Jessica", "Strefler", role = "aut"),
+    person("Lukas", "Feldhaus", role = "aut"),
+    person("Regina", "Brecha", role = "aut"),
+    person("Sebastian", "Rauner", role = "aut"),
+    person("Jan Philipp", "Dietrich", role = "aut"),
+    person("Stephen", "Bi", role = "aut"),
+    person("Falk", "Benke", role = "aut"),
+    person("Pascal", "Weigmann", role = "aut"),
+    person("Oliver", "Richters", role = "aut"),
+    person("Robin", "Hasse", role = "aut")
+  )
+Description: The mrremind packages contains data preprocessing for the
+    REMIND model.
+License: LGPL-3 | file LICENSE
+URL: https://github.com/pik-piam/mrremind
 Depends:
-    R(>= 2.10.0),
-    magclass(>= 3.17),
-    madrat(>= 2.5.1),
-    mrcommons(>= 1.7.1),
+    R (>= 2.10.0),
+    madrat (>= 2.5.1),
+    magclass (>= 3.17),
+    mrcommons (>= 1.7.1)
 Imports:
+    Hmisc,
+    R.utils,
     assertr,
     assertthat,
     broom,
@@ -42,10 +49,9 @@ Imports:
     countrycode,
     data.table,
     dplyr,
-    edgeTransport(>= 0.7.0),
+    edgeTransport (>= 0.7.0),
     gdata,
     ggplot2,
-    Hmisc,
     luscale,
     magrittr,
     mgsub,
@@ -58,19 +64,17 @@ Imports:
     reshape2,
     rlang,
     rmndt,
-    R.utils,
     tibble,
     tidyr,
     tidyselect,
-    zoo,
-License: LGPL-3 | file LICENSE
-LazyData: no
-Encoding: UTF-8
-RoxygenNote: 7.2.1
+    zoo
 Suggests: 
     covr,
     knitr,
     rmarkdown,
-    testthat,
-URL: https://github.com/pik-piam/mrremind
-VignetteBuilder: knitr
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: no
+RoxygenNote: 7.2.1
