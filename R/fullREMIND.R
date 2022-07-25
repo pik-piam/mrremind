@@ -4,7 +4,6 @@
 #' REMIND model.
 #'
 #' @param rev data revision which should be used as input (positive numeric).
-#' @importFrom edgeTransport collectScens generateEDGEdata
 #' @importFrom madrat madratAttach
 #' @importFrom magrittr %>%
 #' @importFrom quitte cartesian madrat_mule
