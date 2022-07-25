@@ -1,12 +1,13 @@
 # MadRat REMIND Input Data Package
 
-R package **mrremind**, version **0.139.1**
+R package **mrremind**, version **0.139.2**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrremind)](https://cran.r-project.org/package=mrremind)  [![R build status](https://github.com/pik-piam/mrremind/workflows/check/badge.svg)](https://github.com/pik-piam/mrremind/actions) [![codecov](https://codecov.io/gh/pik-piam/mrremind/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrremind) [![r-universe](https://pik-piam.r-universe.dev/badges/mrremind)](https://pik-piam.r-universe.dev/ui#builds)
 
 ## Purpose and Functionality
 
-The mrremind packages contains data preprocessing for the REMIND model.
+The mrremind packages contains data preprocessing for the
+    REMIND model.
 
 
 ## Installation
@@ -38,7 +39,7 @@ In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-po
 
 To cite package **mrremind** in publications use:
 
-Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R (2022). _mrremind: MadRat REMIND Input Data Package_. R package version 0.139.1, <https://github.com/pik-piam/mrremind>.
+Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R (2022). _mrremind: MadRat REMIND Input Data Package_. R package version 0.139.2, <https://github.com/pik-piam/mrremind>.
 
 A BibTeX entry for LaTeX users is
 
@@ -47,7 +48,7 @@ A BibTeX entry for LaTeX users is
   title = {mrremind: MadRat REMIND Input Data Package},
   author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich and Stephen Bi and Falk Benke and Pascal Weigmann and Oliver Richters and Robin Hasse},
   year = {2022},
-  note = {R package version 0.139.1},
+  note = {R package version 0.139.2},
   url = {https://github.com/pik-piam/mrremind},
 }
 ```
