@@ -49,7 +49,6 @@ Imports:
     countrycode,
     data.table,
     dplyr,
-    edgeTransport (>= 0.7.0),
     gdata,
     ggplot2,
     luscale,
