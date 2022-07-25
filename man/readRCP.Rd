@@ -2,7 +2,7 @@
 % Please edit documentation in R/readRCP.R
 \name{readRCP}
 \alias{readRCP}
-\title{Read RCP 
+\title{Read RCP
 Read in RCP data}
 \usage{
 readRCP(subtype)
@@ -14,7 +14,7 @@ readRCP(subtype)
 magpie object of the RCP data
 }
 \description{
-Read RCP 
+Read RCP
 Read in RCP data
 }
 \examples{

@@ -9,6 +9,7 @@
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
 #' @importFrom rlang sym
+#' @importFrom stats aggregate
 #' @export
 
 calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
@@ -57,7 +58,9 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
-  x <- as.magpie(x, spatial = 1, temporal = 2, data = 5)
+  x <- aggregate(value ~ region + year + model + variable, x, sum) %>%
+    as.magpie(spatial = 1, temporal = 2, data = 5) %>%
+    toolCountryFill(fill = NA)
 
   if (aggregate == "global") {
     x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
@@ -74,6 +77,9 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
 
     x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
+
+    x <- add_columns(x, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
+    x[, , "SE|Electricity|Solar (EJ/yr)"] <- x[, , "SE|Electricity|Solar|PV (EJ/yr)"] + x[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
   }
 
   if (isValidation) {

@@ -9,7 +9,7 @@
 #' \dontrun{
 #' a <- readSource("EDGE")
 #' }
-#' @author Antoine Levesque, Robin Krekeler
+#' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
@@ -17,7 +17,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.06"
+  ver <- "1.08"
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
