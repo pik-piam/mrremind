@@ -250,6 +250,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                }
              }
            }
+
          },
 
          "esCapCost" = {
@@ -267,6 +268,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                }
              }
            }
+
          },
 
          "fe_demand_tech" = {
@@ -289,7 +291,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
          "demISO" = {
            tmp <- EDGETrData_all$demISO
-	         ## adapt database with compatible column names and values
+                 ## adapt database with compatible column names and values
            setnames(tmp, old = c("sector", "tech_output"), new = c("all_in", "value"))
            tmp[all_in == "trn_freight", all_in := "entrp_frgt_sm"]
            tmp[all_in == "trn_shipping_intl", all_in := "entrp_frgt_lo"]
@@ -394,7 +396,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            }
          },
 
-        "annual_mileage" = {
+         "annual_mileage" = {
            tmp <- EDGETrData_all$annual_mileage
            tmp[, varname := subtype]
            tmp=tmp[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
@@ -403,16 +405,16 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                               "year", "vehicle_type", "varname", "annual_mileage"))
            setnames(tmp, old ="annual_mileage", new ="value")
            mdata <- as.magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
-	 },
+         },
 
-	     "ptab4W" = {
-	         tmp <- EDGETrData_all$ptab4W
-	         tmp[, varname := subtype]
-	         tmp$varname <- subtype
-	         setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "param",
-                                    "varname", "value"))
-	         mdata <- as.magpie(tmp, datacol = 6)
-	 },
+         "ptab4W" = {
+           tmp <- EDGETrData_all$ptab4W
+           tmp[, varname := subtype]
+           tmp$varname <- subtype
+           setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "param",
+                              "varname", "value"))
+           mdata <- as.magpie(tmp, datacol = 6)
+         },
 
          "f35_bunkers_fe" = {
            ## used only in transport complex.
