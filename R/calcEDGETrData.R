@@ -20,44 +20,19 @@ calcEDGETrData <- function() {
                '(manually)'))
   }
 
-  ## monitor edgeTransport functions
-  "#! @monitor edgeTransport:::compScenEDGET"
-  "#! @monitor edgeTransport:::generateEDGEdata"
-  "#! @monitor edgeTransport:::calcgenerateEDGEdata"
-  "#! @monitor edgeTransport:::collectScens"
-  "#! @monitor edgeTransport:::Update_Validation_Excel_tool"
-  "#! @monitor edgeTransport:::Update_sw_trend"
-  "#! @monitor edgeTransport:::lvl2_generate_plotdata"
-
-  ## monitor edgeTrpLib functions
-  "#! @monitor edgeTrpLib:::calculate_capCosts"
-  "#! @monitor edgeTrpLib:::calcVint"
-  "#! @monitor edgeTrpLib:::compareScenarios_EDGET"
-  "#! @monitor edgeTrpLib:::createRDS"
-  "#! @monitor edgeTrpLib:::readREMINDdemand"
-  "#! @monitor edgeTrpLib:::applylearning"
-  "#! @monitor edgeTrpLib:::calc_num_vehicles_stations"
-  "#! @monitor edgeTrpLib:::merge_prices"
-  "#! @monitor edgeTrpLib:::prepare4REMIND"
-  "#! @monitor edgeTrpLib:::reportEDGETransport"
-  "#! @monitor edgeTrpLib:::loadInputData"
-  "#! @monitor edgeTrpLib:::shares_intensity_and_demand"
-  "#! @monitor edgeTrpLib:::calculate_logit_inconv_endog"
-
   allscens <- bind_rows(
     ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
     expand_grid(
       SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4"),
-      smartlifestyle = 'FALSE'),
+      tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4")),
 
     ## SHAPE scenarios are coupled to specific technologies
     tribble(
-      ~SSP_scen,   ~tech_scen,   ~smartlifestyle,
-      'SDP_EI',    'Mix4',     'FALSE',
-      'SDP_MC',    'Mix4',     'FALSE',
-      'SDP_RC',    'Mix3',     'FALSE',
-      'SSP2EU',    'HydrHype4','FALSE')
+      ~SSP_scen,   ~tech_scen,
+      'SDP_EI',    'Mix4',
+      'SDP_MC',    'Mix4',
+      'SDP_RC',    'Mix3',
+      'SSP2EU',    'HydrHype4')
   )
 
   # generate list from data frame rows
@@ -76,7 +51,6 @@ calcEDGETrData <- function() {
                  output_folder = NULL,
                  SSP_scen = x[1],
                  tech_scen = x[2],
-                 smartlifestyle = x[3],
                  storeRDS = FALSE)
     })
 

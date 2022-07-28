@@ -18,30 +18,35 @@
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
-  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <- EJ_Mpkm_final <- varname <- NULL
-  fuel <- region <- iso <- node <- totdem <- `.`<- category <- tall <- all_in <- price_component <- NULL
+  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <-
+    EJ_Mpkm_final <- varname <- fuel <- region <- iso <- node <- totdem <- `.`<-
+      category <- tall <- all_in <- price_component <- NULL
 
   ## load the data from EDGE-T
   EDGETrData = calcOutput("EDGETrData", aggregate = F)
   EDGETrData_all=list()
 
   ## all data.tables can be combined directly
-  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport", "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso", "loadFactor", "annual_mileage", "ptab4W")) {
-    EDGETrData_all[[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
-                                               function(x) {
-                                                 EDGETrData[[x]][[i]]
-                                                 return(EDGETrData[[x]][[i]])
-                                               }))
+  for (i in c("fe_demand_tech", "fe2es", "esCapCost", "shares_LDV_transport",
+              "demISO", "price_nonmot", "harmonized_intensities", "UCD_NEC_iso",
+              "loadFactor", "annual_mileage", "ptab4W")) {
+    EDGETrData_all[[i]] <- rbindlist(
+      lapply(seq(1,length(EDGETrData)),
+             function(x) {
+               EDGETrData[[x]][[i]]
+               return(EDGETrData[[x]][[i]])
+             }))
   }
 
   ## sub-lists have to be dealt with separately
   for (j in c("logit_params", "vot_data", "pref_data", "complexdem")) {
     for (i in names(EDGETrData[[1]][[j]])) {
-      EDGETrData_all[[j]][[i]] =  do.call("rbind",lapply(seq(1,length(EDGETrData)),
-                                                                 function(x) {
-                                                                   EDGETrData[[x]][[j]][[i]]
-                                                                   return(EDGETrData[[x]][[j]][[i]])
-                                                                 }))
+      EDGETrData_all[[j]][[i]] <- rbindlist(
+        lapply(seq(1,length(EDGETrData)),
+               function(x) {
+                 EDGETrData[[x]][[j]][[i]]
+                 return(EDGETrData[[x]][[j]][[i]])
+               }))
     }
   }
 
@@ -62,8 +67,11 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp_dfs=tmp_dfs[, vehicle_type := gsub("\\.", "DOT", vehicle_type)]
 
            setnames(tmp_dfs, old = "logit.exponent", new = "logitexp")
-           setcolorder(tmp_dfs,c("GDP_scenario","EDGE_scenario","sector","subsector_L3","subsector_L2","subsector_L1","vehicle_type","varname","logitexp"))
+           setcolorder(tmp_dfs, c("GDP_scenario", "DEM_scenario", "EDGE_scenario",
+                                  "sector", "subsector_L3", "subsector_L2", "subsector_L1",
+                                  "vehicle_type", "varname", "logitexp"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
+           browser()
            mdata <- NULL
            for (j in unique(tmp_dfs$EDGE_scenario)) {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
