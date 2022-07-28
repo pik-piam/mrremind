@@ -46,8 +46,8 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     fe2es  <- as.data.table(as.quitte(readSource("EDGETransport", "fe2es")))[
     , c("model", "scenario", "variable", "unit") := NULL
     ]
-    es_dem <- fe_dem[fe2es, on=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_teEs")][
-    , sum(value * i.value), by=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_in")
+    es_dem <- fe_dem[fe2es, on=c("period", "region", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_teEs")][
+    , sum(value * i.value), by=c("period", "region", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_in")
     ]
     data <- as.magpie(es_dem, spatial=2, temporal=1, datacol=6)
   }else{
