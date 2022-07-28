@@ -35,7 +35,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              function(x) {
                EDGETrData[[x]][[i]]
                return(EDGETrData[[x]][[i]])
-             }))
+             }), use.names=TRUE)
   }
 
   ## sub-lists have to be dealt with separately
@@ -46,7 +46,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                function(x) {
                  EDGETrData[[x]][[j]][[i]]
                  return(EDGETrData[[x]][[j]][[i]])
-               }))
+               }), use.names=TRUE)
     }
   }
 
@@ -71,14 +71,15 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                                   "sector", "subsector_L3", "subsector_L2", "subsector_L1",
                                   "vehicle_type", "varname", "logitexp"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           browser()
            mdata <- NULL
            for (j in unique(tmp_dfs$EDGE_scenario)) {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, datacol = 10)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, datacol = 10)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
 
@@ -107,8 +108,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
 
@@ -138,8 +141,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
              for (i in unique(tmp_dfs$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 12)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 12)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
 
@@ -161,8 +166,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
 
@@ -183,8 +190,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 13)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 13)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
 
@@ -205,8 +214,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 10)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 10)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
 
            }
@@ -233,8 +244,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
@@ -248,8 +261,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
@@ -264,8 +279,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 9)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 9)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
@@ -303,8 +320,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, datacol = 8)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, datacol = 8)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
@@ -325,8 +344,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 8)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 8)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
@@ -365,8 +386,10 @@ readEDGETransport <- function(subtype = "logit_exponent") {
              tmp_EDGE <- tmp[EDGE_scenario == j]
              for (i in unique(tmp$GDP_scenario)) {
                tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 7)
-               mdata <- mbind(mdata, tmp_EDGE_SSP)
+               if(nrow(tmp_EDGE_SSP) > 0) {
+                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 7)
+                 mdata <- mbind(mdata, tmp_EDGE_SSP)
+               }
              }
            }
          },
