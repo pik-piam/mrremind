@@ -50,6 +50,23 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     }
   }
 
+  compress_magpie <- function(dt, ...){
+    mdata <- NULL
+    for (i in unique(dt$EDGE_scenario)) {
+      for (j in unique(tmp_dfs$DEM_scenario)) {
+        for (k in unique(tmp_dfs$GDP_scenario)) {
+          tmp <- dt[EDGE_scenario == i & DEM_scenario == j & GDP_scenario == k]
+          if(nrow(tmp) > 0) {
+            mdata <- mbind(
+              mdata, as.magpie(tmp_EDGE_SSP, ...))
+          }
+        }
+      }
+    }
+    return(mdata)
+
+  }
+
   switch(subtype,
 
          "logit_exponent" = {
@@ -70,18 +87,9 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setcolorder(tmp_dfs, c("GDP_scenario", "DEM_scenario", "EDGE_scenario",
                                   "sector", "subsector_L3", "subsector_L2", "subsector_L1",
                                   "vehicle_type", "varname", "logitexp"))
-           ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp_dfs$EDGE_scenario)) {
-             tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
-             for (i in unique(tmp_dfs$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, datacol = 10)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           ## concatenate multiple magpie objects each one containing one
+           ## SSP realization to avoid large objects
+           mdata <- compress_magpie(tmp_dfs, datacol = 10)
 
          },
 
@@ -103,17 +111,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                                   "year", "sector", "subsector_L3",  "subsector_L2", "subsector_L1",
                                   "vehicle_type", "technology", "logit_type", "varname", "value"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp_dfs$EDGE_scenario)) {
-             tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
-             for (i in unique(tmp_dfs$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp_dfs, spatial = 4, temporal = 5, datacol = 14)
 
          },
 
@@ -136,17 +134,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setnames(tmp_dfs, old ="time_price", new ="value")
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp_dfs$EDGE_scenario)) {
-             tmp_EDGE <- tmp_dfs[EDGE_scenario == j]
-             for (i in unique(tmp_dfs$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 12)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp_dfs, spatial = 4, temporal = 5, datacol = 12)
 
          },
 
@@ -161,17 +149,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                               "technology", "varname", "sector_fuel", "EJ_Mpkm_final"))
            setnames(tmp, old ="EJ_Mpkm_final", new ="value")
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 14)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 14)
 
          },
 
@@ -185,17 +163,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setnames(tmp, old ="tot_price", new ="value")
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 13)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 13)
 
          },
 
@@ -209,18 +177,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setnames(tmp, old ="non_fuel_price", new ="value")
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 10)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 10)
 
          },
 
@@ -239,17 +196,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp <- EDGETrData_all$fe2es
            tmp <- tmp[tall>1990]
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 2, temporal = 1, datacol = 7)
 
          },
 
@@ -257,17 +204,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp <- EDGETrData_all$esCapCost
            tmp <- tmp[tall>1965]
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 7)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 2, temporal = 1, datacol = 7)
 
          },
 
@@ -276,17 +213,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp <- tmp[tall>1990]
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 2, temporal = 1, datacol = 9)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 2, temporal = 1, datacol = 9)
          },
 
          "demISO" = {
@@ -317,17 +244,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                          "all_enty", "all_teEs", "value")]
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, datacol = 8)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, datacol = 8)
          },
 
          "shares_LDV_transport" = {
@@ -341,17 +258,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                               "sharetype", "varname", "value"))
 
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 8)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
          },
 
 
@@ -383,17 +290,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "region",
                               "year", "node", "value"))
            ## concatenate multiple magpie objects each one containing one SSP realization to avoid large objects
-           mdata <- NULL
-           for (j in unique(tmp$EDGE_scenario)) {
-             tmp_EDGE <- tmp[EDGE_scenario == j]
-             for (i in unique(tmp$GDP_scenario)) {
-               tmp_EDGE_SSP <- tmp_EDGE[GDP_scenario == i]
-               if(nrow(tmp_EDGE_SSP) > 0) {
-                 tmp_EDGE_SSP <- as.magpie(tmp_EDGE_SSP, spatial = 4, temporal = 5, datacol = 7)
-                 mdata <- mbind(mdata, tmp_EDGE_SSP)
-               }
-             }
-           }
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 7)
          },
 
          "annual_mileage" = {
@@ -404,7 +301,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "region",
                               "year", "vehicle_type", "varname", "annual_mileage"))
            setnames(tmp, old ="annual_mileage", new ="value")
-           mdata <- as.magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
          },
 
          "ptab4W" = {
@@ -413,7 +310,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp$varname <- subtype
            setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "param",
                               "varname", "value"))
-           mdata <- as.magpie(tmp, datacol = 6)
+           mdata <- compress_magpie(tmp, datacol = 6)
          },
 
          "f35_bunkers_fe" = {
@@ -432,7 +329,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                            idxcols = c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "iso"),
                            extrapolate = TRUE)
            ## create magpie object
-           tmp_data <- as.magpie(tmp, spatial = 4, temporal = 5, datacol = 6)
+           tmp_data <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 6)
            ssp2_scen <- getNames(tmp_data[,, "gdp_SSP2"])[1]
            tmp_data <- tmp_data[,, ssp2_scen]
            # for EU regions use JRC data instead
