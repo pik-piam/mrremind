@@ -53,12 +53,12 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   compress_magpie <- function(dt, ...){
     mdata <- NULL
     for (i in unique(dt$EDGE_scenario)) {
-      for (j in unique(tmp_dfs$DEM_scenario)) {
-        for (k in unique(tmp_dfs$GDP_scenario)) {
+      for (j in unique(dt$DEM_scenario)) {
+        for (k in unique(dt$GDP_scenario)) {
           tmp <- dt[EDGE_scenario == i & DEM_scenario == j & GDP_scenario == k]
           if(nrow(tmp) > 0) {
             mdata <- mbind(
-              mdata, as.magpie(tmp_EDGE_SSP, ...))
+              mdata, as.magpie(tmp, ...))
           }
         }
       }
