@@ -50,7 +50,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     }
   }
 
-  compress_magpie <- function(dt, ...){
+  compress_magpie <- function(dt, ...) {
     mdata <- NULL
     for (i in unique(dt$EDGE_scenario)) {
       for (j in unique(dt$DEM_scenario)) {

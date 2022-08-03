@@ -21,7 +21,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
    }
 
   weightInt <- calcOutput("GDP", aggregate = F)
-  get_weight <- function(data, weightInt){
+  get_weight <- function(data, weightInt) {
     year_inter = getYears(data)
     ## define weight for intensive entries (for weighted average)
     weightInt <- time_interpolate(
@@ -31,10 +31,10 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     ## create an empty object that has the same dimensions as data
     weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data), fill = 0)
     ## use the GPD for each SSP in data to fill up the empty weight (it needs as many repetitions as SSP* is called in data)
-    for (k in seq(1,length(getNames(weightInt)),1)) {
-      weight[getRegions(weightInt),getYears(weightInt),getNames(weightInt)[k]] <- weightInt[getRegions(weightInt),
-                                                                                            getYears(weightInt),
-                                                                                            getNames(weightInt)[k]]
+    regions <- getRegions(weightInt)
+    years <- getYears(weightInt)
+    for (gdpscen in getNames(weightInt)) {
+      mselect(weight, region=regions, year=years, data=gdpscen) <- weightInt[regions, years, gdpscen]
     }
     return(weight)
   }
