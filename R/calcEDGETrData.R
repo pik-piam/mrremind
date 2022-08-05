@@ -24,15 +24,27 @@ calcEDGETrData <- function() {
     ## for all "default" SSP variants we ship the whole zoo of EDGE-T scenarios
     expand_grid(
       SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4")),
+      tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4"),
+      DEM_scenario = c("default")),
 
     ## SHAPE scenarios are coupled to specific technologies
     tribble(
-      ~SSP_scen,   ~tech_scen,
-      'SDP_EI',    'Mix4',
-      'SDP_MC',    'Mix4',
-      'SDP_RC',    'Mix3',
-      'SSP2EU',    'HydrHype4')
+      ~SSP_scen,   ~tech_scen,                   ~DEM_scenario,
+      'SDP_EI',    'Mix4',                       'default',
+      'SDP_MC',    'Mix4',                       'default',
+      'SDP_RC',    'Mix3',                       'default',
+      'SSP2EU',    'HydrHype4',                  'default',
+      'SSP2EU',    'ECEMF_HighEl_ModEff',        'default',
+      'SSP2EU',    'ECEMF_HighEl_LifestCha',     'SSP2_lowdem',
+      'SSP2EU',    'ECEMF_HighEl_ModEff',        'default',
+      'SSP2EU',    'ECEMF_HighH2_HighEff',       'default',
+      'SSP2EU',    'ECEMF_HighH2_LifestCha',     'SSP2_lowdem',
+      'SSP2EU',    'ECEMF_HighH2_ModEff',        'default',
+      'SSP2',    'NAV_act',                      'SSP2_lowdem',
+      'SSP2',    'NAV_tec',                      'default',
+      'SSP2',    'NAV_ele',                      'default',
+      'SSP2',    'NAV_all',                      'SSP2_lowdem'
+      )
   )
 
   # generate list from data frame rows
