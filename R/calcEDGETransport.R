@@ -16,7 +16,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
 
   if (subtype %in% c("logit_exponent", "ptab4W")) {
       conv = FALSE
-   }else{
+   } else {
       conv = TRUE
    }
 
@@ -36,6 +36,7 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     for (gdpscen in getNames(weightInt)) {
       mselect(weight, region=regions, year=years, data=gdpscen) <- weightInt[regions, years, gdpscen]
     }
+    getSets(weight, fulldim=F)[3] <- getSets(data, fulldim=F)[3]
     return(weight)
   }
 
