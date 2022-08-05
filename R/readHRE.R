@@ -5,6 +5,7 @@
 #' @author Pascal Weigmann
 #'
 #' @seealso [`readSource()`]
+#' @source https://heatroadmap.eu/roadmaps/
 #'
 #' @importFrom dplyr select
 #' @importFrom magclass as.magpie
