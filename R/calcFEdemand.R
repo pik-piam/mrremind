@@ -31,6 +31,23 @@ calcFEdemand <- function(subtype = "FE") {
       }))
     }
 
+    fillNa <- function(x) {
+      itemsFull <- apply(
+        do.call("expand.grid", lapply(tail(getSets(x), -2), function(dim) {
+          getItems(x, dim)
+        })),
+        1, "paste", collapse = "."
+      )
+      xFull <- new.magpie(
+        cells_and_regions = getRegions(x),
+        years = getYears(x),
+        names = itemsFull,
+        sets = getSets(x)
+      )
+      xFull[getRegions(x), getYears(x), getItems(x, 3)] <- x
+      return(xFull)
+    }
+
     expand_vectors = function(x,y) {
       if (is.data.frame(y)) {
         y = apply(y,1,paste,collapse=".")
@@ -340,12 +357,15 @@ calcFEdemand <- function(subtype = "FE") {
       stationary <- readSource("EDGE",subtype="FE_stationary")
       buildings  <- readSource("EDGE",subtype="FE_buildings")
 
-      # consider only fixed climate
+      # filter RCP scenario
       if (subtype %in% c("FE_buildings", "UE_buildings")) {
         rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
         rcps <- gsub("rcpfixed", "none", rcps)
         getItems(buildings, "rcp") <- rcps
         stationary <- addDim(stationary, rcps, "rcp")
+        # add NAs for Navigate scenarios and RCP variants
+        stationary <- fillNa(stationary)
+        buildings  <- fillNa(buildings)
       } else {
         rcps <- NULL
         buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
@@ -604,6 +624,11 @@ calcFEdemand <- function(subtype = "FE") {
       mselect(datatmp, item = prfl) <- mselect(data, item = prfl) * as.magpie(vec)
       reminditems[, , reminditem] <- dimSums(mselect(datatmp, item = prfl),
                                              dim = "item", na.rm = TRUE)
+    }
+
+    # remove missing Navigate scenarios
+    if (subtype %in% c("FE_buildings", "UE_buildings")) {
+      reminditems <- reminditems[, , grep("SSP2EU_NAV_.{3}\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
     }
 
     #Change the scenario names for consistency with REMIND sets
