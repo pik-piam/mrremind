@@ -79,17 +79,17 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
     # for each product: check if the flow "HEMAINC" > 0, if yes, do nothing;
     # if no, add the value of the flow "ELMAINC" to "ELMAINE" and afterwards set ELMAINC to zero.
-    tmp <- mcalc(data,  ELMAINE ~ ifelse(HEMAINC > 0, ELMAINE, ELMAINC + ELMAINE), append = F)
-    data[,,"ELMAINE"] <- tmp
-    tmp <- mcalc(data,  ELMAINC ~ ifelse(HEMAINC > 0, ELMAINC, 0), append = F)
-    data[,,"ELMAINC"] <- tmp
+    # tmp <- mcalc(data,  ELMAINE ~ ifelse(HEMAINC > 0, ELMAINE, ELMAINC + ELMAINE), append = F)
+    # data[,,"ELMAINE"] <- tmp
+    # tmp <- mcalc(data,  ELMAINC ~ ifelse(HEMAINC > 0, ELMAINC, 0), append = F)
+    # data[,,"ELMAINC"] <- tmp
 
     # for each product: check if the flow "HEAUTOC" > 0, if yes, do nothing;
     # if no, add the value of the flow "ELAUTOC" to "ELAUTOE" and afterwards set ELAUTOC to zero.
-    tmp <- mcalc(data,  ELAUTOE ~ ifelse(HEAUTOC > 0, ELAUTOE, ELAUTOC + ELAUTOE), append = F)
-    data[,,"ELAUTOE"] <- tmp
-    tmp <- mcalc(data,  ELAUTOC ~ ifelse(HEAUTOC > 0, ELAUTOC, 0), append = F)
-    data[,,"ELAUTOC"] <- tmp
+    # tmp <- mcalc(data,  ELAUTOE ~ ifelse(HEAUTOC > 0, ELAUTOE, ELAUTOC + ELAUTOE), append = F)
+    # data[,,"ELAUTOE"] <- tmp
+    # tmp <- mcalc(data,  ELAUTOC ~ ifelse(HEAUTOC > 0, ELAUTOC, 0), append = F)
+    # data[,,"ELAUTOC"] <- tmp
   }
 
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
