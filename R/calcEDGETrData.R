@@ -63,6 +63,7 @@ calcEDGETrData <- function() {
                  output_folder = NULL,
                  SSP_scen = x[1],
                  tech_scen = x[2],
+                 demScen = x[3],
                  storeRDS = FALSE)
     })
 
