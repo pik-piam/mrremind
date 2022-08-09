@@ -69,6 +69,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   if (subtype == "output") {
 
+    # TODO: consider bringing back
+
     # These changes may reduce the amount of CHP plants to below what is actually
     # deployed in a region, because heat reporting is obscure. In some statistics,
     # heat from CHP plant used in the same industrial compound is NOT explicitly
@@ -137,15 +139,27 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     }
   }
 
+  ieamatch <- ieamatch %>% unite('product.flow', c('iea_product', 'iea_flows'),sep = '.')
+  missing <- setdiff(ieamatch$product.flow, getNames(data))
+
+  if(length(missing) > 0){
+    warning(paste0("calcIO: missing product flows in IEA data: ", paste0(missing, collapse = ", ")))
+  }
+
+  ieamatch <- ieamatch %>% filter(product.flow %in% getNames(data))
+
+  # TODO: clean up
   reminditems <-  do.call(
     mbind,
     lapply(magpieNames,
            function(item) {
              product_flow <- ieamatch %>%
                filter(item == .data$target) %>%
-               unite('product.flow', c('iea_product', 'iea_flows'),
-                     sep = '.') %>%
                pull('product.flow')
+
+             if(length(product_flow) == 0){
+               return()
+             }
 
              weights <- ieamatch %>%
                filter(item == .data$target) %>%
