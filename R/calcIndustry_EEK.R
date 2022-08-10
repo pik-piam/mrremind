@@ -24,7 +24,7 @@ calcIndustry_EEK <- function(kap) {
   . <- NULL
 
   # read data ----
-  # subsector activity projections
+  ## subsector activity projections ----
   industry_VA <- calcOutput(
     type = 'Industry_Value_Added',
     subtype = 'economic',
@@ -40,11 +40,11 @@ calcIndustry_EEK <- function(kap) {
     select('iso3c', subsector = 'name', VA = 'value') %>%
     mutate(subsector = sub('_VA$', '', .data$subsector))
 
-  # investment volumes into energy efficiency
+  ## investment volumes into energy efficiency ----
   IEA_WEIO_2014 <- readSource('IEA_WEIO_2014', convert = FALSE) %>%
     madrat_mule()
 
-  # industry subsector activity and FE projections
+  ## industry subsector activity and FE projections ----
   FEdemand <- calcOutput(type = 'FEdemand', subtype = 'FE', aggregate = FALSE,
                          supplementary = FALSE)
 
@@ -204,7 +204,8 @@ calcIndustry_EEK <- function(kap) {
     c('iso3c', 'subsector')
   ) %>%
     assert(not_na, everything()) %>%
-    mutate(value = .data$EEK * .data$change) %>%
+    mutate(value = .data$EEK * .data$change,
+           subsector = sub('^ue_', 'kap_', .data$subsector)) %>%
     select('iso3c', 'year', 'scenario', 'subsector', 'value')
 
   # return ----

@@ -122,26 +122,10 @@ calcCapital <- function(subtype = "Capital") {
       magclass_to_tibble(c('iso3c', NA, NA, NA, 'kap')) %>%
       select('iso3c', 'kap')
 
-    EEK <- calcOutput('Industry_EEK', kap = kap, supplementary = FALSE)
+    EEK <- calcOutput('Industry_EEK', kap = kap, supplementary = FALSE,
+                      aggregate = FALSE, years = getYears(cap_macro))
 
-    EEK <- readSource('EDGE_Industry', 'p29_capitalQuantity_industry') %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select('iso3c' = 'Region', 'period' = 'Year', 'scenario' = 'Data1',
-             'pf' = 'Data2', 'value' = 'Value') %>%
-      character.data.frame() %>%
-      mutate(!!sym('period') := as.integer(!!sym('period'))) %>%
-      # expand missing periods at constant level
-      interpolate_missing_periods(
-        period = as.integer(sub('^y', '', getYears(cap_macro))),
-        expand.values = TRUE) %>%
-      group_by(!!!syms(c('iso3c', 'scenario', 'pf'))) %>%
-      arrange(!!!syms(c('iso3c', 'scenario', 'pf', 'period'))) %>%
-      mutate(value = rollmean(.data$value, 4, 'extend')) %>%
-      select('iso3c', 'period', 'scenario', 'pf', 'value') %>%
-      as.magpie(spatial = 1, temporal = 2)
-
-    # --- tie ouputs together ----
+    # tie outputs together ----
     output <- list(
       x = mbind(cap_macro, EEK),
       weight = NULL,
