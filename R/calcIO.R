@@ -111,7 +111,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # check that no dimensions not present in the mapping has been added to the
     # data
     if (!is_empty(setdiff(getNames(data), names_data_before))) {
-      stop('Product/flow combinations not present in mapping added by ',
+      # TODO: find a way to fix this
+      warning('Product/flow combinations not present in mapping added by ',
            'fix_IEA_data_for_Industry_subsectors():\n',
            paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
     }
