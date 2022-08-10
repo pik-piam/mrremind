@@ -581,11 +581,11 @@ calcFEdemand <- function(subtype = "FE") {
 
     datatmp <- data
     # Take the names of reminditems without scenario and rcp dimension
-    names_NoScen <- lapply(getNames(reminditems), function(name) {
+    names_NoScen <- unique(lapply(getNames(reminditems), function(name) {
       strsplit(name, ".", fixed = TRUE)[[1]] %>%
         `[`(!tail(getSets(reminditems), -2) %in% c("scenario", "rcp")) %>%
         paste(collapse = ".")
-    })
+    }))
 
     for (reminditem in names_NoScen) {
       # Concatenate names from mapping columns so that they are comparable with
