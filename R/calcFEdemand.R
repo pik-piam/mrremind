@@ -299,16 +299,18 @@ calcFEdemand <- function(subtype = "FE") {
                  scenario = paste0('gdp_', scenario)),
 
         # load VA projections
-        readSource('EDGE_Industry', 'projections_VA_iso3c', convert = FALSE) %>%
-          as.data.frame() %>%
-          as_tibble() %>%
-          select(scenario = Data1, iso3c = Region, year = Year, sector = Data2,
-                 value = Value) %>%
-          filter(grepl('^gdp_SSP[12]$', scenario),
-                 'Total' != iso3c,
-                 as.character(year) %in% years) %>%
-          mutate(iso3c = as.character(iso3c),
-                 year = as.integer(as.character(year))) %>%
+        calcOutput(
+          type = 'Industry_Value_Added',
+          subtype = 'economic',
+          match.steel.historic.values = TRUE,
+          match.steel.estimates = 'IEA_ETP',
+          China_Production = readSource(type = 'ExpertGuess',
+                                        subtype = 'Chinese_Steel_Production',
+                                        convert = FALSE) %>%
+            madrat_mule(),
+          aggregate = FALSE, years = years, supplementary = FALSE) %>%
+          magclass_to_tibble() %>%
+          filter(grepl('^gdp_SSP(1|2EU)$', .data$scenario)) %>%
           group_by(scenario, iso3c, year) %>%
           summarise(value = sum(value), .groups = 'drop') %>%
           mutate(variable = 'VA') %>%

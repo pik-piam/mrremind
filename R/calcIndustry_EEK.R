@@ -9,7 +9,7 @@
 #' @importFrom magclass mbind
 #' @importFrom madrat calcOutput readSource getISOlist
 #' @importFrom quitte madrat_mule
-#' @importFrom dplyr %>% select mutate
+#' @importFrom dplyr %>% select lag lead mutate
 #' @importFrom tidyr pivot_longer
 #' @importFrom assertr assert
 #' @importFrom purrr map

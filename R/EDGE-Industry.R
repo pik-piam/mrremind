@@ -1431,7 +1431,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     filter('World' != .data$region) %>%
     mutate(year = min(regression_data$year)) %>%
     complete(nesting(!!!syms(c('region', 'a', 'b'))),
-             year = min(regression_data$year):2100) %>%
+             year = min(regression_data$year):2150) %>%
     mutate(a = .data$a + ( (parameter_a_world - .data$a)
                          / (2200 - 2000) * (.data$year - 2000)
                          )
@@ -2585,13 +2585,13 @@ d_plot_region_totals %>%
   # construct output ----
   if ('physical' == subtype) {
     x <- projections %>%
-      filter(2000 <= .data$year,
+      filter(1993 <= .data$year,
              'Total' != .data$iso3c,
              'World' != .data$region) %>%
       select('scenario', 'iso3c', 'year', ue_cement = 'cement.production',
              ue_chemicals = 'chemicals.VA', ue_otherInd = 'otherInd.VA') %>%
       pivot_longer(matches('^ue_'), names_to = 'pf') %>%
-      assert(not_na, everything()) %>%
+      verify(!(is.na(.data$value) & between(.data$year, 2000, 2100))) %>%
       # t/year * 1e-9 Gt/t = Gt/year      | cement
       # $/year * 1e-12 $tn/$ = $tn/year   | chemicals and other industry
       mutate(
@@ -2607,7 +2607,7 @@ d_plot_region_totals %>%
 
   if ('economic' == subtype) {
     x <- projections %>%
-      filter(2000 <= .data$year,
+      filter(1993 <= .data$year,
              'Total' != .data$iso3c,
              'World' != .data$region) %>%
       select('scenario', 'iso3c', 'year', 'cement.VA', 'chemicals.VA',
