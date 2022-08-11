@@ -34,7 +34,7 @@ calcEDGETrData <- function() {
       'SDP_MC',    'Mix4',                       'default',
       'SDP_RC',    'Mix3',                       'default',
       'SSP2EU',    'HydrHype4',                  'default',
-      'SSP2EU',    'ECEMF_HighEl_ModEff',        'default',
+      'SSP2EU',    'ECEMF_HighEl_HighEff',       'default',
       'SSP2EU',    'ECEMF_HighEl_LifestCha',     'SSP2_lowdem',
       'SSP2EU',    'ECEMF_HighEl_ModEff',        'default',
       'SSP2EU',    'ECEMF_HighH2_HighEff',       'default',
