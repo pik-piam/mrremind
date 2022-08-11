@@ -17,7 +17,8 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
 
   addSSPnames <- function(x) {
     do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
-                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
+                              paste0("SDP", c("", "_EI", "_RC", "_MC")),
+                              paste0("SSP2EU_NAV_", c("act", "tec", "ele", "all"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
   }
@@ -85,10 +86,15 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     #--- Load the Weights
     #--- First load the GDP data
     wg <- calcOutput("GDP", aggregate = FALSE, FiveYearSteps = FALSE)
-    # duplicate SSP2 for SSP2_lowEn
-    wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
-    getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"
-    wg <- mbind(wg, wg_SSP2_lowEn)
+    # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
+    wg <- mbind(
+      wg,
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+                              function(navScen) {
+                                setItems(wg[,, "gdp_SSP2EU"], 3, navScen)
+                              })),
+      setItems(wg[,, "gdp_SSP2"], 3, "gdp_SSP2_lowEn")
+    )
     getNames(wg) <- gsub("gdp_", "", getNames(wg))
 
     
@@ -308,11 +314,18 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
     
     select_years = intersect(getYears(x,as.integer = T),rem_years_hist)
-    wg <- calcOutput("GDP", years=select_years,aggregate=F)
-    # duplicate SSP2 for SSP2_lowEn
-    wg_SSP2_lowEn <- mselect(wg, variable = "gdp_SSP2")
-    getItems(wg_SSP2_lowEn, "variable") <- "gdp_SSP2_lowEn"
-    wg <- mbind(wg, wg_SSP2_lowEn)
+    wg <- calcOutput("GDP", years = select_years, aggregate = FALSE)
+
+    # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
+    wg <- mbind(
+      wg,
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+                              function(navScen) {
+                                setItems(wg[,, "gdp_SSP2EU"], 3, navScen)
+                              })),
+      setItems(wg[,, "gdp_SSP2"], 3, "gdp_SSP2_lowEn")
+    )
+
     getNames(wg) = gsub("gdp_","", getNames(wg))
     
     x = toolAggregate(x[,select_years,],mappingfile, weight = wg[,,getNames(x,dim=1)], from = region_col, to = iso_col )
@@ -325,16 +338,20 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     iso_col = which(names(mapping) == "CountryCode")
 
     getNames(x) <- paste0("gdp_", getNames(x))
-    wg <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
-    getSets(wg) <- gsub("variable", "scenario", getSets(wg))
-    getItems(wg, "scenario") <- gsub("pop_", "gdp_", getItems(wg, "scenario"))
-    # duplicate SSP2 population for SSP2_lowEn
-    wg_SSP2_lowEn <- mselect(wg, scenario = "gdp_SSP2")
-    getItems(wg_SSP2_lowEn, "scenario") <- "gdp_SSP2_lowEn"
-    wg <- mbind(wg, wg_SSP2_lowEn)
-    wg <- wg[, , getItems(x, "scenario")]
-    
-    x <- toolAggregate(x[, rem_years_hist, ], mappingfile, weight = wg,
+    wp <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
+    getSets(wp) <- gsub("variable", "scenario", getSets(wp))
+    getItems(wp, "scenario") <- gsub("pop_", "gdp_", getItems(wp, "scenario"))
+    # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
+    wp <- mbind(
+      wp,
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+                              function(navScen) {
+                                setItems(wp[,, "gdp_SSP2EU"], 3, navScen)
+                              })),
+      setItems(wp[,, "gdp_SSP2"], 3, "gdp_SSP2_lowEn")
+    )
+
+    x <- toolAggregate(x[, rem_years_hist, ], mappingfile, weight = wp,
                        from = region_col, to = iso_col )
     result <- x
   }
