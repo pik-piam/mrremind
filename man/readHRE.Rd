@@ -3,6 +3,9 @@
 \name{readHRE}
 \alias{readHRE}
 \title{Read Heat Roadmap Europe data}
+\source{
+https://heatroadmap.eu/roadmaps/
+}
 \usage{
 readHRE()
 }
