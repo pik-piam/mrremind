@@ -1836,6 +1836,22 @@ calcFEdemand <- function(subtype = "FE") {
                                           getItems(reminditems, "item"))
     description_out <- "useful energy demand in buildings"
   }
+  if (subtype == "FE") {
+    # duplicate SSP2EU scenarios of industry for Navigate scenarios
+    industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
+                          getItems(reminditems, 3.2), value = TRUE)
+    nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
+    navigateScenarios <- grep("SSP2EU_NAV_", getItems(reminditems, 3.1), value = TRUE)
+    nonNavigateScenarios <- setdiff(getItems(reminditems, 3.1), navigateScenarios)
+    reminditems <- mbind(
+      mselect(reminditems, scenario = nonNavigateScenarios),
+      mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
+      addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
+                     collapseNames = TRUE),
+             paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+             "scenario", 3.1)
+    )
+  }
 
   structure_data <- switch(subtype,
     FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
