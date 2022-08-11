@@ -12,13 +12,13 @@
 #' \dontrun{ a <- readSource(type="EDGETransport")
 #' }
 #' @importFrom magclass read.magpie
-#' @importFrom data.table rbindlist fread setcolorder := setnames
+#' @importFrom data.table rbindlist fread setcolorder := setnames setkey
 #' @importFrom rmndt approx_dt
 #'
 
 readEDGETransport <- function(subtype = "logit_exponent") {
   ## mask variable for code checks
-  vehicle_type <- EDGE_scenario <- GDP_scenario <- value <- year <- sharetype <-
+  vehicle_type <- EDGE_scenario <- GDP_scenario <- DEM_scenario <- value <- year <- sharetype <-
     EJ_Mpkm_final <- varname <- fuel <- region <- iso <- node <- totdem <- `.`<-
       category <- tall <- all_in <- price_component <- NULL
 
@@ -50,12 +50,32 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     }
   }
 
+  create_copy_demscens <- function(dt) {
+    setkey(dt, "DEM_scenario")
+    ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
+    dt <- rbind(dt,
+                dt[DEM_scenario == "gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_ele"],
+                dt[DEM_scenario == "gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_tech"],
+                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_act"],
+                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_all"],
+                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2_lowEn"]
+                )
+    setkey(dt, "DEM_scenario")
+    scens <- unique(dt$DEM_scenario)
+
+    ## this scenario is not supported by REMIND
+    dt <- dt[scens["gdp_SSP2_lowdem" != scens]]
+    return(dt)
+  }
+
   compress_magpie <- function(dt, ...) {
+    dt <- create_copy_demscens(dt)
+    setkey(dt, "EDGE_scenario", "DEM_scenario", "GDP_scenario")
     mdata <- NULL
     for (i in unique(dt$EDGE_scenario)) {
       for (j in unique(dt$DEM_scenario)) {
         for (k in unique(dt$GDP_scenario)) {
-          tmp <- dt[EDGE_scenario == i & DEM_scenario == j & GDP_scenario == k]
+          tmp <- dt[.(i, j, k)]
           if(nrow(tmp) > 0) {
             mdata <- mbind(
               mdata, as.magpie(tmp, ...))
@@ -188,7 +208,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            setcolorder(tmp, c("GDP_scenario", "DEM_scenario", "EDGE_scenario", "region", "year",
                               "vehicle_type", "varname", "loadFactor"))
            setnames(tmp, old ="loadFactor", new ="value")
-           mdata <- as.magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
+           mdata <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 8)
          },
 
          "fe2es" = {
