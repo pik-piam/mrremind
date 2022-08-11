@@ -54,11 +54,11 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     setkey(dt, "DEM_scenario")
     ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
     dt <- rbind(dt,
-                dt[DEM_scenario == "gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_ele"],
-                dt[DEM_scenario == "gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_tech"],
-                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_act"],
-                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_all"],
-                dt[DEM_scenario == "gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2_lowEn"]
+                dt["gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_ele"],
+                dt["gdp_SSP2EU"][, DEM_scenario := "gdp_SSP2EU_NAV_tech"],
+                dt["gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_act"],
+                dt["gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2EU_NAV_all"],
+                dt["gdp_SSP2_lowdem"][, DEM_scenario := "gdp_SSP2_lowEn"]
                 )
     setkey(dt, "DEM_scenario")
     scens <- unique(dt$DEM_scenario)
@@ -75,7 +75,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     for (i in unique(dt$EDGE_scenario)) {
       for (j in unique(dt$DEM_scenario)) {
         for (k in unique(dt$GDP_scenario)) {
-          tmp <- dt[.(i, j, k)]
+          tmp <- dt[.(i, j, k), nomatch=NULL]
           if(nrow(tmp) > 0) {
             mdata <- mbind(
               mdata, as.magpie(tmp, ...))
