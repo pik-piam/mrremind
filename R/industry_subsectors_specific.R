@@ -50,8 +50,8 @@
 #' @rdname industry_subsector_specific
 readindustry_subsectors_specific <- function(subtype = NULL) {
   # file path (for easier debugging)
-  # path <- './'
-  path <- '~/PIK/swap/inputdata/sources/industry_subsectors_specific/'
+  path <- './'
+  # path <- '~/PIK/swap/inputdata/sources/industry_subsectors_specific/'
 
   # subtype switchboard ----
   switchboard <- list(

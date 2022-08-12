@@ -176,21 +176,24 @@ calcIndustry_EEK <- function(kap) {
                            order_by = .data$year)),
       # Calculate the change in production relative to the base year
       change = .data$value / .data$value[base_year == .data$year],
-           change = case_when(
-      # base year data stays the same (i.e. 1)
-      base_year == .data$year ~ .data$change,
-      # capital after the base year can decrease by no more than the
-      # depreciation rate i
-      base_year <= .data$year ~
-        pmax(.data$change,
-             lag(.data$change) * (1 - i) ^ (.data$year - lag(.data$year))
-        ),
-      # capital before the base year can only have been higher by the inverse of
-      # the depreciation rate i
-      base_year >= .data$year ~
-        pmin(.data$change,
-             lead(.data$change) * (1 - i) ^ (.data$year - lead(.data$year))
-        )),
+      # temper down to avoid unduly high EEK in developing regions, especially
+      # SSA
+      change = sqrt(.data$change),
+      change = case_when(
+        # base year data stays the same (i.e. 1)
+        base_year == .data$year ~ .data$change,
+        # capital after the base year can decrease by no more than the
+        # depreciation rate i
+        base_year <= .data$year ~
+          pmax(.data$change,
+               lag(.data$change) * (1 - i) ^ (.data$year - lag(.data$year))
+          ),
+        # capital before the base year can only have been higher by the inverse of
+        # the depreciation rate i
+        base_year >= .data$year ~
+          pmin(.data$change,
+               lead(.data$change) * (1 - i) ^ (.data$year - lead(.data$year))
+          )),
     ) %>%
     ungroup() %>%
     select(-'value')
