@@ -35,15 +35,16 @@ calcEDGETrData <- function() {
       'SDP_RC',    'Mix3',                       'default',
       'SSP2EU',    'HydrHype4',                  'default',
       'SSP2EU',    'ECEMF_HighEl_HighEff',       'default',
-      'SSP2EU',    'ECEMF_HighEl_LifestCha',     'SSP2_lowdem',
+      'SSP2EU',    'ECEMF_HighEl_LifestCha',     'SSP2EU_lowdem',
       'SSP2EU',    'ECEMF_HighEl_ModEff',        'default',
       'SSP2EU',    'ECEMF_HighH2_HighEff',       'default',
-      'SSP2EU',    'ECEMF_HighH2_LifestCha',     'SSP2_lowdem',
+      'SSP2EU',    'ECEMF_HighH2_LifestCha',     'SSP2EU_lowdem',
       'SSP2EU',    'ECEMF_HighH2_ModEff',        'default',
-      'SSP2',    'NAV_act',                      'SSP2_lowdem',
-      'SSP2',    'NAV_tec',                      'default',
-      'SSP2',    'NAV_ele',                      'default',
-      'SSP2',    'NAV_all',                      'SSP2_lowdem'
+      'SSP2EU',    'NAV_act',                    'SSP2EU_lowdem',
+      'SSP2EU',    'NAV_tec',                    'default',
+      'SSP2EU',    'NAV_ele',                    'default',
+      'SSP2EU',    'NAV_all',                    'SSP2EU_lowdem',
+      'SSP2EU',    'Mix1',                       'SSP2EU_lowdem'
       )
   )
 
