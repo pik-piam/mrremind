@@ -16,12 +16,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
 
   if (subtype %in% c("logit_exponent", "ptab4W")) {
       conv = FALSE
-   }else{
+   } else {
       conv = TRUE
    }
 
   weightInt <- calcOutput("GDP", aggregate = F)
-  get_weight <- function(data, weightInt){
+  get_weight <- function(data, weightInt) {
     year_inter = getYears(data)
     ## define weight for intensive entries (for weighted average)
     weightInt <- time_interpolate(
@@ -31,11 +31,12 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     ## create an empty object that has the same dimensions as data
     weight <- new.magpie(cells_and_regions = getRegions(data), years = getYears(data), names = getNames(data), fill = 0)
     ## use the GPD for each SSP in data to fill up the empty weight (it needs as many repetitions as SSP* is called in data)
-    for (k in seq(1,length(getNames(weightInt)),1)) {
-      weight[getRegions(weightInt),getYears(weightInt),getNames(weightInt)[k]] <- weightInt[getRegions(weightInt),
-                                                                                            getYears(weightInt),
-                                                                                            getNames(weightInt)[k]]
+    regions <- getRegions(weightInt)
+    years <- getYears(weightInt)
+    for (gdpscen in getNames(weightInt)) {
+      mselect(weight, region=regions, year=years, data=gdpscen) <- weightInt[regions, years, gdpscen]
     }
+    getSets(weight, fulldim=F)[3] <- getSets(data, fulldim=F)[3]
     return(weight)
   }
 
@@ -46,10 +47,10 @@ calcEDGETransport <- function(subtype = "logit_exponent") {
     fe2es  <- as.data.table(as.quitte(readSource("EDGETransport", "fe2es")))[
     , c("model", "scenario", "variable", "unit") := NULL
     ]
-    es_dem <- fe_dem[fe2es, on=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_teEs")][
-    , sum(value * i.value), by=c("period", "region", "GDP_scenario", "EDGE_scenario", "all_in")
+    es_dem <- fe_dem[fe2es, on=c("period", "region", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_teEs")][
+    , sum(value * i.value), by=c("period", "region", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_in")
     ]
-    data <- as.magpie(es_dem, spatial=2, temporal=1, datacol=6)
+    data <- as.magpie(es_dem, spatial=2, temporal=1, datacol=7)
   }else{
     data <- readSource("EDGETransport", subtype, convert = conv)
   }
