@@ -1349,8 +1349,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
-  data_cement_production <- readSource(type = 'vanRuijven2016',
-                                       convert = FALSE) %>% madrat_mule()
+  data_cement_production <- calcOutput('Cement', aggregate = FALSE) %>%
+    magclass_to_tibble() %>%
+    select(-'data') %>%
+    filter(!is.na(.data$value))
 
   # calc manufacturing share in GDP ----
   manufacturing_share <- INDSTAT %>%
