@@ -2,6 +2,7 @@
 
 export(calcAGEB)
 export(calcBP)
+export(calcCement)
 export(calcCementShare)
 export(calcChemicalFeedstocksShare)
 export(calcClinker_to_cement_ratio)
