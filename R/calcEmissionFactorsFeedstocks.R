@@ -101,7 +101,9 @@ calcEmissionFactorsFeedstocks <- function() {
     emission.factors[, , g] <- carbon.use[, , g] * (emi / total.carbon) / fe.demand[, , g]
   }
 
-  # fill missing countries and years from 2020 - 2100 ----
+  # fill missing countries and years from 2020 - 2150 ----
+
+  y <- c(seq(2005, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20))
 
   # convergence targets assumed for 2050 and missing emission factors based on 2015 USA and Russia chemicals emission factors
   # minimum emission factors assumed to be equal to JPN values to remove outliers from data
@@ -115,7 +117,7 @@ calcEmissionFactorsFeedstocks <- function() {
   # magclass with all countries that have at least some values for 2005 - 2015
   x.fill <- new.magpie(
     cells_and_regions = getItems(emission.factors, dim = 1),
-    years = seq(2005, 2100, 5),
+    years = y,
     names = c("solids", "liquids", "gases")
   )
 
@@ -124,7 +126,7 @@ calcEmissionFactorsFeedstocks <- function() {
   # magclass with countries without emission factors
   x.empty <- new.magpie(
     cells_and_regions = setdiff(getISOlist(), getItems(emission.factors, dim = 1)),
-    years = seq(2005, 2100, 5),
+    years = y,
     names = c("solids", "liquids", "gases")
   )
 
@@ -166,7 +168,7 @@ calcEmissionFactorsFeedstocks <- function() {
     x.fill[, c(2005, 2010, 2015), g] <- clean
 
     # set values from 2050 onwards to convergence values
-    x.fill[, seq(2050, 2100, 5), g] <- conv
+    x.fill[, c(2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- conv
 
     # interpolate values between 2015 and 2050
     x.fill[, seq(2005, 2050, 5), g] <- toolFillYears(x.fill[, c(2005, 2010, 2015, 2050), g], seq(2005, 2050, 5))
@@ -177,10 +179,30 @@ calcEmissionFactorsFeedstocks <- function() {
 
   x <- mbind(x.fill, x.empty)
 
+  # create weights ----
+
+  weights <- new.magpie(
+    cells_and_regions = getItems(x, dim = 1), years = getItems(x, dim = 2),
+    names = c("solids", "liquids", "gases")
+  )
+  iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, , "NECHEM"] %>% collapseDim() * 4.1868e-5 * 1e-3
+  iea <- iea[, c(2005, 2010, 2015), ]
+
+  for (g in unique(product_mapping$group)) {
+    products <- product_mapping %>%
+      filter(g == .data$group) %>%
+      select("products") %>%
+      pull()
+
+    group <- dimSums(iea[, , products], dim = 3, na.rm = T)
+    weights[, c(2005, 2010, 2015), g] <- group
+    weights[, c(seq(2020, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- group[, 2015, ]
+  }
+
   return(
     list(
       x = x,
-      weight = NULL,
+      weight = weights,
       unit = "GtC/ZJ",
       description = "Emission factors for feedstocks in the chemicals industry"
     )
