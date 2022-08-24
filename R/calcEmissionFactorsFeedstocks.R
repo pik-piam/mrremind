@@ -6,7 +6,7 @@
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`.
 #'
-#' @author Falk Benke
+#' @author Falk Benke, Renato Rodrigues, Simón Moreno Leiva
 #'
 #' @seealso [`calcOutput()`]
 #'
@@ -167,8 +167,11 @@ calcEmissionFactorsFeedstocks <- function() {
 
     x.fill[, c(2005, 2010, 2015), g] <- clean
 
-    # set values from 2050 onwards to convergence values
-    x.fill[, c(2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- conv
+    # set values from 2050 onwards to convergence values: either the fixed value "conv",
+    # or the 2015 value if lower than "conv"
+    x.conv <- x.fill[,2015,g]
+    x.conv[x.conv > conv] <- conv
+    x.fill[, c(2050, 2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- x.conv
 
     # interpolate values between 2015 and 2050
     x.fill[, seq(2005, 2050, 5), g] <- toolFillYears(x.fill[, c(2005, 2010, 2015, 2050), g], seq(2005, 2050, 5))
