@@ -234,15 +234,10 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     cartesian(outputs_BLASTFUR, flow_BLASTFUR_to_replace),
     getNames(data))
 
-  # TODO: remove this section altogether?
-  if(length(product_flow_BLASTFUR_to_replace) > 0){
-
-    ### blast furnace product use ----
-    data_BLASTFUR_use <- data %>%
-      `[`(,, product_flow_BLASTFUR_to_replace) %>%
-      .clean_data()
-
-  }
+  ### blast furnace product use ----
+  data_BLASTFUR_use <- data %>%
+    `[`(,, product_flow_BLASTFUR_to_replace) %>%
+    .clean_data()
 
   ## blast furnace replacement data ----
   # outputs are replaced joule-by-joule with inputs, according to the input shares
@@ -319,15 +314,10 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     cartesian(outputs_COKEOVS, flow_COKEOVS_to_replace),
     getNames(data))
 
-
-  # TODO: remove this section altogether?
-  if(length(product_flow_COKEOVS_to_replace) > 0){
-
-    ### coke oven product use ----
-    data_COKEOVS_use <- data %>%
-      `[`(,, product_flow_COKEOVS_to_replace) %>%
-      .clean_data()
-  }
+  ### coke oven product use ----
+  data_COKEOVS_use <- data %>%
+    `[`(,, product_flow_COKEOVS_to_replace) %>%
+    .clean_data()
 
   ## coke oven replacement data ----
   # outputs are replaced joule-by-joule with inputs, according to the input shares
@@ -494,7 +484,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     `[`(regions_keep, years_keep, names_keep)
 
   data_fixed[regions_replace,years_replace,names_replace] <- (
-      data_fixed[regions_replace,years_replace,names_replace]
+    data_fixed[regions_replace,years_replace,names_replace]
     + data_replace[regions_replace,years_replace,names_replace]
   )
 
@@ -520,16 +510,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
   # subset of data containing industry subsector products and flows
 
   product.flow <- cartesian(products_to_fix, c(flows_to_fix, 'TOTIND', 'INONSPEC'))
-  missing <- setdiff(product.flow, getNames(data))
-
-  if(length(missing) > 0){
-    warning(paste0("tool_fix_IEA_data_for_Industry_subsectors: missing product flows in IEA data: ", paste0(missing, collapse = ", ")))
-  }
-
-  ieamatch <- ieamatch %>% unite('product.flow', c('iea_product', 'iea_flows'), sep = '.', remove = FALSE) %>%
-    filter(product.flow %in% getNames(data))
-
-  data_industry <- data[,,intersect(product.flow, getNames(data))] %>%
+  data_industry <- data[,,intersect(product.flow, getItems(data, dim=3))] %>%
     as.data.frame() %>%
     select(iso3c = 'Region', year = 'Year', product = 'Data1', flow = 'Data2',
            value = 'Value') %>%
@@ -611,8 +592,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     mutate(value = .data$TOTIND * .data$value) %>%
     select(.data$iso3c, .data$region, .data$year, .data$product, .data$flow,
            .data$value) %>%
-    #assert(not_na, .data$value) %>% # TODO: bring back
-    filter(!is.na(.data$value)) %>% # TODO: remove
+    assert(not_na, .data$value) %>%
     overwrite(data_industry) %>%
     select(COUNTRY = .data$iso3c, TIME = .data$year, PRODUCT = .data$product,
            FLOW = .data$flow, Value = .data$value) %>%

@@ -79,9 +79,10 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
     # for each product: check if the flow "HEMAINC" > 0, if yes, do nothing;
     # if no, add the value of the flow "ELMAINC" to "ELMAINE" and afterwards set ELMAINC to zero.
-    common_products <- getNames(data[, , "ELMAINE"], dim = 1) %>%
-      intersect(getNames(data[, , "ELMAINC"], dim = 1)) %>%
-      intersect(getNames(data[, , "HEMAINC"], dim = 1))
+
+    common_products <- getItems(data[, , "ELMAINE"], dim = 3.1) %>%
+      intersect(getItems(data[, , "ELMAINC"], dim = 3.1)) %>%
+      intersect(getItems(data[, , "HEMAINC"], dim = 3.1))
     d <- data[, , c("ELMAINE", "ELMAINC", "HEMAINC")][, , common_products]
     tmp <- mcalc(d, ELMAINE ~ ifelse(HEMAINC > 0, ELMAINE, ELMAINC + ELMAINE), append = F)
     data[, , "ELMAINE"][, , common_products] <- tmp
@@ -90,9 +91,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
     # for each product: check if the flow "HEAUTOC" > 0, if yes, do nothing;
     # if no, add the value of the flow "ELAUTOC" to "ELAUTOE" and afterwards set ELAUTOC to zero.
-    common_products <- getNames(data[, , "ELAUTOE"], dim = 1) %>%
-      intersect(getNames(data[, , "HEAUTOC"], dim = 1)) %>%
-      intersect(getNames(data[, , "ELAUTOC"], dim = 1))
+    common_products <- getItems(data[, , "ELAUTOE"], dim = 3.1) %>%
+      intersect(getItems(data[, , "HEAUTOC"], dim = 3.1)) %>%
+      intersect(getItems(data[, , "ELAUTOC"], dim = 3.1))
     d <- data[, , c("ELAUTOE", "HEAUTOC", "ELAUTOC")][, , common_products]
     tmp <- mcalc(d,  ELAUTOE ~ ifelse(HEAUTOC > 0, ELAUTOE, ELAUTOC + ELAUTOE), append = F)
     data[,,"ELAUTOE"][, , common_products] <- tmp
@@ -117,7 +118,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # check that no dimensions not present in the mapping has been added to the
     # data
     if (!is_empty(setdiff(getNames(data), names_data_before))) {
-      # TODO: find a way to fix this
+      # FIXME: remove product-flow combinations no longer in 2022 data
       warning('Product/flow combinations not present in mapping added by ',
            'fix_IEA_data_for_Industry_subsectors():\n',
            paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
