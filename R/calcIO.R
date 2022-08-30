@@ -136,7 +136,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     as_tibble() %>%
     select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     na.omit() %>%
-    unite("target", all_of(target), sep = ".", remove = FALSE)
+    unite("target", all_of(target), sep = ".", remove = FALSE) %>%
+    unite('product.flow', c('iea_product', 'iea_flows'),sep = '.') %>%
+    filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 
   if (subtype == "output_biomass") {
@@ -147,16 +149,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     }
   }
 
-  ieamatch <- ieamatch %>% unite('product.flow', c('iea_product', 'iea_flows'),sep = '.')
-  missing <- setdiff(ieamatch$product.flow, getNames(data))
-
-  if(length(missing) > 0){
-    warning(paste0("calcIO: missing product flows in IEA data: ", paste0(missing, collapse = ", ")))
-  }
-
-  ieamatch <- ieamatch %>% filter(product.flow %in% getNames(data))
-
-  # TODO: clean up
   reminditems <-  do.call(
     mbind,
     lapply(magpieNames,
@@ -164,10 +156,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
              product_flow <- ieamatch %>%
                filter(item == .data$target) %>%
                pull('product.flow')
-
-             if(length(product_flow) == 0){
-               return()
-             }
 
              weights <- ieamatch %>%
                filter(item == .data$target) %>%
