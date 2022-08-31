@@ -102,7 +102,7 @@ calcEmissionFactorsFeedstocks <- function() {
     emission.factors[, , g] <- carbon.use[, , g] * (emi / total.carbon) / fe.demand[, , g]
   }
 
-  # fill missing countries and years from 2020 - 2150 ----
+  # fill missing countries and years from 2025 - 2150 ----
 
   y <- c(seq(2005, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20))
 
@@ -115,14 +115,14 @@ calcEmissionFactorsFeedstocks <- function() {
     "gases", 3.2, 0.67
   )
 
-  # magclass with all countries that have at least some values for 2005 - 2015
+  # magclass with all countries that have at least some values for 2005 - 2020
   x.fill <- new.magpie(
     cells_and_regions = getItems(emission.factors, dim = 1),
     years = y,
     names = c("solids", "liquids", "gases")
   )
 
-  x.fill[, c(2005, 2010, 2015), ] <- emission.factors[, c(2005, 2010, 2015), ]
+  x.fill[, c(2005, 2010, 2015, 2020), ] <- emission.factors[, c(2005, 2010, 2015, 2020), ]
 
   # magclass with countries without emission factors
   x.empty <- new.magpie(
@@ -146,7 +146,7 @@ calcEmissionFactorsFeedstocks <- function() {
     max <- conv * 2
 
     # filter outliers
-    clean <- x.fill[, c(2005, 2010, 2015), g]
+    clean <- x.fill[, c(2005, 2010, 2015, 2020), g]
     clean[clean < min] <- NA
     clean[clean > max] <- NA
 
@@ -154,28 +154,34 @@ calcEmissionFactorsFeedstocks <- function() {
     empty <- magpply(clean, function(y) all(is.na(y)), MARGIN = 1)
     clean[empty, , ] <- conv
 
-    # for missing 2005 - 2015 values repeat nearest data
-    # fill 2005 NAs, try 2010 first, then 2015
+    # for missing 2005 - 2020 values repeat nearest data
+    # fill 2005 NAs, try 2010 first, then 2015, then 2020
     clean[, 2005, ][is.na(clean[, 2005, ])] <- clean[, 2010, ][is.na(clean[, 2005, ])]
     clean[, 2005, ][is.na(clean[, 2005, ])] <- clean[, 2015, ][is.na(clean[, 2005, ])]
+    clean[, 2005, ][is.na(clean[, 2005, ])] <- clean[, 2020, ][is.na(clean[, 2005, ])]
 
-    # fill 2010 NAs, try 2015 first, then 2005
+    # fill 2010 NAs, try 2015 first, then 2020, then 2005
     clean[, 2010, ][is.na(clean[, 2010, ])] <- clean[, 2015, ][is.na(clean[, 2010, ])]
+    clean[, 2010, ][is.na(clean[, 2010, ])] <- clean[, 2020, ][is.na(clean[, 2010, ])]
     clean[, 2010, ][is.na(clean[, 2010, ])] <- clean[, 2005, ][is.na(clean[, 2010, ])]
 
-    # fill 2015 NAs with 2010s
+    # fill 2015 NAs, try 2020 first, then 2010
+    clean[, 2015, ][is.na(clean[, 2015, ])] <- clean[, 2020, ][is.na(clean[, 2015, ])]
     clean[, 2015, ][is.na(clean[, 2015, ])] <- clean[, 2010, ][is.na(clean[, 2015, ])]
 
-    x.fill[, c(2005, 2010, 2015), g] <- clean
+    # fill 2020 NAs with 2015
+    clean[, 2020, ][is.na(clean[, 2020, ])] <- clean[, 2015, ][is.na(clean[, 2020, ])]
+
+    x.fill[, c(2005, 2010, 2015, 2020), g] <- clean
 
     # set values from 2050 onwards to convergence values: either the fixed value "conv",
-    # or the 2015 value if lower than "conv"
-    x.conv <- x.fill[, 2015, g]
+    # or the 2020 value if lower than "conv"
+    x.conv <- x.fill[, 2020, g]
     x.conv[x.conv > conv] <- conv
     x.fill[, c(2050, 2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- x.conv
 
-    # interpolate values between 2015 and 2050
-    x.fill[, seq(2005, 2050, 5), g] <- toolFillYears(x.fill[, c(2005, 2010, 2015, 2050), g], seq(2005, 2050, 5))
+    # interpolate values between 2020 and 2050
+    x.fill[, seq(2005, 2050, 5), g] <- toolFillYears(x.fill[, c(2005, 2010, 2015, 2020, 2050), g], seq(2005, 2050, 5))
 
     # set emission factors for countries without values to convergence values
     x.empty[, , g] <- conv
@@ -190,7 +196,7 @@ calcEmissionFactorsFeedstocks <- function() {
     names = c("solids", "liquids", "gases")
   )
   iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, , "NECHEM"] %>% collapseDim() * 4.1868e-5 * 1e-3
-  iea <- iea[, c(2005, 2010, 2015), ]
+  iea <- iea[, c(2005, 2010, 2015, 2020), ]
 
   for (g in unique(product_mapping$group)) {
     products <- product_mapping %>%
@@ -199,8 +205,8 @@ calcEmissionFactorsFeedstocks <- function() {
       pull()
 
     group <- dimSums(iea[, , products], dim = 3, na.rm = T)
-    weights[, c(2005, 2010, 2015), g] <- group
-    weights[, c(seq(2020, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- group[, 2015, ]
+    weights[, c(2005, 2010, 2015, 2020), g] <- group
+    weights[, c(seq(2025, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- group[, 2020, ]
   }
 
   return(
