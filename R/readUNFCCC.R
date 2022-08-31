@@ -7,13 +7,14 @@
 #' @seealso [`readSource()`]
 #'
 #' @importFrom dplyr %>% bind_rows bind_cols mutate select
+#'
 #' @importFrom magclass as.magpie
 #' @importFrom tibble tibble
 #' @importFrom tidyr drop_na
 #' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
-#' 
+#'
 #'
 #'
 #' @export
@@ -551,11 +552,11 @@ readUNFCCC <- function() {
       )
     )
   )
-  dirs <- list.files(path = "./data")
+  dirs <- list.files(path = "./2022")
 
   tmp <- NULL
   for (dir in dirs) {
-    files <- list.files(path = paste0("./data/", dir))
+    files <- list.files(path = paste0("./2022/", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
     for (file in files) {
       year <- as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file))
@@ -567,7 +568,7 @@ readUNFCCC <- function() {
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0("data/", dir, "/", file), sheet = i,
+              read_xlsx(path = paste0("2022/", dir, "/", file), sheet = i,
                 range = sheets[[i]][["range"]],
                 col_names = c("variable", sheets[[i]][["colnames"]])
               ) %>%
