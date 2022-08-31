@@ -60,7 +60,7 @@ calcEmissionFactorsFeedstocks <- function() {
       "remind"
     ) %>%
     select("products", "group") %>%
-    filter(!!sym("products") %in% getItems(iea, dim= 3.1))
+    filter(!!sym("products") %in% getItems(iea, dim = 3.1))
 
   for (g in unique(product_mapping$group)) {
     products <- product_mapping %>%
@@ -170,7 +170,7 @@ calcEmissionFactorsFeedstocks <- function() {
 
     # set values from 2050 onwards to convergence values: either the fixed value "conv",
     # or the 2015 value if lower than "conv"
-    x.conv <- x.fill[,2015,g]
+    x.conv <- x.fill[, 2015, g]
     x.conv[x.conv > conv] <- conv
     x.fill[, c(2050, 2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- x.conv
 
