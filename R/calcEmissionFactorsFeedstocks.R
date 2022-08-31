@@ -59,7 +59,8 @@ calcEmissionFactorsFeedstocks <- function() {
       ),
       "remind"
     ) %>%
-    select("products", "group")
+    select("products", "group") %>%
+    filter(!!sym("products") %in% getItems(iea, dim= 3.1))
 
   for (g in unique(product_mapping$group)) {
     products <- product_mapping %>%
