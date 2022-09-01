@@ -6,15 +6,14 @@
 #' @return
 #'
 #' @importFrom assertr assert
-#' @importFrom magclass mbind
-#' @importFrom madrat calcOutput readSource getISOlist
-#' @importFrom quitte madrat_mule
-#' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate
+#' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate n
 #'                   row_number select
-#' @importFrom tidyr nest pivot_longer unnest
-#' @importFrom assertr assert
+#' @importFrom madrat calcOutput readSource getISOlist
+#' @importFrom magclass mbind
+#' @importFrom quitte madrat_mule
 #' @importFrom purrr map reduce
 #' @importFrom rlang .data .env sym syms
+#' @importFrom tidyr nest pivot_longer unnest
 
 #' @export
 calcIndustry_EEK <- function(kap) {
@@ -162,56 +161,6 @@ calcIndustry_EEK <- function(kap) {
   # EEK is assumed to stay constant in relation to subsector output, so it
   # grows/shrinks as the output grows/shrinks.  Shrinking of EEK is limited by
   # the depreciation rate i.
-
-  .limit_EEK_growth <- function(df) {
-  # helper function to apply the capital depreciation rate limit
-    df %>%
-      # turn each row (period) into a list
-      group_by(row_number()) %>%
-      nest() %>%
-      pull(.data$data) %>%
-      # Sequentially operate on two one-row data frames, x being the result of
-      # the previous operation, or starting at the base year row, y the
-      # 'current' row.  So y holds the baseline change rate computed earlier
-      # (below), while x holds the change rate conforming to the capital
-      # depreciation limit, as it has already been processed.  reduce() returns
-      # only the last row of the computation, so we get one output row for each
-      # of the input rows.
-      reduce(
-        .f = function(x, y) {
-          # combine data frames
-          bind_rows(x, y) %>%
-            # re-calculate change rate
-            mutate(
-              # case_when() seems broken (dplyr 1.0.9), using nested ifelse()
-              # instead
-              change = ifelse(
-                # first row has already been processed, base_year stays constant
-                # (at 1) anyways
-                1 == row_number() | base_year == .data$year,
-                .data$change,
-                ifelse(
-                  base_year < .data$year,
-                  # capital after the base year can decrease by no more than the
-                  # capital depreciation rate i
-                  pmax(.data$change,
-                       ( lag(.data$change, order_by = .data$year)
-                       * (1 - i)
-                       ^ (.data$year - lag(.data$year, order_by = .data$year))
-                       )),
-                  # capital before the base year can only have been higher by
-                  # the inverse of the depreciation rate i
-                  pmin(.data$change,
-                       ( lead(.data$change, order_by = .data$year)
-                       * (1 - i)
-                       ^ (.data$year - lead(.data$year, order_by = .data$year))
-                       ))
-                )
-              ))
-        }
-      )
-  }
-
   EEK_change <- FEdemand %>%
     # select relevant subsector outputs, transform into usable format
     `[`(,,'ue_', pmatch = 'left') %>%
@@ -233,30 +182,143 @@ calcIndustry_EEK <- function(kap) {
       # temper change down to avoid unduly high EEK in developing regions,
       # especially SSA
       change = sqrt(.data$change)
-    ) %>%
-    # turn groups into list-columns to operate on individually
-    nest() %>%
-    # apply capital depreciation rate once backwards in time, once forward in
-    # time from the base year, and combine the results
-    mutate(foo = map(.data$data,
-                     function(df) {
-                       bind_rows(
-                         df %>%
-                           filter(base_year >= .data$year) %>%
-                           arrange(desc(.data$year)) %>%
-                           .limit_EEK_growth() %>%
-                           arrange(.data$year),
+    )
 
-                         df %>%
-                           filter(base_year <= .data$year) %>%
-                           arrange(.data$year) %>%
-                           .limit_EEK_growth() %>%
-                           filter(base_year < .data$year)
-                       )
-                     })
+  # find all countries/scenarios/subsectors where capital depreciation rate is
+  # exceeded
+  EEK_change_invalid_forward <- EEK_change %>%
+    filter(base_year <= .data$year) %>%
+    summarise(
+      valid = all(.data$change >= ( lag(.data$change, order_by = .data$year)
+                                  * (1 - i)
+                                  ^ (.data$year - lag(.data$year,
+                                                      order_by = .data$year))
+                                  ),
+                  na.rm = TRUE),
+      .groups = 'drop') %>%
+    filter(!.data$valid) %>%
+    select(-'valid')
+
+  EEK_change_invalid_backward <- EEK_change %>%
+    filter(base_year >= .data$year) %>%
+    summarise(
+      valid = all(.data$change <= ( lag(.data$change,
+                                        order_by = desc(.data$year))
+                                  * (1 - i)
+                                  ^ (.data$year - lag(.data$year,
+                                                      order_by = desc(.data$year))
+                                    )
+                                  ),
+                  na.rm = TRUE),
+      .groups = 'drop') %>%
+    filter(!.data$valid) %>%
+    select(-'valid')
+
+  # recalculate capital change rates
+  EEK_change_valid_forward <- EEK_change %>%
+    ungroup() %>%
+    filter(base_year <= .data$year) %>%
+    semi_join(
+      EEK_change_invalid_forward,
+
+      c('iso3c', 'scenario', 'subsector')
     ) %>%
-    select(-'data') %>%
-    unnest(.data$foo)
+    # duplicate year, as the variable gets lost during nesting
+    mutate(year2 = .data$year) %>%
+    group_by(.data$year2) %>%
+    nest() %>%
+    pull(.data$data) %>%
+    # Sequentially operate on two one-row data frames, x being the result of
+    # the previous operation, or starting at the base year row, y the
+    # 'current' row.  So y holds the baseline change rate computed earlier
+    # (below), while x holds the change rate conforming to the capital
+    # depreciation limit, as it has already been processed.  reduce() returns
+    # only the last row of the computation, so we get one output row for each
+    # of the input rows.
+    reduce(
+      .f = function(x, y) {
+        bind_rows(x, y) %>%
+          group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
+          # re-calculate change rate
+          mutate(
+            change = ifelse(
+              # first row has already been processed
+              1 == row_number(),
+              .data$change,
+              # capital after the base year can decrease by no more than the
+              # capital depreciation rate i
+              pmax(.data$change,
+                   ( lag(.data$change, order_by = .data$year)
+                     * (1 - i)
+                     ^ (.data$year - lag(.data$year, order_by = .data$year))
+                   )))) %>%
+          ungroup() %>%
+          select(-'value')
+      })
+
+  # do the same for backwards data
+  EEK_change_valid_backward <- EEK_change %>%
+    ungroup() %>%
+    filter(base_year >= .data$year) %>%
+    semi_join(
+      EEK_change_invalid_backward,
+
+      c('iso3c', 'scenario', 'subsector')
+    ) %>%
+    mutate(year2 = .data$year) %>%
+    group_by(.data$year2) %>%
+    nest() %>%
+    pull(.data$data) %>%
+    reduce(
+      .f = function(x, y) {
+        bind_rows(x, y) %>%
+          group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
+          # re-calculate change rate
+          mutate(
+            change = ifelse(
+              # first row has already been processed (but is the last row as we
+              # work backwards)
+              n() == row_number(),
+              .data$change,
+              # capital before the base year can only have been higher by
+              # the inverse of the depreciation rate i
+              pmin(.data$change,
+                   ( lead(.data$change, order_by = .data$year)
+                   * (1 - i)
+                   ^ (.data$year - lead(.data$year, order_by = .data$year))
+                   )))) %>%
+          ungroup() %>%
+          select(-'value')
+      },
+      .dir = 'backward')
+
+  # combine all valid change data
+  EEK_change <- bind_rows(
+    # valid data forward
+    EEK_change %>%
+      filter(base_year <= .data$year) %>%
+      anti_join(
+        EEK_change_invalid_forward,
+
+        c('iso3c', 'scenario', 'subsector')
+      ),
+
+    # valid data backward
+    EEK_change %>%
+      filter(base_year > .data$year) %>%
+      anti_join(
+        EEK_change_invalid_backward,
+
+        c('iso3c', 'scenario', 'subsector')
+      ),
+
+    # fixed rates
+    EEK_change_valid_forward,
+
+    EEK_change_valid_backward
+  ) %>%
+    distinct(.data$iso3c, .data$scenario, .data$subsector, .data$year,
+             .data$change)
 
   EEK <- full_join(
     EEK %>%
