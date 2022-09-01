@@ -1,8 +1,8 @@
 #' @title calcEmissions
-#' 
+#'
 #' @return magpie object with historical emissions
 #' @param datasource "CEDS16", "CEDS2REMIND", "CEDS2021", "EDGAR", "EDGAR6", "LIMITS", "ECLIPSE", "GFED", "CDIAC"
-#' 
+#'
 #' @author Steve Smith, Pascal Weigmann
 #'
 #' @importFrom magclass ndim setNames getNames<-
@@ -38,7 +38,7 @@ calcEmissions <- function(datasource="CEDS16") {
 
       emi <- mbind(bc[,y,],ch4[,y,],co[,y,],co2[,y,],n2o[,y,],nh3[,y,],nox[,y,],nmvoc[,y,],oc[,y,],so2[,y,]) / 1000 # kt -> Mt
       rm(bc,ch4,co,co2,n2o,nh3,nox,nmvoc,oc,so2)
-      
+
       if (any(!emi[,,"6B_Other-not-in-total"]==0)) cat("CEDS59 sector 6B_Other-not-in-total was removed although it contains data! Please check CEDS source files.\n")
 
       emi <- emi[,,"6B_Other-not-in-total",invert=TRUE]
@@ -68,7 +68,7 @@ calcEmissions <- function(datasource="CEDS16") {
     nmvoc <- readSource("CEDS",subtype="NMVOC")
     oc    <- readSource("CEDS",subtype="OC")
     so2   <- readSource("CEDS",subtype="SO2")
-    
+
     y <- Reduce(intersect,list(getYears(bc),
                                getYears(ch4),
                                getYears(co),
@@ -79,7 +79,7 @@ calcEmissions <- function(datasource="CEDS16") {
                                getYears(nmvoc),
                                getYears(oc),
                                getYears(so2)))
-    
+
     emi <- mbind(bc[,y,],ch4[,y,],co[,y,],co2[,y,],n2o[,y,],nh3[,y,],nox[,y,],nmvoc[,y,],oc[,y,],so2[,y,]) / 1000 # kt -> Mt
     rm(bc,ch4,co,co2,n2o,nh3,nox,nmvoc,oc,so2)
 
@@ -181,7 +181,7 @@ calcEmissions <- function(datasource="CEDS16") {
 
       # rename emissions according to map
       map <- c(bc_c="BC", ch4="CH4", co="CO", co2_c="CO2", n2o_n="N2O",
-               nh3_n="NH3", no2_n="NOx", nmvoc="VOC", oc_c="OC", so2="SO2")
+               nh3_n="NH3", no2_n="NOX", nmvoc="VOC", oc_c="OC", so2="SO2")
       getNames(emi, dim=2) <- map[getNames(emi, dim=2)]
 
       # sectoral sums
@@ -263,7 +263,7 @@ calcEmissions <- function(datasource="CEDS16") {
     voc   <- add_dimension(voc, dim=3.2, add="em",nm="VOC")
     nox   <- readSource("EDGAR",subtype="NOx")
     nox   <- add_dimension(nox, dim=3.2, add="em",nm="NOx")
-    nh3   <- readSource("EDGAR",subtype="NH3") 
+    nh3   <- readSource("EDGAR",subtype="NH3")
     nh3   <- add_dimension(nh3, dim=3.2, add="em",nm="NH3")
     so2   <- readSource("EDGAR",subtype="SO2")
     so2   <- add_dimension(so2, dim=3.2, add="em",nm="SO2")
@@ -271,9 +271,9 @@ calcEmissions <- function(datasource="CEDS16") {
     pm10  <- add_dimension(pm10, dim=3.2, add="em",nm="PM10")
     co2   <- readSource("EDGAR",subtype="co2")
     co2   <- add_dimension(co2, dim=3.2, add="em",nm="CO2")
-    
+
     edgar <- mbind(co,nox,so2,voc,nh3,pm10,co2) / 1000 # kt = Gg -> Mt
-    
+
     # Allocation of pollutants to sectors: special treatment for solvents
     map <- c(CO="CO",NOx="NOx",SO2="Sulfur",VOC="VOC",NH3="NH3",PM10="PM10")
     tmp <- NULL
@@ -342,8 +342,8 @@ calcEmissions <- function(datasource="CEDS16") {
     }
 
     description <- "historic emissions in 1970-2014"
-    
-    
+
+
     ## ---- EDGAR 6 ----
   } else if (datasource == "EDGAR6") {
     # read EDGAR v6.0 and v5.0 emissions from sources
@@ -370,7 +370,7 @@ calcEmissions <- function(datasource="CEDS16") {
     # map sectors and pollutants to REMIND nomenclature
     map_sec <- toolGetMapping("mappingEDGAR6toREMIND.csv", type = "sectoral")
     map_pol <- c(n2o="N2O", ch4="CH4", co2_excl_short="CO2",
-                 nh3="NH3", no2="NOx", bc="BC", co="CO", oc="OC", nmvoc="VOC", pm10="PM10", pm25="PM25", so2="Sulfur")
+                 nh3="NH3", no2="NOX", bc="BC", co="CO", oc="OC", nmvoc="VOC", pm10="PM10", pm25="PM25", so2="Sulfur")
 
     # insert "0" instead of "NA" to avoid data-loss when aggregating.
     emi[is.na(emi)] <- 0
@@ -429,27 +429,28 @@ calcEmissions <- function(datasource="CEDS16") {
   } else if (datasource == "LIMITS") {
     # read LIMITS emissions from sources
     em_limits <- readSource("LIMITS", subtype="emissions")
-    
+
     em_limits <- collapseNames(em_limits[,,"kt"][,,"CLE"][,,"Unattributed", invert=TRUE])
-    
-    getNames(em_limits, dim=2)[which(getNames(em_limits, dim=2) == "NOX")] <- "NOx" 
-    
+
+    getNames(em_limits, dim=2)[which(getNames(em_limits, dim=2) == "NOX")] <- "NOx"
+
     map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingLIMITSsectorstoREMINDsectors.csv",
                                     returnPathOnly = TRUE),
                      stringsAsFactors=TRUE)
-    
+
     em_limits[is.na(em_limits)] <- 0.0
-    
+
     tmp <- NULL
     for (kap in getNames(em_limits, dim=2)) {
       tmp_limits <- collapseNames(em_limits[,,kap])
-      
-      tmp_map <- map %>% 
-        filter_(~limits_sector %in% getNames(tmp_limits, dim=1)) %>% 
-        mutate_(remind_sector = ~paste(sub("POLLUTANT", kap, remind_sector), "(Mt/yr)"))
-      
+
+      tmp_map <- map %>%
+        filter(.data$limits_sector %in% getNames(tmp_limits, dim = 1)) %>%
+        mutate(remind_sector = paste(sub("POLLUTANT", kap, .data$remind_sector),
+				     "(Mt/yr)"))
+
       tmp <- mbind(tmp, toolAggregate(tmp_limits, tmp_map, dim=3.1))
-      
+
     }
 
     tmp <- tmp / 1000 # kt = Gg -> Mt
@@ -459,36 +460,37 @@ calcEmissions <- function(datasource="CEDS16") {
   } else if (datasource == "ECLIPSE") {
     # read ECLIPSE emissions from sources
     em_eclipse <- readSource("ECLIPSE", subtype="emissions.aggregated")
-    
+
     em_eclipse <- collapseNames(em_eclipse[,,"CLE"])
-    
+
     # map <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoAggREMINDsectors.csv",
     #                                returnPathOnly = TRUE),
     #                 stringsAsFactors=TRUE)
     map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingECLIPSEsectorstoREMINDsectors.csv",
                                     returnPathOnly = TRUE),
                      stringsAsFactors=TRUE)
-    
+
     em_eclipse[is.na(em_eclipse)] <- 0.0
-    
+
     tmp <- NULL
     for (kap in getNames(em_eclipse, dim=2)) {
       tmp_eclipse <- collapseNames(em_eclipse[,,kap])
-      
-      tmp_map <- map %>% 
-        filter_(~eclipse_sector %in% getNames(tmp_eclipse, dim=1)) %>% 
-        mutate_(remind_sector = ~paste(sub("POLLUTANT", kap, remind_sector), "(Mt/yr)"))
-      
+
+      tmp_map <- map %>%
+        filter(.data$eclipse_sector %in% getNames(tmp_eclipse, dim = 1)) %>%
+        mutate(remind_sector = paste(sub("POLLUTANT", kap, .data$remind_sector),
+                                     "(Mt/yr)"))
+
       tmp <- mbind(tmp, toolAggregate(tmp_eclipse, tmp_map, dim=3.1))
-      
+
     }
-    
+
     tmp <- tmp / 1000  # kt = Gg -> Mt
 
     description <- "historic emissions in 1970-2014"
 
     ## ---- GFED ----
-  } else if (datasource == "GFED") {  
+  } else if (datasource == "GFED") {
     data <- readSource("GFED")
     # aggregate gfed sectors to sectors of all other data
     emi_subset <-  c("SO2","OC","NOx","NH3","CO","BC")
@@ -500,7 +502,7 @@ calcEmissions <- function(datasource="CEDS16") {
     tmp[,,"CO"] <- tmp[,,"CO"] / 10 # 1E11g -> Mt
     tmp[,,c("NH3","SO2","BC")] <- tmp[,,c("NH3","SO2","BC")] / 1000 # 1E9g -> Mt
     tmp[,,c("NOx","OC")] <- tmp[,,c("NOx","OC")] / 100 # 1E10g -> Mt
-    
+
     getNames(tmp,dim=2)<- gsub("SO2","Sulfur",getNames(tmp,dim=2)) # rename SO2 -> Sulfur
 
     description <- "historic emissions in 1970-2014"
@@ -508,7 +510,7 @@ calcEmissions <- function(datasource="CEDS16") {
     ## ---- CDIAC ----
   } else if (datasource == "CDIAC") {
     data <- readSource("CDIAC")
-    
+
     # omitting "PerCap"
     map <- c(FFIC    ="Fossil Fuels and Industry", # <--- old name. New name will be: "Energy and Industrial Processes",
              Solids  ="Energy|Solids",

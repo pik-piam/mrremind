@@ -63,27 +63,26 @@ convertECLIPSE <- function(x, subtype) {
     tmp <- tmp[, colSums(is.na(tmp)) < nrow(tmp)]
     grp_cols <- setdiff(colnames(tmp), c("value", "period"))
 
-    # Convert character vector to list of symbols
-    dots <- lapply(grp_cols, as.symbol)
-
-
     output <- tmp  %>%
       as.quitte() %>%
       # mutate(period = as.integer(format(period,"%Y"))) %>%
-      mutate_(value = ~ ifelse(value == 0, NA, value)) %>%
+      mutate(value = ifelse(.data$value == 0, NA, .data$value)) %>%
       # group_by(region, sector,variable,scenario) %>%
-      group_by_(.dots = dots) %>%
-      mutate_(rank = ~ min_rank(period),
-             value = ~ ifelse((all(is.na(value)) | !any(is.na(value)) | !is.na(value)),
-                            value,
-                            ifelse(rank < min(rank[!is.na(value)]), value[rank == min(rank[!is.na(value)])],
+      group_by(!!!syms(grp_cols)) %>%
+      mutate(rank = min_rank(.data$period),
+             value = ifelse(  all(is.na(.data$value))
+                            | !any(is.na(.data$value))
+                            | !is.na(.data$value),
+                            .data$value,
+                            ifelse(.data$rank < min(.data$rank[!is.na(.data$value)]),
+                                   .data$value[.data$rank == min(.data$rank[!is.na(.data$value)])],
                                    # ifelse(rank > max(rank[!is.na(value)]), value[rank == max(rank[!is.na(value)])],
-                                   ifelse(rank > max(rank[!is.na(value)]), 0,
-                                          (value[closest(period, value, place = "above")] +
-                                             value[closest(period, value, place = "below")]) / 2))),
-             value = ~ ifelse(is.na(value), 0, value)) %>%
+                                   ifelse(.data$rank > max(.data$rank[!is.na(.data$value)]), 0,
+                                          (.data$value[closest(.data$period, .data$value, place = "above")] +
+                                             .data$value[closest(.data$period, .data$value, place = "below")]) / 2))),
+             value = ifelse(is.na(.data$value), 0, .data$value)) %>%
       ungroup() %>%
-      select_(~ -rank) %>%
+      select(-'rank') %>%
       as.data.frame() %>%
       as.quitte()
 
@@ -111,7 +110,7 @@ convertECLIPSE <- function(x, subtype) {
       map <- read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map <- map %>%
-        mutate_(RegionCode = ~ gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", RegionCode))))
+        mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))
       map$CountryCode <- factor(map$CountryCode)
       map$RegionCode  <- factor(map$RegionCode)
 
@@ -137,7 +136,7 @@ convertECLIPSE <- function(x, subtype) {
       map <- read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map  <- map %>%
-        mutate_(RegionCode = ~ gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", RegionCode))))
+        mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))
       map$CountryCode <- factor(map$CountryCode)
       map$RegionCode  <- factor(map$RegionCode)
 

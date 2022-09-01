@@ -4,7 +4,6 @@
 #' REMIND model.
 #'
 #' @param rev data revision which should be used as input (positive numeric).
-#' @importFrom edgeTransport collectScens generateEDGEdata
 #' @importFrom madrat madratAttach
 #' @importFrom magrittr %>%
 #' @importFrom quitte cartesian madrat_mule
@@ -21,7 +20,7 @@ fullREMIND <- function(rev = 0) {
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
 
-  madratAttach('edgeTransport')   # enable madrat caching for edgeTransport
+  madratAttach("edgeTransport")   # enable madrat caching for edgeTransport
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,      round = 8,  file = "f_pop.cs3r")
@@ -64,6 +63,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("DevelopmentState",                      round = 4,  file = "f_developmentState.cs3r")
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f50_pop.cs3r", aggregate = FALSE)
   calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f50_gdp.cs3r", aggregate = FALSE)
+  calcOutput("TCdamage", subtype = "const",           round=8, file="f50_TC_df_const.cs4r", aggregate=FALSE)
+  calcOutput("TCdamage", subtype = "tasK",            round=8, file="f50_TC_df_tasK.cs4r", aggregate=FALSE)
 
   #-------------- energy services parameter -----------------------------------------------------------
   calcOutput("FEdemand", subtype = "EsUeFe_in",       round = 8, file = "p36_serviceInputs.cs4r")
@@ -90,14 +91,15 @@ fullREMIND <- function(rev = 0) {
   calcOutput("FGas",                                                round = 6, file = "f_emiFgas.cs4r")
   calcOutput("EmiFossilFuelExtr",                                   round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("Region2MAGICC",                                       round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
-  calcOutput("EmiPollutantExo", subtype = "AviationShipping",         round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
-  calcOutput("EmiPollutantExo", subtype = "Waste",                    round = 6, file = "f11_emiAPexo.cs4r")
+  calcOutput("EmiPollutantExo", subtype = "AviationShipping",       round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
+  calcOutput("EmiPollutantExo", subtype = "Waste",                  round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                   round = 6, file = "f11_emiAPexoAgricult.cs4r")
-  calcOutput("GAINSEmi",       subtype = "emissions",                 round = 5, file = "emi_gains.cs4r")
-  calcOutput("GAINSEmi",       subtype = "emission_factors",          round = 5, file = "ef_gains.cs4r")
+  calcOutput("GAINSEmi",       subtype = "emissions",               round = 5, file = "emi_gains.cs4r")
+  calcOutput("GAINSEmi",       subtype = "emission_factors",        round = 5, file = "ef_gains.cs4r")
   calcOutput("GAINSEmi",       subtype = "emissions_starting_values", round = 5, file = "f11_emiAPexsolve.cs4r")
-  calcOutput("EmissionFactors", subtype = "emission_factors",          round = 5, file = "f11_emiFacAP.cs4r")
-  calcOutput("EmiLULUCFCountryAcc", subtype = "UNFCCC",          round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
+  calcOutput("EmissionFactors", subtype = "emission_factors",       round = 5, file = "f11_emiFacAP.cs4r")
+  calcOutput("EmissionFactorsFeedstocks",                           round = 5, file = "f_nechem_emissionFactors.cs4r")
+  calcOutput("EmiLULUCFCountryAcc", subtype = "UNFCCC",             round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")
@@ -163,6 +165,8 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
+  calcOutput('industry_specific_FE_limits', aggregate = FALSE,
+             file = 'pm_energy_limit.csv')
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
@@ -183,6 +187,8 @@ fullREMIND <- function(rev = 0) {
   # has been moved to separate function mrremind::fullVALIDATIONREMIND
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
+  calcOutput("TransportGDPshare", round = 6,  file = "f35_transportGDPshare.cs4r")
+
   lapply(c("value_time", "harmonized_intensities", "price_nonmot",
            "pref", "UCD_NEC_iso", "loadFactor", "fe_demand_tech", "fe2es", "esCapCost",
            "pm_trp_demand", "pm_fe_demand_EDGETbased", "f35_bunkers_fe", "annual_mileage"),

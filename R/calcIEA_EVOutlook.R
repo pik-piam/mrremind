@@ -30,7 +30,7 @@ calcIEA_EVOutlook <- function() {
   mapping <- toolGetMapping("Mapping_IEA_EV_Outlook.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "") %>%
     mutate(!!sym("REMIND") := paste0(!!sym("REMIND_Variable"), " (", !!sym("REMIND_Unit"), ")")) %>%
-    select("variable" = "Variable", "REMIND")
+    select("variable" = "Variable", "REMIND", "Factor")
 
   mapping$variable <- trimws(mapping$variable)
   mapping$REMIND <- trimws(mapping$REMIND)
@@ -41,6 +41,7 @@ calcIEA_EVOutlook <- function() {
     by = "variable"
   ) %>%
     filter(!!sym("REMIND") != "") %>%
+    mutate(!!sym("value") := !!sym("value") * !!sym("Factor")) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
   x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.exclude) %>%

@@ -14,6 +14,7 @@
 #' @author Michaja Pehl
 #' 
 #' @importFrom assertr assert in_set
+#' @importFrom dplyr distinct
 #' 
 #' @seealso [`readSource()`]
 

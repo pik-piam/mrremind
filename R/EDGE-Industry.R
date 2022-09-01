@@ -30,7 +30,7 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when n right_join semi_join
+#' @importFrom dplyr %>% case_when n right_join semi_join distinct
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
 #'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete
@@ -125,28 +125,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP5',      '0.75') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
-    # secondary steel share limits ----
-    # Linear convergence from the historic value in the year <from> to the value
-    # <target> in the year <by>.
-    # Corresponds to code in
-    # REMIND:/modules/37_industry/subsectors/datainput.gms
-    tribble(
-      ~scenario,   ~from,   ~by,   ~target,
-      'SDP',       2015,    2050,   0.9,
-      'SDP_EI',    2015,    2050,   0.9,
-      'SDP_MC',    2015,    2050,   0.9,
-      'SDP_RC',    2015,    2050,   0.9,
-      'SSP1',      2015,    2050,   0.9,
-      'SSP2',      2015,    2050,   0.9,
-      'SSP2EU',    2015,    2050,   0.9,
-      'SSP3',      2015,    2050,   0.9,
-      'SSP4',      2015,    2050,   0.9,
-      'SSP5',      2015,    2050,   0.9) %>%
-      pivot_longer(-'scenario', names_to = 'switch',
-                   values_transform = list(value = as.character)) %>%
-      mutate(switch = paste0('EDGE-Industry_secondary.steel.max.share.',
-                             switch)),
-
     NULL) %>%
     pivot_wider(names_from = 'switch')
 
@@ -163,14 +141,7 @@ calcSteel_Projections <- function(subtype = 'production',
       `steel.stock.lifetime.convergence.year` =
         'EDGE-Industry_steel.stock.lifetime.convergence.year',
       `steel.stock.lifetime.convergence.factor` =
-        'EDGE-Industry_steel.stock.lifetime.convergence.factor',
-
-      `secondary.steel.max.share.from` =
-      'EDGE-Industry_secondary.steel.max.share.from',
-      secondary.steel.max.share.by =
-      'EDGE-Industry_secondary.steel.max.share.by',
-      secondary.steel.max.share.target =
-      'EDGE-Industry_secondary.steel.max.share.target')
+        'EDGE-Industry_steel.stock.lifetime.convergence.factor')
 
   # load required data ----
   ## region mapping for aggregation ----
@@ -479,7 +450,10 @@ calcSteel_Projections <- function(subtype = 'production',
     assert(not_na, everything())
 
   if ('steel_stock_estimates' == subtype) {
-    return(steel_stock_estimates)
+    return(list(
+      x = steel_stock_estimates %>%
+        madrat_mule(),
+      weight = NULL))
   }
 
   # calculate lifetime projections ----
@@ -746,9 +720,18 @@ calcSteel_Projections <- function(subtype = 'production',
     assert(not_na, everything())
 
   ## calculate secondary steel max share ----
-  secondary.steel.max.switches <- `EDGE-Industry_scenario_switches` %>%
-    select('scenario',
-           matches('^secondary\\.steel\\.max\\.share\\.(from|by|target)$'))
+  secondary.steel.max.switches <- calcOutput(
+    type = 'industry_max_secondary_steel_share',
+    scenarios = unique(population$scenario),
+    regions = unique(region_mapping$region),
+    aggregate = FALSE) %>%
+    as.data.frame() %>%
+    as_tibble() %>%
+    select(scenario = 'Data1', region = 'Data2', name = 'Data3',
+           value = 'Value') %>%
+    mutate(name = paste0('secondary.steel.max.share.', .data$name)) %>%
+    pivot_wider() %>%
+    character.data.frame()
 
   tmp <- full_join(
     steel_historic_prod %>%
@@ -781,12 +764,12 @@ calcSteel_Projections <- function(subtype = 'production',
         distinct(.data$scenario, .data$region, .data$iso3c) %>%
         full_join(
           secondary.steel.max.switches %>%
-            select('scenario', year = 'secondary.steel.max.share.by',
+            select('scenario', 'region', year = 'secondary.steel.max.share.by',
                    share = 'secondary.steel.max.share.target') %>%
             mutate(year = as.integer(.data$year),
                    share = as.numeric(.data$share)),
 
-          'scenario'
+          c('scenario', 'region')
         )
     ) %>%
     interpolate_missing_periods_(
@@ -945,32 +928,32 @@ calcSteel_Projections <- function(subtype = 'production',
   # match historic values ----
   if (match.steel.historic.values) {
     tmp <- full_join(
-    # estimates after last historic year
-    production_estimates %>%
-      filter(max(unique(steel_historic_prod$year)) <= .data$year,
+      # estimates after last historic year
+      production_estimates %>%
+        filter(max(unique(steel_historic_prod$year)) <= .data$year,
                .data$variable %in% c('primary.production',
                                      'secondary.production'),
-             'Total' != .data$iso3c),
+               'Total' != .data$iso3c),
 
-    # estimates up to last historic year
-    steel_historic_prod %>%
-      rename(historic = .data$value) %>%
-      # Mt/year * 1e6 t/Mt = t/year
-      mutate(historic = .data$historic * 1e6,
-             scenario = production_estimates[[1,'scenario']]) %>%
-      # duplicate for all scenarios
-      complete(
+      # estimates up to last historic year
+      steel_historic_prod %>%
+        rename(historic = .data$value) %>%
+        # Mt/year * 1e6 t/Mt = t/year
+        mutate(historic = .data$historic * 1e6,
+               scenario = production_estimates[[1,'scenario']]) %>%
+        # duplicate for all scenarios
+        complete(
           nesting(!!!syms(c('region', 'iso3c', 'year', 'variable',
                             'historic'))),
-        scenario = unique(pull(production_estimates, 'scenario'))) %>%
-      complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
-               year = unique(.data$year),
-               variable = unique(.data$variable),
-               fill = list(historic = 0)) %>%
-      assert(not_na, everything()),
+          scenario = unique(pull(production_estimates, 'scenario'))) %>%
+        complete(nesting(!!!syms(c('scenario', 'region', 'iso3c'))),
+                 year = unique(.data$year),
+                 variable = unique(.data$variable),
+                 fill = list(historic = 0)) %>%
+        assert(not_na, everything()),
 
-    c('scenario', 'region', 'iso3c', 'year', 'variable')
-  )
+      c('scenario', 'region', 'iso3c', 'year', 'variable')
+    )
 
     tmp <- bind_rows(
       # shift country production to meet historic production in the last year
@@ -1128,7 +1111,26 @@ calcSteel_Projections <- function(subtype = 'production',
       group_by(.data$region) %>%
       mutate(
         factor = .data$ETP / .data$value,
-        factor = .data$factor / first(.data$factor, order_by = .data$year)) %>%
+        factor = .data$factor / first(.data$factor, order_by = .data$year))
+
+    # If exogenous Chinese production trajectories gobble up all Non-OECD
+    # production, temper the scaling factor to only meet 2060 production exactly
+    if (is.data.frame(China_Production)) {
+      scaling_factor <- scaling_factor %>%
+      mutate(factor = ( .data$factor
+                      + ( first(.data$factor, order_by = .data$year)
+                        + ( ( last(.data$factor, order_by = .data$year)
+                            - first(.data$factor, order_by = .data$year)
+                            )
+                          / (max(.data$year) - min(.data$year))
+                          * (.data$year - min(.data$year))
+                          )
+                        )
+                      )
+                    / 2)
+      }
+
+      scaling_factor <- scaling_factor %>%
       select(-'value', -'ETP') %>%
       bind_rows(
         tibble(
@@ -2593,7 +2595,8 @@ d_plot_region_totals %>%
         'ue_otherInd'  == pf ~ 1e-12),
       scenario = paste0('gdp_', .data$scenario)) %>%
     interpolate_missing_periods_(periods = list(year = 1993:2150),
-                                 expand.values = TRUE)
+                                 expand.values = TRUE) %>%
+    select('scenario', 'iso3c', 'pf', 'year', 'value')
 
   # return statement ----
   return(list(x = x %>%

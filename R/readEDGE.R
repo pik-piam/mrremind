@@ -9,7 +9,7 @@
 #' \dontrun{
 #' a <- readSource("EDGE")
 #' }
-#' @author Antoine Levesque, Robin Krekeler
+#' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
@@ -17,7 +17,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.06"
+  ver <- "1.09"
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
@@ -33,7 +33,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       # duplicate: SSP2 -> SSP2EU, SSP2_lowEn and SSP1 -> SDPs
       mstationarySPP2s <- addDim(
         mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
-        c("SSP2EU", "SSP2_lowEn"), "scenario", 3.1)
+        c("SSP2EU", "SSP2_lowEn", "SSP2EU_NAV_act", "SSP2EU_NAV_tec", "SSP2EU_NAV_ele", "SSP2EU_NAV_all"),
+        "scenario", 3.1)
       mstationarySDPs <- addDim(
         mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
         c("SDP", "SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
