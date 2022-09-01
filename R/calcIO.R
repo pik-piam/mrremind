@@ -172,7 +172,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
-  if (subtype %in% c("output", "input", "output_Industry_subsectors", "input_Industry_subsectors")) {
+  if (subtype %in% c("output", "input", "output_Industry_subsectors")) {
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
