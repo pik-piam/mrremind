@@ -508,9 +508,12 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
 
   # extend industry subsector time series ----
   # subset of data containing industry subsector products and flows
-  data_industry <- data[,,cartesian(products_to_fix,
-                                    c(flows_to_fix, 'TOTIND', 'INONSPEC'))] %>%
+  data_industry <- data %>%
+    `[`(,,intersect(getNames(data),
+                    cartesian(products_to_fix,
+                              c(flows_to_fix, 'TOTIND', 'INONSPEC')))) %>%
     as.data.frame() %>%
+    as_tibble() %>%
     select(iso3c = 'Region', year = 'Year', product = 'Data1', flow = 'Data2',
            value = 'Value') %>%
     mutate(year = as.integer(as.character(.data$year))) %>%
