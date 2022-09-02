@@ -521,23 +521,13 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     inner_join(region_mapping, 'iso3c') %>%
     assert(not_na, .data$region)
 
-  # all products that are consumed only in the non-specified subsector of
-  # industry are "suspicious" and are therefore fixed
-  data_to_fix <- inner_join(
-    data_industry %>%
-      filter('TOTIND' != .data$flow) %>%
-      group_by(.data$iso3c, .data$region, .data$year, .data$product) %>%
-      summarise(total = sum(.data$value, na.rm = TRUE), .groups = 'drop'),
-
-    data_industry %>%
-      filter(.data$flow %in% c('TOTIND', 'INONSPEC')) %>%
-      spread(.data$flow, .data$value),
-
-    c('iso3c', 'region', 'year', 'product')
-  ) %>%
-    # abs(1 - (.data$total / .data$TOTIND)) > 1e-3 |
-    filter(.data$INONSPEC == .data$TOTIND) %>%
-    select(.data$iso3c, .data$region, .data$year, .data$product, .data$TOTIND)
+  # all products that use less then 1 % of total energy outside of non-specified
+  # industry are 'suspicious' and will be fixed
+  data_to_fix <- data_industry %>%
+    filter(.data$flow %in% c('TOTIND', 'INONSPEC')) %>%
+    spread(.data$flow, .data$value) %>%
+    filter(1 - .data$INONSPEC / .data$TOTIND > 1e-2) %>%
+    select('iso3c', 'region', 'year', 'product', 'TOTIND')
 
   # use all non-suspicious data to calculate regional and global averages
   data_for_fixing <- anti_join(
