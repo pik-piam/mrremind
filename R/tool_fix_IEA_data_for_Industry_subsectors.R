@@ -33,6 +33,7 @@
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete gather nesting spread
+#' @importFrom zoo rollapply
 
 tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
 
@@ -520,6 +521,18 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     filter(0 != .data$value) %>%
     inner_join(region_mapping, 'iso3c') %>%
     assert(not_na, .data$region)
+
+  ## apply five-year moving average ----
+  data_industry <- data_industry %>%
+    group_by(.data$iso3c, .data$region, .data$product, .data$flow) %>%
+    arrange(.data$year) %>%
+    mutate(value = rollapply(
+      # pad data with two leading and trailing NAs
+      data = c(NA, NA, .data$value, NA, NA),
+      width = 5,
+      # ignoring NAs in mean() stumps the mean on the edges to four/three years
+      FUN = function(x) { mean(x, na.rm = TRUE) })) %>%
+    ungroup()
 
   # all products that use less then 1 % of total energy outside of non-specified
   # industry are 'suspicious' and will be fixed
