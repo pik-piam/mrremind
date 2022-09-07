@@ -105,7 +105,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   if (subtype == "output_Industry_subsectors") {
     # apply corrections to IEA data to cope with fragmentary time series
     names_data_before <- getNames(data)
-    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch)
+    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
+                                                      threshold = 1e-2)
     # check that no dimensions not present in the mapping has been added to the
     # data
     if (!is_empty(setdiff(getNames(data), names_data_before))) {

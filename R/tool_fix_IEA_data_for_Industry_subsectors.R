@@ -19,6 +19,9 @@
 #' @param ieamatch mapping of IEA product/flow combinations to REMIND
 #'        `sety`/`fety`/`te` combinations as used in [`calcIO()`]
 #'
+#' @param threshold minimum share each industry subsector uses of each product.
+#'   Defaults to 1 %.
+#'
 #' @return a MAgPIE object
 #'
 #' @author Michaja Pehl
@@ -35,7 +38,8 @@
 #' @importFrom tidyr complete gather nesting spread
 #' @importFrom zoo rollapply
 
-tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
+tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
+                                                      threshold = 1e-2) {
 
   . <- NULL
 
@@ -598,12 +602,58 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     select(.data$iso3c, .data$region, .data$year, .data$product, .data$flow,
            .data$value) %>%
     assert(not_na, .data$value) %>%
-    overwrite(data_industry) %>%
+    overwrite(data_industry)
+
+  # redistribute at least <threshold> of each product into each subsector ----
+  data_industry_fixed <- data_industry_fixed %>%
+    group_by(.data$iso3c, .data$year, .data$product) %>%
+    # which flow belongs to which subsector?
+    right_join(
+      tribble(
+        ~subsector,    ~flow,
+        'cement',      'NONMET',
+        'chemicals',   'CHEMICAL',
+        'steel',       'IRONSTL') %>%
+        complete(flow = c(flows_to_fix, 'INONSPEC'),
+                 fill = list(subsector = 'otherInd')),
+
+      'flow'
+    ) %>%
+    # compute subsector totals
+    group_by(.data$subsector, .add = TRUE) %>%
+    mutate(subsector.total = sum(.data$value)) %>%
+    ungroup(.data$subsector) %>%
+    mutate(
+      # each subsector consumes at least <threshold> of the total consumption of
+      # each product (with the exception of heat, which is only consumed in the
+      #  otherInd subsector)
+      subsector.min = ifelse('HEAT' == .data$product, 0,
+                             threshold * sum(.data$value)),
+      # if total subsector consumption is below the minimum, consumption must be
+      # added
+      subsector.add = pmax(0, .data$subsector.min - .data$subsector.total),
+      # each flow gets consumption added according to its share in total
+      # subsector consumption
+      flow.add = .data$subsector.add / .data$subsector.total * .data$value,
+      # if the additional flow is zero, consumption has to be subtracted from\
+      # this flow, in relation to its share of all flows with
+      # more-than-threshold consumption
+      flow.add = ifelse(0 != .data$flow.add, .data$flow.add,
+                        ( -sum(.data$flow.add)
+                        / .data$value
+                        * sum(.data$value[0 == .data$flow.add])
+                        )),
+      value = .data$value + .data$flow.add) %>%
+    ungroup() %>%
+    select('iso3c', 'region', 'year', 'product', 'flow', 'value')
+
+
+  # replace fixed data
+  data_industry_fixed <- data_industry_fixed %>%
     select(COUNTRY = .data$iso3c, TIME = .data$year, PRODUCT = .data$product,
            FLOW = .data$flow, Value = .data$value) %>%
     as.magpie()
 
-  # replace fixed data
   data[getRegions(data_industry_fixed),
        getYears(data_industry_fixed),
        getNames(data_industry_fixed)] <- data_industry_fixed
