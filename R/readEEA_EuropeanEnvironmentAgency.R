@@ -127,8 +127,8 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     projections <- left_join(mapping, projections, by = c("Category_name", "Gas")) %>%
       select("scenario" = "Scenario", "variable" = "Variable", "region" = "CountryCode", "period" = "Year", "value" = "Gapfilled") %>%
       calc_addVariable(
-        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Demand|Industry|Energy|ETS`",
-        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Demand|Industry|Energy|ESR`",
+        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Energy|Demand|Industry|ETS`",
+        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Energy|Demand|Industry|ESR`",
         "`Emi|GHG|Industry`" = "`Emi|GHG|Industry|ETS` + `Emi|GHG|Industry|ESR`",
         completeMissing = F
       ) %>%
@@ -136,7 +136,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
       mutate(
         !!sym("value") := !!sym("value") / 1000,
         !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2019"),
-        !!sym("variable") :=  paste0(!!sym("variable"), " (Mt CO2-equiv/yr)")
+        !!sym("variable") :=  paste0(!!sym("variable"), " (Mt CO2eq/yr)")
       )
 
     projections <- projections[(!(is.na(projections$region))), ]
@@ -157,17 +157,17 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     projections <- left_join(mapping, projections, by = c("Category", "Gas")) %>%
       select("scenario" = "Scenario", "variable" = "Variable", "region" = "CountryCode", "period" = "Year", "value" = "Gapfilled") %>%
       calc_addVariable(
-        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Demand|Industry|Energy|ETS`",
-        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Demand|Industry|Energy|ESR`",
+        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Energy|Demand|Industry|ETS`",
+        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Energy|Demand|Industry|ESR`",
         "`Emi|GHG|Industry`" = "`Emi|GHG|Industry|ETS` + `Emi|GHG|Industry|ESR`",
-        "`Emi|GHG|Intl aviation in ETS|ETS`" = "`Emi|GHGtot|w/ Intl aviation` - `Emi|GHGtot`",
+        "`Emi|GHG|Intl aviation in ETS|ETS`" = "`Emi|GHG|w/ Intl aviation` - `Emi|GHG`",
         completeMissing = F
       ) %>%
       filter(!is.na(!!sym("scenario")), !is.na(!!sym("value"))) %>%
       mutate(
         !!sym("value") := !!sym("value") / 1000,
         !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2021"),
-        !!sym("variable") := paste0(!!sym("variable"), " (Mt CO2-equiv/yr)")
+        !!sym("variable") := paste0(!!sym("variable"), " (Mt CO2eq/yr)")
       )
     x <- as.magpie(projections, spatial = 3, temporal = 4, datacol = 5)
 

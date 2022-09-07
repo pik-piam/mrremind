@@ -12,6 +12,7 @@
 #' \dontrun{ a <- readSource(type="EEA_EuropeanEnvironmentAgency",subtype="ETS")
 #' }
 #'
+#' @importFrom countrycode countrycode
 #' @importFrom magclass as.magpie
 #' @importFrom madrat toolCountry2isocode
 #'
@@ -20,14 +21,14 @@ convertEEA_EuropeanEnvironmentAgency <- function(x,subtype) {
   if (subtype %in% c("ETS", "ESR")) {
     # fill up zero countries
     x <- toolCountryFill(x)
-    #remove NAs
+    # remove NAs
     x[is.na(x)] <- 0
-  } else if(subtype == "total") {
+  } else if (subtype == "total") {
     x <- toolCountryFill(x)
   } else if (subtype == "sectoral") {
-    x <- toolCountryFill(x, no_remove_warning="EUR")
-  } else if (subtype %in% c("projections","projections_old")) {
-    getRegions(x) <- countrycode(getRegions(x), 'iso2c', 'iso3c')
+    x <- toolCountryFill(x, no_remove_warning = "EUR")
+  } else if (subtype %in% c("projections", "projections_old")) {
+    getRegions(x) <- countrycode(getRegions(x), "iso2c", "iso3c")
     x <- toolCountryFill(x, verbosity = 2)
   }
   return(x)
