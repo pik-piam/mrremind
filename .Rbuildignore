@@ -13,3 +13,4 @@ carbon_stored.*
 ^workflow$
 ^.lintr$
 ^tests/.lintr$
+TODO.txt
