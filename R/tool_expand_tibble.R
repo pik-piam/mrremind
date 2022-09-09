@@ -18,9 +18,9 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
-#' @importFrom tidyselect
+#' @importFrom tidyselect all_of
 #'
-#' @example
+#' @examples
 #'
 #' tribble(
 #'   ~scenario,   ~region,   ~value,
