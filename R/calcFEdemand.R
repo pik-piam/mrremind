@@ -1125,9 +1125,9 @@ calcFEdemand <- function(subtype = "FE") {
              value = 'Value') %>%
       character.data.frame() %>%
       mutate(year = as.integer(as.character(.data$year))) %>%
-      # get 1993-2015 industry FE data
+      # get 1993-2020 industry FE data
       filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', .data$pf),
-             between(.data$year, 1993, 2015)) %>%
+             between(.data$year, 1993, 2020)) %>%
       # sum up fossil and bio SE (which produce the same FE), aggregate regions
       full_join(region_mapping_21, 'iso3c') %>%
       group_by(!!!syms(c('year', 'region', 'pf'))) %>%
