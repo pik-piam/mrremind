@@ -543,7 +543,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
   data_to_fix <- data_industry %>%
     filter(.data$flow %in% c('TOTIND', 'INONSPEC')) %>%
     spread(.data$flow, .data$value) %>%
-    filter(1 - .data$INONSPEC / .data$TOTIND > 1e-2) %>%
+    filter(1 - .data$INONSPEC / .data$TOTIND < 1e-2) %>%
     select('iso3c', 'region', 'year', 'product', 'TOTIND')
 
   # use all non-suspicious data to calculate regional and global averages
@@ -606,6 +606,9 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
 
   # redistribute at least <threshold> of each product into each subsector ----
   data_industry_fixed <- data_industry_fixed %>%
+    complete(nesting(!!!syms(c('iso3c', 'region', 'year', 'product'))),
+             flow = c(flows_to_fix, 'INONSPEC'),
+             fill = list(value = 0)) %>%
     group_by(.data$iso3c, .data$year, .data$product) %>%
     # which flow belongs to which subsector?
     right_join(
@@ -621,7 +624,8 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
     ) %>%
     # compute subsector totals
     group_by(.data$subsector, .add = TRUE) %>%
-    mutate(subsector.total = sum(.data$value)) %>%
+    mutate(subsector.total = sum(.data$value),
+           subsector.count = n()) %>%
     ungroup(.data$subsector) %>%
     mutate(
       # each subsector consumes at least <threshold> of the total consumption of
@@ -634,29 +638,53 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
       subsector.add = pmax(0, .data$subsector.min - .data$subsector.total),
       # each flow gets consumption added according to its share in total
       # subsector consumption
-      flow.add = .data$subsector.add / .data$subsector.total * .data$value,
+      flow.add = ifelse(0 != .data$subsector.total,
+                        ( .data$subsector.add
+                        / .data$subsector.total
+                        * .data$value
+                        ),
+                        .data$subsector.add / .data$subsector.count),
       # if the additional flow is zero, consumption has to be subtracted from\
       # this flow, in relation to its share of all flows with
       # more-than-threshold consumption
       flow.add = ifelse(0 != .data$flow.add, .data$flow.add,
                         ( -sum(.data$flow.add)
-                        / .data$value
-                        * sum(.data$value[0 == .data$flow.add])
+                        * .data$value
+                        / sum(.data$value[0 == .data$flow.add])
                         )),
       value = .data$value + .data$flow.add) %>%
     ungroup() %>%
     select('iso3c', 'region', 'year', 'product', 'flow', 'value')
 
+  # replace and append fixed data ----
+  data_industry_fixed_overwrite <- data_industry_fixed %>%
+    semi_join(
+      data_industry,
 
-  # replace fixed data
-  data_industry_fixed <- data_industry_fixed %>%
-    select(COUNTRY = .data$iso3c, TIME = .data$year, PRODUCT = .data$product,
-           FLOW = .data$flow, Value = .data$value) %>%
-    as.magpie()
+      c('iso3c', 'region', 'year', 'product', 'flow')
+    ) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    as.magpie(spatial = 1, temporal = 2, data = 5)
 
-  data[getRegions(data_industry_fixed),
-       getYears(data_industry_fixed),
-       getNames(data_industry_fixed)] <- data_industry_fixed
+  data_industry_fixed_append <- data_industry_fixed %>%
+    anti_join(
+      data_industry,
+
+      c('iso3c', 'region', 'year', 'product', 'flow')
+    ) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    complete(nesting(!!!syms(c('product', 'flow'))),
+             iso3c = getRegions(data),
+             year = getYears(data, as.integer = TRUE),
+             fill = list(value = 0)) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    as.magpie(spatial = 1, temporal = 2, data = 5)
+
+  data[getRegions(data_industry_fixed_overwrite),
+       getYears(data_industry_fixed_overwrite),
+       getNames(data_industry_fixed_overwrite)] <- data_industry_fixed_overwrite
+
+  data <- mbind(data, data_industry_fixed_append)
 
   return(data)
 }
