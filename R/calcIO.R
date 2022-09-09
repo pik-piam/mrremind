@@ -66,7 +66,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5
-  data <- data["DEU",,]
+
   if (subtype == "output") {
 
     # These changes may reduce the amount of CHP plants to below what is actually
@@ -183,9 +183,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
              weights <- ieamatch %>%
                filter(item == .data$target) %>%
-               unite('product.flow', c('iea_product', 'iea_flows'),
-                     sep = '.', remove = FALSE) %>%
-               filter(.data$product.flow %in% getNames(data)) %>%
                pull('Weight') %>%
                as.numeric()
 
