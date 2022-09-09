@@ -107,13 +107,26 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     names_data_before <- getNames(data)
     data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
                                                       threshold = 1e-2)
-    # check that no dimensions not present in the mapping has been added to the
-    # data
-    if (!is_empty(setdiff(getNames(data), names_data_before))) {
-      stop('Product/flow combinations not present in mapping added by ',
+    # warn if dimensions not present in the mapping have been added to the data
+    new_product_flows <- tibble(
+      text = setdiff(getNames(data), names_data_before)) %>%
+      separate('text', c('product', 'flow'), sep = '\\.') %>%
+      anti_join(
+        ieamatch %>%
+          as_tibble() %>%
+          select(product = 'iea_product', flow = 'iea_flows'),
+
+        c('product', 'flow')
+      ) %>%
+      unite('text', c('product', 'flow'), sep = '.') %>%
+      pull('text')
+
+    if (!is_empty(new_product_flows)) {
+      warning('Product/flow combinations not present in mapping added by ',
            'fix_IEA_data_for_Industry_subsectors():\n',
-           paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
+           paste(new_product_flows, collapse = '\n'))
     }
+
     # FIXME remove product/flow combinations from the mapping that have been
     # removed from the data while replacing coke oven and blast furnace outputs
     ieamatch <- ieamatch %>%
@@ -146,10 +159,14 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                filter(item == .data$target) %>%
                unite('product.flow', c('iea_product', 'iea_flows'),
                      sep = '.') %>%
+               filter(.data$product.flow %in% getNames(data)) %>%
                pull('product.flow')
 
              weights <- ieamatch %>%
                filter(item == .data$target) %>%
+               unite('product.flow', c('iea_product', 'iea_flows'),
+                     sep = '.', remove = FALSE) %>%
+               filter(.data$product.flow %in% getNames(data)) %>%
                pull('Weight') %>%
                as.numeric()
 
