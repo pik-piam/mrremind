@@ -17,6 +17,7 @@
 #' @importFrom quitte cartesian character.data.frame interpolate_missing_periods
 #'   magclass_to_tibble seq_range
 #' @importFrom magclass mselect getItems getItems<-
+#' @importFrom zoo na.fill
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 
@@ -867,13 +868,33 @@ calcFEdemand <- function(subtype = "FE") {
           select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
                  subsector = 'Data2', value = 'Value') %>%
           character.data.frame() %>%
-        mutate(year = as.integer(.data$year)),
+          mutate(year = as.integer(.data$year)) %>%
+          # remove zero activity from historic data, to be extended backwards by
+          # first projection below
+          filter(!(0 == .data$value & 2020 >= .data$year)) %>%
+          verify(expr = .data$value != 0,
+                 description = 'No zero subsector activity after 2020'),
 
         GDP,
 
         c('iso3c', 'year', 'scenario')
       ) %>%
-      assert(not_na, everything())
+        # expand time series of per-GDP production back into time for
+        # non-existent production in historic periods (e.g. primary steel in
+        # NEN)
+        complete(nesting(!!!syms(c('iso3c', 'year', 'scenario', 'GDP'))),
+                 subsector = unique(.data$subsector),
+                 fill = list(value = NA_real_)) %>%
+        group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
+        mutate(
+          value = .data$GDP
+                * na.fill(object = .data$value / .data$GDP,
+                          fill = first(
+                            x = .data$value[!is.na(.data$value)]
+                              / .data$GDP[!is.na(.data$value)],
+                            order_by = .data$year[!is.na(.data$value)]))
+        ) %>%
+        ungroup()
 
       region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv',
                                           'regional') %>%
