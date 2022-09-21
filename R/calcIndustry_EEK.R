@@ -333,6 +333,38 @@ calcIndustry_EEK <- function(kap) {
            subsector = sub('^ue_', 'kap_', .data$subsector)) %>%
     select('iso3c', 'year', 'scenario', 'subsector', 'value')
 
+  # quick-fix to infeasible 2025 SSA kap_steel_primary ----
+  SSA_iso3c <- toolGetMapping('regionmappingH12.csv', 'regional') %>%
+    as_tibble() %>%
+    filter('SSA' == .data$RegionCode) %>%
+    pull('CountryCode')
+
+  EEK <- bind_rows(
+    EEK %>%
+      anti_join(
+        tibble(iso3c = SSA_iso3c,
+               year = 2025,
+               scenario = 'gdp_SSP5',
+               subsector = 'kap_steel_primary'),
+
+        c('iso3c', 'year', 'scenario', 'subsector')
+      ),
+
+    EEK %>%
+      semi_join(
+        tibble(crossing(iso3c = SSA_iso3c,
+                        year = c(2020, 2025, 2030)),
+               scenario = 'gdp_SSP5',
+               subsector = 'kap_steel_primary'),
+
+        c('iso3c', 'year', 'scenario', 'subsector')
+      ) %>%
+      group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
+      summarise(value = mean(.data$value),
+                year = 2025L,
+                .groups = 'drop')
+  )
+
   # return ----
   return(list(x = EEK %>%
                 as.magpie(spatial = 1, temporal = 2, data = ncol(.)),
