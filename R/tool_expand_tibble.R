@@ -18,10 +18,10 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
-#' @importFrom tidyselect
+#' @importFrom tidyselect all_of
 #'
-#' @example
-#'
+#' @examples
+#' \dontrun{
 #' tribble(
 #'   ~scenario,   ~region,   ~value,
 #'   NA,          NA,        0,
@@ -41,6 +41,7 @@
 #'   tool_expand_tibble(scenarios = c('SSP1', 'SSP2EU', 'SSP5'),
 #'                      regions = c('CHA', 'DEU', 'USA'),
 #'                      structure.columns = 'name')
+#' }
 
 #' @export
 tool_expand_tibble <- function(d, scenarios, regions,
