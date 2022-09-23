@@ -26,6 +26,7 @@
 #' @importFrom quitte add_countrycode_ madrat_mule
 #' @importFrom readr read_delim
 #' @importFrom readODS read_ods
+#' @importFrom readr read_rds
 #' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
 #' @importFrom tidyr pivot_longer
