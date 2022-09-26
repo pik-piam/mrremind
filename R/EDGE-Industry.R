@@ -1862,6 +1862,8 @@ d_plot_region_totals %>%
     mutate(GDPpC      = .data$GDP / .data$population,
            cement.PpC = .data$cement.production / .data$population)
 
+  last_cement_year <- max(data_cement_production$year)
+
   projected_cement_data <- left_join(
     projected_cement_data %>%
       select(-'GDPpC', -'cement.PpC') %>%
@@ -1876,11 +1878,11 @@ d_plot_region_totals %>%
     mutate(
       shift.factor = .data$data / .data$cement.production,
       shift.factor = ifelse(
-        between(.data$year, 2011, 2025),
-        1 + ( (last(na.omit(.data$shift.factor)) - 1)
-            * ((2025 - .data$year) / 14) ^ 2
+        between(.data$year, last_cement_year, last_cement_year + 14),
+        1 + ( ( last(na.omit(.data$shift.factor)) - 1)
+            * ((last_cement_year + 14 - .data$year) / 14) ^ 2
             ),
-        ifelse(2011 > .data$year, .data$shift.factor, 1)),
+        ifelse(last_cement_year > .data$year, .data$shift.factor, 1)),
       shift.factor = na.approx(object = .data$shift.factor, x = .data$year,
                                yleft = first(na.omit(.data$shift.factor)),
                                yright = last(na.omit(.data$shift.factor)),
