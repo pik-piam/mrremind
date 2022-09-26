@@ -17,6 +17,7 @@
 #' @importFrom quitte cartesian character.data.frame interpolate_missing_periods
 #'   magclass_to_tibble seq_range
 #' @importFrom magclass mselect getItems getItems<-
+#' @importFrom zoo na.fill
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE") {
 
@@ -299,16 +300,18 @@ calcFEdemand <- function(subtype = "FE") {
                  scenario = paste0('gdp_', scenario)),
 
         # load VA projections
-        readSource('EDGE_Industry', 'projections_VA_iso3c', convert = FALSE) %>%
-          as.data.frame() %>%
-          as_tibble() %>%
-          select(scenario = Data1, iso3c = Region, year = Year, sector = Data2,
-                 value = Value) %>%
-          filter(grepl('^gdp_SSP[12]$', scenario),
-                 'Total' != iso3c,
-                 as.character(year) %in% years) %>%
-          mutate(iso3c = as.character(iso3c),
-                 year = as.integer(as.character(year))) %>%
+        calcOutput(
+          type = 'Industry_Value_Added',
+          subtype = 'economic',
+          match.steel.historic.values = TRUE,
+          match.steel.estimates = 'IEA_ETP',
+          China_Production = readSource(type = 'ExpertGuess',
+                                        subtype = 'Chinese_Steel_Production',
+                                        convert = FALSE) %>%
+            madrat_mule(),
+          aggregate = FALSE, years = years, supplementary = FALSE) %>%
+          magclass_to_tibble() %>%
+          filter(grepl('^gdp_SSP(1|2EU)$', .data$scenario)) %>%
           group_by(scenario, iso3c, year) %>%
           summarise(value = sum(value), .groups = 'drop') %>%
           mutate(variable = 'VA') %>%
@@ -640,8 +643,8 @@ calcFEdemand <- function(subtype = "FE") {
       # ---- _modify SSP1/SSP2 data of CHN/IND further ----
       # To achieve projections more in line with local experts, apply tuning
       # factor f to liquids and gas consumption in industry in CHN and IND.
-      # Apply additional energy intensity reductions 2015-30, that are phased out
-      # halfway until 2040 again.
+      # Apply additional energy intensity reductions 2015-30, that are phased
+      # out halfway until 2040 again.
       # IEIR - initial energy intensity reduction [% p.a.] in 2016
       # FEIR - final energy intensity recovery [% p.a.] in 2040
       # The energy intensity reduction is cumulative over the 2016-40 interval
@@ -662,7 +665,8 @@ calcFEdemand <- function(subtype = "FE") {
         gather('scenario', 'value', matches('^gdp_SSP')) %>%
         spread('variable', 'value') %>%
         mutate(t = as.integer(2016)) %>%
-        # add missing combinations (neutral multiplication by 1) for easy joining
+        # add missing combinations (neutral multiplication by 1) for easy
+        # joining
         complete(crossing(!!sym('scenario'), !!sym('region'), !!sym('pf'),
                           !!sym('t')),
                  fill = list(IEIR = 0, FEIR = 0)) %>%
@@ -721,1015 +725,1106 @@ calcFEdemand <- function(subtype = "FE") {
       ## calculate *real* useful (i.e., motive) energy instead of
       ## fossil-fuel equivalents for light- and heavy-duty vehicles
       ## sources for TtW efficiencies:
-      ##  Cox, B., et al. (2020) Life cycle environmental and cost comparison of current and future passenger cars under different energy scenarios. Applied Energy2.
-      ## Sacchi, R., et al. (2020) carculator: an open-source tool for prospective environmental and economic life cycle assessment of vehicles. When, Where and How can battery-electric vehicles help reduce greenhouse gas emissions? Renewable and Sustainable Energy Reviews, submitted (in review). https://www.psi.ch/en/media/57994/download
+      ##  Cox, B., et al. (2020) Life cycle environmental and cost comparison of
+      ##  current and future passenger cars under different energy scenarios.
+      ##  Applied Energy2.
+      ## Sacchi, R., et al. (2020) carculator: an open-source tool for
+      ## prospective environmental and economic life cycle assessment of
+      ## vehicles. When, Where and How can battery-electric vehicles help reduce
+      ##  greenhouse gas emissions? Renewable and Sustainable Energy Reviews,
+      ##  submitted (in review). https://www.psi.ch/en/media/57994/download
 
       #reminditems[,, "ueLDVt"] <- reminditems[,, "ueLDVt"] * 0.22
       #reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
 
 
       # ---- Industry subsectors data and FE stubs ----
-    ## subsector activity projections ----
-    industry_subsectors_ue <- mbind(
-      calcOutput(
-        type = 'Industry_Value_Added',
-        match.steel.historic.values = TRUE,
-        match.steel.estimates = 'IEA_ETP',
-        China_Production = readSource(type = 'ExpertGuess',
-                                      subtype = 'Chinese_Steel_Production',
-                                      convert = FALSE) %>%
-          madrat_mule(),
-        aggregate = FALSE,
-        years = getYears(reminditems), supplementary = FALSE),
+      ## subsector activity projections ----
+      industry_subsectors_ue <- mbind(
+        calcOutput(
+          type = 'Industry_Value_Added',
+          match.steel.historic.values = TRUE,
+          match.steel.estimates = 'IEA_ETP',
+          China_Production = readSource(type = 'ExpertGuess',
+                                        subtype = 'Chinese_Steel_Production',
+                                        convert = FALSE) %>%
+            madrat_mule(),
+          aggregate = FALSE,
+          years = getYears(reminditems), supplementary = FALSE),
 
-      calcOutput(
-        type = 'Steel_Projections',
-        subtype = 'production',
-        match.steel.historic.values = TRUE,
-        match.steel.estimates = 'IEA_ETP',
-        China_Production = readSource(type = 'ExpertGuess',
-                                      subtype = 'Chinese_Steel_Production',
-                                      convert = FALSE) %>%
-          madrat_mule(),
-        aggregate = FALSE,
-        years = getYears(reminditems), supplementary = FALSE)
-    )
+        calcOutput(
+          type = 'Steel_Projections',
+          subtype = 'production',
+          match.steel.historic.values = TRUE,
+          match.steel.estimates = 'IEA_ETP',
+          China_Production = readSource(type = 'ExpertGuess',
+                                        subtype = 'Chinese_Steel_Production',
+                                        convert = FALSE) %>%
+            madrat_mule(),
+          aggregate = FALSE,
+          years = getYears(reminditems), supplementary = FALSE)
+      )
 
-    ## re-curve specific industry activity per unit GDP ----
-    GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE,
-                      years = getYears(reminditems), aggregate = FALSE,
-                      supplementary = FALSE) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
-             GDP = 'Value') %>%
-      character.data.frame() %>%
-      mutate(year = as.integer(.data$year))
-
-    ### fix missing GDP numbers ----
-    # (see https://github.com/pik-piam/mrdrivers/issues/40)
-    if (any(0 == GDP$GDP)) {
-      GDP_fuckup_point <- GDP %>%
-        filter(0 == .data$GDP) %>%
-        group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-        filter(min(.data$year) == .data$year) %>%
-        ungroup()
-
-      GDP_replacement_scenario <- setdiff(
-        unique(GDP$scenario),
-
-        GDP_fuckup_point %>%
-          pull('scenario') %>%
-          unique()
-      ) %>%
-        first()
-
-      GDP_fuckup_point <- GDP_fuckup_point %>%
-        group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-        mutate(base.year = getYears(reminditems, TRUE) %>%
-                 `[`(which(getYears(reminditems, TRUE) == !!sym('year')) - 1),
-               base.scenario = GDP_replacement_scenario) %>%
-        ungroup() %>%
-        select(-'GDP')
-
-      GDP_replacement <- full_join(
-        GDP %>%
-          semi_join(
-            GDP_fuckup_point,
-
-            c('iso3c', 'scenario')
-          ) %>%
-          left_join(
-            GDP_fuckup_point %>%
-              select('iso3c', 'scenario', 'base.year'),
-
-            c('iso3c', 'scenario')
-          ) %>%
-          filter(.data$year >= .data$base.year) %>%
-          select('iso3c', 'year', 'scenario', 'GDP'),
-
-        GDP %>%
-          semi_join(
-            GDP_fuckup_point,
-
-            c('iso3c', scenario = 'base.scenario')
-          ) %>%
-          left_join(
-            GDP_fuckup_point %>%
-              select('iso3c', 'base.year', scenario = 'base.scenario') %>%
-              distinct(),
-
-            c('iso3c', 'scenario')
-          ) %>%
-          filter(.data$year >= .data$base.year) %>%
-          select(-'base.year') %>%
-          group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-          mutate(factor = .data$GDP / lag(.data$GDP, default = first(.data$GDP),
-                                          order_by = .data$year)) %>%
-          ungroup() %>%
-          select('iso3c', 'year', 'factor'),
-
-        c('iso3c', 'year')
-      ) %>%
-        group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-        mutate(GDP = first(.data$GDP) * .data$factor) %>%
-        ungroup() %>%
-        select(all_of(colnames(GDP)))
-
-      GDP <- bind_rows(
-        GDP %>%
-          anti_join(
-            GDP_replacement,
-
-            c('iso3c', 'scenario', 'year')
-          ),
-
-        GDP_replacement
-      ) %>%
-        verify(expr = 0 < .data$GDP,
-               description = 'All GDP numbers > 0')
-    }
-
-    ### calculate specific material demand factors ----
-    foo <- full_join(
-      industry_subsectors_ue %>%
+      ## re-curve specific industry activity per unit GDP ----
+      GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE,
+                        years = getYears(reminditems), aggregate = FALSE,
+                        supplementary = FALSE) %>%
         as.data.frame() %>%
         as_tibble() %>%
         select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
-               subsector = 'Data2', value = 'Value') %>%
+               GDP = 'Value') %>%
         character.data.frame() %>%
-        mutate(year = as.integer(.data$year)),
+        mutate(year = as.integer(.data$year))
 
-       GDP,
+      ### fix missing GDP numbers ----
+      # (see https://github.com/pik-piam/mrdrivers/issues/40)
+      if (any(0 == GDP$GDP)) {
+        GDP_fuckup_point <- GDP %>%
+          filter(0 == .data$GDP) %>%
+          group_by(!!!syms(c('iso3c', 'scenario'))) %>%
+          filter(min(.data$year) == .data$year) %>%
+          ungroup()
 
-      c('iso3c', 'year', 'scenario')
-    ) %>%
-      assert(not_na, everything())
+        GDP_replacement_scenario <- setdiff(
+          unique(GDP$scenario),
 
-    region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv',
-                                        'regional') %>%
-      as_tibble() %>%
-      select(iso3c = 'CountryCode', region = 'RegionCode')
-
-    industry_subsectors_material_alpha <- calcOutput(
-      type = 'industry_subsectors_specific', subtype = 'material_alpha',
-      scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
-                    'gdp_SSP2_lowEn'),
-      regions = unique(region_mapping_21$region),
-      aggregate = FALSE
-    ) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
-             name = 'Data4', value = 'Value') %>%
-      character.data.frame() %>%
-      pivot_wider() %>%
-      mutate(subsector = paste0('ue_', .data$subsector))
-
-    industry_subsectors_material_relative <- calcOutput(
-      type = 'industry_subsectors_specific', subtype = 'material_relative',
-      scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
-                    'gdp_SSP2_lowEn'),
-      regions = unique(region_mapping_21$region),
-      aggregate = FALSE
-    ) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
-             subsector = 'Data4', name = 'Data5', value = 'Value') %>%
-      character.data.frame() %>%
-      pivot_wider() %>%
-      mutate(subsector = paste0('ue_', .data$subsector))
-
-    industry_subsectors_material_relative_change <- calcOutput(
-      type = 'industry_subsectors_specific',
-      subtype = 'material_relative_change',
-      scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
-                    'gdp_SSP2_lowEn'),
-      regions = unique(region_mapping_21$region),
-      aggregate = FALSE
-    ) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
-             subsector = 'Data4', name = 'Data5', value = 'Value') %>%
-      character.data.frame() %>%
-      pivot_wider() %>%
-      mutate(subsector = paste0('ue_', .data$subsector))
-
-    bind_rows(
-      industry_subsectors_material_alpha %>%
-        select('scenario', 'region', 'subsector'),
-
-      industry_subsectors_material_relative %>%
-        select('scenario', 'region', 'subsector'),
-
-      industry_subsectors_material_relative_change %>%
-        select('scenario', 'region', 'subsector')
-    ) %>%
-      group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>%
-      summarise(count = n(), .groups = 'drop') %>%
-      verify(expr = 1 == count,
-             error_fun = function(errors, data) {
-               stop('Industry specific material is over-specified for:\n',
-                    paste(
-                      format(data[errors[[1]]$error_df$index,],
-                             width = 80,
-                             n = errors[[1]]$num.violations),
-                      collapse = '\n'))
-             })
-
-    foo2 <- bind_rows(
-      # SSP2EU is the default scenario
-      foo %>%
-        filter('gdp_SSP2EU' == .data$scenario),
-
-      # these scenarios are pegged to SSP2EU
-      industry_subsectors_material_alpha %>%
-        full_join(
-          full_join(
-            foo %>%
-              filter('gdp_SSP2EU' == .data$scenario) %>%
-              # keep specific production constant for historic years without
-              # production
-              group_by(!!!syms(c('iso3c', 'subsector'))) %>%
-              mutate(specific.production = .data$value / .data$GDP,
-                     specific.production = ifelse(
-                       0 != .data$value, .data$specific.production,
-                       first(.data$specific.production[0 != .data$value],
-                             order_by = .data$year))) %>%
-              ungroup() %>%
-              select('iso3c', 'year', 'subsector', 'specific.production') %>%
-              interpolate_missing_periods_(
-                periods = list(year = seq_range(range(.$year))),
-                value = 'specific.production',
-                method = 'linear'),
-
-            # mark years which have no historic production so that we can set
-            # them to 0 once we calculated future production for the new
-            # scenarios
-            foo %>%
-              filter('gdp_SSP2EU' == .data$scenario) %>%
-              mutate(fake.value = 0 == .data$value) %>%
-              select('iso3c', 'year', 'subsector', 'fake.value') %>%
-              interpolate_missing_periods_(
-                periods = list(year = seq_range(range(.$year))),
-                value = 'fake.value',
-                method = 'linear') %>%
-              mutate(fake.value = 0 != .data$fake.value),
-
-            c('iso3c', 'year', 'subsector')
-          ) %>%
-            full_join(region_mapping_21, 'iso3c'),
-
-          c('region', 'subsector')
+          GDP_fuckup_point %>%
+            pull('scenario') %>%
+            unique()
         ) %>%
-        group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>%
-        mutate(
-          # alpha factors converge linearly towards zero over the convergence
-          # time
-          conv.fctr = 1 - pmin(1, ( (.data$year - 2015)
-                                    / .data$convergence_time)),
-          alpha.conv = ifelse(2015 >= .data$year, 1,
-                              1 - .data$alpha * .data$conv.fctr),
-          # specific production is scaled with the cumulated converged alpha
-          # factors
-          cum.fctr = cumprod(.data$alpha.conv),
-          specific.production = ifelse(
-              2015 >= .data$year, .data$specific.production,
-              ( .data$specific.production[2015 == .data$year]
-              * .data$cum.fctr
-              ))
-              # ensure that years without historic production are 0
-            * (1 - .data$fake.value)) %>%
-        ungroup() %>%
-        select('region', 'iso3c', 'year', 'scenario', 'subsector',
-               'specific.production') %>%
-        filter(.data$year %in% unique(foo$year)) %>%
-        left_join(
-          bind_rows(
-            foo,
+          first()
 
-            foo %>%
-              filter('gdp_SSP2EU' == .data$scenario) %>%
-              mutate(scenario = 'gdp_SSP2_lowEn')
-          ),
+        GDP_fuckup_point <- GDP_fuckup_point %>%
+          group_by(!!!syms(c('iso3c', 'scenario'))) %>%
+          mutate(base.year = getYears(reminditems, TRUE) %>%
+                   `[`(which(getYears(reminditems, TRUE) == !!sym('year')) - 1),
+                 base.scenario = GDP_replacement_scenario) %>%
+          ungroup() %>%
+          select(-'GDP')
 
-          c('scenario', 'subsector', 'iso3c', 'year')
-        ) %>%
-        mutate(value = .data$specific.production * .data$GDP) %>%
-        select(all_of(colnames(foo))) %>%
-        assert(not_na, everything())
-    )
-
-    foo3 <- bind_rows(
-      foo2,
-
-      # specific production relative to base scenario
-      industry_subsectors_material_relative %>%
-        left_join(
-          foo2 %>%
-            mutate(specific.production = .data$value / .data$GDP) %>%
-            select(base.scenario = 'scenario', 'subsector', 'iso3c', 'year',
-                   'specific.production') %>%
-            full_join(region_mapping_21, 'iso3c'),
-
-          c('base.scenario', 'region', 'subsector')
-        ) %>%
-        left_join(
-          foo %>%
-            select('scenario', 'subsector', 'iso3c', 'year', 'GDP', 'value'),
-
-          c('scenario', 'subsector', 'iso3c', 'year')
-        ) %>%
-        assert(not_na, everything()) %>%
-        # scale factor in from 2015-30
-        mutate(l = pmin(1, pmax(0, (.data$year - 2015) / (2030 - 2015))),
-               value = .data$specific.production
-                     * .data$GDP
-                     * (.data$factor * .data$l + 1 * (1 - .data$l))) %>%
-        select(all_of(colnames(foo))),
-
-      # changes of specific production relative to base scenario
-      full_join(
-        # base scenario data
-        foo %>%
-          rename(base.scenario = 'scenario') %>%
-          semi_join(
-            industry_subsectors_material_relative_change,
-
-            c('base.scenario', 'subsector')
-          ) %>%
-          full_join(region_mapping_21, 'iso3c'),
-
-        # change parameters
-        industry_subsectors_material_relative_change,
-
-        c('base.scenario', 'region', 'subsector')
-      ) %>%
-        select('scenario', 'iso3c', 'region', 'subsector', 'year',
-               base.value = 'value', base.GDP = 'GDP', 'factor') %>%
-        # GDP trajectories of target scenarios
-        left_join(
-          foo %>%
-            select('scenario', 'iso3c', 'subsector', 'year', 'GDP'),
-
-          c('scenario', 'iso3c', 'subsector', 'year')
-        ) %>%
-        group_by(!!!syms(c('scenario', 'iso3c', 'subsector'))) %>%
-        mutate(
-          # specific production of base scenarios
-          base.specific.production = .data$base.value / .data$base.GDP,
-          # change in specific production of base scenarios relative to 2015
-          base.change = ( .data$base.specific.production
-                        / .data$base.specific.production[2015 == .data$year]),
-          # modified change of target scenarios
-          # If base change is below (above) 1, i.e. material efficiency is
-          # improving (deteriorating), efficiency gains (losses) are halved
-          # (doubled).  Changes of historic values (i.e. before 2015) are
-          # identical to base scenario.  Not finite changes (e.g. division by
-          # zero) lead to constant values.
-          change = case_when(
-            !is.finite(.data$base.change) ~ 1,
-            2015 >= .data$year ~ .data$base.change,
-            TRUE ~  ( ( (.data$base.change - 1)
-                      * .data$factor ^ sign(1 - .data$base.change)
-                      )
-                    + 1)),
-          specific.production =
-            ( .data$base.specific.production[2015 == .data$year]
-            * .data$change
-            ),
-          value = ifelse(!is.finite(.data$base.change),
-                         .data$base.value,
-                         .data$specific.production * .data$GDP)) %>%
-        ungroup() %>%
-        select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP')
-    )
-
-    industry_subsectors_ue <- foo3 %>%
-      select('iso3c', 'year', 'scenario', pf = 'subsector', 'value') %>%
-      as.magpie(spatial = 1, temporal = 2, data = ncol(.))
-
-    ## subsector FE shares ----
-    . <- NULL
-
-    ### get 1993-2015 industry FE ----
-    industry_subsectors_en <- calcOutput(type = 'IO',
-                                         subtype = 'output_Industry_subsectors',
-                                         aggregate = FALSE) %>%
-      # convert to data frame
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(iso3c = 'Region', year = 'Year', pf = 'Data2',
-             value = 'Value') %>%
-      character.data.frame() %>%
-      mutate(year = as.integer(as.character(.data$year))) %>%
-      # get 1993-2020 industry FE data
-      filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', .data$pf),
-             between(.data$year, 1993, 2020)) %>%
-      # sum up fossil and bio SE (which produce the same FE), aggregate regions
-      full_join(region_mapping_21, 'iso3c') %>%
-      group_by(!!!syms(c('year', 'region', 'pf'))) %>%
-      summarise(value = sum(.data$value), .groups = 'drop') %>%
-      # split feel steel into primary and secondary production
-      left_join(
-        industry_subsectors_ue[,,'ue_steel', pmatch = TRUE] %>%
-          as.data.frame() %>%
-          as_tibble() %>%
-          select(iso3c = 'Region', scenario = 'Data1', year = 'Year',
-                 subsector = 'Data2', production = 'Value') %>%
-          filter('gdp_SSP2' == .data$scenario) %>%
-          select(-'scenario') %>%
-          # aggregate regions
-          full_join(region_mapping_21, 'iso3c') %>%
-          group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
-          summarise(production = sum(.data$production), .groups = 'drop') %>%
-          mutate(year      = as.integer(as.character(.data$year)),
-                 pf        = 'feel_steel',
-                 subsector = sub('_production$', '', .data$subsector)) %>%
-          pivot_wider(names_from = 'subsector', values_from = 'production'),
-
-        c('region', 'year', 'pf')
-      ) %>%
-      group_by(!!!syms(c('year', 'region', 'pf'))) %>%
-      # if there was no historic steel production, but feel_steel was allocated,
-      # assume primary and secondary production to be identical
-      mutate(
-        foo = .data$ue_steel_primary + .data$ue_steel_secondary,
-        ue_steel_primary   = ifelse(0 == .data$foo, 1, .data$ue_steel_primary),
-        ue_steel_secondary = ifelse(0 == .data$foo, 1, .data$ue_steel_secondary)
-      ) %>%
-      select(-'foo') %>%
-      # assume that secondary steel production is nine times as electricity
-      # intensive (not energy intensive!) as primary production, since
-      # detailed data is missing so far
-      mutate(feel_steel_secondary =
-                 (9 * .data$ue_steel_secondary * .data$value)
-               / (9 * .data$ue_steel_secondary + .data$ue_steel_primary),
-             feel_steel_primary = .data$value - .data$feel_steel_secondary) %>%
-      ungroup() %>%
-      select(-'ue_steel_primary', -'ue_steel_secondary') %>%
-      pivot_wider(names_from = 'pf') %>%
-      select(-'feel_steel') %>%
-      pivot_longer(matches('^fe.*'), names_to = 'pf', values_drop_na = TRUE)
-
-    # can be removed once feelwlth is replaced by feel in all mappings for
-    # calcIO()
-    industry_subsectors_en <- industry_subsectors_en %>%
-      mutate(pf = sub('^feelwlth_', 'feel_', .data$pf))
-
-    ### extend to 2020 using WEO 2021 data ----
-    IEA_WEO_2021_ref_year <- 2020L
-    last_industry_subsectors_en_year <- max(industry_subsectors_en$year)
-    if (IEA_WEO_2021_ref_year > last_industry_subsectors_en_year) {
-      industry_subsectors_en <- bind_rows(
-        industry_subsectors_en,
-
-        inner_join(
-          industry_subsectors_en %>%
-            filter(2010 == .data$year),
-
-          readSource(type = 'IEA_WEO_2021', subtype = 'region',
-                     convert = TRUE) %>%
-            magclass_to_tibble(c('iso3c', 'year', 'scenario', 'variable',
-                                 'industry.FE')) %>%
-            filter(.data$year %in% c(2010, IEA_WEO_2021_ref_year),
-                   'Stated Policies Scenario' == .data$scenario,
-                   'Energy-Total-Industry (EJ)' == .data$variable) %>%
-            left_join(region_mapping_21, 'iso3c') %>%
-            group_by(!!!syms(c('region', 'year'))) %>%
-            summarise(industry.FE = sum(.data$industry.FE, na.rm = TRUE),
-                      .groups = 'drop_last') %>%
-            summarise(change = last(.data$industry.FE, order_by = .data$year)
-                             / first(.data$industry.FE, order_by = .data$year),
-                      .groups = 'drop'),
-
-          'region'
-        ) %>%
-          mutate(value = .data$value * .data$change,
-                 year  = IEA_WEO_2021_ref_year) %>%
-          select(-'change')
-      ) %>%
-        pivot_wider(names_from = 'year') %>%
-        mutate(`2015` = ( !!sym('2010')
-                        + !!sym('2015')
-                        + !!sym(as.character(IEA_WEO_2021_ref_year))
-                        )
-                      / 3) %>%
-        pivot_longer(matches('^[0-9]*$'), names_to = 'year',
-                     names_transform = list(year = as.integer)) %>%
-        interpolate_missing_periods_(
-          periods = list(year = seq_range(range(.$year)))) %>%
-        assert(not_na, everything()) %>%
-        verify(is.finite(.data$value))
-
-      FE_alpha_mod <- 0.9   # found by fiddling around
-    } else {
-      FE_alpha_mod <- 1
-    }
-
-    ### calculate 1993-2020 industry subsector FE shares ----
-    industry_subsectors_en_shares <- industry_subsectors_en %>%
-      mutate(subsector = sub('^[^_]+_', '', .data$pf),
-             subsector = ifelse('steel' == .data$subsector, 'steel_primary',
-                                .data$subsector)) %>%
-      group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
-      mutate(share = .data$value / sum(.data$value),
-             share = ifelse(is.finite(.data$share), .data$share, 0)) %>%
-      ungroup() %>%
-      select(-'value')
-
-    failed_share_sum <- industry_subsectors_en_shares %>%
-      group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
-      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
-
-    if (any(failed_share_sum$failed)) {
-      stop('industry_subsectors_en_shares don\'t add up to 1.')
-    }
-
-    ### future subsector FE shares from IEA ETP 2017 ----
-    IEA_ETP_Ind_FE_shares <- readSource('IEA_ETP', 'industry', convert = FALSE) %>%
-      # filter for OECD and Non-OECD regions and RTS scenario
-      `[`(c('OECD', 'Non-OECD'),,'RTS', pmatch = 'left') %>%
-      # convert to data frame
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(region = 'Region', year = 'Year', variable = 'Data2',
-             value = 'Value') %>%
-      character.data.frame() %>%
-      mutate(year = as.integer(as.character(.data$year))) %>%
-      # filter for future data
-      filter(max(industry_subsectors_en$year) < .data$year) %>%
-      # rename variables
-      right_join(
-        tribble(
-          ~subsector,    ~fety,    ~variable,
-          'cement',      'feso',   'Industry|Cement - final energy consumption|Coal',
-          'cement',      'feso',   'Industry|Cement - final energy consumption|Biomass',
-          'cement',      'feso',   'Industry|Cement - final energy consumption|Waste',
-          'cement',      'feso',   'Industry|Cement - final energy consumption|Other renewables',
-          'cement',      'feli',   'Industry|Cement - final energy consumption|Oil',
-          'cement',      'fega',   'Industry|Cement - final energy consumption|Natural gas',
-          'cement',      'feel',   'Industry|Cement - final energy consumption|Electricity',
-
-          'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Coal',
-          'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Biomass',
-          'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Waste',
-          'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Other renewables',
-          'chemicals',   'feli',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Oil',
-          'chemicals',   'fega',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Natural gas',
-          'chemicals',   'feel',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Electricity',
-
-          'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Coal',
-          'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Biomass',
-          'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Waste',
-          'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Other renewables',
-          'steel',       'feli',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Oil',
-          'steel',       'fega',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Natural gas',
-          'steel',       'feel',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Electricity',
-
-          'total',       'feso',   'Industry|Total industry final energy consumption|Coal',
-          'total',       'feso',   'Industry|Total industry final energy consumption|Biomass',
-          'total',       'feso',   'Industry|Total industry final energy consumption|Waste',
-          'total',       'feso',   'Industry|Total industry final energy consumption|Other renewables',
-          'total',       'feli',   'Industry|Total industry final energy consumption|Oil',
-          'total',       'fega',   'Industry|Total industry final energy consumption|Natural gas',
-          'total',       'fehe',   'Industry|Total industry final energy consumption|Heat',
-          'total',       'feel',   'Industry|Total industry final energy consumption|Electricity'),
-
-        'variable'
-      ) %>%
-      # drop 2055/OECD/Chemicals as the data is faulty
-      filter(!(  'OECD' == .data$region
-               & 2055 == .data$year
-               & 'chemicals' == .data$subsector)) %>%
-      # aggregate by subsector and fety
-      group_by(!!!syms(c('region', 'year', 'subsector', 'fety'))) %>%
-      summarise(value = sum(.data$value), .groups = 'drop') %>%
-      # fill 2055/OECD/Chemicals gap with interpolated data
-      complete(nesting(!!!syms(c('region', 'subsector', 'fety'))),
-               year = unique(.data$year)) %>%
-      interpolate_missing_periods_(
-        periods = list(year = unique(.$year))) %>%
-      # calculate otherInd as total - cement - chemicals - steel
-      pivot_wider(names_from = 'subsector', values_fill = 0) %>%
-      mutate(otherInd = .data$total
-                      - (.data$cement + .data$chemicals + .data$steel)) %>%
-      select(-'total') %>%
-      pivot_longer(c('cement', 'chemicals', 'steel', 'otherInd'),
-                   names_to = 'subsector') %>%
-      filter(0 != .data$value) %>%
-      # calculate share
-      group_by(!!!syms(c('region', 'year', 'subsector'))) %>%
-      mutate(share = .data$value / sum(.data$value)) %>%
-      ungroup() %>%
-      select(-'value')
-
-    ### split feel shares and extend to SSP scenarios ----
-    IEA_ETP_Ind_FE_shares <- bind_rows(
-      # all pf that don't need splitting
-      IEA_ETP_Ind_FE_shares %>%
-        semi_join(
-          industry_subsectors_en %>%
-            distinct(.data$pf) %>%
-            separate('pf', c('fety', 'subsector'), sep = '_',
-                     extra = 'merge'),
-
-          c('fety', 'subsector')
-        ) %>%
-        unite('pf', c('fety', 'subsector'), sep = '_') %>%
-        # extend to SSP scenarios
-        mutate(scenario = 'gdp_SSP1') %>%
-        complete(nesting(!!sym('year'), !!sym('region'), !!sym('pf'),
-                         !!sym('share')),
-                 scenario = unique(sub('\\..*$', '',
-                                       getNames(industry_subsectors_ue)))),
-
-      # split feel_steel into primary and secondary steel
-      IEA_ETP_Ind_FE_shares %>%
-        filter('feel' == .data$fety, 'steel' == .data$subsector) %>%
-        select(-'fety', -'subsector') %>%
-        inner_join(
-          industry_subsectors_ue %>%
-            `[`(,,'ue_steel_', pmatch = TRUE) %>%
-            as.data.frame() %>%
-            as_tibble() %>%
-            select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
-                   pf = 'Data2', value = 'Value') %>%
-            character.data.frame() %>%
-            mutate(year = as.integer(as.character(.data$year))) %>%
-            inner_join(
-              toolGetMapping(name = 'regionmappingOECD.csv',
-                             type = 'regional') %>%
-                as_tibble() %>%
-                select(iso3c = 'CountryCode', region = 'RegionCode'),
-
-              'iso3c'
+        GDP_replacement <- full_join(
+          GDP %>%
+            semi_join(
+              GDP_fuckup_point,
+              c('iso3c', 'scenario')
             ) %>%
-            group_by(!!!syms(c('region', 'year', 'scenario', 'pf'))) %>%
-            summarise(value = sum(.data$value), .groups = 'drop'),
+            left_join(
+              GDP_fuckup_point %>%
+                select('iso3c', 'scenario', 'base.year'),
 
-          c('region', 'year')
+              c('iso3c', 'scenario')
+            ) %>%
+            filter(.data$year >= .data$base.year) %>%
+            select('iso3c', 'year', 'scenario', 'GDP'),
+
+          GDP %>%
+            semi_join(
+              GDP_fuckup_point,
+
+              c('iso3c', scenario = 'base.scenario')
+            ) %>%
+            left_join(
+              GDP_fuckup_point %>%
+                select('iso3c', 'base.year', scenario = 'base.scenario') %>%
+                distinct(),
+
+              c('iso3c', 'scenario')
+            ) %>%
+            filter(.data$year >= .data$base.year) %>%
+            select(-'base.year') %>%
+            group_by(!!!syms(c('iso3c', 'scenario'))) %>%
+            mutate(factor = .data$GDP / lag(.data$GDP, default = first(.data$GDP),
+                                            order_by = .data$year)) %>%
+            ungroup() %>%
+            select('iso3c', 'year', 'factor'),
+
+          c('iso3c', 'year')
         ) %>%
-        pivot_wider(names_from = 'pf') %>%
-        # as above, assume that secondary steel production is nine times as
-        # electricity intensive (not energy intensive!) as primary production,
-        # since detailed data is missing so far
-        # reduce primary steel electricity share accordingly; secondary steel
-        # electricity share is 1 since only electricity is assumed to be used
-        mutate(
-          feel_steel_primary
-          = .data$share
-          - ( (9 * .data$ue_steel_secondary * .data$share)
-            / (9 * .data$ue_steel_secondary + .data$ue_steel_primary)
-          ),
-          feel_steel_secondary = 1) %>%
-        select(-'share', -'ue_steel_primary', -'ue_steel_secondary') %>%
-        pivot_longer(c('feel_steel_primary', 'feel_steel_secondary'),
-                     names_to = 'pf', values_to = 'share')
-    )
+          group_by(!!!syms(c('iso3c', 'scenario'))) %>%
+          mutate(GDP = first(.data$GDP) * .data$factor) %>%
+          ungroup() %>%
+          select(all_of(colnames(GDP)))
 
-    ### extend time horizon and convert regions ----
-    IEA_ETP_Ind_FE_shares <- IEA_ETP_Ind_FE_shares %>%
-      mutate(subsector = sub('^[^_]+_', '', .data$pf),
-             subsector = ifelse('steel' == .data$subsector, 'steel_primary',
-                                .data$subsector)) %>%
-      interpolate_missing_periods_(
-        periods = list(year = unique(pmax(min(IEA_ETP_Ind_FE_shares$year),
-                                          getYears(reminditems,
-                                                   as.integer = TRUE)))),
-        value = 'share',
-        expand.values = TRUE) %>%
-      inner_join(
-        toolGetMapping(name = 'regionmappingOECD.csv',
-                       type = 'regional') %>%
-          as_tibble() %>%
-          select(iso3c = 'CountryCode', region = 'RegionCode'),
+        GDP <- bind_rows(
+          GDP %>%
+            anti_join(
+              GDP_replacement,
 
-        'region'
-      ) %>%
-      select('scenario', 'iso3c', period = 'year', 'pf', 'subsector',
-             'share') %>%
-      # weight by subsector activity
-      left_join(
+              c('iso3c', 'scenario', 'year')
+            ),
+
+          GDP_replacement
+        ) %>%
+          verify(expr = 0 < .data$GDP,
+                 description = 'All GDP numbers > 0')
+      }
+
+      ### calculate specific material demand factors ----
+      foo <- full_join(
         industry_subsectors_ue %>%
           as.data.frame() %>%
           as_tibble() %>%
-          select(iso3c = 'Region', period = 'Year', scenario = 'Data1',
-                 subsector = 'Data2', activity = 'Value') %>%
+          select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
+                 subsector = 'Data2', value = 'Value') %>%
           character.data.frame() %>%
-          mutate(period = as.integer(as.character(.data$period)),
-                 subsector = sub('^ue_', '', .data$subsector)),
+          mutate(year = as.integer(.data$year)) %>%
+          # remove zero activity from historic data, to be extended backwards by
+          # first projection below
+          filter(!(0 == .data$value & 2020 >= .data$year)) %>%
+          verify(expr = .data$value != 0,
+                 description = 'No zero subsector activity after 2020'),
 
-        c('scenario', 'iso3c', 'period', 'subsector')
+        GDP,
+
+        c('iso3c', 'year', 'scenario')
       ) %>%
-      full_join(region_mapping_21, 'iso3c') %>%
-      group_by(
-        !!!syms(c('scenario', 'region', 'period', 'subsector', 'pf'))) %>%
-      summarise(
-        share = ifelse(0 == sum(.data$activity),
-                       0,
-                       sum(.data$share * .data$activity) / sum(.data$activity)),
-        .groups = 'drop_last') %>%
-      # re-normalise shares
-      mutate(share = case_when(
-        0 == sum(.data$share) ~ 1 / n(),
-        TRUE                  ~ .data$share / sum(.data$share))) %>%
-      verify(expr = is.finite(.data$share),
-             description = paste('Finite IEA ETP industry FE shares after time',
-                                 'horizon extension.')) %>%
-      ungroup()
+        # expand time series of per-GDP production back into time for
+        # non-existent production in historic periods (e.g. primary steel in
+        # NEN)
+        complete(nesting(!!!syms(c('iso3c', 'year', 'scenario', 'GDP'))),
+                 subsector = unique(.data$subsector),
+                 fill = list(value = NA_real_)) %>%
+        group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
+        mutate(
+          value = .data$GDP
+                * na.fill(object = .data$value / .data$GDP,
+                          fill = first(
+                            x = .data$value[!is.na(.data$value)]
+                              / .data$GDP[!is.na(.data$value)],
+                            order_by = .data$year[!is.na(.data$value)]))
+        ) %>%
+        ungroup()
 
-    ### combine historic and future industry FE shares ----
-    industry_subsectors_en_shares <- inner_join(
-      industry_subsectors_en_shares %>%
-        mutate(scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
-        complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
-                 scenario = unique(IEA_ETP_Ind_FE_shares$scenario)) %>%
-        interpolate_missing_periods_(
-          periods = list(year = unique(c(industry_subsectors_en_shares$year,
-                                         getYears(reminditems,
-                                                  as.integer = TRUE)))),
-          value = 'share',
-          expand.values = TRUE) %>%
-        select('scenario', 'year', 'region', 'pf', 'subsector',
-               share.hist = 'share') %>%
-        # re-normalise steel_primary to extended feel_steel_primary
-        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
-        mutate(share.hist = .data$share.hist / sum(.data$share.hist)) %>%
-        ungroup(),
+      region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv',
+                                          'regional') %>%
+        as_tibble() %>%
+        select(iso3c = 'CountryCode', region = 'RegionCode')
 
-      IEA_ETP_Ind_FE_shares %>%
-        interpolate_missing_periods_(
-          periods = list(period = unique(c(industry_subsectors_en_shares$year,
-                                           getYears(reminditems,
-                                                    as.integer = TRUE)))),
-          value = 'share',
-          expand.values = TRUE) %>%
-        select('scenario', year = 'period', 'region', 'pf', 'subsector',
-               share.future  = 'share'),
-
-      c('scenario', 'year', 'region', 'pf', 'subsector')
-    ) %>%
-      mutate(foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
-             share = .data$share.hist * (1 - .data$foo)
-                   + .data$share.future * .data$foo,
-             subsector = ifelse('steel' == .data$subsector,
-                                'steel_primary', .data$subsector)) %>%
-      verify(expr = is.finite(.data$share),
-             description = paste('Finite industry FE shares after combining',
-                                 'historic and future values')) %>%
-      select(-'foo', -'share.hist', -'share.future')
-
-    failed_share_sum <- industry_subsectors_en_shares %>%
-      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
-      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
-
-    if (any(failed_share_sum$failed)) {
-      stop('industry_subsectors_en_shares don\'t add up to 1.')
-    }
-
-    ### extend to H2 and HTH_el shares ----
-    feh2_share_in_fega <- 0.3
-    # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from 2020
-    # to 2050 and are constant afterwards
-    industry_subsectors_en_shares <- bind_rows(
-      industry_subsectors_en_shares %>%
-        filter(!grepl('^fega', .data$pf)),
-
-      industry_subsectors_en_shares %>%
-      filter(grepl('^fega', .data$pf)) %>%
-      extract('pf', c('pf.fety', 'pf.subsector'), '^([^_]*)_(.*)') %>%
-      complete(nesting(!!!syms(setdiff(colnames(.), 'pf.fety'))),
-               pf.fety = c('fega', 'feh2')) %>%
-      pivot_wider(names_from = 'pf.fety', values_from = 'share') %>%
-      mutate(feh2 = pmin(feh2_share_in_fega,
-                         pmax(0.01,
-                                feh2_share_in_fega
-                              * (.data$year - 2020) / (2050 - 2020)))
-                  * .data$fega,
-             fega = .data$fega - .data$feh2) %>%
-      pivot_longer(c('fega', 'feh2'), names_to = 'pf.fety',
-                   values_to = 'share') %>%
-      unite('pf', c('pf.fety', 'pf.subsector'), sep = '_')
-    )
-
-    feelhth_share_in_fuel <- 0.08
-    # HTH_el shares grow linearly from 0.1 % to feelhth_share_in_fuel of all FE
-    # but feel from 2020 to 2050 and are constant afterwards
-    industry_subsectors_en_shares <- bind_rows(
-      # subsectors w/o HTH_el
-      industry_subsectors_en_shares %>%
-        filter(!.data$subsector %in% c('chemicals', 'otherInd')),
-
-      # WLTH_el
-      industry_subsectors_en_shares %>%
-        filter(.data$subsector %in% c('chemicals', 'otherInd'),
-               grepl('^feel', .data$pf)) %>%
-        mutate(pf = sub('^feel_', 'feelwlth_', .data$pf)),
-
-      # HTH_el based on share of fuels
-      industry_subsectors_en_shares %>%
-        filter(.data$subsector %in% c('chemicals', 'otherInd'),
-               !grepl('^feel', .data$pf)) %>%
-        mutate(pf = sub('(_[^_]+)$', '', .data$pf)) %>%
-        group_by(!!!syms(setdiff(colnames(.), c('pf', 'share')))) %>%
-        mutate(feelhth = pmin(feelhth_share_in_fuel,
-                              pmax(0.01,
-                                     feelhth_share_in_fuel
-                                   * (.data$year - 2020) / (2050 - 2020)))
-                       * sum(.data$share),
-               share = .data$share
-                     / sum(.data$share)
-                     * (sum(.data$share) - .data$feelhth)) %>%
-        ungroup() %>%
-        pivot_wider(names_from = 'pf', values_from = 'share') %>%
-        pivot_longer(c(-'scenario', -'year', -'region', -'subsector'),
-                     names_to = 'pf', values_to = 'share',
-                     values_drop_na = TRUE) %>%
-        mutate(pf = paste(.data$pf, .data$subsector, sep = '_'))
-    )
-
-    failed_share_sum <- industry_subsectors_en_shares %>%
-      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
-      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
-
-    if (any(failed_share_sum$failed)) {
-      stop('industry_subsectors_en_shares don\'t add up to 1.')
-    }
-
-    ### calculate industry total FE level ----
-    # scale industry subsector total FE by subsector activity and exogenous
-    # energy efficiency gains
-
-    specific_FE_limits <- readSource(type = 'ExpertGuess',
-                                     subtype = 'industry_specific_FE_limits',
-                                     convert = FALSE) %>%
-      madrat_mule()
-
-    industry_subsectors_specific_FE <- calcOutput(
-      type = 'industry_subsectors_specific', subtype = 'FE',
-      scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
-                    'gdp_SSP2_lowEn'),
-      regions = unique(region_mapping_21$region),
-      aggregate = FALSE
-    ) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
-             name = 'Data4', value = 'Value') %>%
-      character.data.frame() %>%
-      pivot_wider() %>%
-      mutate(alpha = .data$alpha * FE_alpha_mod)
-
-    industry_subsectors_specific_energy <- inner_join(
-      industry_subsectors_en %>%
-        mutate(subsector = sub('^[^_]+_', '', .data$pf),
-               subsector = ifelse('steel' == .data$subsector, 'steel_primary',
-                                  .data$subsector),
-               scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
-        # extend to SSP scenarios
-        complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
-                 scenario = unique(industry_subsectors_en_shares$scenario)) %>%
-        group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>%
-        summarise(value = sum(.data$value), .groups = 'drop'),
-
-      industry_subsectors_ue %>%
+      industry_subsectors_material_alpha <- calcOutput(
+        type = 'industry_subsectors_specific', subtype = 'material_alpha',
+        scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
+                      'gdp_SSP2_lowEn'),
+        regions = unique(region_mapping_21$region),
+        aggregate = FALSE
+      ) %>%
         as.data.frame() %>%
         as_tibble() %>%
-        select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
-               pf = 'Data2', level = 'Value') %>%
+        select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
+               name = 'Data4', value = 'Value') %>%
+        character.data.frame() %>%
+        pivot_wider() %>%
+        mutate(subsector = paste0('ue_', .data$subsector))
+
+      industry_subsectors_material_relative <- calcOutput(
+        type = 'industry_subsectors_specific', subtype = 'material_relative',
+        scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
+                      'gdp_SSP2_lowEn'),
+        regions = unique(region_mapping_21$region),
+        aggregate = FALSE
+      ) %>%
+        as.data.frame() %>%
+        as_tibble() %>%
+        select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
+               subsector = 'Data4', name = 'Data5', value = 'Value') %>%
+        character.data.frame() %>%
+        pivot_wider() %>%
+        mutate(subsector = paste0('ue_', .data$subsector))
+
+      industry_subsectors_material_relative_change <- calcOutput(
+        type = 'industry_subsectors_specific',
+        subtype = 'material_relative_change',
+        scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
+                      'gdp_SSP2_lowEn'),
+        regions = unique(region_mapping_21$region),
+        aggregate = FALSE
+      ) %>%
+        as.data.frame() %>%
+        as_tibble() %>%
+        select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
+               subsector = 'Data4', name = 'Data5', value = 'Value') %>%
+        character.data.frame() %>%
+        pivot_wider() %>%
+        mutate(subsector = paste0('ue_', .data$subsector))
+
+      bind_rows(
+        industry_subsectors_material_alpha %>%
+          select('scenario', 'region', 'subsector'),
+
+        industry_subsectors_material_relative %>%
+          select('scenario', 'region', 'subsector'),
+
+        industry_subsectors_material_relative_change %>%
+          select('scenario', 'region', 'subsector')
+      ) %>%
+        group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>%
+        summarise(count = n(), .groups = 'drop') %>%
+        verify(expr = 1 == count,
+               error_fun = function(errors, data) {
+                 stop('Industry specific material is over-specified for:\n',
+                      paste(
+                        format(data[errors[[1]]$error_df$index,],
+                               width = 80,
+                               n = errors[[1]]$num.violations),
+                        collapse = '\n'))
+               })
+
+      foo2 <- bind_rows(
+        # SSP2EU is the default scenario
+        foo %>%
+          filter('gdp_SSP2EU' == .data$scenario),
+
+        # these scenarios are pegged to SSP2EU
+        industry_subsectors_material_alpha %>%
+          full_join(
+            full_join(
+              foo %>%
+                filter('gdp_SSP2EU' == .data$scenario) %>%
+                # keep specific production constant for historic years without
+                # production
+                group_by(!!!syms(c('iso3c', 'subsector'))) %>%
+                mutate(specific.production = .data$value / .data$GDP,
+                       specific.production = ifelse(
+                         0 != .data$value, .data$specific.production,
+                         first(.data$specific.production[0 != .data$value],
+                               order_by = .data$year))) %>%
+                ungroup() %>%
+                select('iso3c', 'year', 'subsector', 'specific.production') %>%
+                interpolate_missing_periods_(
+                  periods = list(year = seq_range(range(.$year))),
+                  value = 'specific.production',
+                  method = 'linear'),
+
+              # mark years which have no historic production so that we can set
+              # them to 0 once we calculated future production for the new
+              # scenarios
+              foo %>%
+                filter('gdp_SSP2EU' == .data$scenario) %>%
+                mutate(fake.value = 0 == .data$value) %>%
+                select('iso3c', 'year', 'subsector', 'fake.value') %>%
+                interpolate_missing_periods_(
+                  periods = list(year = seq_range(range(.$year))),
+                  value = 'fake.value',
+                  method = 'linear') %>%
+                mutate(fake.value = 0 != .data$fake.value),
+
+              c('iso3c', 'year', 'subsector')
+            ) %>%
+              full_join(region_mapping_21, 'iso3c'),
+
+            c('region', 'subsector')
+          ) %>%
+          group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>%
+          mutate(
+            # alpha factors converge linearly towards zero over the convergence
+            # time
+            conv.fctr = 1 - pmin(1, ( (.data$year - 2015)
+                                      / .data$convergence_time)),
+            alpha.conv = ifelse(2015 >= .data$year, 1,
+                                1 - .data$alpha * .data$conv.fctr),
+            # specific production is scaled with the cumulated converged alpha
+            # factors
+            cum.fctr = cumprod(.data$alpha.conv),
+            specific.production = ifelse(
+              2015 >= .data$year, .data$specific.production,
+              ( .data$specific.production[2015 == .data$year]
+                * .data$cum.fctr
+              ))
+            # ensure that years without historic production are 0
+            * (1 - .data$fake.value)) %>%
+          ungroup() %>%
+          select('region', 'iso3c', 'year', 'scenario', 'subsector',
+                 'specific.production') %>%
+          filter(.data$year %in% unique(foo$year)) %>%
+          left_join(
+            bind_rows(
+              foo,
+
+              foo %>%
+                filter('gdp_SSP2EU' == .data$scenario) %>%
+                mutate(scenario = 'gdp_SSP2_lowEn')
+            ),
+
+            c('scenario', 'subsector', 'iso3c', 'year')
+          ) %>%
+          mutate(value = .data$specific.production * .data$GDP) %>%
+          select(all_of(colnames(foo))) %>%
+          assert(not_na, everything())
+      )
+
+      foo3 <- bind_rows(
+        foo2,
+
+        # specific production relative to base scenario
+        industry_subsectors_material_relative %>%
+          left_join(
+            foo2 %>%
+              mutate(specific.production = .data$value / .data$GDP) %>%
+              select(base.scenario = 'scenario', 'subsector', 'iso3c', 'year',
+                     'specific.production') %>%
+              full_join(region_mapping_21, 'iso3c'),
+
+            c('base.scenario', 'region', 'subsector')
+          ) %>%
+          left_join(
+            foo %>%
+              select('scenario', 'subsector', 'iso3c', 'year', 'GDP', 'value'),
+
+            c('scenario', 'subsector', 'iso3c', 'year')
+          ) %>%
+          assert(not_na, everything()) %>%
+          # scale factor in from 2015-30
+          mutate(l = pmin(1, pmax(0, (.data$year - 2015) / (2030 - 2015))),
+                 value = .data$specific.production
+                 * .data$GDP
+                 * (.data$factor * .data$l + 1 * (1 - .data$l))) %>%
+          select(all_of(colnames(foo))),
+
+        # changes of specific production relative to base scenario
+        full_join(
+          # base scenario data
+          foo %>%
+            rename(base.scenario = 'scenario') %>%
+            semi_join(
+              industry_subsectors_material_relative_change,
+
+              c('base.scenario', 'subsector')
+            ) %>%
+            full_join(region_mapping_21, 'iso3c'),
+
+          # change parameters
+          industry_subsectors_material_relative_change,
+
+          c('base.scenario', 'region', 'subsector')
+        ) %>%
+          select('scenario', 'iso3c', 'region', 'subsector', 'year',
+                 base.value = 'value', base.GDP = 'GDP', 'factor') %>%
+          # GDP trajectories of target scenarios
+          left_join(
+            foo %>%
+              select('scenario', 'iso3c', 'subsector', 'year', 'GDP'),
+
+            c('scenario', 'iso3c', 'subsector', 'year')
+          ) %>%
+          group_by(!!!syms(c('scenario', 'iso3c', 'subsector'))) %>%
+          mutate(
+            # specific production of base scenarios
+            base.specific.production = .data$base.value / .data$base.GDP,
+            # change in specific production of base scenarios relative to 2015
+            base.change = ( .data$base.specific.production
+                          / .data$base.specific.production[2015 == .data$year]),
+            # modified change of target scenarios
+            # If base change is below (above) 1, i.e. material efficiency is
+            # improving (deteriorating), efficiency gains (losses) are halved
+            # (doubled).  Changes of historic values (i.e. before 2015) are
+            # identical to base scenario.  Not finite changes (e.g. division by
+            # zero) lead to constant values.
+            change = case_when(
+              !is.finite(.data$base.change) ~ 1,
+              2015 >= .data$year ~ .data$base.change,
+              TRUE ~  ( ( (.data$base.change - 1)
+                          * .data$factor ^ sign(1 - .data$base.change)
+              )
+              + 1)),
+            specific.production =
+              ( .data$base.specific.production[2015 == .data$year]
+                * .data$change
+              ),
+            value = ifelse(!is.finite(.data$base.change),
+                           .data$base.value,
+                           .data$specific.production * .data$GDP)) %>%
+          ungroup() %>%
+          select('scenario', 'iso3c', 'subsector', 'year', 'value', 'GDP')
+      )
+
+      industry_subsectors_ue <- foo3 %>%
+        select('iso3c', 'year', 'scenario', pf = 'subsector', 'value') %>%
+        as.magpie(spatial = 1, temporal = 2, data = ncol(.))
+
+      ## subsector FE shares ----
+      . <- NULL
+
+      ### get 1993-2015 industry FE ----
+      industry_subsectors_en <- calcOutput(
+        type = 'IO', subtype = 'output_Industry_subsectors',
+        aggregate = FALSE
+      ) %>%
+        # convert to data frame
+        as.data.frame() %>%
+        as_tibble() %>%
+        select(iso3c = 'Region', year = 'Year', pf = 'Data2',
+               value = 'Value') %>%
         character.data.frame() %>%
         mutate(year = as.integer(as.character(.data$year))) %>%
-        filter(.data$year %in% unique(industry_subsectors_en$year)) %>%
-        # aggregate regions
+        # get 1993-2015 industry FE data
+        filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', .data$pf),
+               between(.data$year, 1993, 2015)) %>%
+        # sum up fossil and bio SE (which produce the same FE), aggregate
+        # regions
         full_join(region_mapping_21, 'iso3c') %>%
-        group_by(!!!syms(c('scenario', 'region', 'year', 'pf'))) %>%
-        summarise(level = sum(.data$level), .groups = 'drop') %>%
-        extract('pf', 'subsector', '^ue_(.*)$'),
+        group_by(!!!syms(c('year', 'region', 'pf'))) %>%
+        summarise(value = sum(.data$value), .groups = 'drop') %>%
+        # split feel steel into primary and secondary production
+        left_join(
+          industry_subsectors_ue[,,'ue_steel', pmatch = TRUE] %>%
+            as.data.frame() %>%
+            as_tibble() %>%
+            select(iso3c = 'Region', scenario = 'Data1', year = 'Year',
+                   subsector = 'Data2', production = 'Value') %>%
+            filter('gdp_SSP2' == .data$scenario) %>%
+            select(-'scenario') %>%
+            # aggregate regions
+            full_join(region_mapping_21, 'iso3c') %>%
+            group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
+            summarise(production = sum(.data$production), .groups = 'drop') %>%
+            mutate(year      = as.integer(as.character(.data$year)),
+                   pf        = 'feel_steel',
+                   subsector = sub('_production$', '', .data$subsector)) %>%
+            pivot_wider(names_from = 'subsector', values_from = 'production'),
 
-      c('scenario', 'region', 'year', 'subsector')
-    ) %>%
-      mutate(specific.energy = .data$value / .data$level,
-             specific.energy = ifelse(is.finite(.data$specific.energy),
-                                      .data$specific.energy, 0)) %>%
-      select('scenario', 'region', 'year', 'subsector', 'specific.energy')
+          c('region', 'year', 'pf')
+        ) %>%
+        group_by(!!!syms(c('year', 'region', 'pf'))) %>%
+        # if there was no historic steel production, but feel_steel was
+        # allocated, assume primary and secondary production to be identical
+        mutate(
+          foo = .data$ue_steel_primary + .data$ue_steel_secondary,
+          ue_steel_primary   = ifelse(0 == .data$foo, 1,
+                                      .data$ue_steel_primary),
+          ue_steel_secondary = ifelse(0 == .data$foo, 1,
+                                      .data$ue_steel_secondary)
+        ) %>%
+        select(-'foo') %>%
+        # assume that secondary steel production is nine times as electricity
+        # intensive (not energy intensive!) as primary production, since
+        # detailed data is missing so far
+        mutate(feel_steel_secondary =
+                 (9 * .data$ue_steel_secondary * .data$value)
+               / (9 * .data$ue_steel_secondary + .data$ue_steel_primary),
+               feel_steel_primary = .data$value - .data$feel_steel_secondary
+        ) %>%
+        ungroup() %>%
+        select(-'ue_steel_primary', -'ue_steel_secondary') %>%
+        pivot_wider(names_from = 'pf') %>%
+        select(-'feel_steel') %>%
+        pivot_longer(matches('^fe.*'), names_to = 'pf', values_drop_na = TRUE)
 
-    # replace 0 specific energy (e.g. primary steel NEN) with global averages
-    industry_subsectors_specific_energy <-
-      industry_subsectors_specific_energy %>%
-      anti_join(
-        industry_subsectors_specific_energy %>%
-            filter(0 == .data$specific.energy),
+      # can be removed once feelwlth is replaced by feel in all mappings for
+      # calcIO()
+      industry_subsectors_en <- industry_subsectors_en %>%
+        mutate(pf = sub('^feelwlth_', 'feel_', .data$pf))
+
+      ### extend to 2020 using WEO 2021 data ----
+      IEA_WEO_2021_ref_year <- 2020L
+      last_industry_subsectors_en_year <- max(industry_subsectors_en$year)
+      if (IEA_WEO_2021_ref_year > last_industry_subsectors_en_year) {
+        industry_subsectors_en <- bind_rows(
+          industry_subsectors_en,
+
+          inner_join(
+            industry_subsectors_en %>%
+              filter(2010 == .data$year),
+
+            readSource(type = 'IEA_WEO_2021', subtype = 'region',
+                       convert = TRUE) %>%
+              magclass_to_tibble(c('iso3c', 'year', 'scenario', 'variable',
+                                   'industry.FE')) %>%
+              filter(.data$year %in% c(2010, IEA_WEO_2021_ref_year),
+                     'Stated Policies Scenario' == .data$scenario,
+                     'Energy-Total-Industry (EJ)' == .data$variable) %>%
+              left_join(region_mapping_21, 'iso3c') %>%
+              group_by(!!!syms(c('region', 'year'))) %>%
+              summarise(industry.FE = sum(.data$industry.FE, na.rm = TRUE),
+                        .groups = 'drop_last') %>%
+              summarise(change = last(.data$industry.FE, order_by = .data$year)
+                        / first(.data$industry.FE, order_by = .data$year),
+                        .groups = 'drop'),
+
+            'region'
+          ) %>%
+            mutate(value = .data$value * .data$change,
+                   year  = IEA_WEO_2021_ref_year) %>%
+            select(-'change')
+        ) %>%
+          pivot_wider(names_from = 'year') %>%
+          mutate(`2015` = ( !!sym('2010')
+                            + !!sym('2015')
+                            + !!sym(as.character(IEA_WEO_2021_ref_year))
+          )
+          / 3) %>%
+          pivot_longer(matches('^[0-9]*$'), names_to = 'year',
+                       names_transform = list(year = as.integer)) %>%
+          interpolate_missing_periods_(
+            periods = list(year = seq_range(range(.$year)))) %>%
+          assert(not_na, everything()) %>%
+          verify(is.finite(.data$value))
+
+        FE_alpha_mod <- 0.9   # found by fiddling around
+      } else {
+        FE_alpha_mod <- 1
+      }
+
+      ### calculate 1993-2020 industry subsector FE shares ----
+      industry_subsectors_en_shares <- industry_subsectors_en %>%
+        mutate(subsector = sub('^[^_]+_', '', .data$pf),
+               subsector = ifelse('steel' == .data$subsector, 'steel_primary',
+                                  .data$subsector)) %>%
+        group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
+        mutate(share = .data$value / sum(.data$value),
+               share = ifelse(is.finite(.data$share), .data$share, 0)) %>%
+        ungroup() %>%
+        select(-'value')
+
+      failed_share_sum <- industry_subsectors_en_shares %>%
+        group_by(!!!syms(c('year', 'region', 'subsector'))) %>%
+        summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+
+      if (any(failed_share_sum$failed)) {
+        stop('industry_subsectors_en_shares don\'t add up to 1.')
+      }
+
+      ### future subsector FE shares from IEA ETP 2017 ----
+      IEA_ETP_Ind_FE_shares <- readSource('IEA_ETP', 'industry',
+                                          convert = FALSE) %>%
+        # filter for OECD and Non-OECD regions and RTS scenario
+        `[`(c('OECD', 'Non-OECD'),,'RTS', pmatch = 'left') %>%
+        # convert to data frame
+        as.data.frame() %>%
+        as_tibble() %>%
+        select(region = 'Region', year = 'Year', variable = 'Data2',
+               value = 'Value') %>%
+        character.data.frame() %>%
+        mutate(year = as.integer(as.character(.data$year))) %>%
+        # filter for future data
+        filter(max(industry_subsectors_en$year) < .data$year) %>%
+        # rename variables
+        right_join(
+          tribble(
+            ~subsector,    ~fety,    ~variable,
+            'cement',      'feso',   'Industry|Cement - final energy consumption|Coal',
+            'cement',      'feso',   'Industry|Cement - final energy consumption|Biomass',
+            'cement',      'feso',   'Industry|Cement - final energy consumption|Waste',
+            'cement',      'feso',   'Industry|Cement - final energy consumption|Other renewables',
+            'cement',      'feli',   'Industry|Cement - final energy consumption|Oil',
+            'cement',      'fega',   'Industry|Cement - final energy consumption|Natural gas',
+            'cement',      'feel',   'Industry|Cement - final energy consumption|Electricity',
+
+            'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Coal',
+            'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Biomass',
+            'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Waste',
+            'chemicals',   'feso',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Other renewables',
+            'chemicals',   'feli',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Oil',
+            'chemicals',   'fega',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Natural gas',
+            'chemicals',   'feel',   'Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|Electricity',
+
+            'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Coal',
+            'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Biomass',
+            'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Waste',
+            'steel',       'feso',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Other renewables',
+            'steel',       'feli',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Oil',
+            'steel',       'fega',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Natural gas',
+            'steel',       'feel',   'Industry|Iron and steel - final energy consumption incl_ blast furnaces and coke ovens|Electricity',
+
+            'total',       'feso',   'Industry|Total industry final energy consumption|Coal',
+            'total',       'feso',   'Industry|Total industry final energy consumption|Biomass',
+            'total',       'feso',   'Industry|Total industry final energy consumption|Waste',
+            'total',       'feso',   'Industry|Total industry final energy consumption|Other renewables',
+            'total',       'feli',   'Industry|Total industry final energy consumption|Oil',
+            'total',       'fega',   'Industry|Total industry final energy consumption|Natural gas',
+            'total',       'fehe',   'Industry|Total industry final energy consumption|Heat',
+            'total',       'feel',   'Industry|Total industry final energy consumption|Electricity'),
+
+          'variable'
+        ) %>%
+        # drop 2055/OECD/Chemicals as the data is faulty
+        filter(!(  'OECD' == .data$region
+                   & 2055 == .data$year
+                   & 'chemicals' == .data$subsector)) %>%
+        # aggregate by subsector and fety
+        group_by(!!!syms(c('region', 'year', 'subsector', 'fety'))) %>%
+        summarise(value = sum(.data$value), .groups = 'drop') %>%
+        # fill 2055/OECD/Chemicals gap with interpolated data
+        complete(nesting(!!!syms(c('region', 'subsector', 'fety'))),
+                 year = unique(.data$year)) %>%
+        interpolate_missing_periods_(
+          periods = list(year = unique(.$year))) %>%
+        # calculate otherInd as total - cement - chemicals - steel
+        pivot_wider(names_from = 'subsector', values_fill = 0) %>%
+        mutate(otherInd = .data$total
+               - (.data$cement + .data$chemicals + .data$steel)) %>%
+        select(-'total') %>%
+        pivot_longer(c('cement', 'chemicals', 'steel', 'otherInd'),
+                     names_to = 'subsector') %>%
+        filter(0 != .data$value) %>%
+        # calculate share
+        group_by(!!!syms(c('region', 'year', 'subsector'))) %>%
+        mutate(share = .data$value / sum(.data$value)) %>%
+        ungroup() %>%
+        select(-'value')
+
+      ### split feel shares and extend to SSP scenarios ----
+      IEA_ETP_Ind_FE_shares <- bind_rows(
+        # all pf that don't need splitting
+        IEA_ETP_Ind_FE_shares %>%
+          semi_join(
+            industry_subsectors_en %>%
+              distinct(.data$pf) %>%
+              separate('pf', c('fety', 'subsector'), sep = '_',
+                       extra = 'merge'),
+
+            c('fety', 'subsector')
+          ) %>%
+          unite('pf', c('fety', 'subsector'), sep = '_') %>%
+          # extend to SSP scenarios
+          mutate(scenario = 'gdp_SSP1') %>%
+          complete(nesting(!!sym('year'), !!sym('region'), !!sym('pf'),
+                           !!sym('share')),
+                   scenario = unique(sub('\\..*$', '',
+                                         getNames(industry_subsectors_ue)))),
+
+        # split feel_steel into primary and secondary steel
+        IEA_ETP_Ind_FE_shares %>%
+          filter('feel' == .data$fety, 'steel' == .data$subsector) %>%
+          select(-'fety', -'subsector') %>%
+          inner_join(
+            industry_subsectors_ue %>%
+              `[`(,,'ue_steel_', pmatch = TRUE) %>%
+              as.data.frame() %>%
+              as_tibble() %>%
+              select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
+                     pf = 'Data2', value = 'Value') %>%
+              character.data.frame() %>%
+              mutate(year = as.integer(as.character(.data$year))) %>%
+              inner_join(
+                toolGetMapping(name = 'regionmappingOECD.csv',
+                               type = 'regional') %>%
+                  as_tibble() %>%
+                  select(iso3c = 'CountryCode', region = 'RegionCode'),
+
+                'iso3c'
+              ) %>%
+              group_by(!!!syms(c('region', 'year', 'scenario', 'pf'))) %>%
+              summarise(value = sum(.data$value), .groups = 'drop'),
+
+            c('region', 'year')
+          ) %>%
+          pivot_wider(names_from = 'pf') %>%
+          # as above, assume that secondary steel production is nine times as
+          # electricity intensive (not energy intensive!) as primary production,
+          # since detailed data is missing so far
+          # reduce primary steel electricity share accordingly; secondary steel
+          # electricity share is 1 since only electricity is assumed to be used
+          mutate(
+            feel_steel_primary
+            = .data$share
+            - ( (9 * .data$ue_steel_secondary * .data$share)
+                / (9 * .data$ue_steel_secondary + .data$ue_steel_primary)
+            ),
+            feel_steel_secondary = 1) %>%
+          select(-'share', -'ue_steel_primary', -'ue_steel_secondary') %>%
+          pivot_longer(c('feel_steel_primary', 'feel_steel_secondary'),
+                       names_to = 'pf', values_to = 'share')
+      )
+
+      ### extend time horizon and convert regions ----
+      IEA_ETP_Ind_FE_shares <- IEA_ETP_Ind_FE_shares %>%
+        mutate(subsector = sub('^[^_]+_', '', .data$pf),
+               subsector = ifelse('steel' == .data$subsector, 'steel_primary',
+                                  .data$subsector)) %>%
+        interpolate_missing_periods_(
+          periods = list(year = unique(pmax(min(IEA_ETP_Ind_FE_shares$year),
+                                            getYears(reminditems,
+                                                     as.integer = TRUE)))),
+          value = 'share',
+          expand.values = TRUE) %>%
+        inner_join(
+          toolGetMapping(name = 'regionmappingOECD.csv',
+                         type = 'regional') %>%
+            as_tibble() %>%
+            select(iso3c = 'CountryCode', region = 'RegionCode'),
+
+          'region'
+        ) %>%
+        select('scenario', 'iso3c', period = 'year', 'pf', 'subsector',
+               'share') %>%
+        # weight by subsector activity
+        left_join(
+          industry_subsectors_ue %>%
+            as.data.frame() %>%
+            as_tibble() %>%
+            select(iso3c = 'Region', period = 'Year', scenario = 'Data1',
+                   subsector = 'Data2', activity = 'Value') %>%
+            character.data.frame() %>%
+            mutate(period = as.integer(as.character(.data$period)),
+                   subsector = sub('^ue_', '', .data$subsector)),
+
+          c('scenario', 'iso3c', 'period', 'subsector')
+        ) %>%
+        full_join(region_mapping_21, 'iso3c') %>%
+        group_by(
+          !!!syms(c('scenario', 'region', 'period', 'subsector', 'pf'))) %>%
+        summarise(
+          share = ifelse(0 == sum(.data$activity), 0,
+                           sum(.data$share * .data$activity)
+                         / sum(.data$activity)),
+          .groups = 'drop_last') %>%
+        # re-normalise shares
+        mutate(share = case_when(
+          0 == sum(.data$share) ~ 1 / n(),
+          TRUE                  ~ .data$share / sum(.data$share))) %>%
+        verify(expr = is.finite(.data$share),
+               description = paste('Finite IEA ETP industry FE shares after',
+                                   'time horizon extension.')) %>%
+        ungroup()
+
+      ### combine historic and future industry FE shares ----
+      industry_subsectors_en_shares <- inner_join(
+        industry_subsectors_en_shares %>%
+          mutate(scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
+          complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
+                   scenario = unique(IEA_ETP_Ind_FE_shares$scenario)) %>%
+          interpolate_missing_periods_(
+            periods = list(year = unique(c(industry_subsectors_en_shares$year,
+                                           getYears(reminditems,
+                                                    as.integer = TRUE)))),
+            value = 'share',
+            expand.values = TRUE) %>%
+          select('scenario', 'year', 'region', 'pf', 'subsector',
+                 share.hist = 'share') %>%
+          # re-normalise steel_primary to extended feel_steel_primary
+          group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+          mutate(share.hist = .data$share.hist / sum(.data$share.hist)) %>%
+          ungroup(),
+
+        IEA_ETP_Ind_FE_shares %>%
+          interpolate_missing_periods_(
+            periods = list(period = unique(c(industry_subsectors_en_shares$year,
+                                             getYears(reminditems,
+                                                      as.integer = TRUE)))),
+            value = 'share',
+            expand.values = TRUE) %>%
+          select('scenario', year = 'period', 'region', 'pf', 'subsector',
+                 share.future  = 'share'),
+
+        c('scenario', 'year', 'region', 'pf', 'subsector')
+      ) %>%
+        mutate(foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
+               share = .data$share.hist * (1 - .data$foo)
+               + .data$share.future * .data$foo,
+               subsector = ifelse('steel' == .data$subsector,
+                                  'steel_primary', .data$subsector)) %>%
+        verify(expr = is.finite(.data$share),
+               description = paste('Finite industry FE shares after combining',
+                                   'historic and future values')) %>%
+        select(-'foo', -'share.hist', -'share.future')
+
+      failed_share_sum <- industry_subsectors_en_shares %>%
+        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+        summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+
+      if (any(failed_share_sum$failed)) {
+        stop('industry_subsectors_en_shares don\'t add up to 1.')
+      }
+
+      ### extend to H2 and HTH_el shares ----
+      feh2_share_in_fega <- 0.3
+      # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from
+      # 2020 to 2050 and are constant afterwards
+      industry_subsectors_en_shares <- bind_rows(
+        industry_subsectors_en_shares %>%
+          filter(!grepl('^fega', .data$pf)),
+
+        industry_subsectors_en_shares %>%
+          filter(grepl('^fega', .data$pf)) %>%
+          extract('pf', c('pf.fety', 'pf.subsector'), '^([^_]*)_(.*)') %>%
+          complete(nesting(!!!syms(setdiff(colnames(.), 'pf.fety'))),
+                   pf.fety = c('fega', 'feh2')) %>%
+          pivot_wider(names_from = 'pf.fety', values_from = 'share') %>%
+          mutate(feh2 = pmin(feh2_share_in_fega,
+                             pmax(0.01,
+                                  feh2_share_in_fega
+                                  * (.data$year - 2020) / (2050 - 2020)))
+                 * .data$fega,
+                 fega = .data$fega - .data$feh2) %>%
+          pivot_longer(c('fega', 'feh2'), names_to = 'pf.fety',
+                       values_to = 'share') %>%
+          unite('pf', c('pf.fety', 'pf.subsector'), sep = '_')
+      )
+
+      feelhth_share_in_fuel <- 0.08
+      # HTH_el shares grow linearly from 0.1 % to feelhth_share_in_fuel of all
+      # FE but feel from 2020 to 2050 and are constant afterwards
+      industry_subsectors_en_shares <- bind_rows(
+        # subsectors w/o HTH_el
+        industry_subsectors_en_shares %>%
+          filter(!.data$subsector %in% c('chemicals', 'otherInd')),
+
+        # WLTH_el
+        industry_subsectors_en_shares %>%
+          filter(.data$subsector %in% c('chemicals', 'otherInd'),
+                 grepl('^feel', .data$pf)) %>%
+          mutate(pf = sub('^feel_', 'feelwlth_', .data$pf)),
+
+        # HTH_el based on share of fuels
+        industry_subsectors_en_shares %>%
+          filter(.data$subsector %in% c('chemicals', 'otherInd'),
+                 !grepl('^feel', .data$pf)) %>%
+          mutate(pf = sub('(_[^_]+)$', '', .data$pf)) %>%
+          group_by(!!!syms(setdiff(colnames(.), c('pf', 'share')))) %>%
+          mutate(feelhth = pmin(feelhth_share_in_fuel,
+                                pmax(0.01,
+                                     feelhth_share_in_fuel
+                                     * (.data$year - 2020) / (2050 - 2020)))
+                 * sum(.data$share),
+                 share = .data$share
+                 / sum(.data$share)
+                 * (sum(.data$share) - .data$feelhth)) %>%
+          ungroup() %>%
+          pivot_wider(names_from = 'pf', values_from = 'share') %>%
+          pivot_longer(c(-'scenario', -'year', -'region', -'subsector'),
+                       names_to = 'pf', values_to = 'share',
+                       values_drop_na = TRUE) %>%
+          mutate(pf = paste(.data$pf, .data$subsector, sep = '_'))
+      )
+
+      failed_share_sum <- industry_subsectors_en_shares %>%
+        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+        summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
+
+      if (any(failed_share_sum$failed)) {
+        stop('industry_subsectors_en_shares don\'t add up to 1.')
+      }
+
+      ### calculate industry total FE level ----
+      # scale industry subsector total FE by subsector activity and exogenous
+      # energy efficiency gains
+
+      specific_FE_limits <- readSource(type = 'ExpertGuess',
+                                       subtype = 'industry_specific_FE_limits',
+                                       convert = FALSE) %>%
+        madrat_mule()
+
+      industry_subsectors_specific_FE <- calcOutput(
+        type = 'industry_subsectors_specific', subtype = 'FE',
+        scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
+                      'gdp_SSP2_lowEn'),
+        regions = unique(region_mapping_21$region),
+        aggregate = FALSE
+      ) %>%
+        as.data.frame() %>%
+        as_tibble() %>%
+        select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
+               name = 'Data4', value = 'Value') %>%
+        character.data.frame() %>%
+        pivot_wider() %>%
+        mutate(alpha = .data$alpha * FE_alpha_mod)
+
+      industry_subsectors_specific_energy <- inner_join(
+        industry_subsectors_en %>%
+          mutate(subsector = sub('^[^_]+_', '', .data$pf),
+                 subsector = ifelse('steel' == .data$subsector, 'steel_primary',
+                                    .data$subsector),
+                 scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
+          # extend to SSP scenarios
+          complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
+                   scenario = unique(industry_subsectors_en_shares$scenario)
+          ) %>%
+          group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>%
+          summarise(value = sum(.data$value), .groups = 'drop'),
+
+        industry_subsectors_ue %>%
+          as.data.frame() %>%
+          as_tibble() %>%
+          select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
+                 pf = 'Data2', level = 'Value') %>%
+          character.data.frame() %>%
+          mutate(year = as.integer(as.character(.data$year))) %>%
+          filter(.data$year %in% unique(industry_subsectors_en$year)) %>%
+          # aggregate regions
+          full_join(region_mapping_21, 'iso3c') %>%
+          group_by(!!!syms(c('scenario', 'region', 'year', 'pf'))) %>%
+          summarise(level = sum(.data$level), .groups = 'drop') %>%
+          extract('pf', 'subsector', '^ue_(.*)$'),
 
         c('scenario', 'region', 'year', 'subsector')
       ) %>%
-      bind_rows(
+        mutate(specific.energy = .data$value / .data$level,
+               specific.energy = ifelse(is.finite(.data$specific.energy),
+                                        .data$specific.energy, 0)) %>%
+        select('scenario', 'region', 'year', 'subsector', 'specific.energy')
+
+      # replace 0 specific energy (e.g. primary steel NEN) with global averages
+      industry_subsectors_specific_energy <-
+        industry_subsectors_specific_energy %>%
+        anti_join(
+          industry_subsectors_specific_energy %>%
+            filter(0 == .data$specific.energy),
+
+          c('scenario', 'region', 'year', 'subsector')
+        ) %>%
+        bind_rows(
+          left_join(
+            industry_subsectors_specific_energy %>%
+              filter(0 == .data$specific.energy) %>%
+              select(-'specific.energy'),
+
+            industry_subsectors_specific_energy %>%
+              filter(0 != .data$specific.energy) %>%
+              group_by(!!!syms(c('scenario', 'year', 'subsector'))) %>%
+              summarise(specific.energy = mean(.data$specific.energy),
+                        .groups = 'drop'),
+
+            c('scenario', 'year', 'subsector')
+          )
+        ) %>%
+        verify(expr = 0 < .data$specific.energy,
+               description = 'All specific energy factors above 0')
+
+      # extend time horizon
+      industry_subsectors_specific_energy <-
+        industry_subsectors_specific_energy %>%
+        interpolate_missing_periods_(
+          periods = list(year = unique(industry_subsectors_en_shares$year)),
+          value = 'specific.energy', expand.values = TRUE)
+
+      # correct lower-then-thermodynamic limit projections
+      too_low_projections <- industry_subsectors_specific_energy %>%
         left_join(
+          specific_FE_limits %>%
+            filter('absolute' == .data$type) %>%
+            select(-'type'),
+
+          'subsector'
+        ) %>%
+        filter(2015 < .data$year,
+               !is.na(.data$limit),
+               .data$specific.energy < .data$limit) %>%
+        select('scenario', 'region', 'subsector', 'year')
+
+      if (0 != nrow(too_low_projections)) {
+        industry_subsectors_specific_energy <- bind_rows(
           industry_subsectors_specific_energy %>%
-            filter(0 == .data$specific.energy) %>%
-            select(-'specific.energy'),
+            anti_join(
+              too_low_projections,
+
+              c('scenario', 'region', 'subsector', 'year')
+            ),
 
           industry_subsectors_specific_energy %>%
-            filter(0 != .data$specific.energy) %>%
-            group_by(!!!syms(c('scenario', 'year', 'subsector'))) %>%
+            semi_join(
+              too_low_projections %>%
+                select(-'region'),
+
+              c('scenario', 'subsector', 'year')
+            ) %>%
+            anti_join(
+              too_low_projections,
+
+              c('scenario', 'region', 'subsector', 'year')
+            ) %>%
+            group_by(!!!syms(c('scenario', 'subsector', 'year'))) %>%
             summarise(specific.energy = mean(.data$specific.energy),
-                      .groups = 'drop'),
+                      .groups = 'drop') %>%
+            full_join(
+              too_low_projections,
 
-          c('scenario', 'year', 'subsector')
+              c('scenario', 'subsector', 'year')
+            ) %>%
+            assert(not_na, everything())
         )
-      ) %>%
-      verify(expr = 0 < .data$specific.energy,
-             description = 'All specific energy factors above 0')
+      }
 
-    # extend time horizon
-    industry_subsectors_specific_energy <-
-      industry_subsectors_specific_energy %>%
-      interpolate_missing_periods_(
-        periods = list(year = unique(industry_subsectors_en_shares$year)),
-        value = 'specific.energy', expand.values = TRUE)
-
-    # correct lower-then-thermodynamic limit projections
-    too_low_projections <- industry_subsectors_specific_energy %>%
-      left_join(
-        specific_FE_limits %>%
-          filter('absolute' == .data$type) %>%
-          select(-'type'),
-
-        'subsector'
-      ) %>%
-      filter(2015 < .data$year,
-             !is.na(.data$limit),
-             .data$specific.energy < .data$limit) %>%
-      select('scenario', 'region', 'subsector', 'year')
-
-    if (0 != nrow(too_low_projections)) {
-      industry_subsectors_specific_energy <- bind_rows(
+      # decrease values by alpha p.a.
+      industry_subsectors_specific_energy <-
         industry_subsectors_specific_energy %>%
-          anti_join(
-            too_low_projections,
+        # FIXME this factors should be derived from region data
+        # since the IEA data needs fixing first, they were derived manually for
+        # now
+        inner_join(
+          industry_subsectors_specific_FE,
 
-            c('scenario', 'region', 'subsector', 'year')
-          ),
+          c('scenario', 'region', 'subsector')
+        ) %>%
+        inner_join(specific_FE_limits, 'subsector') %>%
+        group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>%
+        arrange(.data$year) %>%
+        mutate(
+          specific.energy = ifelse(
+            'absolute' == .data$type,
+            ( (.data$specific.energy - .data$limit)
+              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+            )
+            + .data$limit,
 
-        industry_subsectors_specific_energy %>%
-          semi_join(
-            too_low_projections %>%
-              select(-'region'),
+            ( .data$specific.energy * (1 - .data$limit)
+              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+            )
+            + (.data$specific.energy * .data$limit))) %>%
+        ungroup() %>%
+        select('scenario', 'region', 'year', 'subsector', 'specific.energy')
 
-            c('scenario', 'subsector', 'year')
-          ) %>%
-          anti_join(
-            too_low_projections,
+      ### converge subsector en shares to global value ----
+      # calculate global shares, weighted by subsector activity
+      industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>%
+        inner_join(
+          industry_subsectors_ue %>%
+            as.data.frame() %>%
+            as_tibble() %>%
+            select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
+                   pf = 'Data2', level = 'Value') %>%
+            character.data.frame() %>%
+            mutate(year = as.integer(as.character(.data$year))) %>%
+            extract('pf', 'subsector', '^ue_(.*)$') %>%
+            inner_join(region_mapping_21, 'iso3c') %>%
+            group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>%
+            summarise(level = sum(.data$level), .groups = 'drop'),
 
-            c('scenario', 'region', 'subsector', 'year')
-          ) %>%
-          group_by(!!!syms(c('scenario', 'subsector', 'year'))) %>%
-          summarise(specific.energy = mean(.data$specific.energy),
-                    .groups = 'drop') %>%
-          full_join(
-            too_low_projections,
+          c('scenario', 'region', 'year', 'subsector')
+        ) %>%
+        group_by(!!!syms(c('scenario', 'year', 'subsector', 'pf'))) %>%
+        summarise(
+          share.global = sum(.data$share * .data$level) / sum(.data$level),
+          .groups = 'drop_last') %>%
+        mutate(share.global = .data$share.global / sum(.data$share.global)) %>%
+        ungroup()
 
-            c('scenario', 'subsector', 'year')
-          ) %>%
-          assert(not_na, everything())
-      )
-    }
+      # converge
+      industry_subsectors_en_shares <- inner_join(
+        industry_subsectors_en_shares,
+        industry_subsectors_en_shares_global,
 
-    # decrease values by alpha p.a.
-    industry_subsectors_specific_energy <-
-      industry_subsectors_specific_energy %>%
-      # FIXME this factors should be derived from region data
-      # since the IEA data needs fixing first, they were derived manually for
-      # now
-      inner_join(
-        industry_subsectors_specific_FE,
-
-        c('scenario', 'region', 'subsector')
+        c('scenario', 'year', 'subsector', 'pf')
       ) %>%
-      inner_join(specific_FE_limits, 'subsector') %>%
-      group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>%
-      arrange(.data$year) %>%
-      mutate(
-        specific.energy = ifelse(
-          'absolute' == .data$type,
-          ( (.data$specific.energy - .data$limit)
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
-          )
-          + .data$limit,
+        mutate(
+          # converge from 2015 to 2100
+          foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
+          share = (1 - .data$foo) * .data$share
+          # use minimum of regional and global share, so regions doing
+          # better than the average don't regress
+          + .data$foo       * pmin(.data$share, .data$share.global)) %>%
+        select(-'foo', -'share.global') %>%
+        # fill possible gaps in the time steps
+        interpolate_missing_periods_(
+          periods = list(year = getYears(reminditems, TRUE)),
+          value = 'share',
+          expand.values = TRUE) %>%
+        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+        mutate(share = .data$share / sum(.data$share)) %>%
+        ungroup()
 
-          ( .data$specific.energy * (1 - .data$limit)
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
-          )
-          + (.data$specific.energy * .data$limit))) %>%
-      ungroup() %>%
-      select('scenario', 'region', 'year', 'subsector', 'specific.energy')
+      failed_share_sum <- industry_subsectors_en_shares %>%
+        group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
+        summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
 
-    ### converge subsector en shares to global value ----
-    # calculate global shares, weighted by subsector activity
-    industry_subsectors_en_shares_global <- industry_subsectors_en_shares %>%
-      inner_join(
+      if (any(failed_share_sum$failed)) {
+        stop('industry_subsectors_en_shares don\'t add up to 1.')
+      }
+
+      industry_subsectors_en <- inner_join(
+        industry_subsectors_specific_energy %>%
+          # expand regions to iso3c
+          full_join(region_mapping_21, 'region') %>%
+          select(-'region'),
+
         industry_subsectors_ue %>%
           as.data.frame() %>%
           as_tibble() %>%
@@ -1738,132 +1833,73 @@ calcFEdemand <- function(subtype = "FE") {
           character.data.frame() %>%
           mutate(year = as.integer(as.character(.data$year))) %>%
           extract('pf', 'subsector', '^ue_(.*)$') %>%
-          inner_join(region_mapping_21, 'iso3c') %>%
-          group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>%
+          group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>%
           summarise(level = sum(.data$level), .groups = 'drop'),
-
-        c('scenario', 'region', 'year', 'subsector')
-      ) %>%
-      group_by(!!!syms(c('scenario', 'year', 'subsector', 'pf'))) %>%
-      summarise(
-        share.global = sum(.data$share * .data$level) / sum(.data$level),
-        .groups = 'drop_last') %>%
-      mutate(share.global = .data$share.global / sum(.data$share.global)) %>%
-      ungroup()
-
-    # converge
-    industry_subsectors_en_shares <- inner_join(
-      industry_subsectors_en_shares,
-      industry_subsectors_en_shares_global,
-
-      c('scenario', 'year', 'subsector', 'pf')
-    ) %>%
-      mutate(
-        # converge from 2015 to 2100
-        foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
-        share = (1 - .data$foo) * .data$share
-              # use minimum of regional and global share, so regions doing
-              # better than the average don't regress
-              + .data$foo       * pmin(.data$share, .data$share.global)) %>%
-      select(-'foo', -'share.global') %>%
-      # fill possible gaps in the time steps
-      interpolate_missing_periods_(
-        periods = list(year = getYears(reminditems, TRUE)),
-        value = 'share',
-        expand.values = TRUE) %>%
-      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
-      mutate(share = .data$share / sum(.data$share)) %>%
-      ungroup()
-
-    failed_share_sum <- industry_subsectors_en_shares %>%
-      group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
-      summarise(failed = abs(sum(.data$share) - 1) > 1e-15, .groups = 'drop')
-
-    if (any(failed_share_sum$failed)) {
-      stop('industry_subsectors_en_shares don\'t add up to 1.')
-    }
-
-    industry_subsectors_en <- inner_join(
-      industry_subsectors_specific_energy %>%
-        # expand regions to iso3c
-        full_join(region_mapping_21, 'region') %>%
-        select(-'region'),
-
-      industry_subsectors_ue %>%
-        as.data.frame() %>%
-        as_tibble() %>%
-        select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
-               pf = 'Data2', level = 'Value') %>%
-        character.data.frame() %>%
-        mutate(year = as.integer(as.character(.data$year))) %>%
-        extract('pf', 'subsector', '^ue_(.*)$') %>%
-        group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>%
-        summarise(level = sum(.data$level), .groups = 'drop'),
-
-      c('scenario', 'iso3c', 'year', 'subsector')
-    ) %>%
-      mutate(value = .data$level * .data$specific.energy) %>%
-      select('scenario', 'iso3c', 'year', 'subsector', 'value') %>%
-      assert(is.finite, .data$value) %>%
-      inner_join(
-        industry_subsectors_en_shares %>%
-          full_join(region_mapping_21, 'region') %>%
-          select(-'region'),
 
         c('scenario', 'iso3c', 'year', 'subsector')
       ) %>%
-      group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>%
-      mutate(share = .data$share / sum(.data$share)) %>%
-      ungroup() %>%
-      mutate(value = .data$value * .data$share) %>%
-      select('scenario', region = 'iso3c', 'year', item = 'pf', 'value') %>%
-      verify(expr = is.finite(.data$value),
-             description = 'Finite industry_subsectors_en values') %>%
-      as.magpie(spatial = 2, temporal = 3, datacol = 5)
+        mutate(value = .data$level * .data$specific.energy) %>%
+        select('scenario', 'iso3c', 'year', 'subsector', 'value') %>%
+        assert(is.finite, .data$value) %>%
+        inner_join(
+          industry_subsectors_en_shares %>%
+            full_join(region_mapping_21, 'region') %>%
+            select(-'region'),
+
+          c('scenario', 'iso3c', 'year', 'subsector')
+        ) %>%
+        group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>%
+        mutate(share = .data$share / sum(.data$share)) %>%
+        ungroup() %>%
+        mutate(value = .data$value * .data$share) %>%
+        select('scenario', region = 'iso3c', 'year', item = 'pf', 'value') %>%
+        verify(expr = is.finite(.data$value),
+               description = 'Finite industry_subsectors_en values') %>%
+        as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
 
-    reminditems <- mbind(reminditems, industry_subsectors_en,
-                         industry_subsectors_ue)
+      reminditems <- mbind(reminditems, industry_subsectors_en,
+                           industry_subsectors_ue)
 
-    unit_out <- paste0(unit_out,
-                       ', except ue_cement (Gt), ue_primary_steel and ',
-                       'ue_secondary_steel (Gt) and ue_chemicals and ',
-                       'ue_otherInd ($tn)')
-  }
-  if (subtype == "UE_buildings") {
-    # change item names back from UE to FE
-    getItems(reminditems, "item") <- gsub("^ue", "fe",
-                                          getItems(reminditems, "item"))
-    description_out <- "useful energy demand in buildings"
-  }
-  if (subtype == "FE") {
-    # duplicate SSP2EU scenarios of industry for Navigate scenarios
-    industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
-                          getItems(reminditems, 3.2), value = TRUE)
-    nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
-    navigateScenarios <- grep("SSP2EU_NAV_", getItems(reminditems, 3.1), value = TRUE)
-    nonNavigateScenarios <- setdiff(getItems(reminditems, 3.1), navigateScenarios)
-    reminditems <- mbind(
-      mselect(reminditems, scenario = nonNavigateScenarios),
-      mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
-      addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
-                     collapseNames = TRUE),
-             paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
-             "scenario", 3.1)
-    )
-  }
+      unit_out <- paste0(unit_out,
+                         ', except ue_cement (Gt), ue_primary_steel and ',
+                         'ue_secondary_steel (Gt) and ue_chemicals and ',
+                         'ue_otherInd ($tn)')
+    }
+    if (subtype == "UE_buildings") {
+      # change item names back from UE to FE
+      getItems(reminditems, "item") <- gsub("^ue", "fe",
+                                            getItems(reminditems, "item"))
+      description_out <- "useful energy demand in buildings"
+    }
+    if (subtype == "FE") {
+      # duplicate SSP2EU scenarios of industry for Navigate scenarios
+      industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
+                            getItems(reminditems, 3.2), value = TRUE)
+      nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
+      navigateScenarios <- grep("SSP2EU_NAV_", getItems(reminditems, 3.1), value = TRUE)
+      nonNavigateScenarios <- setdiff(getItems(reminditems, 3.1), navigateScenarios)
+      reminditems <- mbind(
+        mselect(reminditems, scenario = nonNavigateScenarios),
+        mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
+        addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
+                       collapseNames = TRUE),
+               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+               "scenario", 3.1)
+      )
+    }
 
-  structure_data <- switch(subtype,
-    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
-    UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
-    ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
-    "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
+    structure_data <- switch(subtype,
+                             FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
+                             FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+                             UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+                             FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
+                             UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
+                             ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
+                             "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
-  return(list(x=reminditems,weight=NULL,
-              unit = unit_out,
-              description = description_out,
-              structure.data = structure_data))
+    return(list(x=reminditems,weight=NULL,
+                unit = unit_out,
+                description = description_out,
+                structure.data = structure_data))
 }

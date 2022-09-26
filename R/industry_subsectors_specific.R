@@ -49,10 +49,14 @@
 #' @export
 #' @rdname industry_subsector_specific
 readindustry_subsectors_specific <- function(subtype = NULL) {
+  # file path (for easier debugging)
+  path <- './'
+  # path <- '~/PIK/swap/inputdata/sources/industry_subsectors_specific/'
+
   # subtype switchboard ----
   switchboard <- list(
     'FE' = function() {
-      read_csv(file = 'specific_FE.csv',
+      read_csv(file = file.path(path, 'specific_FE.csv'),
                col_types = 'cccd',
                comment = '#',
                progress = FALSE) %>%
@@ -60,7 +64,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
     },
 
     'material_alpha' = function() {
-      read_csv(file = 'specific_material_alpha.csv',
+      read_csv(file = file.path(path, 'specific_material_alpha.csv'),
                col_types = 'cccdi',
                comment = '#',
                progress = FALSE) %>%
@@ -68,7 +72,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
     },
 
     'material_relative' = function() {
-      read_csv(file = 'specific_material_relative.csv',
+      read_csv(file = file.path(path, 'specific_material_relative.csv'),
                col_types = 'ccccd',
                comment = '#',
                progress = FALSE) %>%
@@ -76,7 +80,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
     },
 
     'material_relative_change' = function() {
-      read_csv(file = 'specific_material_relative_change.csv',
+      read_csv(file = file.path(path, 'specific_material_relative_change.csv'),
                col_types = 'ccccd',
                comment = '#',
                progress = FALSE) %>%
