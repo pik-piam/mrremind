@@ -4,7 +4,10 @@
 \alias{readAGEB}
 \title{Read AGEB}
 \usage{
-readAGEB()
+readAGEB(subtype = "balances")
+}
+\arguments{
+\item{subtype}{data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

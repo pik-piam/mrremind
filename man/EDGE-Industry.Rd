@@ -14,6 +14,7 @@ calcSteel_Projections(
 )
 
 calcIndustry_Value_Added(
+  subtype = "physical",
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
   save.plots = FALSE,
@@ -23,10 +24,14 @@ calcIndustry_Value_Added(
 \arguments{
 \item{subtype}{One of
 \itemize{
-\item \code{production}  Returns trajectories of primary and secondary steel
-production
-\item \code{secondary.steel.max.share}  Returns the maximum share of secondary steel
-in total steel production.
+\item \code{production} Returns trajectories of primary and secondary steel
+production (\code{calcSteel_Projections()}).
+\item \code{secondary.steel.max.share} Returns the maximum share of secondary steel
+in total steel production (\code{calcSteel_Projections()}).
+\item \code{physical} Returns physical production trajectories for cement
+(\code{calcIndustry_Value_Added()}).
+\item \code{economic} Returns value added trajectories for all subsectors
+(\code{calcIndustry_Value_Added()}).
 }}
 
 \item{match.steel.historic.values}{Should steel production trajectories match
