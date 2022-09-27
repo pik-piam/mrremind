@@ -222,8 +222,11 @@ calcHistorical <- function() {
   JRC_ResCom <- add_dimension(JRC_ResCom, dim = 3.1, add = "model", nm = "JRC")
 
   # AGEB final energy data
-  AGEB_FE <- calcOutput("AGEB", aggregate = FALSE)
-  AGEB_FE <- add_dimension(AGEB_FE, dim = 3.1, add = "model", nm = "AGEB")
+  AGEB_Bal <- calcOutput("AGEB", subtype = "balances", aggregate = FALSE)
+  AGEB_Bal <- add_dimension(AGEB_Bal, dim = 3.1, add = "model", nm = "AGEB")
+
+  AGEB_SE <- calcOutput("AGEB", subtype = "electricity", aggregate = FALSE)
+  AGEB_SE <- add_dimension(AGEB_SE, dim = 3.1, add = "model", nm = "AGEB")
 
   # UBA Emission data
   UBA_emi <- calcOutput("UBA", aggregate = FALSE)
@@ -323,8 +326,8 @@ calcHistorical <- function() {
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     # EEA_GHGES,
-    IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_FE,
-    UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement)
+    IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_Bal,
+    AGEB_SE, UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement)
 
   y <- Reduce(union,lapply(varlist,getYears))
   n <- Reduce(c,lapply(varlist,getNames))
