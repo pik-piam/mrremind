@@ -1,6 +1,5 @@
 #' @title Prepare EDGETransport inputs
 #'
-#'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Alois Dirnaichner, Marianna Rottoli
 #' @seealso \code{\link{readSource}}
