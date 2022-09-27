@@ -51,18 +51,21 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   }
 
   create_copy_demscens <- function(dt) {
-    setkey(dt, "DEM_scenario")
+    setkey(dt, "DEM_scenario", "GDP_scenario", "EDGE_scenario")
     ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
     dt <- rbind(dt,
-                dt["gdp_SSP2EU", nomatch=NULL][, DEM_scenario := "gdp_SSP2EU_NAV_ele"],
-                dt["gdp_SSP2EU", nomatch=NULL][, DEM_scenario := "gdp_SSP2EU_NAV_tec"],
-                dt["gdp_SSP2EU_lowdem", nomatch=NULL][, DEM_scenario := "gdp_SSP2EU_NAV_act"],
-                dt["gdp_SSP2EU_lowdem", nomatch=NULL][, DEM_scenario := "gdp_SSP2EU_NAV_all"],
-                dt["gdp_SSP2EU_lowdem", nomatch=NULL][, DEM_scenario := "gdp_SSP2_lowEn"]
+                dt[c("gdp_SSP2EU", "gdp_SSP2EU", "NAV_ele"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_NAV_ele"],
+                dt[c("gdp_SSP2EU", "gdp_SSP2EU", "NAV_tec"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_NAV_tec"],
+                dt[c("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_act"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_NAV_act"],
+                dt[c("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_all"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_NAV_all"]
     )
     setkey(dt, "DEM_scenario")
+    dt["gdp_SSP2EU_lowdem", DEM_scenario := "gdp_SSP2_lowEn"]
     scens <- unique(dt$DEM_scenario)
-
     ## this scenario is not supported by REMIND
     dt <- dt[scens["gdp_SSP2EU_lowdem" != scens]]
     return(dt)
