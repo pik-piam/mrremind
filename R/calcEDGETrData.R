@@ -1,6 +1,5 @@
 #' @title Runs EDGE-T model
 #'
-#'
 #' @return list of EDGEtransport iterative inputs
 #' @author Marianna Rottoli
 #' @seealso \code{\link{readEDGETransport}}, \code{\link[madrat]{calcOutput}}

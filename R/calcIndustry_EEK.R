@@ -3,7 +3,8 @@
 #' @param kap General internal capital stock, as calculated internally by
 #'   `calcCapital()`.
 #'
-#' @return
+#' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
+#'   `unit`, and `description` fields.
 #'
 #' @importFrom assertr assert
 #' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate n
