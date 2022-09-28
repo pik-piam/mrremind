@@ -51,7 +51,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   }
 
   create_copy_demscens <- function(dt) {
-    setkeyv(dt, "DEM_scenario", "GDP_scenario", "EDGE_scenario")
+    setkeyv(dt, c("DEM_scenario", "GDP_scenario", "EDGE_scenario"))
     ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
     dt <- rbind(dt,
                 dt[.("gdp_SSP2EU", "gdp_SSP2EU", "NAV_ele"), nomatch=NULL][
@@ -73,7 +73,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
   compress_magpie <- function(dt, ...) {
     dt <- create_copy_demscens(dt)
-    setkeyv(dt, "EDGE_scenario", "DEM_scenario", "GDP_scenario")
+    setkeyv(dt, c("EDGE_scenario", "DEM_scenario", "GDP_scenario"))
     mdata <- NULL
     for (i in unique(dt$EDGE_scenario)) {
       for (j in unique(dt$DEM_scenario)) {
