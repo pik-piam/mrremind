@@ -66,8 +66,6 @@ readEDGETransport <- function(subtype = "logit_exponent") {
     setkeyv(dt, "DEM_scenario")
     dt[.("gdp_SSP2EU_lowdem"), DEM_scenario := "gdp_SSP2_lowEn"]
     scens <- unique(dt$DEM_scenario)
-    ## this scenario is not supported by REMIND
-    dt <- dt[scens["gdp_SSP2EU_lowdem" != scens]]
     return(dt)
   }
 
