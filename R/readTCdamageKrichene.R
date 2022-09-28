@@ -22,7 +22,7 @@ readTCdamageKrichene <- function(subtype) {
                 for (q in quant) {
                         a2 <- a[which(a$persistence == p), ]
                         col <- which(colnames(a2) == paste0("estimates_", q))
-                        if (p == 0 && q == quant[1]) {
+                        if (p == unique(a$persistence)[1] && q == quant[1]) {
                                 out <- new.magpie(a2$iso, NULL, paste0(p, ".", q), a2[, col], sets = c("CountryCode", "year", "persistence.quantile"))
                         } else {
                                 out <- mbind(out, new.magpie(a2$iso, NULL, paste0(p, ".", q), a2[, col], sets = c("CountryCode", "year", "persistence.quantile")))
