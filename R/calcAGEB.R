@@ -5,14 +5,15 @@
 #'
 #' @author Falk Benke
 #'
+#' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
-calcAGEB <- function() {
-  ageb <- readSource("AGEB")
+calcAGEB <- function(subtype = "balances") {
+  ageb <- readSource("AGEB", subtype = subtype)
 
   mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables") %>%
     mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%

@@ -26,3 +26,26 @@ scenarios and regions listed in `scenarios` and `regions`.  Rows with
 specified scenarios and/or regions will overwrite extended ones.  Regions are
 expanded before scenarios.
 }
+\examples{
+\dontrun{
+tribble(
+  ~scenario,   ~region,   ~value,
+  NA,          NA,        0,
+  NA,          'CHA',     1,
+  'SSP1',      NA,        2,
+  'SSP2EU',    'DEU',     3) \%>\%
+  tool_expand_tibble(scenarios = c('SSP1', 'SSP2EU', 'SSP5'),
+                     regions = c('CHA', 'DEU', 'USA')) \%>\%
+  pivot_wider(names_from = 'region')
+
+tribble(
+  ~scenario,   ~region,   ~name,   ~value,
+  NA,          NA,        'A',     0,
+  NA,          'CHA',     'B',     1,
+  'SSP1',      NA,        'A',     2,
+  'SSP2EU',    'DEU',     'B',     3) \%>\%
+  tool_expand_tibble(scenarios = c('SSP1', 'SSP2EU', 'SSP5'),
+                     regions = c('CHA', 'DEU', 'USA'),
+                     structure.columns = 'name')
+}
+}
