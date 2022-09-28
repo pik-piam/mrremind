@@ -12,7 +12,7 @@
 #' \dontrun{ a <- readSource(type="EDGETransport")
 #' }
 #' @importFrom magclass read.magpie
-#' @importFrom data.table rbindlist fread setcolorder := setnames setkey
+#' @importFrom data.table rbindlist fread setcolorder := setnames setkeyv
 #' @importFrom rmndt approx_dt
 #'
 
@@ -51,7 +51,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
   }
 
   create_copy_demscens <- function(dt) {
-    setkey(dt, "DEM_scenario", "GDP_scenario", "EDGE_scenario")
+    setkeyv(dt, "DEM_scenario", "GDP_scenario", "EDGE_scenario")
     ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
     dt <- rbind(dt,
                 dt[c("gdp_SSP2EU", "gdp_SSP2EU", "NAV_ele"), nomatch=NULL][
@@ -63,7 +63,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                 dt[c("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_all"), nomatch=NULL][
                   , DEM_scenario := "gdp_SSP2EU_NAV_all"]
     )
-    setkey(dt, "DEM_scenario")
+    setkeyv(dt, "DEM_scenario")
     dt["gdp_SSP2EU_lowdem", DEM_scenario := "gdp_SSP2_lowEn"]
     scens <- unique(dt$DEM_scenario)
     ## this scenario is not supported by REMIND
@@ -73,7 +73,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
 
   compress_magpie <- function(dt, ...) {
     dt <- create_copy_demscens(dt)
-    setkey(dt, "EDGE_scenario", "DEM_scenario", "GDP_scenario")
+    setkeyv(dt, "EDGE_scenario", "DEM_scenario", "GDP_scenario")
     mdata <- NULL
     for (i in unique(dt$EDGE_scenario)) {
       for (j in unique(dt$DEM_scenario)) {
