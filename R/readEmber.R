@@ -16,7 +16,7 @@ readEmber <- function() {
   filename <- "yearly_full_release_long_format.csv"
   df <- read.csv(filename)
 
-  # filter out regions by only choosing rows that don't have a blank country.code
+  # filter out aggregated regions by only choosing rows that don't have a blank country.code
   df <- df[df$Country.code != "", ]
 
   # combine category columns to one variable column
@@ -25,6 +25,7 @@ readEmber <- function() {
 
   # convert to magpie object
   x <- as.magpie(df, spatial="Country.code", temporal="Year", tidy = TRUE)
+  getSets(x) <- c("region", "year", "variable", "unit")
 
   return(x)
 }

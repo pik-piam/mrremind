@@ -122,7 +122,7 @@ calcHistorical <- function() {
 
   # Capacities historical data ====
 
-  #IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
+  # IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
   IRENAcap <- readSource(type="IRENA",subtype="Capacity")[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame( IRENA_techs=c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
@@ -130,6 +130,9 @@ calcHistorical <- function() {
   IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_var") # renaming technologies to REMIND naming convention
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
+
+  # Ember capacity data ====
+  Ember <- calcOutput("Capacity", subtype = "ember", aggregate = F)
 
   # Region specific historical data ====
   # European Eurostat data
@@ -320,7 +323,7 @@ calcHistorical <- function() {
   varlist <- list(
     fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
     gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, Ember, eurostat,
     # emiMktES, emiMktETS, emiMktESOthers,
     EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp,
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
