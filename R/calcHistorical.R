@@ -131,12 +131,14 @@ calcHistorical <- function() {
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
 
-  # Ember capacity data ====
-  Ember <- calcOutput("Capacity", subtype = "ember", aggregate = F)
+  # Ember electricity data ====
+  Ember_cap <- calcOutput("Capacity", subtype = "ember", aggregate = FALSE)
+  Ember_gen <- calcOutput("SE", aggregate = FALSE)
+  Ember <- mbind(Ember_cap, Ember_gen)
 
   # Region specific historical data ====
   # European Eurostat data
-  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = F)
+  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = FALSE)
   eurostat <- add_dimension(eurostat, dim = 3.1, add = "model", nm = "Eurostat")
 
   # Emissions market data

@@ -24,7 +24,7 @@ readEmber <- function() {
   df <- select(df, c("Country.code", "Year", "variable", "Unit", "Value"))
 
   # convert to magpie object
-  x <- as.magpie(df, spatial="Country.code", temporal="Year", tidy = TRUE)
+  x <- as.magpie(df, spatial = "Country.code", temporal = "Year", tidy = TRUE)
   getSets(x) <- c("region", "year", "variable", "unit")
 
   return(x)

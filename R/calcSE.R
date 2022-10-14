@@ -17,21 +17,21 @@ calcSE <- function() {
   x <- readSource("Ember")
 
   # map to REMIND variables
-  map <- toolGetMapping("Mapping_Ember.csv", type="reportingVariables") %>%
+  map <- toolGetMapping("Mapping_Ember.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "")
 
   # choose only electricity generation variables
-  x <- x[,,"TWh"]
-  x <- toolAggregate(x, dim=3.1, rel=map, from = "Variable", to="REMIND_Variable", partrel = T, verbosity = 2)
+  x <- x[, , "TWh"]
+  x <- toolAggregate(x, dim = 3.1, rel = map, from = "Variable", to = "REMIND_Variable", partrel = TRUE, verbosity = 2)
 
   # convert units using factors from mapping
-  for (var in getNames(x, dim=1)) {
-    x[,,var] <- x[,,var] * map[map$REMIND_Variable == var, "Factor"]
+  for (var in getNames(x, dim = 1)) {
+    x[, , var] <- x[, , var] * map[map$REMIND_Variable == var, "Factor"]
   }
 
   # append unit to variable name and delete unit dimension
-  getNames(x, dim=1) <- paste(getNames(x, dim=1), "(EJ/yr)")
-  x <- collapseDim(x, dim=3.2)
+  getNames(x, dim = 1) <- paste(getNames(x, dim = 1), "(EJ/yr)")
+  x <- collapseDim(x, dim = 3.2)
 
   return(list(x = x, weight = NULL, unit = "EJ/yr",
          description = "Electricity generation from the yearly Ember electricity data set"))

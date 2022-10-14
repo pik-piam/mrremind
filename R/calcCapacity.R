@@ -14,7 +14,7 @@
 #' @importFrom magclass add_dimension
 #'
 
-calcCapacity <- function(subtype){
+calcCapacity <- function(subtype) {
   if (subtype == "capacityByTech_windoff") {
 
     description <- "Historical capacity by technology."

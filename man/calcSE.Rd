@@ -2,7 +2,9 @@
 % Please edit documentation in R/calcSE.R
 \name{calcSE}
 \alias{calcSE}
-\title{Calculate Secondary Energy variables}
+\title{Calculate Secondary Energy variables
+Currently this function only uses data from Ember, however other sources for SE are available and could be integrated
+here using different \code{datasource} arguments.}
 \usage{
 calcSE()
 }
@@ -11,6 +13,11 @@ A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculate Secondary Energy variables
+Currently this function only uses data from Ember, however other sources for SE are available and could be integrated
+here using different \code{datasource} arguments.
+}
+\seealso{
+\code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
 Pascal Weigmann
