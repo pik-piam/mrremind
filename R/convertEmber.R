@@ -16,7 +16,8 @@ convertEmber <- function(x) {
 
   # add missing countries
   x <- toolCountryFill(x, fill = 0, verbosity = 2)
-  # replace NA by 0
+
+  # replace NA by 0 to enable aggregation over incomplete regions
   x[is.na(x)] <- 0
 
   return(x)
