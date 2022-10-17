@@ -116,36 +116,6 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     historical <- historical[, c(1, 4, 2, 3)]
     x <- as.magpie(historical, spatial = 2, datacol = 4, temporal = 3)
   }
-  else if (subtype == "projections_old") {
-
-    mapping <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjections2019.csv")
-
-    projections <- read.csv(file = "GHG_projections/GHG_projections_2019_EEA.csv", stringsAsFactors = FALSE, strip.white = TRUE) %>%
-      filter(!!sym("CountryCode") != "", !!sym("CountryCode") != "EU", !!sym("Gapfilled") != as.double(0), !is.na(!!sym("Gapfilled"))) %>%
-      select("CountryCode","Year","Category_name","Scenario","Gas","Gapfilled")
-
-    projections <- left_join(mapping, projections, by = c("Category_name", "Gas")) %>%
-      select("scenario" = "Scenario", "variable" = "Variable", "region" = "CountryCode", "period" = "Year", "value" = "Gapfilled") %>%
-      calc_addVariable(
-        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Energy|Demand|Industry|ETS`",
-        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Energy|Demand|Industry|ESR`",
-        "`Emi|GHG|Industry`" = "`Emi|GHG|Industry|ETS` + `Emi|GHG|Industry|ESR`",
-        completeMissing = F
-      ) %>%
-      filter(!is.na(!!sym("scenario")), !is.na(!!sym("value"))) %>%
-      mutate(
-        !!sym("value") := !!sym("value") / 1000,
-        !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2019"),
-        !!sym("variable") :=  paste0(!!sym("variable"), " (Mt CO2eq/yr)")
-      )
-
-    projections <- projections[(!(is.na(projections$region))), ]
-    projections <- projections[(!(is.na(projections$period))), ]
-
-    x <- as.magpie(projections, spatial = 3, temporal = 4, datacol = 5)
-
-    return(x)
-  }
   else if (subtype == "projections") {
 
     mapping <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjections2021.csv")

@@ -27,7 +27,7 @@ convertEEA_EuropeanEnvironmentAgency <- function(x,subtype) {
     x <- toolCountryFill(x)
   } else if (subtype == "sectoral") {
     x <- toolCountryFill(x, no_remove_warning = "EUR")
-  } else if (subtype %in% c("projections", "projections_old")) {
+  } else if (subtype == "projections") {
     getRegions(x) <- countrycode(getRegions(x), "iso2c", "iso3c")
     x <- toolCountryFill(x, verbosity = 2)
   }
