@@ -190,24 +190,12 @@ calcEmissionFactorsFeedstocks <- function() {
   x <- mbind(x.fill, x.empty)
 
   # create weights ----
-
-  weights <- new.magpie(
-    cells_and_regions = getItems(x, dim = 1), years = getItems(x, dim = 2),
-    names = c("solids", "liquids", "gases")
-  )
-  iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, , "NECHEM"] %>% collapseDim() * 4.1868e-5 * 1e-3
-  iea <- iea[, c(2005, 2010, 2015, 2020), ]
-
-  for (g in unique(product_mapping$group)) {
-    products <- product_mapping %>%
-      filter(g == .data$group) %>%
-      select("products") %>%
-      pull()
-
-    group <- dimSums(iea[, , products], dim = 3, na.rm = T)
-    weights[, c(2005, 2010, 2015, 2020), g] <- group
-    weights[, c(seq(2025, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- group[, 2020, ]
-  }
+  weights <- new.magpie(cells_and_regions = getItems(x, dim = 1), years = getItems(x, dim = 2))
+  iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, c(2005, 2010, 2015, 2020), "NECHEM"] %>%
+    collapseDim() %>%
+    dimSums(dim = 3, na.rm = T) * 4.1868e-5 * 1e-3
+  weights[, c(2005, 2010, 2015, 2020)] <- iea
+  weights[, c(seq(2025, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), ] <- weights[, 2020, ]
 
   return(
     list(
