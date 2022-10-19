@@ -67,51 +67,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5
 
-  if (subtype == "output") {
-
-    # These changes may reduce the amount of CHP plants to below what is actually
-    # deployed in a region, because heat reporting is obscure. In some statistics,
-    # heat from CHP plant used in the same industrial compound is NOT explicitly
-    # reported as heat. If this is the case in the IEA data as well, this would
-    # lead to underestimating CHP plants. However, there currently seems to be no
-    # better way to create consistent data for CHP/non-CHP electricity production
-    # and heat ouput.
-
-    # for each product: check if the flow "HEMAINC" > 0, if yes, do nothing;
-    # if no, add the value of the flow "ELMAINC" to "ELMAINE" and afterwards set ELMAINC to zero.
-
-    missing.flows <- setdiff(expand.grid(iea_product = getItems(data[, , "ELMAINE"], dim = 3.1) %>%
-      union(getItems(data[, , "ELMAINC"], dim = 3.1)) %>%
-      union(getItems(data[, , "HEMAINC"], dim = 3.1)), iea_flows = c("ELMAINE", "ELMAINC", "HEMAINC")) %>%
-      unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-      pull("product.flow"), getItems(data, dim = 3))
-
-    data <- add_columns(data, addnm = missing.flows, dim = 3, fill = 0)
-
-    d <- data[, , c("ELMAINE", "ELMAINC", "HEMAINC")]
-    tmp <- mcalc(d, ELMAINE ~ ifelse(HEMAINC > 0, ELMAINE, ELMAINC + ELMAINE), append = F)
-    data[, , "ELMAINE"] <- tmp
-    tmp <- mcalc(d, ELMAINC ~ ifelse(HEMAINC > 0, ELMAINC, 0), append = F)
-    data[, , "ELMAINC"] <- tmp
-
-    # for each product: check if the flow "HEAUTOC" > 0, if yes, do nothing;
-    # if no, add the value of the flow "ELAUTOC" to "ELAUTOE" and afterwards set ELAUTOC to zero.
-
-    missing.flows <- setdiff(expand.grid(iea_product = getItems(data[, , "ELAUTOE"], dim = 3.1) %>%
-      union(getItems(data[, , "ELAUTOC"], dim = 3.1)) %>%
-      union(getItems(data[, , "HEAUTOC"], dim = 3.1)), iea_flows = c("ELAUTOE", "HEAUTOC", "ELAUTOC")) %>%
-      unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-      pull("product.flow"), getItems(data, dim = 3))
-
-    data <- add_columns(data, addnm = missing.flows, dim = 3, fill = 0)
-
-    d <- data[, , c("ELAUTOE", "HEAUTOC", "ELAUTOC")]
-    tmp <- mcalc(d, ELAUTOE ~ ifelse(HEAUTOC > 0, ELAUTOE, ELAUTOC + ELAUTOE), append = F)
-    data[, , "ELAUTOE"] <- tmp
-    tmp <- mcalc(d, ELAUTOC ~ ifelse(HEAUTOC > 0, ELAUTOC, 0), append = F)
-    data[, , "ELAUTOC"] <- tmp
-  }
-
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
