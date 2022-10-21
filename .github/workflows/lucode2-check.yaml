@@ -79,7 +79,8 @@ jobs:
         run: |
           ./run.sh install_aptget libhdf5-dev libharfbuzz-dev libfribidi-dev
           ./run.sh install_all
-          ./run.sh install_r lucode2 covr rstudioapi
+          ./run.sh install_r_binary covr rstudioapi
+          ./run.sh install_r lucode2
 
       - name: Install python dependencies if applicable
         run: |

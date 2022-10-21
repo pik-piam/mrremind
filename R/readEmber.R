@@ -19,13 +19,16 @@ readEmber <- function() {
   # filter out aggregated regions by only choosing rows that don't have a blank country.code
   df <- df[df$Country.code != "", ]
 
-  # combine category columns to one variable column
+  # combine category columns to one variable column and rename according to madrat standard
   df$variable <- paste(df$Category, df$Subcategory, df$Variable, sep = "|")
-  df <- select(df, c("Country.code", "Year", "variable", "Unit", "Value"))
+  df <- select(df, c(region = "Country.code",
+                     year = "Year",
+                     variable = "variable",
+                     unit = "Unit",
+                     value = "Value"))
 
   # convert to magpie object
-  x <- as.magpie(df, spatial = "Country.code", temporal = "Year", tidy = TRUE)
-  getSets(x) <- c("region", "year", "variable", "unit")
+  x <- as.magpie(df, tidy = TRUE)
 
   return(x)
 }

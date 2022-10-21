@@ -260,25 +260,6 @@ calcCapacity <- function(subtype) {
     output <- readSource("GCPT",subtype="future") * 1e-03
     description <- "Post-COVID coal power capacity scenarios for 2025"
 
-
-  }else if (subtype == "ember") {
-    # get Ember data
-    x <- readSource("Ember")
-
-    # choose only capacity variables
-    cap <- x[,,"GW"]
-
-    # load and apply mapping to REMIND variables
-    map <- toolGetMapping("Mapping_Ember.csv", type="reportingVariables") %>%
-      filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "")  # remove incomplete mapping rows
-    cap <- toolAggregate(cap, dim=3.1, rel=map, from = "Variable", to="REMIND_Variable", partrel = T, verbosity = 2)
-
-    # convert GW to TW and move unit to variable name
-    getNames(cap, dim=1) <- paste(getNames(cap, dim=1), "(TW)")
-    cap <- collapseDim(cap, dim=3.2)
-    output <- cap * 1e-03
-    description <- "Capacities from the yearly Ember electricity data set"
-
   } else {
     stop("Not a valid subtype!")
   }

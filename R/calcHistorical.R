@@ -132,9 +132,8 @@ calcHistorical <- function() {
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
 
   # Ember electricity data ====
-  Ember_cap <- calcOutput("Capacity", subtype = "ember", aggregate = FALSE)
-  Ember_gen <- calcOutput("SE", aggregate = FALSE)
-  Ember <- mbind(Ember_cap, Ember_gen)
+  Ember <- calcOutput("Ember", subtype = "all", aggregate = FALSE)
+  Ember <- add_dimension(Ember, dim=3.1, add="model", nm="Ember")
 
   # Region specific historical data ====
   # European Eurostat data
