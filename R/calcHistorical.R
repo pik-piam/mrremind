@@ -158,7 +158,7 @@ calcHistorical <- function() {
   # emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
 
   # EEA GHG Projections
-  EEA_GHGProjections <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="projections"))
+  EEA_GHGProjections <- .fillZeros(calcOutput("EEAGHGProjections", aggregate = FALSE))
 
   # EEA GHG Sectoral Historical Data
   EEA_GHGSectoral <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral"))
