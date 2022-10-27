@@ -15,9 +15,13 @@
 #'
 #' @param scenarios A vector of scenarios for which factors are to be returned.
 #' @param regions A vector of regions for which factors are to be returned.
+#' @param direct A data frame as returned by
+#'   `readindustry_subsectors_specific()` to load debugging/developing data
+#'   directly instead of from file.
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
+#' @details
 #' Factors are read from the files `specific_FE.csv`,
 #' `specific_material_alpha.csv`, `specific_material_relative.csv`, and
 #' `specific_material_relative_change.csv`, respectively.  `NA` is used to mark
@@ -37,6 +41,11 @@
 #' `NA`/`region`, `scenario`/`region`).
 #'
 #' Lastly, output is filtered for `scenarios` and `regions`.
+#'
+#' For debugging and development, instead of modifying the .csv files in
+#' `sources/industry_subsectors_specific/` and interfering with production runs,
+#' modify the calling code (e.g. `calcFEdemand.R`) to use `direct` data (entered
+#' verbatim or loaded from somewhere else.)
 #'
 #' @author Michaja Pehl
 #'
@@ -100,7 +109,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
 #' @export
 #' @rdname industry_subsector_specific
 calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
-                                             regions = NULL) {
+                                             regions = NULL, direct = NULL) {
   if (is.null(scenarios)) {
     stop('Scenario definitions missing.')
   }
@@ -111,14 +120,30 @@ calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
 
   . <- NULL
 
+  if (is.null(direct)) {
+    x <- readSource(type = 'industry_subsectors_specific', subtype = subtype,
+		    convert = FALSE) %>%
+      madrat_mule()
+  } else {
+    if (!is.data.frame(direct)) {
+      stop('`direct` is not a data frame')
+    }
+    if (!all(c('scenario', 'region', 'subsector') %in% colnames(direct))) {
+      stop('`direct` is missing columns: ',
+	   paste(setdiff(c('scenario', 'region', 'subsector'),
+			 colnames(direct)),
+		 collapse = ', '))
+    }
+    x <- direct
+  }
+
   return(list(
-    x = readSource(type = 'industry_subsectors_specific', subtype = subtype,
-                   convert = FALSE) %>%
-      madrat_mule() %>%
+    x = x %>%
       tool_expand_tibble(scenarios, regions,
-                         structure.columns = 'subsector') %>%
+			 structure.columns = 'subsector') %>%
       pivot_longer(
-        !all_of(names(which('character' == unlist(lapply(., typeof)))))) %>%
+        !all_of(names(which('character' == unlist(lapply(., typeof)))))
+      ) %>%
       as.magpie(spatial = 0, temporal = 0, data = ncol(.)),
     weight = NULL, unit = '', description = ''))
 }
