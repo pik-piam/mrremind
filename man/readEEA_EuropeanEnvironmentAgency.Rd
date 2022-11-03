@@ -7,7 +7,7 @@
 readEEA_EuropeanEnvironmentAgency(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "ETS", "ESR", "total", "sectoral", or "projections"}
+\item{subtype}{data subtype. Either "ETS", "ESR", "total", "sectoral", "projections", or "projections-detailed"}
 }
 \value{
 magpie object of European Environment Agency (EEA) ETS emissions (GtCO2)

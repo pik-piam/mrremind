@@ -122,7 +122,7 @@ calcHistorical <- function() {
 
   # Capacities historical data ====
 
-  #IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
+  # IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
   IRENAcap <- readSource(type="IRENA",subtype="Capacity")[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame( IRENA_techs=c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
@@ -131,9 +131,13 @@ calcHistorical <- function() {
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
 
+  # Ember electricity data ====
+  Ember <- calcOutput("Ember", subtype = "all", aggregate = FALSE)
+  Ember <- add_dimension(Ember, dim=3.1, add="model", nm="Ember")
+
   # Region specific historical data ====
   # European Eurostat data
-  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = F)
+  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = FALSE)
   eurostat <- add_dimension(eurostat, dim = 3.1, add = "model", nm = "Eurostat")
 
   # Emissions market data
@@ -154,7 +158,7 @@ calcHistorical <- function() {
   # emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
 
   # EEA GHG Projections
-  EEA_GHGProjections <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="projections"))
+  EEA_GHGProjections <- .fillZeros(calcOutput("EEAGHGProjections", aggregate = FALSE))
 
   # EEA GHG Sectoral Historical Data
   EEA_GHGSectoral <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral"))
@@ -320,7 +324,7 @@ calcHistorical <- function() {
   varlist <- list(
     fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
     gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, eurostat,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, Ember, eurostat,
     # emiMktES, emiMktETS, emiMktESOthers,
     EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp,
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
