@@ -10,7 +10,8 @@ readindustry_subsectors_specific(subtype = NULL)
 calcindustry_subsectors_specific(
   subtype = NULL,
   scenarios = NULL,
-  regions = NULL
+  regions = NULL,
+  direct = NULL
 )
 }
 \arguments{
@@ -28,10 +29,19 @@ demand \emph{change} relative to baseline scenarios
 \item{scenarios}{A vector of scenarios for which factors are to be returned.}
 
 \item{regions}{A vector of regions for which factors are to be returned.}
+
+\item{direct}{A data frame as returned by
+\code{readindustry_subsectors_specific()} to load debugging/developing data
+directly instead of from file.}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
-
+}
+\description{
+Change factors of specific FE and material demand for the
+\code{industry/subsector} realisation of REMIND.
+}
+\details{
 Factors are read from the files \code{specific_FE.csv},
 \code{specific_material_alpha.csv}, \code{specific_material_relative.csv}, and
 \code{specific_material_relative_change.csv}, respectively.  \code{NA} is used to mark
@@ -53,10 +63,11 @@ Replacements occure in this fixed order (\code{NA}/\code{NA}, \code{scenario}/\c
 \code{NA}/\code{region}, \code{scenario}/\code{region}).
 
 Lastly, output is filtered for \code{scenarios} and \code{regions}.
-}
-\description{
-Change factors of specific FE and material demand for the
-\code{industry/subsector} realisation of REMIND.
+
+For debugging and development, instead of modifying the .csv files in
+\verb{sources/industry_subsectors_specific/} and interfering with production runs,
+modify the calling code (e.g. \code{calcFEdemand.R}) to use \code{direct} data (entered
+verbatim or loaded from somewhere else.)
 }
 \author{
 Michaja Pehl
