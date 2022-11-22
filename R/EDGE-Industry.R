@@ -19,7 +19,8 @@
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
-#' @param save.plots Save plots to `getConfig('outputfolder')`?
+#' @param save.plots `NULL` (default) if no plots are saved, or the path to save
+#'     directories to.
 #' @param China_Production A data frame with columns `period` and
 #'     `total.production` prescribing total production for China to have,
 #'     disregarding results from the stock saturation model.
@@ -52,8 +53,15 @@
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE,
                                   match.steel.estimates = 'none',
-                                  save.plots = FALSE,
+                                  save.plots = NULL,
                                   China_Production = NULL) {
+
+  if (!is.null(save.plots)) {
+    if (!all(isTRUE(file.info(save.plots)$isdir),
+             448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
+      stop('No writable directory `save.plots`: ', save.plots)
+    }
+  }
 
   produce_plots_and_tables <- TRUE
 
@@ -1237,8 +1245,14 @@ calcSteel_Projections <- function(subtype = 'production',
 calcIndustry_Value_Added <- function(subtype = 'physical',
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
-                                     save.plots = FALSE,
+                                     save.plots = NULL,
                                      China_Production = NULL) {
+  if (!is.null(save.plots)) {
+    if (!all(isTRUE(file.info(save.plots)$isdir),
+             448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
+      stop('No writable directory `save.plots`: ', save.plots)
+    }
+  }
 
   linetype_scenarios <- c(regression = 'longdash',
                           SSP1       = 'dotted',
@@ -1645,7 +1659,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            'steel.production', 'steel.VA', 'GDPpC', 'steel.VApt')
 
   ## plot steel VA =============================================================
-  if (save.plots) {
+  if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_steel %>%
       ungroup() %>%
       filter('Total' == .data$iso3c,
@@ -1732,13 +1746,12 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme(legend.justification = c(1, 0),
             legend.position = c(1, 0))
 
-    ggsave(plot = p,
-           filename = '04_Steel_VA_regressions_projections.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+    ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '04_Steel_VA_regressions_projections.rds'))
   }
 
@@ -1953,7 +1966,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     pivot_wider()
 
   ## plot cement regressions ====
-  if (save.plots) {
+  if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_cement %>%
       filter(!.data$censored,
              'Total' == .data$iso3c) %>%
@@ -2115,18 +2128,18 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
 
     ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '01_Cement_regression_projection.rds'))
   }
 
   # ========================================================================== =
 
   ## plot cement VA regressions ====
-  if (save.plots) {
+  if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_cement %>%
       ungroup() %>%
       filter('Total' == .data$iso3c,
@@ -2198,11 +2211,11 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
 
     ggsave(plot = p, filename = '05_Cement_VA_regressions_projections.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '05_Cement_VA_regressions_projections.rds'))
   }
 
@@ -2353,7 +2366,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            chemicals.share = .data$chemicals.VA / .data$manufacturing)
 
   ## plot chemicals regressions ================================================
-  if (save.plots) {
+  if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_chemicals %>%
       filter(!.data$censored,
              'Total' == .data$iso3c)
@@ -2438,11 +2451,11 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal()
 
     ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '01_Cement_regression_projection.rds'))
   }
 
@@ -2557,35 +2570,35 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   # plot otherInd VA ===========================================================
 
-   p <- ggplot() +
-    geom_area(
-      data = projections %>%
-        select('scenario', 'region', 'iso3c', 'year', 'cement.VA',
-               'chemicals.VA', 'steel.VA', 'otherInd.VA') %>%
-        filter('SSP2' == .data$scenario,
-               2000 <= .data$year,
-               'Total' == .data$iso3c) %>%
-        select(-'scenario', -'iso3c') %>%
-        pivot_longer(matches('\\.VA$')) %>%
-        mutate(name = sub('\\.VA$', '', .data$name)) %>%
-        order.levels(
-          name = c('cement', 'chemicals', 'steel', 'otherInd')),
-      mapping = aes(x = !!sym('year'), y = !!sym('value') / 1e12,
-                    fill = !!sym('name'))) +
-    scale_fill_discrete(name = NULL,
-                        guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ !!sym('region'), scales = 'free_y') +
-    labs(x = NULL, y = 'Value Added [$tn/year]') +
-    theme_minimal() +
-    theme(legend.justification = c(1, 0), legend.position = c(1, 0))
+  if (!is.null(save.plots)) {
+    p <- ggplot() +
+      geom_area(
+        data = projections %>%
+          select('scenario', 'region', 'iso3c', 'year', 'cement.VA',
+                 'chemicals.VA', 'steel.VA', 'otherInd.VA') %>%
+          filter('SSP2' == .data$scenario,
+                 2000 <= .data$year,
+                 'Total' == .data$iso3c) %>%
+          select(-'scenario', -'iso3c') %>%
+          pivot_longer(matches('\\.VA$')) %>%
+          mutate(name = sub('\\.VA$', '', .data$name)) %>%
+          order.levels(
+            name = c('cement', 'chemicals', 'steel', 'otherInd')),
+        mapping = aes(x = !!sym('year'), y = !!sym('value') / 1e12,
+                      fill = !!sym('name'))) +
+      scale_fill_discrete(name = NULL,
+                          guide = guide_legend(direction = 'horizontal')) +
+      facet_wrap(vars(!!sym('region')), scales = 'free_y') +
+      labs(x = NULL, y = 'Value Added [$tn/year]') +
+      theme_minimal() +
+      theme(legend.justification = c(1, 0), legend.position = c(1, 0))
 
-  if (save.plots) {
     ggsave(plot = p, filename = '05_Value_Added_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '05_Value_Added_projection.rds'))
   }
 
