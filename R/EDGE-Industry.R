@@ -35,11 +35,12 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when n right_join semi_join distinct
+#' @importFrom dplyr %>% case_when n right_join semi_join distinct vars
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
-#'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete
-#'   scale_linetype_manual scale_shape_manual theme theme_minimal
+#'   geom_path geom_point ggplot ggsave guide_legend labs scale_colour_manual
+#'   scale_fill_discrete scale_linetype_manual scale_shape_manual theme
+#'   theme_minimal
 #' @importFrom madrat calcOutput readSource toolGetMapping
 #' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame
 #'   madrat_mule order.levels sum_total_
@@ -1254,10 +1255,11 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     }
   }
 
-  linetype_scenarios <- c(regression = 'longdash',
-                          SSP1       = 'dotted',
+  linetype_scenarios <- c(regression = 'dashed',
+                          # SSP1       = 'dotted',
                           SSP2       = 'solid',
-                          SSP5       = 'dashed')
+                          # SSP5       = 'dashed'
+                          NULL)
 
   # load required data ----
   ## region mapping for aggregation ----
@@ -1693,13 +1695,21 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       d_plot_region_totals %>%
         select('region', 'GDPpC') %>%
         group_by(.data$region) %>%
-        filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-        ungroup() %>%
-
-        complete(nesting(!!sym('region')),
-                 GDPpC = seq(from = min(!!sym('GDPpC')),
-                             to = max(!!sym('GDPpC')),
-                             length.out = 100)),
+        summarise(GDPpC_min = min(.data$GDPpC),
+                  GDPpC_max = max(.data$GDPpC),
+                  .groups = 'drop') %>%
+        nest(GDPpC_range = c('GDPpC_min', 'GDPpC_max')) %>%
+        mutate(range = map(.data$GDPpC_range,
+                           function(x) {
+                             x %>%
+                               mutate(GDPpC = .data$GDPpC_min) %>%
+                               complete(GDPpC = seq(from = .data$GDPpC_min,
+                                                    to   = .data$GDPpC_max,
+                                                    length.out = 100)) %>%
+                               select('GDPpC')
+                           })) %>%
+        select(-'GDPpC_range') %>%
+        unnest(.data$range),
 
       'region'
     ) %>%
@@ -1732,12 +1742,15 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                  mapping = aes(shape = 'region totals')) +
       scale_shape_manual(values = c('region totals' = 'cross'),
                          name = NULL) +
+      geom_line(data = d_plot_projections %>%
+                  filter(2050 >= .data$year),
+                mapping = aes(colour = !!sym('scenario'))) +
       geom_line(data = d_plot_regression,
-                mapping = aes(linetype = 'regression')) +
-      geom_line(data = d_plot_projections,
-                mapping = aes(linetype = !!sym('scenario'))) +
-      scale_linetype_manual(values = linetype_scenarios, name = NULL,
-                            guide = guide_legend(direction = 'horizontal')) +
+                mapping = aes(colour = 'regression')) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'SSP2' = 'black'),
+                          name = NULL,
+                          guide = guide_legend(direction = 'horizontal')) +
       facet_wrap(vars(!!sym('region')), scales = 'free') +
       expand_limits(x = 0, y = 0) +
       labs(x = 'per-capita GDP [1000$/yr]',
@@ -1989,7 +2002,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       mutate(GDPpC = .data$GDP / .data$population)
 
     d_plot_projections <- projected_cement_data %>%
-      filter(.data$scenario %in% c('SSP1', 'SSP2', 'SSP5'),
+      filter(.data$scenario %in% names(linetype_scenarios),
              'Total' == .data$iso3c,
              between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
       mutate(GDPpC = .data$GDP / .data$population) %>%
@@ -2410,7 +2423,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       mutate(value = .data$a * exp(.data$b / .data$GDPpC))
 
     d_plot_projections <- projected_chemicals_data %>%
-      filter(.data$scenario %in% c('SSP1', 'SSP2', 'SSP5'),
+      filter(.data$scenario %in% names(linetype_scenarios),
              'Total' == .data$iso3c,
              between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
       select('scenario', 'region', 'year', 'GDPpC', 'chemicals.VA',
