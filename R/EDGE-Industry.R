@@ -1694,22 +1694,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
       d_plot_region_totals %>%
         select('region', 'GDPpC') %>%
-        group_by(.data$region) %>%
-        summarise(GDPpC_min = min(.data$GDPpC),
-                  GDPpC_max = max(.data$GDPpC),
-                  .groups = 'drop') %>%
-        nest(GDPpC_range = c('GDPpC_min', 'GDPpC_max')) %>%
-        mutate(range = map(.data$GDPpC_range,
-                           function(x) {
-                             x %>%
-                               mutate(GDPpC = .data$GDPpC_min) %>%
-                               complete(GDPpC = seq(from = .data$GDPpC_min,
-                                                    to   = .data$GDPpC_max,
-                                                    length.out = 100)) %>%
-                               select('GDPpC')
-                           })) %>%
-        select(-'GDPpC_range') %>%
-        unnest(.data$range),
+        df_populate_range('GDPpC'),
 
       'region'
     ) %>%
@@ -2071,18 +2056,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
       d_plot_region_totals %>%
         select('region', 'GDPpC') %>%
-        group_by(.data$region) %>%
-        filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-        mutate(x = c(1, 100)) %>%
-        ungroup() %>%
-        complete(nesting(!!sym('region')),
-                 x = seq(min(!!sym('x')), max(!!sym('x'))),
-                 fill = list(GDPpC = NA)) %>%
-        mutate(GDPpC = first(.data$GDPpC)
-               + ( (last(.data$GDPpC) - first(.data$GDPpC))
-                   / (last(.data$x) - first(.data$x))
-                   * (.data$x - first(.data$x)))) %>%
-        select(-'x'),
+        df_populate_range('GDPpC'),
 
       'region'
     ) %>%
@@ -2168,12 +2142,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
       d_plot_region_totals %>%
         select('region', 'GDPpC') %>%
-        group_by(.data$region) %>%
-        filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-        ungroup() %>%
-        complete(nesting(!!sym('region')),
-                 GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
-                             length.out = 100)),
+        df_populate_range('GDPpC'),
 
       'region'
     ) %>%
@@ -2405,18 +2374,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
       d_plot_region_totals %>%
         select('region', 'GDPpC') %>%
-        group_by(.data$region) %>%
-        filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-        mutate(x = c(1, 100)) %>%
-        ungroup() %>%
-        complete(nesting(!!sym('region')),
-                 x = seq(min(!!sym('x')), max(!!sym('x'))),
-                 fill = list(GDPpC = NA)) %>%
-        mutate(GDPpC = first(.data$GDPpC)
-               + ( (last(.data$GDPpC) - first(.data$GDPpC))
-                   / (last(.data$x) - first(.data$x))
-                   * (.data$x - first(.data$x)))) %>%
-        select(-'x'),
+        df_populate_range('GDPpC'),
 
       'region'
     ) %>%
