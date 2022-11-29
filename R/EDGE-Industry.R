@@ -2114,7 +2114,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal()
 
 
-    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
+    ggsave(plot = p, filename = '01a_Cement_regression_projection.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
@@ -2192,7 +2192,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             legend.position = c(1, 0))
 
 
-    ggsave(plot = p, filename = '05_Cement_VA_regressions_projections.svg',
+    ggsave(plot = p, filename = '05a_Cement_VA_regressions_projections.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
@@ -2421,7 +2421,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            y = 'per-capita Chemicals Value Added [$/year]') +
       theme_minimal()
 
-    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
+    ggsave(plot = p, filename = '01b_Cement_regression_projection.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
@@ -2564,7 +2564,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal() +
       theme(legend.justification = c(1, 0), legend.position = c(1, 0))
 
-    ggsave(plot = p, filename = '05_Value_Added_projection.svg',
+    ggsave(plot = p, filename = '05b_Value_Added_projection.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
