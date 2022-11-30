@@ -1776,11 +1776,12 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   ### censor nonsensical data ----
   cement_censor <- list_to_data_frame(list(
-    BDI = 1980,
-    CIV = 1990:1993,
-    NAM = 2010,
-    HKG = 1973:1979,
-    IRQ = 1994:1997),
+    BDI = 1980:2010,   # zero cement production
+    CIV = 1990:1993,   # cement VA 100 times higher than before and after
+    NAM = 2007:2010,   # zero cement production
+    HKG = 1973:1979,   # no data for CHN prior to 1980
+    IRQ = 1992:1997,   # cement VA 100 times higher than before and after
+    NULL),
     'iso3c', 'year') %>%
     mutate(censored = TRUE)
 
