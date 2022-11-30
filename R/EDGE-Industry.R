@@ -2083,33 +2083,40 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       filter(max(.data$cement.production.pC) == .data$cement.production.pC) %>%
       pull('cement.production.pC')
 
+    projection_points <- c(2015, 2030, 2050, 2075, 2100)
+
 
     p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
                               y = !!sym('cement.production')
                               / !!sym('population'))) +
-      # plot regression line
-      geom_path(
-        data = d_plot_regression,
-        mapping = aes(y = !!sym('value'), linetype = 'regression')) +
       # plot region totals
       geom_point(
         data = d_plot_region_totals,
-        mapping = aes(shape = 'region totals')) +
-      # # plot individual countries
-      # geom_point(
-      #   data = d_plot_countries,
-      #   mapping = aes(shape = 'countries')) +
+        mapping = aes(shape = 'region totals'),
+        size = 2) +
+      # plot regression line
+      geom_path(
+        data = d_plot_regression,
+        mapping = aes(y = !!sym('value'), colour = 'regression')) +
       # plot projections
       geom_path(
         data = d_plot_projections,
-        mapping = aes(linetype = !!sym('scenario'))) +
-      scale_shape_manual(values = c('region totals' = 'cross',
-                                    # 'countries' = '.',
-                                    NULL),
-                         name = NULL) +
-      scale_linetype_manual(values = linetype_scenarios, name = NULL) +
+        mapping = aes(colour = 'projection')) +
+      geom_point(
+        data = d_plot_projections %>%
+          filter(.data$year %in% projection_points),
+        mapping = aes(shape = as.character(year)),
+        size = 3) +
+      scale_shape_manual(
+        values = c('region totals' = 'o',
+                   setNames(rep('x', length(projection_points)),
+                            projection_points)),
+        name = NULL) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'projection' = 'black'),
+                          name = NULL) +
       facet_wrap(vars(!!sym('region')), scales = 'free') +
-      expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
+      expand_limits(y = c(0, ceiling(y_max * 2) / 2)) +
       labs(x = 'per-capita GDP [1000 $/year]',
            y = 'per-capita Cement Production [tonnes/year]') +
       theme_minimal()
