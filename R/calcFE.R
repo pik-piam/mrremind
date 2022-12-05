@@ -81,13 +81,30 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
                           x[,,"FE|Buildings|Gases|Fossil (EJ/yr)"],   "FE|Buildings|Gases (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"FE|Industry|Gases|Biomass (EJ/yr)"] +
                           x[,,"FE|Industry|Gases|Fossil (EJ/yr)"],    "FE|Industry|Gases (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Cement|Gases|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Cement|Gases|Fossil (EJ/yr)"],    "FE|Industry|Cement|Gases (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Steel|Gases|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Steel|Gases|Fossil (EJ/yr)"],    "FE|Industry|Steel|Gases (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Chemicals|Gases|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Chemicals|Gases|Fossil (EJ/yr)"],    "FE|Industry|Chemicals|Gases (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Other Sector|Gases|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Other Sector|Gases|Fossil (EJ/yr)"],    "FE|Industry|Other Sector|Gases (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"FE|Transport|Gases|Biomass (EJ/yr)"] +
                           x[,,"FE|Transport|Gases|Fossil (EJ/yr)"],   "FE|Transport|Gases (EJ/yr)"))
+    
 
     x <- mbind(x,setNames(x[,,"FE|Buildings|Liquids|Biomass (EJ/yr)"] +
                           x[,,"FE|Buildings|Liquids|Fossil (EJ/yr)"], "FE|Buildings|Liquids (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"FE|Industry|Liquids|Biomass (EJ/yr)"] +
                           x[,,"FE|Industry|Liquids|Fossil (EJ/yr)"],  "FE|Industry|Liquids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Cement|Liquids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Cement|Liquids|Fossil (EJ/yr)"],    "FE|Industry|Cement|Liquids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Steel|Liquids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Steel|Liquids|Fossil (EJ/yr)"],    "FE|Industry|Steel|Liquids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Chemicals|Liquids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Chemicals|Liquids|Fossil (EJ/yr)"],    "FE|Industry|Chemicals|Liquids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Other Sector|Liquids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Other Sector|Liquids|Fossil (EJ/yr)"],    "FE|Industry|Other Sector|Liquids (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"FE|Transport|Liquids|Biomass (EJ/yr)"] +
                           x[,,"FE|Transport|Liquids|Fossil (EJ/yr)"], "FE|Transport|Liquids (EJ/yr)"))
     
@@ -95,7 +112,15 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
                           x[,,"FE|Buildings|Solids|Fossil (EJ/yr)"],  "FE|Buildings|Solids (EJ/yr)"))
     x <- mbind(x,setNames(x[,,"FE|Industry|Solids|Biomass (EJ/yr)"] +
                           x[,,"FE|Industry|Solids|Fossil (EJ/yr)"],   "FE|Industry|Solids (EJ/yr)"))
-
+    x <- mbind(x,setNames(x[,,"FE|Industry|Cement|Solids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Cement|Solids|Fossil (EJ/yr)"],    "FE|Industry|Cement|Solids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Steel|Solids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Steel|Solids|Fossil (EJ/yr)"],    "FE|Industry|Steel|Solids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Chemicals|Solids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Chemicals|Solids|Fossil (EJ/yr)"],    "FE|Industry|Chemicals|Solids (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Other Sector|Solids|Biomass (EJ/yr)"] +
+                            x[,,"FE|Industry|Other Sector|Solids|Fossil (EJ/yr)"],    "FE|Industry|Other Sector|Solids (EJ/yr)"))
+    
     # add stationary
     x <- mbind(x,setNames(x[,,"FE|Buildings|Electricity (EJ/yr)"] +
                           x[,,"FE|Industry|Electricity (EJ/yr)"], "FE|Stationary|Electricity (EJ/yr)"))
@@ -114,12 +139,32 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
                           + x[,,"FE|Buildings|Solids (EJ/yr)"]
                           + x[,,"FE|Buildings|Heat (EJ/yr)"]
                           + x[,,"FE|Buildings|Electricity (EJ/yr)"], "FE|Buildings (EJ/yr)"))
-    # add total for industry
+    # add total for industry and sub-sectors
     x <- mbind(x,setNames(x[,,"FE|Industry|Liquids (EJ/yr)"]
                           + x[,,"FE|Industry|Gases (EJ/yr)"]
                           + x[,,"FE|Industry|Solids (EJ/yr)"]
                           + x[,,"FE|Industry|Heat (EJ/yr)"]
                           + x[,,"FE|Industry|Electricity (EJ/yr)"], "FE|Industry (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Cement|Liquids (EJ/yr)"]
+                          + x[,,"FE|Industry|Cement|Gases (EJ/yr)"]
+                          + x[,,"FE|Industry|Cement|Solids (EJ/yr)"]
+                          + x[,,"FE|Industry|Cement|Electricity (EJ/yr)"], "FE|Industry|Cement (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Steel|Liquids (EJ/yr)"]
+                          + x[,,"FE|Industry|Steel|Gases (EJ/yr)"]
+                          + x[,,"FE|Industry|Steel|Solids (EJ/yr)"]
+                          + x[,,"FE|Industry|Steel|Electricity (EJ/yr)"], "FE|Industry|Steel (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Chemicals|Liquids (EJ/yr)"]
+                          + x[,,"FE|Industry|Chemicals|Gases (EJ/yr)"]
+                          + x[,,"FE|Industry|Chemicals|Solids (EJ/yr)"]
+                          + x[,,"FE|Industry|Chemicals|Electricity (EJ/yr)"], "FE|Industry|Chemicals (EJ/yr)"))
+    x <- mbind(x,setNames(x[,,"FE|Industry|Other Sector|Liquids (EJ/yr)"]
+                          + x[,,"FE|Industry|Other Sector|Gases (EJ/yr)"]
+                          + x[,,"FE|Industry|Other Sector|Solids (EJ/yr)"]
+                          + x[,,"FE|Industry|Other Sector|Heat (EJ/yr)"]
+                          + x[,,"FE|Industry|Other Sector|Electricity (EJ/yr)"], "FE|Industry|Other Sector (EJ/yr)"))
+    
+    
+    
     # add total for transport
     x <- mbind(x,setNames(x[,,"FE|Transport|Liquids (EJ/yr)"]
                           + x[,,"FE|Transport|Gases (EJ/yr)"]

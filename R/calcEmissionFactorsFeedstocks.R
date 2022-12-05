@@ -169,7 +169,7 @@ calcEmissionFactorsFeedstocks <- function() {
 
     # set values from 2050 onwards to convergence values: either the fixed value "conv",
     # or the 2015 value if lower than "conv"
-    x.conv <- x.fill[,2015,g]
+    x.conv <- x.fill[, 2015, g]
     x.conv[x.conv > conv] <- conv
     x.fill[, c(2050, 2055, 2060, seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- x.conv
 
@@ -184,23 +184,12 @@ calcEmissionFactorsFeedstocks <- function() {
 
   # create weights ----
 
-  weights <- new.magpie(
-    cells_and_regions = getItems(x, dim = 1), years = getItems(x, dim = 2),
-    names = c("solids", "liquids", "gases")
-  )
-  iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, , "NECHEM"] %>% collapseDim() * 4.1868e-5 * 1e-3
-  iea <- iea[, c(2005, 2010, 2015), ]
-
-  for (g in unique(product_mapping$group)) {
-    products <- product_mapping %>%
-      filter(g == .data$group) %>%
-      select("products") %>%
-      pull()
-
-    group <- dimSums(iea[, , products], dim = 3, na.rm = T)
-    weights[, c(2005, 2010, 2015), g] <- group
-    weights[, c(seq(2020, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), g] <- group[, 2015, ]
-  }
+  weights <- new.magpie(cells_and_regions = getItems(x, dim = 1), years = getItems(x, dim = 2))
+  iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, c(2005, 2010, 2015), "NECHEM"] %>%
+    collapseDim() %>%
+    dimSums(dim = 3, na.rm = T) * 4.1868e-5 * 1e-3
+  weights[, c(2005, 2010, 2015), ] <- iea
+  weights[, c(seq(2020, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), ] <- weights[, 2015, ]
 
   return(
     list(
