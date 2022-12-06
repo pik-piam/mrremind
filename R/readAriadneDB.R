@@ -9,8 +9,17 @@
 
 readAriadneDB <- function() {
 
-  filename <- "IIASA_Ariadne_DB_Complete.xlsx"
-  #filename <- "Y:/sources/AriadneDB/IIASA_Ariadne_DB_Complete.xlsx"
+  period <- NULL
+  value <- NULL
+  model <- NULL
+  scenario <- NULL
+  region <- NULL
+  variable <- NULL
+  unit <- NULL
+  subannual <- NULL
+
+
+  filename <- "IASA_DB_Complete_12_09_2022.xlsx"
 
   # read in file
   data <- read_excel(filename,

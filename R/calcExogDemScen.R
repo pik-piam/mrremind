@@ -4,7 +4,8 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
-#' @importFrom quitte remind_timesteps
+#' @importFrom magclass mselect collapseNames getNames getRegions
+
 
 
 calcExogDemScen <- function() {
@@ -59,7 +60,7 @@ calcExogDemScen <- function() {
   out["DEU",paste0("y",ariadne.period),] <- ariadne.ind.demand["DEU",paste0("y",ariadne.period),]
 
   # constant production after 2050
-  out["DEU",paste0("y",c(2055, 2060, 2070, 2080, 2090, 2100)),] <-  out["DEU","y2050",]
+  # out["DEU",paste0("y",c(2055, 2060, 2070, 2080, 2090, 2100)),] <-  out["DEU","y2050",]
 
   ### end Ariadne trajectories
 

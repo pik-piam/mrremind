@@ -39,7 +39,7 @@ fullREMIND <- function(rev = 0) {
   calcOutput("Capital",                               round = 6,  file = "f29_capitalQuantity.cs4r")
   calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
   calcOutput("FEdemand",  subtype = "FE",             round = 8,  file = "f_fedemand.cs4r")
-  calcOutput("ExogDemScen",                           round = 8,  file = "f_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
+  calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
     type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
     file = 'p37_steel_secondary_max_share.cs4r',
