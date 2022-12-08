@@ -25,7 +25,7 @@ readAriadneDB <- function() {
   # rearrange and convert to magclass object
   out <- data %>%
           gather(!!sym("period"),!!sym("value"),-!!sym("model"),-!!sym("scenario"),-!!sym("region"),-!!sym("variable"),  -!!sym("unit"), -!!sym("subannual")) %>%
-          filter( !is.na(value)) %>%
+          filter( !is.na(!!sym("value"))) %>%
           as.magpie(temporal = 7, spatial = 3, datacol = 8)
 
 
