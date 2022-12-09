@@ -1757,7 +1757,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   # project cement production ----
   ## calculate regression data ----
-  regression_data_cement <- inner_join(
+  regression_data_cement <- full_join(
     INDSTAT %>%
       filter(20 == .data$ctable,
              '26' == .data$isic,
@@ -1766,13 +1766,16 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       group_by(.data$iso3c, .data$year) %>%
       filter(max(.data$lastupdated) == .data$lastupdated) %>%
       ungroup() %>%
-      select('region', 'iso3c', 'year', cement.VA = 'value'),
+      select('region', 'iso3c', 'year', cement.VA = 'value') %>%
+      filter(.data$year >= min(data_cement_production$year)),
 
     data_cement_production %>%
-      rename(cement.production = 'value'),
+      rename(cement.production = 'value') %>%
+      left_join(region_mapping, 'iso3c'),
 
-    c('iso3c', 'year')
-  )
+    c('region', 'iso3c', 'year')
+  ) %>%
+    filter(!is.na(cement.production))
 
   ### censor nonsensical data ----
   cement_censor <- list_to_data_frame(list(
@@ -1812,7 +1815,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     regression_data_cement,
 
     regression_data_cement %>%
-      filter(!.data$censored) %>%
+      filter(!.data$censored,
+             # exclude CHA from global regression data, because it dominates
+             # the global regression
+             !('World' == .data$region & 'CHN' == .data$iso3c)) %>%
       group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>%
       summarise(value = sum(.data$value, na.rm = TRUE),
                 iso3c = 'Total',
@@ -1920,8 +1926,16 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       nls(formula = cement.VApt ~ a * exp(b / GDPpC),
           data = regression_data_cement %>%
             filter(r == .data$region,
-                   'Total' == .data$iso3c,
+                   'Total' != .data$iso3c,
+                   !is.na(.data$cement.VA),
                    !.data$censored) %>%
+            pivot_longer(all_of(c('population', 'cement.production', 'GDP',
+                                  'cement.VA'))) %>%
+            group_by(.data$region, .data$year, .data$censored, .data$name) %>%
+            summarise(value = sum(.data$value),
+                      iso3c = 'Total',
+                      .groups = 'drop') %>%
+            pivot_wider() %>%
             mutate(cement.VApt = .data$cement.VA / .data$cement.production,
                    GDPpC       = .data$GDP / .data$population),
           start = list(a = 250, b = -4000),
