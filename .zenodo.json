@@ -1,6 +1,6 @@
 {
   "title": "mrremind: MadRat REMIND Input Data Package",
-  "version": "0.149.1",
+  "version": "0.150.0",
   "description": "<p>The mrremind packages contains data preprocessing for the\n    REMIND model.<\/p>",
   "creators": [
     {
