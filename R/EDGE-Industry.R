@@ -42,8 +42,8 @@
 #'   scale_fill_discrete scale_linetype_manual scale_shape_manual theme
 #'   theme_minimal
 #' @importFrom madrat calcOutput readSource toolGetMapping
-#' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame
-#'   madrat_mule order.levels sum_total_
+#' @importFrom quitte calc_mode df_populate_range duplicate duplicate_
+#'   list_to_data_frame madrat_mule order.levels sum_total_
 #' @importFrom readr write_rds
 #' @importFrom stats nls SSlogis sd
 #' @importFrom tidyr pivot_longer pivot_wider
@@ -1775,7 +1775,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
     c('region', 'iso3c', 'year')
   ) %>%
-    filter(!is.na(cement.production))
+    filter(!is.na(.data$cement.production))
 
   ### censor nonsensical data ----
   cement_censor <- list_to_data_frame(list(
@@ -1784,6 +1784,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     NAM = 2007:2010,   # zero cement production
     HKG = 1973:1979,   # no data for CHN prior to 1980
     IRQ = 1992:1997,   # cement VA 100 times higher than before and after
+    RUS = 1970:1990,
     NULL),
     'iso3c', 'year') %>%
     mutate(censored = TRUE)
@@ -2119,7 +2120,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       geom_point(
         data = d_plot_projections %>%
           filter(.data$year %in% projection_points),
-        mapping = aes(shape = as.character(year)),
+        mapping = aes(shape = as.character(!!sym('year'))),
         size = 3) +
       scale_shape_manual(
         values = c('region totals' = 'o',
