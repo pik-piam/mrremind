@@ -2100,7 +2100,6 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
     projection_points <- c(2015, 2030, 2050, 2075, 2100)
 
-
     p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
                               y = !!sym('cement.production')
                               / !!sym('population'))) +
@@ -2137,7 +2136,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal()
 
 
-    ggsave(plot = p, filename = '01a_Cement_regression_projection.svg',
+    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
@@ -2424,33 +2423,37 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       # # plot regression line
       geom_path(
         data = d_plot_regression,
-        mapping = aes(y = !!sym('value'), linetype = 'regression')) +
+        mapping = aes(y = !!sym('value'), colour = 'regression')) +
       # # plot projections
       geom_path(
         data = d_plot_projections,
-        mapping = aes(linetype = !!sym('scenario'))) +
-      scale_shape_manual(values = c('region totals' = 'cross',
-                                    # 'countries' = '.',
-                                    NULL),
-                         name = NULL) +
-      scale_linetype_manual(values = c('regression' = 'longdash',
-                                       'SSP1' = 'dotted',
-                                       'SSP2' = 'solid',
-                                       'SSP5' = 'dashed'),
+        mapping = aes(colour = 'projection')) +
+      geom_point(
+        data = d_plot_projections %>%
+          filter(.data$year %in% projection_points),
+        mapping = aes(shape = as.character(!!sym('year'))),
+        size = 3) +
+      scale_shape_manual(
+        values = c('region totals' = 'o',
+                   setNames(rep('x', length(projection_points)),
+                            projection_points)),
+                   name = NULL) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'projection' = 'black'),
                             name = NULL) +
       facet_wrap(vars(!!sym('region')), scales = 'free') +
-      expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
+      expand_limits(y = c(0, ceiling(y_max * 2) / 2)) +
       labs(x = 'per-capita GDP [1000 $/year]',
            y = 'per-capita Chemicals Value Added [$/year]') +
       theme_minimal()
 
-    ggsave(plot = p, filename = '01b_Cement_regression_projection.svg',
+    ggsave(plot = p, filename = '02_Chemicals_regression_projection.svg',
            device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
               file = file.path(save.plots,
-                               '01_Cement_regression_projection.rds'))
+                               '02_Chemicals_regression_projection.rds'))
   }
 
   # ======================================================================== ===
