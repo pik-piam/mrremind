@@ -48,11 +48,11 @@ readAGEB <- function(subtype = "balances") {
         "6.8 Endenergieverbrauch im Subsektor Strassenverkehr nach Energietraegern"
       ),
       range = c(
-        "B4:AH13", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH10",
-        "B4:AH15", "B4:AH16",
-        "B4:AH15",
-        "B4:AH15", "B4:AH15",
-        "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH15", "B4:AH12"
+        "B4:AI13", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI10",
+        "B4:AI15", "B4:AI16",
+        "B4:AI15",
+        "B4:AI15", "B4:AI15",
+        "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI12"
       )
     )
 
@@ -61,8 +61,8 @@ readAGEB <- function(subtype = "balances") {
     for (i in seq(1:nrow(sheets))) {
       tmp <- suppressWarnings(
         read_xlsx(
-          path = "awt_2020_d.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
-          col_types = c("text", "text", rep("numeric", 31)),
+          path = "awt_2021_d.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
+          col_types = c("text", "text", rep("numeric", 32)),
           range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
         )
       ) %>%

@@ -351,8 +351,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                            extrapolate = TRUE)
            ## create magpie object
            tmp_data <- compress_magpie(tmp, spatial = 4, temporal = 5, datacol = 6)
-           ssp2_scen <- getNames(tmp_data[,, "gdp_SSP2"])[1]
-           tmp_data <- tmp_data[,, ssp2_scen]
+           tmp_data <- tmp_data[,, "Mix1"]
            # for EU regions use JRC data instead
            JRC_reg <- c("MLT","EST","CYP","LVA","LTU","LUX","SVK","SVN","HRV","BGR","HUN","ROU","FIN","DNK","IRL","CZE","GRC","AUT","PRT","SWE","BEL","NLD","POL","ESP","ITA","GBR","FRA","DEU")
            JRC <- calcOutput("JRC_IDEES", subtype="Transport", aggregate = FALSE)
