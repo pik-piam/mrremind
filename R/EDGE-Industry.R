@@ -1784,7 +1784,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     NAM = 2007:2010,   # zero cement production
     HKG = 1973:1979,   # no data for CHN prior to 1980
     IRQ = 1992:1997,   # cement VA 100 times higher than before and after
-    RUS = 1970:1990,
+    RUS = 1970:1990,   # exclude data from Soviet period which biases
+                       # projections up
     NULL),
     'iso3c', 'year') %>%
     mutate(censored = TRUE)
