@@ -806,7 +806,6 @@ calcFEdemand <- function(subtype = "FE") {
           GDP %>%
             semi_join(
               GDP_fuckup_point,
-
               c('iso3c', 'scenario')
             ) %>%
             left_join(

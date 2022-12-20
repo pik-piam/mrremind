@@ -67,31 +67,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5
 
-  if (subtype == "output") {
-
-    # These changes may reduce the amount of CHP plants to below what is actually
-    # deployed in a region, because heat reporting is obscure. In some statistics,
-    # heat from CHP plant used in the same industrial compound is NOT explicitly
-    # reported as heat. If this is the case in the IEA data as well, this would
-    # lead to underestimating CHP plants. However, there currently seems to be no
-    # better way to create consistent data for CHP/non-CHP electricity production
-    # and heat ouput.
-
-    # for each product: check if the flow "HEMAINC" > 0, if yes, do nothing;
-    # if no, add the value of the flow "ELMAINC" to "ELMAINE" and afterwards set ELMAINC to zero.
-    tmp <- mcalc(data,  ELMAINE ~ ifelse(HEMAINC > 0, ELMAINE, ELMAINC + ELMAINE), append = F)
-    data[,,"ELMAINE"] <- tmp
-    tmp <- mcalc(data,  ELMAINC ~ ifelse(HEMAINC > 0, ELMAINC, 0), append = F)
-    data[,,"ELMAINC"] <- tmp
-
-    # for each product: check if the flow "HEAUTOC" > 0, if yes, do nothing;
-    # if no, add the value of the flow "ELAUTOC" to "ELAUTOE" and afterwards set ELAUTOC to zero.
-    tmp <- mcalc(data,  ELAUTOE ~ ifelse(HEAUTOC > 0, ELAUTOE, ELAUTOC + ELAUTOE), append = F)
-    data[,,"ELAUTOE"] <- tmp
-    tmp <- mcalc(data,  ELAUTOC ~ ifelse(HEAUTOC > 0, ELAUTOC, 0), append = F)
-    data[,,"ELAUTOC"] <- tmp
-  }
-
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
@@ -105,14 +80,28 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   if (subtype == "output_Industry_subsectors") {
     # apply corrections to IEA data to cope with fragmentary time series
     names_data_before <- getNames(data)
-    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch)
-    # check that no dimensions not present in the mapping has been added to the
-    # data
-    if (!is_empty(setdiff(getNames(data), names_data_before))) {
-      stop('Product/flow combinations not present in mapping added by ',
+    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
+                                                      threshold = 1e-2)
+    # warn if dimensions not present in the mapping have been added to the data
+    new_product_flows <- tibble(
+      text = setdiff(getNames(data), names_data_before)) %>%
+      separate('text', c('product', 'flow'), sep = '\\.') %>%
+      anti_join(
+        ieamatch %>%
+          as_tibble() %>%
+          select(product = 'iea_product', flow = 'iea_flows'),
+
+        c('product', 'flow')
+      ) %>%
+      unite('text', c('product', 'flow'), sep = '.') %>%
+      pull('text')
+
+    if (!is_empty(new_product_flows)) {
+      warning('Product/flow combinations not present in mapping added by ',
            'fix_IEA_data_for_Industry_subsectors():\n',
-           paste(setdiff(getNames(data), names_data_before), collapse = '\n'))
+           paste(new_product_flows, collapse = '\n'))
     }
+
     # FIXME remove product/flow combinations from the mapping that have been
     # removed from the data while replacing coke oven and blast furnace outputs
     ieamatch <- ieamatch %>%
@@ -126,7 +115,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     as_tibble() %>%
     select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     na.omit() %>%
-    unite("target", all_of(target), sep = ".", remove = FALSE)
+    unite("target", all_of(target), sep = ".", remove = FALSE) %>%
+    unite('product.flow', c('iea_product', 'iea_flows'),sep = '.') %>%
+    filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 
   if (subtype == "output_biomass") {
@@ -143,8 +134,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
            function(item) {
              product_flow <- ieamatch %>%
                filter(item == .data$target) %>%
-               unite('product.flow', c('iea_product', 'iea_flows'),
-                     sep = '.') %>%
                pull('product.flow')
 
              weights <- ieamatch %>%
@@ -162,7 +151,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
-  if (subtype %in% c("output", "input", "output_Industry_subsectors", "input_Industry_subsectors")) {
+  if (subtype %in% c("output", "input", "output_Industry_subsectors")) {
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
