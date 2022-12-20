@@ -19,7 +19,8 @@
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
-#' @param save.plots Save plots to `getConfig('outputfolder')`?
+#' @param save.plots `NULL` (default) if no plots are saved, or the path to save
+#'     directories to.
 #' @param China_Production A data frame with columns `period` and
 #'     `total.production` prescribing total production for China to have,
 #'     disregarding results from the stock saturation model.
@@ -34,14 +35,15 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when n right_join semi_join distinct
+#' @importFrom dplyr %>% case_when n right_join semi_join distinct vars
 #' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
-#'   geom_path geom_point ggplot ggsave guide_legend labs scale_fill_discrete
-#'   scale_linetype_manual scale_shape_manual theme theme_minimal
+#'   geom_path geom_point ggplot ggsave guide_legend labs scale_colour_manual
+#'   scale_fill_discrete scale_linetype_manual scale_shape_manual theme
+#'   theme_minimal
 #' @importFrom madrat calcOutput readSource toolGetMapping
-#' @importFrom quitte calc_mode duplicate duplicate_ list_to_data_frame
-#'   madrat_mule order.levels sum_total_
+#' @importFrom quitte calc_mode df_populate_range duplicate duplicate_
+#'   list_to_data_frame madrat_mule order.levels sum_total_
 #' @importFrom readr write_rds
 #' @importFrom stats nls SSlogis sd
 #' @importFrom tidyr pivot_longer pivot_wider
@@ -52,8 +54,15 @@
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE,
                                   match.steel.estimates = 'none',
-                                  save.plots = FALSE,
+                                  save.plots = NULL,
                                   China_Production = NULL) {
+
+  if (!is.null(save.plots)) {
+    if (!all(isTRUE(file.info(save.plots)$isdir),
+             448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
+      stop('No writable directory `save.plots`: ', save.plots)
+    }
+  }
 
   produce_plots_and_tables <- TRUE
 
@@ -1237,13 +1246,20 @@ calcSteel_Projections <- function(subtype = 'production',
 calcIndustry_Value_Added <- function(subtype = 'physical',
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
-                                     save.plots = FALSE,
+                                     save.plots = NULL,
                                      China_Production = NULL) {
+  if (!is.null(save.plots)) {
+    if (!all(isTRUE(file.info(save.plots)$isdir),
+             448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
+      stop('No writable directory `save.plots`: ', save.plots)
+    }
+  }
 
-  linetype_scenarios <- c(regression = 'longdash',
-                          SSP1       = 'dotted',
+  linetype_scenarios <- c(regression = 'dashed',
+                          # SSP1       = 'dotted',
                           SSP2       = 'solid',
-                          SSP5       = 'dashed')
+                          # SSP5       = 'dashed'
+                          NULL)
 
   # load required data ----
   ## region mapping for aggregation ----
@@ -1645,98 +1661,95 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            'steel.production', 'steel.VA', 'GDPpC', 'steel.VApt')
 
   ## plot steel VA =============================================================
-  d_plot_region_totals <- regression_data_steel %>%
-    ungroup() %>%
-    filter('Total' == .data$iso3c,
-           !.data$censored) %>%
-    mutate(GDPpC = .data$GDP / .data$population,
-           steel.VA.pt = .data$steel.VA / .data$steel.production) %>%
-    # filter outliers
-    filter(2000 >= .data$steel.VA.pt) %>%
-    select('region', 'year', 'GDPpC', 'steel.VA.pt')
-
-d_plot_region_totals %>%
-    filter('SSA' == .data$region) %>%
-    select('region', 'steel.VA.pt') %>%
-    mutate(cuts = cut(x = .data$steel.VA.pt,
-                      breaks = seq_range(range(.data$steel.VA.pt),
-                                         length.out = 31),
-      labels = 1:30, include.lowest = TRUE)) %>%
-    group_by(!!!syms(c('region', 'cuts'))) %>%
-    summarise(count = n(), .groups = 'drop_last') %>%
-    mutate(cuts = as.integer(.data$cuts)) %>%
-    ungroup() %>%
-    complete(nesting(!!sym('region')), cuts = 1:30) %>%
-    mutate(foo = cumsum(is.na(.data$count))) %>%
-    filter(cumsum(is.na(.data$count)) > 30 / 2) %>%
-    head(n = 1) %>%
-    select(-'count', -'foo')
-
-  d_plot_regression <- full_join(
-    regression_parameters_steel,
+  if (!is.null(save.plots)) {
+    d_plot_region_totals <- regression_data_steel %>%
+      ungroup() %>%
+      filter('Total' == .data$iso3c,
+             !.data$censored) %>%
+      mutate(GDPpC = .data$GDP / .data$population,
+             steel.VA.pt = .data$steel.VA / .data$steel.production) %>%
+      # filter outliers
+      filter(2000 >= .data$steel.VA.pt) %>%
+      select('region', 'year', 'GDPpC', 'steel.VA.pt')
 
     d_plot_region_totals %>%
-      select('region', 'GDPpC') %>%
-      group_by(.data$region) %>%
-      filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
+      filter('SSA' == .data$region) %>%
+      select('region', 'steel.VA.pt') %>%
+      mutate(cuts = cut(x = .data$steel.VA.pt,
+                        breaks = seq_range(range(.data$steel.VA.pt),
+                                           length.out = 31),
+                        labels = 1:30, include.lowest = TRUE)) %>%
+      group_by(!!!syms(c('region', 'cuts'))) %>%
+      summarise(count = n(), .groups = 'drop_last') %>%
+      mutate(cuts = as.integer(.data$cuts)) %>%
       ungroup() %>%
+      complete(nesting(!!sym('region')), cuts = 1:30) %>%
+      mutate(foo = cumsum(is.na(.data$count))) %>%
+      filter(cumsum(is.na(.data$count)) > 30 / 2) %>%
+      head(n = 1) %>%
+      select(-'count', -'foo')
 
-      complete(nesting(!!sym('region')),
-               GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
-                           length.out = 100)),
+    d_plot_regression <- full_join(
+      regression_parameters_steel,
 
-    'region'
-  ) %>%
-    mutate(steel.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>%
-    select('region', 'GDPpC', 'steel.VA.pt')
+      d_plot_region_totals %>%
+        select('region', 'GDPpC') %>%
+        df_populate_range('GDPpC'),
 
-  d_plot_projections <- projected_steel_data %>%
-    filter(.data$scenario %in% names(linetype_scenarios),
-           'Total' == .data$iso3c) %>%
-    select('scenario', 'region', 'year', 'GDPpC', steel.VA.pt = 'steel.VApt')
+      'region'
+    ) %>%
+      mutate(steel.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>%
+      select('region', 'GDPpC', 'steel.VA.pt')
 
-  d_plot_projections <- left_join(
-    d_plot_projections,
+    d_plot_projections <- projected_steel_data %>%
+      filter(.data$scenario %in% names(linetype_scenarios),
+             'Total' == .data$iso3c) %>%
+      select('scenario', 'region', 'year', 'GDPpC', steel.VA.pt = 'steel.VApt')
 
-    d_plot_projections %>%
-      select('region', 'year', 'GDPpC') %>%
-      filter(max(.data$year) == .data$year) %>%
-      group_by(.data$region) %>%
-      filter(min(.data$GDPpC) == .data$GDPpC) %>%
-      select('region', max.GDPpC = 'GDPpC'),
+    d_plot_projections <- left_join(
+      d_plot_projections,
 
-    'region'
-  ) %>%
-    filter(.data$GDPpC <= .data$max.GDPpC) %>%
-    select(-'max.GDPpC')
+      d_plot_projections %>%
+        select('region', 'year', 'GDPpC') %>%
+        filter(max(.data$year) == .data$year) %>%
+        group_by(.data$region) %>%
+        filter(min(.data$GDPpC) == .data$GDPpC) %>%
+        select('region', max.GDPpC = 'GDPpC'),
 
-  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
-                            y = !!sym('steel.VA.pt'))) +
-    geom_point(data = d_plot_region_totals,
-               mapping = aes(shape = 'region totals')) +
-    scale_shape_manual(values = c('region totals' = 'cross'),
-                       name = NULL) +
-    geom_line(data = d_plot_regression,
-              mapping = aes(linetype = 'regression')) +
-    geom_line(data = d_plot_projections,
-              mapping = aes(linetype = !!sym('scenario'))) +
-    scale_linetype_manual(values = linetype_scenarios, name = NULL,
+      'region'
+    ) %>%
+      filter(.data$GDPpC <= .data$max.GDPpC) %>%
+      select(-'max.GDPpC')
+
+    p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
+                              y = !!sym('steel.VA.pt'))) +
+      geom_point(data = d_plot_region_totals,
+                 mapping = aes(shape = 'region totals')) +
+      scale_shape_manual(values = c('region totals' = 'cross'),
+                         name = NULL) +
+      geom_line(data = d_plot_projections %>%
+                  filter(2050 >= .data$year),
+                mapping = aes(colour = !!sym('scenario'))) +
+      geom_line(data = d_plot_regression,
+                mapping = aes(colour = 'regression')) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'SSP2' = 'black'),
+                          name = NULL,
                           guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ !!sym('region'), scales = 'free') +
-    expand_limits(x = 0, y = 0) +
-    labs(x = 'per-capita GDP [1000$/yr]',
-         y = 'specific Steel Value Added [$/t]') +
-    theme_minimal() +
-    theme(legend.justification = c(1, 0),
-          legend.position = c(1, 0))
+      facet_wrap(vars(!!sym('region')), scales = 'free') +
+      expand_limits(x = 0, y = 0) +
+      labs(x = 'per-capita GDP [1000$/yr]',
+           y = 'specific Steel Value Added [$/t]') +
+      theme_minimal() +
+      theme(legend.justification = c(1, 0),
+            legend.position = c(1, 0))
 
-  if (save.plots) {
     ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '04_Steel_VA_regressions_projections.rds'))
   }
 
@@ -1744,7 +1757,7 @@ d_plot_region_totals %>%
 
   # project cement production ----
   ## calculate regression data ----
-  regression_data_cement <- inner_join(
+  regression_data_cement <- full_join(
     INDSTAT %>%
       filter(20 == .data$ctable,
              '26' == .data$isic,
@@ -1753,21 +1766,27 @@ d_plot_region_totals %>%
       group_by(.data$iso3c, .data$year) %>%
       filter(max(.data$lastupdated) == .data$lastupdated) %>%
       ungroup() %>%
-      select('region', 'iso3c', 'year', cement.VA = 'value'),
+      select('region', 'iso3c', 'year', cement.VA = 'value') %>%
+      filter(.data$year >= min(data_cement_production$year)),
 
     data_cement_production %>%
-      rename(cement.production = 'value'),
+      rename(cement.production = 'value') %>%
+      left_join(region_mapping, 'iso3c'),
 
-    c('iso3c', 'year')
-  )
+    c('region', 'iso3c', 'year')
+  ) %>%
+    filter(!is.na(.data$cement.production))
 
   ### censor nonsensical data ----
   cement_censor <- list_to_data_frame(list(
-    BDI = 1980,
-    CIV = 1990:1993,
-    NAM = 2010,
-    HKG = 1973:1979,
-    IRQ = 1994:1997),
+    BDI = 1980:2010,   # zero cement production
+    CIV = 1990:1993,   # cement VA 100 times higher than before and after
+    NAM = 2007:2010,   # zero cement production
+    HKG = 1973:1979,   # no data for CHN prior to 1980
+    IRQ = 1992:1997,   # cement VA 100 times higher than before and after
+    RUS = 1970:1990,   # exclude data from Soviet period which biases
+                       # projections up
+    NULL),
     'iso3c', 'year') %>%
     mutate(censored = TRUE)
 
@@ -1798,7 +1817,10 @@ d_plot_region_totals %>%
     regression_data_cement,
 
     regression_data_cement %>%
-      filter(!.data$censored) %>%
+      filter(!.data$censored,
+             # exclude CHA from global regression data, because it dominates
+             # the global regression
+             !('World' == .data$region & 'CHN' == .data$iso3c)) %>%
       group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>%
       summarise(value = sum(.data$value, na.rm = TRUE),
                 iso3c = 'Total',
@@ -1836,13 +1858,18 @@ d_plot_region_totals %>%
   regression_parameters_cement_production_converging <-
     regression_parameters_cement_production %>%
     filter('World' != .data$region) %>%
-    mutate(year = as.integer(2000)) %>%
-    complete(nesting(!!!syms(c('region', 'a', 'b'))), year = 2000:2100) %>%
+    mutate(year = 2000L,
+           target_year = case_when(
+             'CHA' == .data$region ~ 2100L,
+             TRUE                  ~ 2200L)) %>%
+    complete(nesting(!!!syms(c('region', 'a', 'b', 'target_year'))),
+             year = 2000:2100) %>%
     mutate(a = .data$a
              + ( (param_a - .data$a)
-               / (2200 - 2000)
+               / (.data$target_year - 2000)
                * (.data$year - 2000)
-               ))
+               )) %>%
+    select(-'target_year')
 
   projected_cement_data <- inner_join(
     regression_parameters_cement_production_converging,
@@ -1906,8 +1933,16 @@ d_plot_region_totals %>%
       nls(formula = cement.VApt ~ a * exp(b / GDPpC),
           data = regression_data_cement %>%
             filter(r == .data$region,
-                   'Total' == .data$iso3c,
+                   'Total' != .data$iso3c,
+                   !is.na(.data$cement.VA),
                    !.data$censored) %>%
+            pivot_longer(all_of(c('population', 'cement.production', 'GDP',
+                                  'cement.VA'))) %>%
+            group_by(.data$region, .data$year, .data$censored, .data$name) %>%
+            summarise(value = sum(.data$value),
+                      iso3c = 'Total',
+                      .groups = 'drop') %>%
+            pivot_wider() %>%
             mutate(cement.VApt = .data$cement.VA / .data$cement.production,
                    GDPpC       = .data$GDP / .data$population),
           start = list(a = 250, b = -4000),
@@ -1951,69 +1986,47 @@ d_plot_region_totals %>%
     pivot_wider()
 
   ## plot cement regressions ====
-  d_plot_region_totals <- regression_data_cement %>%
-    filter(!.data$censored,
-           'Total' == .data$iso3c) %>%
-    mutate(GDPpC = .data$GDP / .data$population)
+  if (!is.null(save.plots)) {
+    d_plot_region_totals <- regression_data_cement %>%
+      filter(!.data$censored,
+             'Total' == .data$iso3c) %>%
+      mutate(GDPpC = .data$GDP / .data$population)
 
-  d_plot_countries <- regression_data_cement %>%
-    filter(!.data$censored) %>%
-    semi_join(
-      regression_data_cement %>%
-        filter(!.data$censored,
-               'World' != .data$region,
-               'Total' != .data$iso3c) %>%
-        distinct(.data$region, .data$iso3c) %>%
-        group_by(.data$region) %>%
-        filter(1 != n()) %>%
-        ungroup(),
+    d_plot_countries <- regression_data_cement %>%
+      filter(!.data$censored) %>%
+      semi_join(
+        regression_data_cement %>%
+          filter(!.data$censored,
+                 'World' != .data$region,
+                 'Total' != .data$iso3c) %>%
+          distinct(.data$region, .data$iso3c) %>%
+          group_by(.data$region) %>%
+          filter(1 != n()) %>%
+          ungroup(),
 
-      c('region', 'iso3c')
-    ) %>%
-    mutate(GDPpC = .data$GDP / .data$population)
+        c('region', 'iso3c')
+      ) %>%
+      mutate(GDPpC = .data$GDP / .data$population)
 
-  d_plot_projections <- projected_cement_data %>%
-    filter(.data$scenario %in% c('SSP1', 'SSP2', 'SSP5'),
-           'Total' == .data$iso3c,
-           between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
-    mutate(GDPpC = .data$GDP / .data$population) %>%
-    inner_join(
-      regression_data_cement %>%
-        filter('Total' != .data$iso3c) %>%
-        group_by(.data$region) %>%
-        mutate(GDPpC = .data$GDP / .data$population) %>%
-        filter(max(.data$GDPpC) == .data$GDPpC) %>%
-        ungroup() %>%
-        select('region', max.GDPpC = 'GDPpC'),
+    d_plot_projections <- projected_cement_data %>%
+      filter(.data$scenario %in% names(linetype_scenarios),
+             'Total' == .data$iso3c,
+             between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
+      mutate(GDPpC = .data$GDP / .data$population) %>%
+      inner_join(
+        regression_data_cement %>%
+          filter('Total' != .data$iso3c) %>%
+          group_by(.data$region) %>%
+          mutate(GDPpC = .data$GDP / .data$population) %>%
+          filter(max(.data$GDPpC) == .data$GDPpC) %>%
+          ungroup() %>%
+          select('region', max.GDPpC = 'GDPpC'),
 
-      'region'
-    ) %>%
-    filter(.data$GDPpC <= 2 * .data$max.GDPpC)
+        'region'
+      ) %>%
+      filter(.data$GDPpC <= 2 * .data$max.GDPpC)
 
-  d_plot_asymptote <- bind_cols(
-    regression_parameters_cement_production %>%
-      select('region', 'a') %>%
-      filter('World' != .data$region),
-
-    regression_parameters_cement_production %>%
-      filter('World' == .data$region) %>%
-      select(World = 'a')
-  ) %>%
-    mutate(a.conv = (.data$a + .data$World) / 2) %>%
-    select(-'World') %>%
-    pivot_longer(c('a', 'a.conv')) %>%
-    full_join(
-      tribble(
-        ~name,      ~year,
-        'a',        max(d_plot_region_totals$year),
-        'a.conv',   2100),
-
-      'name'
-    ) %>%
-    select('region', 'year', 'value')
-
-  d_plot_asymptote <- full_join(
-    bind_cols(
+    d_plot_asymptote <- bind_cols(
       regression_parameters_cement_production %>%
         select('region', 'a') %>%
         filter('World' != .data$region),
@@ -2021,184 +2034,198 @@ d_plot_region_totals %>%
       regression_parameters_cement_production %>%
         filter('World' == .data$region) %>%
         select(World = 'a')
-    ),
+    ) %>%
+      mutate(a.conv = (.data$a + .data$World) / 2) %>%
+      select(-'World') %>%
+      pivot_longer(c('a', 'a.conv')) %>%
+      full_join(
+        tribble(
+          ~name,      ~year,
+          'a',        max(d_plot_region_totals$year),
+          'a.conv',   2100),
 
-    d_plot_projections %>%
-      group_by(.data$scenario, .data$region) %>%
-      filter(.data$year %in% c(max(d_plot_region_totals$year),
-                               max(.data$year))) %>%
-      select('scenario', 'region', 'year', 'GDPpC'),
+        'name'
+      ) %>%
+      select('region', 'year', 'value')
 
-    'region'
-  ) %>%
-    mutate(value = .data$a
-                 + ( (.data$World - .data$a)
-                   / (2200 - 2000)
-                   * (.data$year - 2000))) %>%
-    select('scenario', 'region', 'GDPpC', 'value')
+    d_plot_asymptote <- full_join(
+      bind_cols(
+        regression_parameters_cement_production %>%
+          select('region', 'a') %>%
+          filter('World' != .data$region),
 
-  d_plot_regression <- full_join(
-    regression_parameters_cement_production,
+        regression_parameters_cement_production %>%
+          filter('World' == .data$region) %>%
+          select(World = 'a')
+      ),
 
-    d_plot_region_totals %>%
-      select('region', 'GDPpC') %>%
-      group_by(.data$region) %>%
-      filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-      mutate(x = c(1, 100)) %>%
-      ungroup() %>%
-      complete(nesting(!!sym('region')),
-               x = seq(min(!!sym('x')), max(!!sym('x'))),
-               fill = list(GDPpC = NA)) %>%
-      mutate(GDPpC = first(.data$GDPpC)
-             + ( (last(.data$GDPpC) - first(.data$GDPpC))
-                 / (last(.data$x) - first(.data$x))
-                 * (.data$x - first(.data$x)))) %>%
-      select(-'x'),
+      d_plot_projections %>%
+        group_by(.data$scenario, .data$region) %>%
+        filter(.data$year %in% c(max(d_plot_region_totals$year),
+                                 max(.data$year))) %>%
+        select('scenario', 'region', 'year', 'GDPpC'),
 
-    'region'
-  ) %>%
-    mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+      'region'
+    ) %>%
+      mutate(value = .data$a
+             + ( (.data$World - .data$a)
+                 / (2200 - 2000)
+                 * (.data$year - 2000))) %>%
+      select('scenario', 'region', 'GDPpC', 'value')
 
-  d_plot_foo <- full_join(
-    regression_parameters_cement_production,
+    d_plot_regression <- full_join(
+      regression_parameters_cement_production,
 
-    d_plot_projections %>%
-      group_by(.data$scenario, .data$region) %>%
-      filter(.data$year %in% c(max(d_plot_region_totals$year),
-                               max(.data$year))) %>%
-      select('scenario', 'region', 'year', 'GDPpC'),
+      d_plot_region_totals %>%
+        select('region', 'GDPpC') %>%
+        df_populate_range('GDPpC'),
 
-    'region'
-  ) %>%
-    mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+      'region'
+    ) %>%
+      mutate(value = .data$a * exp(.data$b / .data$GDPpC))
 
-  y_max <- d_plot_region_totals %>%
-    filter('World' == .data$region) %>%
-    mutate(
-      cement.production.pC = .data$cement.production / .data$population) %>%
-    filter(max(.data$cement.production.pC) == .data$cement.production.pC) %>%
-    pull('cement.production.pC')
+    d_plot_foo <- full_join(
+      regression_parameters_cement_production,
 
+      d_plot_projections %>%
+        group_by(.data$scenario, .data$region) %>%
+        filter(.data$year %in% c(max(d_plot_region_totals$year),
+                                 max(.data$year))) %>%
+        select('scenario', 'region', 'year', 'GDPpC'),
 
-  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
-                            y = !!sym('cement.production')
+      'region'
+    ) %>%
+      mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+
+    y_max <- d_plot_region_totals %>%
+      filter('World' == .data$region) %>%
+      mutate(
+        cement.production.pC = .data$cement.production / .data$population) %>%
+      filter(max(.data$cement.production.pC) == .data$cement.production.pC) %>%
+      pull('cement.production.pC')
+
+    projection_points <- c(2015, 2030, 2050, 2075, 2100)
+
+    p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
+                              y = !!sym('cement.production')
                               / !!sym('population'))) +
-    # plot regression line
-    geom_path(
-      data = d_plot_regression,
-      mapping = aes(y = !!sym('value'), linetype = 'regression')) +
-    # plot region totals
-    geom_point(
-      data = d_plot_region_totals,
-      mapping = aes(shape = 'region totals')) +
-    # # plot individual countries
-    # geom_point(
-    #   data = d_plot_countries,
-    #   mapping = aes(shape = 'countries')) +
-    # plot projections
-    geom_path(
-      data = d_plot_projections,
-      mapping = aes(linetype = !!sym('scenario'))) +
-    scale_shape_manual(values = c('region totals' = 'cross',
-                                  # 'countries' = '.',
-                                  NULL),
-                       name = NULL) +
-    scale_linetype_manual(values = linetype_scenarios, name = NULL) +
-    facet_wrap(~ !!sym('region'), scales = 'free') +
-    expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
-    labs(x = 'per-capita GDP [1000 $/year]',
-         y = 'per-capita Cement Production [tonnes/year]') +
-    theme_minimal()
+      # plot region totals
+      geom_point(
+        data = d_plot_region_totals,
+        mapping = aes(shape = 'region totals'),
+        size = 2) +
+      # plot regression line
+      geom_path(
+        data = d_plot_regression,
+        mapping = aes(y = !!sym('value'), colour = 'regression')) +
+      # plot projections
+      geom_path(
+        data = d_plot_projections,
+        mapping = aes(colour = 'projection')) +
+      geom_point(
+        data = d_plot_projections %>%
+          filter(.data$year %in% projection_points),
+        mapping = aes(shape = as.character(!!sym('year'))),
+        size = 3) +
+      scale_shape_manual(
+        values = c('region totals' = 'o',
+                   setNames(rep('x', length(projection_points)),
+                            projection_points)),
+        name = NULL) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'projection' = 'black'),
+                          name = NULL) +
+      facet_wrap(vars(!!sym('region')), scales = 'free') +
+      expand_limits(y = c(0, ceiling(y_max * 2) / 2)) +
+      labs(x = 'per-capita GDP [1000 $/year]',
+           y = 'per-capita Cement Production [tonnes/year]') +
+      theme_minimal()
 
-  if (save.plots) {
+
     ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '01_Cement_regression_projection.rds'))
   }
 
   # ========================================================================== =
 
   ## plot cement VA regressions ====
-  d_plot_region_totals <- regression_data_cement %>%
-    ungroup() %>%
-    filter('Total' == .data$iso3c,
-           !.data$censored) %>%
-    mutate(GDPpC = .data$GDP / .data$population,
-           cement.VA.pt = .data$cement.VA / .data$cement.production) %>%
-    # filter outliers
-    # filter(2000 >= .data$cement.VA.pt) %>%
-    select('region', 'year', 'GDPpC', 'cement.VA.pt')
-
-  d_plot_regression <- full_join(
-    regression_parameters_cement,
-
-    d_plot_region_totals %>%
-      select('region', 'GDPpC') %>%
-      group_by(.data$region) %>%
-      filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
+  if (!is.null(save.plots)) {
+    d_plot_region_totals <- regression_data_cement %>%
       ungroup() %>%
-      complete(nesting(!!sym('region')),
-               GDPpC = seq(from = min(!!sym('GDPpC')), to = max(!!sym('GDPpC')),
-                           length.out = 100)),
+      filter('Total' == .data$iso3c,
+             !.data$censored) %>%
+      mutate(GDPpC = .data$GDP / .data$population,
+             cement.VA.pt = .data$cement.VA / .data$cement.production) %>%
+      # filter outliers
+      # filter(2000 >= .data$cement.VA.pt) %>%
+      select('region', 'year', 'GDPpC', 'cement.VA.pt')
 
-    'region'
-  ) %>%
-    mutate(cement.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>%
-    select('region', 'GDPpC', 'cement.VA.pt')
+    d_plot_regression <- full_join(
+      regression_parameters_cement,
 
-  d_plot_projections <- projected_cement_data %>%
-    filter(.data$scenario %in% names(linetype_scenarios),
-           'Total' == .data$iso3c) %>%
-    mutate(GDPpC = .data$GDP / .data$population,
-           cement.VA.pt = .data$cement.VA / .data$cement.production) %>%
-    select('scenario', 'region', 'year', 'GDPpC', 'cement.VA.pt')
+      d_plot_region_totals %>%
+        select('region', 'GDPpC') %>%
+        df_populate_range('GDPpC'),
 
-  d_plot_projections <- left_join(
-    d_plot_projections,
+      'region'
+    ) %>%
+      mutate(cement.VA.pt = .data$a * exp(.data$b / .data$GDPpC)) %>%
+      select('region', 'GDPpC', 'cement.VA.pt')
 
-    d_plot_projections %>%
-      select('region', 'year', 'GDPpC') %>%
-      filter(max(.data$year) == .data$year) %>%
-      group_by(.data$region) %>%
-      filter(min(.data$GDPpC) == .data$GDPpC) %>%
-      select('region', max.GDPpC = 'GDPpC'),
+    d_plot_projections <- projected_cement_data %>%
+      filter(.data$scenario %in% names(linetype_scenarios),
+             'Total' == .data$iso3c) %>%
+      mutate(GDPpC = .data$GDP / .data$population,
+             cement.VA.pt = .data$cement.VA / .data$cement.production) %>%
+      select('scenario', 'region', 'year', 'GDPpC', 'cement.VA.pt')
 
-    'region'
-  ) %>%
-    filter(.data$GDPpC <= .data$max.GDPpC) %>%
-    select(-'max.GDPpC')
+    d_plot_projections <- left_join(
+      d_plot_projections,
 
-  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
-                            y = !!sym('cement.VA.pt'))) +
-    geom_point(data = d_plot_region_totals,
-               mapping = aes(shape = 'region totals')) +
-    scale_shape_manual(values = c('region totals' = 'cross'),
-                       name = NULL) +
-    geom_line(data = d_plot_regression,
-              mapping = aes(linetype = 'regression')) +
-    geom_line(data = d_plot_projections,
-              mapping = aes(linetype = !!sym('scenario'))) +
-    scale_linetype_manual(values = linetype_scenarios, name = NULL,
-                          guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ !!sym('region'), scales = 'free') +
-    expand_limits(x = 0, y = 0) +
-    labs(x = 'per-capita GDP [1000$/yr]',
-         y = 'specific Cement Value Added [$/t]') +
-    theme_minimal() +
-    theme(legend.justification = c(1, 0),
-          legend.position = c(1, 0))
+      d_plot_projections %>%
+        select('region', 'year', 'GDPpC') %>%
+        filter(max(.data$year) == .data$year) %>%
+        group_by(.data$region) %>%
+        filter(min(.data$GDPpC) == .data$GDPpC) %>%
+        select('region', max.GDPpC = 'GDPpC'),
 
-  if (save.plots) {
-    ggsave(plot = p, filename = '05_Cement_VA_regressions_projections.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+      'region'
+    ) %>%
+      filter(.data$GDPpC <= .data$max.GDPpC) %>%
+      select(-'max.GDPpC')
+
+    p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
+                              y = !!sym('cement.VA.pt'))) +
+      geom_point(data = d_plot_region_totals,
+                 mapping = aes(shape = 'region totals')) +
+      scale_shape_manual(values = c('region totals' = 'cross'),
+                         name = NULL) +
+      geom_line(data = d_plot_regression,
+                mapping = aes(linetype = 'regression')) +
+      geom_line(data = d_plot_projections,
+                mapping = aes(linetype = !!sym('scenario'))) +
+      scale_linetype_manual(values = linetype_scenarios, name = NULL,
+                            guide = guide_legend(direction = 'horizontal')) +
+      facet_wrap(vars(!!sym('region')), scales = 'free') +
+      expand_limits(x = 0, y = 0) +
+      labs(x = 'per-capita GDP [1000$/yr]',
+           y = 'specific Cement Value Added [$/t]') +
+      theme_minimal() +
+      theme(legend.justification = c(1, 0),
+            legend.position = c(1, 0))
+
+
+    ggsave(plot = p, filename = '05a_Cement_VA_regressions_projections.svg',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '05_Cement_VA_regressions_projections.rds'))
   }
 
@@ -2349,96 +2376,90 @@ d_plot_region_totals %>%
            chemicals.share = .data$chemicals.VA / .data$manufacturing)
 
   ## plot chemicals regressions ================================================
-  d_plot_region_totals <- regression_data_chemicals %>%
-    filter(!.data$censored,
-           'Total' == .data$iso3c)
+  if (!is.null(save.plots)) {
+    d_plot_region_totals <- regression_data_chemicals %>%
+      filter(!.data$censored,
+             'Total' == .data$iso3c)
 
-  d_plot_countries <- regression_data_chemicals %>%
-    filter(!.data$censored) %>%
-    semi_join(
-      regression_data_chemicals %>%
-        filter(!.data$censored,
-               'World' != .data$region,
-               'Total' != .data$iso3c) %>%
-        distinct(.data$region, .data$iso3c) %>%
-        group_by(.data$region) %>%
-        filter(1 != n()) %>%
-        ungroup(),
+    d_plot_countries <- regression_data_chemicals %>%
+      filter(!.data$censored) %>%
+      semi_join(
+        regression_data_chemicals %>%
+          filter(!.data$censored,
+                 'World' != .data$region,
+                 'Total' != .data$iso3c) %>%
+          distinct(.data$region, .data$iso3c) %>%
+          group_by(.data$region) %>%
+          filter(1 != n()) %>%
+          ungroup(),
 
-      c('region', 'iso3c')
+        c('region', 'iso3c')
+      ) %>%
+      mutate(GDPpC = .data$GDP / .data$population)
+
+    d_plot_regression <- full_join(
+      regression_parameters_chemicals,
+
+      d_plot_region_totals %>%
+        select('region', 'GDPpC') %>%
+        df_populate_range('GDPpC'),
+
+      'region'
     ) %>%
-    mutate(GDPpC = .data$GDP / .data$population)
+      mutate(value = .data$a * exp(.data$b / .data$GDPpC))
 
-  d_plot_regression <- full_join(
-    regression_parameters_chemicals,
-
-    d_plot_region_totals %>%
-      select('region', 'GDPpC') %>%
+    d_plot_projections <- projected_chemicals_data %>%
+      filter(.data$scenario %in% names(linetype_scenarios),
+             'Total' == .data$iso3c,
+             between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
+      select('scenario', 'region', 'year', 'GDPpC', 'chemicals.VA',
+             'population') %>%
       group_by(.data$region) %>%
-      filter(.data$GDPpC %in% range(.data$GDPpC)) %>%
-      mutate(x = c(1, 100)) %>%
-      ungroup() %>%
-      complete(nesting(!!sym('region')),
-               x = seq(min(!!sym('x')), max(!!sym('x'))),
-               fill = list(GDPpC = NA)) %>%
-      mutate(GDPpC = first(.data$GDPpC)
-             + ( (last(.data$GDPpC) - first(.data$GDPpC))
-                 / (last(.data$x) - first(.data$x))
-                 * (.data$x - first(.data$x)))) %>%
-      select(-'x'),
+      filter(.data$GDPpC <= .data$GDPpC[  'SSP2' == .data$scenario
+                                          & 2100 == .data$year]) %>%
+      ungroup()
 
-    'region'
-  ) %>%
-    mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+    p <- ggplot(
+      mapping = aes(x = !!sym('GDPpC') / 1000,
+                    y = !!sym('chemicals.VA') / !!sym('population'))) +
+      # plot region totals
+      geom_point(
+        data = d_plot_region_totals,
+        mapping = aes(shape = 'region totals')) +
+      # # plot regression line
+      geom_path(
+        data = d_plot_regression,
+        mapping = aes(y = !!sym('value'), colour = 'regression')) +
+      # # plot projections
+      geom_path(
+        data = d_plot_projections,
+        mapping = aes(colour = 'projection')) +
+      geom_point(
+        data = d_plot_projections %>%
+          filter(.data$year %in% projection_points),
+        mapping = aes(shape = as.character(!!sym('year'))),
+        size = 3) +
+      scale_shape_manual(
+        values = c('region totals' = 'o',
+                   setNames(rep('x', length(projection_points)),
+                            projection_points)),
+                   name = NULL) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'projection' = 'black'),
+                            name = NULL) +
+      facet_wrap(vars(!!sym('region')), scales = 'free') +
+      expand_limits(y = c(0, ceiling(y_max * 2) / 2)) +
+      labs(x = 'per-capita GDP [1000 $/year]',
+           y = 'per-capita Chemicals Value Added [$/year]') +
+      theme_minimal()
 
-  d_plot_projections <- projected_chemicals_data %>%
-    filter(.data$scenario %in% c('SSP1', 'SSP2', 'SSP5'),
-           'Total' == .data$iso3c,
-           between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
-    select('scenario', 'region', 'year', 'GDPpC', 'chemicals.VA',
-           'population') %>%
-    group_by(.data$region) %>%
-    filter(.data$GDPpC <= .data$GDPpC[  'SSP2' == .data$scenario
-                                      & 2100 == .data$year]) %>%
-    ungroup()
-
-  p <- ggplot(mapping = aes(x = !!sym('GDPpC') / 1000,
-                            y = !!sym('chemicals.VA') / !!sym('population'))) +
-    # plot region totals
-    geom_point(
-      data = d_plot_region_totals,
-      mapping = aes(shape = 'region totals')) +
-    # # plot regression line
-    geom_path(
-      data = d_plot_regression,
-      mapping = aes(y = !!sym('value'), linetype = 'regression')) +
-    # # plot projections
-    geom_path(
-      data = d_plot_projections,
-      mapping = aes(linetype = !!sym('scenario'))) +
-    scale_shape_manual(values = c('region totals' = 'cross',
-                                  # 'countries' = '.',
-                                  NULL),
-                       name = NULL) +
-    scale_linetype_manual(values = c('regression' = 'longdash',
-                                     'SSP1' = 'dotted',
-                                     'SSP2' = 'solid',
-                                     'SSP5' = 'dashed'),
-                          name = NULL) +
-    facet_wrap(~ !!sym('region'), scales = 'free') +
-    expand_limits(x = 0, y = c(0, ceiling(y_max * 2) / 2)) +
-    labs(x = 'per-capita GDP [1000 $/year]',
-         y = 'per-capita Chemicals Value Added [$/year]') +
-    theme_minimal()
-
-  if (save.plots) {
-    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+    ggsave(plot = p, filename = '02_Chemicals_regression_projection.svg',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
-                               '01_Cement_regression_projection.rds'))
+              file = file.path(save.plots,
+                               '02_Chemicals_regression_projection.rds'))
   }
 
   # ======================================================================== ===
@@ -2552,35 +2573,35 @@ d_plot_region_totals %>%
 
   # plot otherInd VA ===========================================================
 
-   p <- ggplot() +
-    geom_area(
-      data = projections %>%
-        select('scenario', 'region', 'iso3c', 'year', 'cement.VA',
-               'chemicals.VA', 'steel.VA', 'otherInd.VA') %>%
-        filter('SSP2' == .data$scenario,
-               2000 <= .data$year,
-               'Total' == .data$iso3c) %>%
-        select(-'scenario', -'iso3c') %>%
-        pivot_longer(matches('\\.VA$')) %>%
-        mutate(name = sub('\\.VA$', '', .data$name)) %>%
-        order.levels(
-          name = c('cement', 'chemicals', 'steel', 'otherInd')),
-      mapping = aes(x = !!sym('year'), y = !!sym('value') / 1e12,
-                    fill = !!sym('name'))) +
-    scale_fill_discrete(name = NULL,
-                        guide = guide_legend(direction = 'horizontal')) +
-    facet_wrap(~ !!sym('region'), scales = 'free_y') +
-    labs(x = NULL, y = 'Value Added [$tn/year]') +
-    theme_minimal() +
-    theme(legend.justification = c(1, 0), legend.position = c(1, 0))
+  if (!is.null(save.plots)) {
+    p <- ggplot() +
+      geom_area(
+        data = projections %>%
+          select('scenario', 'region', 'iso3c', 'year', 'cement.VA',
+                 'chemicals.VA', 'steel.VA', 'otherInd.VA') %>%
+          filter('SSP2' == .data$scenario,
+                 2000 <= .data$year,
+                 'Total' == .data$iso3c) %>%
+          select(-'scenario', -'iso3c') %>%
+          pivot_longer(matches('\\.VA$')) %>%
+          mutate(name = sub('\\.VA$', '', .data$name)) %>%
+          order.levels(
+            name = c('cement', 'chemicals', 'steel', 'otherInd')),
+        mapping = aes(x = !!sym('year'), y = !!sym('value') / 1e12,
+                      fill = !!sym('name'))) +
+      scale_fill_discrete(name = NULL,
+                          guide = guide_legend(direction = 'horizontal')) +
+      facet_wrap(vars(!!sym('region')), scales = 'free_y') +
+      labs(x = NULL, y = 'Value Added [$tn/year]') +
+      theme_minimal() +
+      theme(legend.justification = c(1, 0), legend.position = c(1, 0))
 
-  if (save.plots) {
-    ggsave(plot = p, filename = '05_Value_Added_projection.svg',
-           device = 'svg', path = getConfig('outputfolder'), bg = 'white',
+    ggsave(plot = p, filename = '05b_Value_Added_projection.svg',
+           device = 'svg', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
-              file = file.path(getConfig('outputfolder'),
+              file = file.path(save.plots,
                                '05_Value_Added_projection.rds'))
   }
 
