@@ -57,7 +57,7 @@ Imports:
     mgsub,
     nnls,
     purrr,
-    quitte (>= 0.3100.0),
+    quitte (>= 0.3105.0),
     readODS,
     readr,
     readxl,
