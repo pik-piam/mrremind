@@ -9,7 +9,7 @@ calcSteel_Projections(
   subtype = "production",
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
-  save.plots = FALSE,
+  save.plots = NULL,
   China_Production = NULL
 )
 
@@ -17,7 +17,7 @@ calcIndustry_Value_Added(
   subtype = "physical",
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
-  save.plots = FALSE,
+  save.plots = NULL,
   China_Production = NULL
 )
 }
@@ -45,7 +45,8 @@ OECD and Non-OECD countries from the \emph{Reference Technologies Scenario}
 until 2060, and original growth rates after that.
 }}
 
-\item{save.plots}{Save plots to \code{getConfig('outputfolder')}?}
+\item{save.plots}{\code{NULL} (default) if no plots are saved, or the path to save
+directories to.}
 
 \item{China_Production}{A data frame with columns \code{period} and
 \code{total.production} prescribing total production for China to have,
