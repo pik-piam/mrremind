@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.147.1
-Date: 2022-10-24
+Version: 0.151.2
+Date: 2022-12-20
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -38,7 +38,7 @@ Depends:
     R (>= 2.10.0),
     madrat (>= 2.5.1),
     magclass (>= 3.17),
-    mrcommons (>= 1.7.1),
+    mrcommons (>= 1.25.0),
     edgeTransport (>= 0.17.0)
 Imports:
     Hmisc,
@@ -57,7 +57,7 @@ Imports:
     mgsub,
     nnls,
     purrr,
-    quitte (>= 0.3100.0),
+    quitte (>= 0.3105.0),
     readODS,
     readr,
     readxl,
@@ -78,4 +78,4 @@ VignetteBuilder:
     knitr
 Encoding: UTF-8
 LazyData: no
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3

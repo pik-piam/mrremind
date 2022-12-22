@@ -19,6 +19,9 @@
 #' @param ieamatch mapping of IEA product/flow combinations to REMIND
 #'        `sety`/`fety`/`te` combinations as used in [`calcIO()`]
 #'
+#' @param threshold minimum share each industry subsector uses of each product.
+#'   Defaults to 1 %.
+#'
 #' @return a MAgPIE object
 #'
 #' @author Michaja Pehl
@@ -33,8 +36,10 @@
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete gather nesting spread
+#' @importFrom zoo rollapply
 
-tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
+tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
+                                                      threshold = 1e-2) {
 
   . <- NULL
 
@@ -484,7 +489,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     `[`(regions_keep, years_keep, names_keep)
 
   data_fixed[regions_replace,years_replace,names_replace] <- (
-      data_fixed[regions_replace,years_replace,names_replace]
+    data_fixed[regions_replace,years_replace,names_replace]
     + data_replace[regions_replace,years_replace,names_replace]
   )
 
@@ -508,9 +513,12 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
 
   # extend industry subsector time series ----
   # subset of data containing industry subsector products and flows
-  data_industry <- data[,,cartesian(products_to_fix,
-                                    c(flows_to_fix, 'TOTIND', 'INONSPEC'))] %>%
+  data_industry <- data %>%
+    `[`(,,intersect(getNames(data),
+                    cartesian(products_to_fix,
+                              c(flows_to_fix, 'TOTIND', 'INONSPEC')))) %>%
     as.data.frame() %>%
+    as_tibble() %>%
     select(iso3c = 'Region', year = 'Year', product = 'Data1', flow = 'Data2',
            value = 'Value') %>%
     mutate(year = as.integer(as.character(.data$year))) %>%
@@ -518,23 +526,25 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     inner_join(region_mapping, 'iso3c') %>%
     assert(not_na, .data$region)
 
-  # all products that are consumed only in the non-specified subsector of
-  # industry are "suspicious" and are therefore fixed
-  data_to_fix <- inner_join(
-    data_industry %>%
-      filter('TOTIND' != .data$flow) %>%
-      group_by(.data$iso3c, .data$region, .data$year, .data$product) %>%
-      summarise(total = sum(.data$value, na.rm = TRUE), .groups = 'drop'),
+  ## apply five-year moving average ----
+  data_industry <- data_industry %>%
+    group_by(.data$iso3c, .data$region, .data$product, .data$flow) %>%
+    arrange(.data$year) %>%
+    mutate(value = rollapply(
+      # pad data with two leading and trailing NAs
+      data = c(NA, NA, .data$value, NA, NA),
+      width = 5,
+      # ignoring NAs in mean() stumps the mean on the edges to four/three years
+      FUN = function(x) { mean(x, na.rm = TRUE) })) %>%
+    ungroup()
 
-    data_industry %>%
-      filter(.data$flow %in% c('TOTIND', 'INONSPEC')) %>%
-      spread(.data$flow, .data$value),
-
-    c('iso3c', 'region', 'year', 'product')
-  ) %>%
-    # abs(1 - (.data$total / .data$TOTIND)) > 1e-3 |
-    filter(.data$INONSPEC == .data$TOTIND) %>%
-    select(.data$iso3c, .data$region, .data$year, .data$product, .data$TOTIND)
+  # all products that use less then 1 % of total energy outside of non-specified
+  # industry are 'suspicious' and will be fixed
+  data_to_fix <- data_industry %>%
+    filter(.data$flow %in% c('TOTIND', 'INONSPEC')) %>%
+    spread(.data$flow, .data$value) %>%
+    filter(1 - .data$INONSPEC / .data$TOTIND < 1e-2) %>%
+    select('iso3c', 'region', 'year', 'product', 'TOTIND')
 
   # use all non-suspicious data to calculate regional and global averages
   data_for_fixing <- anti_join(
@@ -592,15 +602,89 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch) {
     select(.data$iso3c, .data$region, .data$year, .data$product, .data$flow,
            .data$value) %>%
     assert(not_na, .data$value) %>%
-    overwrite(data_industry) %>%
-    select(COUNTRY = .data$iso3c, TIME = .data$year, PRODUCT = .data$product,
-           FLOW = .data$flow, Value = .data$value) %>%
-    as.magpie()
+    overwrite(data_industry)
 
-  # replace fixed data
-  data[getRegions(data_industry_fixed),
-       getYears(data_industry_fixed),
-       getNames(data_industry_fixed)] <- data_industry_fixed
+  # redistribute at least <threshold> of each product into each subsector ----
+  data_industry_fixed <- data_industry_fixed %>%
+    complete(nesting(!!!syms(c('iso3c', 'region', 'year', 'product'))),
+             flow = c(flows_to_fix, 'INONSPEC'),
+             fill = list(value = 0)) %>%
+    group_by(.data$iso3c, .data$year, .data$product) %>%
+    # which flow belongs to which subsector?
+    right_join(
+      tribble(
+        ~subsector,    ~flow,
+        'cement',      'NONMET',
+        'chemicals',   'CHEMICAL',
+        'steel',       'IRONSTL') %>%
+        complete(flow = c(flows_to_fix, 'INONSPEC'),
+                 fill = list(subsector = 'otherInd')),
+
+      'flow'
+    ) %>%
+    # compute subsector totals
+    group_by(.data$subsector, .add = TRUE) %>%
+    mutate(subsector.total = sum(.data$value),
+           subsector.count = n()) %>%
+    ungroup(.data$subsector) %>%
+    mutate(
+      # each subsector consumes at least <threshold> of the total consumption of
+      # each product (with the exception of heat, which is only consumed in the
+      #  otherInd subsector)
+      subsector.min = ifelse('HEAT' == .data$product, 0,
+                             threshold * sum(.data$value)),
+      # if total subsector consumption is below the minimum, consumption must be
+      # added
+      subsector.add = pmax(0, .data$subsector.min - .data$subsector.total),
+      # each flow gets consumption added according to its share in total
+      # subsector consumption
+      flow.add = ifelse(0 != .data$subsector.total,
+                        ( .data$subsector.add
+                        / .data$subsector.total
+                        * .data$value
+                        ),
+                        .data$subsector.add / .data$subsector.count),
+      # if the additional flow is zero, consumption has to be subtracted from\
+      # this flow, in relation to its share of all flows with
+      # more-than-threshold consumption
+      flow.add = ifelse(0 != .data$flow.add, .data$flow.add,
+                        ( -sum(.data$flow.add)
+                        * .data$value
+                        / sum(.data$value[0 == .data$flow.add])
+                        )),
+      value = .data$value + .data$flow.add) %>%
+    ungroup() %>%
+    select('iso3c', 'region', 'year', 'product', 'flow', 'value')
+
+  # replace and append fixed data ----
+  data_industry_fixed_overwrite <- data_industry_fixed %>%
+    semi_join(
+      data_industry,
+
+      c('iso3c', 'region', 'year', 'product', 'flow')
+    ) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    as.magpie(spatial = 1, temporal = 2, data = 5)
+
+  data_industry_fixed_append <- data_industry_fixed %>%
+    anti_join(
+      data_industry,
+
+      c('iso3c', 'region', 'year', 'product', 'flow')
+    ) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    complete(nesting(!!!syms(c('product', 'flow'))),
+             iso3c = getRegions(data),
+             year = getYears(data, as.integer = TRUE),
+             fill = list(value = 0)) %>%
+    select('iso3c', 'year', 'product', 'flow', 'value') %>%
+    as.magpie(spatial = 1, temporal = 2, data = 5)
+
+  data[getRegions(data_industry_fixed_overwrite),
+       getYears(data_industry_fixed_overwrite),
+       getNames(data_industry_fixed_overwrite)] <- data_industry_fixed_overwrite
+
+  data <- mbind(data, data_industry_fixed_append)
 
   return(data)
 }
