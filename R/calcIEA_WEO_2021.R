@@ -12,7 +12,7 @@
 #' @importFrom stats aggregate
 #' @export
 
-calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
+calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
 
   if (!aggregate %in% c("global", "region")) {
     aggregate <- "global"
@@ -20,7 +20,7 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
-    mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")")) %>%
+    mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")")) %>% # nolint
     select("variable" = "WEO", "REMIND", "Conversion", "unit" = "Unit_WEO", "Unit_REMIND")
 
   mapping$variable <- trimws(mapping$variable)
@@ -29,7 +29,8 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
 
   # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
   for (s in getNames(data, dim = 1)) {
-    data[, c("y2010", "y2019", "y2020"), s] <- data[, c("y2010", "y2019", "y2020"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
+    data[, c("y2010", "y2019", "y2020"), s] <-
+      data[, c("y2010", "y2019", "y2020"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
   }
 
   data <- as.data.frame(data) %>%
@@ -38,7 +39,7 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
       "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
       "year" = "Year", "value" = "Value"
     ) %>%
-    mutate(!!sym("scenario_short") := case_when(
+    mutate(!!sym("scenario_short") := case_when( # nolint
       scenario == "Stated Policies Scenario" ~ "SPS",
       scenario == "Announced Pledges Scenario" ~ "APS",
       scenario == "Sustainable Development Scenario" ~ "SDS",
@@ -53,8 +54,8 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
     filter(!!sym("REMIND") != "") %>%
     mutate(
       !!sym("value") := !!sym("value") * !!sym("Conversion"),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
-      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short"))
+      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"), # nolint
+      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short")) # nolint
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
@@ -64,22 +65,28 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) {
 
   if (aggregate == "global") {
     x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <- x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
+    x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
+      x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Coal (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Coal (GW)"] <- x[, , "Cap|Electricity|Coal|w/o CC (GW)"] + x[, , "Cap|Electricity|Coal|w/ CC (GW)"]
+    x[, , "Cap|Electricity|Coal (GW)"] <-
+      x[, , "Cap|Electricity|Coal|w/o CC (GW)"] + x[, , "Cap|Electricity|Coal|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Solar (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Solar (GW)"] <- x[, , "Cap|Electricity|Solar|CSP (GW)"] + x[, , "Cap|Electricity|Solar|PV (GW)"]
+    x[, , "Cap|Electricity|Solar (GW)"] <-
+      x[, , "Cap|Electricity|Solar|CSP (GW)"] + x[, , "Cap|Electricity|Solar|PV (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Fossil (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Fossil (GW)"] <- x[, , "Cap|Electricity|Fossil|w/o CC (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CC (GW)"]
+    x[, , "Cap|Electricity|Fossil (GW)"] <-
+      x[, , "Cap|Electricity|Fossil|w/o CC (GW)"] + x[, , "Cap|Electricity|Fossil|w/ CC (GW)"]
 
     x <- add_columns(x, "Cap|Electricity|Gas (GW)", dim = 3.2)
-    x[, , "Cap|Electricity|Gas (GW)"] <- x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
+    x[, , "Cap|Electricity|Gas (GW)"] <-
+      x[, , "Cap|Electricity|Gas|w/o CC (GW)"] + x[, , "Cap|Electricity|Gas|w/ CC (GW)"]
 
     x <- add_columns(x, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
-    x[, , "SE|Electricity|Solar (EJ/yr)"] <- x[, , "SE|Electricity|Solar|PV (EJ/yr)"] + x[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
+    x[, , "SE|Electricity|Solar (EJ/yr)"] <-
+      x[, , "SE|Electricity|Solar|PV (EJ/yr)"] + x[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
   }
 
   if (isValidation) {
