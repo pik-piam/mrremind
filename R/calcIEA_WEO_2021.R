@@ -18,9 +18,10 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
     aggregate <- "global"
   }
 
-  mapping <- toolGetMapping("Mapping_IEA_WEO_2021.csv", type = "reportingVariables") %>%
+  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
-    mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")")) %>% # nolint
+    mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"),
+           !!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>% # nolint
     select("variable" = "WEO", "REMIND", "Conversion", "unit" = "Unit_WEO", "Unit_REMIND")
 
   mapping$variable <- trimws(mapping$variable)
@@ -41,6 +42,7 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
     ) %>%
     mutate(!!sym("scenario_short") := case_when( # nolint
       scenario == "Stated Policies Scenario" ~ "SPS",
+      scenario == "Announced pledges scenario" ~ "APS",
       scenario == "Announced Pledges Scenario" ~ "APS",
       scenario == "Sustainable Development Scenario" ~ "SDS",
       scenario == "Net Zero Emissions by 2050 Scenario" ~ "Net2050"

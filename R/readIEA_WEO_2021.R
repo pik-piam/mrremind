@@ -24,9 +24,10 @@ readIEA_WEO_2021 <- function() { # nolint
     ) %>% rename_all(tolower)
   ) %>%
     mutate(
+      !!sym("value") := ifelse(!!sym("unit") == "PJ", as.numeric(!!sym("value")) / 1000, as.numeric(!!sym("value"))),
+      !!sym("unit") := ifelse(!!sym("unit") == "PJ", "EJ", !!sym("unit")),
       variable = paste0(!!sym("category"), "-", !!sym("product"), "-", !!sym("flow"), " (", !!sym("unit"), ")"),
-      year = as.numeric(!!sym("year")),
-      value = as.numeric(!!sym("value"))
+      year = as.numeric(!!sym("year"))
     ) %>%
     select("region", "year", "scenario", "variable", "value") %>%
     group_by(
