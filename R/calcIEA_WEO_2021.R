@@ -20,8 +20,10 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
-    mutate(!!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"),
-           !!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>% # nolint
+    mutate(
+      !!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"), # nolint
+      !!sym("Conversion") := as.numeric(!!sym("Conversion")) # nolint
+    ) %>%
     select("variable" = "WEO", "REMIND", "Conversion", "unit" = "Unit_WEO", "Unit_REMIND")
 
   mapping$variable <- trimws(mapping$variable)
@@ -90,6 +92,13 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
     x[, , "SE|Electricity|Solar (EJ/yr)"] <-
       x[, , "SE|Electricity|Solar|PV (EJ/yr)"] + x[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
   }
+
+  # correct PE|Nuclear and PE
+  # PE Nuclear is usually reported in direct equivalents, values from IEA are
+  # roughly 3 times higher than the REMIND ones
+  x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] - x[, , "PE|Nuclear (EJ/yr)"]
+  x[, , "PE|Nuclear (EJ/yr)"] <- x[, , "PE|Nuclear (EJ/yr)"] / 3
+  x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] + x[, , "PE|Nuclear (EJ/yr)"]
 
   if (isValidation) {
     x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
