@@ -24,6 +24,11 @@ convertGini <- function(x){
   xSDP <- x[,,"SSP1"]
   getNames(xSDP) <- "SDP"
   x <- mbind(x,xSDP)
+
+  # add SSP2EU, same data as SSP2
+  xSSP2EU <- x[,,"SSP2"]
+  getNames(xSSP2EU) <- "SSP2EU"
+  x <- mbind(x,xSSP2EU)
   
   # conversion to iso3c codes, match Somalia by hand because countrycode fails
   getRegions(x) <- countrycode(getRegions(x), origin = 'wb', destination = 'iso3c' , custom_match = c('SOM' = 'SOM'))
