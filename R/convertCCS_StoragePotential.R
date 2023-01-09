@@ -1,4 +1,4 @@
-convertCCS_StoragePotential <- function(x, subtype){
+convertCCS_StoragePotential <- function(x){
   x <- toolCountryFill(x)
   return(x)
 }
