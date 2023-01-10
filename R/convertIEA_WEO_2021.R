@@ -48,7 +48,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
       # ISO countries in x and the corresponding mapping
       ctry <- setdiff(getItems(x, dim = 1), regions)
       mappingCtry <- mappingFull[mappingFull$ISO3.code %in% ctry &
-                                   mappingFull$Region_name %in% regions, ]
+        mappingFull$Region_name %in% regions, ]
 
       # subtract country values in x from region values
       # e.g. USA from North America, if both are in data
@@ -58,7 +58,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
 
       # mapping of regions to ISO countries other than in ctry (i.e. other regions)
       mappingRegions <- mappingFull[mappingFull$Region_name %in% regions &
-                                      !mappingFull$ISO3.code %in% ctry & mappingFull$ISO3.code != "SUN", ]
+        !mappingFull$ISO3.code %in% ctry & mappingFull$ISO3.code != "SUN", ]
 
       # regions fully covered by country values can be removed
       coveredRegions <- setdiff(regions, unique(mappingRegions$Region_name))
@@ -86,6 +86,9 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
 
       return(x)
     }
+
+    # for now, exclude average annual investments from regional disaggregation
+    x <- x[, , "Billion US dollars", pmatch = TRUE, invert = TRUE]
 
     # exclude all regions we don't want to disaggregate due to redundancies,
     # low relevance, or lack of accuracy
