@@ -19,8 +19,8 @@
 #' @rdname ODYM_RECC
 readODYM_RECC <- function(subtype) {
   # file path (for easier debugging)
-  # path <- './'
-  path <- '~/PIK/swap/inputdata/sources/ODYM_RECC/'
+  path <- './'
+  # path <- '~/PIK/swap/inputdata/sources/ODYM_RECC/'
 
   # subtype switchboard ----
   switchboard <- list(

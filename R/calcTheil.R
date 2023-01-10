@@ -29,7 +29,7 @@ calcTheil <- function(){
   
   # population (in 1e6)
   pop <- calcOutput(type = 'Population', aggregate = FALSE)
-  sspnames <- c(paste0('SSP',1:5),"SDP")
+  sspnames <- c(paste0('SSP',1:5),"SDP","SSP2EU")
   pop <- pop[,years,paste0('pop_',sspnames)]
   getNames(pop) <- sspnames
   getSets(pop) <- c("iso3c","year","scenario")
