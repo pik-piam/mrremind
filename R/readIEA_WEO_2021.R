@@ -45,8 +45,9 @@ readIEA_WEO_2021 <- function() { # nolint
     data, is.na(as.numeric(!!sym("year"))),
     grepl("Investment spending, annual average", !!sym("variable"))
   )
-  data <- filter(data, !is.na(as.numeric(!!sym("year"))))
 
+  # remove non-annual data
+  data <- filter(data, !is.na(as.numeric(!!sym("year"))))
 
   years <- as.numeric(unique(data$year))
 

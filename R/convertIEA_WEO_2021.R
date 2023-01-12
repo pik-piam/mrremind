@@ -87,9 +87,6 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
       return(x)
     }
 
-    # for now, exclude average annual investments from regional disaggregation
-    x <- x[, , "Billion US dollars", pmatch = TRUE, invert = TRUE]
-
     # exclude all regions we don't want to disaggregate due to redundancies,
     # low relevance, or lack of accuracy
     xReg <- x[c(
