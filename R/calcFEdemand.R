@@ -1931,7 +1931,7 @@ calcFEdemand <- function(subtype = "FE") {
       ) %>%
         mutate(value = .data$level * .data$specific.energy) %>%
         select('scenario', 'iso3c', 'year', 'subsector', 'value') %>%
-        assert(is.finite, .data$value) %>%
+        assert(is.finite, 'value') %>%
         inner_join(
           industry_subsectors_en_shares %>%
             full_join(region_mapping_21, 'region') %>%
