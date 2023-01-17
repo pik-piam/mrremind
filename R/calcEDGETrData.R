@@ -42,7 +42,8 @@ calcEDGETrData <- function() {
       'SSP2EU',    'NAV_act',                    'SSP2EU_lowdem',
       'SSP2EU',    'NAV_tec',                    'default',
       'SSP2EU',    'NAV_ele',                    'default',
-      'SSP2EU',    'NAV_all',                    'SSP2EU_lowdem'
+      'SSP2EU',    'NAV_all',                    'SSP2EU_lowdem',
+      'SSP2EU',    'NAV_lce',                    'SSP2EU_lowdem'
       )
   )
 

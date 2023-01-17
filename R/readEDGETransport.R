@@ -61,7 +61,9 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                 dt[.("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_act"), nomatch=NULL][
                   , DEM_scenario := "gdp_SSP2EU_NAV_act"],
                 dt[.("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_all"), nomatch=NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_all"]
+                  , DEM_scenario := "gdp_SSP2EU_NAV_all"],
+                dt[.("gdp_SSP2EU_lowdem", "gdp_SSP2EU", "NAV_lce"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_NAV_lce"]
     )
     setkeyv(dt, "DEM_scenario")
     dt[.("gdp_SSP2EU_lowdem"), DEM_scenario := "gdp_SSP2_lowEn"]
