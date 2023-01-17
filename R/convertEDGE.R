@@ -18,7 +18,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
   addSSPnames <- function(x) {
     do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC")),
-                              paste0("SSP2EU_NAV_", c("act", "tec", "ele", "all"))),
+                              paste0("SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
   }
@@ -89,7 +89,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
     wg <- mbind(
       wg,
-      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                               function(navScen) {
                                 setItems(wg[,, "gdp_SSP2EU"], 3, navScen)
                               })),
@@ -319,7 +319,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
     wg <- mbind(
       wg,
-      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                               function(navScen) {
                                 setItems(wg[,, "gdp_SSP2EU"], 3, navScen)
                               })),
@@ -344,7 +344,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate scenarios
     wp <- mbind(
       wp,
-      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+      do.call("mbind", lapply(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                               function(navScen) {
                                 setItems(wp[,, "gdp_SSP2EU"], 3, navScen)
                               })),

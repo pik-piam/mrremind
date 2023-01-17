@@ -33,7 +33,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       # duplicate: SSP2 -> SSP2EU, SSP2_lowEn and SSP1 -> SDPs
       mstationarySPP2s <- addDim(
         mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
-        c("SSP2EU", "SSP2_lowEn", "SSP2EU_NAV_act", "SSP2EU_NAV_tec", "SSP2EU_NAV_ele", "SSP2EU_NAV_all"),
+        c("SSP2EU", "SSP2_lowEn", "SSP2EU_NAV_act", "SSP2EU_NAV_tec",
+        "SSP2EU_NAV_ele", "SSP2EU_NAV_lce", "SSP2EU_NAV_all"),
         "scenario", 3.1)
       mstationarySDPs <- addDim(
         mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
