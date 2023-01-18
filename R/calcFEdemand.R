@@ -1975,7 +1975,7 @@ calcFEdemand <- function(subtype = "FE") {
         mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
         addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                        collapseNames = TRUE),
-               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                "scenario", 3.1)
       )
     }

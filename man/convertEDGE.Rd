@@ -2,7 +2,7 @@
 % Please edit documentation in R/convertEDGE.R
 \name{convertEDGE}
 \alias{convertEDGE}
-\title{Convert IEA}
+\title{Convert EDGE}
 \usage{
 convertEDGE(x, subtype = "FE_stationary")
 }
@@ -18,5 +18,5 @@ EDGE data as MAgPIE object aggregated to country level
 Convert EDGE data to data on ISO country level.
 }
 \author{
-Antoine Levesque
+Antoine Levesque, Robin Hasse
 }
