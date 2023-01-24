@@ -14,7 +14,9 @@
 
 calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
 
-  if (!aggregate %in% c("global", "region")) {
+  if (isFALSE(aggregate)) {
+    aggregate <- "region"
+  } else if (!aggregate %in% c("global", "region")) {
     aggregate <- "global"
   }
 
