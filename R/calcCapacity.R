@@ -17,7 +17,7 @@
 calcCapacity <- function(subtype) {
   if (subtype == "capacityByTech_windoff") {
 
-    description <- "Historical capacity by technology."
+    description <- "Historical capacity by technology including offshore wind."
 
     # Use IRENA data for world renewables capacity.
     # Year: 2000-2017
@@ -72,12 +72,19 @@ calcCapacity <- function(subtype) {
     # renaming technologies to REMIND naming convention
     WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
-
+    
+#*** near term China gas data - see below
+    CHA.2020.GasData <- new.magpie("CHN",
+                         years = getYears(IRENAcap),
+                         names = "gaschp",
+                         fill=0)
+    
     # merge IRENA, Openmod and WEO capacities data
     output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap),getRegions(WEOcap))),
                          years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap))),
-                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap))),
+                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
                          fill=0)
+    
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
                                                                                    getYears(IRENAcap),
                                                                                    getNames(IRENAcap)]
@@ -87,7 +94,23 @@ calcCapacity <- function(subtype) {
     output[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
                                                                            getYears(WEOcap),
                                                                            getNames(WEOcap)]
-
+    
+    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
+    #    Natural gas in China’s power sector: Challenges and the road ahead 
+    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
+    #    >60% gas plants are co-generation, rest are peaking
+    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
+    
+    output["CHN",2010,"gaschp"] <- 0.022
+    output["CHN",2015,"gaschp"] <- 0.05
+    output["CHN",2020,"gaschp"] <- 0.054
+    output["CHN",2010,"ngcc"] <- 0.001
+    output["CHN",2015,"ngcc"] <- 0.005
+    output["CHN",2020,"ngcc"] <- 0.01
+    output["CHN",2010,"ngt"] <- 0.003
+    output["CHN",2015,"ngt"] <- 0.016
+    output["CHN",2020,"ngt"] <- 0.026
+    
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
@@ -142,10 +165,16 @@ calcCapacity <- function(subtype) {
     WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
 
+    #*** near term China gas data - see below
+    CHA.2020.GasData <- new.magpie("CHN",
+                                   years = getYears(IRENAcap),
+                                   names = "gaschp",
+                                   fill=0)
+    
     # merge IRENA, Openmod and WEO capacities data
     output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap),getRegions(WEOcap))),
                          years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap))),
-                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap))),
+                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
                          fill=0)
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
                                                                                    getYears(IRENAcap),
@@ -156,7 +185,23 @@ calcCapacity <- function(subtype) {
     output[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
                                                                            getYears(WEOcap),
                                                                            getNames(WEOcap)]
-
+    
+    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
+    #    Natural gas in China’s power sector: Challenges and the road ahead 
+    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
+    #    >60% gas plants are co-generation, rest are peaking
+    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
+    
+    output["CHN",2010,"gaschp"] <- 0.022
+    output["CHN",2015,"gaschp"] <- 0.05
+    output["CHN",2020,"gaschp"] <- 0.054
+    output["CHN",2010,"ngcc"] <- 0.001
+    output["CHN",2015,"ngcc"] <- 0.005
+    output["CHN",2020,"ngcc"] <- 0.01
+    output["CHN",2010,"ngt"] <- 0.003
+    output["CHN",2015,"ngt"] <- 0.016
+    output["CHN",2020,"ngt"] <- 0.026
+    
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
