@@ -15,28 +15,51 @@
 #'
 
 calcCapacity <- function(subtype) {
-  if (subtype == "capacityByTech_windoff") {
-
-    description <- "Historical capacity by technology including offshore wind."
-
-    # Use IRENA data for world renewables capacity.
-    # Year: 2000-2017
-    # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
-    IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
-    IRENAcap <- IRENAcap[,,c("Concentrated solar power",
-                             "Geothermal", "Hydropower",
-                             "Solar photovoltaic",
-                             "Onshore wind energy",
-                             "Offshore wind energy"
-                             )] # selecting data used on REMIND
-    mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
-                                         "Geothermal",
-                                         "Hydropower",
-                                         "Solar photovoltaic",
-                                         "Onshore wind energy",
-                                         "Offshore wind energy"),
-                          REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind", "windoff"),
-                          stringsAsFactors = FALSE)
+  
+  if ((subtype == "capacityByTech_windoff") | (subtype == "capacityByTech")) {
+    
+    if (subtype == "capacityByTech_windoff"){
+      description <- "Historical capacity by technology including offshore wind."
+      
+      # Use IRENA data for world renewables capacity.
+      # Year: 2000-2017
+      # Technologies: "csp", "geohdr", "hydro", "spv", "wind", "windoff"
+      IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
+      
+      IRENAcap <- IRENAcap[,,c("Concentrated solar power",
+                               "Geothermal", "Hydropower",
+                               "Solar photovoltaic",
+                               "Onshore wind energy",
+                               "Offshore wind energy"
+      )] # selecting data used on REMIND
+      
+      mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
+                                          "Geothermal",
+                                          "Hydropower",
+                                          "Solar photovoltaic",
+                                          "Onshore wind energy",
+                                          "Offshore wind energy"),
+                            REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind", "windoff"),
+                            stringsAsFactors = FALSE)
+    }
+      else if (subtype == "capacityByTech"){
+        description <- "Historical capacity by technology."
+        
+        # Use IRENA data for world renewables capacity.
+        # Year: 2000-2017
+        # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
+        IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
+        # selecting data used on REMIND
+        IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")]
+        
+        mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
+                                          "Geothermal", "Hydropower",
+                                          "Solar photovoltaic",
+                                          "Wind"),
+                            REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind"),
+                            stringsAsFactors = FALSE)
+      }
+    
     # renaming technologies to REMIND naming convention
     IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs")
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
@@ -73,7 +96,7 @@ calcCapacity <- function(subtype) {
     WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
     
-#*** near term China gas data - see below
+#*** CG: near term China gas data - creating empty lines to be filled by hand below
     CHA.2020.GasData <- new.magpie("CHN",
                          years = getYears(IRENAcap),
                          names = "gaschp",
@@ -114,98 +137,8 @@ calcCapacity <- function(subtype) {
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
-  } else if (subtype == "capacityByTech") {
-
-    description <- "Historical capacity by technology."
-
-    # Use IRENA data for world renewables capacity.
-    # Year: 2000-2017
-    # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
-    IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
-    # selecting data used on REMIND
-    IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")]
-    mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
-                                        "Geothermal", "Hydropower",
-                                        "Solar photovoltaic",
-                                        "Wind"),
-                         REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind"),
-                         stringsAsFactors = FALSE)
-    # renaming technologies to REMIND naming convention
-    IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs")
-    IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
-    #overwriting Russia and Japan capacities for wind and spv to avoid REMIND convergence problems
-    # (this is a temporary solution that should be removed once the bounds in REMIND are reworked)
-    # IRENAcap["JPN",2010,"wind"] <- 0.0012
-    # IRENAcap["RUS",2010,"spv"] <- 5e-06
-    # IRENAcap["RUS",2015,"wind"] <- 2e-05
-    # IRENAcap["RUS",2015,"spv"] <- 2e-05
-
-    # Use Openmod capacity values updated by the LIMES team for the European countries.
-    # Year: 2015
-    # Technologies: "tnrs","ngcc","ngt","dot"
-    Openmodcap <- readSource(type="Openmod") # Read Openmod capacities
-    # selecting data used on REMIND # "BAL"
-    Openmodcap <- Openmodcap[c("FIN","NOR","SWE","EST","LVA","LTU","DNK","GBR","IRL","NLD","POL",
-                               "DEU","BEL","LUX","CZE","SVK","AUT","CHE","HUN","ROU","SVN","FRA",
-                               "HRV","BGR","ITA","ESP","PRT","GRC"),,c("tnr","ngcc","ngt","oil")]
-    mapping <- data.frame( Openmod_techs=c("tnr","ngcc","ngt","oil"),
-                           REMIND_techs=c("tnrs","ngcc","ngt","dot"), stringsAsFactors = FALSE)
-    # renaming technologies to REMIND naming convention
-    Openmodcap <- rename_dimnames(Openmodcap, dim = 3, query = mapping, from = "Openmod_techs", to="REMIND_techs")
-    Openmodcap <- Openmodcap * 1E-03 # converting GW to TW
-
-    # Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
-    # Year: 2015
-    # Technologies: "tnrs","dot"
-    WEOcap <- readSource(type="IEA_WEO",subtype="Capacity") # Read IEA WEO capacities
-    WEOcap <- WEOcap[c("USA","BRA","RUS","CHN","IND","JPN"),2015,c("Nuclear","Oil")] # selecting data used on REMIND
-    mapping <- data.frame( WEO_techs=c("Nuclear","Oil"),
-                           REMIND_techs=c("tnrs","dot"), stringsAsFactors = FALSE)
-    # renaming technologies to REMIND naming convention
-    WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
-    WEOcap <- WEOcap * 1E-03 # converting GW to TW
-
-    #*** near term China gas data - see below
-    CHA.2020.GasData <- new.magpie("CHN",
-                                   years = getYears(IRENAcap),
-                                   names = "gaschp",
-                                   fill=0)
-    
-    # merge IRENA, Openmod and WEO capacities data
-    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap),getRegions(WEOcap))),
-                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap))),
-                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
-                         fill=0)
-    output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
-                                                                                   getYears(IRENAcap),
-                                                                                   getNames(IRENAcap)]
-    output[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),
-                                                                                           getYears(Openmodcap),
-                                                                                           getNames(Openmodcap)]
-    output[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
-                                                                           getYears(WEOcap),
-                                                                           getNames(WEOcap)]
-    
-    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
-    #    Natural gas in China’s power sector: Challenges and the road ahead 
-    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
-    #    >60% gas plants are co-generation, rest are peaking
-    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
-    
-    output["CHN",2010,"gaschp"] <- 0.022
-    output["CHN",2015,"gaschp"] <- 0.05
-    output["CHN",2020,"gaschp"] <- 0.054
-    output["CHN",2010,"ngcc"] <- 0.001
-    output["CHN",2015,"ngcc"] <- 0.005
-    output["CHN",2020,"ngcc"] <- 0.01
-    output["CHN",2010,"ngt"] <- 0.003
-    output["CHN",2015,"ngt"] <- 0.016
-    output["CHN",2020,"ngt"] <- 0.026
-    
-    output[is.na(output)] <- 0 #set NA to 0
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
-
-  } else if (subtype == "capacityByPE") {
+  } 
+  else if (subtype == "capacityByPE") {
     # Pe -> peoil, pegas, pecoal, peur, pegeo, pehyd, pewin, pesol, pebiolc, pebios, pebioil
     description <- "Historical capacity by primary energy."
 
@@ -301,7 +234,7 @@ calcCapacity <- function(subtype) {
         output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3 * 1e-03
       }
     }
-  }else if (subtype=="coal2025") {
+  } else if (subtype=="coal2025") {
     output <- readSource("GCPT",subtype="future") * 1e-03
     description <- "Post-COVID coal power capacity scenarios for 2025"
 
