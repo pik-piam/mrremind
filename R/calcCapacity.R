@@ -121,8 +121,6 @@ calcCapacity <- function(subtype) {
                          names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
                          fill=0)
     
-    output[getRegions(CHA.2020.GasData),getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
-    
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
                                                                                    getYears(IRENAcap),
                                                                                    getNames(IRENAcap)]
@@ -134,6 +132,7 @@ calcCapacity <- function(subtype) {
                                                                            getYears(WEOcap),
                                                                            getNames(WEOcap)]
     
+    output[getRegions(CHA.2020.GasData),getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
     
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
