@@ -96,21 +96,37 @@ calcCapacity <- function(subtype) {
     WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
     
-#*** CG: near term China gas data - creating empty lines to be filled by hand below
-    CHA.2020.GasData <- new.magpie("CHN",
-                         years = getYears(IRENAcap),
-                         names = "gaschp",
-                         fill=0)
+    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
+    #    Natural gas in China’s power sector: Challenges and the road ahead 
+    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
+    #    >60% gas plants are co-generation, rest are peaking
+    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
+    
+    CHA.2020.GasData <- as.magpie(
+      tribble(
+        ~region,   ~year,   ~data,      ~value,
+        "CHN",     2010,    "gaschp",   0.022,
+        "CHN",     2015,    "gaschp",   0.05,
+        "CHN",     2020,    "gaschp",   0.054,
+        "CHN",     2010,    "ngcc",     0.001,
+        "CHN",     2015,    "ngcc",     0.005,
+        "CHN",     2020,    "ngcc",     0.01,
+        "CHN",     2010,    "ngt",      0.003,
+        "CHN",     2015,    "ngt",      0.016,
+        "CHN",     2020,    "ngt",      0.026))
     
     # merge IRENA, Openmod and WEO capacities data
-    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap),getRegions(WEOcap))),
-                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap))),
+    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap), getRegions(WEOcap), getRegions(CHA.2020.GasData))),
+                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap), getYears(CHA.2020.GasData))),
                          names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
                          fill=0)
+    
+    output[getRegions(CHA.2020.GasData),getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
     
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
                                                                                    getYears(IRENAcap),
                                                                                    getNames(IRENAcap)]
+    
     output[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),
                                                                                            getYears(Openmodcap),
                                                                                            getNames(Openmodcap)]
@@ -118,21 +134,6 @@ calcCapacity <- function(subtype) {
                                                                            getYears(WEOcap),
                                                                            getNames(WEOcap)]
     
-    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
-    #    Natural gas in China’s power sector: Challenges and the road ahead 
-    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
-    #    >60% gas plants are co-generation, rest are peaking
-    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
-    
-    output["CHN",2010,"gaschp"] <- 0.022
-    output["CHN",2015,"gaschp"] <- 0.05
-    output["CHN",2020,"gaschp"] <- 0.054
-    output["CHN",2010,"ngcc"] <- 0.001
-    output["CHN",2015,"ngcc"] <- 0.005
-    output["CHN",2020,"ngcc"] <- 0.01
-    output["CHN",2010,"ngt"] <- 0.003
-    output["CHN",2015,"ngt"] <- 0.016
-    output["CHN",2020,"ngt"] <- 0.026
     
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
