@@ -1,6 +1,6 @@
 {
   "title": "mrremind: MadRat REMIND Input Data Package",
-  "version": "0.154.0",
+  "version": "0.155.0",
   "description": "<p>The mrremind packages contains data preprocessing for the\n    REMIND model.<\/p>",
   "creators": [
     {
@@ -77,6 +77,12 @@
     },
     {
       "name": "Hasse, Robin"
+    },
+    {
+      "name": "Fuchs, Sophie"
+    },
+    {
+      "name": "Mandaroux, Rahel"
     }
   ]
 }
