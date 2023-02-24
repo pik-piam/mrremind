@@ -9,7 +9,8 @@ convertUNFCCC_NDC(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
+\item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
+Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
 }
 \value{
 Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.

@@ -44,6 +44,8 @@ Authors:
   \item Pascal Weigmann
   \item Oliver Richters
   \item Robin Hasse
+  \item Sophie Fuchs
+  \item Rahel Mandaroux
 }
 
 }
