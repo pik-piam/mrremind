@@ -194,8 +194,37 @@ calcEmissions <- function(datasource="CEDS16") {
       emi[,, "Energy|Supply"] <- emi[,, "Energy|Supply|Electricity"] +
         emi[,, "Energy|Supply|Heat"] +
         emi[,, "Energy|Supply|Fuel Production"]
-
-      emi <- add_columns(emi, "Energy|Demand", dim=3.1)
+      
+      #Addition of new items for industry subsectors
+      emi <- add_columns(emi, "Energy|Demand|Industry", dim=3.1)
+      emi[,, "Energy|Demand|Industry"] <- emi[,, "Energy|Demand|Industry|Chemicals"] +
+        emi[,, "Energy|Demand|Industry|Steel"] +
+        emi[,, "Energy|Demand|Industry|Non-Metallic Minerals"] +
+        emi[,, "Energy|Demand|Industry|Other"]
+      
+      emi <- add_columns(emi, "Industrial Processes", dim=3.1)
+      emi[,, "Industrial Processes"] <- emi[,, "Industrial Processes|Chemicals"] +
+        emi[,, "Industrial Processes|Steel"] +
+        emi[,, "Industrial Processes|Non-Metallic Minerals"] +
+        emi[,, "Industrial Processes|Other"]
+      
+      emi <- add_columns(emi, "Industry and Industrial Processes|Chemicals", dim=3.1)
+      emi[,, "Industry and Industrial Processes|Chemicals"] <- emi[,, "Energy|Demand|Industry|Chemicals"] +
+        emi[,, "Industrial Processes|Chemicals"] 
+      
+      emi <- add_columns(emi, "Industry and Industrial Processes|Steel", dim=3.1)
+      emi[,, "Industry and Industrial Processes|Steel"] <- emi[,, "Energy|Demand|Industry|Steel"] +
+        emi[,, "Industrial Processes|Steel"] 
+      
+      emi <- add_columns(emi, "Industry and Industrial Processes|Non-Metallic Minerals", dim=3.1)
+      emi[,, "Industry and Industrial Processes|Non-Metallic Minerals"] <- emi[,, "Energy|Demand|Industry|Non-Metallic Minerals"] +
+        emi[,, "Industrial Processes|Non-Metallic Minerals"] 
+      
+      emi <- add_columns(emi, "Industry and Industrial Processes|Other", dim=3.1)
+      emi[,, "Industry and Industrial Processes|Other"] <- emi[,, "Energy|Demand|Industry|Other"] +
+        emi[,, "Industrial Processes|Other"] 
+      
+            emi <- add_columns(emi, "Energy|Demand", dim=3.1)
       emi[,, "Energy|Demand"] <- emi[,, "Energy|Demand|Transport"] +
         emi[,, "Energy|Demand|Buildings"] +
         emi[,, "Energy|Demand|Industry"]

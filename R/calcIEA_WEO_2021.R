@@ -14,11 +14,13 @@
 
 calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
 
-  if (!aggregate %in% c("global", "region")) {
+  if (isFALSE(aggregate)) {
+    aggregate <- "region"
+  } else if (!aggregate %in% c("global", "region")) {
     aggregate <- "global"
   }
 
-  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "sectoral") %>%
+  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(
       !!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"), # nolint

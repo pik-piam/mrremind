@@ -15,4 +15,4 @@ carbon_stored.*
 ^tests/.lintr$
 ^TODO\.txt$
 ^Makefile$
-
+^output$

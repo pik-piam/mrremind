@@ -5,7 +5,7 @@
 #' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,FE_for_Eff)
 #' @importFrom assertr verify
 #' @importFrom rlang .data sym syms
-#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>% %>%
 #' @importFrom data.table data.table tstrsplit setnames CJ setkey as.data.table :=
 #' @importFrom stats approx
 #' @importFrom dplyr arrange as_tibble between bind_rows count filter first last
@@ -1749,6 +1749,27 @@ calcFEdemand <- function(subtype = "FE") {
         verify(expr = 0 < .data$specific.energy,
                description = 'All specific energy factors above 0')
 
+      # replace absurdly high specific energy (e.g. primary steel NEN after IEA
+      # 2021 data update) with EUR averages (considered peer-countries to NEN –
+      # CHE, GRL, ISL, LIE, NOR, SJM).
+      industry_subsectors_specific_energy %<>%
+        filter('steel_primary' == .data$subsector,
+               100 < .data$specific.energy) %>%
+        select(-'specific.energy') %>%
+        left_join(
+          industry_subsectors_specific_energy %>%
+            filter('steel_primary' == .data$subsector,
+                   .data$region %in% c('DEU', 'ECE', 'ECS', 'ENC', 'ESC', 'ESW',
+                                       'EWN', 'FRA', 'UKI')) %>%
+            group_by(.data$scenario, .data$year, .data$subsector) %>%
+            summarise(specific.energy = mean(.data$specific.energy),
+                      .groups = 'drop'),
+
+          c('scenario', 'year', 'subsector')
+        ) %>%
+        overwrite(industry_subsectors_specific_energy,
+                  except = 'specific.energy')
+
       # extend time horizon
       industry_subsectors_specific_energy <-
         industry_subsectors_specific_energy %>%
@@ -1910,7 +1931,7 @@ calcFEdemand <- function(subtype = "FE") {
       ) %>%
         mutate(value = .data$level * .data$specific.energy) %>%
         select('scenario', 'iso3c', 'year', 'subsector', 'value') %>%
-        assert(is.finite, .data$value) %>%
+        assert(is.finite, 'value') %>%
         inner_join(
           industry_subsectors_en_shares %>%
             full_join(region_mapping_21, 'region') %>%
@@ -1954,7 +1975,7 @@ calcFEdemand <- function(subtype = "FE") {
         mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
         addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                        collapseNames = TRUE),
-               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "all")),
+               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                "scenario", 3.1)
       )
     }

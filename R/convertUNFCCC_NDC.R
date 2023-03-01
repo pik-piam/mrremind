@@ -3,13 +3,14 @@
 #' the Generation targets are similar to the capacity targets but include the capacity factors,
 #' the Emissions targets are the total (except land CO2) emissions in the target year
 #' @param x MAgPIE object to be converted
-#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
+#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
+#' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #' @importFrom magclass nyears
 #' @importFrom R.utils isZero
 
-convertUNFCCC_NDC <- function(x, subtype) {
+convertUNFCCC_NDC <- function(x, subtype) {                                # nolint: object_name_linter.
   if (grepl("Capacity", subtype, fixed = TRUE)) {
     # for testing: subtype="Capacity_2021_cond"; x <- readSource("UNFCCC_NDC", subtype=subtype, convert=FALSE);
 
@@ -277,17 +278,19 @@ convertUNFCCC_NDC <- function(x, subtype) {
     gdp <- calcOutput("GDP", aggregate = FALSE)
 
     # Define EU countries + croatia for special treatment because of joint NDC
-    eu28_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-                        "LVA", "DEU", "GBR", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-                        "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT",
-                        "JEY", "FRO", "GIB", "GGY", "IMN", "HRV") # included: HRV/croatia
+    EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+                           "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+                           "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+                           "FRO", "GIB", "GGY", "IMN", "HRV", # included: HRV/croatia
+                           if (grepl("_20(18|19|20|21)_", subtype)) "GBR") # own NDC in 2022
+
 
     # NDC Types, order must be exactly the same as in readUNFCCC_NDC.R!
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
     # define function that calculates ghgfactor compared to 2005 for each regi and year, taken into account different Types
     calcGhgfactor <- function(data) {
       if (nregions(data) != 1 || nyears(data) != 1) {
-        cat("function calcGhgfactor(data) should be called with one single region and year as data only")
+        warning("function calcGhgfactor(data) should be called with one single region and year as data only")
       }
       regi <- getItems(data, dim = "ISO_Code")
       year <- getYears(data)
@@ -313,15 +316,19 @@ convertUNFCCC_NDC <- function(x, subtype) {
       } else if (allowedType[data[regi, year, "Type"]] == "GHG-fixed-total") {
         ghgtarget <- data[regi, year, uncond_or_cond]
       } else {
-        cat("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ", allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
+        warning("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ", allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
       }
       # return ghgtarget
       return(ghgtarget)
     } # end of function calc_ghgfactor
 
+    # countries with known NDC/2005 ratios bigger than 2.5 or less than 0
+    knownhigh <- list("IND" = c("y2030"))
+    knownlow <- list("GAB" = c("y2050"))
+
     # ghgfactor compared to 2005, first set to NA
     # this copy of the gdp structure is needed because of the different SSP
-    ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"], eu28_countries)), getYears(reductionData), ]
+    ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"], EUR_NDC_countries)), getYears(reductionData), ]
     ghgfactor[, , ] <- NA
     # define string that can be used to assess magpie variables
     uncond_or_cond <- ifelse (length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
@@ -330,7 +337,19 @@ convertUNFCCC_NDC <- function(x, subtype) {
       for (year in getYears(reductionData)) {
         if (!is.na(reductionData[regi, year, uncond_or_cond])[1]) {  # check whether a target exists
           if (regi != "EUR") { # call function calc_ghgfactor and divide by 2005 ghg data to get the ghgfactor
-            ghgfactor[regi, year, ] <- calcGhgfactor(reductionData[regi, year, ]) / setYears(ghg[regi, 2005, ], NULL)
+            # move it to a year REMIND understands
+            newyear <- as.numeric(gsub("y", "", year))
+            newyear <- if (newyear < 2060) ceiling((newyear-1)/5)*5 else ceiling((newyear-2)/10)*10
+            ghgfactor[regi, newyear, ] <- calcGhgfactor(reductionData[regi, year, ]) / setYears(ghg[regi, 2005, ], NULL)
+            ghgfactormax <- max(c(0, as.numeric(ghgfactor[regi, newyear, ])), na.rm = TRUE)
+            if (isTRUE(ghgfactormax > 2.5) && ! year %in% knownhigh[[regi]]) {
+              message("For ", regi, " in ", year, ", ghgfactor=", ghgfactormax, " is above 2.5 and will be dropped.")
+            }
+            ghgfactormin <- min(c(0, as.numeric(ghgfactor[regi, newyear, ])), na.rm = TRUE)
+            if (isTRUE(ghgfactormin < 0) && ! year %in% knownlow[[regi]]) {
+              warning("For ", regi, " in ", year, ", ghgfactor=", ghgfactormin, " is below 0. ",
+                      "Is the country really promising negative net emissions? Add it to 'knownlow' in calcEmiTarget.")
+            }
           }
         }
       }
@@ -339,11 +358,14 @@ convertUNFCCC_NDC <- function(x, subtype) {
     for (year in getYears(reductionData)) { # assign EUR NDC goal to all EUR28 countries
       if (!is.na(reductionData["EUR", year, uncond_or_cond])[1]) {  # check whether a target exists
         if (allowedType[reductionData["EUR", year, "Type"]] == "GHG") {
-             ghgfactor[eu28_countries, year, ] <- (1 + reductionData["EUR", year, uncond_or_cond]) * setYears(ghg[eu28_countries, min(reductionData["EUR", year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL) / setYears(ghg[eu28_countries, 2005, ], NULL)
+             ghggoal <- (1 + reductionData["EUR", year, uncond_or_cond]) * setYears(ghg[EUR_NDC_countries, min(reductionData["EUR", year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL)
+             ghgfactor[EUR_NDC_countries, year, ] <- ghggoal / setYears(ghg[EUR_NDC_countries, 2005, ], NULL)
         } else if (allowedType[reductionData["EUR", year, "Type"]] == "GHG-fixed-total") {
-             ghgfactor[eu28_countries, year, ] <- reductionData["EUR", year, uncond_or_cond] / setYears(ghg[eu28_countries, 2005, ], NULL)
+             ghg_EUR_2005 <- sum(setYears(ghg[EUR_NDC_countries, 2005, ], NULL))
+             ghgfactor[EUR_NDC_countries, year, ] <- reductionData["EUR", year, uncond_or_cond] / ghg_EUR_2005
         } else {
-            cat("Calculation assumes EU target is GHG or GHG-fixed-total, but database says ", reductionData["EUR", year, "Type"], " please check!")
+            warning("Calculation assumes EU target is GHG or GHG-fixed-total, but database says ",
+                    reductionData["EUR", year, "Type"], ". Please check or exjust calcEmiTarget!")
         }
       }
     }
