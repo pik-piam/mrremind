@@ -96,7 +96,8 @@ readUNFCCC_NDC <- function(subtype) {
               paste(ref4change, collapse = ", "))
     }
     # as magclass can only cover numerical values well, transform: in column 2 BAU into -1, and Type into number based on allowedType
-    input2[2] <- as.numeric(unlist(rapply(input2[2], function(x) ifelse(x == "BAU", -1, ifelse(x == "no", -2, x)), how = "replace")))
+    input2[2] <- as.numeric(unlist(rapply(input2[2], function(x) 
+                            ifelse(x == "BAU", -1, ifelse(x == "no", -2, x)), how = "replace")))
     input2[5] <- as.numeric(unlist(rapply(input2[5], function(x) match(x, allowedType), how = "replace")))
     # sort with c(1,4,2,3,5,6,7) to get region into first and years into second column
     x <- as.magpie(input2[c(1, 4, 2, 3, 5, 6, 7)], spatial = 1, temporal = 2, datacol = 3)
