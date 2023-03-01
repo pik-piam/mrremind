@@ -81,6 +81,13 @@ readUNFCCC_NDC <- function(subtype) {
                      & input2$Target_Year %in% input2[duplicated(input2[c(1, 4)]), ]$Target_Year
                      & input2$Type != "GHG-Absolute"), ]
 
+    # check whether conditional is more stringent than unconditional
+    condTrumpsUncond <- (input2$Conditional <= input2$Unconditional) | is.na(input2$Unconditional)
+    if (any(! condTrumpsUncond)) {
+      warning("readUNFCCC_NDC with subtype=", subtype, ": unconditional target more stringent than conditional in: ",
+              paste(input2$ISO_Code[! condTrumpsUncond], collapse = ", "))
+    }
+
     # warning if emission changes have no reference year or BAU reference
     ref4change <- input2$ISO_Code[input2$Reference_Year %in% c("no", NA) &
                                   input2$Type %in% c("GHG", "CO2/GDP", "GHG/GDP", "GHG-Absolute")]
