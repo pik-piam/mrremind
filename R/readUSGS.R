@@ -192,8 +192,7 @@ readUSGS <- function(subtype = 'cement') {
         ungroup() %>%
         select(-'reporting.year') %>%
         left_join(
-          calcOutput('GDP', aggregate = FALSE, FiveYearSteps = FALSE,
-                     years = unique(to_estimate$year)) %>%
+          calcOutput('GDP', aggregate = FALSE, average2020 = FALSE, years = unique(to_estimate$year)) %>%
             # historic data should be all identical, so just pick the 'default'
             # scenario
             `[`(,,'gdp_SSP2EU') %>%

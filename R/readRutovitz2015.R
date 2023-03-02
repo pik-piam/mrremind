@@ -4,7 +4,6 @@
 #' @importFrom  tidyr pivot_longer
 #' @importFrom dplyr rename add_row filter_ mutate_ select_ left_join filter mutate
 #' @importFrom readr read_csv
-#' @importFrom mgsub mgsub
 #' @return magpie object of employment factors for different technologies and activities in Jobs/MW (all except fuel_supply) or Jobs/PJ (fuel_supply). Subtype "regional_mult" is a regional multiplier without units.
 #' @param subtype Either "oecd_ef","regional_ef","coal_ef","gas_ef", "regional_mult"
 
@@ -23,7 +22,7 @@ readRutovitz2015 <- function(subtype) {
   Year <- NULL
   value <- NULL
   if (subtype == "oecd_ef") {
-
+    rlang::check_installed("mgsub")
     input <- read_csv(file = "oecd_ef.csv", na = "", col_types = "cddddc") %>%
       rename(tech = 1, duration = 2, CI = 3, Manf = 4, OM = 5, Fuel_supply = 6) %>%
       filter(!is.na(tech)) %>%
@@ -53,28 +52,28 @@ readRutovitz2015 <- function(subtype) {
 
 
   if (subtype == "regional_ef") {
-
-
-  input <- read_csv("regional_ef.csv", na = "", col_types = "ccdddd") %>%
-    rename(tech = 1, region = 2, CI = 3, Manf = 4, OM = 5, Fuel_supply = 6) %>%
-    filter(!is.na(tech)) %>%
- #   mutate(across(c(tech,region),as.character)) %>%
-  #  mutate(across(c(CI,Manf,OM,Fuel_supply),as.numeric)) %>%
-    mutate(tech = mgsub::mgsub(tech, c("Solar PV", "Solar Thermal power", "Wind-offshore", "Wind-onshore"),
-                                   c("Solar|PV", "Solar|CSP", "Wind offshore", "Wind onshore"))) %>%
-    pivot_longer(c("CI", "Manf", "OM", "Fuel_supply"), names_to = "activity", values_to = "value") %>%
-    filter(!grepl("average", region)) %>%  # removed OECD average values
-    na.omit() %>%
-    # left_join(const,by="tech") %>%
-    # mutate(region=ifelse(region=="OECD North America","OECD Americas",region))
-    # mutate(value=ifelse(!activity %in% c("Fuel_supply","OM"),value/duration,value)) %>%
-    select(region, tech, activity, value)
-
-
-  x <- as.magpie(input, spatial = 1, temporal = NULL, datacol = 4)
-
-  return(x)
-}
+  
+    rlang::check_installed("mgsub")
+    input <- read_csv("regional_ef.csv", na = "", col_types = "ccdddd") %>%
+      rename(tech = 1, region = 2, CI = 3, Manf = 4, OM = 5, Fuel_supply = 6) %>%
+      filter(!is.na(tech)) %>%
+   #   mutate(across(c(tech,region),as.character)) %>%
+    #  mutate(across(c(CI,Manf,OM,Fuel_supply),as.numeric)) %>%
+      mutate(tech = mgsub::mgsub(tech, c("Solar PV", "Solar Thermal power", "Wind-offshore", "Wind-onshore"),
+                                     c("Solar|PV", "Solar|CSP", "Wind offshore", "Wind onshore"))) %>%
+      pivot_longer(c("CI", "Manf", "OM", "Fuel_supply"), names_to = "activity", values_to = "value") %>%
+      filter(!grepl("average", region)) %>%  # removed OECD average values
+      na.omit() %>%
+      # left_join(const,by="tech") %>%
+      # mutate(region=ifelse(region=="OECD North America","OECD Americas",region))
+      # mutate(value=ifelse(!activity %in% c("Fuel_supply","OM"),value/duration,value)) %>%
+      select(region, tech, activity, value)
+  
+  
+    x <- as.magpie(input, spatial = 1, temporal = NULL, datacol = 4)
+  
+    return(x)
+  }
 
   if (subtype == "coal_ef") {
    input <- read_csv("coal_ef.csv", col_types = "cddd") %>%

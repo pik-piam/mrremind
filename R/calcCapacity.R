@@ -9,11 +9,6 @@
 #' \dontrun{
 #' calcOutput("Capacity",subtype="capacityByTech")
 #' }
-#'
-#' @importFrom luscale rename_dimnames
-#' @importFrom magclass add_dimension
-#'
-
 calcCapacity <- function(subtype) {
   
   if ((subtype == "capacityByTech_windoff") | (subtype == "capacityByTech")) {
@@ -61,7 +56,7 @@ calcCapacity <- function(subtype) {
       }
     
     # renaming technologies to REMIND naming convention
-    IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs")
+    IRENAcap <- luscale::rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs")
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
     # overwriting Russia and Japan capacities for wind and spv to avoid REMIND convergence problems
     # (this is a temporary solution that should be removed once the bounds in REMIND are reworked)
@@ -82,7 +77,7 @@ calcCapacity <- function(subtype) {
     mapping <- data.frame( Openmod_techs=c("tnr","ngcc","ngt","oil"),
                            REMIND_techs=c("tnrs","ngcc","ngt","dot"), stringsAsFactors = FALSE)
     # renaming technologies to REMIND naming convention
-    Openmodcap <- rename_dimnames(Openmodcap, dim = 3, query = mapping, from = "Openmod_techs", to="REMIND_techs")
+    Openmodcap <- luscale::rename_dimnames(Openmodcap, dim = 3, query = mapping, from = "Openmod_techs", to="REMIND_techs")
     Openmodcap <- Openmodcap * 1E-03 # converting GW to TW
 
     # Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
@@ -93,7 +88,7 @@ calcCapacity <- function(subtype) {
     mapping <- data.frame( WEO_techs=c("Nuclear","Oil"),
                            REMIND_techs=c("tnrs","dot"), stringsAsFactors = FALSE)
     # renaming technologies to REMIND naming convention
-    WEOcap <- rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
+    WEOcap <- luscale::rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
     
     #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
@@ -207,7 +202,7 @@ calcCapacity <- function(subtype) {
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
-    output <- add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
+    output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
 
     # estimating lower bound coal capacity to remaining countries assuming
     # (1) capacity factors are given by REMIND pc capacity factor in 2015,

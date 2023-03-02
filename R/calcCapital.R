@@ -1,9 +1,3 @@
-#' @importFrom magclass as.data.frame as.magpie
-#' @importFrom dplyr as_tibble select mutate sym
-#' @importFrom quitte character.data.frame interpolate_missing_periods
-#' @importFrom tidyr pivot_wider pivot_longer
-#' @importFrom zoo rollmean
-
 calcCapital <- function(subtype = "Capital") {
 
   #--- Parameters ---
@@ -13,31 +7,30 @@ calcCapital <- function(subtype = "Capital") {
                       kaphc = "ueswb")
   #---
 
-  if (subtype == "Capital"){
+  if (subtype == "Capital") {
     # get capital stocks for EDGE sectors
-    cap_macro = readSource("EDGE",subtype = subtype)
+    cap_macro <- readSource("EDGE",subtype = subtype)
     millionDol2trillionDol <- 1e-6
 
-    additional_years = seq(2105, 2150, 5)
-
-    cap_macro = time_interpolate(cap_macro,
-                                 additional_years,
-                                 integrate_interpolated_years = T,
-                                 extrapolation_type = "constant")
+    additional_years <- seq(2105, 2150, 5)
+    cap_macro <- time_interpolate(cap_macro,
+                                  additional_years,
+                                  integrate_interpolated_years = TRUE,
+                                  extrapolation_type = "constant")
 
     # compute macroeconomic capital stock based on capital intensities from PWT and ssp scenarios
     # t.b.d.: correct for capital stock part that enters energy sectors
-    capital = readSource("PWT")[,,"rkna"]
+    capital <- readSource("PWT")[, , "rkna"]
     getNames(capital) <- "kap"
     capital[is.na(capital)] <- 0
-    gdpppp_hist = calcOutput("GDPPast", GDPPast = "PWT", aggregate = F)
+    gdpppp_hist <- calcOutput("GDPPast", GDPPast = "PWT", aggregate = FALSE)
     #pop = calcOutput("Population", aggregate = F)
     cap_intensity <- capital / setNames(gdpppp_hist, NULL)
 
 
     #use initial gdp as in REMIND which differs from PWT
-    gdpppp_hist = calcOutput("GDPPast", aggregate = F)
-    gdpppp <- calcOutput("GDP", aggregate = F, years = seq(2005, 2150, 5))
+    gdpppp_hist = calcOutput("GDPPast", aggregate = FALSE)
+    gdpppp <- calcOutput("GDP", aggregate = FALSE, years = seq(2005, 2150, 5))
     #getNames(gdpppp) <- sub("gdp_","",getNames(gdpppp))
     my_scen <- c("gdp_SSP1", "gdp_SSP2", "gdp_SSP3", "gdp_SSP4", "gdp_SSP5", "gdp_SSP2EU",
                  "gdp_SDP", "gdp_SDP_EI", "gdp_SDP_RC", "gdp_SDP_MC")
@@ -119,8 +112,8 @@ calcCapital <- function(subtype = "Capital") {
 
     kap <- cap_macro %>%
       `[`(,2015,'gdp_SSP2EU.kap') %>%
-      magclass_to_tibble(c('iso3c', NA, NA, NA, 'kap')) %>%
-      select('iso3c', 'kap')
+      quitte::magclass_to_tibble(c('iso3c', NA, NA, NA, 'kap')) %>%
+      dplyr::select('iso3c', 'kap')
 
     EEK <- calcOutput('Industry_EEK', kap = kap, supplementary = FALSE,
                       aggregate = FALSE, years = getYears(cap_macro))

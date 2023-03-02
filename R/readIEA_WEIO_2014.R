@@ -10,7 +10,7 @@
 #'   codes.
 #'
 #' @importFrom dplyr anti_join group_by left_join mutate pull select summarise
-#' @importFrom purrr %>% map
+#' @importFrom purrr map
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom readxl excel_sheets read_excel

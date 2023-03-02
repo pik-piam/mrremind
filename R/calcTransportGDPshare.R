@@ -9,7 +9,6 @@
 #' calcOutput("TransportGDPshare")
 #' }
 #'
-#' @importFrom luscale rename_dimnames
 #' @importFrom magclass add_dimension
 #'
 

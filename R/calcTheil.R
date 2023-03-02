@@ -17,11 +17,11 @@
 #' \dontrun{ a <- calcOutput("Theil")
 #' }
 #' 
-#' @importFrom assertthat assert_that
 #' @importFrom stats qnorm
 
 calcTheil <- function(){
-  
+  rlang::check_installed("assertthat")
+
   #Gini & Theil
   Gini <- readSource('Gini')
   years <- getYears(Gini)
@@ -64,7 +64,7 @@ calcTheil <- function(){
     # s_i = N_i/N * xbar_i/xbar = GDP_i/GDP_rr
     s_i[rrCountries,,] <- GDPppp[rrCountries,,]/GDPppp_rr
     # sanity check: ensure that weights for a region sum to one (within floating point precision)
-    assert_that(max(abs(dimSums(s_i[rrCountries,,],dim=1) - 1)) < 1e-10)
+    assertthat::assert_that(max(abs(dimSums(s_i[rrCountries,,],dim=1) - 1)) < 1e-10)
   }
   
   # for easier REMIND integration use same names as GDP scenarios for Theil

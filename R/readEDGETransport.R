@@ -12,11 +12,10 @@
 #' \dontrun{ a <- readSource(type="EDGETransport")
 #' }
 #' @importFrom magclass read.magpie
-#' @importFrom data.table rbindlist fread setcolorder := setnames setkeyv
-#' @importFrom rmndt approx_dt
-#'
+#' @importFrom data.table data.table rbindlist fread setcolorder := setnames setkeyv
 
 readEDGETransport <- function(subtype = "logit_exponent") {
+  rlang::check_installed("rmndt")
   ## mask variable for code checks
   vehicle_type <- EDGE_scenario <- GDP_scenario <- DEM_scenario <- value <- year <- sharetype <-
     EJ_Mpkm_final <- varname <- fuel <- region <- iso <- node <- totdem <- `.`<-
@@ -303,7 +302,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            tmp[node == "HDV", node := "ueHDVt"]
            tmp[node == "Electric Trains", node := "ueelTt"]
            ## extend to time steps necessary for the input demand trend
-           tmp = approx_dt(tmp,
+           tmp = rmndt::approx_dt(tmp,
                            xdata = c(seq(1993, 2010, 1), seq(2015, 2150, 5)),
                            xcol = "year",
                            ycol = "value",
@@ -345,7 +344,7 @@ readEDGETransport <- function(subtype = "logit_exponent") {
            ## summarize according to the CES category
            tmp = tmp[,.(value = sum(totdem)), by = .(GDP_scenario, DEM_scenario, EDGE_scenario, iso, year)]
            ## extend to necessary time steps
-           tmp = approx_dt(tmp,
+           tmp = rmndt::approx_dt(tmp,
                            xdata = seq(2005, 2150, 5),
                            xcol = "year",
                            ycol = "value",

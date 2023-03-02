@@ -37,7 +37,7 @@ calcIndustry_EEK <- function(kap) {
       madrat_mule(),
     aggregate = FALSE, years = base_year, supplementary = FALSE) %>%
     `[`(,,'gdp_SSP2EU') %>%
-    magclass_to_tibble() %>%
+    quitte::magclass_to_tibble() %>%
     select('iso3c', subsector = 'name', VA = 'value') %>%
     mutate(subsector = sub('_VA$', '', .data$subsector))
 
@@ -91,7 +91,7 @@ calcIndustry_EEK <- function(kap) {
       FEdemand %>%
         `[`(,base_year,'gdp_SSP2EU.fe', pmatch = 'left') %>%
         `[`(,,'steel', pmatch = TRUE) %>%
-        magclass_to_tibble() %>%
+        quitte::magclass_to_tibble() %>%
         select(iso3c = 'region', 'item', FE = 'value') %>%
         # everything not 'steel_secondary' is 'steel_primary'
         mutate(item = sub('steel$', 'steel_primary', .data$item)) %>%
@@ -99,8 +99,7 @@ calcIndustry_EEK <- function(kap) {
         # calculate primary/secondary steel FE shares
         group_by(!!!syms(c('iso3c', 'foo'))) %>%
         summarise(FE = sum(.data$FE), .groups = 'drop_last') %>%
-        mutate(FE.share = replace_na(.data$FE / sum(.data$FE), 0),
-               subsector = 'steel') %>%
+        mutate(FE.share = tidyr::replace_na(.data$FE / sum(.data$FE), 0), subsector = 'steel') %>%
         ungroup() %>%
         select(-'FE'),
 
@@ -165,7 +164,7 @@ calcIndustry_EEK <- function(kap) {
   EEK_change <- FEdemand %>%
     # select relevant subsector outputs, transform into usable format
     `[`(,,'ue_', pmatch = 'left') %>%
-    magclass_to_tibble(c('iso3c', 'year', 'scenario', 'subsector', 'value')) %>%
+    quitte::magclass_to_tibble(c('iso3c', 'year', 'scenario', 'subsector', 'value')) %>%
     filter(.data$subsector %in% c('ue_cement', 'ue_chemicals',
                                   'ue_steel_primary', 'ue_steel_secondary',
                                   'ue_otherInd')) %>%
@@ -353,17 +352,13 @@ calcIndustry_EEK <- function(kap) {
 
     EEK %>%
       semi_join(
-        tibble(crossing(iso3c = SSA_iso3c,
-                        year = c(2020, 2025, 2030)),
+        tibble(tidyr::crossing(iso3c = SSA_iso3c, year = c(2020, 2025, 2030)),
                scenario = 'gdp_SSP5',
                subsector = 'kap_steel_primary'),
-
-        c('iso3c', 'year', 'scenario', 'subsector')
+        by = c('iso3c', 'year', 'scenario', 'subsector')
       ) %>%
       group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
-      summarise(value = mean(.data$value),
-                year = 2025L,
-                .groups = 'drop')
+      summarise(value = mean(.data$value), year = 2025L, .groups = 'drop')
   )
 
   # return ----
