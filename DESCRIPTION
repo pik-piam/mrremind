@@ -43,7 +43,7 @@ Depends:
     mrcommons (>= 1.25.0),
     edgeTransport (>= 0.17.0)
 Imports:
-    Hmisc,
+    Hmisc (>= 5.0-1),
     R.utils,
     assertr,
     assertthat,
