@@ -1,6 +1,3 @@
-#' @importFrom dplyr %>%
-#' @importFrom luscale speed_aggregate
-
 calcPE <- function(subtype = "IEA") {
   
   if (subtype=="IEA"){
@@ -19,7 +16,7 @@ calcPE <- function(subtype = "IEA") {
   map = map[map$io %in% getNames(data),]
   x <- data[,,map$io]
   #aggregate from the IO names to the reporting names.
-  x <- speed_aggregate(x, map, dim = 3, from = "io", to = "input")
+  x <- luscale::speed_aggregate(x, map, dim = 3, from = "io", to = "input")
   # rename entries of data to match the rporting names
   getNames(x) <- paste0(getNames(x)," (EJ/yr)")
   

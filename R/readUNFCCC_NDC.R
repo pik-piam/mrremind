@@ -8,7 +8,6 @@
 #' Emissions_2023_cond (or 2018/2021/2022 or uncond) for Emissions targets
 #' @importFrom readxl read_xlsx
 #' @importFrom dplyr select
-#' @importFrom gdata duplicated2
 
 readUNFCCC_NDC <- function(subtype) {
 

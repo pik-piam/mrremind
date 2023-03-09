@@ -13,30 +13,26 @@
 #'
 #' @seealso [calcOutput]
 #'
-#' @importFrom assertr verify
 #' @importFrom dplyr anti_join arrange bind_rows filter group_by select ungroup
 #' @importFrom magclass as.magpie
 #' @importFrom magrittr %>%
-#' @importFrom quitte madrat_mule
-#' @importFrom rlang .data syms
+#' @importFrom rlang .data syms !!!
 
 #' @export
 calcCement <- function() {
   transition_year <- 2005
   . <- NULL
 
-  d_vanRuijvan2016 <- readSource('vanRuijven2016', convert = FALSE) %>%
-    madrat_mule()
+  d_vanRuijvan2016 <- readSource('vanRuijven2016', convert = FALSE) %>% quitte::madrat_mule()
 
   d_USGS_cement <- readSource('USGS', 'cement', convert = FALSE) %>%
-    madrat_mule() %>%
+    quitte::madrat_mule() %>%
     group_by(!!!syms(c('iso3c', 'year'))) %>%
     filter(max(.data$reporting.year) == .data$reporting.year) %>%
     ungroup() %>%
     select(-'reporting.year')
 
-  d <- d_USGS_cement %>%
-    filter(transition_year <= .data$year)
+  d <- d_USGS_cement %>% filter(transition_year <= .data$year)
 
   d <- bind_rows(
     d,
@@ -46,8 +42,7 @@ calcCement <- function() {
   ) %>%
     group_by(!!!syms(c('iso3c', 'year'))) %>%
     mutate(count = n()) %>%
-    verify(1 == .data$count,
-           description = 'only one data point per country/year') %>%
+    assertr::verify(1 == .data$count, description = 'only one data point per country/year') %>%
     select(-'count') %>%
     arrange(!!!syms(c('iso3c', 'year')))
 

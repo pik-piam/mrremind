@@ -36,7 +36,6 @@
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete gather nesting spread
-#' @importFrom zoo rollapply
 
 tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
                                                       threshold = 1e-2) {
@@ -530,7 +529,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
   data_industry <- data_industry %>%
     group_by(.data$iso3c, .data$region, .data$product, .data$flow) %>%
     arrange(.data$year) %>%
-    mutate(value = rollapply(
+    mutate(value = zoo::rollapply(
       # pad data with two leading and trailing NAs
       data = c(NA, NA, .data$value, NA, NA),
       width = 5,

@@ -20,7 +20,6 @@ provides historical capacity values in TW
 \dontrun{
 calcOutput("Capacity",subtype="capacityByTech")
 }
-
 }
 \author{
 Renato Rodrigues, Stephen Bi

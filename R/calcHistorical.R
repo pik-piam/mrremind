@@ -1,12 +1,8 @@
 #' Gather reference data from various sources.
 #' @importFrom magclass setNames getNames getSets add_columns
-#' @importFrom luscale rename_dimnames
-#' @importFrom dplyr %>% filter group_by mutate select ungroup
-#' @importFrom quitte madrat_mule
+#' @importFrom dplyr filter group_by mutate select ungroup
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
-
-
 calcHistorical <- function() {
 
   .fillZeros <- function(data){
@@ -127,7 +123,7 @@ calcHistorical <- function() {
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame( IRENA_techs=c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
                          REMIND_var=c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)", "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)", "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE)
-  IRENAcap <- rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_var") # renaming technologies to REMIND naming convention
+  IRENAcap <- luscale::rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_var") # renaming technologies to REMIND naming convention
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[,,"Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[,,"Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim=3.1, add="model",nm="IRENA")
 
@@ -249,7 +245,7 @@ calcHistorical <- function() {
   # Cement Production ----
   USGS_cement <- readSource(type = 'USGS', subtype = 'cement',
                             convert = FALSE) %>%
-    madrat_mule() %>%
+    quitte::madrat_mule() %>%
     group_by(!!!syms(c('iso3c', 'year'))) %>%
     filter(max(.data$reporting.year) == .data$reporting.year) %>%
     ungroup() %>%
@@ -268,7 +264,7 @@ calcHistorical <- function() {
 
   # Steel Production ----
   worldsteel <- readSource('worldsteel', convert = FALSE) %>%
-    madrat_mule() %>%
+    quitte::madrat_mule() %>%
     filter(.data$name %in% c('Production in Oxygen-Blown Converters',
                              'Production in Open Hearth Furnaces',
                              'DRI Production',

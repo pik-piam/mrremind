@@ -53,7 +53,6 @@
 #' @importFrom magclass is.magpie as.data.frame
 #' @importFrom reshape2 acast
 #' @importFrom stats reshape uniroot
-#' @importFrom nnls nnls
 #' @seealso \code{\link{toolCubicFunctionDisaggregate}}
 #' @examples
 #'
@@ -75,6 +74,7 @@
 
 toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=100, returnMagpie=TRUE, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend"), steepCurve = list()){
   
+  rlang::check_installed("nnls")
   data <- x
   
   if(is.null(rel$RegionCode))  rel$RegionCode  <- rel$region

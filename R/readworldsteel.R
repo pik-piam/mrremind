@@ -25,7 +25,6 @@
 #' @importFrom magclass as.data.frame as.magpie
 #' @importFrom quitte add_countrycode_ madrat_mule
 #' @importFrom readr read_delim
-#' @importFrom readODS read_ods
 #' @importFrom readr read_rds
 #' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
@@ -54,13 +53,11 @@ readworldsteel <- function(subtype = 'detailed') {
           'Apparent Steel Use (Crude Steel Equivalent)'),
         function(sheet) {
           # from this file
-          read_ods(path = file_path,
-                   sheet = sheet,
-                   na = '...') %>%
+          rlang::check_installed("readODS")
+          readODS::read_ods(path = file_path, sheet = sheet, na = '...') %>%
             as_tibble() %>%
             mutate(name = sheet) %>%
-            pivot_longer(c(-'country', -'name'), names_to = 'year',
-                         names_transform = list(year = as.integer))
+            pivot_longer(c(-'country', -'name'), names_to = 'year', names_transform = list(year = as.integer))
         }) %>%
         bind_rows() %>%
         add_countrycode_(origin = c(country = 'country.name'),
@@ -88,7 +85,7 @@ readworldsteel <- function(subtype = 'detailed') {
       # split historic aggregates into current countries
       d %>%
         complete(nesting(!!!syms(c('iso3c', 'year'))),
-                 crossing(!!sym('name')),
+                 tidyr::crossing(!!sym('name')),
                  fill = list(value = 0)) %>%
         as.magpie(spatial = 1, temporal = 2, tidy = TRUE) %>%
         toolISOhistorical(

@@ -33,10 +33,7 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert verify within_bounds
-#' @importFrom broom tidy
-#' @importFrom car logit
-#' @importFrom dplyr %>% case_when n right_join semi_join distinct vars
-#' @importFrom Hmisc wtd.quantile
+#' @importFrom dplyr %>% case_when n right_join semi_join distinct vars between first last
 #' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
 #'   geom_path geom_point ggplot ggsave guide_legend labs scale_colour_manual
 #'   scale_fill_discrete scale_linetype_manual scale_shape_manual theme
@@ -47,7 +44,6 @@
 #' @importFrom readr write_rds
 #' @importFrom stats nls SSlogis sd
 #' @importFrom tidyr pivot_longer pivot_wider
-#' @importFrom zoo na.approx rollmean
 
 #' @rdname EDGE-Industry
 #' @export
@@ -56,6 +52,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.estimates = 'none',
                                   save.plots = NULL,
                                   China_Production = NULL) {
+  rlang::check_installed(c("broom", "car", "Hmisc"))
 
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
@@ -219,42 +216,25 @@ calcSteel_Projections <- function(subtype = 'production',
     mutate(year = as.integer(.data$year))
 
   ## historic population ----
-  population_history <- calcOutput(type = 'PopulationPast',
-                                   PopulationPast = 'UN_PopDiv',
-                                   aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population_history <- calcOutput(type = 'PopulationPast', PopulationPast = 'UN_PopDiv', aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    dplyr::mutate(population = .data$population * 1e6)
 
   ## GDP projections ----
-  GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^gdp_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = "scenario", aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   ## population ----
-  population <- calcOutput('Population', FiveYearSteps = FALSE,
-                           aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^pop_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population <- calcOutput('Population', naming = "scenario", aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    dplyr::mutate(population = .data$population * 1e6)
 
   # estimate steel stock distribution ----
   regression_data <- steel_stock_per_capita %>%
@@ -267,15 +247,15 @@ calcSteel_Projections <- function(subtype = 'production',
     Asym <- regression_data %>%
       filter(.estimate == .data$estimate) %>%
       group_by(.data$year) %>%
-      summarise(Asym = 1.1 * wtd.quantile(x = .data$steel.stock.per.capita,
-                                          weights = .data$population,
-                                          probs = 0.99),
+      summarise(Asym = 1.1 * Hmisc::wtd.quantile(x = .data$steel.stock.per.capita,
+                                                 weights = .data$population,
+                                                 probs = 0.99),
                 .groups = 'drop') %>%
       pull('Asym') %>%
       max()
 
     coefficients <- lm(
-      formula = logit(x, adjust = 0.025) ~ y,
+      formula = car::logit(x, adjust = 0.025) ~ y,
       data = regression_data %>%
         filter(.estimate == .data$estimate,
                between(.data$steel.stock.per.capita, 0, Asym)) %>%
@@ -299,7 +279,7 @@ calcSteel_Projections <- function(subtype = 'production',
           start = list(Asym = Asym, xmid = xmid, scal = scal),
           algorithm = 'port',
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(estimate = .estimate)
@@ -786,7 +766,7 @@ calcSteel_Projections <- function(subtype = 'production',
         )
     ) %>%
     interpolate_missing_periods_(
-      periods = list('year' = seq_range(range(steel_stock_estimates$year))),
+      periods = list('year' = quitte::seq_range(range(steel_stock_estimates$year))),
       value = 'share', expand.values = TRUE)
 
   # expand regional values to missing countries
@@ -825,7 +805,7 @@ calcSteel_Projections <- function(subtype = 'production',
     assert(not_na, everything()) %>%
     pivot_longer(c(-'scenario', -'iso3c', -'region', -'year')) %>%
     interpolate_missing_periods_(
-      periods = list('year' = seq_range(range(.$year)))) %>%
+      periods = list('year' = quitte::seq_range(range(.$year)))) %>%
     pivot_wider() %>%
     full_join(
       secondary.steel.max.share %>%
@@ -838,7 +818,7 @@ calcSteel_Projections <- function(subtype = 'production',
       # stock additions: rolling average of stock changes (stocks might decrease
       # with decreasing population, but still become obsolete and need
       # replacement) over five years
-      stock.additions = rollmean(
+      stock.additions = zoo::rollmean(
         pmax(0,
              .data$steel.stock - lag(.data$steel.stock, order_by = .data$year,
                                      default = first(.data$steel.stock))),
@@ -869,7 +849,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
   if (is.data.frame(China_Production)) {
     China_Production <- China_Production %>%
-      interpolate_missing_periods(period = seq_range(range(.$period)),
+      interpolate_missing_periods(period = quitte::seq_range(range(.$period)),
                                   value = 'total.production',
                                   method = 'spline') %>%
       mutate(total.production = .data$total.production * 1e6)
@@ -1155,10 +1135,10 @@ calcSteel_Projections <- function(subtype = 'production',
           year = c(max(steel_historic_prod$year), 2100), factor = 1)) %>%
       complete(year = unique(tmp$year)) %>%
       filter(!is.na(.data$region)) %>%
-      mutate(factor = na.approx(object = .data$factor,
-                                x = .data$year,
-                                yleft = first(na.omit(.data$factor)),
-                                yright = last(na.omit(.data$factor)))) %>%
+      mutate(factor = zoo::na.approx(object = .data$factor,
+                                     x = .data$year,
+                                     yleft = first(na.omit(.data$factor)),
+                                     yright = last(na.omit(.data$factor)))) %>%
       ungroup() %>%
       assert(not_na, everything())
 
@@ -1345,33 +1325,22 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   )
 
   ## population data ----
-  population <- calcOutput('Population', FiveYearSteps = FALSE,
-                           aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^pop_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population <- calcOutput('Population', naming = "scenario", aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    dplyr::mutate(population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^gdp_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = "scenario", aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
   data_cement_production <- calcOutput('Cement', aggregate = FALSE) %>%
-    magclass_to_tibble() %>%
+    quitte::magclass_to_tibble() %>%
     select(-'data') %>%
     filter(!is.na(.data$value))
 
@@ -1430,7 +1399,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             filter(.data$region == r),
           start = list(a = 1000, b = -2000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -1575,7 +1544,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 500, b = 500),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -1681,8 +1650,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       filter('SSA' == .data$region) %>%
       select('region', 'steel.VA.pt') %>%
       mutate(cuts = cut(x = .data$steel.VA.pt,
-                        breaks = seq_range(range(.data$steel.VA.pt),
-                                           length.out = 31),
+                        breaks = quitte::seq_range(range(.data$steel.VA.pt), length.out = 31),
                         labels = 1:30, include.lowest = TRUE)) %>%
       group_by(!!!syms(c('region', 'cuts'))) %>%
       summarise(count = n(), .groups = 'drop_last') %>%
@@ -1848,7 +1816,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 1, b = -1000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -1915,10 +1883,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             * ((last_cement_year + 14 - .data$year) / 14) ^ 2
             ),
         ifelse(last_cement_year > .data$year, .data$shift.factor, 1)),
-      shift.factor = na.approx(object = .data$shift.factor, x = .data$year,
-                               yleft = first(na.omit(.data$shift.factor)),
-                               yright = last(na.omit(.data$shift.factor)),
-                               na.rm = FALSE),
+      shift.factor = zoo::na.approx(object = .data$shift.factor, x = .data$year,
+                                    yleft = first(na.omit(.data$shift.factor)),
+                                    yright = last(na.omit(.data$shift.factor)),
+                                    na.rm = FALSE),
       cement.production = .data$shift.factor * .data$cement.production) %>%
     ungroup() %>%
     select(-'data', -'shift.factor') %>%
@@ -1952,7 +1920,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC       = .data$GDP / .data$population),
           start = list(a = 250, b = -4000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -2320,7 +2288,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    !.data$censored),
           start = list(a = 1000, b = -100),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)

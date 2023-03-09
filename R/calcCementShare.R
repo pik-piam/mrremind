@@ -17,7 +17,6 @@
 #' @importFrom madrat toolGetMapping calcOutput
 #' @importFrom magclass as.magpie dimSums
 #' @importFrom magrittr %>%
-#' @importFrom quitte interpolate_missing_periods
 #' @importFrom rlang sym
 #' @importFrom tibble tribble as_tibble
 #' @importFrom tidyr pivot_longer complete nesting
@@ -57,7 +56,7 @@ calcCementShare <- function() {
       filter(!is.na(!!sym('iso3c'))) %>%
       mutate(year = 2100)
   ) %>%
-    interpolate_missing_periods(
+    quitte::interpolate_missing_periods(
       year = unique(quitte::remind_timesteps$period),
       expand.values = TRUE) %>%
     select('iso3c', 'year', 'fety', 'value') %>%
