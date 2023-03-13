@@ -9,24 +9,45 @@
 #' @aliases readEndCoal
 
 
-readGCPT <- function(subtype) {
+readGCPT <- function(subtype, year=NULL) {
   map <- toolGetMapping(getConfig("regionmapping"), type="regional")
   
-  if (!(subtype %in% c("historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","meanAge","ppca_emi",
-                       "historical2020","status2020","future2020","lifespans2020","emissions2020","comp_rates2020","2030"))) {
+  if (!(subtype %in% c("early_retire","historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","glo_comp_rates","meanAge","ppca_emi","G20_FinEx",
+                       "PEGASOS","PEGASOS_pubfinex","PEGASOS_prefinex","REM_PEGASOS_pubfinex","REM_PEGASOS_pubfinex_REsub"))) {
     stop("Invalid subtype!")
   }
-  
-  # Names of data files to be read in 
-  if (grepl("2020",subtype) | grepl("2030",subtype)) {
+
+  # Data files to be read in 
+  if (!is.null(year)) {
     summary_data <- "GCPT_data_Jul2020.xlsx"
     status_changes <- "GCPT Status Changes H1 2015 to H1 2020.xlsx"
     plant_data <- "July 2020 Global Coal Plant Tracker.xlsx"
-  }else {
+    lastCol <- "V"
+    sep=","
+    plant_status <- read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx",sheet=2)
+    plant_status <- plant_status %>% select(Country,MW,Jul20,Jan20,Jan19,Jan18,Jan17,Jan16,Jan15)
+    colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
+  }else if (grepl('2021',year)) {
     summary_data <- "GCPT_data_Jan2021.xlsx"
     status_changes <- "GCPT Status Changes_1Feb2021.csv"
     plant_data <- "January 2021 Global Coal Plant Tracker.xlsx"
+    lastCol <- "V"
+    sep=","
+  }else if (grepl('2022',year)) {
+    summary_data <- "GCPT_data_Jan2022.xlsx"
+    status_changes <- "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
+    plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
+    lastCol <- "W"
+    sep=";"
+  }else {
+    summary_data <- "GCPT_data_Jan2023.xlsx"
+    status_changes <- "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
+    plant_data <- "Global-Coal-Plant-Tracker-Jan-2023.xlsx"
+    lastCol <- "W"
+    sep=";"
   }
+
+  present_year <- as.numeric(substr(summary_data,nchar(summary_data)-8,nchar(summary_data)-5))
   
   `Announced + Pre-permit + Permitted` <- NULL
   H2.2014 <- NULL
@@ -36,6 +57,7 @@ readGCPT <- function(subtype) {
   H2.2018 <- NULL
   H2.2019 <- NULL
   H2.2020 <- NULL
+  H2.2021 <- NULL
   Jan15 <- NULL
   Jan16 <- NULL
   Jan17 <- NULL
@@ -52,7 +74,7 @@ readGCPT <- function(subtype) {
   `2018` <- NULL
   `2019` <- NULL
   `2020` <- NULL
-  `Plant age` <- NULL
+  `Plant Age` <- NULL
   `Capacity (MW)` <- NULL
   Status <- NULL
   RETIRED <- NULL
@@ -79,32 +101,35 @@ readGCPT <- function(subtype) {
   green_emi <- NULL
   norm_emi <- NULL
   
-  # Capacity by country as of January 2021, with select manual updates according to the Global Coal Finance Tracker and news media
-  cap_sum <- read_excel(summary_data,sheet="Summary",range="A4:K112")
+  # Capacity by country as of January 2022, with select manual updates according to the Global Coal Finance Tracker and news media
+  cap_sum <- read_excel(summary_data,sheet="Summary",range="A4:K112") %>%
+    filter(!grepl("Total",Country) & !grepl("World",Country))
+ 
+  # cap_sum <- ifelse(grepl("2020",subtype) | grepl("2021",subtype), 
+  #                   read_excel(summary_data,sheet="Summary",range="A4:K112"),
+  #                   read_excel(summary_data,sheet="Summary"))
+                    
   cap_sum <- cap_sum %>% select(-`Announced + Pre-permit + Permitted`)
   cap_sum <- as.magpie(cap_sum,spatial=1)
   getRegions(cap_sum) <- toolCountry2isocode(getRegions(cap_sum))
   cap_sum <- toolCountryFill(cap_sum,fill=0,no_remove_warning = "KOS",verbosity=2)
   
   cap_sum_oper <- cap_sum[,,"Operating"]
+
   
-  additions <- read_excel(summary_data,sheet="Additions",range = c("A4:V112"))
+  ###################################################
+  ### Historical capacity additions & retirements ###
+  ###################################################
+  
+  additions <- read_excel(summary_data,sheet="Additions",range = c(paste0("A4:",lastCol,"112"))) %>%
+    filter(!grepl("Total",Country) & !grepl("World",Country))
   # colnames(additions)[length(colnames(additions))]="2020"
-  retirements <- read_excel(summary_data,sheet="Retirements",range = c("A4:V112"))
+  retirements <- read_excel(summary_data,sheet="Retirements",range = c(paste0("A4:",lastCol,"112"))) %>%
+    filter(!grepl("Total",Country) & !grepl("World",Country))
   add_startyr <- as.numeric(colnames(additions)[2])
   add_endyr <- as.numeric(colnames(additions)[length(additions)])
   
-  # Read file with time series data of plant status changes
-  if (grepl("20",subtype)) {
-    plant_status <- read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx",sheet=2)
-    plant_status <- plant_status %>% select(Country,MW,Jul20,Jan20,Jan19,Jan18,Jan17,Jan16,Jan15)
-    colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
-  }
-  else {
-    plant_status <- read.csv(status_changes,sep = ",")
-    plant_status <- plant_status %>% select(Country,MW,H2.2020,H2.2019,H2.2018,H2.2017,H2.2016,H2.2015,H2.2014)
-    colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
-  }
+
   status_startyr <- as.numeric(colnames(plant_status)[ncol(plant_status)])
   status_endyr <- as.numeric(colnames(plant_status)[3])
   
@@ -173,25 +198,27 @@ readGCPT <- function(subtype) {
   cap <- new.magpie(getRegions(cap_sum),years=as.numeric(colnames(additions)[2:length(additions)]),fill = 0)
   # j <- ncol(mothballed)
   for (i in add_startyr:(add_endyr-1)) {
-    cap_add <- additions %>% select(Country,as.character(i+1):as.character(add_endyr))
-    cap_add <- mutate(cap_add,Operating=rowSums(cap_add[,2:ncol(cap_add)]))
-    cap_add$Country <- toolCountry2isocode(cap_add$Country)
-    cap_add <- as.magpie(cap_add,spatial=1,temporal=i)
+    cap_add <- additions %>% select(Country,as.character(i+1):as.character(add_endyr)) %>%
+      mutate(Operating=rowSums(.[-1])) %>%
+      mutate(Country=toolCountry2isocode(Country))
+    cap_add <- as.magpie(cap_add[,c("Country","Operating")])
     cap_add <- toolCountryFill(cap_add,verbosity=2,fill=0,no_remove_warning = "KOS")
+    getItems(cap_add,dim=2) <- i
     
-    cap_ret <- retirements %>% select(Country,as.character(i+1):as.character(add_endyr))
-    cap_ret <- mutate(cap_ret,Operating=rowSums(cap_ret[,2:ncol(cap_ret)]))
-    cap_ret$Country <- toolCountry2isocode(cap_ret$Country)
-    cap_ret <- as.magpie(cap_ret,spatial=1,temporal=i)
+    cap_ret <- retirements %>% select(Country,as.character(i+1):as.character(add_endyr)) %>%
+      mutate(Operating=rowSums(.[-1])) %>%
+      mutate(Country=toolCountry2isocode(Country))
+    cap_ret <- as.magpie(cap_ret[,c("Country","Operating")])
     cap_ret <- toolCountryFill(cap_ret,verbosity=2,fill=0,no_remove_warning = "KOS")
+    getItems(cap_ret,dim=2) <- i
     
     cap[,i,] <- cap_sum[,,"Operating"] - cap_add[,,"Operating"] + cap_ret[,,"Operating"] + cap_moth[,i,"Operating"] + cap_moth[,i,"pre_status"]
   }
-  cap[,2020,] <- cap_sum_oper
+  cap[,add_endyr,] <- cap_sum_oper
   
-  if (subtype=="historical") {
+  if (grepl("historical",subtype)) {
     return(cap/1000)
-  }else if (subtype=="status") {
+  }else if (grepl("status",subtype)) {
     return(cap_sum/1000)
   }
 
@@ -200,10 +227,20 @@ readGCPT <- function(subtype) {
   retire$`Capacity (MW)` <- as.numeric(retire$`Capacity (MW)`)
   retire$Country <- toolCountry2isocode(retire$Country)
   retire <- retire[-which(retire$Country=="KOS"),]
+  if (present_year!=2020) {
+    retire <- retire %>% mutate(`Plant Age` = 
+                                  ifelse(is.na(Year),
+                                         NA,
+                                         ifelse(grepl("retire",Status,ignore.case=T),
+                                                ifelse(is.na(RETIRED),
+                                                       NA,
+                                                       RETIRED - Year),
+                                                present_year - Year)))
+  }
   
-  retAge <- retire %>% select(Country,`Plant age`,`Capacity (MW)`,Status) %>% 
-    filter(Status=="Retired") %>% filter(!is.na(`Plant age`)) %>% filter(`Plant age` > 0) %>% filter(!is.na(`Capacity (MW)`))
-  avgRetAge <- retAge %>% group_by(Country) %>% summarise(Avg_Ret_Age=weighted.mean(`Plant age`,`Capacity (MW)`))
+  retAge <- retire %>% select(Country,`Plant Age`,`Capacity (MW)`,Status) %>% 
+    filter(Status %in% c("Retired","retired")) %>% filter(!is.na(`Plant Age`)) %>% filter(`Plant Age` > 0) %>% filter(!is.na(`Capacity (MW)`))
+  avgRetAge <- retAge %>% group_by(Country) %>% summarise(Avg_Ret_Age=weighted.mean(`Plant Age`,`Capacity (MW)`))
   retCap <- retAge %>% group_by(Country) %>% summarise(Retired_Cap=sum(`Capacity (MW)`))
   avgRetAge <- avgRetAge[do.call(order,avgRetAge),]
   retCap <- retCap[do.call(order,retCap),]
@@ -216,47 +253,64 @@ readGCPT <- function(subtype) {
   regAvgRetAge[which(regAvgRetAge==0)] <- mean(regAvgRetAge)
   mavgRetAge[getRegions(mavgRetAge)[mavgRetAge == 0],,] <- as.vector(regAvgRetAge[map$RegionCode[which(map$CountryCode %in% getRegions(mavgRetAge)[mavgRetAge == 0])],,])
 
-  if (subtype=="lifespans") {
+  if (grepl("lifespans",subtype)) {
     return(mavgRetAge)
-  }else if (subtype=="meanAge") {
-    meanAge <- retire %>% select(Country,`Plant age`,`Capacity (MW)`,Status) %>% 
-      filter(Status=="Operating" & !is.na(`Capacity (MW)`) & !is.na(`Plant age`)) 
-    meanAge_c <- meanAge %>% group_by(Country) %>% summarise(meanAge=weighted.mean(`Plant age`,`Capacity (MW)`))
+  }else if (grepl("meanAge",subtype)) {
+    meanAge <- retire %>% select(Country,`Plant Age`,`Capacity (MW)`,Status) %>% 
+      filter(Status %in% c("Operating","operating") & !is.na(`Capacity (MW)`) & !is.na(`Plant Age`)) 
+    meanAge_c <- meanAge %>% group_by(Country) %>% summarise(meanAge=weighted.mean(`Plant Age`,`Capacity (MW)`))
     meanAge_c <- toolCountryFill(as.magpie(meanAge_c,spatial=1),fill=0)
     capWeight <- meanAge %>% group_by(Country) %>% summarise(Capacity=sum(`Capacity (MW)`))
     capWeight <- toolCountryFill(as.magpie(capWeight,spatial=1),fill=0)
     return(toolAggregate(meanAge_c,map,capWeight))
   }
   
-  #Return national average lifespans to calculate early retirement adjustment factors 
-  # if (subtype=="early_retire") {
-  #   retired <- retire %>% select(Country,`Plant age`,`Capacity (MW)`,RETIRED)
-  #   #Sum up capacity retired in each country in each year 2000-2020
-  #   early_ret <- retired %>% filter(!is.na(RETIRED)) %>% group_by(Country,.add=TRUE) %>% group_by(RETIRED,.add=TRUE) %>%
-  #     summarise(Retired_cap=sum(`Capacity (MW)`))
-  #   early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
-  #   early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
-  #   ret_rate <- new.magpie(getRegions(cap),getYears(early_ret),names="Early_Retirement",fill=0)
-  #   for (t in 2001:2020) {
-  #     ret_rate[,t,] <- dimSums(early_ret[,(t-1):t,],dim=2)/cap[,t-1,]
-  #   }
-  #   ret_rate <- replace_non_finite(ret_rate)
-  #   max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
-  #   for (reg in getRegions(ret_rate)) {
-  #     max_ret[reg,,] <- max(ret_rate[reg,,])
-  #   }
-  #   return(max_ret)
-  # }
+ # Return national average lifespans to calculate early retirement adjustment factors
+  if (grepl("early_retire",subtype)) {
+    retired <- retire %>% 
+      select(Country,`Plant Age`,`Capacity (MW)`,RETIRED) %>%
+      left_join(avgRetAge,by="Country")
+    #Sum up capacity retired in each country in each year 2000-2020
+    early_ret <- retired %>% 
+      filter(!is.na(RETIRED) & !is.na(`Plant Age`)) %>% 
+      filter(`Plant Age` < Avg_Ret_Age) %>%
+      group_by(Country,.add=TRUE) %>% 
+      group_by(RETIRED,.add=TRUE) %>%
+      summarise(Retired_cap=sum(`Capacity (MW)`))
+    early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
+    early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
+    ret_rate <- new.magpie(getRegions(mavgRetAge),seq(2000,2015,5),names="Early_Retirement",fill=0)
+    for (t in seq(2000,2015,5)) {
+      ret_rate[,t,] <- dimSums(early_ret[,t:(t+5),],dim=2)/cap[,t,]
+    }
+    ret_rate <- replace_non_finite(ret_rate)
+    max_ret <- new.magpie(getRegions(ret_rate),NULL,names="Max_Early_Retirement",fill=0)
+    for (reg in getRegions(ret_rate)) {
+      max_ret[reg,,] <- max(ret_rate[reg,,])
+    }
+    return(max_ret)
+  }
   
   
   #Use the national lifespans to derive scenarios of 2025 coal capacity
   avgRetAge <- data.frame(Country=getRegions(mavgRetAge),Avg_Ret_Age=array(mavgRetAge))
   retire <- left_join(retire,avgRetAge,by="Country")
   
+  #Neutral COVID recovery scenario: Countries maintain their historical average lifespans
+  retireBAU <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+    filter(Status %in% c("Operating","operating")) %>% 
+    filter(`Planned Retire`<=2028 | `Plant Age` >= (Avg_Ret_Age-5)) %>%
+    filter(!is.na(`Capacity (MW)`)) %>%
+    group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+  
+  retireBAU$Retiring_Cap[which(is.na(retireBAU$Retiring_Cap))] <- 0
+  retireBAU <- as.magpie(retireBAU,spatial=1)
+  retireBAU <- toolCountryFill(retireBAU,fill=0,no_remove_warning = "KOS",verbosity=2)
+  
   #Brown COVID recovery scenario: Countries extend their average lifespans by 5 years
-  retireBrown <- retire %>% select(Country,`Planned Retire`,`Plant age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
-    filter(Status %in% c("Operating")) %>% 
-    filter(`Planned Retire`<=2028 | `Plant age` >= (Avg_Ret_Age)) %>%
+  retireBrown <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+    filter(Status %in% c("Operating","operating")) %>% 
+    filter(`Planned Retire`<=2028 | `Plant Age` >= (Avg_Ret_Age)) %>%
     filter(!is.na(`Capacity (MW)`)) %>%
     group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
   
@@ -264,10 +318,10 @@ readGCPT <- function(subtype) {
   retireBrown <- as.magpie(retireBrown,spatial=1)
   retireBrown <- toolCountryFill(retireBrown,fill=0,no_remove_warning = "KOS",verbosity=2)
   
-  #Green COVID recovery scenario: Countries maintain their historical average lifespans
-  retireGreen <- retire %>% select(Country,`Planned Retire`,`Plant age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
-    filter(Status %in% c("Operating")) %>% 
-    filter(`Planned Retire`<=2028 | `Plant age` >= (Avg_Ret_Age-5)) %>%
+  #Green COVID recovery scenario: Countries reduce historical average lifespans by 5 years
+  retireGreen <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+    filter(Status %in% c("Operating","operating")) %>% 
+    filter(`Planned Retire`<=2028 | `Plant Age` >= (Avg_Ret_Age-10)) %>%
     filter(!is.na(`Capacity (MW)`)) %>%
     group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
   
@@ -276,14 +330,15 @@ readGCPT <- function(subtype) {
   retireGreen <- toolCountryFill(retireGreen,fill=0,no_remove_warning = "KOS",verbosity=2)
   
   #Literature norm scenario: Popular choice in literature has been to use a globally uniform 40-yr lifespan
-  retireNorm <- retire %>% select(Country,`Planned Retire`,`Plant age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
-    filter(Status %in% c("Operating")) %>% 
-    filter(`Plant age` >= 35) %>%
+  retireNorm <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
+    filter(Status %in% c("Operating","operating")) %>% 
+    filter(`Plant Age` >= 35) %>%
     filter(!is.na(`Capacity (MW)`)) %>%
     group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
   retireNorm$Retiring_Cap[which(is.na(retireNorm$Retiring_Cap))] <- 0
   retireNorm <- as.magpie(retireNorm,spatial=1)
   retireNorm <- toolCountryFill(retireNorm,fill=0,no_remove_warning = "KOS",verbosity=2)
+  
   
   #Relevant regional mappings and country classifications
   #Current members of PPCA
@@ -299,115 +354,126 @@ readGCPT <- function(subtype) {
   #While non-OECD members must phase out coal power by 2050
   nonOECDppca <- ppca[which(!(ppca %in% oecdPPCA))]
   #There are several countries which have explicit plans to abandon coal power in their COVID recovery packages
-  greenNations <- c(EU27[-which(EU27=="POL")][-which(EU27 %in% ppca)],"PHL","BGD","EGY","PAK","AUS","KOR","VNM","CHL")
+  greenNations <- c(EU27[-which(EU27=="POL")][-which(EU27 %in% ppca)],"EGY","AUS","KOR","CHL")
+  if (subtype!="PEGASOS")    greenNations <- c(greenNations,"BGD","PAK","PHL","VNM")
+  
+  ###########################
+  ### ANNUAL PLANT STATUS ###
+  ###########################
+  plant_status <- read.csv(status_changes,sep=sep)
+  plant_status <- plant_status %>% select(Country, MW, starts_with("H2"))
+  colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
   
   # Remove any plants with unknown (NA) capacity from plant status data frame
   plant_status <- plant_status %>% filter(!is.na(MW))
+
   tran <- data.frame(Country=unique(plant_status$Country),shelved=0,she2she=0,she2can=0,she2oper=0,she2ann=0,she2pre=0,pre2she=0,pre2con=0,
                      she2perm=0,she2con=0,newcon=0,con2she=0,con2she2oper=0,con2she2con=0,con2she2can=0,con2can=0,perm2she=0,perm2con=0,
                      con2oper=0,con2she2she=0,plan2she=0,ann=0,ann2oper=0,ann2can=0,ann2she=0,ann2con=0,pre=0,pre2oper=0,pre2can=0,perm=0,
                      perm2oper=0,perm2can=0,moth=0,moth2ret=0,moth2oper=0)
+  
+  latest_col <- 3
   
   for (i in 1:nrow(plant_status)) {
     j <- ncol(plant_status)
     if (plant_status[i,j]=="XXX") {
       plant_status[i,which(plant_status[i,]=="XXX")] <- "Announced"
     }
-    while (j > 4) {
-      if (plant_status[i,j]=="Shelved") {
-        if (j==ncol(plant_status) || !("Shelved" %in% plant_status[i,j:ncol(plant_status)])) {
+    while (j > latest_col) {
+      if (grepl("She",plant_status[i,j])) {
+        if (j==ncol(plant_status) || !grepl("She",plant_status[i,j:ncol(plant_status)])) {
           tran$shelved[which(tran$Country==plant_status$Country[i])] <- tran$shelved[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Cancelled") {
+          if (grepl("Can",plant_status[i,latest_col])) {
             tran$she2can[which(tran$Country==plant_status$Country[i])]<- tran$she2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Shelved") {
+          }else if (grepl("She",plant_status[i,latest_col])) {
             tran$she2she[which(tran$Country==plant_status$Country[i])]<- tran$she2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Operating") {
+          }else if (grepl("Oper",plant_status[i,latest_col])) {
             tran$she2oper[which(tran$Country==plant_status$Country[i])]<- tran$she2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Announced") {
+          }else if (grepl("Ann",plant_status[i,latest_col])) {
             tran$she2ann[which(tran$Country==plant_status$Country[i])]<- tran$she2ann[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Pre-permit") {
+          }else if (grepl("Pre",plant_status[i,latest_col])) {
             tran$she2pre[which(tran$Country==plant_status$Country[i])]<- tran$she2pre[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Permitted") {
+          }else if (grepl("Perm",plant_status[i,latest_col])) {
             tran$she2perm[which(tran$Country==plant_status$Country[i])]<- tran$she2perm[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$she2con[which(tran$Country==plant_status$Country[i])]<- tran$she2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
-      }else if (plant_status[i,j]=="Construction") {
-        if (j==ncol(plant_status)  || !("Construction" %in% plant_status[i,(j+1):ncol(plant_status)])) {
+      }else if (grepl("Con",plant_status[i,j])) {
+        if (j==ncol(plant_status)  || !grepl("Con",plant_status[i,(j+1):ncol(plant_status)])) {
           tran$newcon[which(tran$Country==plant_status$Country[i])] <- tran$newcon[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Cancelled") {
+          if (grepl("Can",plant_status[i,latest_col])) {
             tran$con2can[which(tran$Country==plant_status$Country[i])] <- tran$con2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Shelved") {
+          }else if (grepl("She",plant_status[i,latest_col])) {
             tran$con2she2she[which(tran$Country==plant_status$Country[i])]<- tran$con2she2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Operating") {
+          }else if (grepl("Oper",plant_status[i,latest_col])) {
             tran$con2oper[which(tran$Country==plant_status$Country[i])]<- tran$con2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$con2con[which(tran$Country==plant_status$Country[i])]<- tran$con2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
-      }else if (plant_status[i,j]=="Announced") {
-        if (j==ncol(plant_status)  || !("Announced" %in% plant_status[i,(j+1):ncol(plant_status)])) {
+      }else if (grepl("Ann",plant_status[i,j])) {
+        if (j==ncol(plant_status)  || !grepl("Ann",plant_status[i,(j+1):ncol(plant_status)])) {
           tran$ann[which(tran$Country==plant_status$Country[i])] <- tran$ann[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Cancelled") {
+          if (grepl("Can",plant_status[i,latest_col])) {
             tran$ann2can[which(tran$Country==plant_status$Country[i])] <- tran$ann2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Shelved") {
+          }else if (grepl("She",plant_status[i,latest_col])) {
             tran$ann2she[which(tran$Country==plant_status$Country[i])]<- tran$ann2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Operating") {
+          }else if (grepl("Oper",plant_status[i,latest_col])) {
             tran$ann2oper[which(tran$Country==plant_status$Country[i])]<- tran$ann2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$ann2con[which(tran$Country==plant_status$Country[i])]<- tran$ann2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
-      }else if (plant_status[i,j]=="Pre-permit") {
-        if (j==ncol(plant_status)  || !("Pre-permit" %in% plant_status[i,(j+1):ncol(plant_status)])) {
+      }else if (grepl("Pre",plant_status[i,j])) {
+        if (j==ncol(plant_status)  || !grepl("Pre",plant_status[i,(j+1):ncol(plant_status)])) {
           tran$pre[which(tran$Country==plant_status$Country[i])] <- tran$pre[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Cancelled") {
+          if (grepl("Can",plant_status[i,latest_col])) {
             tran$pre2can[which(tran$Country==plant_status$Country[i])] <- tran$pre2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Shelved") {
+          }else if (grepl("She",plant_status[i,latest_col])) {
             tran$pre2she[which(tran$Country==plant_status$Country[i])]<- tran$pre2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Operating") {
+          }else if (grepl("Oper",plant_status[i,latest_col])) {
             tran$pre2oper[which(tran$Country==plant_status$Country[i])]<- tran$pre2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$pre2con[which(tran$Country==plant_status$Country[i])]<- tran$pre2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
-      }else if (plant_status[i,j]=="Permitted") {
-        if (j==ncol(plant_status)  || !("Permitted" %in% plant_status[i,(j+1):ncol(plant_status)])) {
+      }else if (grepl("Perm",plant_status[i,j])) {
+        if (j==ncol(plant_status)  || !grepl("Perm",plant_status[i,(j+1):ncol(plant_status)])) {
           tran$perm[which(tran$Country==plant_status$Country[i])] <- tran$perm[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Cancelled") {
+          if (grepl("Can",plant_status[i,latest_col])) {
             tran$perm2can[which(tran$Country==plant_status$Country[i])] <- tran$perm2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Shelved") {
+          }else if (grepl("She",plant_status[i,latest_col])) {
             tran$perm2she[which(tran$Country==plant_status$Country[i])]<- tran$perm2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Operating") {
+          }else if (grepl("Oper",plant_status[i,latest_col])) {
             tran$perm2oper[which(tran$Country==plant_status$Country[i])]<- tran$perm2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$perm2con[which(tran$Country==plant_status$Country[i])]<- tran$perm2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
-      }else if (plant_status[i,j]=="Mothballed") {
-        if (j==ncol(plant_status)  || !("Mothballed" %in% plant_status[i,(j+1):ncol(plant_status)])) {
+      }else if (grepl("Moth",plant_status[i,j])) {
+        if (j==ncol(plant_status)  || !grepl("Moth",plant_status[i,(j+1):ncol(plant_status)])) {
           tran$moth[which(tran$Country==plant_status$Country[i])] <- tran$moth[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Ret") {
+          if (grepl("Ret",plant_status[i,latest_col])) {
             tran$moth2ret[which(tran$Country==plant_status$Country[i])] <- tran$moth2ret[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (any(plant_status[i,4:(j-1)]=="Operating")) {
+          }else if (any(grepl("Oper",plant_status[i,latest_col:(j-1)]))) {
             tran$moth2oper[which(tran$Country==plant_status$Country[i])] <- tran$moth2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
         }
       }
       
       j <- j-1
-      if (plant_status[i,j]=="Shelved") {
-        if (plant_status[i,j+1]=="Construction") {
+      if (grepl("She",plant_status[i,j])) {
+        if (plant_status[i,j+1]=="Con") {
           tran$con2she[which(tran$Country==plant_status$Country[i])]<- tran$con2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          if (plant_status[i,4]=="Operating") {
+          if (grepl("Oper",plant_status[i,latest_col])) {
             tran$con2she2oper[which(tran$Country==plant_status$Country[i])] <- tran$con2she2oper[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Construction") {
+          }else if (grepl("Con",plant_status[i,latest_col])) {
             tran$con2she2con[which(tran$Country==plant_status$Country[i])] <- tran$con2she2con[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
-          }else if (plant_status[i,4]=="Cancelled") {
+          }else if (grepl("Can",plant_status[i,latest_col])) {
             tran$con2she2can[which(tran$Country==plant_status$Country[i])] <- tran$con2she2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           }
-        }else if (plant_status[i,j+1] %in% c("Announced","Pre-permit","Permitted")) {
+        }else if (grepl("Ann",plant_status[i,j+1]) | grepl("Pre",plant_status[i,j+1]) | grepl("Perm",plant_status[i,j+1])) {
           tran$plan2she[which(tran$Country==plant_status$Country[i])] <- tran$plan2she[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
         }
       }
@@ -525,21 +591,21 @@ readGCPT <- function(subtype) {
   
   # Countries which have indicated an anti-coal recovery plan are assumed to halve their BAU completion rates in the brown and BAU recovery scenarios
   # In the green recovery scenario, their completion rates will be 0 (except for under-construction plants which will be built at BAU rates)
-  comp_rate_brown[c(nonOECDppca,greenNations),,] <- 0.5 * comp_rate_brown[c(nonOECDppca,greenNations),,]
-  comp_rate[c(nonOECDppca,greenNations),,] <- 0.5 * comp_rate[c(nonOECDppca,greenNations),,]
-  # Under-construction plants in anti-coal nations will all be completed in both scenarios
-  comp_rate[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate[c(nonOECDppca,greenNations),,"newcon"]
-  comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"]
-  
-  #OECD PPCA members cannot complete any pipeline projects to meet their 2030 phase-out target
-  comp_rate[oecdPPCA,,] <- 0
-  comp_rate_brown[oecdPPCA,,] <- 0
+  # comp_rate_brown[c(nonOECDppca,greenNations),,] <- 0.5 * comp_rate_brown[c(nonOECDppca,greenNations),,]
+  # comp_rate[c(nonOECDppca,greenNations),,] <- 0.5 * comp_rate[c(nonOECDppca,greenNations),,]
+  # # Under-construction plants in anti-coal nations will all be completed in both scenarios
+  # comp_rate[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate[c(nonOECDppca,greenNations),,"newcon"]
+  # comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"] <- 2 * comp_rate_brown[c(nonOECDppca,greenNations),,"newcon"]
+  # 
+  # #OECD PPCA members cannot complete any pipeline projects to meet their 2030 phase-out target
+  # comp_rate[oecdPPCA,,] <- 0
+  # comp_rate_brown[oecdPPCA,,] <- 0
   
   #OECD PPCA members and green recovery nations are assumed to cancel all shelved projects and retire mothballed ones.
   comp_rate[c(greenNations,oecdPPCA,nonOECDppca),,"shelved"] <- 0
   comp_rate_brown[c(greenNations,oecdPPCA,nonOECDppca),,"shelved"] <- 0
   cap_sum[c(oecdPPCA,greenNations,nonOECDppca),,"Mothballed"] <- 0
-  
+  # browser()
   # Return completion rate magpies 
   if (grepl("comp_rates",subtype)) {
     getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
@@ -548,18 +614,26 @@ readGCPT <- function(subtype) {
     getNames(glo_comp_rate_brown) <- c("Shelved_brown","Construction_brown","Announced_brown","Pre-permit_brown","Permitted_brown")
     getNames(reg_comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
     getNames(reg_comp_rate_brown) <- c("Shelved_brown","Construction_brown","Announced_brown","Pre-permit_brown","Permitted_brown")
-    reg_mtran <- toolAggregate(
-      setNames(mtran[,,c("shelved","newcon","ann","pre","perm")],
-               c("Shelved","Construction","Announced","Pre-permit","Permitted")),map,NULL)
+    getNames(she_rate) <- c("Shelved_shelving","Construction_shelving","Announced_shelving","Pre-permit_shelving","Permitted_shelving")
+    getNames(reg_she_rate) <- c("Shelved_shelving","Construction_shelving","Announced_shelving","Pre-permit_shelving","Permitted_shelving")
+    # getNames(glo_she_rate) <- c("Shelved_shelving","Construction_shelving","Announced_shelving","Pre-permit_shelving","Permitted_shelving")
+    
     if (grepl("reg",subtype)) {
+      reg_mtran <- toolAggregate(
+        setNames(mtran[,,c("shelved","newcon","ann","pre","perm")],
+                 c("Shelved","Construction","Announced","Pre-permit","Permitted")),map,NULL)
       reg_all_comp_rate <- toolAggregate(reg_comp_rate,weight=reg_mtran,dim=3,rel=data.frame(from=getNames(reg_mtran),to=rep("all",5)))
-      out <- mbind(reg_comp_rate,reg_all_comp_rate)
-    }else  out <- mbind(comp_rate,comp_rate_brown)
+      
+      out <- mbind(reg_comp_rate,reg_all_comp_rate,reg_she_rate)
+    }else if (grepl("glo",subtype)) {
+      out <- mbind(glo_comp_rate,glo_comp_rate_brown)
+      # out <- mbind(glo_comp_rate,glo_comp_rate_brown,glo_she_rate)
+    }else  out <- mbind(comp_rate,comp_rate_brown,she_rate)
     return(out)
   }
   
   # *********************************Derive Coal capacity in 2025******************************
-  
+  # browser
   cap2025_brown <- cap_sum[,,"Operating"] + 
     cap_sum[,,"Mothballed"]*0.5 + 
     cap_sum[,,"Announced"] * comp_rate_brown[,,"ann"] + 
@@ -567,10 +641,10 @@ readGCPT <- function(subtype) {
     cap_sum[,,"Permitted"] * comp_rate_brown[,,"perm"] + 
     cap_sum[,,"Construction"] * comp_rate_brown[,,"newcon"] +
     comp_rate_brown[,,"shelved"] * (cap_sum[,,"Shelved"] + 
-                                      cap_sum[,,"Announced"] * (1-she_rate[,,"ann"]) + 
-                                      cap_sum[,,"Pre-permit"] * (1-she_rate[,,"pre"]) + 
-                                      cap_sum[,,"Permitted"] * (1-she_rate[,,"perm"]) + 
-                                      cap_sum[,,"Construction"] * (1-she_rate[,,"newcon"])) - 
+                                      cap_sum[,,"Announced"] * (she_rate[,,"ann"]) + 
+                                      cap_sum[,,"Pre-permit"] * (she_rate[,,"pre"]) + 
+                                      cap_sum[,,"Permitted"] * (she_rate[,,"perm"]) + 
+                                      cap_sum[,,"Construction"] * (she_rate[,,"newcon"])) - 
     retireBrown[,,"Retiring_Cap"]
   
   cap2025_BAU <- cap_sum[,,"Operating"] + 
@@ -580,33 +654,33 @@ readGCPT <- function(subtype) {
     cap_sum[,,"Permitted"] * comp_rate[,,"perm"] + 
     cap_sum[,,"Construction"] * comp_rate[,,"newcon"] +
     comp_rate[,,"shelved"] * (cap_sum[,,"Shelved"] + 
-                                cap_sum[,,"Announced"] * (1-she_rate[,,"ann"]) + 
-                                cap_sum[,,"Pre-permit"] * (1-she_rate[,,"pre"]) + 
-                                cap_sum[,,"Permitted"] * (1-she_rate[,,"perm"]) + 
-                                cap_sum[,,"Construction"] * (1-she_rate[,,"newcon"])) - 
-    retireGreen[,,"Retiring_Cap"]
+                                cap_sum[,,"Announced"] * (she_rate[,,"ann"]) + 
+                                cap_sum[,,"Pre-permit"] * (she_rate[,,"pre"]) + 
+                                cap_sum[,,"Permitted"] * (she_rate[,,"perm"]) + 
+                                cap_sum[,,"Construction"] * (she_rate[,,"newcon"])) - 
+    retireBAU[,,"Retiring_Cap"]
   
   cap2025_green <- cap_sum[,,"Operating"] + 
     cap_sum[,,"Announced"] * comp_rate[,,"ann"]/2 + 
     cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"]/2 + 
     cap_sum[,,"Permitted"] * comp_rate[,,"perm"]/2 + 
     0.5 * comp_rate[,,"newcon"] * cap_sum[,,"Construction"] +
-    0.5 * comp_rate[,,"shelved"] * cap_sum[,,"Construction"] * (1-she_rate[,,"newcon"]) -
-    retireGreen[,,"Retiring_Cap"]
+    0.5 * comp_rate[,,"shelved"] * cap_sum[,,"Construction"] * (she_rate[,,"newcon"]) -
+    retireBAU[,,"Retiring_Cap"]
   
   cap2025_norm <- cap_sum[,,"Operating"] + 
     cap_sum[,,"Mothballed"]*0.5 + 
     cap_sum[,,"Announced"] + 
     cap_sum[,,"Pre-permit"] + 
     cap_sum[,,"Permitted"] + 
-    cap_sum[,,"Construction"]  - 
+    cap_sum[,,"Construction"] +
+    cap_sum[,,"Shelved"] - 
     retireNorm[,,"Retiring_Cap"]
-  
   
   cap2025_brown[which(cap2025_brown<0)] <- 0
   cap2025_green[which(cap2025_green<0)] <- 0
   cap2025_norm[which(cap2025_norm<0)] <- 0
-  cap2025_BAU[which(cap2025_norm<0)] <- 0
+  cap2025_BAU[which(cap2025_BAU<0)] <- 0
   
   getNames(cap2025_brown) <- "Brown"
   getNames(cap2025_green) <- "Green"
@@ -622,9 +696,249 @@ readGCPT <- function(subtype) {
   mcap2025 <- mbind(cap2025_brown/1000,cap2025_green/1000,cap2025_BAU/1000,cap2025_norm/1000)
   
   # Return Capacity scenarios
-  if (subtype=="future") {
+  if (grepl("future",subtype) | grepl("FinEx",subtype)) {
     return(mcap2025)
   }
+  ###### PEGASOS Policy Brief Calcs ##########
+  if (grepl("PEGASOS",subtype)) {
+    #PEGASOS policy brief scenario: Popular choice in literature has been to use a globally uniform 35-yr lifespan
+    retirePEGA <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age,`Heat rate`,`Emission factor`) %>%
+      filter(Status %in% c("Operating","operating")) %>% 
+      filter(`Plant Age` >= 25) %>%
+      filter(!is.na(`Capacity (MW)`)) %>%
+      group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+    retirePEGA$Retiring_Cap[which(is.na(retirePEGA$Retiring_Cap))] <- 0
+    retirePEGA <- as.magpie(retirePEGA,spatial=1)
+    retirePEGA <- toolCountryFill(retirePEGA,fill=0,no_remove_warning = "KOS",verbosity=2)
+    
+    retireNorm <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age,`Heat rate`,`Emission factor`) %>%
+      filter(Status %in% c("Operating","operating")) %>% 
+      filter(`Plant Age` >= 30) %>%
+      filter(!is.na(`Capacity (MW)`)) %>%
+      group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+    retireNorm$Retiring_Cap[which(is.na(retireNorm$Retiring_Cap))] <- 0
+    retireNorm <- as.magpie(retireNorm,spatial=1)
+    retireNorm <- toolCountryFill(retireNorm,fill=0,no_remove_warning = "KOS",verbosity=2)
+    
+    retire1p5C <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
+      filter(Status %in% c("Operating","operating")) %>% 
+      filter(`Plant Age` >= 10) %>%
+      filter(!is.na(`Capacity (MW)`)) %>%
+      group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+    retire1p5C$Retiring_Cap[which(is.na(retire1p5C$Retiring_Cap))] <- 0
+    retire1p5C <- as.magpie(retire1p5C,spatial=1)
+    retire1p5C <- toolCountryFill(retire1p5C,fill=0,no_remove_warning = "KOS",verbosity=2)
+    
+    getYears(retireBAU) <- "y2025"
+    getYears(retireGreen) <- "y2025"
+    getYears(retireBrown) <- "y2025"
+    getYears(retirePEGA) <- "y2025"
+    getYears(retire1p5C) <- "y2025"
+    getYears(retireNorm) <- "y2025"
+    
+    for (ts in seq(2030,2070,5)) {
+      #BAU COVID recovery scenario: Countries maintain their historical average lifespans
+      retireBAUts <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Planned Retire`<=ts | `Plant Age` >= (Avg_Ret_Age-(ts-2020))) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      
+      retireBAUts$Retiring_Cap[which(is.na(retireBAUts$Retiring_Cap))] <- 0
+      retireBAUts <- as.magpie(retireBAUts,spatial=1)
+      retireBAUts <- toolCountryFill(setYears(retireBAUts,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      #Green COVID recovery scenario: Countries maintain their historical average lifespans
+      retireGreents <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Planned Retire`<=ts | `Plant Age` >= (Avg_Ret_Age-(ts-2015))) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      
+      retireGreents$Retiring_Cap[which(is.na(retireGreents$Retiring_Cap))] <- 0
+      retireGreents <- as.magpie(retireGreents,spatial=1)
+      retireGreents <- toolCountryFill(setYears(retireGreents,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      #Brown COVID recovery scenario: Countries maintain their historical average lifespans
+      retireBrownts <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>% 
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Planned Retire`<=ts | `Plant Age` >= (Avg_Ret_Age-(ts-2025))) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      
+      retireBrownts$Retiring_Cap[which(is.na(retireBrownts$Retiring_Cap))] <- 0
+      retireBrownts <- as.magpie(retireBrownts,spatial=1)
+      retireBrownts <- toolCountryFill(setYears(retireBrownts,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      #PEGASOS policy brief scenario: Popular choice in literature has been to use a globally uniform 35-yr lifespan
+      retirePEGAts <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Plant Age` + (ts-2020) >= 35) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      retirePEGAts$Retiring_Cap[which(is.na(retirePEGAts$Retiring_Cap))] <- 0
+      retirePEGAts <- as.magpie(retirePEGAts,spatial=1)
+      retirePEGAts <- toolCountryFill(setYears(retirePEGAts,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      #Another common literature figure has been to use a globally uniform 40-yr lifespan
+      retireNormts <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Plant Age` + (ts-2020) >= 40) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      retireNormts$Retiring_Cap[which(is.na(retireNormts$Retiring_Cap))] <- 0
+      retireNormts <- as.magpie(retireNormts,spatial=1)
+      retireNormts <- toolCountryFill(setYears(retireNormts,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      #20 year lifespans are roughly compatible with Hi-1p5C scenarios
+      retire1p5Cts <- retire %>% select(Country,`Planned Retire`,`Plant Age`,`Capacity (MW)`,Status,Avg_Ret_Age) %>%
+        filter(Status %in% c("Operating","operating")) %>% 
+        filter(`Plant Age` + (ts-2020) >= 20) %>%
+        filter(!is.na(`Capacity (MW)`)) %>%
+        group_by(Country) %>% summarise(Retiring_Cap=sum(`Capacity (MW)`))
+      retire1p5Cts$Retiring_Cap[which(is.na(retire1p5Cts$Retiring_Cap))] <- 0
+      retire1p5Cts <- as.magpie(retire1p5Cts,spatial=1)
+      retire1p5Cts <- toolCountryFill(setYears(retire1p5Cts,ts),fill=0,no_remove_warning = "KOS",verbosity=2)
+      
+      
+      retireBAU <- mbind(retireBAU,retireBAUts)
+      retireGreen <- mbind(retireGreen,retireGreents)
+      retireBrown <- mbind(retireBrown,retireBrownts)
+      retirePEGA <- mbind(retirePEGA,retirePEGAts)
+      retire1p5C <- mbind(retire1p5C,retire1p5Cts)
+      retireNorm <- mbind(retireNorm,retireNormts)
+      
+    }
+    
+    if (grepl("pubfinex",subtype)) {
+      pubfinex <- read.csv("C:/Users/stephenb/Downloads/madrat_main/sources/GCPT/Public_Foreign_Finance_Cap_2021.csv",sep = ";")
+      if (grepl("REsub",subtype)) {
+        output <- new.magpie(pubfinex$Country,c(2025,2030),NULL,fill = 0)
+        
+        output[,2025,] <- as.numeric(pubfinex$Foreign) * (1-as.numeric(pubfinex$Ann_share))
+        output[,2030,] <- as.numeric(pubfinex$Foreign) * as.numeric(pubfinex$Ann_share)
+        return(toolCountryFill(output,fill = 0))
+      }
+      for (iii in c("Ann","Pre","Perm")) {
+        cap_sum[pubfinex$Country,,grepl(iii,getNames(cap_sum),ignore.case = F)] <- pubfinex[,paste0(iii,"_dom")]
+      }
+    }
+    
+    ############ CALCULATE FUTURE CAPACITY TRAJECTORIES #################
+    brown_PEGA <- cap_sum[,,"Operating"] +
+      cap_sum[,,"Mothballed"]*0.5 +
+      cap_sum[,,"Announced"] * comp_rate[,,"ann"] +
+      cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"] +
+      cap_sum[,,"Permitted"] * comp_rate[,,"perm"] +
+      cap_sum[,,"Construction"] * comp_rate[,,"newcon"] +
+      comp_rate[,,"shelved"] * (cap_sum[,,"Shelved"] +
+                                  cap_sum[,,"Announced"] * (she_rate[,,"ann"]) +
+                                  cap_sum[,,"Pre-permit"] * (she_rate[,,"pre"]) +
+                                  cap_sum[,,"Permitted"] * (she_rate[,,"perm"]) +
+                                  cap_sum[,,"Construction"] * (she_rate[,,"newcon"])) -
+      retireBAU[,,"Retiring_Cap"]
+    
+    cap_green <- cap_sum[,,"Operating"] +
+      cap_sum[,,"Announced"] * comp_rate[,,"ann"]/2 +
+      cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"]/2 +
+      cap_sum[,,"Permitted"] * comp_rate[,,"perm"]/2 +
+      0.5 * comp_rate[,,"newcon"] * cap_sum[,,"Construction"] +
+      0.5 * comp_rate[,,"shelved"] * cap_sum[,,"Construction"] * (she_rate[,,"newcon"]) -
+      retireGreen[,,"Retiring_Cap"]
+    
+    upper_gray_PEGA <- cap_sum[,,"Operating"] +
+      cap_sum[,,"Mothballed"]*0.5 +
+      cap_sum[,,"Announced"] * comp_rate_brown[,,"ann"] +
+      cap_sum[,,"Pre-permit"] * comp_rate_brown[,,"pre"] +
+      cap_sum[,,"Permitted"] * comp_rate_brown[,,"perm"] +
+      cap_sum[,,"Construction"] * comp_rate_brown[,,"newcon"] +
+      comp_rate_brown[,,"shelved"] * (cap_sum[,,"Shelved"] +
+                                        cap_sum[,,"Announced"] * (she_rate[,,"ann"]) +
+                                        cap_sum[,,"Pre-permit"] * (she_rate[,,"pre"]) +
+                                        cap_sum[,,"Permitted"] * (she_rate[,,"perm"]) +
+                                        cap_sum[,,"Construction"] * (she_rate[,,"newcon"])) -
+      retireBrown[,,"Retiring_Cap"]
+    
+    if(grepl("PEGASOS",subtype)) {
+      red_PEGA <- cap_sum[,,"Operating"] +
+        cap_sum[,,"Mothballed"]*0.5 +
+        cap_sum[,,"Announced"] +
+        cap_sum[,,"Pre-permit"] +
+        cap_sum[,,"Permitted"] +
+        cap_sum[,,"Construction"] +
+        cap_sum[,,"Shelved"] -
+        retirePEGA[,,"Retiring_Cap"]
+    }else {
+      red_PEGA <- cap_sum[,,"Operating"] +
+        cap_sum[,,"Mothballed"]*0.5 +
+        cap_sum[,,"Announced"] +
+        cap_sum[,,"Pre-permit"] +
+        cap_sum[,,"Permitted"] +
+        cap_sum[,,"Construction"] +
+        cap_sum[,,"Shelved"] -
+        retireNorm[,,"Retiring_Cap"]
+    }
+    
+    silver_PEGA <- setYears(cap_sum[,,"Operating"],NULL) - retirePEGA
+    lower_gray_PEGA <- setYears(cap_sum[,,"Operating"],NULL) - retire1p5C
+    
+    green_PEGA <- setYears(cap_sum[,,"Operating"],NULL) - retireGreen
+    
+    gold_PEGA <- setYears(cap_sum[,,"Operating"],NULL) - retireGreen
+    
+    bronze_PEGA <- setYears(cap_sum[,,"Operating"],NULL) - retireBrown
+    
+    silver_PEGA[which(silver_PEGA<0)] <- 0
+    cap_green[which(cap_green<0)] <- 0
+    gold_PEGA[which(gold_PEGA<0)] <- 0
+    brown_PEGA[which(brown_PEGA<0)] <- 0
+    
+    getYears(silver_PEGA) <- seq(2025,2070,5)
+    getYears(cap_green) <- seq(2025,2070,5)
+    getYears(gold_PEGA) <- seq(2025,2070,5)
+    getYears(brown_PEGA) <- seq(2025,2070,5)
+    getYears(bronze_PEGA) <- seq(2025,2070,5)
+    getYears(upper_gray_PEGA) <- seq(2025,2070,5)
+    getYears(red_PEGA) <- seq(2025,2070,5)
+    getYears(green_PEGA) <- seq(2025,2070,5)
+    getYears(lower_gray_PEGA) <- seq(2025,2070,5)
+    
+    ### Time Series: Announced and pre-permit projects finish in 2030 ##
+    if (!grepl("2025",subtype)) {
+      brown_PEGA[,2025,] <- brown_PEGA[,2025,] - (cap_sum[,,"Announced"] * comp_rate[,,"ann"] +
+                                                    cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"])
+      
+      cap_green[,2025,] <- cap_green[,2025,] - (cap_sum[,,"Announced"] * comp_rate[,,"ann"] +
+                                                  cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"])
+      
+      upper_gray_PEGA[,2025,] <- upper_gray_PEGA[,2025,] - (cap_sum[,,"Announced"] * comp_rate[,,"ann"] +
+                                                              cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"])
+      
+      red_PEGA[,2025,] <- red_PEGA[,2025,] - (cap_sum[,,"Announced"] * comp_rate[,,"ann"] +
+                                                cap_sum[,,"Pre-permit"] * comp_rate[,,"pre"])
+    }
+    
+    # getNames(silver_PEGA) <- "BAU_can"
+    getNames(cap_green) <- "Green"
+    # getNames(gold_PEGA) <- "Green_can"
+    getNames(brown_PEGA) <- ifelse(grepl("REM",subtype), "Neutral", "Brown")
+    # getNames(bronze_PEGA) <- "Brown_can"
+    getNames(upper_gray_PEGA) <- ifelse(grepl("REM",subtype), "Brown", "upGray")
+    getNames(red_PEGA) <- "Red"
+    getNames(green_PEGA) <- "Green"
+    getNames(lower_gray_PEGA) <- "lowGray"
+    
+    if(grepl("REM",subtype)) {
+      mcap <- mbind(brown_PEGA,upper_gray_PEGA,cap_green)/1000
+      mcap <- mcap[,getYears(mcap)<="y2030",]
+    }else {
+      mcap <- mbind(brown_PEGA,upper_gray_PEGA,red_PEGA,lower_gray_PEGA,cap_green)/1000
+    }
+    
+    # Return Capacity scenarios
+    return(mcap)
+  }
+
   
   # Prepare completion rate data frames
   getNames(comp_rate) <- c("Shelved","Construction","Announced","Pre-permit","Permitted")
@@ -643,8 +957,8 @@ readGCPT <- function(subtype) {
   
   #Calculate committed emissions
   # Select necessary columns from plant-level database
-  emi_data <- retire %>% select(Country,`Plant age`,`Capacity (MW)`,Status,`Heat rate`,`Emission factor`,`Combustion technology`,RETIRED,Year) %>% 
-    filter(Status!="Retired" & Status!="Cancelled" & !is.na(`Capacity (MW)`) & is.na(RETIRED) & !is.na(`Emission factor`)) %>% 
+  emi_data <- retire %>% select(Country,`Plant Age`,`Capacity (MW)`,Status,`Heat rate`,`Emission factor`,`Combustion technology`,RETIRED,Year) %>% 
+    filter(!(Status %in% c("Retired","Cancelled","retired","cancelled")) & !is.na(`Capacity (MW)`) & is.na(RETIRED) & !is.na(`Emission factor`)) %>% 
     left_join(avgRetAge,by="Country") %>% mutate(Brown_Ret_Age=Avg_Ret_Age+5) %>% mutate(Norm_Ret_Age=40)
   
   #Convert Year column to numeric, first handling the special non-numeric cases
@@ -656,32 +970,32 @@ readGCPT <- function(subtype) {
   
   # Set operating plants with an unknown age to 50% of the national average lifespan
   emi_data <- emi_data %>% 
-    mutate(`Plant age`=
-             ifelse(is.na(Year) & Status=="Operating",
+    mutate(`Plant Age`=
+             ifelse(is.na(Year) & Status %in% c("Operating","operating"),
                     0.5 * Avg_Ret_Age,
-                    `Plant age`))
+                    `Plant Age`))
 
-  # emi_data[which(is.na(emi_data$`Plant age`)),] <- emi_data[which(is.na(emi_data$`Plant age`)),] %>% mutate(`Plant age`=Avg_Ret_Age/2)
+  # emi_data[which(is.na(emi_data$`Plant Age`)),] <- emi_data[which(is.na(emi_data$`Plant Age`)),] %>% mutate(`Plant Age`=Avg_Ret_Age/2)
   
   # Set pipeline plants to appropriate ages
   for (Phase in getNames(comp_rate)) {
     
     emi_data <- emi_data %>% 
-      mutate(`Plant age` = 
-               ifelse(Status==Phase & is.finite(Year) & Year >=2020,
+      mutate(`Plant Age` = 
+               ifelse(grepl(Phase,Status,ignore.case=F) & is.finite(Year) & Year >=2020,
                       2020 - Year,
-                      `Plant age`))
+                      `Plant Age`))
     
     meanAge <- emi_data %>% 
-      filter(Status==Phase & is.finite(Year) & Year >=2020) %>% 
-      summarise(age=mean(`Plant age`))
+      filter(grepl(Phase,Status,ignore.case=F) & is.finite(Year) & Year >=2020) %>% 
+      summarise(age=mean(`Plant Age`))
     
-    # emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)] <- 
+    # emi_data$`Plant Age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)] <- 
     #   2020 - emi_data$Year[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)]
     
-    # meanAge <- mean(emi_data$`Plant age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)])
+    # meanAge <- mean(emi_data$`Plant Age`[which(emi_data$Status==Phase & is.finite(emi_data$Year) & emi_data$Year>=2020)])
     
-    emi_data$`Plant age`[which(emi_data$Status==Phase & is.na(emi_data$Year))] <- meanAge$age
+    emi_data$`Plant Age`[which(emi_data$Status==Phase & is.na(emi_data$Year))] <- meanAge$age
   }
   # Read in national average capacity factor assumption for each 5-year time-step
   capFac <- calcOutput("CapacityFactor",aggregate=F)[,seq(2020,2100,5),"pc"]
@@ -690,18 +1004,18 @@ readGCPT <- function(subtype) {
   capFac$Period <- as.numeric(as.character(capFac$Period))
   
   # Assign each coal plant its country's average capacity factor per time-step
-  emi_data <- emi_data %>% left_join(capFac,by="Country") %>% mutate(`Plant age`=`Plant age`+(Period-2020))
+  emi_data <- emi_data %>% left_join(capFac,by="Country") %>% mutate(`Plant Age`=`Plant Age`+(Period-2020))
   
   # Calculate emissions from each plant for each 5-yr timestep in each scenario using GCPT methodology
   # 5 * MW * cf * Btu/kWh * kgCO2/TJ * 9.2427e-12
-  emi_data <- emi_data %>% mutate(green_5yr_emi=ifelse(emi_data$`Plant age`>=0 & (emi_data$`Plant age` < emi_data$Avg_Ret_Age),
+  emi_data <- emi_data %>% mutate(green_5yr_emi=ifelse(emi_data$`Plant Age`>=0 & (emi_data$`Plant Age` < emi_data$Avg_Ret_Age),
                                                        5 * `Capacity (MW)` * Cap_Factor * `Heat rate` * `Emission factor`*9.2427e-12, 0)) %>% 
-    mutate(bau_5yr_emi=ifelse(emi_data$`Plant age`>=0 & (emi_data$`Plant age` < emi_data$Avg_Ret_Age),
+    mutate(bau_5yr_emi=ifelse(emi_data$`Plant Age`>=0 & (emi_data$`Plant Age` < emi_data$Avg_Ret_Age),
                               5 * `Capacity (MW)` * Cap_Factor * `Heat rate` * `Emission factor`*9.2427e-12, 0)) %>%
-    mutate(brown_5yr_emi=ifelse(emi_data$`Plant age`>=0 & (emi_data$`Plant age` < emi_data$Brown_Ret_Age),
+    mutate(brown_5yr_emi=ifelse(emi_data$`Plant Age`>=0 & (emi_data$`Plant Age` < emi_data$Brown_Ret_Age),
                                 5 * `Capacity (MW)` * Cap_Factor * `Heat rate` * `Emission factor`*9.2427e-12, 0)) %>% 
-    mutate(norm_5yr_emi=ifelse(emi_data$`Plant age`>=0 & (emi_data$`Plant age` < emi_data$Norm_Ret_Age),
-                               5 * `Capacity (MW)` * Cap_Factor * `Heat rate` * `Emission factor`*9.2427e-12, 0))
+    mutate(norm_5yr_emi=ifelse(emi_data$`Plant Age`>=0 & (emi_data$`Plant Age` < emi_data$Norm_Ret_Age),
+                               5 * `Capacity (MW)` * 0.53 * `Heat rate` * `Emission factor`*9.2427e-12, 0))
   
   # Calculate total emissions (MtCO2) over the lifespan of plants in operation and development for each scenario
   green_emi <- emi_data %>% group_by(Country,.add=TRUE) %>% group_by(Status,.add=TRUE) %>% summarise(green_emi = sum(green_5yr_emi))
@@ -755,9 +1069,9 @@ readGCPT <- function(subtype) {
   brown_emi <- toolCountryFill(as.magpie(brown_emi),fill=0,verbosity=2)
   norm_emi <- toolCountryFill(as.magpie(norm_emi),fill=0,verbosity=2)
   
-  if (subtype=="emissions") {
+  if (grepl("emissions",subtype)) {
     return(mbind(bau_emi,green_emi,brown_emi,norm_emi))
-  }else if (subtype=="ppca_emi") {
+  }else if (grepl("ppca_emi",subtype)) {
     return(as.magpie(ppca_emi))
   }
 }
