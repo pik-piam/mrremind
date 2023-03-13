@@ -46,10 +46,13 @@ Depends:
 Imports:
     R.utils,
     assertr,
+    broom,
+    car,
     countrycode,
     data.table,
     dplyr,
     ggplot2,
+    Hmisc,
     luscale,
     magrittr,
     plyr,
@@ -65,10 +68,7 @@ Imports:
     zoo
 Suggests: 
     assertthat,
-    broom,
-    car,
     covr,
-    Hmisc,
     knitr,
     mgsub,
     nnls,
