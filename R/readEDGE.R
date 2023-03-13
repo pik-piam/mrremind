@@ -9,7 +9,7 @@
 #' \dontrun{
 #' a <- readSource("EDGE")
 #' }
-#' @author Antoine Levesque, Robin Krekeler
+#' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
@@ -17,7 +17,11 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "1.04"
+  ver <- "1.12"
+  scenarios <- list(
+    SSPs  = paste0("SSP", 1:5),
+    SSP2s = paste0("SSP2", c("EU", "_lowEn", paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")))),
+    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
     do.call("mbind", lapply(addnm, function(item) {
@@ -30,14 +34,12 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       mstationary <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       mstationary[is.na(mstationary)] <- 0
       getSets(mstationary) <- c("region", "year", "scenario", "item")
-      # duplicate: SSP2 -> SSP2EU, SSP2_lowEn and SSP1 -> SDPs
-      mstationarySPP2s <- addDim(
-        mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
-        c("SSP2EU", "SSP2_lowEn"), "scenario", 3.1)
-      mstationarySDPs <- addDim(
-        mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
-        c("SDP", "SDP_EI", "SDP_RC", "SDP_MC"), "scenario", 3.1)
-      mstationary <- mbind(mstationary, mstationarySPP2s, mstationarySDPs)
+      mstationary <- mbind(
+        mstationary,
+        addDim(mselect(mstationary, scenario = "SSP2", collapseNames = TRUE),
+               scenarios$SSP2s, "scenario", 3.1),
+        addDim(mselect(mstationary, scenario = "SSP1", collapseNames = TRUE),
+               scenarios$SDPs, "scenario", 3.1))
       return(mstationary)
     },
     FE_buildings = {
@@ -46,6 +48,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getNames(mbuilding) <- gsub("rcp", "", getNames(mbuilding))
       getNames(mbuilding) <- gsub("NoC", "fixed", getNames(mbuilding))
       getSets(mbuilding) <- c("region", "year", "scenario", "rcp", "item")
+      mbuilding <- mselect(mbuilding, scenario = Reduce(c, scenarios))
       return(mbuilding)
     },
     Capital = {

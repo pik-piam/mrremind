@@ -4,7 +4,11 @@
 \alias{toolSolarFunctionAggregate}
 \title{toolSolarFunctionAggregate}
 \usage{
-toolSolarFunctionAggregate(x, rel = NULL)
+toolSolarFunctionAggregate(
+  x,
+  rel = NULL,
+  weight = calcOutput("FE", aggregate = FALSE)[, "y2015", "FE|Electricity (EJ/yr)"]
+)
 }
 \arguments{
 \item{x}{magclass object that should be aggregated}
@@ -12,6 +16,8 @@ toolSolarFunctionAggregate(x, rel = NULL)
 \item{rel}{relation matrix containing a region mapping.
 A mapping object should contain 2 columns in which each element of x
 is mapped to the category it should belong to after (dis-)aggregation}
+
+\item{weight}{aggregation weight (should be FE|Electricity (EJ/yr) in 2015)}
 }
 \value{
 return: returns region aggregated solar data

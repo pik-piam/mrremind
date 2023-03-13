@@ -11,22 +11,29 @@
 #'
 
 convertBP <- function(x, subtype) {
-  
+
   Region_name <- NULL
   ISO_code <- NULL
   ISO3.code <- NULL
 
   PE <- calcOutput("PE", aggregate = FALSE)
-  
+
   .removeNaRegions <- function(x) {
     remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
     return(x[!remove, , ])
   }
 
+  .removeNaYears <- function(x) {
+    remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 2)
+    return(x[,!remove, ])
+  }
+
+
   # disaggregate regions of x by mapping to iso countries belonging to that regions, but not listed in x (i.e. other countries)
   .disaggregate_regions <- function(x_in, regions) {
 
     x <- .removeNaRegions(x_in)
+    x <- .removeNaYears(x)
 
     # full mapping of regions to iso countries
     mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional")
@@ -36,10 +43,10 @@ convertBP <- function(x, subtype) {
     ctry <- ctry[!is.na(ctry)]
 
     # mapping of regions to iso countries other than in ctry (i.e. other regions)
-    mapping_regions <- mapping_full[mapping_full$Region_name %in% regions & 
+    mapping_regions <- mapping_full[mapping_full$Region_name %in% regions &
                                       !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN", ]
 
-    weight = PE[mapping_regions$ISO3.code, 2016, "PE (EJ/yr)"]
+    weight = PE[mapping_regions$ISO3.code, 2014, "PE (EJ/yr)"]
 
     # disaggregation of other regions to iso countries
     x2 <- toolAggregate(x[regions, , ], rel = mapping_regions, weight = weight)
@@ -50,24 +57,28 @@ convertBP <- function(x, subtype) {
     x1 <- x[regions, , invert = TRUE]
     getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
     x1 <- toolCountryFill(x1, fill = 0, verbosity = 2)
-    x1[is.na(x1)] <- 0
 
     # combine the two objects
     x <- x1 + x2
+    x <- add_columns(x, setdiff(getItems(x_in, dim = 2), getItems(x, dim = 2)), dim = 2)
     return(x)
   }
 
+
   .mergeReg <- function(x, from, to) {
-    x1 <- mbind(
-      new.magpie(to, getYears(x), getNames(x), fill = dimSums(x[from, , ], dim = 1, na.rm = T)),
-      x[from, , invert = T]
-    )
-    return(x1)
+    x1 <- new.magpie(to, getYears(x), getNames(x), fill = NA)
+    for (n in getNames(x)) {
+      tmp <- x[, , n]
+      tmp <- .removeNaYears(tmp)
+      x1[, getItems(tmp, dim = 2), n] <- dimSums(tmp[intersect(getItems(x, dim = 1), from), , ], dim = 1, na.rm = T)
+    }
+
+    return(mbind(x[from, , invert = T], x1))
   }
 
   getItems(x, dim = 1) <- gsub("\\bUS\\b", "USA", getItems(x, dim = 1))
   getItems(x, dim = 1) <- gsub(pattern = "China Hong Kong SAR", "Hong Kong", x = getItems(x, dim = 1))
-  
+
   # for now, we exclude data from Sowjet Union (recorded until 1993)
   x <- x["USSR & Central Europe",,invert = T]
   x <- x["USSR",,invert = T]
@@ -79,13 +90,13 @@ convertBP <- function(x, subtype) {
     x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
     x <- .mergeReg(x, from = c("Eastern Africa", "Middle Africa", "Western Africa", "Other Northern Africa", "Other Southern Africa"), to = "Africa")
     x <- .mergeReg(x, from = c("Other Asia Pacific"), to = "Asia Pacific")
-    
+
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
-    
+
     x <- .disaggregate_regions(x, regions)
 
   }
-  
+
   else if (subtype == "Capacity") {
 
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
@@ -106,7 +117,7 @@ convertBP <- function(x, subtype) {
 
   else if (subtype == "Generation") {
 
-    x <- .mergeReg(x, from = c("Other Africa", "Other Northern Africa", "Other Southern Africa", 
+    x <- .mergeReg(x, from = c("Other Africa", "Other Northern Africa", "Other Southern Africa",
                                "Middle Africa", "Eastern Africa", "Western Africa"), to = "Africa")
     x <- .mergeReg(x, from = c("Other South America", "Other Caribbean", "Central America",
                                "Other S & Cent America"), to = "S & C America")
@@ -114,9 +125,9 @@ convertBP <- function(x, subtype) {
     x <- .mergeReg(x, from = c("Other CIS"), to = "CIS")
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
     x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
-    
+
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
-    
+
     x <- mbind(
       .disaggregate_regions(x[,,"Generation|Wind (TWh)"], regions),
       .disaggregate_regions(x[,,"Generation|Solar (TWh)"], regions),
@@ -129,11 +140,11 @@ convertBP <- function(x, subtype) {
       .disaggregate_regions(x[,,"Generation|Electricity|Oil (TWh)"], regions),
       .disaggregate_regions(x[,,"Generation|Electricity|Coal (TWh)"], regions)
     )
-    
+
   }
 
   else if (subtype == "Production") {
-    
+
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
 
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
@@ -154,7 +165,7 @@ convertBP <- function(x, subtype) {
   else if (subtype == "Consumption") {
 
     regions <- c("Africa", "Asia Pacific", "CIS", "Europe", "Middle East", "S & C America")
-    
+
     x <- .mergeReg(x, from = c("Other Europe"), to = "Europe")
     x <- .mergeReg(x, from = c("Other Middle East"), to = "Middle East")
     x <- .mergeReg(x, from = c("Other Northern Africa", "Other Southern Africa", "Middle Africa", "Eastern Africa", "Western Africa"), to = "Africa")
@@ -172,11 +183,11 @@ convertBP <- function(x, subtype) {
       .disaggregate_regions(x[,,"Wind Consumption (EJ)"], regions),
       .disaggregate_regions(x[,,"Nuclear Consumption (EJ)"], regions),
       .disaggregate_regions(x[,,"Hydro Consumption (EJ)"], regions)
-    )    
+    )
   }
 
   else if (subtype == "Trade Oil") {
-    
+
     getItems(x, dim = 1) <- gsub("S & Cent America", "S & C America", getItems(x, dim = 1))
 
     trade.export.oil <- .removeNaRegions(x[, , "Trade|Export|Oil (kb/d)"])
@@ -313,7 +324,7 @@ convertBP <- function(x, subtype) {
   else {
     stop("Not a valid subtype!")
   }
-  
+
   getSets(x) <- c("region", "year", "data")
 
   return(x)

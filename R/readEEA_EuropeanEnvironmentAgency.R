@@ -3,7 +3,7 @@
 #' Read-in European Environment Agency (EEA) data on ETS emissions as magclass object
 #'
 #'
-#' @param subtype data subtype. Either "ETS", "ESR", "total", "sectoral", or "projections"
+#' @param subtype data subtype. Either "ETS", "ESR", "total", "sectoral", "projections", or "projections-detailed"
 #' @return magpie object of European Environment Agency (EEA) ETS emissions (GtCO2)
 #' @author Renato Rodrigues, Falk Benke
 #' @seealso \code{\link{readSource}}
@@ -12,10 +12,10 @@
 #' a <- readSource(type = "EEA_EuropeanEnvironmentAgency", subtype = "ETS")
 #' }
 #'
-#' @importFrom dplyr left_join select filter mutate
+#' @importFrom dplyr left_join select filter mutate relocate
 #' @importFrom magclass as.magpie
 #' @importFrom quitte calc_addVariable
-#' @importFrom readxl read_excel excel_sheets
+#' @importFrom readxl read_excel excel_sheets read_xlsx
 #' @importFrom reshape2 melt
 #' @importFrom madrat toolCountry2isocode
 
@@ -75,7 +75,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
 
     for (s in sheets) {
       tmp <- suppressMessages(read_excel(path = "GHG_ETS_ES_Projections_by_sector.xlsx", sheet = s, skip = 1, trim_ws = T))
-      tmp <- melt(tmp, id.vars = 1) 
+      tmp <- melt(tmp, id.vars = 1)
       tmp <- mutate(tmp, !!sym("value") := ifelse(is.na(!!sym("value")), 0, !!sym("value"))) # set 0s for NAs
       colnames(tmp) <- c("label", "period", "value")
       tmp <- cbind(tmp[!is.na(tmp$value) & tmp$period %in% timeframe, ], region = s)
@@ -94,7 +94,7 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
           "Emi|GHG|Industry|ESR",
           "Emi|GHG|Agriculture|ESR",
           "Emi|GHG|Waste|ESR"
-        ), 
+        ),
         label=c(
           "Emissions Trading System (stationary installations)",
           "Energy Industries",
@@ -115,108 +115,51 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) {
     historical$label <- NULL
     historical <- historical[, c(1, 4, 2, 3)]
     x <- as.magpie(historical, spatial = 2, datacol = 4, temporal = 3)
-  } 
+  }
   else if (subtype == "projections") {
 
-    mapping.variable <- as.data.frame(
-      cbind(
-        Variable = c(
-          "Emi|GHGtot",
-          "Emi|GHG|ESR",
-          "Emi|GHG|ETS",
-          "Emi|GHG|Supply|ETS",
-          "Emi|GHG|Supply|ESR",
-          "Emi|GHG|Supply|FugitiveEmifromFuels|ETS",
-          "Emi|GHG|Demand|Industry|Energy|ETS",
-          "Emi|GHG|Industrial Processes|ETS",
-          "Emi|GHG|Demand|Industry|Energy|ESR",
-          "Emi|GHG|Demand|Transport|Energy|ESR",
-          "Emi|GHG|Industrial Processes|ESR",
-          "Emi|GHG|Demand|Industry|Energy",
-          "Emi|GHG|Industrial Processes",
-          "Emi|GHG|Agriculture|ESR",
-          "Emi|GHG|Supply|FugitiveEmifromFuels|ESR",
-          "Emi|GHG|Demand|Other Sectors(Residential+X)|ESR",
-          "Emi|GHG|Waste|ESR",
-          "Emi|GHG|Intl aviation in ETS|ETS",
-          "Emi|GHG|Bunkers|Aviation",
-          "Emi|GHG|Bunkers|Navigation",
-          "Emi|GHGtot|w/o LULUCF"
-        ),
-        Category_name = c(
-          "Total w.out LULUCF",
-          "Total w.out LULUCF",
-          "Total w.out LULUCF",
-          "Energy industries",
-          "Energy industries",
-          "Fugitive emissions from fuels",
-          "Manufacturing industries and construction",
-          "Industrial processes",
-          "Manufacturing industries and construction",
-          "Transport",
-          "Industrial processes",
-          "Manufacturing industries and construction",
-          "Industrial processes",
-          "Agriculture",
-          "Fugitive emissions from fuels",
-          "Other sectors",
-          "Waste",
-          "M.Intl. aviation EU ETS",
-          "M.IB.Aviation",
-          "M.IB.Navigation",
-          "Total w.out LULUCF"
-        ),
-        Gas = c(
-          "Total GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total GHGs (ktCO2e)",
-          "Total GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ESR GHGs (ktCO2e)",
-          "Total ETS GHGs (ktCO2e)",
-          "Total GHGs (ktCO2e)",
-          "Total GHGs (ktCO2e)",
-          "Total GHGs (ktCO2e)"
-        )
-      )
-    )
-
-    projections <- read.csv(file = "GHG_projections_2019_EEA.csv", stringsAsFactors = FALSE, strip.white = TRUE) %>%
-      filter(!!sym("CountryCode") != "", !!sym("CountryCode") != "EU", !!sym("Gapfilled") != as.double(0), !is.na(!!sym("Gapfilled"))) %>%
-      select("CountryCode","Year","Category_name","Scenario","Gas","Gapfilled")
-    
-    projections <- left_join(mapping.variable, projections, by = c("Category_name", "Gas")) %>%
-      select("scenario" = "Scenario", "variable" = "Variable", "region" = "CountryCode", "period" = "Year", "value" = "Gapfilled") %>%
-      calc_addVariable(
-        "`Emi|GHG|Industry|ETS`" = "`Emi|GHG|Industrial Processes|ETS` + `Emi|GHG|Demand|Industry|Energy|ETS`",
-        "`Emi|GHG|Industry|ESR`" = "`Emi|GHG|Industrial Processes|ESR` + `Emi|GHG|Demand|Industry|Energy|ESR`",
-        "`Emi|GHG|Industry`" = "`Emi|GHG|Industry|ETS` + `Emi|GHG|Industry|ESR`",
-        completeMissing = T
-      ) %>%
+    projections <- read.csv(file = "GHG_projections/GHG_projections_2021_EEA.csv", stringsAsFactors = FALSE, strip.white = TRUE) %>%
+      filter(!!sym("CountryCode") != "", !!sym("CountryCode") != "EU", !!sym("Final.Gap.filled") != as.double(0), !is.na(!!sym("Final.Gap.filled"))) %>%
+      select("CountryCode", "Year", "Category", "Scenario", "Gas", "Value" = "Final.Gap.filled") %>%
       mutate(
-        !!sym("value") := ifelse(is.na(!!sym("value")), 0, !!sym("value") / 1000),
-        !!sym("scenario") := paste0("EEA_", !!sym("scenario"), "_2019"),
-        !!sym("variable") :=  paste0(!!sym("variable"), " (Mt CO2-equiv/yr)")
-      )
-    
-    projections <- projections[(!(is.na(projections$region))), ]
-    projections <- projections[(!(is.na(projections$period))), ]
+        !!sym("Year") := as.numeric(!!sym("Year")),
+        !!sym("Value") := as.numeric(!!sym("Value"))
+      ) %>%
+      relocate("Scenario", .after = "Year")
 
-    x <- as.magpie(projections, spatial = 3, temporal = 4, datacol = 5)
+    x <- as.magpie(projections, spatial = 1, temporal = 2, datacol = 6)
 
     return(x)
-  } 
+  }
+  else if (subtype == "projections-detailed") {
+
+    files <- list.files(path = "GHG_projections_detailed/2022/")
+
+    projections <- NULL
+    for (file in files) {
+      reg <- gsub("-.*", "", file)
+      projections <- rbind(
+        projections,
+        suppressWarnings(read_xlsx(paste0("GHG_projections_detailed/2022/", file))) %>%
+          select(-"RY", -"InventorySubmissionYear", -"Notation") %>%
+          filter(!is.na(!!sym("Value")), !!sym("Value") != 0) %>%
+          mutate(!!sym("CountryCode") := reg)
+      )
+    }
+
+    projections <- projections %>%
+      mutate(
+        !!sym("Year") := as.numeric(!!sym("Year")),
+        !!sym("Value") := as.numeric(!!sym("Value"))
+      ) %>%
+      select(6,3,2,1,4,5) %>%
+      distinct()
+
+
+    x <- as.magpie(projections, spatial = 1, temporal = 2, datacol = 6)
+
+    return(x)
+  }
   else {
     stop("Not a valid subtype!")
   }

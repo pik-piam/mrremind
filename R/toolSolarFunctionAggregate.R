@@ -6,7 +6,7 @@
 #' @param rel relation matrix containing a region mapping.
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
-#' 
+#' @param weight aggregation weight (should be FE|Electricity (EJ/yr) in 2015)
 #' @return return: returns region aggregated solar data
 #' 
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
@@ -16,14 +16,12 @@
 #' @importFrom dplyr %>% mutate select rename filter left_join group_by ungroup arrange summarise desc 
 #' lag full_join
 #' @importFrom tidyr spread gather complete
-#' @importFrom quitte as.quitte revalue.levels
-#' @importFrom zoo na.approx
+#' @importFrom quitte as.quitte
 #' @importFrom stats weighted.mean
 #' @importFrom utils packageVersion
 
 
-toolSolarFunctionAggregate <- function(x, rel=NULL){
-  
+toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", aggregate = FALSE)[,"y2015","FE|Electricity (EJ/yr)"]){
   
   # old part by Julian Oeser
   
@@ -154,12 +152,9 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   techs <- c("CSP", "PV") # technologies to aggregate
   dist <- "1-100red" # distance class to aggregate
 
-  # get 2015 FE electricity from IEA for iso-countries
-  IEA.FE <- calcOutput("FE")[,"y2015","FE|Electricity (EJ/yr)"]
-
   # reference for grade distinction = 2015 production
   # assign 0.01 EJ/yr as reference for grade distinction to countries with zero 2015 production
-  MaxProd.Norm <- IEA.FE
+  MaxProd.Norm <- toolAggregate(weight, rel)
   MaxProd.Norm[MaxProd.Norm == 0] <- 0.01 
 
   # convert data to quitte format because more convenient for the following operations
@@ -244,8 +239,8 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
     # expand by n.intp equally spaced values between the given maxprod.norm values
     complete(maxprod.norm = seq.between(maxprod.norm, diff, n.intp)) %>% 
     # interpolate maxprod, area, capacity linearly at new data points between given data points
-    mutate(FLH =  na.approx(FLH, na.rm = F), maxprod = na.approx(maxprod, na.rm = F), 
-           area = na.approx(area, na.rm = F), capacity = na.approx(capacity, na.rm = F)) %>% 
+    mutate(FLH =  zoo::na.approx(FLH, na.rm = F), maxprod = zoo::na.approx(maxprod, na.rm = F), 
+           area = zoo::na.approx(area, na.rm = F), capacity = zoo::na.approx(capacity, na.rm = F)) %>% 
     # remove NAs that were appended above FLHs of first data point
     filter( !is.na(FLH))
   
@@ -437,8 +432,8 @@ toolSolarFunctionAggregate <- function(x, rel=NULL){
   
   # relabel dimensions, convert values to fit to desired REMIND input
   df.out <- df.aggregate.grades %>% 
-    revalue.levels(Type = c("area" = "limitGeopot", "FLH" = "nur"),
-                   Technology = c("PV" = "spv", "CSP" = "csp")) %>% 
+    quitte::revalue.levels(Type = c("area" = "limitGeopot", "FLH" = "nur"),
+                           Technology = c("PV" = "spv", "CSP" = "csp")) %>% 
     # convert FLH to capacity factor
     mutate( value = ifelse( Type=="nur", round(value/8760,4), value)) %>% 
     # convert maxprod from GWh to EJ

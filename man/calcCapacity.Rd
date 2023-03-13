@@ -17,10 +17,9 @@ provides historical capacity values in TW
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("Capacity",subtype="capacityByTech")
 }
- 
 }
 \author{
 Renato Rodrigues, Stephen Bi

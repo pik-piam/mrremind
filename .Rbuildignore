@@ -10,3 +10,9 @@ carbon_stored.*
 ^.*\.RData$
 ^.pre-commit-config.yaml$
 ^\.pre-commit-config\.yaml$
+^workflow$
+^.lintr$
+^tests/.lintr$
+^TODO\.txt$
+^Makefile$
+^output$

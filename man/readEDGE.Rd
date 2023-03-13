@@ -27,5 +27,5 @@ a <- readSource("EDGE")
 \code{\link{readSource}}
 }
 \author{
-Antoine Levesque, Robin Krekeler
+Antoine Levesque, Robin Hasse
 }

@@ -1,70 +1,83 @@
-Package: mrremind
 Type: Package
+Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.89.0
-Date: 2021-11-23
-Authors@R: c(person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = c("aut","cre")),
-             person("Renato", "Rodrigues", role = "aut"),
-             person("Antoine", "Levesque", role = "aut"),
-             person("Julian", "Oeser", role = "aut"),
-             person("Christoph", "Bertram", role = "aut"),
-             person("Ioanna", "Mouratiadou", role = "aut"),
-             person("Aman", "Malik", role = "aut"),
-             person("Felix", "Schreyer", role = "aut"),
-             person("Bjoern", "Soergel", role = "aut"),
-             person("Marianna", "Rottoli", role = "aut"),
-             person("Abhijeet", "Mishra", role = "aut"),
-             person("Alois", "Dirnaichner", role = "aut"),
-             person("Michaja", "Pehl", role = "aut"),
-             person("Anastasis", "Giannousakis", role = "aut"),
-             person("David", "Klein", role = "aut"),
-             person("Jessica", "Strefler", role = "aut"),
-             person("Lukas", "Feldhaus", role = "aut"),
-             person("Regina", "Brecha", role = "aut"),
-             person("Sebastian", "Rauner", role = "aut"),
-             person("Jan Philipp", "Dietrich", role = "aut"),
-             person("Stephen", "Bi", role= "aut"),
-             person('Falk', 'Benke', role = 'aut'))
-Description: The mrremind packages contains data preprocessing for the REMIND model.
+Version: 0.156.0
+Date: 2023-03-09
+Authors@R: c(
+    person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
+    person("Renato", "Rodrigues", role = "aut"),
+    person("Antoine", "Levesque", role = "aut"),
+    person("Julian", "Oeser", role = "aut"),
+    person("Christoph", "Bertram", role = "aut"),
+    person("Ioanna", "Mouratiadou", role = "aut"),
+    person("Aman", "Malik", role = "aut"),
+    person("Felix", "Schreyer", role = "aut"),
+    person("Bjoern", "Soergel", role = "aut"),
+    person("Marianna", "Rottoli", role = "aut"),
+    person("Abhijeet", "Mishra", role = "aut"),
+    person("Alois", "Dirnaichner", role = "aut"),
+    person("Michaja", "Pehl", role = "aut"),
+    person("Anastasis", "Giannousakis", role = "aut"),
+    person("David", "Klein", role = "aut"),
+    person("Jessica", "Strefler", role = "aut"),
+    person("Lukas", "Feldhaus", role = "aut"),
+    person("Regina", "Brecha", role = "aut"),
+    person("Sebastian", "Rauner", role = "aut"),
+    person("Jan Philipp", "Dietrich", role = "aut"),
+    person("Stephen", "Bi", role = "aut"),
+    person("Falk", "Benke", role = "aut"),
+    person("Pascal", "Weigmann", role = "aut"),
+    person("Oliver", "Richters", role = "aut"),
+    person("Robin", "Hasse", role = "aut"),
+    person("Sophie", "Fuchs", role = "aut"),
+    person("Rahel", "Mandaroux", role = "aut")
+  )
+Description: The mrremind packages contains data preprocessing for the
+    REMIND model.
+License: LGPL-3 | file LICENSE
+URL: https://github.com/pik-piam/mrremind
 Depends:
-    R(>= 2.10.0),
-    magclass(>= 3.17),
-    madrat(>= 2.5.1),
-    mrcommons(>= 1.0.0)
+    R (>= 2.10.0),
+    madrat (>= 2.5.1),
+    magclass (>= 3.17),
+    mrdrivers (>= 1.0.0),
+    mrcommons (>= 1.26.6),
+    edgeTransport (>= 0.17.0)
 Imports:
+    R.utils,
     assertr,
-    assertthat,
     countrycode,
     data.table,
     dplyr,
-    edgeTransport,
-    gdata,
+    ggplot2,
     luscale,
     magrittr,
-    mgsub,
-    nnls,
-    quitte,
-    readODS,
+    purrr,
+    quitte (>= 0.3105.0),
     readr,
     readxl,
-    reshape,
     reshape2,
     rlang,
-    rmndt,
-    R.utils,
     tibble,
     tidyr,
     tidyselect,
-    zoo,
-License: LGPL-3 | file LICENSE
-LazyData: no
-Encoding: UTF-8
-RoxygenNote: 7.1.2
+    zoo
 Suggests: 
+    assertthat,
+    broom,
+    car,
     covr,
-    ggplot2,
+    Hmisc,
     knitr,
+    mgsub,
+    nnls,
+    readODS,
+    reshape,
     rmarkdown,
-    testthat,
-URL: https://github.com/pik-piam/mrremind
-VignetteBuilder: knitr
+    rmndt,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: no
+RoxygenNote: 7.2.3

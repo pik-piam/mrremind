@@ -9,7 +9,7 @@ convertEEA_EuropeanEnvironmentAgency(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{data subtype. Either "ETS", "historical", or "projections"}
+\item{subtype}{data subtype. Either "ETS", "historical", "projections", or "projections-detailed"}
 }
 \value{
 magpie object of European Environment Agency (EEA) ETS emissions (GtCO2)
@@ -18,10 +18,10 @@ magpie object of European Environment Agency (EEA) ETS emissions (GtCO2)
 Read-in European Environment Agency (EEA) data on ETS emissions as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="EEA_EuropeanEnvironmentAgency",subtype="ETS")
+\dontrun{
+a <- readSource(type = "EEA_EuropeanEnvironmentAgency", subtype = "ETS")
 }
- 
+
 }
 \seealso{
 \code{\link{readSource}}

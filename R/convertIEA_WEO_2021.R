@@ -1,125 +1,131 @@
 #' Disaggregates IEA WEO 2021 Data
 #' @param x MAgPIE object to be converted
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "GLO" or "regional"
+#' @param subtype Either "global" or "region"
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
 
-convertIEA_WEO_2021 <- function(x, subtype = "GLO") {
-  PE <- calcOutput("PE", aggregate = FALSE)
-  if (subtype == "GLO") {
-
+convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
+  pe <- calcOutput("PE", aggregate = FALSE)
+  if (subtype == "global") {
     # for now, we only have complete data on global level
-    x.world <- x["World", , ]
+    xWorld <- x["World", , ]
+
+    # remove all-NA variables
+    remove <- magpply(xWorld, function(y) all(is.na(y)), MARGIN = 3)
+    xWorld <- xWorld[, , !remove]
 
     # to integrate the data in historical.mif, we need to disaggregate to country level
-    # the disaggregation is very unprecise and therefore values below gloabl granularity
+    # the disaggregation is very unprecise and therefore values below global granularity
     # are not reliable
 
-    mapping_world <- tibble(
+    mappingWorld <- tibble(
       regions = "World",
       country = getISOlist()
     )
 
-    weight <- PE[, 2016, "PE (EJ/yr)"]
-    x.world <- toolAggregate(x.world, rel = mapping_world, weight = weight)
-    return(x.world)
-  } 
-  else if (subtype == "regional") {
+    weight <- pe[, 2014, "PE (EJ/yr)"]
+    xWorld <- toolAggregate(xWorld, rel = mappingWorld, weight = weight)
+    return(xWorld)
+  } else if (subtype == "region") {
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
     }
 
-    mapping_full <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional")
+    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional")
 
-    .disaggregate_regions <- function(x_in, regions_in) {
-      x <- .removeNaRegions(x_in)
+    .disaggregateRegions <- function(xIn, regionsIn) {
+      x <- .removeNaRegions(xIn)
 
-      regions <- intersect(regions_in, getItems(x, dim = 1))
+      regions <- intersect(regionsIn, getItems(x, dim = 1))
 
-      # iso countries in x
-      ctry <- toolCountry2isocode(getItems(x, dim = 1), warn = F)
-      ctry <- ctry[!is.na(ctry)]
-
-      # mapping of regions to iso countries other than in ctry (i.e. other regions)
-      mapping_regions <- mapping_full[mapping_full$Region_name %in% regions &
-        !mapping_full$ISO3.code %in% ctry & mapping_full$ISO3.code != "SUN", ]
-
-      weight <- PE[mapping_regions$ISO3.code, 2016, "PE (EJ/yr)"]
-
-      # disaggregation of other regions to iso countries
-      x2 <- toolAggregate(x[regions, , ], rel = mapping_regions, weight = weight)
-      x2 <- toolCountryFill(x2, fill = 0, verbosity = 2)
-      x2[is.na(x2)] <- 0
-
-      # iso countries in x that do not need to be disaggregated
-      x1 <- x[regions, , invert = TRUE]
-
-      if (length(getRegions(x1)) == 0) {
-        return(x2)
+      if (length(regions) == 0) {
+        return(toolCountryFill(x, fill = NA, verbosity = 2))
       }
 
-      getItems(x1, dim = 1) <- toolCountry2isocode(getItems(x1, dim = 1), warn = F)
-      x1 <- toolCountryFill(x1, fill = 0, verbosity = 2)
-      x1[is.na(x1)] <- 0
+      # ISO countries in x and the corresponding mapping
+      ctry <- setdiff(getItems(x, dim = 1), regions)
+      mappingCtry <- mappingFull[mappingFull$ISO3.code %in% ctry &
+        mappingFull$Region_name %in% regions, ]
+
+      # subtract country values in x from region values
+      # e.g. USA from North America, if both are in data
+      xSub <- x[mappingCtry$ISO3.code, , ]
+      getItems(xSub, dim = 1) <- mappingCtry$Region_name
+      x[unique(mappingCtry$Region_name), , ] <- x[unique(mappingCtry$Region_name), , ] - dimSums(xSub, dim = 3)
+
+      # mapping of regions to ISO countries other than in ctry (i.e. other regions)
+      mappingRegions <- mappingFull[mappingFull$Region_name %in% regions &
+        !mappingFull$ISO3.code %in% ctry & mappingFull$ISO3.code != "SUN", ]
+
+      # regions fully covered by country values can be removed
+      coveredRegions <- setdiff(regions, unique(mappingRegions$Region_name))
+
+      if (length(coveredRegions) > 0) {
+        x <- x[coveredRegions, , invert = TRUE]
+        regions <- setdiff(regions, coveredRegions)
+      }
+
+      weight <- pe[mappingRegions$ISO3.code, 2014, "PE (EJ/yr)"]
+
+      # disaggregation of other regions to ISO countries
+      x2 <- toolAggregate(x[regions, , ], rel = mappingRegions, weight = weight)
+
+      # ISO countries in x that do not need to be disaggregated
+      x1 <- x[regions, , invert = TRUE]
+
+      if (length(getItems(x1, dim = 1)) == 0) {
+        return(toolCountryFill(x2, fill = NA, verbosity = 2))
+      }
+
       # combine the two objects
-      x <- x1 + x2
+      x <- mbind(x1, x2)
+      x <- toolCountryFill(x, fill = NA, verbosity = 2)
 
       return(x)
     }
 
-    # exclude all regions we don't want to disaggregate due to reduncancies or lack of accuracy
-    x.reg <- x[c(
+    # exclude all regions we don't want to disaggregate due to redundancies,
+    # low relevance, or lack of accuracy
+    xReg <- x[c(
       "Atlantic Basin", "East of Suez", "NonOPEC", "OPEC", "Japan and Korea",
-      "Southeast Asia", "Other", "European Union", "World"
-    ), , , invert = T]
+      "Southeast Asia", "Other", "European Union", "World",
+      "Advanced economies", "Emerging market and developing economies",
+      "International Energy Agency", "OECD", "Non-OECD",
+      "North Africa", "Sub-Saharan Africa", "Rest of world",
+      "Other Asia Pacific", "Other Europe"
+    ), , , invert = TRUE]
 
-    # remove all-na variables
-    remove <- magpply(x.reg, function(y) all(is.na(y)), MARGIN = 3)
-    x.reg <- x.reg[, , !remove]
+    # remove all-NA variables
+    remove <- magpply(xReg, function(y) all(is.na(y)), MARGIN = 3)
+    xReg <- xReg[, , !remove]
 
-    regions <- c("Africa", "Asia Pacific", "Central and South America", "Europe", "Eurasia", "Middle East", "North America")
+    regions <- c(
+      "Africa", "Asia Pacific", "Central and South America", "Europe",
+      "Eurasia", "Middle East", "North America"
+    )
+    x1 <- xReg[regions, , ]
 
-    x.regional <- new.magpie(getISOlist(), getYears(x.reg), names = NULL)
+    # convert country names to ISO
+    ctry <- toolCountry2isocode(getItems(xReg, dim = 1), warn = FALSE)
+    x2 <- xReg[!is.na(ctry), , ]
+    getItems(x2, dim = 1) <- ctry[!is.na(ctry)]
+    xReg <- mbind(x1, x2)
 
-    for (i in getNames(x.reg)) {
-      j <- x.reg[, , i]
-
+    xRegional <- NULL
+    for (i in getItems(xReg, dim = 3)) {
+      j <- xReg[, , i]
       j <- .removeNaRegions(j)
-
-      if ("United States" %in% getRegions(j) & "North America" %in% getRegions(j)) {
-        j["North America", , ] <- j["North America", , ] - j["United States", , ]
-      }
-
-      if ("Brazil" %in% getRegions(j) & "Central and South America" %in% getRegions(j)) {
-        j["Central and South America", , ] <- j["Central and South America", , ] - j["Brazil", , ]
-      }
-
-      if ("Japan" %in% getRegions(j) & "Asia Pacific" %in% getRegions(j)) {
-        j["Asia Pacific", , ] <- j["Asia Pacific", , ] - j["Japan", , ]
-      }
-
-      if ("India" %in% getRegions(j) & "Asia Pacific" %in% getRegions(j)) {
-        j["Asia Pacific", , ] <- j["Asia Pacific", , ] - j["India", , ]
-      }
-
-      if ("China" %in% getRegions(j) & "Asia Pacific" %in% getRegions(j)) {
-        j["Asia Pacific", , ] <- j["Asia Pacific", , ] - j["China", , ]
-      }
-
-      if ("Russia" %in% getRegions(j) & "Eurasia" %in% getRegions(j)) {
-        j["Eurasia", , ] <- j["Eurasia", , ] - j["Russia", , ]
-      }
-
-      x.regional <- mbind(x.regional, .disaggregate_regions(x_in = j, regions_in = regions))
+      xRegional <- mbind(xRegional, .disaggregateRegions(xIn = j, regionsIn = regions))
     }
 
-    x.regional <- x.regional[, , "dummy", invert = T]
-    return(x.regional)
-  } 
-  else {
-    stop("Not a valid subtype!")
+    non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
+    xRegional[non28EUcountries, , ] <- 0
+
+    return(xRegional)
+  } else {
+    stop("Not a valid subtype! Must be either \"region\" or \"global\"")
   }
 }

@@ -13,10 +13,8 @@ magpie object of the transport subsidies for BEV, FCEV and PHEV (euros/car) for 
 Read-in transport subsidies csv files as magclass object
 }
 \examples{
-
 \dontrun{ a <- readSource(type="TransportSubsidies")
 }
- 
 }
 \seealso{
 \code{\link{readSource}}

@@ -9,7 +9,7 @@ calcFEShares <- function(subtype) {
   
    #---- READ Data -----
   
-  edge_buildings = calcOutput("IO", subtype = "output_EDGE_buildings", aggregate = F)
+  edge_buildings = calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = F)
   output = calcOutput("IO",subtype  = "output", aggregate = F)
   fe_demand = calcOutput("FEdemand", aggregate = F)[,,"gdp_SSP1"]
   fe_demand = collapseNames(fe_demand)

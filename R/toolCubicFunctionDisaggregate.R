@@ -56,7 +56,6 @@
 #' @importFrom magclass is.magpie as.data.frame
 #' @importFrom reshape2 acast
 #' @importFrom stats reshape uniroot
-#' @importFrom nnls nnls
 #' @seealso \code{\link{toolCubicFunctionAggregate}}
 #' @examples
 #' 
@@ -78,6 +77,7 @@
 
 toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xUpperBound=100, returnMagpie=TRUE, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend")){
   
+  rlang::check_installed("nnls")
   data <- x
   
   ### Start of cubicFitDisaggregate function

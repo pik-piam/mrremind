@@ -1,6 +1,7 @@
 #' Calculates the share of distributed solar pv, wind-onshore/offshore, hydro-small/large from 2015 to 2050. For spv - Only includes grid-connected pv.
 #' @details Known limitations - source for distributed spv (IEA Renewables 2019) is different than source for total spv (IRENA 2019)
 #' @param subtype Either "current","expert", or "irena". Current are current shares extended until 2050. expert is based on Robert P.'s judgement, and irena are based on IRENA's 2050 global numbers. Hydro case remains same in all cases
+#' @author Aman Malik
 #' @return magpie object with REMIND-aggregated regions
 
 calcDspvShare <- function(subtype)

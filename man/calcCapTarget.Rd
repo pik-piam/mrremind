@@ -4,18 +4,16 @@
 \alias{calcCapTarget}
 \title{Capacity targets from two sources}
 \usage{
-calcCapTarget(sources, condition)
+calcCapTarget(sources)
 }
 \arguments{
 \item{sources}{Database source}
-
-\item{condition}{if applicable, conditional or unconditional}
 }
 \description{
 The capacity targets (GW)  at regional level are produced from two different databases-
-Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables report
-The Rogelj2017 capacity targets are further broken down to conditional and unconditional targets.
+UNFCCC_NDC database, an update of the Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables report
+The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
 }
 \author{
-Aman Malik
+Aman Malik, Oliver Richters
 }

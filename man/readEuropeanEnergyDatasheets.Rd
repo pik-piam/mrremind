@@ -7,17 +7,22 @@
 European Energy Datasheets public database https://ec.europa.eu/energy/en/data-analysis/energy-statistical-pocketbook
 }
 \usage{
-readEuropeanEnergyDatasheets()
+readEuropeanEnergyDatasheets(subtype)
+}
+\arguments{
+\item{subtype}{data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)}
 }
 \value{
-magpie object of aggregated energy market data by country. Units follow REMIND report conventions and conversion factor is defined in mapping2REMIND.xlsx file.
+magpie object of European Energy Datasheets
 }
 \description{
-Read European Energy Datasheets .xlsx file as magpie object
+Read European Energy Datasheets .xlsx file as magpie object.
 }
 \examples{
-\dontrun{test <- readSource("EuropeanEnergyDatasheets",convert=FALSE)}
+\dontrun{
+test <- readSource("EuropeanEnergyDatasheet", subtype = "EU27", convert = FALSE)
+}
 }
 \author{
-Renato Rodrigues and Atreya Shankar
+Renato Rodrigues, Atreya Shankar, Falk Benke
 }
