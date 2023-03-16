@@ -18,7 +18,7 @@ readUBA <- function() {
   sheets <- tibble(
     sheet = c("THG", "CO2"),
     name = c("Emi|GHG", "Emi|CO2"),
-    range = c("B4:AI50", "B4:AI50"),
+    range = c("B4:AJ54", "B4:AJ54"),
     unit = c("Mt CO2-equiv/yr", "Mt CO2/yr")
   )
 
@@ -26,11 +26,11 @@ readUBA <- function() {
 
   for (i in seq(1:nrow(sheets))) {
     tmp <- read_xlsx(
-      path = "2022_03_15_trendtabellen_thg_nach_sektoren_v1.0.xlsx", sheet = sheets[["sheet"]][[i]], col_names = T,
+      path = "2023_03_15_em_entwicklung_in_d_ksg-sektoren_pm.xlsx", sheet = sheets[["sheet"]][[i]], col_names = T,
       range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
     ) %>% select(-2)
 
-    colnames(tmp) <- c("sektor", seq(1990,2021,1))
+    colnames(tmp) <- c("sektor", seq(1990,2022,1))
 
     tmp <- filter(tmp, !is.na(!!sym("sektor"))) %>%
       mutate(!!sym("sektor") := paste0(sheets[["name"]][[i]], "|", sub("\\d - ", "", !!sym("sektor"))), !!sym("unit") := sheets[["unit"]][[i]])
