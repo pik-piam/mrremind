@@ -4,7 +4,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom quitte inline.data.frame
 #' @importFrom stats na.omit
-#' @param source "IEA", "EDGE_projections", or "IEA_WEO"
+#' @param source "IEA" or "IEA_WEO"
 #' @param scenario_proj "SSP2" by default unless overwritten
 
 
@@ -124,66 +124,6 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     x <- mbind(x, setNames(x[, , "FE|Transport|Liquids (EJ/yr)"]
     + x[, , "FE|Transport|Gases (EJ/yr)"]
       + x[, , "FE|Transport|Electricity (EJ/yr)"], "FE|Transport (EJ/yr)"))
-  } else if (source == "EDGE_projections") {
-    data <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)
-    data <- data[, , paste0("gdp_", scenario_proj)]
-    data <- collapseNames(data)
-
-    map <- inline.data.frame(
-      "names_in; output",
-      "fesob;FE|Buildings|Solids",
-      "fegab;FE|Buildings|Gases",
-      "fehob;FE|Buildings|Liquids",
-      "feheb;FE|Buildings|Heat",
-      "feelb;FE|Buildings|Electricity",
-      # "feh2b;FE|Buildings|Hydrogen",
-
-      "fesoi;FE|Industry|Solids",
-      "fegai;FE|Industry|Gases",
-      "fehoi;FE|Industry|Liquids",
-      "fehei;FE|Industry|Heat",
-      "feeli;FE|Industry|Electricity",
-      "feh2i;FE|Industry|Hydrogen",
-
-      # The transport variables are based on the CES partition, because EDGE projections
-      # are designed for the CES. However, the ESM, on which the FE reporting is based (remind::reportFE)
-      # has a different partition of FE than the ESM. We therefore do not expect a full match
-
-      "ueelTt;FE|Transport|Electricity",
-      "ueHDVt;FE|Transport|Liquids|Petrol", # These variables are summed up below. The exact correspondence is not important
-      "ueLDVt;FE|Transport|Liquids|Diesel" # These variables are summed up below. The exact correspondence is not important
-    )
-
-    # Give description
-    descript <- "EDGE FE projections"
-
-
-    #------ PROCESS DATA ------------------------------------------
-
-    # select data that have names
-    x <- data[, , map$names_in]
-    # rename entries of data to match the reporting names
-    getNames(x) <- paste0(map$output, " (EJ/yr)")
-
-    # add more variables
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE], dim = 3), "FE (EJ/yr)"))
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Electricity", pmatch = TRUE], dim = 3), "FE|Electricity (EJ/yr)"))
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Gases", pmatch = TRUE], dim = 3), "FE|Gases (EJ/yr)"))
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Heat", pmatch = TRUE], dim = 3), "FE|Heat (EJ/yr)"))
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Liquids", pmatch = TRUE], dim = 3), "FE|Liquids (EJ/yr)"))
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Solids", pmatch = TRUE], dim = 3), "FE|Solids (EJ/yr)"))
-    # add stationary
-    x <- mbind(x, setNames(x[, , "FE|Buildings|Electricity (EJ/yr)"] + x[, , "FE|Industry|Electricity (EJ/yr)"], "FE|Stationary|Electricity (EJ/yr)"))
-    x <- mbind(x, setNames(x[, , "FE|Buildings|Gases (EJ/yr)"] + x[, , "FE|Industry|Gases (EJ/yr)"], "FE|Stationary|Gases (EJ/yr)"))
-    x <- mbind(x, setNames(x[, , "FE|Buildings|Heat (EJ/yr)"] + x[, , "FE|Industry|Heat (EJ/yr)"], "FE|Stationary|Heat (EJ/yr)"))
-    x <- mbind(x, setNames(x[, , "FE|Buildings|Liquids (EJ/yr)"] + x[, , "FE|Industry|Liquids (EJ/yr)"], "FE|Stationary|Liquids (EJ/yr)"))
-    x <- mbind(x, setNames(x[, , "FE|Buildings|Solids (EJ/yr)"] + x[, , "FE|Industry|Solids (EJ/yr)"], "FE|Stationary|Solids (EJ/yr)"))
-    # add total for builings
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Buildings", pmatch = TRUE], dim = 3), "FE|Buildings (EJ/yr)"))
-    # add total for industry
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Industry", pmatch = TRUE], dim = 3), "FE|Industry (EJ/yr)"))
-    # add total for transport
-    x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Transport", pmatch = TRUE], dim = 3), "FE|Transport (EJ/yr)"))
   } else if (source == "IEA_WEO") {
     data <- readSource(type = "IEA_WEO", subtype = "FE")
     regions <- toolGetMapping(getConfig()[1], where = "mappingfolder", type = "regional")

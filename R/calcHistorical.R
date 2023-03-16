@@ -21,14 +21,6 @@ calcHistorical <- function() {
   fe_weo <- collapseNames(fe_weo)
   fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
 
-  # Final Energy
-  fe_proj_ssp1 <- calcOutput("FE", source = "EDGE_projections", scenario_proj = "SSP1", aggregate = FALSE)
-  fe_proj_ssp1 <- add_dimension(fe_proj_ssp1, dim = 3.1, add = "model", nm = "EDGE_SSP1")
-  fe_proj_ssp2 <- calcOutput("FE", source = "EDGE_projections", scenario_proj = "SSP2", aggregate = FALSE)
-  fe_proj_ssp2 <- add_dimension(fe_proj_ssp2, dim = 3.1, add = "model", nm = "EDGE_SSP2")
-  fe_proj <- mbind(fe_proj_ssp1, fe_proj_ssp2)
-  fe_proj <- fe_proj[, getYears(fe_proj, T)[which(getYears(fe_proj, T) <= 2100)], ] # get rid of periods after 2100
-
   # Final Energy - Heat Roadmap Europe
   fe_hre <- calcOutput("HRE", aggregate = FALSE)
 
@@ -340,7 +332,7 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n)
 
   varlist <- list(
-    fe_iea, fe_weo, fe_proj, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
+    fe_iea, fe_weo, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
     gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, Ember, eurostat,
     # emiMktES, emiMktETS, emiMktESOthers,
