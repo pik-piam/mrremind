@@ -8,7 +8,7 @@ values from IEA WEO 2019}
 calcFE(source = "IEA", scenario_proj = "SSP2")
 }
 \arguments{
-\item{source}{"IEA", "EDGE_projections", or "IEA_WEO"}
+\item{source}{"IEA" or "IEA_WEO"}
 
 \item{scenario_proj}{"SSP2" by default unless overwritten}
 }
