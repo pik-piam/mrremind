@@ -13,7 +13,6 @@
 #' }
 #'
 #' @importFrom dplyr mutate %>%
-#' @importFrom reshape2 melt
 #' @importFrom readr read_csv
 
 readIRENA <- function(subtype) {
@@ -28,11 +27,12 @@ readIRENA <- function(subtype) {
   }
 
   # data in wide format
-  data <- melt(data,
+  data <- reshape2::melt(data,
     id.vars = c(1, 2),
     variable.name = "years", value.name = "value"
   ) %>%
-    mutate(!!sym("value") := as.numeric(!!sym("value")))
+    mutate(!!sym("value") := as.numeric(!!sym("value"))) %>%
+    suppressWarnings()
 
   # rearrange column order to more readable format: year, country, tech, value (capacity or generation)
   data <- data[, c(3, 1, 2, 4)]
