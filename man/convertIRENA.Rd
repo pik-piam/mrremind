@@ -12,16 +12,17 @@ convertIRENA(x, subtype)
 \item{subtype}{data subtype. Either "Capacity" or "Generation"}
 }
 \value{
-A MAgPIE object containing IRENA country disaggregated data  with historical electricity renewable capacities (MW) or generation levels (GWh)
+A MAgPIE object containing IRENA country disaggregated data  with
+historical electricity renewable capacities (MW) or generation levels (GWh)
 }
 \description{
 Converts IRENA Regional data
 }
 \examples{
-
-\dontrun{ a <- convertIRENA(x,subtype="Capacity")
+\dontrun{
+a <- convertIRENA(x, subtype = "Capacity")
 }
- 
+
 }
 \author{
 Renato Rodrigues
