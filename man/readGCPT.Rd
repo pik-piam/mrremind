@@ -11,7 +11,7 @@ readGCPT(subtype)
 \item{subtype}{Options are status, historical, future, lifespans, comp_rates and emissions}
 }
 \description{
-Historical data of operating, under-construction, planned and announced Coal Plants by country (in MW) 
+Historical data of operating, under-construction, planned and announced Coal Plants by country (in MW)
 from the Global Energy Monitor's Global Coal Plant Tracker, and extrapolations for 2025 capacity scenarios
 }
 \author{

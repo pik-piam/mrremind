@@ -10,24 +10,26 @@
 #' calcOutput("Capacity",subtype="capacityByTech")
 #' }
 calcCapacity <- function(subtype) {
-  
+
+  last_ts <- 2020
+
   if ((subtype == "capacityByTech_windoff") | (subtype == "capacityByTech")) {
-    
+
     if (subtype == "capacityByTech_windoff"){
       description <- "Historical capacity by technology including offshore wind."
-      
+
       # Use IRENA data for world renewables capacity.
       # Year: 2000-2017
       # Technologies: "csp", "geohdr", "hydro", "spv", "wind", "windoff"
       IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
-      
+
       IRENAcap <- IRENAcap[,,c("Concentrated solar power",
                                "Geothermal", "Hydropower",
                                "Solar photovoltaic",
                                "Onshore wind energy",
                                "Offshore wind energy"
       )] # selecting data used on REMIND
-      
+
       mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
                                           "Geothermal",
                                           "Hydropower",
@@ -39,14 +41,14 @@ calcCapacity <- function(subtype) {
     }
       else if (subtype == "capacityByTech"){
         description <- "Historical capacity by technology."
-        
+
         # Use IRENA data for world renewables capacity.
         # Year: 2000-2017
         # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
         IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
         # selecting data used on REMIND
         IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")]
-        
+
         mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
                                           "Geothermal", "Hydropower",
                                           "Solar photovoltaic",
@@ -54,7 +56,7 @@ calcCapacity <- function(subtype) {
                             REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind"),
                             stringsAsFactors = FALSE)
       }
-    
+
     # renaming technologies to REMIND naming convention
     IRENAcap <- luscale::rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to="REMIND_techs")
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
@@ -90,13 +92,13 @@ calcCapacity <- function(subtype) {
     # renaming technologies to REMIND naming convention
     WEOcap <- luscale::rename_dimnames(WEOcap, dim = 3, query = mapping, from = "WEO_techs", to="REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
-    
+
     #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
-    #    Natural gas in China’s power sector: Challenges and the road ahead 
+    #    Natural gas in China’s power sector: Challenges and the road ahead
     #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
     #    >60% gas plants are co-generation, rest are peaking
     #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
-    
+
     CHA.2020.GasData <- as.magpie(
       tribble(
         ~region,   ~year,   ~data,      ~value,
@@ -109,129 +111,101 @@ calcCapacity <- function(subtype) {
         "CHN",     2010,    "ngt",      0.003,
         "CHN",     2015,    "ngt",      0.016,
         "CHN",     2020,    "ngt",      0.026))
-    
+
     # merge IRENA, Openmod and WEO capacities data
     output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap), getRegions(WEOcap), getRegions(CHA.2020.GasData))),
                          years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap), getYears(CHA.2020.GasData))),
                          names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
                          fill=0)
-    
+
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
                                                                                    getYears(IRENAcap),
                                                                                    getNames(IRENAcap)]
-    
+
     output[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),
                                                                                            getYears(Openmodcap),
                                                                                            getNames(Openmodcap)]
     output[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
                                                                            getYears(WEOcap),
                                                                            getNames(WEOcap)]
-    
+
     output[getRegions(CHA.2020.GasData),getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
-    
+
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
-  } 
+  }
   else if (subtype == "capacityByPE") {
     # Pe -> peoil, pegas, pecoal, peur, pegeo, pehyd, pewin, pesol, pebiolc, pebios, pebioil
     description <- "Historical capacity by primary energy."
 
     # Secondary Energy Electricity capacities by primary energy source
+    # Data for non-RE techs from Ember
+    # Except coal, which comes from Global Coal Plant Tracker
 
-    ## Use Openmod capacity values updated by the LIMES team for the European countries.
-    ## Year: 2015
     ## Primary Energies: "peur", "pecoal", "pecoal", "pegas", "pegas", "pehyd",
     ## "pewin", "pewin", "pesol", "pehyd", "pebiolc", "pesol", "peoil"
-    EU_regi <- c("AUT","BEL","BGR","CZE","DEU","DNK","ESP","EST","FIN","FRA","GBR","GRC","HRV","HUN","IRL","ITA",
-                 "LTU","LUX","LVA","NLD","POL","PRT","ROU","SVK","SVN","SWE")
-    Openmodcap <- readSource(type="Openmod")[EU_regi,,] # Read Openmod capacities
-    mapping <- data.frame( Openmod_techs=c("tnr", "pc", "lpc", "ngcc", "ngt", "hydro", "windon", "windoff", "spv",
-                                           "psp", "biolcigcc", "csp", "oil"), #, "waste", "others"
-                           REMIND_PE=c("peur", "pecoal", "pecoal", "pegas", "pegas", "pehyd", "pewin", "pewin",
-                                       "pesol", "pehyd", "pebiolc", "pesol", "peoil"), stringsAsFactors = FALSE)
+    # mapping <- data.frame( Openmod_techs=c("tnr", "pc", "lpc", "ngcc", "ngt", "hydro", "windon", "windoff", "spv",
+    #                                        "psp", "biolcigcc", "csp", "oil"), #, "waste", "others"
+    # REMIND_PE=c("peur", "pecoal", "pecoal", "pegas", "pegas", "pehyd", "pewin", "pewin",
+    #             "pesol", "pehyd", "pebiolc", "pesol", "peoil"), stringsAsFactors = FALSE)
+
+    mapping <- data.frame(ember_techs = c("Biomass", "Coal", "Gas", "Oil", "Hydro", "Nuclear", "Solar", "Wind"),
+                          REMIND_PE=c("pebiolc", "pecoal", "pegas", "peoil", "pehyd", "peur", "pesol", "pewin"), stringsAsFactors = FALSE)
+
+    embercap <- calcOutput("Ember", subtype = "capacity", aggregate = F)
+    embercap <- setNames(embercap,
+                         nm = gsub("Cap|Electricity|", "",
+                                   gsub(" (GW)", "",
+                                        getNames(embercap), fixed = TRUE), fixed = TRUE))
+
     # aggregating primary energies to REMIND naming convention
-    Openmodcap <- toolAggregate(Openmodcap[,,mapping$Openmod_techs], rel=mapping, from="Openmod_techs",
+    embercap <- toolAggregate(embercap[,,mapping$ember_techs], rel=mapping, from="ember_techs",
                                 to="REMIND_PE",dim=3.1)
-    Openmodcap <- Openmodcap * 1E-03 # converting GW to TW
+    embercap <- embercap * 1E-03 # converting GW to TW
 
-    # for now we are only using the Openmod capacities to European countries, non renewables capacities and hydro:
-    # "pecoal", "pegas", "pebiolc", "peoil" (calcCapacityNuclear handles "peur"), "pehyd"
-    Openmodcap <- Openmodcap[,,c("pecoal", "pebiolc", "peoil", "pehyd")] #pegas is handled at technology level
+    embercap <- embercap[,,c("peur", "pebiolc", "pehyd", "pegas")] #pegas is handled at technology level
 
-    ## Use WEO 2017 capacity values to additional countries: "USA","BRA","RUS","CHN","IND","JPN" and regions LAM and OAS
-    ## Year: 2015
-    ## Primary Energies: "peur", "pecoal", "pecoal", "pegas", "pegas", "pehyd", "pewin", "pewin", "pesol", "pehyd",
-    ## "pebiolc", "pesol", "peoil"
+    output <- new.magpie(cells_and_regions=c(getRegions(embercap)), years = seq(2005, last_ts, 5),
+                         names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"), fill=0)
 
-    WEOcap <- readSource(type="IEA_WEO",subtype="Capacity") # Read IEA WEO capacities.
-    # for now we are only using the WEO capacities for pecoal, pebiolc and pegas.
-    WEOcap <- WEOcap[,,c("Coal","Bioenergy","Gas")]
-
-    mapping <- data.frame( WEO_PE=c("Coal", "Oil", "Gas", "Nuclear", "Hydro", "Wind",
-                                    "Geothermal", "Solar PV", "CSP", "Bioenergy"), #, "Marine"
-                           REMIND_PE=c("pecoal", "peoil", "pegas", "peur", "pehyd",
-                                       "pewin", "pegeo", "pesol", "pesol", "pebiolc"),
-                           stringsAsFactors = FALSE)
-    WEOcap <- toolAggregate(WEOcap, rel=mapping[which(mapping$WEO_PE %in% getNames(WEOcap)),], from="WEO_PE",
-                            to="REMIND_PE",dim=3.1) # aggregating primary energies to REMIND naming convention
-    WEOcap <- WEOcap * 1E-03 # converting GW to TW
-
-    # merge Openmod and WEO capacities data
-    out <- new.magpie(cells_and_regions=unique(c(getRegions(Openmodcap),getRegions(WEOcap))),
-                         years = unique(c(getYears(Openmodcap),getYears(WEOcap))),
-                         names = unique(c(getNames(Openmodcap),getNames(WEOcap))),
-                         fill=0)
-    out[getRegions(WEOcap),getYears(WEOcap),getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
-                                                                        getYears(WEOcap),
-                                                                        getNames(WEOcap)]
-    out[getRegions(Openmodcap),getYears(Openmodcap),getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),
-                                                                                        getYears(Openmodcap),
-                                                                                        getNames(Openmodcap)]
-
-    #filtering results -> for now we are only using capacities for all countries for c("pecoal", "pegas", "pebiolc"),
-    # and additionaly for european countries and china for c("pehyd")
-    output <- new.magpie(cells_and_regions=c(getRegions(out)), years = c(2010,2015,2020),
-                         names = c("pecoal","pegas","pebiolc","pehyd"), fill=0)
-    output[,2015,c("pecoal", "pegas", "pebiolc")] <- out[,2015,c("pecoal", "pegas", "pebiolc")]
-    output[EU_regi,2010,c("pecoal", "pegas", "pebiolc")] <- out[EU_regi,2010,c("pecoal", "pegas", "pebiolc")]
-    output[EU_regi,c(2010,2015),c("pecoal", "pegas", "pebiolc","pehyd")] <- out[EU_regi,c(2010,2015),
-                                                                                c("pecoal", "pegas", "pebiolc","pehyd")]
-    output["CHN",2015,"pehyd"] <- 0.319 # WEO data says ~319 GW in 2015
-
-    output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
-
-    output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
 
     # estimating lower bound coal capacity to remaining countries assuming
     # (1) capacity factors are given by REMIND pc capacity factor in 2015,
     # (2) generation is given by IEA 2015 generation values,
     # (3) all 2015 coal capacity is provided by the pc technology.
-    # SB 09.2020 Using new coal capacity data from GCPT
-    #coalGen <- calcOutput("IO",subtype="input",aggregate=FALSE)[,,"pecoal.seel.pc"]
-    #capFac <- calcOutput("CapacityFactor", round=6,aggregate=FALSE)[,,"pc"]
-    #capacity2015 <- coalGen[,2015,]/capFac[,2015,]* 1E-02
-    #emptReg <- getRegions(output)[as.vector(output[,2015,"pecoal"]==0)]
-    #output[emptReg,2015,"pecoal"] <- capacity2015[emptReg,2015,"pecoal.seel.pc"]
+    # SB Use coal capacity data from Global Coal Plant Tracker (GCPT)
 
-    #Global Coal Plant Tracker historical coal capacity data
-    coal_hist <- readSource("GCPT",subtype="historical")
-    coal_hist <- coal_hist[,getYears(coal_hist)>="y2008",]
-    ts <- as.numeric(gsub("y","",getYears(coal_hist)))
-    for (yr in getYears(output)) {
-      yr <- as.numeric(gsub("y","",yr))
-      if ((yr+2) %in% ts) {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+2),],dim=2)/5 * 1e-03
-      }else if ((yr+1) %in% ts) {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+1),],dim=2)/4 * 1e-03
+    # historical coal capacity data
+    coal_hist <- readSource("GCPT",subtype="historical") * 1e-03
+    # coal_hist <- coal_hist[,getYears(coal_hist)>="y2008",]
+
+    # Fill in output with GCPT and Ember data, averaging across each 5 (or 3 or 4) year period
+    ts_coal <- getYears(coal_hist, as.integer = TRUE)
+    ts_ember <- getYears(embercap, as.integer = TRUE)
+
+    for (yr in getYears(output, as.integer = TRUE)) {
+      if ((yr+2) %in% ts_coal) {                      ## Fill in coal separately because data is more recent
+        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+2),],dim=2)/5
+      }else if ((yr+1) %in% ts_coal) {
+        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+1),],dim=2)/4
       }else {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3 * 1e-03
+        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3
+      }
+      if ((yr+2) %in% ts_ember) {
+        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+2),],dim=2)/5
+      }else if ((yr+1) %in% ts_ember) {
+        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+1),],dim=2)/4
+      }else {
+        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):yr,],dim=2)/3
       }
     }
-  } else if (subtype=="coal2025") {
+    output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
+
+  } else if (subtype=="coal_pipeline") {
     output <- readSource("GCPT",subtype="future") * 1e-03
-    description <- "Post-COVID coal power capacity scenarios for 2025"
+    description <- "Coal power project pipeline completion scenarios"
 
   } else {
     stop("Not a valid subtype!")

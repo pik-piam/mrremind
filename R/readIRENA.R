@@ -36,7 +36,12 @@ readIRENA <- function(subtype) {
 
   # rearrange column order to more readable format: year, country, tech, value (capacity or generation)
   data <- data[, c(3, 1, 2, 4)]
+
+  # replacing X by y on years prefix
+  data$years <- gsub("X", "y", data$years)
+
   # creating capacity or generation magpie object
   x <- as.magpie(data, temporal = 1, spatial = 2, datacol = 4)
+
   return(x)
 }
