@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.156.4
-Date: 2023-03-17
+Version: 0.157.0
+Date: 2023-03-20
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -46,10 +46,13 @@ Depends:
 Imports:
     R.utils,
     assertr,
+    broom,
+    car,
     countrycode,
     data.table,
     dplyr,
     ggplot2,
+    Hmisc,
     luscale,
     magrittr,
     plyr,
@@ -65,10 +68,7 @@ Imports:
     zoo
 Suggests: 
     assertthat,
-    broom,
-    car,
     covr,
-    Hmisc,
     knitr,
     mgsub,
     nnls,

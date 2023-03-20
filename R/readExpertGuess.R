@@ -6,6 +6,11 @@
 #' @param subtype Type of data that should be read.  One of
 #'   - `Chinese_Steel_Production`: "Smooth" production estimates by Robert
 #'     Pietzcker (2022).
+#'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
+#'     production in total steel production and years between which a linear
+#'     convergence from historic to target shares is to be applied.
+#'   - `cement_production_convergence_parameters`: convergence year and level
+#'     (relative to global average) to which per-capita cement demand converges
 #'   - Any of the others nobody cared to document.
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
@@ -15,12 +20,14 @@
 #' \dontrun{ a <- readSource(type="ExpertGuess",subtype="ies")
 #' }
 #'
+#' @importFrom dplyr bind_rows filter pull select
 #' @importFrom magrittr %>%
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
+#' @importFrom tidyr expand_grid
 
 readExpertGuess <- function(subtype) {
-  # for easier debugging
+  path <- '~/PIK/swap/inputdata/sources/ExpertGuess/'
   path <- './'
 
   if (subtype == "ies") {
@@ -71,6 +78,28 @@ readExpertGuess <- function(subtype) {
       file = file.path(path, 'industry_max_secondary_steel_share.csv'),
       comment = '#',
       show_col_types = FALSE
+    ) %>%
+      madrat_mule()
+  } else if ('cement_production_convergence_parameters' == subtype) {
+    out <- read_csv(
+      file = file.path(path, 'cement_production_convergence_parameters.csv'),
+      col_types = 'cdi',
+      comment = '#')
+
+    out <- bind_rows(
+      out %>%
+        filter(!is.na(.data$region)),
+
+      out %>%
+        head(n = 1) %>%
+        filter(is.na(.data$region)) %>%
+        select(-'region') %>%
+        expand_grid(region = toolGetMapping(name = 'regionmapping_21_EU11.csv',
+                                            type = 'regional') %>%
+                      pull('RegionCode') %>%
+                      unique() %>%
+                      sort() %>%
+                      setdiff(out$region))
     ) %>%
       madrat_mule()
   }
