@@ -1343,7 +1343,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   )
 
   ## population data ----
-  population <- calcOutput('Population', FiveYearSteps = FALSE,
+  population <- calcOutput('Population', naming = 'scenario',
                            aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
@@ -1356,7 +1356,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = 'GDP', FiveYearSteps = FALSE, aggregate = FALSE) %>%
+  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
+                    aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
