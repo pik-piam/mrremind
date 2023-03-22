@@ -14,7 +14,7 @@ provides capacity factor values
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("CapacityFactor")
 }
 
