@@ -12,7 +12,7 @@
 #' a <- readSource(type = "IRENA", subtype = "Capacity")
 #' }
 #'
-#' @importFrom dplyr mutate %>%
+#' @importFrom dplyr mutate %>% rename
 #' @importFrom readr read_csv
 
 readIRENA <- function(subtype) {
@@ -39,6 +39,10 @@ readIRENA <- function(subtype) {
 
   # replacing X by y on years prefix
   data$years <- gsub("X", "y", data$years)
+
+  # fix name of  "country" column to the value it used to have before 9678353
+  data <- data %>%
+    rename(`Country/area` = 2)
 
   # creating capacity or generation magpie object
   x <- as.magpie(data, temporal = 1, spatial = 2, datacol = 4)
