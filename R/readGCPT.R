@@ -19,9 +19,11 @@ readGCPT <- function(subtype) {
   }
 
   # Data files to be read in
+  status_changes_encoding <- 'UTF-8'
   if (is.null(year)) {
     summary_data <- "GCPT_data_Jan2023.xlsx"
     status_changes <- "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
+    status_changes_encoding <- 'ISO_8859-1'
     plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
     lastCol <- "X"
     sep=";"
@@ -34,6 +36,7 @@ readGCPT <- function(subtype) {
   }else if (grepl('2022',year)) {
     summary_data <- "GCPT_data_Jan2022.xlsx"
     status_changes <- "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
+    status_changes_encoding <- 'ISO_8859-1'
     plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
     lastCol <- "W"
     sep=";"
@@ -48,7 +51,8 @@ readGCPT <- function(subtype) {
     colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
   }
 
-  plant_status <- read.csv(status_changes,sep=sep)
+  plant_status <- read.csv(status_changes, sep = sep,
+                           fileEncoding = status_changes_encoding)
   plant_status <- plant_status %>% select(Country, MW, starts_with("H2"))
   colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
 
