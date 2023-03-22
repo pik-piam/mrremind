@@ -22,32 +22,36 @@ readGCPT <- function(subtype) {
   status_changes_encoding <- 'UTF-8'
   if (is.null(year)) {
     summary_data <- "GCPT_data_Jan2023.xlsx"
-    status_changes <- "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
+    status_changes <-
+      "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
     status_changes_encoding <- 'ISO_8859-1'
     plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
     lastCol <- "X"
-    sep=";"
-  }else if (grepl('2021',year)) {
+    sep = ";"
+  } else if (grepl('2021', year)) {
     summary_data <- "GCPT_data_Jan2021.xlsx"
     status_changes <- "GCPT Status Changes_1Feb2021.csv"
     plant_data <- "January 2021 Global Coal Plant Tracker.xlsx"
     lastCol <- "V"
-    sep=","
-  }else if (grepl('2022',year)) {
+    sep = ","
+  } else if (grepl('2022', year)) {
     summary_data <- "GCPT_data_Jan2022.xlsx"
-    status_changes <- "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
+    status_changes <-
+      "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
     status_changes_encoding <- 'ISO_8859-1'
     plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
     lastCol <- "W"
-    sep=";"
-  }else if (grepl('2020',year)) {
+    sep = ";"
+  } else if (grepl('2020', year)) {
     summary_data <- "GCPT_data_Jul2020.xlsx"
     status_changes <- "GCPT Status Changes H1 2015 to H1 2020.xlsx"
     plant_data <- "July 2020 Global Coal Plant Tracker.xlsx"
     lastCol <- "V"
-    sep=","
-    plant_status <- read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx",sheet=2)
-    plant_status <- plant_status %>% select(Country,MW,Jul20,Jan20,Jan19,Jan18,Jan17,Jan16,Jan15)
+    sep = ","
+    plant_status <-
+      read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx", sheet = 2)
+    plant_status <-
+      plant_status %>% select(Country, MW, Jul20, Jan20, Jan19, Jan18, Jan17, Jan16, Jan15)
     colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
   }
 
