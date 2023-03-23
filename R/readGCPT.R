@@ -24,7 +24,7 @@ readGCPT <- function(subtype) {
     summary_data <- "GCPT_data_Jan2023.xlsx"
     status_changes <-
       "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
-    status_changes_encoding <- 'ANSI'
+    status_changes_encoding <- 'ANSI_X3.4-1986'
     plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
     lastCol <- "X"
     sep = ";"
@@ -40,7 +40,7 @@ readGCPT <- function(subtype) {
     summary_data <- "GCPT_data_Jan2022.xlsx"
     status_changes <-
       "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
-    status_changes_encoding <- 'ANSI'
+    status_changes_encoding <- 'ANSI_X3.4-1986'
     plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
     lastCol <- "W"
     sep = ";"
@@ -61,10 +61,11 @@ readGCPT <- function(subtype) {
 
   plant_status <- read.csv(status_changes, sep = sep,
                            stringsAsFactors = FALSE,
-                           fileEncoding = status_changes_encoding)
+                           encoding = status_changes_encoding)
+
   plant_status <- plant_status %>%
     select(Country, MW, starts_with("H2")) %>%
-    mutate(across(where(is.character), ~enc2utf8(.)))
+    mutate(across(where(is.character), ~iconv(., from = "", to = "UTF-8")))
 
   colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
 
