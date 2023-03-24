@@ -11,8 +11,6 @@
 #' }
 calcCapacity <- function(subtype) {
 
-  last_ts <- 2020
-
   if ((subtype == "capacityByTech_windoff") | (subtype == "capacityByTech")) {
 
     if (subtype == "capacityByTech_windoff"){
@@ -135,7 +133,7 @@ calcCapacity <- function(subtype) {
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
 
   }
-  else if (subtype == "capacityByPE") {
+  else if (grepl("capacityByPE", subtype)) {
     # Pe -> peoil, pegas, pecoal, peur, pegeo, pehyd, pewin, pesol, pebiolc, pebios, pebioil
     description <- "Historical capacity by primary energy."
 
@@ -164,12 +162,7 @@ calcCapacity <- function(subtype) {
                                 to="REMIND_PE",dim=3.1)
     embercap <- embercap * 1E-03 # converting GW to TW
 
-    embercap <- embercap[,,c("peur", "pebiolc", "pehyd", "pegas")] #pegas is handled at technology level
-
-    output <- new.magpie(cells_and_regions=c(getRegions(embercap)), years = seq(2005, last_ts, 5),
-                         names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"), fill=0)
-
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    embercap <- embercap[,,c("peur", "pegas", "pebiolc", "pehyd")] #pegas is handled at technology level
 
     # estimating lower bound coal capacity to remaining countries assuming
     # (1) capacity factors are given by REMIND pc capacity factor in 2015,
@@ -179,31 +172,54 @@ calcCapacity <- function(subtype) {
 
     # historical coal capacity data
     coal_hist <- readSource("GCPT",subtype="historical") * 1e-03
-    # coal_hist <- coal_hist[,getYears(coal_hist)>="y2008",]
+    coal_hist <- setNames(coal_hist, nm = "pecoal")
 
-    # Fill in output with GCPT and Ember data, averaging across each 5 (or 3 or 4) year period
-    ts_coal <- getYears(coal_hist, as.integer = TRUE)
-    ts_ember <- getYears(embercap, as.integer = TRUE)
+    if (grepl("annual", subtype)) {
+      output <- new.magpie(cells_and_regions=c(getRegions(embercap)),
+                           years = c(min(c(getYears(embercap, as.integer = T), getYears(coal_hist, as.integer = T)))
+                                     : max(c(getYears(embercap, as.integer = T), getYears(coal_hist, as.integer = T)))),
+                           names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"),
+                           fill=0)
 
-    for (yr in getYears(output, as.integer = TRUE)) {
-      if ((yr+2) %in% ts_coal) {                      ## Fill in coal separately because data is more recent
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+2),],dim=2)/5
-      }else if ((yr+1) %in% ts_coal) {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+1),],dim=2)/4
-      }else {
-        output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3
-      }
-      if ((yr+2) %in% ts_ember) {
-        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+2),],dim=2)/5
-      }else if ((yr+1) %in% ts_ember) {
-        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+1),],dim=2)/4
-      }else {
-        output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):yr,],dim=2)/3
+      output[, intersect(getYears(coal_hist), getYears(output)), "pecoal"] <- coal_hist[, intersect(getYears(coal_hist), getYears(output)),]
+
+      output[, intersect(getYears(embercap), getYears(output)), getItems(output, dim = 3) != "pecoal"] <- embercap[, intersect(getYears(embercap), getYears(output)),]
+
+    }else {
+      last_ts <- max(intersect(getYears(coal_hist, as.integer = TRUE), seq(2010, 2050, 5)))
+
+      coal_hist <- setNames(coal_hist[,getYears(coal_hist)>="y2007",], nm = "pecoal")
+
+      output <- new.magpie(cells_and_regions=c(getRegions(embercap)), years = seq(2010, last_ts, 5),
+                           names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"), fill=0)
+
+      # Fill in output with GCPT and Ember data, averaging across each 5 (or 3 or 4) year period
+      ts_coal <- getYears(coal_hist, as.integer = TRUE)
+      ts_ember <- getYears(embercap, as.integer = TRUE)
+
+      for (yr in getYears(output, as.integer = TRUE)) {
+        if ((yr+2) %in% ts_coal) {                      ## Fill in coal separately because data is more recent
+          output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+2),],dim=2)/5
+        }else if ((yr+1) %in% ts_coal) {
+          output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):(yr+1),],dim=2)/4
+        }else {
+          output[,yr,"pecoal"] <- dimSums(coal_hist[,(yr-2):yr,],dim=2)/3
+        }
+        if ((yr+2) %in% ts_ember) {
+          output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+2),],dim=2)/5
+        }else if ((yr+1) %in% ts_ember) {
+          output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):(yr+1),],dim=2)/4
+        }else {
+          output[,yr,getItems(output,dim=3)!='pecoal'] <- dimSums(embercap[,(yr-2):yr,],dim=2)/3
+        }
       }
     }
+
+    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+
     output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
 
-  } else if (subtype=="coal_pipeline") {
+  } else if (subtype=="coalPlantTraj") {
     output <- readSource("GCPT",subtype="future") * 1e-03
     description <- "Coal power project pipeline completion scenarios"
 

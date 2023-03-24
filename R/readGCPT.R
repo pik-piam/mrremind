@@ -24,24 +24,27 @@ readGCPT <- function(subtype) {
     summary_data <- "GCPT_data_Jan2023.xlsx"
     status_changes <-
       "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
-    status_changes_encoding <- 'ISO_8859-1'
+    status_changes_encoding <- 'ANSI_X3.4-1986'
     plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
     lastCol <- "X"
     sep = ";"
+    latest_col <- 3
   } else if (grepl('2021', year)) {
     summary_data <- "GCPT_data_Jan2021.xlsx"
     status_changes <- "GCPT Status Changes_1Feb2021.csv"
     plant_data <- "January 2021 Global Coal Plant Tracker.xlsx"
     lastCol <- "V"
     sep = ","
+    latest_col <- 3
   } else if (grepl('2022', year)) {
     summary_data <- "GCPT_data_Jan2022.xlsx"
     status_changes <-
       "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
-    status_changes_encoding <- 'ISO_8859-1'
+    status_changes_encoding <- 'ANSI_X3.4-1986'
     plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
     lastCol <- "W"
     sep = ";"
+    latest_col <- 3
   } else if (grepl('2020', year)) {
     summary_data <- "GCPT_data_Jul2020.xlsx"
     status_changes <- "GCPT Status Changes H1 2015 to H1 2020.xlsx"
@@ -53,11 +56,18 @@ readGCPT <- function(subtype) {
     plant_status <-
       plant_status %>% select(Country, MW, Jul20, Jan20, Jan19, Jan18, Jan17, Jan16, Jan15)
     colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
+    latest_col <- 3
   }
 
   plant_status <- read.csv(status_changes, sep = sep,
-                           fileEncoding = status_changes_encoding)
-  plant_status <- plant_status %>% select(Country, MW, starts_with("H2"))
+                           stringsAsFactors = FALSE)
+
+  plant_status <- plant_status %>%
+    select(Country, MW, starts_with("H2")) %>%
+    # mutate(across(where(is.character), ~iconv(., from = status_changes_encoding, to = "UTF-8"))) %>%
+    mutate(Country = ifelse(grepl("rkiye", Country), "Turkey", Country),
+           Country = ifelse(grepl("Ivoire", Country), "Cote d'Ivoire", Country))
+
   colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
 
   present_year <- as.numeric(substr(summary_data,nchar(summary_data)-8,nchar(summary_data)-5))
@@ -243,7 +253,7 @@ readGCPT <- function(subtype) {
   #Plant-level data detailing capacities, commissioning and retirement dates, location and more.
   retire <- suppressWarnings(read_excel(plant_data,sheet=2))
   retire$`Capacity (MW)` <- as.numeric(retire$`Capacity (MW)`)
-  retire$`Planned Retire` <- as.numeric(retire$`Planned Retire`)
+  retire$`Planned Retire` <- suppressWarnings(as.numeric(retire$`Planned Retire`))
   retire$Country <- toolCountry2isocode(mapping = c("DR Congo" = "COD"), country = retire$Country)
   retire <- retire[-which(retire$Country=="KOS"),]
   if (present_year!=2020) {
@@ -387,8 +397,6 @@ readGCPT <- function(subtype) {
                      con2oper=0,con2she2she=0,plan2she=0,ann=0,ann2oper=0,ann2can=0,ann2she=0,ann2con=0,pre=0,pre2oper=0,pre2can=0,perm=0,
                      perm2oper=0,perm2can=0,moth=0,moth2ret=0,moth2oper=0)
 
-  latest_col <- 3
-
   for (i in 1:nrow(plant_status)) {
     j <- ncol(plant_status)
     if (plant_status[i,j]=="XXX") {
@@ -396,7 +404,7 @@ readGCPT <- function(subtype) {
     }
     while (j > latest_col) {
       if (grepl("She",plant_status[i,j])) {
-        if (j==ncol(plant_status) || !grepl("She",plant_status[i,j:ncol(plant_status)])) {
+        if (j==ncol(plant_status) || !any(grepl("She",plant_status[i,j:ncol(plant_status)]))) {
           tran$shelved[which(tran$Country==plant_status$Country[i])] <- tran$shelved[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Can",plant_status[i,latest_col])) {
             tran$she2can[which(tran$Country==plant_status$Country[i])]<- tran$she2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
@@ -415,7 +423,7 @@ readGCPT <- function(subtype) {
           }
         }
       }else if (grepl("Con",plant_status[i,j])) {
-        if (j==ncol(plant_status)  || !grepl("Con",plant_status[i,(j+1):ncol(plant_status)])) {
+        if (j==ncol(plant_status)  || !any(grepl("Con",plant_status[i,(j+1):ncol(plant_status)]))) {
           tran$newcon[which(tran$Country==plant_status$Country[i])] <- tran$newcon[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Can",plant_status[i,latest_col])) {
             tran$con2can[which(tran$Country==plant_status$Country[i])] <- tran$con2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
@@ -428,7 +436,7 @@ readGCPT <- function(subtype) {
           }
         }
       }else if (grepl("Ann",plant_status[i,j])) {
-        if (j==ncol(plant_status)  || !grepl("Ann",plant_status[i,(j+1):ncol(plant_status)])) {
+        if (j==ncol(plant_status)  || !any(grepl("Ann",plant_status[i,(j+1):ncol(plant_status)]))) {
           tran$ann[which(tran$Country==plant_status$Country[i])] <- tran$ann[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Can",plant_status[i,latest_col])) {
             tran$ann2can[which(tran$Country==plant_status$Country[i])] <- tran$ann2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
@@ -441,7 +449,7 @@ readGCPT <- function(subtype) {
           }
         }
       }else if (grepl("Pre",plant_status[i,j])) {
-        if (j==ncol(plant_status)  || !grepl("Pre",plant_status[i,(j+1):ncol(plant_status)])) {
+        if (j==ncol(plant_status)  || !any(grepl("Pre",plant_status[i,(j+1):ncol(plant_status)]))) {
           tran$pre[which(tran$Country==plant_status$Country[i])] <- tran$pre[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Can",plant_status[i,latest_col])) {
             tran$pre2can[which(tran$Country==plant_status$Country[i])] <- tran$pre2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
@@ -454,7 +462,7 @@ readGCPT <- function(subtype) {
           }
         }
       }else if (grepl("Perm",plant_status[i,j])) {
-        if (j==ncol(plant_status)  || !grepl("Perm",plant_status[i,(j+1):ncol(plant_status)])) {
+        if (j==ncol(plant_status)  || !any(grepl("Perm",plant_status[i,(j+1):ncol(plant_status)]))) {
           tran$perm[which(tran$Country==plant_status$Country[i])] <- tran$perm[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Can",plant_status[i,latest_col])) {
             tran$perm2can[which(tran$Country==plant_status$Country[i])] <- tran$perm2can[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
@@ -467,7 +475,7 @@ readGCPT <- function(subtype) {
           }
         }
       }else if (grepl("Moth",plant_status[i,j])) {
-        if (j==ncol(plant_status)  || !grepl("Moth",plant_status[i,(j+1):ncol(plant_status)])) {
+        if (j==ncol(plant_status)  || !any(grepl("Moth",plant_status[i,(j+1):ncol(plant_status)]))) {
           tran$moth[which(tran$Country==plant_status$Country[i])] <- tran$moth[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
           if (grepl("Ret",plant_status[i,latest_col])) {
             tran$moth2ret[which(tran$Country==plant_status$Country[i])] <- tran$moth2ret[which(tran$Country==plant_status$Country[i])] + plant_status$MW[i]
