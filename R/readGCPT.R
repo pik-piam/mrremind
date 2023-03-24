@@ -60,13 +60,13 @@ readGCPT <- function(subtype) {
   }
 
   plant_status <- read.csv(status_changes, sep = sep,
-                           stringsAsFactors = FALSE,
-                           encoding = status_changes_encoding)
+                           stringsAsFactors = FALSE)
 
   plant_status <- plant_status %>%
     select(Country, MW, starts_with("H2")) %>%
-    mutate(across(where(is.character), ~iconv(., from = status_changes_encoding, to = "UTF-8"))) %>%
-    mutate(Country = ifelse(Country=="T|rkiye", "Turkey", Country))
+    # mutate(across(where(is.character), ~iconv(., from = status_changes_encoding, to = "UTF-8"))) %>%
+    mutate(Country = ifelse(grepl("rkiye", Country), "Turkey", Country),
+           Country = ifelse(grepl("Ivoire", Country), "Cote d'Ivoire", Country))
 
   colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.","",colnames(plant_status)[3:ncol(plant_status)]))
 
