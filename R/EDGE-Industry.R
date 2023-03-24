@@ -890,10 +890,15 @@ calcSteel_Projections <- function(subtype = 'production',
       complete(nesting(!!sym('scenario')),
                iso3c = unique(production_estimates$iso3c),
                year = unique(production_estimates$year)) %>%
-      mutate(value = case_when(
-        max(steel_historic_prod$year) >= .data$year ~ 1,
-        is.na(.data$value) ~ last(na.omit(.data$value)),
-        TRUE ~ .data$value)) %>%
+      group_by(.data$scenario, .data$iso3c) %>%
+      mutate(
+        value = case_when(
+          max(steel_historic_prod$year) >= .data$year ~ 1,
+          TRUE ~ .data$value),
+        value = case_when(
+          is.na(.data$value) ~ last(na.omit(.data$value)),
+          TRUE ~ .data$value)) %>%
+      ungroup() %>%
       left_join(production_estimates, c('scenario', 'iso3c', 'year')) %>%
       mutate(production = .data$production * .data$value) %>%
       select(-'value')
