@@ -1533,7 +1533,7 @@ calcFEdemand <- function(subtype = "FE") {
 
         c('scenario', 'year', 'region', 'pf', 'subsector')
       ) %>%
-        mutate(foo = pmin(1, pmax(0, (.data$year - 2020) / (2100 - 2020))),
+        mutate(foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
                share = .data$share.hist * (1 - .data$foo)
                + .data$share.future * .data$foo,
                subsector = ifelse('steel' == .data$subsector,
