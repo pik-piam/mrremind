@@ -1,5 +1,8 @@
 #' generate F-Gases based on IMAGE data
 #'
+#' @param subtype "interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
+#' scenarios. Any other subtype will ignore this step.
+#'
 #' @return magpie object with F-gases information
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
@@ -9,7 +12,7 @@
 #' }
 #' @importFrom magclass getNames<- getSets clean_magpie
 
-calcFGas <- function() {
+calcFGas <- function(subtype = "interpolate2025") {
   # read in IMAGE data
   x <- readSource("IMAGE")
   # make the dimension needed for REMIND
@@ -85,7 +88,34 @@ calcFGas <- function() {
   getNames(x_20) <- gsub("rcp26", "rcp20", getNames(x_20))
   x <- mbind(x, x_20)
 
-  return(list(x           = x,
+  # If we're not doing anything else, the output is just x
+  outx <- x
+
+  if (subtype == "interpolate2025") {
+    # Read EDGAR7 F-gas emissions, already matching the standard used here
+    edgar_all <- readSource("EDGAR7Fgases")
+    getSets(edgar_all)[3] <- "Variable"
+
+    # Years to interpolate the scenarios to
+    scenyears <- getYears(x, as.integer=T)
+
+    # Extrapolate 2025 with the 2010-2020 average growth
+    edgar2025 <- setYears(edgar_all[,2020,] + 0.5*(edgar_all[,2020,] - edgar_all[,2010,]), 2025)
+
+    # Basis for interpolation
+    xpts <- x[,c(scenyears[scenyears <= 2025 | scenyears >= 2050]),]
+
+    # Fill the years for which we do have EDGAR data with it, and 2025
+    commonyears <- intersect(getYears(edgar_all),getYears(xpts))
+    xpts[,commonyears,]  <- edgar_all[,commonyears,]
+    xpts[,2025,]  <- edgar2025[,2025,]
+
+    # Interpolate the years between 2025 and 2050, which
+    # are the only ones not in xpts
+    outx <- toolFillYears(xpts, scenyears)
+  }
+
+  return(list(x           = outx,
               weight      = NULL,
               unit        = "Mt CO2-equiv/yr, kt HFC134a-equiv/yr, kt HFC125/yr, kt HFC134a/yr, kt HFC143a/yr, kt HFC227ea/yr, kt HFC23/yr, kt HFC245fa/yr, kt HFC32/yr, kt HFC43-10/yr, kt CF4-equiv/yr, kt SF6/yr, kt C2F6/yr, kt C6F14/yr, kt CF4/yr",
               description = "F-gases from IMAGE"))
