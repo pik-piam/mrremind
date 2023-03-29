@@ -113,31 +113,6 @@ calcFGas <- function(subtype = "interpolate2025") {
     # Interpolate the years between 2025 and 2050, which
     # are the only ones not in xpts
     outx <- toolFillYears(xpts, scenyears)
-
-
-    # xpts["USA",c(2020,2025,2050),"forcing_SSP2.rcp37.SPAx.emiFgasTotal"]
-    # outx["USA",c(2020,2025,2035,2050),"forcing_SSP2.rcp37.SPAx.emiFgasTotal"]
-
-    # getYears(xpts)
-
-    # xpts["USA",2020,"emiFgasTotal"]
-    # xpts["USA",2025,"emiFgasTotal"]
-
-    # getItems(edgar_all,3)
-    # getItems(xpts,3.4)
-
-    # setdiff(getItems(edgar_all,3),getItems(xpts,3.4))
-
-    # getYears(xpts)
-
-    # getSets(edgar_all)
-    # getSets(x)
-
-    # poi <- toolFillYears(edgar_all[,c(2005,2020),],scenyears)
-
-    # edgar_all["USA",c(2005,2020),"emiFgasTotal"]
-    # poi["USA",c(2005,2010,2020),"emiFgasTotal"]
-  
   }
 
   return(list(x           = outx,
