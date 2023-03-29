@@ -5,9 +5,9 @@
 \alias{calcODYM_RECC}
 \title{Read ODYM_RECC data from the SHAPE Project}
 \usage{
-readODYM_RECC(subtype)
+readODYM_RECC(subtype, smooth = TRUE)
 
-calcODYM_RECC(subtype)
+calcODYM_RECC(subtype, smooth = TRUE)
 }
 \arguments{
 \item{subtype}{One of
@@ -17,6 +17,8 @@ subsectors \code{cement}, \code{chemicals}, \code{steel_primary}, \code{steel_se
 and \code{otherInd}.  Trends for \code{chemicals} and \code{otherInd} are averages of
 the other three trends, which are provided by NTNU.
 }}
+
+\item{smooth}{Smooth REMIND_industry_trends (default) or not.}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
