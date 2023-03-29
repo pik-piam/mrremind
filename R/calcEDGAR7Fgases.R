@@ -1,6 +1,5 @@
 #' @title calcEDGAR7Fgases
 #' @author Gabriel Abrahao
-#' @param x  magpie object to be converted
 #'
 #' @export
 
