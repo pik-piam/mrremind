@@ -1,5 +1,8 @@
 #' generate F-Gases based on IMAGE data
 #'
+#' @param subtype "interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
+#' scenarios. Any other subtype will ignore this step.
+#'
 #' @return magpie object with F-gases information
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
