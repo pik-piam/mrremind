@@ -2,7 +2,6 @@
 #' @author Gabriel Abrahao
 #' @param x  magpie object to be converted
 #'
-#' @importFrom stringr str_remove
 #' @export
 
 convertEDGAR7Fgases <- function(x) {
