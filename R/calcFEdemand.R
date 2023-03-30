@@ -406,8 +406,8 @@ calcFEdemand <- function(subtype = "FE") {
                                       name = 'regionmappingH12.csv') %>%
         select(country = 'X', iso3c = 'CountryCode', region = 'RegionCode')
 
-      historic_trend <- c(2004, 2015)
-      phasein_period <- c(2015, 2050)
+      historic_trend <- c(2004, 2020)
+      phasein_period <- c(2020, 2050)   # FIXME: extend to 2055 to keep 35 yrs?
       phasein_time   <- phasein_period[2] - phasein_period[1]
 
       dataInd <- bind_rows(
@@ -1175,7 +1175,7 @@ calcFEdemand <- function(subtype = "FE") {
         as.magpie(spatial = 1, temporal = 2, data = ncol(.))
 
       ## subsector FE shares ----
-      ### get 1993-2015 industry FE ----
+      ### get 1993-2020 industry FE ----
       industry_subsectors_en <- calcOutput(
         type = 'IO', subtype = 'output_Industry_subsectors',
         aggregate = FALSE
@@ -1187,9 +1187,9 @@ calcFEdemand <- function(subtype = "FE") {
                value = 'Value') %>%
         quitte::character.data.frame() %>%
         mutate(year = as.integer(as.character(.data$year))) %>%
-        # get 1993-2015 industry FE data
+        # get 1993-2020 industry FE data
         filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', .data$pf),
-               dplyr::between(.data$year, 1993, 2015)) %>%
+               dplyr::between(.data$year, 1993, 2020)) %>%
         # sum up fossil and bio SE (which produce the same FE), aggregate
         # regions
         full_join(region_mapping_21, 'iso3c') %>%
@@ -1738,7 +1738,7 @@ calcFEdemand <- function(subtype = "FE") {
 
           'subsector'
         ) %>%
-        filter(2015 < .data$year,
+        filter(2020 < .data$year,
                !is.na(.data$limit),
                .data$specific.energy < .data$limit) %>%
         select('scenario', 'region', 'subsector', 'year')
@@ -1794,12 +1794,12 @@ calcFEdemand <- function(subtype = "FE") {
           specific.energy = ifelse(
             'absolute' == .data$type,
             ( (.data$specific.energy - .data$limit)
-              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2020))
             )
             + .data$limit,
 
             ( .data$specific.energy * (1 - .data$limit)
-              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2015))
+              * pmin(1, (1 - .data$alpha) ^ (.data$year - 2020))
             )
             + (.data$specific.energy * .data$limit))) %>%
         ungroup() %>%
@@ -1838,8 +1838,8 @@ calcFEdemand <- function(subtype = "FE") {
         c('scenario', 'year', 'subsector', 'pf')
       ) %>%
         mutate(
-          # converge from 2015 to 2100
-          foo = pmin(1, pmax(0, (.data$year - 2015) / (2100 - 2015))),
+          # converge from 2020 to 2100
+          foo = pmin(1, pmax(0, (.data$year - 2020) / (2100 - 2020))),
           share = (1 - .data$foo) * .data$share
           # use minimum of regional and global share, so regions doing
           # better than the average don't regress
