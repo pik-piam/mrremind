@@ -16,3 +16,4 @@ carbon_stored.*
 ^TODO\.txt$
 ^Makefile$
 ^output$
+^.*CITATION.cff$

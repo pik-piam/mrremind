@@ -1,0 +1,66 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: 'mrremind: MadRat REMIND Input Data Package'
+version: 0.159.2
+date-released: '2023-04-05'
+abstract: The mrremind packages contains data preprocessing for the REMIND model.
+authors:
+- family-names: Baumstark
+  given-names: Lavinia
+  email: lavinia@pik-potsdam.de
+- family-names: Rodrigues
+  given-names: Renato
+- family-names: Levesque
+  given-names: Antoine
+- family-names: Oeser
+  given-names: Julian
+- family-names: Bertram
+  given-names: Christoph
+- family-names: Mouratiadou
+  given-names: Ioanna
+- family-names: Malik
+  given-names: Aman
+- family-names: Schreyer
+  given-names: Felix
+- family-names: Soergel
+  given-names: Bjoern
+- family-names: Rottoli
+  given-names: Marianna
+- family-names: Mishra
+  given-names: Abhijeet
+- family-names: Dirnaichner
+  given-names: Alois
+- family-names: Pehl
+  given-names: Michaja
+- family-names: Giannousakis
+  given-names: Anastasis
+- family-names: Klein
+  given-names: David
+- family-names: Strefler
+  given-names: Jessica
+- family-names: Feldhaus
+  given-names: Lukas
+- family-names: Brecha
+  given-names: Regina
+- family-names: Rauner
+  given-names: Sebastian
+- family-names: Dietrich
+  given-names: Jan Philipp
+- family-names: Bi
+  given-names: Stephen
+- family-names: Benke
+  given-names: Falk
+- family-names: Weigmann
+  given-names: Pascal
+- family-names: Richters
+  given-names: Oliver
+- family-names: Hasse
+  given-names: Robin
+- family-names: Fuchs
+  given-names: Sophie
+- family-names: Mandaroux
+  given-names: Rahel
+license: LGPL-3.0
+repository-code: https://github.com/pik-piam/mrremind
+

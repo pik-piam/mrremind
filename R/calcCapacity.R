@@ -110,10 +110,19 @@ calcCapacity <- function(subtype) {
         "CHN",     2015,    "ngt",      0.016,
         "CHN",     2020,    "ngt",      0.026))
 
+    # RP: add upper bound for USA PV in 2025, as current forecast by Wood Mackenzie Solar Market Insight Report 2022 sees ~ 265 GW DC in 2025 in
+    # bullish scenario. So it would be less in GW_AC, but REMIND corrects for lower model CF than real world (in USA) by upscaling capacity
+    # so it should be roughly ok as upper bound. (don't use as lower bound!)
+
+    USA.2025.PVData <- as.magpie(
+      tribble(
+        ~region,   ~year,   ~data,      ~value,
+        "USA",     2025,    "spv",      0.265))
+
     # merge IRENA, Openmod and WEO capacities data
-    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap), getRegions(WEOcap), getRegions(CHA.2020.GasData))),
-                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap), getYears(CHA.2020.GasData))),
-                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData))),
+    output <- new.magpie(cells_and_regions=unique(c(getRegions(IRENAcap),getRegions(Openmodcap), getRegions(WEOcap), getRegions(CHA.2020.GasData), getRegions(USA.2025.PVData) )),
+                         years = unique(c(getYears(IRENAcap),getYears(Openmodcap),getYears(WEOcap), getYears(CHA.2020.GasData), getYears(USA.2025.PVData))),
+                         names = unique(c(getNames(IRENAcap),getNames(Openmodcap),getNames(WEOcap), getNames(CHA.2020.GasData), getNames(USA.2025.PVData))),
                          fill=0)
 
     output[getRegions(IRENAcap),getYears(IRENAcap),getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
@@ -128,6 +137,8 @@ calcCapacity <- function(subtype) {
                                                                            getNames(WEOcap)]
 
     output[getRegions(CHA.2020.GasData),getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
+
+    output[getRegions(USA.2025.PVData),getYears(USA.2025.PVData), getNames(USA.2025.PVData)] <- USA.2025.PVData
 
     output[is.na(output)] <- 0 #set NA to 0
     output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
