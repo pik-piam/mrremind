@@ -4,7 +4,11 @@
 \alias{calcFGas}
 \title{generate F-Gases based on IMAGE data}
 \usage{
-calcFGas()
+calcFGas(subtype = "interpolate2025")
+}
+\arguments{
+\item{subtype}{"interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
+scenarios. Any other subtype will ignore this step.}
 }
 \value{
 magpie object with F-gases information
