@@ -897,9 +897,8 @@ calcFEdemand <- function(subtype = "FE") {
         select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
                subsector = 'Data4', name = 'Data5', value = 'Value') %>%
         quitte::character.data.frame() %>%
-        # FIXME hotfix to go back to original SDP_XX implementation (BS 2023-04-06)
-        # filter(!.data$scenario %in% c('gdp_SDP_EI', 'gdp_SDP_MC',
-                                      # 'gdp_SDP_RC')) %>%   # FIXME
+        filter(!.data$scenario %in% c('gdp_SDP_EI', 'gdp_SDP_MC',
+                                      'gdp_SDP_RC')) %>%   # FIXME
         pivot_wider() %>%
         mutate(subsector = paste0('ue_', .data$subsector))
 
@@ -1170,9 +1169,8 @@ calcFEdemand <- function(subtype = "FE") {
           mutate(value = .data$value * .data$population * .data$activity) %>%
           select('iso3c', 'scenario', 'subsector', 'year', 'value')
       )
-      # FIXME hotkfix to go back to original SDP_XX implementation (BS 2023-04-06)
-      # industry_subsectors_ue <- foo4 %>%
-      industry_subsectors_ue <- foo3 %>%
+
+      industry_subsectors_ue <- foo4 %>%
         select('iso3c', 'year', 'scenario', pf = 'subsector', 'value') %>%
         as.magpie(spatial = 1, temporal = 2, data = ncol(.))
 
