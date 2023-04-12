@@ -8,12 +8,14 @@
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
 #'
-#' @importFrom rlang .data sym syms !!! !!
-#' @importFrom magrittr %>%
 #' @importFrom data.table :=
-#' @importFrom dplyr arrange as_tibble bind_rows filter ungroup distinct lag inner_join matches mutate semi_join
-#' @importFrom tidyr complete nesting unite pivot_longer pivot_wider separate
+#' @importFrom dplyr arrange as_tibble bind_rows filter ungroup distinct lag
+#'   inner_join matches mutate semi_join
 #' @importFrom magclass mselect getItems getItems<-
+#' @importFrom magrittr %>% %<>%
+#' @importFrom quitte character.data.frame interpolate_missing_periods
+#' @importFrom rlang .data sym syms !!! !!
+#' @importFrom tidyr complete nesting unite pivot_longer pivot_wider separate
 #'
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
@@ -900,11 +902,16 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
                subsector = 'Data4', name = 'Data5', value = 'Value') %>%
-        quitte::character.data.frame() %>%
-        filter(!.data$scenario %in% c('gdp_SDP_EI', 'gdp_SDP_MC',
-                                      'gdp_SDP_RC')) %>%   # FIXME
+        character.data.frame() %>%
         pivot_wider() %>%
         mutate(subsector = paste0('ue_', .data$subsector))
+
+      if (use_ODYM_RECC) {
+        industry_subsectors_material_relative %<>%
+          filter(!.data$scenario %in% c('gdp_SDP_EI', 'gdp_SDP_MC',
+                                        'gdp_SDP_RC'))
+      }
+
 
       industry_subsectors_material_relative_change <- calcOutput(
         type = 'industry_subsectors_specific',
