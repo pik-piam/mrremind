@@ -94,21 +94,21 @@ calcCapacity <- function(subtype) {
     #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
     #    Natural gas in China’s power sector: Challenges and the road ahead
     #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
-    #    >60% gas plants are co-generation, rest are peaking
-    #    *** for 2018-2022, take 90GW, 90GW*0.6=54, the rest is split between ngcc and ngt
+    #    ~50% is peaking (= ngt), the other 50 is called cogeneration but contains ngcc and gaschp
+    #    *** for 2018-2022, take 90GW, 90GW*0.5=50GW ngt, the rest is split between ngcc and gaschp 70:30 (from IEA EB energy output)
 
     CHA.2020.GasData <- as.magpie(
       tribble(
         ~region,   ~year,   ~data,      ~value,
-        "CHN",     2010,    "gaschp",   0.022,
-        "CHN",     2015,    "gaschp",   0.05,
-        "CHN",     2020,    "gaschp",   0.054,
-        "CHN",     2010,    "ngcc",     0.001,
-        "CHN",     2015,    "ngcc",     0.005,
-        "CHN",     2020,    "ngcc",     0.01,
-        "CHN",     2010,    "ngt",      0.003,
-        "CHN",     2015,    "ngt",      0.016,
-        "CHN",     2020,    "ngt",      0.026))
+        "CHN",     2010,    "gaschp",   0.004,
+        "CHN",     2015,    "gaschp",   0.011,
+        "CHN",     2020,    "gaschp",   0.014,
+        "CHN",     2010,    "ngcc",     0.009,
+        "CHN",     2015,    "ngcc",     0.025,
+        "CHN",     2020,    "ngcc",     0.032,
+        "CHN",     2010,    "ngt",      0.013,
+        "CHN",     2015,    "ngt",      0.036,
+        "CHN",     2020,    "ngt",      0.045))
 
     # RP: add upper bound for USA PV in 2025, as current forecast by Wood Mackenzie Solar Market Insight Report 2022 sees ~ 265 GW DC in 2025 in
     # bullish scenario. So it would be less in GW_AC, but REMIND corrects for lower model CF than real world (in USA) by upscaling capacity
