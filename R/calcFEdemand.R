@@ -8,14 +8,22 @@
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
 #'
+#' @importFrom assertr assert not_na verify
 #' @importFrom data.table :=
-#' @importFrom dplyr arrange as_tibble bind_rows filter ungroup distinct lag
-#'   inner_join matches mutate semi_join
+#' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
+#'   distinct filter first full_join group_by inner_join lag last left_join
+#'   matches mutate n rename right_join select semi_join summarise ungroup
 #' @importFrom magclass mselect getItems getItems<-
 #' @importFrom magrittr %>% %<>%
-#' @importFrom quitte character.data.frame interpolate_missing_periods
+#' @importFrom quitte as.quitte cartesian character.data.frame
+#'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule
+#'   magclass_to_tibble overwrite seq_range
+#' @importFrom readr read_delim
 #' @importFrom rlang .data sym syms !!! !!
-#' @importFrom tidyr complete nesting unite pivot_longer pivot_wider separate
+#' @importFrom tibble tribble
+#' @importFrom tidyr complete crossing extract gather nesting pivot_longer
+#'   pivot_wider replace_na separate spread unite
+#' @importFrom zoo na.fill
 #'
 #' @author Antoine Levesque
 calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
@@ -215,7 +223,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         tmp_GDP <- calcOutput('GDP', average2020 = FALSE, aggregate = FALSE) %>%
           as.data.frame() %>%
           as_tibble() %>%
-          quitte::character.data.frame() %>%
+          character.data.frame() %>%
           mutate(Year = as.integer(as.character(Year))) %>%
           filter(grepl('^gdp_SSP[12]$', Data1),
                  Year %in% years) %>%
@@ -226,7 +234,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         tmp_pop <- calcOutput('Population', aggregate = FALSE) %>%
           as.data.frame() %>%
           as_tibble()  %>%
-          quitte::character.data.frame() %>%
+          character.data.frame() %>%
           mutate(Year = as.integer(as.character(Year))) %>%
           filter(grepl('^pop_SSP[12]$', Data1),
                  Year %in% years) %>%
@@ -250,7 +258,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       #   interval
       # - cumulate the reduction factor over the time horizon
 
-      SSA_countries <- readr::read_delim(
+      SSA_countries <- read_delim(
         file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE),
         delim = ';',
         col_names = c('country', 'iso3c', 'region'),
@@ -268,7 +276,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       exp2 <- 1.5
 
       reduction_factor <- tmp_GDPpC %>%
-        quitte::interpolate_missing_periods(year = quitte::seq_range(range(year)), value = 'GDPpC') %>%
+        interpolate_missing_periods(year = seq_range(range(year)), value = 'GDPpC') %>%
         group_by(scenario, iso3c) %>%
         mutate(
           # no reduction for SSA countries before 2050, to allow for more
@@ -289,7 +297,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                  grepl('fe..i', Data2)) %>%
           select(scenario = Data1, iso3c = Region, year = Year, variable = Data2,
                  value = Value) %>%
-          quitte::character.data.frame(),
+          character.data.frame(),
 
         # reuse GDP projections
         tmp_GDP %>%
@@ -305,15 +313,15 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           China_Production = readSource(type = 'ExpertGuess',
                                         subtype = 'Chinese_Steel_Production',
                                         convert = FALSE) %>%
-            quitte::madrat_mule(),
+            madrat_mule(),
           aggregate = FALSE, years = years, supplementary = FALSE) %>%
-          quitte::magclass_to_tibble() %>%
+          magclass_to_tibble() %>%
           filter(grepl('^gdp_SSP(1|2EU)$', .data$scenario)) %>%
           group_by(scenario, iso3c, year) %>%
           summarise(value = sum(value), .groups = 'drop') %>%
           mutate(variable = 'VA') %>%
-          quitte::interpolate_missing_periods(year = years, expand.values = TRUE) %>%
-          quitte::character.data.frame()
+          interpolate_missing_periods(year = years, expand.values = TRUE) %>%
+          character.data.frame()
       ) %>%
         spread(variable, value) %>%
         gather(pf, FE, matches('^fe..i$')) %>%
@@ -402,11 +410,11 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       v <- grep('\\.fe(..i$|ind)', getNames(data), value = TRUE)
 
       dataInd <- data[,,v] %>%
-        quitte::as.quitte() %>%
+        as.quitte() %>%
         as_tibble() %>%
         select('scenario', 'iso3c' = 'region', 'pf' = 'item', 'year' = 'period',
                'value') %>%
-        quitte::character.data.frame()
+        character.data.frame()
 
       regionmapping <- toolGetMapping(type = 'regional',
                                       name = 'regionmappingH12.csv') %>%
@@ -423,7 +431,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           # calculate regional trend
           dataInd %>%
             # get trend period
-            filter(dplyr::between(!!sym('year'), historic_trend[1], historic_trend[2]),
+            filter(between(!!sym('year'), historic_trend[1], historic_trend[2]),
                    0 != !!sym('value')) %>%
             # sum regional totals
             full_join(regionmapping %>% select(-!!sym('country')), 'iso3c') %>%
@@ -431,7 +439,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                      !!sym('year')) %>%
               summarise(value = sum(!!sym('value')), .groups = 'drop') %>%
             # calculate average trend over trend period
-            quitte::interpolate_missing_periods(year = quitte::seq_range(historic_trend), expand.values = TRUE) %>%
+            interpolate_missing_periods(year = seq_range(historic_trend), expand.values = TRUE) %>%
             group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>%
             summarise(trend = mean(!!sym('value') / lag(!!sym('value')),
                                      na.rm = TRUE),
@@ -441,16 +449,16 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           # modify data projection
           dataInd %>%
             filter(phasein_period[1] <= !!sym('year')) %>%
-            quitte::interpolate_missing_periods(year = phasein_period[1]:max(dataInd$year)) %>%
+            interpolate_missing_periods(year = phasein_period[1]:max(dataInd$year)) %>%
             group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>%
-            mutate(growth = tidyr::replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>%
+            mutate(growth = replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>%
             full_join(regionmapping %>% select(-'country'), 'iso3c'),
           c('scenario', 'region', 'pf')) %>%
           group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>%
           mutate(
           # replace NA (positive) trends with end. growth rates -> no change
           trend = ifelse(is.na(!!sym('trend')), !!sym('growth'), !!sym('trend')),
-          value_ = dplyr::first(!!sym('value'))
+          value_ = first(!!sym('value'))
             * cumprod(
               ifelse(
                 phasein_period[1] == !!sym('year'), 1,
@@ -578,7 +586,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
     magpnames <- expand_vectors(
       if (subtype %in% c("FE_buildings", "UE_buildings")) {
-        quitte::cartesian(scenarios, rcps)
+        cartesian(scenarios, rcps)
       } else {
         scenarios
       },
@@ -640,7 +648,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # The energy intensity reduction is cumulative over the 2016-40 interval
       # and thereafter constant.
 
-      mod_factors <- tibble::tribble(
+      mod_factors <- tribble(
         # enter tuning factors for regions/energy carriers
         ~region,   ~pf,        ~IEIR,   ~FEIR,
         'CHN',     'fehoi',     2.5,    -0.5,
@@ -657,7 +665,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         mutate(t = as.integer(2016)) %>%
         # add missing combinations (neutral multiplication by 1) for easy
         # joining
-        complete(tidyr::crossing(!!sym('scenario'), !!sym('region'), !!sym('pf'), !!sym('t')),
+        complete(crossing(!!sym('scenario'), !!sym('region'), !!sym('pf'), !!sym('t')),
                  fill = list(IEIR = 0, FEIR = 0)) %>%
         # fill 2016-40 values
         complete(nesting(!!sym('scenario'), !!sym('region'), !!sym('pf'),
@@ -685,10 +693,10 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       )
 
       mod_r <- unique(mod_factors$region)
-      mod_sp <- quitte::cartesian(unique(mod_factors$scenario), unique(mod_factors$pf))
+      mod_sp <- cartesian(unique(mod_factors$scenario), unique(mod_factors$pf))
 
       reminditems[mod_r,,mod_sp] <- reminditems[mod_r,,mod_sp] %>%
-        quitte::as.quitte() %>%
+        as.quitte() %>%
         as_tibble() %>%
         mutate(scenario = as.character(!!sym('scenario')),
                region   = as.character(!!sym('region')),
@@ -697,7 +705,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                                  'item' = 'pf')) %>%
         mutate(value = !!sym('f') * !!sym('value')) %>%
         select(-'f') %>%
-        quitte::as.quitte() %>%
+        as.quitte() %>%
         as.magpie()
 
       # add SDP transport and industry scenarios
@@ -736,7 +744,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           China_Production = readSource(type = 'ExpertGuess',
                                         subtype = 'Chinese_Steel_Production',
                                         convert = FALSE) %>%
-            quitte::madrat_mule(),
+            madrat_mule(),
           aggregate = FALSE,
           years = getYears(reminditems), supplementary = FALSE),
 
@@ -748,7 +756,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           China_Production = readSource(type = 'ExpertGuess',
                                         subtype = 'Chinese_Steel_Production',
                                         convert = FALSE) %>%
-            quitte::madrat_mule(),
+            madrat_mule(),
           aggregate = FALSE,
           years = getYears(reminditems), supplementary = FALSE)
       )
@@ -761,7 +769,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
                GDP = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         mutate(year = as.integer(.data$year))
 
       ### fix missing GDP numbers ----
@@ -780,7 +788,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             pull('scenario') %>%
             unique()
         ) %>%
-          dplyr::first()
+          first()
 
         GDP_fuckup_point <- GDP_fuckup_point %>%
           group_by(!!!syms(c('iso3c', 'scenario'))) %>%
@@ -796,7 +804,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
               GDP_fuckup_point,
               c('iso3c', 'scenario')
             ) %>%
-            dplyr::left_join(
+            left_join(
               GDP_fuckup_point %>%
                 select('iso3c', 'scenario', 'base.year'),
 
@@ -811,7 +819,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
               c('iso3c', scenario = 'base.scenario')
             ) %>%
-            dplyr::left_join(
+            left_join(
               GDP_fuckup_point %>%
                 select('iso3c', 'base.year', scenario = 'base.scenario') %>%
                 distinct(),
@@ -821,7 +829,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             filter(.data$year >= .data$base.year) %>%
             select(-'base.year') %>%
             group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-            mutate(factor = .data$GDP / lag(.data$GDP, default = dplyr::first(.data$GDP),
+            mutate(factor = .data$GDP / lag(.data$GDP, default = first(.data$GDP),
                                             order_by = .data$year)) %>%
             ungroup() %>%
             select('iso3c', 'year', 'factor'),
@@ -829,7 +837,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           c('iso3c', 'year')
         ) %>%
           group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-          mutate(GDP = dplyr::first(.data$GDP) * .data$factor) %>%
+          mutate(GDP = first(.data$GDP) * .data$factor) %>%
           ungroup() %>%
           select(all_of(colnames(GDP)))
 
@@ -837,7 +845,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           anti_join(GDP, GDP_replacement, by = c('iso3c', 'scenario', 'year')),
           GDP_replacement
         ) %>%
-          assertr::verify(expr = 0 < .data$GDP, description = 'All GDP numbers > 0')
+          verify(expr = 0 < .data$GDP, description = 'All GDP numbers > 0')
       }
 
       ### calculate specific material demand factors ----
@@ -846,12 +854,12 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           as.data.frame() %>%
           as_tibble() %>%
           select(iso3c = 'Region', year = 'Year', scenario = 'Data1', subsector = 'Data2', value = 'Value') %>%
-          quitte::character.data.frame() %>%
+          character.data.frame() %>%
           mutate(year = as.integer(.data$year)) %>%
           # remove zero activity from historic data, to be extended backwards by
           # first projection below
           filter(!(0 == .data$value & 2020 >= .data$year)) %>%
-          assertr::verify(expr = .data$value != 0, description = 'No zero subsector activity after 2020'),
+          verify(expr = .data$value != 0, description = 'No zero subsector activity after 2020'),
         GDP,
         by = c('iso3c', 'year', 'scenario')
       ) %>%
@@ -864,8 +872,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
         mutate(
           value = .data$GDP
-                * zoo::na.fill(object = .data$value / .data$GDP,
-                          fill = dplyr::first(
+                * na.fill(object = .data$value / .data$GDP,
+                          fill = first(
                             x = .data$value[!is.na(.data$value)]
                               / .data$GDP[!is.na(.data$value)],
                             order_by = .data$year[!is.na(.data$value)]))
@@ -887,7 +895,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
                name = 'Data4', value = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         pivot_wider() %>%
         mutate(subsector = paste0('ue_', .data$subsector))
 
@@ -925,7 +933,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(scenario = 'Data1', base.scenario = 'Data2', region = 'Data3',
                subsector = 'Data4', name = 'Data5', value = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         pivot_wider() %>%
         mutate(subsector = paste0('ue_', .data$subsector))
 
@@ -934,13 +942,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           type = 'ODYM_RECC',
           subtype = 'REMIND_industry_trends',
           aggregate = FALSE) %>%
-          quitte::magclass_to_tibble() %>%
+          magclass_to_tibble() %>%
           mutate(scenario = sub('^(gdp_)?', 'gdp_', .data$scenario)) %>%
           filter(!.data$scenario %in% c(
             unique(industry_subsectors_material_alpha$scenario),
             unique(industry_subsectors_material_relative$scenario),
             unique(industry_subsectors_material_relative_change$scenario))) %>%
-          quitte::interpolate_missing_periods_(
+          interpolate_missing_periods_(
             periods = list(
               year = unique(pmax(as.integer(sub('y', '', years, fixed = TRUE)),
                                  min(.$year)))),
@@ -954,7 +962,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       ) %>%
         group_by(!!!syms(c('scenario', 'region', 'subsector'))) %>%
         summarise(count = n(), .groups = 'drop') %>%
-        assertr::verify(expr = 1 == .data$count,
+        verify(expr = 1 == .data$count,
                error_fun = function(errors, data) {
                  stop('Industry specific material is over-specified for:\n',
                       paste(
@@ -980,12 +988,12 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                 mutate(specific.production = .data$value / .data$GDP,
                        specific.production = ifelse(
                          0 != .data$value, .data$specific.production,
-                         dplyr::first(.data$specific.production[0 != .data$value],
+                         first(.data$specific.production[0 != .data$value],
                                order_by = .data$year))) %>%
                 ungroup() %>%
                 select('iso3c', 'year', 'subsector', 'specific.production') %>%
-                quitte::interpolate_missing_periods_(
-                  periods = list(year = quitte::seq_range(range(.$year))),
+                interpolate_missing_periods_(
+                  periods = list(year = seq_range(range(.$year))),
                   value = 'specific.production',
                   method = 'linear'),
 
@@ -996,8 +1004,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                 filter('gdp_SSP2EU' == .data$scenario) %>%
                 mutate(fake.value = 0 == .data$value) %>%
                 select('iso3c', 'year', 'subsector', 'fake.value') %>%
-                quitte::interpolate_missing_periods_(
-                  periods = list(year = quitte::seq_range(range(.$year))),
+                interpolate_missing_periods_(
+                  periods = list(year = seq_range(range(.$year))),
                   value = 'fake.value',
                   method = 'linear') %>%
                 mutate(fake.value = 0 != .data$fake.value),
@@ -1006,7 +1014,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             ) %>%
               full_join(region_mapping_21, 'iso3c'),
 
-            c('region', 'subsector')
+            by = c('region', 'subsector'),
+            relationship = 'many-to-many'
           ) %>%
           group_by(!!!syms(c('scenario', 'subsector', 'iso3c'))) %>%
           mutate(
@@ -1020,8 +1029,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             # factors
             cum.fctr = cumprod(.data$alpha.conv),
             specific.production = ifelse(
-              2015 >= .data$year, .data$specific.production,
-              ( .data$specific.production[2015 == .data$year]
+              2020 >= .data$year, .data$specific.production,
+              ( .data$specific.production[2020 == .data$year]
                 * .data$cum.fctr
               ))
             # ensure that years without historic production are 0
@@ -1030,7 +1039,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           select('region', 'iso3c', 'year', 'scenario', 'subsector',
                  'specific.production') %>%
           filter(.data$year %in% unique(foo$year)) %>%
-          dplyr::left_join(
+          left_join(
             bind_rows(
               foo,
 
@@ -1043,7 +1052,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           ) %>%
           mutate(value = .data$specific.production * .data$GDP) %>%
           select(all_of(colnames(foo))) %>%
-          assertr::assert(assertr::not_na, everything())
+          assert(not_na, everything())
       )
 
       foo3 <- bind_rows(
@@ -1051,24 +1060,25 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
         ### specific production relative baseline ----
         industry_subsectors_material_relative %>%
-          dplyr::left_join(
+          left_join(
             foo2 %>%
               mutate(specific.production = .data$value / .data$GDP) %>%
               select(base.scenario = 'scenario', 'subsector', 'iso3c', 'year',
                      'specific.production') %>%
               full_join(region_mapping_21, 'iso3c'),
 
-            c('base.scenario', 'region', 'subsector')
+            by = c('base.scenario', 'region', 'subsector'),
+            relationship = 'many-to-many'
           ) %>%
-          dplyr::left_join(
+          left_join(
             foo %>%
               select('scenario', 'subsector', 'iso3c', 'year', 'GDP', 'value'),
 
             c('scenario', 'subsector', 'iso3c', 'year')
           ) %>%
-          assertr::assert(assertr::not_na, everything()) %>%
-          # scale factor in from 2015-30
-          mutate(l = pmin(1, pmax(0, (.data$year - 2015) / (2030 - 2015))),
+          assert(not_na, everything()) %>%
+          # scale factor in from 2020-35
+          mutate(l = pmin(1, pmax(0, (.data$year - 2020) / (2035 - 2020))),
                  value = .data$specific.production
                  * .data$GDP
                  * (.data$factor * .data$l + 1 * (1 - .data$l))) %>%
@@ -1094,7 +1104,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           select('scenario', 'iso3c', 'region', 'subsector', 'year',
                  base.value = 'value', base.GDP = 'GDP', 'factor') %>%
           # GDP trajectories of target scenarios
-          dplyr::left_join(
+          left_join(
             foo %>%
               select('scenario', 'iso3c', 'subsector', 'year', 'GDP'),
 
@@ -1104,9 +1114,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           mutate(
             # specific production of base scenarios
             base.specific.production = .data$base.value / .data$base.GDP,
-            # change in specific production of base scenarios relative to 2015
+            # change in specific production of base scenarios relative to 2020
             base.change = ( .data$base.specific.production
-                          / .data$base.specific.production[2015 == .data$year]),
+                          / .data$base.specific.production[2020 == .data$year]),
             # modified change of target scenarios
             # If base change is below (above) 1, i.e. material efficiency is
             # improving (deteriorating), efficiency gains (losses) are halved
@@ -1115,7 +1125,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             # zero) lead to constant values.
             change = case_when(
               !is.finite(.data$base.change) ~ 1,
-              2015 >= .data$year ~ .data$base.change,
+              2020 >= .data$year ~ .data$base.change,
               TRUE ~  ( ( (.data$base.change - 1)
                           * .data$factor ^ sign(1 - .data$base.change)
               )
@@ -1170,14 +1180,14 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                 group_by(.data$iso3c, .data$scenario) %>%
                 mutate(
                   population = .data$population
-                  / dplyr::first(.data$population, order_by = .data$year)) %>%
+                  / first(.data$population, order_by = .data$year)) %>%
                 ungroup(),
 
               'iso3c') %>%
             inner_join(
               industry_subsectors_material_percapita %>%
                 mutate(subsector = paste0('ue_', .data$subsector)) %>%
-                quitte::interpolate_missing_periods_(
+                interpolate_missing_periods_(
                   periods = list(year = seq_range(range(.$year)))) %>%
                 rename(activity = 'value'),
 
@@ -1207,18 +1217,18 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(iso3c = 'Region', year = 'Year', pf = 'Data2',
                value = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         mutate(year = as.integer(as.character(.data$year))) %>%
         # get 1993-2020 industry FE data
         filter(grepl('^fe.*_(cement|chemicals|steel|otherInd)', .data$pf),
-               dplyr::between(.data$year, 1993, 2020)) %>%
+               between(.data$year, 1993, 2020)) %>%
         # sum up fossil and bio SE (which produce the same FE), aggregate
         # regions
         full_join(region_mapping_21, 'iso3c') %>%
         group_by(!!!syms(c('year', 'region', 'pf'))) %>%
         summarise(value = sum(.data$value), .groups = 'drop') %>%
         # split feel steel into primary and secondary production
-        dplyr::left_join(
+        left_join(
           industry_subsectors_ue[,,'ue_steel', pmatch = TRUE] %>%
             as.data.frame() %>%
             as_tibble() %>%
@@ -1280,16 +1290,16 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
             readSource(type = 'IEA_WEO_2021', subtype = 'region',
                        convert = TRUE) %>%
-              quitte::magclass_to_tibble(c('iso3c', 'year', 'scenario', 'variable', 'industry.FE')) %>%
+              magclass_to_tibble(c('iso3c', 'year', 'scenario', 'variable', 'industry.FE')) %>%
               filter(.data$year %in% c(2010, IEA_WEO_2021_ref_year),
                      'Stated Policies Scenario' == .data$scenario,
                      'Energy-Total-Industry (EJ)' == .data$variable) %>%
-              dplyr::left_join(region_mapping_21, 'iso3c') %>%
+              left_join(region_mapping_21, 'iso3c') %>%
               group_by(!!!syms(c('region', 'year'))) %>%
               summarise(industry.FE = sum(.data$industry.FE, na.rm = TRUE),
                         .groups = 'drop_last') %>%
-              summarise(change = dplyr::last(.data$industry.FE, order_by = .data$year)
-                        / dplyr::first(.data$industry.FE, order_by = .data$year),
+              summarise(change = last(.data$industry.FE, order_by = .data$year)
+                        / first(.data$industry.FE, order_by = .data$year),
                         .groups = 'drop'),
 
             'region'
@@ -1306,9 +1316,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           / 3) %>%
           pivot_longer(matches('^[0-9]*$'), names_to = 'year',
                        names_transform = list(year = as.integer)) %>%
-          quitte::interpolate_missing_periods_(periods = list(year = quitte::seq_range(range(.$year)))) %>%
-          assertr::assert(assertr::not_na, everything()) %>%
-          assertr::verify(is.finite(.data$value))
+          interpolate_missing_periods_(periods = list(year = seq_range(range(.$year)))) %>%
+          assert(not_na, everything()) %>%
+          verify(is.finite(.data$value))
 
         FE_alpha_mod <- 0.9   # found by fiddling around
       } else {
@@ -1344,13 +1354,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(region = 'Region', year = 'Year', variable = 'Data2',
                value = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         mutate(year = as.integer(as.character(.data$year))) %>%
         # filter for future data
         filter(max(industry_subsectors_en$year) < .data$year) %>%
         # rename variables
-        dplyr::right_join(
-          tibble::tribble(
+        right_join(
+          tribble(
             ~subsector,    ~fety,    ~variable,
             'cement',      'feso',   'Industry|Cement - final energy consumption|Coal',
             'cement',      'feso',   'Industry|Cement - final energy consumption|Biomass',
@@ -1396,7 +1406,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         summarise(value = sum(.data$value), .groups = 'drop') %>%
         # fill 2055/OECD/Chemicals gap with interpolated data
         complete(nesting(!!!syms(c('region', 'subsector', 'fety'))), year = unique(.data$year)) %>%
-        quitte::interpolate_missing_periods_(periods = list(year = unique(.$year))) %>%
+        interpolate_missing_periods_(periods = list(year = unique(.$year))) %>%
         # calculate otherInd as total - cement - chemicals - steel
         pivot_wider(names_from = 'subsector', values_fill = 0) %>%
         mutate(otherInd = .data$total - (.data$cement + .data$chemicals + .data$steel)) %>%
@@ -1440,7 +1450,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
               as_tibble() %>%
               select(iso3c = 'Region', year = 'Year', scenario = 'Data1',
                      pf = 'Data2', value = 'Value') %>%
-              quitte::character.data.frame() %>%
+              character.data.frame() %>%
               mutate(year = as.integer(as.character(.data$year))) %>%
               inner_join(
                 toolGetMapping(name = 'regionmappingOECD.csv',
@@ -1478,7 +1488,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         mutate(subsector = sub('^[^_]+_', '', .data$pf),
                subsector = ifelse('steel' == .data$subsector, 'steel_primary',
                                   .data$subsector)) %>%
-        quitte::interpolate_missing_periods_(
+        interpolate_missing_periods_(
           periods = list(year = unique(pmax(min(IEA_ETP_Ind_FE_shares$year),
                                             getYears(reminditems,
                                                      as.integer = TRUE)))),
@@ -1495,13 +1505,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         select('scenario', 'iso3c', period = 'year', 'pf', 'subsector',
                'share') %>%
         # weight by subsector activity
-        dplyr::left_join(
+        left_join(
           industry_subsectors_ue %>%
             as.data.frame() %>%
             as_tibble() %>%
             select(iso3c = 'Region', period = 'Year', scenario = 'Data1',
                    subsector = 'Data2', activity = 'Value') %>%
-            quitte::character.data.frame() %>%
+            character.data.frame() %>%
             mutate(period = as.integer(as.character(.data$period)),
                    subsector = sub('^ue_', '', .data$subsector)),
 
@@ -1519,7 +1529,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         mutate(share = case_when(
           0 == sum(.data$share) ~ 1 / n(),
           TRUE                  ~ .data$share / sum(.data$share))) %>%
-        assertr::verify(expr = is.finite(.data$share),
+        verify(expr = is.finite(.data$share),
                description = paste('Finite IEA ETP industry FE shares after',
                                    'time horizon extension.')) %>%
         ungroup()
@@ -1527,10 +1537,10 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       ### combine historic and future industry FE shares ----
       industry_subsectors_en_shares <- inner_join(
         industry_subsectors_en_shares %>%
-          mutate(scenario = dplyr::first(IEA_ETP_Ind_FE_shares$scenario)) %>%
+          mutate(scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
           complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
                    scenario = unique(IEA_ETP_Ind_FE_shares$scenario)) %>%
-          quitte::interpolate_missing_periods_(
+          interpolate_missing_periods_(
             periods = list(year = unique(c(industry_subsectors_en_shares$year,
                                            getYears(reminditems,
                                                     as.integer = TRUE)))),
@@ -1544,7 +1554,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           ungroup(),
 
         IEA_ETP_Ind_FE_shares %>%
-          quitte::interpolate_missing_periods_(
+          interpolate_missing_periods_(
             periods = list(period = unique(c(industry_subsectors_en_shares$year,
                                              getYears(reminditems,
                                                       as.integer = TRUE)))),
@@ -1560,7 +1570,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                + .data$share.future * .data$foo,
                subsector = ifelse('steel' == .data$subsector,
                                   'steel_primary', .data$subsector)) %>%
-        assertr::verify(expr = is.finite(.data$share),
+        verify(expr = is.finite(.data$share),
                description = paste('Finite industry FE shares after combining',
                                    'historic and future values')) %>%
         select(-'foo', -'share.hist', -'share.future')
@@ -1583,7 +1593,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
         industry_subsectors_en_shares %>%
           filter(grepl('^fega', .data$pf)) %>%
-          tidyr::extract('pf', c('pf.fety', 'pf.subsector'), '^([^_]*)_(.*)') %>%
+          extract('pf', c('pf.fety', 'pf.subsector'), '^([^_]*)_(.*)') %>%
           complete(nesting(!!!syms(setdiff(colnames(.), 'pf.fety'))),
                    pf.fety = c('fega', 'feh2')) %>%
           pivot_wider(names_from = 'pf.fety', values_from = 'share') %>%
@@ -1649,7 +1659,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       specific_FE_limits <- readSource(type = 'ExpertGuess',
                                        subtype = 'industry_specific_FE_limits',
                                        convert = FALSE) %>%
-        quitte::madrat_mule()
+        madrat_mule()
 
       industry_subsectors_specific_FE <- calcOutput(
         type = 'industry_subsectors_specific', subtype = 'FE',
@@ -1662,7 +1672,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         as_tibble() %>%
         select(scenario = 'Data1', region = 'Data2', subsector = 'Data3',
                name = 'Data4', value = 'Value') %>%
-        quitte::character.data.frame() %>%
+        character.data.frame() %>%
         pivot_wider() %>%
         mutate(alpha = .data$alpha * FE_alpha_mod)
 
@@ -1671,7 +1681,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           mutate(subsector = sub('^[^_]+_', '', .data$pf),
                  subsector = ifelse('steel' == .data$subsector, 'steel_primary',
                                     .data$subsector),
-                 scenario = dplyr::first(IEA_ETP_Ind_FE_shares$scenario)) %>%
+                 scenario = first(IEA_ETP_Ind_FE_shares$scenario)) %>%
           # extend to SSP scenarios
           complete(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
                    scenario = unique(industry_subsectors_en_shares$scenario)
@@ -1684,14 +1694,14 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           as_tibble() %>%
           select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
                  pf = 'Data2', level = 'Value') %>%
-          quitte::character.data.frame() %>%
+          character.data.frame() %>%
           mutate(year = as.integer(as.character(.data$year))) %>%
           filter(.data$year %in% unique(industry_subsectors_en$year)) %>%
           # aggregate regions
           full_join(region_mapping_21, 'iso3c') %>%
           group_by(!!!syms(c('scenario', 'region', 'year', 'pf'))) %>%
           summarise(level = sum(.data$level), .groups = 'drop') %>%
-          tidyr::extract('pf', 'subsector', '^ue_(.*)$'),
+          extract('pf', 'subsector', '^ue_(.*)$'),
 
         c('scenario', 'region', 'year', 'subsector')
       ) %>%
@@ -1710,7 +1720,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           c('scenario', 'region', 'year', 'subsector')
         ) %>%
         bind_rows(
-          dplyr::left_join(
+          left_join(
             industry_subsectors_specific_energy %>%
               filter(0 == .data$specific.energy) %>%
               select(-'specific.energy'),
@@ -1724,7 +1734,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             c('scenario', 'year', 'subsector')
           )
         ) %>%
-        assertr::verify(expr = 0 < .data$specific.energy,
+        verify(expr = 0 < .data$specific.energy,
                description = 'All specific energy factors above 0')
 
       # replace absurdly high specific energy (e.g. primary steel NEN after IEA
@@ -1733,7 +1743,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       industry_subsectors_specific_energy <- industry_subsectors_specific_energy %>%
         filter('steel_primary' == .data$subsector, 100 < .data$specific.energy) %>%
         select(-'specific.energy') %>%
-        dplyr::left_join(
+        left_join(
           industry_subsectors_specific_energy %>%
             filter('steel_primary' == .data$subsector,
                    .data$region %in% c('DEU', 'ECE', 'ECS', 'ENC', 'ESC', 'ESW', 'EWN', 'FRA', 'UKI')) %>%
@@ -1742,18 +1752,18 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
           c('scenario', 'year', 'subsector')
         ) %>%
-        quitte::overwrite(industry_subsectors_specific_energy, except = 'specific.energy')
+        overwrite(industry_subsectors_specific_energy, except = 'specific.energy')
 
       # extend time horizon
       industry_subsectors_specific_energy <-
         industry_subsectors_specific_energy %>%
-        quitte::interpolate_missing_periods_(
+        interpolate_missing_periods_(
           periods = list(year = unique(industry_subsectors_en_shares$year)),
           value = 'specific.energy', expand.values = TRUE)
 
       # correct lower-then-thermodynamic limit projections
       too_low_projections <- industry_subsectors_specific_energy %>%
-        dplyr::left_join(
+        left_join(
           specific_FE_limits %>%
             filter('absolute' == .data$type) %>%
             select(-'type'),
@@ -1794,7 +1804,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
               c('scenario', 'subsector', 'year')
             ) %>%
-            assertr::assert(assertr::not_na, everything())
+            assert(not_na, everything())
         )
       }
 
@@ -1836,9 +1846,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
             as_tibble() %>%
             select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
                    pf = 'Data2', level = 'Value') %>%
-            quitte::character.data.frame() %>%
+            character.data.frame() %>%
             mutate(year = as.integer(as.character(.data$year))) %>%
-            tidyr::extract('pf', 'subsector', '^ue_(.*)$') %>%
+            extract('pf', 'subsector', '^ue_(.*)$') %>%
             inner_join(region_mapping_21, 'iso3c') %>%
             group_by(!!!syms(c('scenario', 'region', 'year', 'subsector'))) %>%
             summarise(level = sum(.data$level), .groups = 'drop'),
@@ -1868,7 +1878,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           + .data$foo       * pmin(.data$share, .data$share.global)) %>%
         select(-'foo', -'share.global') %>%
         # fill possible gaps in the time steps
-        quitte::interpolate_missing_periods_(
+        interpolate_missing_periods_(
           periods = list(year = getYears(reminditems, TRUE)),
           value = 'share',
           expand.values = TRUE) %>%
@@ -1894,9 +1904,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           as.data.frame() %>%
           as_tibble() %>%
           select(scenario = 'Data1', iso3c = 'Region', year = 'Year', pf = 'Data2', level = 'Value') %>%
-          quitte::character.data.frame() %>%
+          character.data.frame() %>%
           mutate(year = as.integer(as.character(.data$year))) %>%
-          tidyr::extract('pf', 'subsector', '^ue_(.*)$') %>%
+          extract('pf', 'subsector', '^ue_(.*)$') %>%
           group_by(!!!syms(c('scenario', 'iso3c', 'year', 'subsector'))) %>%
           summarise(level = sum(.data$level), .groups = 'drop'),
 
@@ -1904,7 +1914,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       ) %>%
         mutate(value = .data$level * .data$specific.energy) %>%
         select('scenario', 'iso3c', 'year', 'subsector', 'value') %>%
-        assertr::assert(is.finite, 'value') %>%
+        assert(is.finite, 'value') %>%
         inner_join(
           industry_subsectors_en_shares %>%
             full_join(region_mapping_21, 'region') %>%
@@ -1917,7 +1927,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         ungroup() %>%
         mutate(value = .data$value * .data$share) %>%
         select('scenario', region = 'iso3c', 'year', item = 'pf', 'value') %>%
-        assertr::verify(expr = is.finite(.data$value), description = 'Finite industry_subsectors_en values') %>%
+        verify(expr = is.finite(.data$value), description = 'Finite industry_subsectors_en values') %>%
         as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
 
