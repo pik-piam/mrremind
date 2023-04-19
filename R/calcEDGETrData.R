@@ -24,7 +24,7 @@ calcEDGETrData <- function() {
     expand_grid(
       SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
       tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4"),
-      DEM_scenario = c("default", "SSP2EU_lowdem" )),
+      DEM_scenario = c("default", "SSP2EU_lowdem")),
 
     ## SHAPE scenarios are coupled to specific technologies
     tribble(
@@ -43,7 +43,8 @@ calcEDGETrData <- function() {
       'SSP2EU',    'NAV_tec',                    'default',
       'SSP2EU',    'NAV_ele',                    'default',
       'SSP2EU',    'NAV_all',                    'SSP2EU_lowdem',
-      'SSP2EU',    'NAV_lce',                    'SSP2EU_lowdem'
+      'SSP2EU',    'NAV_lce',                    'SSP2EU_lowdem',
+      'SSP2EU',    'PhOP',                       'default'
       )
   )
 
