@@ -53,14 +53,19 @@
 #' | steel         | PAK   | 1981–82          |
 #' | steel         | TUN   | 2003–06          |
 #'
+#' `calcUNIDO()` calculates `otherInd` subsector values as the difference
+#' between `manufacturing` and `cement`, `chemicals`, and `steel` values and is
+#' intended to be called through [`calcOutput()`], which will aggregate regions.
+#'
 #' @author Michaja Pehl
 #'
-#' @seealso [`readSource()`],
+#' @seealso [`readSource()`], [`calcOutput()`]
 #'
 #' @importFrom assertr assert not_na
 #' @importFrom dplyr anti_join bind_rows filter group_by inner_join left_join
 #'     mutate select summarise
-#' @importFrom magclass as.magpie
+#' @importFrom madrat readSource toolCountryFill
+#' @importFrom magclass as.magpie dimSums mbind setNames
 #' @importFrom magrittr %>%
 #' @importFrom quitte list_to_data_frame madrat_mule
 #' @importFrom readr read_csv
@@ -271,4 +276,38 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
 
     # ---- load data and do whatever ----
     return(switchboard[[subtype]](x))
+}
+
+#' @rdname UNIDO
+#' @export
+calcUNIDO <- function(subtype = 'INDSTAT2')
+{
+    # define calc functions for all subtypes ----
+    switchboard <- list(
+        `INDSTAT2` = function(x)
+        {
+            x <- readSource(type = 'UNIDO', subtype = subtype, convert = TRUE)
+
+            x_manufacturing <- dimSums(x[,,'manufacturing'], dim = 3)
+            x_no_manufacturing <- x[,,'manufacturing', invert = TRUE]
+            x_otherInd <- setNames(
+                ( x_manufacturing
+                - dimSums(x_no_manufacturing, dim = 3)
+                ),
+                'otherInd')
+
+            return(list(x = mbind(x_no_manufacturing, x_otherInd),
+                        weight = NULL,
+                        unit = '$/year',
+                        description = 'industry subsector value added'))
+        }
+    )
+
+    # check if the subtype called is available ----
+    if (is_empty(intersect(subtype, names(switchboard))))
+        stop(paste('Invalid subtype -- supported subtypes are:',
+                   names(switchboard)))
+
+    # ---- load data and do whatever ----
+    return(switchboard[[subtype]]())
 }
