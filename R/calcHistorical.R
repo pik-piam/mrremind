@@ -325,7 +325,7 @@ calcHistorical <- function() {
     as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
 
   # Steel Stock ----
-  steelStock <- calcOutput("SteelStock", aggregate = F)
+  steelStock <- calcOutput("SteelStock", aggregate = FALSE)
   steelStock <- add_dimension(steelStock, dim = 3.1, add = "model", nm = "Mueller")
 
   # blow up to union of years ====
