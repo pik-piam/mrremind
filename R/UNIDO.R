@@ -296,7 +296,18 @@ calcUNIDO <- function(subtype = 'INDSTAT2')
                 ),
                 'otherInd')
 
-            return(list(x = mbind(x_no_manufacturing, x_otherInd),
+            x <- mbind(x_no_manufacturing, x_otherInd)
+            x[is.na(x)] <- 0
+
+            # give proper variable names
+            subsector_names <- c('cement', 'chemicals', 'steel', 'otherInd')
+            variable_names  <- paste0('Value Added|Industry|',
+                                      c('Cement', 'Chemicals', 'Steel',
+                                        'Other Industry'))
+
+            getNames(x) <- variable_names[match(getNames(x), subsector_names)]
+
+            return(list(x = x,
                         weight = NULL,
                         unit = '$/year',
                         description = 'industry subsector value added'))
