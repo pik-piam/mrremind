@@ -33,26 +33,37 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   columnsForAggregation <- gsub("RegionCode", "region",
                                 paste(rel, collapse = "+"))
 
-  # historical data ----
-  valfile <- "historical.mif"
+  # default arguments ----
+  # default arguments used for calling all subsequent `calc` functions
+  default_arguments <- list(
+    file = 'historical.mif',
+    append = TRUE,
+    warnNA = FALSE,
+    aggregate = columnsForAggregation,
+    try = TRUE)
 
-  calcOutput("Historical", round = 5,  file = valfile, aggregate = columnsForAggregation,
-             append = FALSE, warnNA = FALSE, try = TRUE)
+  # list `calc` functions to call ----
+  # list of all `calc` functions to call, as well as their specific arguments
+  # arguments can be empty (`list()`), and can overwrite default arguments if
+  # needed
+  historical_data_calls <- list(
+    'Historical'   = list(round = 5),
+    'IEA_ETP'      = list(isValidation = TRUE),
+    'IEA_WEO_2021' = list(isValidataion = TRUE),
+    'UNIDO'        = list(subtype = 'INDSTAT2') # industry value added
+    )
 
-  calcOutput(type = "IEA_ETP", aggregate = "global", file = valfile,
-             append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE)
+  # call all listed functions ----
+  for (i in seq_along(historical_data_calls)) {
+    function_name <- names(f[i])
+    function_arguments <- c(default_arguments[setdiff(names(default_arguments),
+                                                      names(f[i][[1]]))],
+                            f[i][[1]])
 
-  calcOutput(type = "IEA_ETP", aggregate = "region", file = valfile,
-             append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE)
+    # do not append for the first call, ensuring an empty file to start with
+    if (i == 1)
+      function_arguments[['append']] <- FALSE
 
-  calcOutput(type = "IEA_WEO_2021", aggregate = "global", file = valfile,
-             append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE)
-
-  calcOutput(type = "IEA_WEO_2021", aggregate = "region", file = valfile,
-             append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE)
-
-  ## industry value added ----
-  calcOutput(type = 'UNIDO', subtype = 'INDSTAT2', file = valfile,
-             aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-             try = TRUE)
+    do.call('calcOutput', c(list(type = function_name), function_arguments))
+  }
 }
