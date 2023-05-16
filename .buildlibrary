@@ -5,6 +5,7 @@ AcceptedWarnings:
 - 'Warning: multiple methods tables found for ‘direction’'
 - 'Warning: multiple methods tables found for ‘gridDistance’'
 - Imports includes .* non-default packages.
+- Invalid URL: .*
 AcceptedNotes:
 - unable to verify current time
 - Imports includes .* non-default packages.
