@@ -15,7 +15,6 @@
 #' @importFrom data.table data.table rbindlist fread setcolorder := setnames setkeyv
 
 readEDGETransport <- function(subtype = "logit_exponent") {
-  rlang::check_installed("rmndt")
   ## mask variable for code checks
   vehicle_type <- EDGE_scenario <- GDP_scenario <- DEM_scenario <- value <- year <- sharetype <-
     EJ_Mpkm_final <- varname <- fuel <- region <- iso <- node <- totdem <- `.`<-

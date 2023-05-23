@@ -1,52 +1,50 @@
 #' Calculate regional Theil-T index
-#' 
+#'
 
 #' To calculate the regional Theil-T index (= correction to welfare function for a lognormal income distribution) we do the following:
-#' (1) convert country-level Gini coefficients to Theil (2) calculate contribution to Theil-T index that includes both between-countries and within-country inequality 
+#' (1) convert country-level Gini coefficients to Theil (2) calculate contribution to Theil-T index that includes both between-countries and within-country inequality
 #' (see e.g. https://en.wikipedia.org/wiki/Theil_index). The latter can then be aggregated with calcOutput().
-#' 
+#'
 #' NB 1: the aggregation depends on the region mapping. It is implemented such that the regionmapping specified in getConfig()$regionmapping is used.
-#' 
+#'
 #' NB 2: the result of calcOutput('Theil', aggregate = FALSE), is NOT the country Theil-T, but the unweighted contribution from a given country to the regional value.
-#' 
+#'
 #' @return magpie objects of unweighted contribution to Theil, weights (= country shares of regional GDP), docstring
 #' @author Bjoern Soergel
 #' @seealso \code{\link{calcOutput}} \code{\link{convertGini},\link{readGini}}
 #' @examples
-#' 
+#'
 #' \dontrun{ a <- calcOutput("Theil")
 #' }
-#' 
+#'
 #' @importFrom stats qnorm
 
 calcTheil <- function(){
-  rlang::check_installed("assertthat")
-
   #Gini & Theil
   Gini <- readSource('Gini')
   years <- getYears(Gini)
   TheilT <- TheilT.from.sigma(sigma.from.Gini(Gini))
-  
+
   # population (in 1e6)
   pop <- calcOutput(type = 'Population', aggregate = FALSE)
   sspnames <- c(paste0('SSP',1:5),"SDP","SSP2EU")
   pop <- pop[,years,paste0('pop_',sspnames)]
   getNames(pop) <- sspnames
   getSets(pop) <- c("iso3c","year","scenario")
-  
+
   # GDP (in million $ PPP 2005)
   GDPppp <- calcOutput(type = "GDP", aggregate = FALSE)
   GDPnames <- paste0('gdp_',sspnames)
   GDPppp <- GDPppp[,years,GDPnames]
   getNames(GDPppp) <- sspnames
   getSets(GDPppp) <- c("iso3c","year","scenario")
-  
+
   # allocate empty objects for storing Theil contribution and weights
   contribTheilT <- pop
   contribTheilT[,,] <- NA
   s_i <- pop
   s_i[,,] <- NA
-  
+
   # contribution to Theil index depends on region mapping. We always use the one specified in getConfig().
   regionmapping <- read.csv(toolGetMapping(type = 'regional', name = getConfig()$regionmapping, returnPathOnly = TRUE),
                             sep = ';', colClasses = 'character')
@@ -60,22 +58,22 @@ calcTheil <- function(){
     xbar_rr <- GDPppp_rr/Ntot_rr
     # contribution to Theil index (unweighted)
     contribTheilT[rrCountries,,] <- TheilT[rrCountries,,] + log(xbar_i[rrCountries,,]/xbar_rr)
-    # weights = income share of country i: 
+    # weights = income share of country i:
     # s_i = N_i/N * xbar_i/xbar = GDP_i/GDP_rr
     s_i[rrCountries,,] <- GDPppp[rrCountries,,]/GDPppp_rr
     # sanity check: ensure that weights for a region sum to one (within floating point precision)
     assertthat::assert_that(max(abs(dimSums(s_i[rrCountries,,],dim=1) - 1)) < 1e-10)
   }
-  
+
   # for easier REMIND integration use same names as GDP scenarios for Theil
   # change this if we later want to test effect of per capita income growth vs. inequality
   getNames(contribTheilT) <- GDPnames
   getNames(s_i) <- GDPnames
-  
+
   return(list(x = contribTheilT, weight = s_i, unit = "-", description = 'aggregated: Theil-T index, not-aggregated: unweighted contribution to Theil-T'))
 }
 
-##  helper functions. 
+##  helper functions.
 TheilT.from.sigma <- function(sigma){
   # Theil T coefficient for lognormal distribution
   TheilT <- sigma^2/2.

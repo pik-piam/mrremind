@@ -1,34 +1,34 @@
 #' toolCubicFunctionDisaggregate
-#' 
-#' Estimates cubic function inverses based on a weight factor that sum up to the 
+#'
+#' Estimates cubic function inverses based on a weight factor that sum up to the
 #' original cubic function (sum in the x-axis)
-#' 
+#'
 #' Use case: disaggregate a single region cubic cost function to multiple country
-#' cubic functions weighted by a contribution factor. The sum of the countries 
-#' function output is equal to the original regional function. 
-#' 
-#' input: coefficients of the n-th country level cubic cost function. 
-#' 
+#' cubic functions weighted by a contribution factor. The sum of the countries
+#' function output is equal to the original regional function.
+#'
+#' input: coefficients of the n-th country level cubic cost function.
+#'
 #' Description of the problem: the disaggregation of functions that represent unit
 #' costs (or prices) in the y-axis and quantities in the x-axis require operations
-#' with the inverse of the original functions.  As complex functions present 
+#' with the inverse of the original functions.  As complex functions present
 #' analytically challenging inverse function derivations, we adopt a sampling
-#' method to derive the function that corresponds to the sum of cubic function 
-#' inverses.     
-#' 
+#' method to derive the function that corresponds to the sum of cubic function
+#' inverses.
+#'
 #' Further extensions: the R function can be extended to support more complex curve
 #' estimations (beyond third degree), whenever the mathematical function have a well
 #' defined inverse function in the selected boundaries.
-#' 
+#'
 #' @param x magclass object that should be aggregated or data frame with
-#' coefficients as columns. 
+#' coefficients as columns.
 #' @param weight magclass object containing weights which should be considered
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed).
 #' @param rel relation matrix containing a region mapping.
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
-#' @param xLowerBound numeric. Lower bound for x sampling (default=0). 
+#' @param xLowerBound numeric. Lower bound for x sampling (default=0).
 #' @param xUpperBound numeric. Upper bound for x sampling (default=100).
 #' @param returnMagpie boolean. if true, the function will return a single data table
 #' with all the countries in MagPie format. returnChart and returnSample are set to
@@ -36,21 +36,21 @@
 #' @param returnCoeff boolean. Return estimated coefficients (default=TRUE).
 #' @param returnChart boolean. Return chart (default=FALSE).
 #' @param returnSample boolean. Return samples used on estimation (default=FALSE).
-#' @param numberOfSamples numeric. NUmber of y-axis samples used on estimation 
+#' @param numberOfSamples numeric. NUmber of y-axis samples used on estimation
 #' (default=1e3).
 #' @param unirootLowerBound numeric. Lower bound to search for inverse solution in the
 #' initial bounds (default = -10).
 #' @param unirootUpperBound numeric. Upper bound to search for inverse solution in the
-#' initial bounds (default = 1e100).  
+#' initial bounds (default = 1e100).
 #' @param colourPallete vector. colour pallete to use on chart (default=FALSE).
 #' @param label list. List of chart labels (default=list(x = "x", y = "y", legend =
 #' "legend")).
-#' 
+#'
 #' @return return: returns a list of magpie objects containing the coefficients for the
-#' aggregate function. If returnMagpie is FALSE, returns a list containing the 
+#' aggregate function. If returnMagpie is FALSE, returns a list containing the
 #' coefficients for the aggregate function (returnCoeff=TRUE), charts (returnChart=FALSE)
 #' and/or samples used in the estimation (returnSample=FALSE).
-#' 
+#'
 #' @author Renato Rodrigues
 #' @export
 #' @importFrom magclass is.magpie as.data.frame
@@ -58,7 +58,7 @@
 #' @importFrom stats reshape uniroot
 #' @seealso \code{\link{toolCubicFunctionAggregate}}
 #' @examples
-#' 
+#'
 #' # Example
 #' # LAM coefficients
 #' df <- setNames(data.frame(30,50,0.34369,2),c("c1","c2","c3","c4"))
@@ -76,23 +76,22 @@
 
 
 toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xUpperBound=100, returnMagpie=TRUE, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend")){
-  
-  rlang::check_installed("nnls")
+
   data <- x
-  
+
   ### Start of cubicFitDisaggregate function
-  
+
     cubicFitDisaggregate <- function(data, weight, xLowerBound=0, xUpperBound=100, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend")){
-      
+
       # initialize coefficients list
-      coeffList <- lapply(names(weight),function(x){ 
+      coeffList <- lapply(names(weight),function(x){
         row <- rep(0, length(names(data)))
         names(row) <- names(data)
         return(row)
       }
       )
       names(coeffList) <- names(weight)
-      
+
       if (length(weight[weight != 0]) == 1){ # no need to disaggregate a single function
         # preparing results
         result <- list()
@@ -111,17 +110,17 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
         }
         if (returnCoeff == TRUE){ # return coeff of estimated function
           if(length(result) == 0) {
-            result <- coeffList 
+            result <- coeffList
           } else {
-            result$coeff <- coeffList 
+            result$coeff <- coeffList
           }
         }
-        return(result)  
-      } 
-      
+        return(result)
+      }
+
       #function to be disaggregated
-      fTotal <- function(x){ as.numeric(data[1]) + as.numeric(data[2])*x + as.numeric(data[3])*x^2 + as.numeric(data[4])*x^3 }  
-      
+      fTotal <- function(x){ as.numeric(data[1]) + as.numeric(data[2])*x + as.numeric(data[3])*x^2 + as.numeric(data[4])*x^3 }
+
       #Boundaries for which all functions are defined
       #X (= sum X of each function)
       maxX <- xUpperBound
@@ -136,17 +135,17 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
       samples <- data.frame(x = seq(from=minX, to=maxX, length.out = numberOfSamples))
       # sampling y
       samples$y <- fTotal(samples$x)
-      
+
       # sampling y
       totalWeight <- sum(weight)
       for (rowName in names(weight)){
           samples[,(paste0(rowName,".x"))] <- samples$x*(weight[rowName]/totalWeight)
       }
       samples[samples<0] <- 0 #make sure all samples are greater or equal to zero
-      
+
       # estimating functions to each row from the new samples created from weights
       for (rowName in names(weight)){
-        #use nls to force positive coefficients 
+        #use nls to force positive coefficients
         current <- data.frame(x = samples[paste0(rowName,".x")], y = samples[,"y"])
         names(current) <- c("x","y")
         df <- data.frame(1, current$x, current$x^2, current$x^3)
@@ -156,17 +155,17 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
         names(newFunctionCoeff) <- names(data)
         coeffList[[rowName]][] <- newFunctionCoeff
       }
-      
+
       # preparing results
       result <- list()
       if (returnSample == TRUE){
         result$sample <- samples # return samples table
       }
       if (returnChart == TRUE){
-        
+
         #estimated functions
         fY <- lapply(coeffList, function(coef){ function(x){ as.numeric(coef[1]) + as.numeric(coef[2])*x + as.numeric(coef[3])*x^2 + as.numeric(coef[4])*x^3 } })
-        
+
         p <- ggplot2::ggplot(samples, ggplot2::aes(samples$x, samples$y, group = 1)) +
           ggplot2::coord_cartesian(ylim = c(0, max(samples$y)))
          p <- p + ggplot2::stat_function(fun=fTotal, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
@@ -177,24 +176,24 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
           p <- p + ggplot2::scale_colour_manual(label$legend, values = colourPallete)
         }
         p <- p + ggplot2::scale_linetype_manual(values = c("solid", rep.int("dashed", length(weight))), guide = FALSE)
-        
+
         p <- p + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(linetype = c("solid", rep.int("dashed", length(weight))))))
-        
+
         p <- p + ggplot2::labs(colour = label$legend, x = label$x, y = label$y)
-        
+
         result$chart <- p # return chart
-        
+
       }
       if (returnCoeff == TRUE){ # return coeff of estimated function
         if(length(result) == 0) {
-          result <- coeffList 
+          result <- coeffList
         } else {
-          result$coeff <- coeffList 
+          result$coeff <- coeffList
         }
       }
       return(result)
     }
-    
+
   ### End of cubicFitDisaggregate function
 
   # pre processing data formats and executing estimations
@@ -205,13 +204,13 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
     dataNames <- dataNames[-length(dataNames)] # remove last element (coefficient labels)
     factorGroups <- interaction(df[,dataNames]) # all combinations of Data values
     groupsList <- split(df, with(df, factorGroups), drop = TRUE)
-    #looping through all data sets and estimating the respective aggregated functions 
+    #looping through all data sets and estimating the respective aggregated functions
     output <- lapply(seq_along(groupsList),
                      function(i) {
                        # preparing data (row names equal to regions, one column for each coefficient)
                        currentDf <- groupsList[[i]]
-                       currentDf <- currentDf[c(2,length(currentDf)-1,length(currentDf))] #region, coeff, value 
-                       names(currentDf) <- c("Region","coeff","value")  
+                       currentDf <- currentDf[c(2,length(currentDf)-1,length(currentDf))] #region, coeff, value
+                       names(currentDf) <- c("Region","coeff","value")
                        currentDf <- reshape2::acast(currentDf, Region ~ coeff, value.var = 'value')
                        currentWeight <- as.data.frame(weight[[names(groupsList[i])]])[c("Value")]
                        rownames(currentWeight) <- getRegions(weight[[names(groupsList[i])]])
@@ -232,7 +231,7 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
                            names(currentWeight) <- rel[from][rel[to]==as.character(region)]
                            outRegion <- cubicFitDisaggregate(currentFilteredDf, currentWeight, xLowerBound=xLowerBound, xUpperBound=as.numeric(xUpperBound[region,,names(groupsList[i])]), returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound=unirootLowerBound,unirootUpperBound=unirootUpperBound, colourPallete=colourPallete, label=label)
                            return(outRegion)
-                         }) 
+                         })
                          names(out) <- unique(rel[[to]])
                          if (returnMagpie==TRUE){
                            df <- out
@@ -275,6 +274,6 @@ toolCubicFunctionDisaggregate <- function(x, weight, rel=NULL, xLowerBound=0, xU
         output <- as.magpie(output[,c("Region","coeff","Value")],temporal=0,datacol=3)
       }
     }
-  } 
+  }
   return(output)
 }
