@@ -22,7 +22,6 @@ readRutovitz2015 <- function(subtype) {
   Year <- NULL
   value <- NULL
   if (subtype == "oecd_ef") {
-    rlang::check_installed("mgsub")
     input <- read_csv(file = "oecd_ef.csv", na = "", col_types = "cddddc") %>%
       rename(tech = 1, duration = 2, CI = 3, Manf = 4, OM = 5, Fuel_supply = 6) %>%
       filter(!is.na(tech)) %>%
@@ -52,8 +51,7 @@ readRutovitz2015 <- function(subtype) {
 
 
   if (subtype == "regional_ef") {
-  
-    rlang::check_installed("mgsub")
+
     input <- read_csv("regional_ef.csv", na = "", col_types = "ccdddd") %>%
       rename(tech = 1, region = 2, CI = 3, Manf = 4, OM = 5, Fuel_supply = 6) %>%
       filter(!is.na(tech)) %>%
@@ -68,10 +66,10 @@ readRutovitz2015 <- function(subtype) {
       # mutate(region=ifelse(region=="OECD North America","OECD Americas",region))
       # mutate(value=ifelse(!activity %in% c("Fuel_supply","OM"),value/duration,value)) %>%
       select(region, tech, activity, value)
-  
-  
+
+
     x <- as.magpie(input, spatial = 1, temporal = NULL, datacol = 4)
-  
+
     return(x)
   }
 
