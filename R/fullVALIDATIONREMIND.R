@@ -70,17 +70,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = TRUE
   )
 
-  # filter variables that are too imprecise on regional level
-
-  valpath <- paste0(getConfig("outputfolder"), "/", valfile)
-
-  h <- read.report(file = valpath, as.list = F)
-
-  # remove IEA ETP Steel and Cement Production on sub-global level
-  h[, , "IEA ETP", pmatch = T][, , c(
-    "Production|Industry|Cement (Mt/yr)",
-    "Production|Industry|Steel (Mt/yr)"
-  )][setdiff(getItems(h, dim = 1), "GLO"),,] <- NA
-
-  write.report(h, file = valpath)
+  # filter variables that are too imprecise on regional level ----
+  filter_historical_mif()
 }
