@@ -17,12 +17,10 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
 
-  rel <- "global" # always compute global aggregate
+  rel <- "global"   # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
-    columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
-      c("X", "CountryCode")
-    )
+    columns <- setdiff(colnames(toolGetMapping(mapping, "regional")),
+                       c("X", "CountryCode"))
 
     if (any(columns %in% rel)) {
       warning(
@@ -72,4 +70,5 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
+
 }
