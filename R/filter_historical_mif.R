@@ -25,42 +25,49 @@
 
 #' @export
 filter_historical_mif <- function(path = NULL, filter_table = NULL) {
-  if (is.null(path))
-    path <- file.path(getConfig('outputfolder'), 'historical.mif')
+    if (is.null(path))
+        path <- file.path(getConfig('outputfolder'), 'historical.mif')
 
-  if (is.null(filter_table))
-    filter_table <- read.csv(
-      file = system.file('extdata', 'historical_mif_filter_table.csv',
-                         package = 'mrremind', mustWork = TRUE),
-      colClasses = 'character')
+    if (is.null(filter_table))
+        filter_table <- read.csv(
+            file = system.file('extdata', 'historical_mif_filter_table.csv',
+                               package = 'mrremind', mustWork = TRUE),
+            colClasses = 'character')
 
-  h <- read.report(file = path, as.list = FALSE)
+    # combine scenario, model, and variable columns to string for indexing a
+    # magpie object
+    scenario_model_variable <- sapply(
+        seq_len(nrow(filter_table)),
+        function(i) {
+            Reduce(f = cartesian,
+                   x = filter_table[i,c('scenario', 'model', 'variable')])
+        })
 
-  for (i in seq_len(nrow(filter_table))) {
-    aggregation_filter <- filter_table[i,]
+    # check for conflicting include/exclude definitions
+    include_and_exclude <- ( '' != filter_table[['include_regions']]
+                           & '' != filter_table[['exclude_regions']])
 
-    scenario_model_variable <- Reduce(
-      f = cartesian,
-      x = aggregation_filter[c('scenario', 'model', 'variable')])
+    if (any(include_and_exclude))
+        stop('Both include and exclude regions defined for:',
+             paste(c('', scenario_model_variable[include_and_exclude]),
+                   collapse = '\n'))
 
-    if (   '' != aggregation_filter[['include_regions']]
-           && '' != aggregation_filter[['exclude_regions']]) {
-      stop('Both include and exclude regions defined for:',
-           paste(c('', scenario_model_variable), collapse = '\n'))
+    h <- read.report(file = path, as.list = FALSE)
+
+    # process each row of the filter table
+    for (i in seq_len(nrow(filter_table))) {
+        if ('' != filter_table[[i,'include_regions']]) {
+            regions <- filter_table[[i,'include_regions']]
+        }
+        else {
+            regions <- setdiff(getItems(h, dim = 'region'),
+                               filter_table[[i,'exclude_regions']])
+        }
+
+        h_include <- h[regions,,scenario_model_variable[i]]
+
+        h <- mbind(h[,,scenario_model_variable[i], invert = TRUE], h_include)
     }
 
-    if ('' != aggregation_filter[['include_regions']]) {
-      regions <- aggregation_filter[['include_regions']]
-    }
-    else {
-      regions <- setdiff(getItems(h, dim = 'region'),
-                         aggregation_filter[['exclude_regions']])
-    }
-
-    h_include <- h[regions,,scenario_model_variable]
-
-    h <- mbind(h[,,scenario_model_variable, invert = TRUE], h_include)
-  }
-
-  write.report(h, file = path)
+    write.report(h, file = path)
 }
