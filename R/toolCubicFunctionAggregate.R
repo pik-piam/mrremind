@@ -1,30 +1,30 @@
 #' toolCubicFunctionAggregate
-#' 
+#'
 #' Estimates the function that represents the sum of cubic function inverses
 #' (sum in the x-axis)
-#' 
+#'
 #' Use case: aggregate country cubic cost functions to a single function that
 #' represents the entire region.
-#' 
-#' input: coefficients of the n-th country level cubic cost function. 
-#' 
+#'
+#' input: coefficients of the n-th country level cubic cost function.
+#'
 #' Description of the problem: the aggregation of functions that represent  unit
 #' costs, or prices in the y-axis, and quantities in the x-axis require operations
-#' with the inverse of the original functions.  As complex functions present 
+#' with the inverse of the original functions.  As complex functions present
 #' analytically challenging inverse function derivations, we adopt a  sampling
-#' method to derive the function that corresponds to the sum of cubic function 
-#' inverses.     
-#' 
+#' method to derive the function that corresponds to the sum of cubic function
+#' inverses.
+#'
 #' Further extensions: the R function can be extended to support more complex curve
 #' estimations (beyonf third degree), whenever the mathematical function have a well
 #' defined inverse function in the selected boundaries.
-#'  
+#'
 #' @param x magclass object that should be aggregated or data frame with
-#' coefficients as columns. 
+#' coefficients as columns.
 #' @param rel relation matrix containing a region mapping.
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
-#' @param xLowerBound numeric. Lower bound for x sampling (default=0). 
+#' @param xLowerBound numeric. Lower bound for x sampling (default=0).
 #' @param xUpperBound numeric. Upper bound for x sampling (default=100).
 #' @param returnMagpie boolean. if true, the function will return a single data table
 #' with all the countries in MagPie format. returnChart and returnSample are set to
@@ -32,22 +32,22 @@
 #' @param returnCoeff boolean. Return estimated coefficients (default=TRUE).
 #' @param returnChart boolean. Return chart (default=FALSE).
 #' @param returnSample boolean. Return samples used on estimation (default=FALSE).
-#' @param numberOfSamples numeric. NUmber of y-axis samples used on estimation 
+#' @param numberOfSamples numeric. NUmber of y-axis samples used on estimation
 #' (default=1e3).
 #' @param unirootLowerBound numeric. Lower bound to search for inverse solution in the
 #' initial bounds (default = -10).
 #' @param unirootUpperBound numeric. Upper bound to search for inverse solution in the
-#' initial bounds (default = 1e100).  
+#' initial bounds (default = 1e100).
 #' @param colourPallete vector. colour pallete to use on chart (default=FALSE).
 #' @param label list. List of chart labels (default=list(x = "x", y = "y", legend =
 #' "legend")).
 #' @param steepCurve list. List with coefficients for a very "vertical" function for the case with all countries with upper bound zero in an specific region aggregation (default= empty list, list()).
-#' 
+#'
 #' @return return: returns a list of magpie objects containing the coefficients for the
-#' aggregate function. If returnMagpie is FALSE, returns a list containing the 
+#' aggregate function. If returnMagpie is FALSE, returns a list containing the
 #' coefficients for the aggregate function (returnCoeff=TRUE), charts (returnChart=FALSE)
 #' and/or samples used in the estimation (returnSample=FALSE).
-#' 
+#'
 #' @author Renato Rodrigues
 #' @export
 #' @importFrom magclass is.magpie as.data.frame
@@ -73,13 +73,12 @@
 
 
 toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=100, returnMagpie=TRUE, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend"), steepCurve = list()){
-  
-  rlang::check_installed("nnls")
+
   data <- x
-  
+
   if(is.null(rel$RegionCode))  rel$RegionCode  <- rel$region
   if(is.null(rel$CountryCode)) rel$CountryCode <- rel$country
-  
+
 
   if (!(length(steepCurve) == 0)){  #set steep curve if all countries within a region have zero upper bound
     for (region in unique(rel$RegionCode)){
@@ -94,14 +93,14 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
       }
     }
   }
-  
-  
+
+
   ### Start of cubicFitAggregate function
-  
+
   # function used to fit by sampling the sum of function inverses (sum in the x-axis)
   # input: data <- data table with coefficients of the functions to be aggregated. Format: one column for each coefficient
   cubicFitAggregate <- function(data, xLowerBound=0, xUpperBound=100, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend")){
-    
+
     if (nrow(data) == 1 || is.null(nrow(data))){ # no need to aggregate a single function
       # preparing results
       result <- list()
@@ -123,25 +122,25 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
           result$coeff <- c(data[1],data[2],data[3],data[4])
         }
       }
-      return(result)  
-    } 
-    
+      return(result)
+    }
+
     #cubic function of each row to be aggregated (ex: fY[[rowName]](20))
     fY <- apply(data, 1, function(coef){ function(x){ as.numeric(coef[1]) + as.numeric(coef[2])*x + as.numeric(coef[3])*x^2 + as.numeric(coef[4])*x^3 } })
-    
+
     #inverse function
     inverse = function (f, lower = unirootLowerBound, upper = unirootUpperBound) {
-      function (y) { 
-        result <- stats::uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes")$root 
+      function (y) {
+        result <- stats::uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes")$root
         #tryCatch(
-        #  result <- uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes",maxiter = 10000, trace =2)$root, 
+        #  result <- uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes",maxiter = 10000, trace =2)$root,
         #  error = return(NA)
         #)
         return(result)
       }
     }
     fYInverse <- lapply(rownames(data), function(rowName){
-      function(x, lower = unirootLowerBound, upper = unirootUpperBound){ 
+      function(x, lower = unirootLowerBound, upper = unirootUpperBound){
         lis<-vector()
         for(i in x){
           lis<-append(lis,inverse(fY[[rowName]],lower,upper)(i))
@@ -150,7 +149,7 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
       }
     })
     names(fYInverse) <- rownames(data)
-    
+
     # Boundaries for which all functions should be defined
     maxXtolerance <- 1e-10
     minX <- xLowerBound
@@ -174,7 +173,7 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
       minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
     }
     minY <- max(c(0,minY))
-   
+
     # Sampling
     # sampling y
     samples <- data.frame(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
@@ -182,18 +181,18 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
     for (rowName in rownames(data)){
         samples[,(paste0(rowName,".x"))] <- fYInverse[[rowName]](samples$y,minX,maxX)
     }
-    
+
     # total x
     samples$x <-rowSums(samples[grep("x", names(samples))])
     samples[samples<0] <- 0 #make sure all samples are greater or equal to zero
-    
+
     # estimating the new function
-    #use nnls to force positive coefficients 
+    #use nnls to force positive coefficients
     df <- data.frame(1, samples$x, samples$x^2, samples$x^3)
     df <- as.matrix(df)
     newFunction <- nnls::nnls(df,samples$y)
     newFunctionCoeff <- newFunction$x
-    
+
     # preparing results
     result <- list()
     if (returnSample == TRUE){
@@ -213,28 +212,28 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
         p <- p + ggplot2::scale_colour_manual(label$legend, values = colourPallete)
       }
       p <- p + ggplot2::scale_linetype_manual(values = c("solid", rep.int("dashed", nrow(data))), guide = FALSE)
-      
+
       p <- p + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(linetype = c("solid", rep.int("dashed", nrow(data))))))
-      
+
       p <- p + ggplot2::labs(colour = label$legend, x = label$x, y = label$y)
-      
+
       result$chart <- p # return chart
     }
     if (returnCoeff == TRUE){ # return coeff of estimated function
       names(newFunctionCoeff) <- colnames(data)
       if(length(result) == 0) {
-        result <- newFunctionCoeff 
+        result <- newFunctionCoeff
       } else {
-        result$coeff <- newFunctionCoeff 
+        result$coeff <- newFunctionCoeff
       }
     }
     return(result)
   }
-  
+
   ### End of cubicFitUpscale function
-  
+
   # pre processing data formats and executing estimations
-  
+
   if(is.magpie(data)){
     df <- as.data.frame(data)
     # splitting large dimensional magpie objects
@@ -242,13 +241,13 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
     dataNames <- dataNames[-length(dataNames)] # remove last element (coefficient labels)
     factorGroups <- interaction(df[,dataNames]) # all combinations of Data values
     groupsList <- split(df, with(df, factorGroups), drop = TRUE)
-    #looping through all data sets and estimating the respective aggregated functions 
+    #looping through all data sets and estimating the respective aggregated functions
     output <- lapply(seq_along(groupsList),
                      function(i) {
                        # preparing data (row names equal to regions, one column for each coefficient)
                        currentDf <- groupsList[[i]]
-                       currentDf <- currentDf[c(2,length(currentDf)-1,length(currentDf))] #region, coeff, value 
-                       names(currentDf) <- c("Region","coeff","value")  
+                       currentDf <- currentDf[c(2,length(currentDf)-1,length(currentDf))] #region, coeff, value
+                       names(currentDf) <- c("Region","coeff","value")
                        currentDf <- reshape2::acast(currentDf, Region ~ coeff, value.var = 'value')
                        # estimating aggregated function
                        if (is.null(rel)){ # single aggregated function
@@ -281,12 +280,12 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
                      })
     names(output) <- names(groupsList)
 
-    #from lists to dimension in the magpie names 
+    #from lists to dimension in the magpie names
     outputList <- output
     output <- lapply(seq_along(outputList), function(i) {
       out <- add_dimension(outputList[[i]], dim = 3.1, nm = names(outputList)[i])
     })
-    names(output) <- names(outputList) 
+    names(output) <- names(outputList)
     # merge all magpie objects into a single one
     output <- mbind(output)
 
@@ -306,7 +305,7 @@ toolCubicFunctionAggregate <- function(x, rel=NULL, xLowerBound=0, xUpperBound=1
         currentxUpperBound <- as.numeric(xUpperBound[rel[from][rel[to]==as.character(region)],,])
         outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound=xLowerBound, xUpperBound=currentxUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
         return(outRegion)
-      }) 
+      })
       if (returnMagpie==TRUE){
         colnames(output) <- unique(rel[[to]])
         rownames(output) <- colnames(data)

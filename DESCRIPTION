@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.163.0
-Date: 2023-05-16
+Version: 0.163.1
+Date: 2023-05-23
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -44,8 +44,8 @@ Depends:
     mrcommons (>= 1.26.6),
     edgeTransport (>= 0.17.0)
 Imports:
-    R.utils,
     assertr,
+    assertthat,
     broom,
     car,
     countrycode,
@@ -55,27 +55,27 @@ Imports:
     Hmisc,
     luscale,
     magrittr,
+    mgsub,
+    nnls,
     plyr,
     purrr,
     quitte (>= 0.3105.0),
+    readODS,
     readr,
     readxl,
+    reshape,
     reshape2,
     rlang,
+    rmndt,
+    R.utils,
     tibble,
     tidyr,
     tidyselect,
-    zoo
+    zoo,
 Suggests: 
-    assertthat,
     covr,
     knitr,
-    mgsub,
-    nnls,
-    readODS,
-    reshape,
     rmarkdown,
-    rmndt,
     testthat
 VignetteBuilder: 
     knitr

@@ -16,9 +16,6 @@
 #' }
 #'
 fullREMIND <- function(rev = 0) {
-
-  rlang::check_installed(c("assertthat", "broom", "car", "Hmisc", "nnls", "readODS", "reshape", "rmndt"))
-
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
 
