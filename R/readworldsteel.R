@@ -24,8 +24,8 @@
 #' @importFrom madrat toolISOhistorical
 #' @importFrom magclass as.data.frame as.magpie
 #' @importFrom quitte add_countrycode_ madrat_mule
-#' @importFrom readr read_delim
-#' @importFrom readr read_rds
+#' @importFrom readODS read_ods
+#' @importFrom readr read_delim read_rds
 #' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
 #' @importFrom tidyr pivot_longer
@@ -53,8 +53,7 @@ readworldsteel <- function(subtype = 'detailed') {
           'Apparent Steel Use (Crude Steel Equivalent)'),
         function(sheet) {
           # from this file
-          rlang::check_installed("readODS")
-          readODS::read_ods(path = file_path, sheet = sheet, na = '...') %>%
+          read_ods(path = file_path, sheet = sheet, na = '...') %>%
             as_tibble() %>%
             mutate(name = sheet) %>%
             pivot_longer(c(-'country', -'name'), names_to = 'year', names_transform = list(year = as.integer))
