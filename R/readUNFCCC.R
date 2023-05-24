@@ -218,7 +218,7 @@ readUNFCCC <- function() {
       )
     ),
     "Table1.A(b)" = list(
-      range = "C8:S50",
+      range = "C8:S49",
       colnames = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "kt CO2"),
       rows = tibble(
         name = {
@@ -258,7 +258,6 @@ readUNFCCC <- function() {
             "Fuel Types|Gaseous fossil totals",
             "Fuel Types|Waste (non-biomass fraction)",
             "Fuel Types|Other fossil fuels",
-            "Fuel Types|Waste",
             "Fuel Types|Peat",
             "Fuel Types|Total",
             "Fuel Types|Biomass total",
@@ -339,7 +338,7 @@ readUNFCCC <- function() {
       )
     ),
     "Table3s1" = list(
-      range = "A7:D57",
+      range = "A7:D47",
       colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
       rows = tibble(
         name = {
@@ -360,16 +359,11 @@ readUNFCCC <- function() {
             "Total agriculture|Enteric fermentation|Sheep",
             "Total agriculture|Enteric fermentation|Swine",
             "Total agriculture|Enteric fermentation|Other livestock",
-            "Total agriculture|Enteric fermentation|Other livestock|Buffalo",
             "Total agriculture|Enteric fermentation|Other livestock|Deer",
             "Total agriculture|Enteric fermentation|Other livestock|Goats",
             "Total agriculture|Enteric fermentation|Other livestock|Horses",
-            "Total agriculture|Enteric fermentation|Other livestock|Mules and Asses",
             "Total agriculture|Enteric fermentation|Other livestock|Poultry",
             "Total agriculture|Enteric fermentation|Other livestock|Other",
-            "Total agriculture|Enteric fermentation|Other livestock|Rabbit",
-            "Total agriculture|Enteric fermentation|Other livestock|Ostrich",
-            "Total agriculture|Enteric fermentation|Other livestock|Fur-bearing Animals",
             "Total agriculture|Manure management",
             "Total agriculture|Manure management|Cattle",
             NA,
@@ -384,23 +378,18 @@ readUNFCCC <- function() {
             "Total agriculture|Manure management|Sheep",
             "Total agriculture|Manure management|Swine",
             "Total agriculture|Manure management|Other livestock",
-            "Total agriculture|Manure management|Other livestock|Buffalo",
             "Total agriculture|Manure management|Other livestock|Deer",
             "Total agriculture|Manure management|Other livestock|Goats",
             "Total agriculture|Manure management|Other livestock|Horses",
-            "Total agriculture|Manure management|Other livestock|Mules and Asses",
             "Total agriculture|Manure management|Other livestock|Poultry",
             "Total agriculture|Manure management|Other livestock|Other",
-            "Total agriculture|Manure management|Other livestock|Rabbit",
-            "Total agriculture|Manure management|Other livestock|Ostrich",
-            "Total agriculture|Manure management|Other livestock|Fur-bearing Animals",
             "Total agriculture|Manure management|Indirect N2O emissions"
           )
         }
       )
     ),
     "Table3s2" = list(
-      range = "A7:D18",
+      range = "A7:D14",
       colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
       rows = tibble(
         name = {
@@ -412,17 +401,13 @@ readUNFCCC <- function() {
             "Total agriculture|Liming",
             "Total agriculture|Urea application",
             "Total agriculture|Other carbon-containing fertilizers",
-            "Total agriculture|Other",
-            "Total agriculture|Other|3B NOx Emissions",
-            "Total agriculture|Other|Digestate renewable raw material atmospheric deposition",
-            "Total agriculture|Other|Digestate renewable raw material storage of dry matter",
-            "Total agriculture|Other|Digestate renewable raw material"
+            "Total agriculture|Other"
           )
         }
       )
     ),
     "Table4" = list(
-      range = "A7:D29",
+      range = "A7:D27",
       colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
       rows = tibble(
         name = {
@@ -447,15 +432,13 @@ readUNFCCC <- function() {
             "Total LULUCF|Other land|Other land remaining other land",
             "Total LULUCF|Other land|Land converted to other land",
             "Total LULUCF|Harvested wood products",
-            "Total LULUCF|Other",
-            "Total LULUCF|Other|Settlements",
-            "Total LULUCF|Other|Other"
+            "Total LULUCF|Other"
           )
         }
       )
     ),
     "Table5" = list(
-      range = "A7:D24",
+      range = "A7:D22",
       colnames = paste0("kt ", c("CO2", "CH4", "N2O")),
       rows = tibble(
         name = {
@@ -475,9 +458,7 @@ readUNFCCC <- function() {
             "Total waste|Wastewater treatment and discharge|Domestic wastewater",
             "Total waste|Wastewater treatment and discharge|Industrial wastewater",
             "Total waste|Wastewater treatment and discharge|Other",
-            "Total waste|Other",
-            "Total waste|Other|Mechanical-Biological Treatment MBT",
-            "Total waste|Other|Accidental fires"
+            "Total waste|Other"
           )
         }
       )
@@ -552,23 +533,31 @@ readUNFCCC <- function() {
       )
     )
   )
-  dirs <- list.files(path = "./2022")
+  dirs <- list.files(path = "./2023")
 
   tmp <- NULL
   for (dir in dirs) {
-    files <- list.files(path = paste0("./2022/", dir))
+    files <- list.files(path = file.path(".", "2023", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
     for (file in files) {
       year <- as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file))
       if (is.na(year)) {
         next
       }
-      for (i in names(sheets)) {
+
+      availableSheets <- excel_sheets(file.path(".", "2023", dir, file))
+
+      missing <- setdiff(names(sheets), availableSheets)
+      if (length(missing) > 0) {
+        warning("missing sheets in ", file, ": ",paste0(missing, collapse = ", "))
+      }
+
+      for (i in intersect(names(sheets), availableSheets)) {
         tmp <- bind_rows(
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = paste0("2022/", dir, "/", file), sheet = i,
+              read_xlsx(path = file.path("2023", dir, file), sheet = i,
                 range = sheets[[i]][["range"]],
                 col_names = c("variable", sheets[[i]][["colnames"]])
               ) %>%
