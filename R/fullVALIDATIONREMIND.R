@@ -52,13 +52,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   calcOutput(
-    type = "IEA_WEO_2021", aggregate = "global", file = valfile,
-    append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
+    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
+    file = valfile,append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
   )
 
   calcOutput(
-    type = "IEA_WEO_2021", aggregate = "region", file = valfile,
-    append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
+    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
+    file = valfile, append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
   )
 
   ## industry value added ----
