@@ -57,14 +57,15 @@ filter_historical_mif <- function(path = NULL, filter_table = NULL) {
     # process each row of the filter table
     for (i in seq_len(nrow(filter_table))) {
         if ('' != filter_table[[i,'include_regions']]) {
-            regions <- filter_table[[i,'include_regions']]
+          excludedRegions <- setdiff(getItems(h, dim = 'region'),
+                                     filter_table[[i,'include_regions']])
         }
         else {
-            regions <- setdiff(getItems(h, dim = 'region'),
-                               filter_table[[i,'exclude_regions']])
+          excludedRegions <- filter_table[[i,'exclude_regions']]
         }
 
-        h_include <- h[regions,,scenario_model_variable[i]]
+        h_include <- h[, , scenario_model_variable[i]]
+        h_include[excludedRegions, , ] <- NA
 
         h <- mbind(h[,,scenario_model_variable[i], invert = TRUE], h_include)
     }
