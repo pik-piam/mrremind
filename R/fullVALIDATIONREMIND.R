@@ -72,7 +72,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     warnNA = FALSE, try = TRUE, isValidation = TRUE
   )
 
-  weo <- weo["GLO", , invert = T]
+  weo <- weo["GLO", , invert = TRUE]
   write.report(weo, file = file.path(getConfig("outputfolder"), valfile), append = TRUE)
 
   # filter variables that are too imprecise on regional level ----
