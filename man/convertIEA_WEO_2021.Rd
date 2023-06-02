@@ -9,7 +9,9 @@ convertIEA_WEO_2021(x, subtype = "global")
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Either "global" or "region"}
+\item{subtype}{Either "global" or "region". On global level, the source offers
+more variables than on regional level, but the data should not be used on sub-
+global level due to its coarse disaggregation.}
 }
 \value{
 A [`magpie`][magclass::magclass] object.

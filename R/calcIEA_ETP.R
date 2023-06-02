@@ -5,7 +5,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @param aggregate Boolean indicating whether output data aggregation should be performed or not
 #' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping
@@ -14,7 +13,7 @@
 #' @importFrom stats aggregate na.pass
 #' @export
 
-calcIEA_ETP <- function(aggregate, isValidation = FALSE) {
+calcIEA_ETP <- function(isValidation = FALSE) {
 
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
@@ -54,14 +53,6 @@ calcIEA_ETP <- function(aggregate, isValidation = FALSE) {
 
   x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.pass) %>%
     as.magpie()
-
-  # filter variables that are too imprecise on regional level
-  if (aggregate == "region") {
-    x <- x[, , c(
-      "Production|Industry|Cement (Mt/yr)",
-      "Production|Industry|Steel (Mt/yr"
-    ), pmatch = TRUE, invert = TRUE]
-  }
 
   if (isValidation) {
     x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")

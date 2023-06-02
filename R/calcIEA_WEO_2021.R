@@ -2,7 +2,9 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param aggregate Boolean indicating whether output data aggregation should be performed or not
+#' @param subtype Either "global" or "region". On global level, the source offers
+#' more variables than on regional level, but the data should not be used on sub-
+#' global level due to its coarse disaggregation.
 #' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
@@ -12,13 +14,7 @@
 #' @importFrom stats aggregate
 #' @export
 
-calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
-
-  if (isFALSE(aggregate)) {
-    aggregate <- "region"
-  } else if (!aggregate %in% c("global", "region")) {
-    aggregate <- "global"
-  }
+calcIEA_WEO_2021 <- function(subtype, isValidation = FALSE) { # nolint
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
@@ -30,7 +26,7 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
 
   mapping$variable <- trimws(mapping$variable)
 
-  data <- readSource("IEA_WEO_2021", subtype = aggregate)
+  data <- readSource("IEA_WEO_2021", subtype = subtype)
 
   # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
   for (s in getNames(data, dim = 1)) {
@@ -69,7 +65,7 @@ calcIEA_WEO_2021 <- function(aggregate, isValidation = FALSE) { # nolint
     as.magpie(spatial = 1, temporal = 2, data = 5) %>%
     toolCountryFill(fill = NA)
 
-  if (aggregate == "global") {
+  if (subtype == "global") {
     x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
     x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
       x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
