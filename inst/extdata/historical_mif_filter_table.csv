@@ -1,0 +1,7 @@
+scenario,model,variable,include_regions,exclude_regions
+historical,IEA ETP 2DS,Production|Industry|Cement (Mt/yr),GLO,
+historical,IEA ETP 2DS,Production|Industry|Steel (Mt/yr),GLO,
+historical,IEA ETP B2DS,Production|Industry|Cement (Mt/yr),GLO,
+historical,IEA ETP B2DS,Production|Industry|Steel (Mt/yr),GLO,
+historical,IEA ETP RTS,Production|Industry|Cement (Mt/yr),GLO,
+historical,IEA ETP RTS,Production|Industry|Steel (Mt/yr),GLO,

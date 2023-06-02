@@ -11,7 +11,7 @@ magpie objects of unweighted contribution to Theil, weights (= country shares of
 }
 \description{
 To calculate the regional Theil-T index (= correction to welfare function for a lognormal income distribution) we do the following:
-(1) convert country-level Gini coefficients to Theil (2) calculate contribution to Theil-T index that includes both between-countries and within-country inequality 
+(1) convert country-level Gini coefficients to Theil (2) calculate contribution to Theil-T index that includes both between-countries and within-country inequality
 (see e.g. https://en.wikipedia.org/wiki/Theil_index). The latter can then be aggregated with calcOutput().
 }
 \details{

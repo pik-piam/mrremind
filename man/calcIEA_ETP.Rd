@@ -4,11 +4,9 @@
 \alias{calcIEA_ETP}
 \title{Calculate REMIND emission variables from IEA ETP values}
 \usage{
-calcIEA_ETP(aggregate, isValidation = FALSE)
+calcIEA_ETP(isValidation = FALSE)
 }
 \arguments{
-\item{aggregate}{Boolean indicating whether output data aggregation should be performed or not}
-
 \item{isValidation}{indicates if result will be used in validation (as opposed to generating input data)}
 }
 \value{

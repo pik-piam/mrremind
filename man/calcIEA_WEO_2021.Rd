@@ -4,10 +4,12 @@
 \alias{calcIEA_WEO_2021}
 \title{Calculate REMIND variables from IEA WEO 2021 data}
 \usage{
-calcIEA_WEO_2021(aggregate, isValidation = FALSE)
+calcIEA_WEO_2021(subtype, isValidation = FALSE)
 }
 \arguments{
-\item{aggregate}{Boolean indicating whether output data aggregation should be performed or not}
+\item{subtype}{Either "global" or "region". On global level, the source offers
+more variables than on regional level, but the data should not be used on sub-
+global level due to its coarse disaggregation.}
 
 \item{isValidation}{indicates if result will be used in validation (as opposed to generating input data)}
 }

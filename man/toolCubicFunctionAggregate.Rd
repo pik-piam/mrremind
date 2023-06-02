@@ -43,7 +43,7 @@ FALSE automatically if this option is active (default=TRUE).}
 
 \item{returnSample}{boolean. Return samples used on estimation (default=FALSE).}
 
-\item{numberOfSamples}{numeric. NUmber of y-axis samples used on estimation 
+\item{numberOfSamples}{numeric. NUmber of y-axis samples used on estimation
 (default=1e3).}
 
 \item{unirootLowerBound}{numeric. Lower bound to search for inverse solution in the
@@ -61,7 +61,7 @@ initial bounds (default = 1e100).}
 }
 \value{
 return: returns a list of magpie objects containing the coefficients for the
-aggregate function. If returnMagpie is FALSE, returns a list containing the 
+aggregate function. If returnMagpie is FALSE, returns a list containing the
 coefficients for the aggregate function (returnCoeff=TRUE), charts (returnChart=FALSE)
 and/or samples used in the estimation (returnSample=FALSE).
 }
@@ -73,14 +73,14 @@ Estimates the function that represents the sum of cubic function inverses
 Use case: aggregate country cubic cost functions to a single function that
 represents the entire region.
 
-input: coefficients of the n-th country level cubic cost function. 
+input: coefficients of the n-th country level cubic cost function.
 
 Description of the problem: the aggregation of functions that represent  unit
 costs, or prices in the y-axis, and quantities in the x-axis require operations
-with the inverse of the original functions.  As complex functions present 
+with the inverse of the original functions.  As complex functions present
 analytically challenging inverse function derivations, we adopt a  sampling
-method to derive the function that corresponds to the sum of cubic function 
-inverses.     
+method to derive the function that corresponds to the sum of cubic function
+inverses.
 
 Further extensions: the R function can be extended to support more complex curve
 estimations (beyonf third degree), whenever the mathematical function have a well

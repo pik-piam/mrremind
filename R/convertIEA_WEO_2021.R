@@ -1,7 +1,9 @@
 #' Disaggregates IEA WEO 2021 Data
 #' @param x MAgPIE object to be converted
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "global" or "region"
+#' @param subtype Either "global" or "region". On global level, the source offers
+#' more variables than on regional level, but the data should not be used on sub-
+#' global level due to its coarse disaggregation.
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
