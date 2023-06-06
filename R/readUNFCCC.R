@@ -22,6 +22,8 @@
 #'
 #'
 readUNFCCC <- function() {
+
+  # structural definition of the source ----
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -172,7 +174,8 @@ readUNFCCC <- function() {
             "Manufacturing industries and construction|Non-metallic minerals|Other fossil fuels",
             "Manufacturing industries and construction|Non-metallic minerals|Peat",
             "Manufacturing industries and construction|Non-metallic minerals|Biomass",
-            "Manufacturing industries and construction|Other"          )
+            "Manufacturing industries and construction|Other"
+          )
         }
       )
     ),
@@ -281,10 +284,13 @@ readUNFCCC <- function() {
             "Total agriculture",
             "Total agriculture|Livestock",
             "Total agriculture|Enteric fermentation",
-            "Total agriculture|Enteric fermentation|Cattle"
+            "Total agriculture|Enteric fermentation|Cattle",
+            # extra variables
+            "Total agriculture|Manure management"
           )
         }
-      )
+      ),
+      extraVariables = "B.  Manure management"
     ),
     "Table3s2" = list(
       range = "A7:D14",
@@ -431,6 +437,9 @@ readUNFCCC <- function() {
       )
     )
   )
+
+  # parse directories ----
+
   dirs <- list.files(path = "./2023")
 
   tmp <- NULL
@@ -445,20 +454,32 @@ readUNFCCC <- function() {
 
       availableSheets <- excel_sheets(file.path(".", "2023", dir, file))
 
-      missing <- setdiff(names(sheets), availableSheets)
-      if (length(missing) > 0) {
-        message("missing sheets in ", file, ": ",paste0(missing, collapse = ", "))
-      }
-
       for (i in intersect(names(sheets), availableSheets)) {
+
+        s <- suppressMessages(
+          read_xlsx(
+            path = file.path("2023", dir, file), sheet = i,
+            range = sheets[[i]][["range"]],
+            col_names = c("variable", sheets[[i]][["colnames"]])
+          )
+        )
+
+        if (!is.null(sheets[[i]][["extraVariables"]])) {
+          extra <- suppressMessages(
+            read_xlsx(path = file.path("2023", dir, file), sheet = i) %>%
+            select(seq(1:4))
+          )
+          colnames(extra) <- c("variable", sheets[[i]][["colnames"]])
+          extra <- extra %>%
+            filter(!!sym("variable") %in% sheets[[i]][["extraVariables"]])
+          s <- rbind(s, extra)
+        }
+
         tmp <- bind_rows(
           tmp,
           suppressMessages(
             suppressWarnings(
-              read_xlsx(path = file.path("2023", dir, file), sheet = i,
-                range = sheets[[i]][["range"]],
-                col_names = c("variable", sheets[[i]][["colnames"]])
-              ) %>%
+              s %>%
                 bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
