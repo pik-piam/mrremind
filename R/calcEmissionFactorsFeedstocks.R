@@ -194,7 +194,7 @@ calcEmissionFactorsFeedstocks <- function() {
   iea <- readSource("IEA", subtype = "EnergyBalances", convert = T)[, c(2005, 2010, 2015, 2020), "NECHEM"] %>%
     collapseDim() %>%
     dimSums(dim = 3, na.rm = T) * 4.1868e-5 * 1e-3
-  weights[, c(2005, 2010, 2015, 2020)] <- iea
+  weights[, c(2005, 2010, 2015, 2020), ] <- iea
   weights[, c(seq(2025, 2060, 5), seq(2070, 2100, 10), seq(2110, 2150, 20)), ] <- weights[, 2020, ]
 
   return(
