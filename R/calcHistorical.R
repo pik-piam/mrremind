@@ -277,7 +277,7 @@ calcHistorical <- function() {
         "Production in Electric Arc Furnaces"
       ),
       .data$iso3c %in% (toolGetMapping(
-        name = getConfig("regionmapping"),
+        name = getConfig("regionmapping", where="mappingfolder"),
         type = "regional"
       ) %>%
         pull("CountryCode"))
@@ -317,7 +317,7 @@ calcHistorical <- function() {
     complete(nesting(!!!syms(c("year", "source", "name"))),
       iso3c = toolGetMapping(
         name = getConfig("regionmapping"),
-        type = "regional"
+        type = "regional", where="mappingfolder"
       ) %>%
         pull("CountryCode"),
       fill = list(value = 0)

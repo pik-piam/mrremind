@@ -11,10 +11,9 @@ convertIEA_REN <- function(x){
   country <- NULL
   region <- NULL
   
-
   mapping_rem <- toolGetMapping(getConfig()[1],where = "mappingfolder",type = "regional")
   # mapping file
-  mapping_IEA <- toolGetMapping("mappingIEA-REN.csv",where = "mappingfolder",type = "regional")
+  mapping_IEA <- toolGetMapping("mappingIEA-REN.csv", where = "mappingfolder",type = "regional")
   mapping_IEA$country <- gsub("Bolivarian Republic of Venezuela \\(Venezuela\\)","Venezuela",mapping_IEA$country)
   mapping_IEA$country <- gsub("Kingdom of Eswatini Lesotho","Lesotho",mapping_IEA$country)
   #mapping_IEA$country <- grep(pattern = "Lao" ,value = T, mapping_IEA$country)
