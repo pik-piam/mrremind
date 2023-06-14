@@ -277,8 +277,8 @@ calcHistorical <- function() {
         "Production in Electric Arc Furnaces"
       ),
       .data$iso3c %in% (toolGetMapping(
-        name = getConfig("regionmapping", where="mappingfolder"),
-        type = "regional"
+        name = getConfig("regionmapping"),
+        type = "regional", where="mappingfolder"
       ) %>%
         pull("CountryCode"))
     ) %>%
