@@ -11,6 +11,7 @@
 #' @importFrom stats aggregate
 #' @export
 calcUNFCCC <- function() {
+
   data <- readSource("UNFCCC")
 
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where="mappingfolder") %>%

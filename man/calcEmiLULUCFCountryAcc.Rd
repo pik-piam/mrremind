@@ -7,7 +7,7 @@
 calcEmiLULUCFCountryAcc(subtype)
 }
 \arguments{
-\item{subtype}{Valid subtypes are 'PRIMAPhist'}
+\item{subtype}{Valid subtypes are 'UNFCCC'}
 }
 \value{
 Magpie object with historical LULUCF emissions
