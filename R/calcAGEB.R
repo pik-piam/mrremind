@@ -15,7 +15,7 @@
 calcAGEB <- function(subtype = "balances") {
   ageb <- readSource("AGEB", subtype = subtype)
 
-  mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables", where = "mappingfolder") %>%
     mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
     select("variable" = "AGEB_variable", "REMIND_variable", "conversion", "unit" = "Unit_AGEB", "Unit_REMIND") %>%
     filter(!!sym("REMIND_variable") != "")

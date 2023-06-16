@@ -172,8 +172,8 @@ readGEA2012 <- function(subtype) {
       sp_IEADecRat[,,"conv"] <- c(0.041,    0.111,    0.111,    0.111,    0.041, 0.111,    0.082,    0.082,    0.082,    0.082,    0.111)
       sp_IEADecRat[,,"unconv"] <- c(0.150,    0.150,    0.150,    0.150,    0.150, 0.150,    0.150,    0.150,    0.150,    0.150,    0.150)
     }
-    mappingREM11 <- toolGetMapping("regionmappingREMIND.csv","regional", where="mappingfolder")
-    mappingGEA <- toolGetMapping("regionmappingGEA2012.csv","regional", where="mappingfolder")
+    mappingREM11 <- toolGetMapping("regionmappingREMIND.csv","regional", where = "mappingfolder")
+    mappingGEA <- toolGetMapping("regionmappingGEA2012.csv","regional", where = "mappingfolder")
     w <- read.csv(paste0(getConfig("sourcefolder"),"/BGR/",subtype,"_reserves.csv"),header=TRUE,sep=";")[,c("Land_Region","Reserves","Resources")]
     #Remove NAs
     w[is.na(w)] <- 0

@@ -14,7 +14,7 @@
 
 calcBP <- function() {
   .readFactors <- function() {
-    factors <- toolGetMapping("BP_Renewable_Efficiency_Factors.csv", type = "sectoral", where="mappingfolder")
+    factors <- toolGetMapping("BP_Renewable_Efficiency_Factors.csv", type = "sectoral", where = "mappingfolder")
     colnames(factors) <- c("year", "factor")
     factors <- rbind(
       factors,

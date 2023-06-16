@@ -13,7 +13,7 @@
 
 calcGEA2012 <- function(subtype,datatype) {
   
-  mapping <- toolGetMapping(getConfig("regionmapping"),type="regional", where="mappingfolder")
+  mapping <- toolGetMapping(getConfig("regionmapping"),type="regional", where = "mappingfolder")
   regionNames <- unique(mapping$RegionCode)
   ts1 <- 5
   ts2 <- 10

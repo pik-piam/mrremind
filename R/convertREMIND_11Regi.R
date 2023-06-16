@@ -28,7 +28,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
   } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" | subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where="mappingfolder")
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # Filtering REMIND old region mapping (selecting just regions available on data)
     mapping <- mapping[mapping[, 3] %in% getRegions(x),]
     # Replacing NA values with zero
@@ -50,7 +50,7 @@ convertREMIND_11Regi <- function(x,subtype) {
       return(df)
     }) 
     #  mapping - original REMIND region mapping (11 regions)
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where="mappingfolder")
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # maxExtraction (upper x limit for function estimation)
     upperBoundMaxExtractionPerCountry <- readSource("REMIND_11Regi", subtype = "ffPolyCumEx")[,,"max"]
     upperBoundMaxExtraction <- toolAggregate(upperBoundMaxExtractionPerCountry, mapping, weight=NULL)
@@ -75,7 +75,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     BGRuranium[BGRuranium == 0] <- 1E-3 # assigning small uranium extraction potential for countries with none to help the curves estimation
     weight <- list(peur = BGRuranium)
     #  mapping - original REMIND region mapping (11 regions)
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where="mappingfolder")
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # maxExtraction (upper x limit for function estimation)
     weightmaxExtraction <- toolAggregate(BGRuranium, mapping, weight=NULL) 
     totalWeightMaxExtraction <- as.numeric(colSums(weightmaxExtraction))

@@ -16,7 +16,7 @@
 
 calcIEA_WEO_2021 <- function(subtype, isValidation = FALSE) { # nolint
 
-  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables", where = "mappingfolder") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(
       !!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"), # nolint

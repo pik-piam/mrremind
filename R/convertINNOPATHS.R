@@ -2,7 +2,7 @@
 #' @importFrom dplyr %>%
 convertINNOPATHS <- function(x) {
 
-  regmapping <- toolGetMapping("regionmapping_21_EU11.csv", type = "regional", where="mappingfolder")
+  regmapping <- toolGetMapping("regionmapping_21_EU11.csv", type = "regional", where = "mappingfolder")
 
   gdpPerCapita <- calcOutput("GDPpc", aggregate = F)
   

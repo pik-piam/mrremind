@@ -72,7 +72,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
       ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE, where="mappingfolder")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE, where = "mappingfolder")
       rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
 
       ## to data.table (we use gdp_SSP2 as a starting point)
@@ -259,7 +259,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # - cumulate the reduction factor over the time horizon
 
       SSA_countries <- read_delim(
-        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE, where="mappingfolder"),
+        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE, where = "mappingfolder"),
         delim = ';',
         col_names = c('country', 'iso3c', 'region'),
         col_types = 'ccc',
@@ -417,7 +417,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         character.data.frame()
 
       regionmapping <- toolGetMapping(type = 'regional',
-                                      name = 'regionmappingH12.csv', where="mappingfolder") %>%
+                                      name = 'regionmappingH12.csv', where = "mappingfolder") %>%
         select(country = 'X', iso3c = 'CountryCode', region = 'RegionCode')
 
       historic_trend <- c(2004, 2020)
@@ -506,7 +506,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
 
     if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
-      mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where="mappingfolder")
+      mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
       REMIND_dimensions = "REMINDitems_out"
       sets_names = getSets(data)
@@ -521,7 +521,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
 
-        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", returnPathOnly = TRUE, where="mappingfolder")
+        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", returnPathOnly = TRUE, where = "mappingfolder")
         mapping = read.csv2(mapping_path, stringsAsFactors = F)
     }
     #----- PROCESS DATA ------------------
@@ -880,7 +880,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         ) %>%
         ungroup()
 
-      region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv', 'regional', where="mappingfolder") %>%
+      region_mapping_21 <- toolGetMapping('regionmapping_21_EU11.csv', 'regional', where = "mappingfolder") %>%
         as_tibble() %>%
         select(iso3c = 'CountryCode', region = 'RegionCode')
 
@@ -1454,7 +1454,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
               mutate(year = as.integer(as.character(.data$year))) %>%
               inner_join(
                 toolGetMapping(name = 'regionmappingOECD.csv',
-                               type = 'regional', where="mappingfolder") %>%
+                               type = 'regional', where = "mappingfolder") %>%
                   as_tibble() %>%
                   select(iso3c = 'CountryCode', region = 'RegionCode'),
 
@@ -1496,7 +1496,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           expand.values = TRUE) %>%
         inner_join(
           toolGetMapping(name = 'regionmappingOECD.csv',
-                         type = 'regional', where="mappingfolder") %>%
+                         type = 'regional', where = "mappingfolder") %>%
             as_tibble() %>%
             select(iso3c = 'CountryCode', region = 'RegionCode'),
 

@@ -11,7 +11,7 @@ convertLIMITS <- function(x, subtype) {
   # For now, this is useless as the processing for activities and emissions is the same
   if (subtype == "activities") {
 
-    m <- toolGetMapping(type = "regional", name = "regionmappingTIMER.csv", returnPathOnly = TRUE, where="mappingfolder")
+    m <- toolGetMapping(type = "regional", name = "regionmappingTIMER.csv", returnPathOnly = TRUE, where = "mappingfolder")
 
     # Get TIMER regional mapping
     map <- read.csv2(m)
@@ -25,7 +25,7 @@ convertLIMITS <- function(x, subtype) {
 
   if (subtype == "emissions") {
 
-    m <- toolGetMapping(type = "regional", name = "regionmappingTIMER.csv", returnPathOnly = TRUE, where="mappingfolder")
+    m <- toolGetMapping(type = "regional", name = "regionmappingTIMER.csv", returnPathOnly = TRUE, where = "mappingfolder")
 
     map <- read.csv2(m)
     map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]

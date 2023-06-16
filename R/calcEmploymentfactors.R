@@ -8,8 +8,8 @@
 
 calcEmploymentfactors <- function(improvements,multiplier){
   if (improvements=="None"||improvements=="CEEW"||improvements=="Dias"||improvements=="Rutovitz_aus"||improvements=="Solar_found"||improvements=="All"){
-    mapping <- toolGetMapping(type = "regional",name = "regionalmappingWEO2014.csv", where="mappingfolder")
-    mapping_remind <- toolGetMapping(type = "regional",name = "regionmappingH12.csv", where="mappingfolder")
+    mapping <- toolGetMapping(type = "regional",name = "regionalmappingWEO2014.csv", where = "mappingfolder")
+    mapping_remind <- toolGetMapping(type = "regional",name = "regionmappingH12.csv", where = "mappingfolder")
     colnames(mapping) <- c("region","country")
     mapping$country <- toolCountry2isocode(mapping$country)  
     

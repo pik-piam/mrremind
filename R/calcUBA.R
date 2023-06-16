@@ -14,7 +14,7 @@
 calcUBA <- function() {
   uba <- readSource("UBA")
   
-  mapping <- toolGetMapping("Mapping_UBA_REMIND.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_UBA_REMIND.csv", type = "reportingVariables", where = "mappingfolder") %>%
     select("variable" = "UBA_variable", "REMIND_variable", "Unit_REMIND") %>% 
     filter(!!sym("REMIND_variable") != "")
   

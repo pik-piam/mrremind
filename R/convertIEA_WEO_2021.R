@@ -36,7 +36,7 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
       return(x[!remove, , ])
     }
 
-    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional", where="mappingfolder")
+    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional", where = "mappingfolder")
 
     .disaggregateRegions <- function(xIn, regionsIn) {
       x <- .removeNaRegions(xIn)

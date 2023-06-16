@@ -17,7 +17,7 @@ calcpm_delta_kap_industry <- function() {
   
   pm_delta_kap_industry <- new.magpie(
     cells_and_regions = toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                       type = 'regional', where="mappingfolder")$CountryCode,
+                                       type = 'regional', where = "mappingfolder")$CountryCode,
     years = NULL,
     names = 'pm_delta_kap',
     fill = log(4) / lifetime,

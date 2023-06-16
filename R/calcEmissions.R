@@ -44,7 +44,7 @@ calcEmissions <- function(datasource="CEDS16") {
       emi <- emi[,,"6B_Other-not-in-total",invert=TRUE]
 
       # aggregate and rename CEDS59 sectors to CEDS16 sectors
-      map_CEDS59_to_CEDS16  <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toCEDS16.csv", where="mappingfolder")
+      map_CEDS59_to_CEDS16  <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toCEDS16.csv", where = "mappingfolder")
       tmp <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_CEDS16, from="CEDS59",to="CEDS16")
 
       # rename emissions according to map (currently only relevant for VOC)
@@ -91,7 +91,7 @@ calcEmissions <- function(datasource="CEDS16") {
     emi <- emi[,,"6B_Other-not-in-total", invert=TRUE]
 
     # aggregate and rename CEDS59 sectors to REMIND variables
-    map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting.csv", where="mappingfolder")
+    map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting.csv", where = "mappingfolder")
     emi <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_REMIND, from="CEDS59",to="REMIND")
 
     # rename emissions according to map (currently only relevant for VOC)
@@ -170,7 +170,7 @@ calcEmissions <- function(datasource="CEDS16") {
       emi <- emi[,, "6B_Other-not-in-total", invert=TRUE]
 
       # aggregate and rename CEDS59 sectors to REMIND sectors
-      map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting_2021.csv", where="mappingfolder")
+      map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting_2021.csv", where = "mappingfolder")
       emi <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_REMIND, from="CEDS59",to="REMIND")
 
       # undo unnecessary conversion from convertCEDS2021.R
@@ -397,7 +397,7 @@ calcEmissions <- function(datasource="CEDS16") {
     emi[,, "n2o"] <- emi[,, "n2o"] * 1000
 
     # map sectors and pollutants to REMIND nomenclature
-    map_sec <- toolGetMapping("mappingEDGAR6toREMIND.csv", type = "sectoral", where="mappingfolder")
+    map_sec <- toolGetMapping("mappingEDGAR6toREMIND.csv", type = "sectoral", where = "mappingfolder")
     map_pol <- c(n2o="N2O", ch4="CH4", co2_excl_short="CO2",
                  nh3="NH3", no2="NOX", bc="BC", co="CO", oc="OC", nmvoc="VOC", pm10="PM10", pm25="PM25", so2="Sulfur")
 
@@ -464,7 +464,7 @@ calcEmissions <- function(datasource="CEDS16") {
     getNames(em_limits, dim=2)[which(getNames(em_limits, dim=2) == "NOX")] <- "NOx"
 
     map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingLIMITSsectorstoREMINDsectors.csv",
-                                    returnPathOnly = TRUE, where="mappingfolder"),
+                                    returnPathOnly = TRUE, where = "mappingfolder"),
                      stringsAsFactors=TRUE)
 
     em_limits[is.na(em_limits)] <- 0.0
@@ -496,7 +496,7 @@ calcEmissions <- function(datasource="CEDS16") {
     #                                returnPathOnly = TRUE),
     #                 stringsAsFactors=TRUE)
     map <- read.csv2(toolGetMapping(type = "sectoral", name = "mappingECLIPSEsectorstoREMINDsectors.csv",
-                                    returnPathOnly = TRUE, where="mappingfolder"),
+                                    returnPathOnly = TRUE, where = "mappingfolder"),
                      stringsAsFactors=TRUE)
 
     em_eclipse[is.na(em_eclipse)] <- 0.0

@@ -104,7 +104,7 @@ convertECLIPSE <- function(x, subtype) {
 
     #-- Regional downscaling ---------------
     if (downscaling) {
-      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where="mappingfolder")
+      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
       map <- read.csv2(m)
@@ -130,7 +130,7 @@ convertECLIPSE <- function(x, subtype) {
 
     #-- Regional downscaling ---------------
     if (downscaling) {
-      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where="mappingfolder")
+      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
       map <- read.csv2(m)

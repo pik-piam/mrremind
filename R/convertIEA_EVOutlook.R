@@ -2,7 +2,7 @@ convertIEA_EVOutlook <- function(x) {
   Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
 
   w <- calcOutput("GDPPast", aggregate = F)[, "y2015", ]
-  mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where="mappingfolder")
+  mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
 
   .removeNaRegions <- function(x) {
     remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)

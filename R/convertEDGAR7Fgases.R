@@ -11,7 +11,7 @@ convertEDGAR7Fgases <- function(x) {
     # Aggregate regions, but not species yet
     x[is.na(x)] <- 0 #set NA to 0
     x  <- toolCountryFill(x,fill=0,verbosity=0) # fill missing countries
-    # map <- toolGetMapping(getConfig("regionmapping", where="mappingfolder"),type="regional")
+    # map <- toolGetMapping(getConfig("regionmapping", where = "mappingfolder"),type="regional")
     # fgaskt <- toolAggregate(x,map,weight=NULL)
     fgaskt <- x
 

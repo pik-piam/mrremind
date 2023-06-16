@@ -36,7 +36,7 @@ convertBP <- function(x, subtype) {
     x <- .removeNaYears(x)
 
     # full mapping of regions to iso countries
-    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional", where="mappingfolder")
+    mapping_full <- toolGetMapping("regionmappingBP_Full.csv", type = "regional", where = "mappingfolder")
 
     # iso countries in x
     ctry <- toolCountry2isocode(getItems(x, dim = 1), warn = F)
@@ -206,7 +206,7 @@ convertBP <- function(x, subtype) {
     trade.ref.import.oil <- .removeNaRegions(trade.ref.import.oil)
     trade.ref.import.oil <- trade.ref.import.oil[, c(2019, 2020), ]
 
-    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv", type = "regional", where="mappingfolder")
+    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv", type = "regional", where = "mappingfolder")
     reg2detailReg.export <- filter(reg2detailReg, !!sym("Type") == "Export")
     reg2detailReg.import <- filter(reg2detailReg, !!sym("Type") == "Import")
 
@@ -291,7 +291,7 @@ convertBP <- function(x, subtype) {
     x.price <- new.magpie(getISOlist(), getYears(x), getNames(x))
     x.price[getISOlist(), , ] <- x["GLO", , ]
 
-    mapping <- toolGetMapping("regionmappingH12.csv", where="mappingfolder")
+    mapping <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder")
     caz <- mapping[mapping$RegionCode == "CAZ", "CountryCode"]
     oas <- mapping[mapping$RegionCode == "OAS", "CountryCode"]
     eur <- setdiff(mapping[mapping$RegionCode == "EUR", "CountryCode"], "GBR")

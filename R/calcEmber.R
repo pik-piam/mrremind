@@ -41,7 +41,7 @@ calcEmber <- function(subtype = "all") {
   }
 
   # load and apply mapping to chosen variables
-  map <- toolGetMapping("Mapping_Ember.csv", type = "reportingVariables", where="mappingfolder") %>%
+  map <- toolGetMapping("Mapping_Ember.csv", type = "reportingVariables", where = "mappingfolder") %>%
     filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "")  # remove incomplete mapping rows
 
   # combine variable and unit in mapping

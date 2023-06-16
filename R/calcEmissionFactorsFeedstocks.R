@@ -48,7 +48,7 @@ calcEmissionFactorsFeedstocks <- function() {
   product_mapping <- toolGetMapping(
     name = "structuremappingIO_outputs_NECHEM.csv",
     type = "sectoral"
-  , where="mappingfolder") %>%
+  , where = "mappingfolder") %>%
     as_tibble() %>%
     right_join(
       tribble(

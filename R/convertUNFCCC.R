@@ -32,7 +32,7 @@ convertUNFCCC <- function(x)
   
   # fill countries of selected regions with 0 to allow for region aggregation
   regions.fill <- c("EUR", "REF", "NEU", "CAZ")
-  mapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where="mappingfolder") %>% filter(
+  mapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder") %>% filter(
     !!sym("RegionCode") %in% regions.fill
   )
   tmp <- x[unique(mapping$CountryCode),,]

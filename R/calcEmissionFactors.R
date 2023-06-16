@@ -110,22 +110,22 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
 
   # read in sectoral mapping (ECLIPSE (IMAGE) <> REMIND)
   map_sectors_ECLIPSE2Agg    <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoAggREMINDsectors.csv",
-                                                        returnPathOnly = TRUE, where="mappingfolder"),
+                                                        returnPathOnly = TRUE, where = "mappingfolder"),
                                          stringsAsFactors = TRUE)
   map_sectors_Agg2REMIND     <- read.csv(toolGetMapping(type = "sectoral", name = "mappingAggREMINDtoREMINDsectors.csv",
-                                                        returnPathOnly = TRUE, where="mappingfolder"),
+                                                        returnPathOnly = TRUE, where = "mappingfolder"),
                                          stringsAsFactors = TRUE)
   map_sectors_ECLIPSE2REMIND <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoREMINDsectors.csv",
-                                                        returnPathOnly = TRUE, where="mappingfolder"),
+                                                        returnPathOnly = TRUE, where = "mappingfolder"),
                                          stringsAsFactors = TRUE)
   # map_sectors <- map_sectors[which(!is.na(map_sectors$EDGE)),] # Remove transport sector (which is not represented in EDGE)
 
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
   map_REMINDregions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingREMIND.csv",
-                                                 returnPathOnly = TRUE, where="mappingfolder"),
+                                                 returnPathOnly = TRUE, where = "mappingfolder"),
                                   stringsAsFactors = TRUE)
   map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE),
-                            stringsAsFactors = TRUE, where="mappingfolder")[, c(2, 3)]
+                            stringsAsFactors = TRUE, where = "mappingfolder")[, c(2, 3)]
   map_regions  <- map_regions %>%
     filter(.data$CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
     filter(.data$RegionCode != "") %>%

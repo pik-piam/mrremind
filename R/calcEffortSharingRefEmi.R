@@ -28,7 +28,7 @@ calcEffortSharingRefEmi <- function(subtype){
     
   } else if (subtype=="REMIND_GHG") {
     e_ES <- readSource("Eurostat_EffortSharing",subtype="emissions") 
-    EU11map <- toolGetMapping("regionmapping_21_EU11.csv", type = "regional", where="mappingfolder")
+    EU11map <- toolGetMapping("regionmapping_21_EU11.csv", type = "regional", where = "mappingfolder")
     e_REMIND <- as.magpie(data.frame(
        period=rep(2005,9),
        regionscode=c("DEU","ECE","ECS","ENC","ESC","ESW","EWN","FRA","UKI"),

@@ -19,7 +19,7 @@ calcHRE <- function() {
   x[, "y2015", "HRE_HeatRoadmap"] <- x[, "y2015", "HRE_Baseline"]
   
   # map to REMIND variables
-  map_sector <- toolGetMapping("Mapping_HRE_sectoral.csv", type="sectoral", where="mappingfolder")
+  map_sector <- toolGetMapping("Mapping_HRE_sectoral.csv", type="sectoral", where = "mappingfolder")
   x <- toolAggregate(x, dim=3.2, rel=map_sector, from = "HRE", to="REMIND", partrel = T, verbosity = 2)
   
   # multiply by conversion factors to convert from HRE (TWh/year) to REMIND (EJ/yr)

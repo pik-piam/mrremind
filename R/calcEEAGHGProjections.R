@@ -13,7 +13,7 @@
 #' @export
 
 calcEEAGHGProjections <- function() {
-  mapping <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjections.csv", where="mappingfolder")
+  mapping <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjections.csv", where = "mappingfolder")
   eea <- readSource("EEA_EuropeanEnvironmentAgency", subtype = "projections")
 
   projectionsOverview <- as.data.frame(eea) %>%
@@ -40,7 +40,7 @@ calcEEAGHGProjections <- function() {
     )
 
   eeaDetail <- readSource("EEA_EuropeanEnvironmentAgency", subtype = "projections-detailed")
-  mappingDetailed <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjectionsDetailed.csv", where="mappingfolder")
+  mappingDetailed <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjectionsDetailed.csv", where = "mappingfolder")
 
   projectionsDetail <- as.data.frame(eeaDetail) %>%
     filter(!is.na(!!sym("Value"))) %>%

@@ -334,7 +334,7 @@ calcIndustry_EEK <- function(kap) {
     select('iso3c', 'year', 'scenario', 'subsector', 'value')
 
   # quick-fix to infeasible 2025 SSA kap_steel_primary ----
-  SSA_iso3c <- toolGetMapping('regionmappingH12.csv', 'regional', where="mappingfolder") %>%
+  SSA_iso3c <- toolGetMapping('regionmappingH12.csv', 'regional', where = "mappingfolder") %>%
     as_tibble() %>%
     filter('SSA' == .data$RegionCode) %>%
     pull('CountryCode')

@@ -10,7 +10,7 @@
 
 
 readGCPT <- function(subtype) {
-  map <- toolGetMapping(getConfig("regionmapping"), type="regional", where="mappingfolder")
+  map <- toolGetMapping(getConfig("regionmapping"), type="regional", where = "mappingfolder")
   year <- NULL
 
   if (!(subtype %in% c("early_retire","historical","status","future","lifespans","emissions","comp_rates","reg_comp_rates","glo_comp_rates","meanAge","ppca_emi","G20_FinEx",

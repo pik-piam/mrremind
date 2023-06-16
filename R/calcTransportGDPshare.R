@@ -29,7 +29,7 @@ calcTransportGDPshare <- function() {
   }
 
   # calculating regional averages to fill missing data
-  mapH12 <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where="mappingfolder")
+  mapH12 <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
   w <- ggdc10[, c(2005, 2010), "VA_Q05.Summation of sector GDP"]
   aggData <- toolAggregate(share, mapH12, weight = w)
   aggData["EUR", 2010, ] <- aggData["EUR", 2005, ] # European countries are missing total 2010 values

@@ -34,7 +34,7 @@ calcCementShare <- function() {
 
   list(x = bind_rows(
     left_join(
-      toolGetMapping('regionmappingOECD.csv', 'regional', where="mappingfolder") %>%
+      toolGetMapping('regionmappingOECD.csv', 'regional', where = "mappingfolder") %>%
         as_tibble() %>%
         select(iso3c = 'CountryCode', region = 'RegionCode'),
 

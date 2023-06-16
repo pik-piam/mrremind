@@ -36,7 +36,7 @@ convertRCP <- function(x, subtype){
     weights <- mbind(ch4, so2, bc, oc, co, voc, nh3, nox)
 
     
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingRCP.csv", returnPathOnly = TRUE, where="mappingfolder")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingRCP.csv", returnPathOnly = TRUE, where = "mappingfolder")
     mapping <- read.csv2(mappingfile, stringsAsFactors = FALSE)
     countries <- mapping$CountryCode
     

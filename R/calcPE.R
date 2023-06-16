@@ -4,7 +4,7 @@ calcPE <- function(subtype = "IEA") {
   
   data <- calcOutput("IO",subtype="input",aggregate=FALSE)
   
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", returnPathOnly = TRUE, where="mappingfolder")
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", returnPathOnly = TRUE, where = "mappingfolder")
   target = c("input")
   
   ### calculate data

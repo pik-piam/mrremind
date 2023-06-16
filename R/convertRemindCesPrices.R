@@ -13,9 +13,9 @@
 #'
 convertRemindCesPrices <- function(x, subtype = "ccd632d33a") {
   if (subtype == "ccd632d33a") {
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", returnPathOnly = TRUE, where="mappingfolder")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", returnPathOnly = TRUE, where = "mappingfolder")
   } else if (subtype == "690d3718e1") {
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE, where="mappingfolder")
+    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE, where = "mappingfolder")
   } else {
     stop("valid subtypes are 'ccd632d33a', '690d3718e1'")
   }

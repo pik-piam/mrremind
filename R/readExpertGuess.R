@@ -95,7 +95,7 @@ readExpertGuess <- function(subtype) {
         filter(is.na(.data$region)) %>%
         select(-'region') %>%
         expand_grid(region = toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                            type = 'regional', where="mappingfolder") %>%
+                                            type = 'regional', where = "mappingfolder") %>%
                       pull('RegionCode') %>%
                       unique() %>%
                       sort() %>%

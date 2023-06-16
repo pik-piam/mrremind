@@ -14,7 +14,7 @@
 convertGEA2012 <- function(x,subtype) {
   if (subtype=='coal') {
     #Load mapping file for GEA regions to country level
-    mapping <- toolGetMapping("regionmappingREMIND.csv","regional", where="mappingfolder")
+    mapping <- toolGetMapping("regionmappingREMIND.csv","regional", where = "mappingfolder")
     #Load country-level BGR data on coal combined reserve & resource distribution to serve as a disaggregation weight
     w <- read.csv(paste0(getConfig("sourcefolder"),"/BGR/coal_reserves.csv"),header=TRUE,sep=";")[,c("Land_Region","Remaining_Potential")]
     #convert the data into a magpie object, convert countries to ISO code and set missing countries to 0

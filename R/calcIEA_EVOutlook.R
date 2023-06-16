@@ -27,7 +27,7 @@ calcIEA_EVOutlook <- function() {
       !!sym("scenario") == "Projection-STEPS" ~ "IEA EV Outlook STEPS"
     ))
 
-  mapping <- toolGetMapping("Mapping_IEA_EV_Outlook.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_IEA_EV_Outlook.csv", type = "reportingVariables", where = "mappingfolder") %>%
     filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "") %>%
     mutate(!!sym("REMIND") := paste0(!!sym("REMIND_Variable"), " (", !!sym("REMIND_Unit"), ")")) %>%
     select("variable" = "Variable", "REMIND", "Factor")

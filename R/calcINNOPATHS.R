@@ -2,7 +2,7 @@
 #' @importFrom madrat toolGetMapping
 #'
 calcINNOPATHS <- function(x) {
-  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mappingfolder") %>%
     filter(!is.na(!!sym("REMIND"))) %>%
     mutate(
       !!sym("REMIND_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("REMIND"))),

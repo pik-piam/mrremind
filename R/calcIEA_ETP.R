@@ -15,7 +15,7 @@
 
 calcIEA_ETP <- function(isValidation = FALSE) {
 
-  mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where="mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mappingfolder") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
     select("variable" = "IEA_ETP", "REMIND", "Conversion", "Unit_REMIND")

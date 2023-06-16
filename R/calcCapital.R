@@ -73,7 +73,7 @@ calcCapital <- function(subtype = "Capital") {
       for(r in getRegions(cap_intensity_future)) {
       if(cap_intensity_future[r,t,"gdp_SSP2"]==0) {
         # get current mapping
-        map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"), where="mappingfolder")
+        map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"), where = "mappingfolder")
         # get list of countries that belong to the same region as r
         regi   <- map$RegionCode[map$CountryCode==r]
         c_regi <- map$CountryCode[map$RegionCode==regi]

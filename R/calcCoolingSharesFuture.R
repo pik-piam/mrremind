@@ -65,7 +65,7 @@ calcCoolingSharesFuture <- function() {
   
   # read in mapping to REMIND technologies
   map_table <- read_excel(toolGetMapping(type = "sectoral", name = "TechnologyMappingDavies2REMIND.xlsx",
-                                         returnPathOnly = TRUE, where="mappingfolder"))
+                                         returnPathOnly = TRUE, where = "mappingfolder"))
   map <- list()
   map$davies <- paste(map_table$'Davies Source/Technology',map_table$'Davies Cooling',sep=".")
   map$remind <- paste(map_table$'REMIND Technology',map_table$'REMIND Cooling',sep=".")

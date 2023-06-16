@@ -9,7 +9,7 @@ calcRegion2MAGICC <- function() {
   getSets(w)[1] <- "region"
   
   # read in regional mapping
-  map  <- toolGetMapping(type = "regional", name = "regionmappingRCP.csv", where="mappingfolder")
+  map  <- toolGetMapping(type = "regional", name = "regionmappingRCP.csv", where = "mappingfolder")
   map$RegionCode <- paste0("R5",map$RegionCode)
   
   # make magpie-objects in the right dimension

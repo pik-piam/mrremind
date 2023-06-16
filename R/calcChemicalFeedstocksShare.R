@@ -23,11 +23,11 @@ calcChemicalFeedstocksShare <- function()
 {
   region_mapping <- toolGetMapping(
     name = 'regionmapping_21_EU11.csv',
-    type = 'regional', where="mappingfolder") %>%
+    type = 'regional', where = "mappingfolder") %>%
     as_tibble() %>%
     select(region = 'RegionCode', iso3c = 'CountryCode')
   
-  OECD_iso3c <- toolGetMapping(name = 'regionmappingOECD.csv', type = 'regional', where="mappingfolder") %>%
+  OECD_iso3c <- toolGetMapping(name = 'regionmappingOECD.csv', type = 'regional', where = "mappingfolder") %>%
     as_tibble() %>% 
     select(iso3c = 'CountryCode', region = 'RegionCode') %>% 
     filter('OECD' == .data$region) %>% 

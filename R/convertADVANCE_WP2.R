@@ -34,7 +34,7 @@ convertADVANCE_WP2 <- function(x, subtype) {
         as_tibble() %>% 
         select(region = 'Region', ratio = 'Value') %>% 
         full_join(
-          toolGetMapping(name = 'regionmappingH12.csv', type = 'regional', where="mappingfolder") %>% 
+          toolGetMapping(name = 'regionmappingH12.csv', type = 'regional', where = "mappingfolder") %>% 
             as_tibble() %>% 
             select(iso3c = 'CountryCode', region= 'RegionCode'),
           

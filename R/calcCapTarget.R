@@ -99,7 +99,7 @@ calcCapTarget <- function(sources) {
     # hydrogen capacity targets from national/EU hydrogen strategies
 
     # Region targets
-    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional", where="mappingfolder") # get H12 regionmapping
+    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder") # get H12 regionmapping
     H2Target.reg <- new.magpie(unique(reg.map$RegionCode), getYears(x), "elh2", fill = 0)
     # Electrolyzer capacity target from the EU Hydrogen Strategy
     # https://ec.europa.eu/energy/sites/ener/files/hydrogen_strategy.pdf

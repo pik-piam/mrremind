@@ -19,7 +19,7 @@ convertnonEnergyDemand <- function(x) {
   w <- setNames(IO[,,c("seliqfos.fehoi.tdfoshoi","segafos.fegai.tdfosgai","sesofos.fesoi.tdfossoi")],c("chemicals.fehos","chemicals.fegas","chemicals.fesos"))
   
   # converting from REMIND-EU regions to country data using industry FE as weight
-  y <- toolAggregate(x, toolGetMapping(type = "regional", name = "regionmapping_21_EU11.csv", where="mappingfolder")[,c(1:3)], weight=w) 
+  y <- toolAggregate(x, toolGetMapping(type = "regional", name = "regionmapping_21_EU11.csv", where = "mappingfolder")[,c(1:3)], weight=w) 
 
 return(y)
 }

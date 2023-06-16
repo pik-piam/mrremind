@@ -278,7 +278,7 @@ calcHistorical <- function() {
       ),
       .data$iso3c %in% (toolGetMapping(
         name = getConfig("regionmapping"),
-        type = "regional", where="mappingfolder"
+        type = "regional", where = "mappingfolder"
       ) %>%
         pull("CountryCode"))
     ) %>%
@@ -317,7 +317,7 @@ calcHistorical <- function() {
     complete(nesting(!!!syms(c("year", "source", "name"))),
       iso3c = toolGetMapping(
         name = getConfig("regionmapping"),
-        type = "regional", where="mappingfolder"
+        type = "regional", where = "mappingfolder"
       ) %>%
         pull("CountryCode"),
       fill = list(value = 0)

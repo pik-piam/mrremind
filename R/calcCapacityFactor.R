@@ -39,7 +39,7 @@ calcCapacityFactor <- function(){
   # Read generation data from Energy Balances
   coalgen_c <- calcOutput("IO",subtype="output",aggregate = F)[,,"pecoal.seel"]
   coalgen_c <- dimSums(coalgen_c,dim=3)
-  map <- toolGetMapping(getConfig("regionmapping"),type="regional", where="mappingfolder")
+  map <- toolGetMapping(getConfig("regionmapping"),type="regional", where = "mappingfolder")
   coalgen_R <- toolAggregate(coalgen_c,map,weight=NULL)
   getNames(coalgen_c) <- "pc"
   getNames(coalgen_R) <- "pc"

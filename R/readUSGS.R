@@ -170,7 +170,7 @@ readUSGS <- function(subtype = 'cement') {
 
       # estimate withheld information using GDP ----
       region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                       type = 'regional', where="mappingfolder") %>%
+                                       type = 'regional', where = "mappingfolder") %>%
         as_tibble() %>%
         select(iso3c = 'CountryCode', region = 'RegionCode')
 
