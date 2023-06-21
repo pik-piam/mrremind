@@ -124,8 +124,8 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   map_REMINDregions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingREMIND.csv",
                                                  returnPathOnly = TRUE, where = "mappingfolder"),
                                   stringsAsFactors = TRUE)
-  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE),
-                            stringsAsFactors = TRUE, where = "mappingfolder")[, c(2, 3)]
+  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, , where = "mappingfolder"),
+                            stringsAsFactors = TRUE)[, c(2, 3)]
   map_regions  <- map_regions %>%
     filter(.data$CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
     filter(.data$RegionCode != "") %>%
