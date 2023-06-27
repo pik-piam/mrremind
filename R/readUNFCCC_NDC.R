@@ -18,7 +18,7 @@ readUNFCCC_NDC <- function(subtype) {
   } else if (grepl("2022", subtype, fixed = TRUE)) {
     NDCfile <- "NDC_2022-12-31.xlsx"
   } else {
-    NDCfile <- "NDC_2023-02-24.xlsx"
+    NDCfile <- "NDC_2023-05-31.xlsx"
     if (!grepl("2023", subtype, fixed = TRUE)) {
       warning("\nNo data for year in ", subtype, " available. Choose default: ", NDCfile)
     }
