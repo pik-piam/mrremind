@@ -40,7 +40,8 @@ calcEEAGHGProjections <- function() {
     )
 
   eeaDetail <- readSource("EEA_EuropeanEnvironmentAgency", subtype = "projections-detailed")
-  mappingDetailed <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjectionsDetailed.csv", where = "mappingfolder")
+  mappingDetailed <- toolGetMapping(type = "sectoral", name = "mappingEEAGHGProjectionsDetailed.csv", 
+                    where = "mappingfolder")
 
   projectionsDetail <- as.data.frame(eeaDetail) %>%
     filter(!is.na(!!sym("Value"))) %>%

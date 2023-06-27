@@ -72,7 +72,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
       ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", returnPathOnly = TRUE, where = "mappingfolder")
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", 
+                                    returnPathOnly = TRUE, where = "mappingfolder")
       rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
 
       ## to data.table (we use gdp_SSP2 as a starting point)
@@ -259,7 +260,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # - cumulate the reduction factor over the time horizon
 
       SSA_countries <- read_delim(
-        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', returnPathOnly = TRUE, where = "mappingfolder"),
+        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', 
+        returnPathOnly = TRUE, where = "mappingfolder"),
         delim = ';',
         col_names = c('country', 'iso3c', 'region'),
         col_types = 'ccc',
@@ -521,7 +523,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
 
-        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", returnPathOnly = TRUE, where = "mappingfolder")
+        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", 
+                                    returnPathOnly = TRUE, where = "mappingfolder")
         mapping = read.csv2(mapping_path, stringsAsFactors = F)
     }
     #----- PROCESS DATA ------------------

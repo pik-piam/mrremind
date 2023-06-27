@@ -206,7 +206,8 @@ convertBP <- function(x, subtype) {
     trade.ref.import.oil <- .removeNaRegions(trade.ref.import.oil)
     trade.ref.import.oil <- trade.ref.import.oil[, c(2019, 2020), ]
 
-    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv", type = "regional", where = "mappingfolder")
+    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv", 
+                                    type = "regional", where = "mappingfolder")
     reg2detailReg.export <- filter(reg2detailReg, !!sym("Type") == "Export")
     reg2detailReg.import <- filter(reg2detailReg, !!sym("Type") == "Import")
 

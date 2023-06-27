@@ -44,7 +44,8 @@ calcEmissions <- function(datasource="CEDS16") {
       emi <- emi[,,"6B_Other-not-in-total",invert=TRUE]
 
       # aggregate and rename CEDS59 sectors to CEDS16 sectors
-      map_CEDS59_to_CEDS16  <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toCEDS16.csv", where = "mappingfolder")
+      map_CEDS59_to_CEDS16  <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toCEDS16.csv", 
+                              where = "mappingfolder")
       tmp <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_CEDS16, from="CEDS59",to="CEDS16")
 
       # rename emissions according to map (currently only relevant for VOC)
@@ -91,7 +92,8 @@ calcEmissions <- function(datasource="CEDS16") {
     emi <- emi[,,"6B_Other-not-in-total", invert=TRUE]
 
     # aggregate and rename CEDS59 sectors to REMIND variables
-    map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting.csv", where = "mappingfolder")
+    map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting.csv", 
+                            where = "mappingfolder")
     emi <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_REMIND, from="CEDS59",to="REMIND")
 
     # rename emissions according to map (currently only relevant for VOC)
@@ -170,7 +172,8 @@ calcEmissions <- function(datasource="CEDS16") {
       emi <- emi[,, "6B_Other-not-in-total", invert=TRUE]
 
       # aggregate and rename CEDS59 sectors to REMIND sectors
-      map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting_2021.csv", where = "mappingfolder")
+      map_CEDS59_to_REMIND <- toolGetMapping(type = "sectoral", name = "mappingCEDS59toREMINDreporting_2021.csv", 
+                              where = "mappingfolder")
       emi <- toolAggregate(x=emi,weight = NULL, dim=3.1, rel = map_CEDS59_to_REMIND, from="CEDS59",to="REMIND")
 
       # undo unnecessary conversion from convertCEDS2021.R
