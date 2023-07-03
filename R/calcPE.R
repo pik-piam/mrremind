@@ -4,7 +4,8 @@ calcPE <- function(subtype = "IEA") {
   
   data <- calcOutput("IO",subtype="input",aggregate=FALSE)
   
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", returnPathOnly = TRUE)
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", 
+                            returnPathOnly = TRUE, where = "mappingfolder")
   target = c("input")
   
   ### calculate data
@@ -41,7 +42,7 @@ calcPE <- function(subtype = "IEA") {
   
   data <- readSource(type = "IEA_WEO",subtype = "PE")
   data <- collapseNames(data)
-  regions <- toolGetMapping(getConfig()[1],where = "mappingfolder",type = "regional")
+  regions <- toolGetMapping(getConfig()[1], where = "mappingfolder",type = "regional")
   #regions <- unique(regions$RegionCode)
   
   # gdp of all countries in 2015
