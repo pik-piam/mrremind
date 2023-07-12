@@ -35,20 +35,21 @@
 #' @importFrom assertr assert verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
-#' @importFrom dplyr %>% case_when between distinct first last n right_join
-#'   semi_join vars
+#' @importFrom dplyr %>% case_when bind_rows between distinct first last n
+#'   mutate pull right_join select semi_join vars
 #' @importFrom Hmisc wtd.quantile
-#' @importFrom ggplot2 aes expand_limits facet_wrap geom_area geom_line
-#'   geom_path geom_point ggplot ggsave guide_legend labs scale_colour_manual
-#'   scale_fill_discrete scale_linetype_manual scale_shape_manual theme
-#'   theme_minimal
+#' @importFrom ggplot2 aes coord_cartesian expand_limits facet_wrap geom_area
+#'   geom_line geom_path geom_point ggplot ggsave guide_legend labs
+#'   scale_colour_manual scale_fill_discrete scale_fill_manual
+#'   scale_linetype_manual scale_shape_manual theme theme_minimal
 #' @importFrom madrat calcOutput readSource toolGetMapping
-#' @importFrom quitte calc_mode df_populate_range duplicate duplicate_
-#'   list_to_data_frame madrat_mule magclass_to_tibble order.levels seq_range
-#'   sum_total_
+#' @importFrom quitte calc_mode character.data.frame df_populate_range duplicate
+#'   duplicate_ list_to_data_frame madrat_mule magclass_to_tibble order.levels
+#'   seq_range sum_total_
 #' @importFrom readr write_rds
 #' @importFrom stats nls SSlogis sd
-#' @importFrom tidyr pivot_longer pivot_wider
+#' @importFrom tibble as_tibble tibble tribble
+#' @importFrom tidyr expand_grid pivot_longer pivot_wider
 #' @importFrom zoo na.approx rollmean
 
 #' @rdname EDGE-Industry
@@ -1242,6 +1243,47 @@ calcSteel_Projections <- function(subtype = 'production',
     )
   }
 
+  if (!is.null(save.plots)) {
+
+    p <- ggplot() +
+      geom_area(
+        data = x %>%
+          as_tibble() %>%
+          filter('gdp_SSP2EU' == .data$scenario) %>%
+          left_join(region_mapping, 'iso3c') %>%
+          full_join(
+            tibble(
+              pf = c('ue_steel_primary', 'ue_steel_secondary'),
+              production = factor(c('Primary Production',
+                                    'Secondary Production'),
+                                  rev(c('Primary Production',
+                                        'Secondary Production')))),
+
+            'pf'
+          ) %>%
+          group_by(.data$region, .data$year, .data$production) %>%
+          summarise(value = sum(.data$value) * 1e3, .groups = 'drop') %>%
+          sum_total_('region', name = 'World'),
+        mapping = aes(x = 'year', y = 'value', fill = 'production')) +
+      facet_wrap(~ region, scales = 'free_y') +
+      labs(x = NULL, y = 'Mt Steel/year') +
+      scale_fill_manual(values = c('Primary Production' = 'orange',
+                                   'Secondary Production' = 'yellow'),
+                        name = NULL) +
+      coord_cartesian(xlim = c(NA, 2100), expand = FALSE) +
+      theme_minimal() +
+      theme(legend.position = c(1, 0),
+            legend.justification = c(1, 0))
+
+    ggsave(plot = p, filename = '6_Steel_production.png',
+           device = 'png', path = save.plots, bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+
+    write_rds(x = p,
+              file = file.path(save.plots,
+                               '6_Steel_production.rds'))
+  }
+
   # return statement ----
   return(list(x = x,
               weight = NULL,
@@ -1753,8 +1795,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme(legend.justification = c(1, 0),
             legend.position = c(1, 0))
 
-    ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.svg',
-           device = 'svg', path = save.plots, bg = 'white',
+    ggsave(plot = p, filename = '04_Steel_VA_regressions_projections.png',
+           device = 'png', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
@@ -2156,8 +2198,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal()
 
 
-    ggsave(plot = p, filename = '01_Cement_regression_projection.svg',
-           device = 'svg', path = save.plots, bg = 'white',
+    ggsave(plot = p, filename = '01_Cement_regression_projection.png',
+           device = 'png', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
@@ -2234,8 +2276,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             legend.position = c(1, 0))
 
 
-    ggsave(plot = p, filename = '05a_Cement_VA_regressions_projections.svg',
-           device = 'svg', path = save.plots, bg = 'white',
+    ggsave(plot = p, filename = '05a_Cement_VA_regressions_projections.png',
+           device = 'png', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
@@ -2467,8 +2509,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            y = 'per-capita Chemicals Value Added [$/year]') +
       theme_minimal()
 
-    ggsave(plot = p, filename = '02_Chemicals_regression_projection.svg',
-           device = 'svg', path = save.plots, bg = 'white',
+    ggsave(plot = p, filename = '02_Chemicals_regression_projection.png',
+           device = 'png', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
@@ -2610,8 +2652,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       theme_minimal() +
       theme(legend.justification = c(1, 0), legend.position = c(1, 0))
 
-    ggsave(plot = p, filename = '05b_Value_Added_projection.svg',
-           device = 'svg', path = save.plots, bg = 'white',
+    ggsave(plot = p, filename = '05b_Value_Added_projection.png',
+           device = 'png', path = save.plots, bg = 'white',
            width = 18, height = 14, units = 'cm', scale = 1.73)
 
     write_rds(x = p,
