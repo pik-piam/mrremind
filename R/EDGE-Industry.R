@@ -32,7 +32,7 @@
 #'
 #' @seealso [`calcOutput()`]
 #'
-#' @importFrom assertr assert verify within_bounds
+#' @importFrom assertr assert not_na verify within_bounds
 #' @importFrom broom tidy
 #' @importFrom car logit
 #' @importFrom dplyr %>% case_when bind_rows between distinct first last n
@@ -1262,9 +1262,10 @@ calcSteel_Projections <- function(subtype = 'production',
             'pf'
           ) %>%
           group_by(.data$region, .data$year, .data$production) %>%
-          summarise(value = sum(.data$value) * 1e3, .groups = 'drop') %>%
+          summarise(value = sum(.data$value), .groups = 'drop') %>%
           sum_total_('region', name = 'World'),
-        mapping = aes(x = 'year', y = 'value', fill = 'production')) +
+        mapping = aes(x = !!sym('year'), y = !!sym('value') * 1e-3,
+                      fill = !!sym('production'))) +
       facet_wrap(~ region, scales = 'free_y') +
       labs(x = NULL, y = 'Mt Steel/year') +
       scale_fill_manual(values = c('Primary Production' = 'orange',
@@ -1459,8 +1460,9 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     filter(!.data$censor) %>%
     duplicate(region = 'World') %>%
     pivot_longer(c('population', 'GDP', 'manufacturing')) %>%
-    group_by(.data$region, .data$year, .data$name) %>%
+    group_by(.data$region, .data$iso3c, .data$year, .data$name) %>%
     summarise(value = sum(.data$value), .groups = 'drop') %>%
+    sum_total_('iso3c') %>%
     pivot_wider() %>%
     mutate(
       # mfg.share = .data$manufacturing / .data$GDP,  FIXME
@@ -1473,7 +1475,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
       nls(formula = manufacturing / population ~ a * exp(b / GDPpC),
           data = regression_data %>%
-            filter(.data$region == r),
+            filter(.data$region == r,
+                   'Total' != .data$iso3c),
           start = list(a = 1000, b = -2000),
           trace = FALSE) %>%
         tidy() %>%
@@ -2519,6 +2522,93 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   }
 
   # ======================================================================== ===
+
+  if (!is.null(save.plots)) {
+    d_plot_region_totals <- regression_data %>%
+      filter('Total' == .data$iso3c)
+
+    d_plot_countries <- regression_data %>%
+      semi_join(
+        regression_data %>%
+          filter('World' != .data$region,
+                 'Total' != .data$iso3c) %>%
+          distinct(.data$region, .data$iso3c) %>%
+          group_by(.data$region) %>%
+          filter(1 != n()) %>%
+          ungroup(),
+
+        c('region', 'iso3c')
+      ) %>%
+      mutate(GDPpC = .data$GDP / .data$population)
+
+    d_plot_regression <- full_join(
+      regression_parameters,
+
+      regression_data %>%
+        select('region', 'GDPpC') %>%
+        df_populate_range('GDPpC'),
+
+      'region'
+    ) %>%
+      mutate(value = .data$a * exp(.data$b / .data$GDPpC))
+
+    d_plot_projections <- projected_data %>%
+      pivot_longer(c('population', 'GDP', 'manufacturing')) %>%
+      sum_total_('iso3c') %>%
+      pivot_wider() %>%
+      filter(.data$scenario %in% names(linetype_scenarios),
+             'Total' == .data$iso3c,
+             between(.data$year, max(d_plot_region_totals$year), 2100)) %>%
+      mutate(GDPpC = .data$GDP / .data$population) %>%
+      select('scenario', 'region', 'year', 'GDPpC', 'manufacturing',
+             'population') %>%
+      group_by(.data$region) %>%
+      filter(.data$GDPpC <= .data$GDPpC[ 'SSP2' == .data$scenario
+                                         & 2100 == .data$year]) %>%
+      ungroup()
+
+    p <- ggplot(
+      mapping = aes(x = !!sym('GDPpC') / 1000,
+                    y = !!sym('manufacturing') / !!sym('population') / 1000)) +
+      # plot region totals
+      geom_point(
+        data = d_plot_region_totals,
+        mapping = aes(shape = 'region totals')) +
+      # # plot regression line
+      geom_path(
+        data = d_plot_regression,
+        mapping = aes(y = !!sym('value') / 1000, colour = 'regression')) +
+      # # plot projections
+      geom_path(
+        data = d_plot_projections,
+        mapping = aes(colour = 'projection')) +
+      geom_point(
+        data = d_plot_projections %>%
+          filter(.data$year %in% projection_points),
+        mapping = aes(shape = as.character(!!sym('year'))),
+        size = 3) +
+      scale_shape_manual(
+        values = c('region totals' = 'o',
+                   setNames(rep('x', length(projection_points)),
+                            projection_points)),
+        name = NULL) +
+      scale_colour_manual(values = c('regression' = 'red',
+                                     'projection' = 'black'),
+                          name = NULL) +
+      facet_wrap(vars(!!sym('region')), scales = 'free') +
+      expand_limits(y = c(0, ceiling(y_max * 2) / 2)) +
+      labs(x = 'per-capita GDP [1000 $/year]',
+           y = 'per-capita Industry Value Added [1000 $/year]') +
+      theme_minimal()
+
+    ggsave(plot = p, filename = '03_Industry_regression_projection.png',
+           device = 'png', path = save.plots, bg = 'white',
+           width = 18, height = 14, units = 'cm', scale = 1.73)
+
+    write_rds(x = p,
+              file = file.path(save.plots,
+                               '03_Industry_regression_projection.rds'))
+  }
 
   # calculate other Industries Value Added projections ----
   projections <- bind_rows(
