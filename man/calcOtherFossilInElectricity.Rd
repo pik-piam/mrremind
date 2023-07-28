@@ -15,9 +15,15 @@ A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \
 This is used in remind2 reporting as input data to calculate additional
 capacity and secondary energy variables.
 }
+\details{
+The projection focuses on a tight mitigation scenario and assumes that all
+fossil emissions from waste burning / other fossil processes can be reduced
+to 0 by 2050. Should be replaced in the future by actual modeling of waste /
+other fossil plants, or at least connected to RCP scenario assumptions.
+}
 \seealso{
 \code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
-Falk Benke
+Robert Pietzcker, Falk Benke
 }
