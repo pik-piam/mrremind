@@ -9,7 +9,7 @@ convertEU_ReferenceScenario(x, subtype)
 \arguments{
 \item{x}{EU Reference Scenario magpie object derived from readEU_ReferenceScenario function}
 
-\item{subtype}{data subtype. Either "2016" or "2020"}
+\item{subtype}{data subtype. Either "techAssump.*", "2016" or "2020"}
 }
 \value{
 converted EU Reference Scenario magpie object
@@ -21,8 +21,7 @@ Converts EU Reference Scenario magpie object into appropriate form for the REMIN
 \dontrun{
 test <- readSource("EU_ReferenceScenario", subtype = "2020", convert = TRUE)
 }
-
 }
 \author{
-Renato Rodrigues, Falk Benke
+Renato Rodrigues, Falk Benke, Robin Hasse
 }
