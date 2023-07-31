@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.167.1
-Date: 2023-07-28
+Version: 0.167.2
+Date: 2023-08-01
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -41,7 +41,7 @@ Depends:
     madrat (>= 2.5.1),
     magclass (>= 3.17),
     mrdrivers (>= 1.0.0),
-    mrcommons (>= 1.26.6),
+    mrcommons (>= 1.33.3),
     edgeTransport (>= 0.17.0)
 Imports:
     assertr,
@@ -57,7 +57,6 @@ Imports:
     magrittr,
     mgsub,
     nnls,
-    openxlsx,
     plyr,
     purrr,
     quitte (>= 0.3105.0),
