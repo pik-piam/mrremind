@@ -47,28 +47,40 @@ calcUNFCCC <- function() {
   # aggregate pollutants ----
 
   x <- add_columns(x, "Emi|CH4 (Mt CH4/yr)", dim = 3.1)
-  x[, , "Emi|CH4 (Mt CH4/yr)"] <-
-    x[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] +
-    x[, , "Emi|CH4|Energy (Mt CH4/yr)"] +
-    x[, , "Emi|CH4|Industrial Processes (Mt CH4/yr)"] +
-    x[, , "Emi|CH4|Land-Use Change (Mt CH4/yr)"] +
-    x[, , "Emi|CH4|Waste (Mt CH4/yr)"]
+  x[, , "Emi|CH4 (Mt CH4/yr)"] <- dimSums(
+    x[, , c(
+      "Emi|CH4|Agriculture (Mt CH4/yr)",
+      "Emi|CH4|Energy (Mt CH4/yr)",
+      "Emi|CH4|Industrial Processes (Mt CH4/yr)",
+      "Emi|CH4|Land-Use Change (Mt CH4/yr)",
+      "Emi|CH4|Waste (Mt CH4/yr)"
+    )],
+    dim = 3, na.rm = TRUE
+  )
 
   x <- add_columns(x, "Emi|CO2 (Mt CO2/yr)", dim = 3.1)
-  x[, , "Emi|CO2 (Mt CO2/yr)"] <-
-    x[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
-    x[, , "Emi|CO2|Energy (Mt CO2/yr)"] +
-    x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
-    x[, , "Emi|CO2|Land-Use Change (Mt CO2/yr)"] +
-    x[, , "Emi|CO2|Waste (Mt CO2/yr)"]
+  x[, , "Emi|CO2 (Mt CO2/yr)"] <- dimSums(
+    x[, , c(
+      "Emi|CO2|Agriculture (Mt CO2/yr)",
+      "Emi|CO2|Energy (Mt CO2/yr)",
+      "Emi|CO2|Industrial Processes (Mt CO2/yr)",
+      "Emi|CO2|Land-Use Change (Mt CO2/yr)",
+      "Emi|CO2|Waste (Mt CO2/yr)"
+    )],
+    dim = 3, na.rm = TRUE
+  )
 
   x <- add_columns(x, "Emi|N2O (kt N2O/yr)", dim = 3.1)
-  x[, , "Emi|N2O (kt N2O/yr)"] <-
-    x[, , "Emi|N2O|Agriculture (kt N2O/yr)"] +
-    x[, , "Emi|N2O|Energy (kt N2O/yr)"] +
-    x[, , "Emi|N2O|Industrial Processes (kt N2O/yr)"] +
-    x[, , "Emi|N2O|Land-Use Change (kt N2O/yr)"] +
-    x[, , "Emi|N2O|Waste (kt N2O/yr)"]
+  x[, , "Emi|N2O (kt N2O/yr)"] <- dimSums(
+    x[, , c(
+      "Emi|N2O|Agriculture (kt N2O/yr)",
+      "Emi|N2O|Energy (kt N2O/yr)",
+      "Emi|N2O|Industrial Processes (kt N2O/yr)",
+      "Emi|N2O|Land-Use Change (kt N2O/yr)",
+      "Emi|N2O|Waste (kt N2O/yr)"
+    )],
+    dim = 3, na.rm = TRUE
+  )
 
   # add total GHG as CO2 equivalents for sectors ----
 
