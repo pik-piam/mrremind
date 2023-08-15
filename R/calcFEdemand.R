@@ -666,7 +666,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     # remove missing Navigate scenarios
     if (subtype %in% c("FE_buildings", "UE_buildings")) {
-      reminditems <- reminditems[, , grep("SSP2EU_NAV_.{3}\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
+      reminditems <- reminditems[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
     }
 
     #Change the scenario names for consistency with REMIND sets
@@ -1982,18 +1982,19 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       description_out <- "useful energy demand in buildings"
     }
     if (subtype == "FE") {
-      # duplicate SSP2EU scenarios of industry for Navigate scenarios
+      # duplicate SSP2EU scenarios of industry for Navigate and Campaigners scenarios
       industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
                             getItems(reminditems, 3.2), value = TRUE)
       nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
-      navigateScenarios <- grep("SSP2EU_NAV_", getItems(reminditems, 3.1), value = TRUE)
-      nonNavigateScenarios <- setdiff(getItems(reminditems, 3.1), navigateScenarios)
+      duplScenarios <- grep("SSP2EU_(NAV|CAMP)_", getItems(reminditems, 3.1), value = TRUE)
+      nonDuplScenarios <- setdiff(getItems(reminditems, 3.1), duplScenarios)
       reminditems <- mbind(
-        mselect(reminditems, scenario = nonNavigateScenarios),
-        mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
+        mselect(reminditems, scenario = nonDuplScenarios),
+        mselect(reminditems, scenario = duplScenarios, item = nonIndustryItems),
         addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                        collapseNames = TRUE),
-               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+               c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+                 paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
                "scenario", 3.1)
       )
     }

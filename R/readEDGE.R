@@ -20,7 +20,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   ver <- "1.12"
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("EU", "_lowEn", paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")))),
+    SSP2s = paste0("SSP2", c("EU", "_lowEn",
+                             paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+                             paste0("EU_CAMP_", c("weak", "strong")))),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
@@ -50,7 +52,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- read.csv(file.path(ver, "capitalProjections.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
-      getSets(data) <- c("region", "year", "scenario")},
+      getItems(data, 3.1) <- sub("gdp_", "", getItems(data, 3.1))
+      getSets(data) <- c("region", "year", "scenario", "variable")},
     CapitalUnit = {
       mcapitalunitCap <- read.csv(file.path(ver, "capitalUnitCost_cap.csv"))
       mcapitalunitCap$type <- "cap"
@@ -73,6 +76,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getSets(data) <- c("region", "year", "scenario", "item")}
   )
 
-  data <- mselect(data, scenario = Reduce(c, scenarios))
+  if ("scenario" %in% getSets(data)) {
+    data <- mselect(data, scenario = Reduce(c, scenarios))
+  }
+
   return(data)
 }
