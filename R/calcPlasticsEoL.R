@@ -5,7 +5,7 @@
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`.
 #'
-#' @author Falk Benke, Renato Rodrigues, Simón Moreno Leiva
+#' @author Falk Benke, Simón Moreno Leiva
 #'
 #' @seealso [`calcOutput()`]
 #'
@@ -19,12 +19,10 @@
 #' @export
 #'
 calcPlasticsEoL <- function() {
-
   # read source data ----
 
   # read in projections for plastics end-of-life flows EJ/yr
   x <- readSource("Stegmann2022")
-  y <- as.quitte(x)
 
   # select variables that we are going to need to calculate incineration shares
   selection <- c(
@@ -39,12 +37,14 @@ calcPlasticsEoL <- function() {
     "Plastics|End of Life|Waste to Energy"
   )
 
+  x <- x[, , selection, pmatch = TRUE]
+
+  y <- as.quitte(x)
   # calculate total plastic waste
   plasticsEoL <- y %>%
-    #we could have switches to include a circular scenario but it would probably
-    #require a different scenario to calibrate
-    filter(scenario %in% c("SSP2")) %>%
-    filter(variable %in% selection) %>%
+    # we could have switches to include a circular scenario but it would probably
+    # require a different scenario to calibrate
+    filter(!!sym("scenario") %in% c("SSP2")) %>%
     calc_addVariable(
       "Plastics|Waste|Total" = "
                         `Plastics|Waste|Buildings & Construction` +
@@ -66,19 +66,38 @@ calcPlasticsEoL <- function() {
                         `Plastics|End of Life|Waste to Energy`/
                         `Plastics|Waste|Total`
                         ",
-      units = "fraction" ) %>%
-    filter(variable %in% c("Plastics|End of Life|Incineration share"))
+      units = "fraction", only.new = TRUE
+      ) %>%
+      # remove unused dimensions
+      select(c(-model,-scenario,-variable,-unit))
 
   # as magpie
+  x <- as.magpie(incinerationShares)
+
+  # fill post 2100 years
+  # post 2100 = 2100
+  xNew <- new.magpie(
+    cells_and_regions = getItems(x, dim = 1),
+    years = c(seq(2110, 2150, 10)),
+    names = getNames(x)
+  )
+
+  xNew[, c(seq(2110, 2150, 10)), ] <- x[, 2100, ]
+
+  x <- mbind(x, xNew) %>%
+    toolCountryFill(fill = 0)
+
 
   # create weights ----
 
+  fe <- calcOutput("FE", source = "IEA", aggregate = FALSE)[, 2016, "FE (EJ/yr)"]
+
   return(
     list(
-      x = plasticsEoL,
-      weight = weights,
-      unit = "",
-      description = ""
+      x = x,
+      weight = fe,
+      unit = "fraction",
+      description = "share of plastic waste that gets incinerated"
     )
   )
 }

@@ -163,6 +163,7 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
   calcOutput('industry_specific_FE_limits', aggregate = FALSE,
              file = 'pm_energy_limit.csv')
+  calcOutput("PlasticsEoL", round = 5, file = "f_incinerationShares.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
