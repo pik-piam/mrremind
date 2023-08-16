@@ -69,7 +69,8 @@ calcPlasticsEoL <- function() {
       units = "fraction", only.new = TRUE
       ) %>%
       # remove unused dimensions
-      select(c(-model,-scenario,-variable,-unit))
+    select(c(-model,-scenario,-variable,-unit)) %>%
+    interpolate_missing_periods(seq(2050,2060,5),method = "linear")
 
   # as magpie
   x <- as.magpie(incinerationShares)
@@ -78,14 +79,15 @@ calcPlasticsEoL <- function() {
   # post 2100 = 2100
   xNew <- new.magpie(
     cells_and_regions = getItems(x, dim = 1),
-    years = c(seq(2110, 2150, 10)),
+    years = c(seq(2110, 2150, 20)),
     names = getNames(x)
   )
 
-  xNew[, c(seq(2110, 2150, 10)), ] <- x[, 2100, ]
+  xNew[, c(seq(2110, 2150, 20)), ] <- x[, 2100, ]
 
   x <- mbind(x, xNew) %>%
-    toolCountryFill(fill = 0)
+    toolCountryFill(fill = 0) %>%
+    collapseDim()
 
 
   # create weights ----
