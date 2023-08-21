@@ -110,10 +110,10 @@ calcHistorical <- function() {
   # Capacities historical data ====
 
   # IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
-  IRENAcap <- readSource(type = "IRENA", subtype = "Capacity")[, , c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
+  IRENAcap <- readSource(type = "IRENA", subtype = "Capacity")[, , c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind")] # Read IRENA renewables capacity data
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame(
-    IRENA_techs = c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
+    IRENA_techs = c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind"),
     REMIND_var = c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)", "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)", "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE
   )
   IRENAcap <- luscale::rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to = "REMIND_var") # renaming technologies to REMIND naming convention

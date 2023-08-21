@@ -30,10 +30,10 @@ calcPotentialHydro <- function() {
   # 
   # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
   prodElec <- readSource("IRENA","Generation")
-  prodElec <- prodElec[,2015,"Hydropower"] / 1000
+  prodElec <- prodElec[,2015,"Renewable hydropower"] / 1000
   
   IRENA_hydro_cap <- readSource("IRENA","Capacity") # in MW
-  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Hydropower"]
+  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Renewable hydropower"]
   
   # ensure that overall potential can produce the generation of 2015, if not set potential to IRENA 2015 generation
   checkDiff <- new.magpie(getRegions(techPot),NULL,fill = 0)
