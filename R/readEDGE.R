@@ -74,6 +74,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getSets(data) <- c("region", "year", "scenario", "item")}
   )
 
-  data <- mselect(data, scenario = Reduce(c, scenarios))
+  if ("scenario" %in% getSets(data)) {
+    data <- mselect(data, scenario = Reduce(c, scenarios))
+  }
+
   return(data)
 }
