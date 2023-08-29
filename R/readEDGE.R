@@ -50,8 +50,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- read.csv(file.path(ver, "capitalProjections.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
-      getItems(data, 3.1) <- sub("gdp_", "", getItems(data, 3.1))
-      getSets(data) <- c("region", "year", "scenario", "variable")},
+      getSets(data) <- c("region", "year", "scenario")},
     CapitalUnit = {
       mcapitalunitCap <- read.csv(file.path(ver, "capitalUnitCost_cap.csv"))
       mcapitalunitCap$type <- "cap"
