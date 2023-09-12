@@ -1693,7 +1693,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # scale industry subsector total FE by subsector activity and exogenous
       # energy efficiency gains
 
-      specific_FE_limits <- readSource(type = 'ExpertGuess',
+      specific_FE_limits <- readSource(type = 'industry_subsectors_specific',
                                        subtype = 'industry_specific_FE_limits',
                                        convert = FALSE) %>%
         madrat_mule()
