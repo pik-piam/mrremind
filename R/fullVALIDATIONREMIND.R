@@ -65,7 +65,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   weo <- weo["GLO", , ]
-  write.report(weo, file = file.path(getConfig("outputfolder"), valfile), append = TRUE)
+  write.report(weo, file = valfile, append = TRUE)
 
   weo <- calcOutput(
     type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
@@ -73,7 +73,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = file.path(getConfig("outputfolder"), valfile), append = TRUE)
+  write.report(weo, file = valfile, append = TRUE)
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
