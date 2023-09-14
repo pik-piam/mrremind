@@ -225,6 +225,16 @@ calcUNFCCC <- function() {
     x[, , "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
+  x <- add_columns(x, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
+  x[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
+    x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
+  x[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
+    x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
+    x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
+
   return(list(
     x = x, weight = NULL,
     unit = c("Mt CO2", "Mt CH4", "kt N2O", "Mt CO2eq"),
