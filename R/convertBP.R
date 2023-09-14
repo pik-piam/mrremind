@@ -206,7 +206,7 @@ convertBP <- function(x, subtype) {
     trade.ref.import.oil <- .removeNaRegions(trade.ref.import.oil)
     trade.ref.import.oil <- trade.ref.import.oil[, c(2019, 2020), ]
 
-    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv", 
+    reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv",
                                     type = "regional", where = "mappingfolder")
     reg2detailReg.export <- filter(reg2detailReg, !!sym("Type") == "Export")
     reg2detailReg.import <- filter(reg2detailReg, !!sym("Type") == "Import")
@@ -224,7 +224,8 @@ convertBP <- function(x, subtype) {
     x1[, c(2019, 2020), ] <- trade.ref.export.oil
     # for 1980 - 2018 we split some regions into more fine granular regions by 2020 data
     x1[unchanged_regions, seq(1980, 2018, 1), ] <- trade.export.oil[unchanged_regions, seq(1980, 2018, 1), ]
-    x1[to_regions, seq(1980, 2018, 1), ] <- trade.ref.export.split[, seq(1980, 2018, 1), , ]
+
+    x1[to_regions, seq(1980, 2018, 1), ] <- trade.ref.export.split[, seq(1980, 2018, 1), ]
 
     from_regions <- intersect(reg2detailReg.import$BP_Region, getItems(trade.import.oil, dim = 1))
     to_regions <- intersect(reg2detailReg.import$BP_Region_Detail, getItems(trade.ref.import.oil, dim = 1))
