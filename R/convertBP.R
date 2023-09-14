@@ -240,7 +240,7 @@ convertBP <- function(x, subtype) {
     x2[, c(2019, 2020), ] <- trade.ref.import.oil
     # for 1980 - 2018 we split some regions into more fine granular regions by 2020 data
     x2[unchanged_regions, seq(1980, 2018, 1), ] <- trade.import.oil[unchanged_regions, seq(1980, 2018, 1), ]
-    x2[to_regions, seq(1980, 2018, 1), ] <- trade.ref.import.split[, seq(1980, 2018, 1), , ]
+    x2[to_regions, seq(1980, 2018, 1), ] <- trade.ref.import.split[, seq(1980, 2018, 1), ]
 
     x.trade <- new.magpie(getItems(x1, dim = 1), getYears(x1), c("Trade|Import|Oil (kb/d)", "Trade|Export|Oil (kb/d)"))
     x.trade[, , "Trade|Export|Oil (kb/d)"] <- x1
