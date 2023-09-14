@@ -43,25 +43,25 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   calcOutput("Historical",
     round = 5, file = valfile, aggregate = columnsForAggregation,
-    append = FALSE, warnNA = FALSE, try = TRUE
+    append = FALSE, warnNA = FALSE, try = FALSE
   )
 
   calcOutput(
     type = "IEA_ETP", aggregate = columnsForAggregation, file = valfile,
-    append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
+    append = TRUE, warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   ## industry value added ----
   calcOutput(
     type = "UNIDO", subtype = "INDSTAT2", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = TRUE
+    try = FALSE
   )
 
   ## add WEO data on regional and global level ----
   weo <- calcOutput(
     type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = TRUE, isValidation = TRUE
+    warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   weo <- weo["GLO", , ]
@@ -69,7 +69,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   weo <- calcOutput(
     type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = TRUE, isValidation = TRUE
+    warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   weo <- weo["GLO", , invert = TRUE]
