@@ -124,8 +124,9 @@ readGlobalEnergyMonitor <- function() {
       mutate(
         !!sym("scenario") := "historical",
         !!sym("model") := "Global Energy Outlook",
-        !!sym("unit") := "MW",
-        !!sym("variable") := nb$variable
+        !!sym("unit") := "GW",
+        !!sym("variable") := nb$variable,
+        !!sym("value") := !!sym("value") / 1000
       ) %>%
       select("model", "scenario", "region", "period", "variable", "unit", "value")
 

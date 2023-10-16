@@ -19,6 +19,7 @@ convertGlobalEnergyMonitor <- function(x) {
     "The Gambia" = "GMB",
     "Virgin Islands (U_S_)" = "VIR"
   )
-  getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1), mapping = mapping)
+  getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1),
+                                              mapping = mapping, warn = FALSE)
   return(toolCountryFill(x, no_remove_warning = "KOS"))
 }
