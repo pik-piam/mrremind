@@ -178,8 +178,6 @@ calcHistorical <- function() {
     dim = 3.1, add = "model", nm = "ARIADNE"
   )
 
-  IEA_EVOutlook <- calcOutput("IEA_EVOutlook", aggregate = F)
-
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate = FALSE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
@@ -340,7 +338,7 @@ calcHistorical <- function() {
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     # EEA_GHGES,
-    IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_Bal,
+    INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_Bal,
     AGEB_SE, UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement
   )
 
