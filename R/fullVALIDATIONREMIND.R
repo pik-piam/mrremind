@@ -75,6 +75,14 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   weo <- weo["GLO", , invert = TRUE]
   write.report(weo, file = valfile, append = TRUE)
 
+  ## IEA EV Outook
+
+  calcOutput(
+    type = "IEA_EVOutlook", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE
+  )
+
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
 
