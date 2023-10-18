@@ -57,7 +57,7 @@ readworldsteel <- function(subtype = 'detailed') {
             as_tibble() %>%
             mutate(name = sheet) %>%
             pivot_longer(c(-'country', -'name'), names_to = 'year') %>%
-            mutate(year := as.integer(gsub("^X", "", year)))
+            mutate(!!sym("year") := as.integer(gsub("^X", "", !!sym("year"))))
         }) %>%
         bind_rows() %>%
         add_countrycode_(origin = c(country = 'country.name'),

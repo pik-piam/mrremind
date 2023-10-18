@@ -39,7 +39,7 @@ In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-po
 
 To cite package **mrremind** in publications use:
 
-Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R, Fuchs S, Mandaroux R (2023). _mrremind: MadRat REMIND Input Data Package_. R package version 0.170.0, <URL: https://github.com/pik-piam/mrremind>.
+Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R, Fuchs S, Mandaroux R (2023). _mrremind: MadRat REMIND Input Data Package_. R package version 0.170.0, <https://github.com/pik-piam/mrremind>.
 
 A BibTeX entry for LaTeX users is
 
