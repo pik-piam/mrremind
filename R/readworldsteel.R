@@ -56,7 +56,8 @@ readworldsteel <- function(subtype = 'detailed') {
           read_ods(path = file_path, sheet = sheet, na = '...') %>%
             as_tibble() %>%
             mutate(name = sheet) %>%
-            pivot_longer(c(-'country', -'name'), names_to = 'year', names_transform = list(year = as.integer))
+            pivot_longer(c(-'country', -'name'), names_to = 'year') %>%
+            mutate(year := as.integer(gsub("^X", "", year)))
         }) %>%
         bind_rows() %>%
         add_countrycode_(origin = c(country = 'country.name'),
