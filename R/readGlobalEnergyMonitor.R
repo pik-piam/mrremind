@@ -111,8 +111,7 @@ readGlobalEnergyMonitor <- function() {
       mutate(!!sym("end") := 2050)
 
     production <- rbind(completed, ongoing)
-    production$variable <-
-      tmp <- NULL
+    tmp <- NULL
     for (i in seq_len(nrow(production))) {
       d <- data.frame(
         production[i, c("region", "value", "project")],
@@ -121,16 +120,17 @@ readGlobalEnergyMonitor <- function() {
       tmp <- rbind(tmp, d)
     }
     cap <- aggregate(value ~ region + period, data = tmp, FUN = sum) %>%
-      mutate(
-        !!sym("scenario") := "historical",
-        !!sym("model") := "Global Energy Outlook",
-        !!sym("unit") := "GW",
-        !!sym("variable") := nb$variable,
-        !!sym("value") := !!sym("value") / 1000
-      ) %>%
-      select("model", "scenario", "region", "period", "variable", "unit", "value")
+      mutate(!!sym("variable") := nb$variable) %>%
+      select("region", "period", "variable", "value")
 
     out <- rbind(out, cap)
   }
-  return(as.magpie(out, spatial = 3))
+  x <- as.magpie(out, spatial = 1)
+
+  # convert to GW
+  x <- x / 1000
+  x <- add_dimension(x, dim = 3.2, add = "unit", nm = "GW")
+  x <- add_dimension(x, dim = 3.1, add = "model", nm = "Global Energy Monitor")
+
+  return(x)
 }
