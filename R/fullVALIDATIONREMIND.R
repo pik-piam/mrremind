@@ -75,7 +75,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   weo <- weo["GLO", , invert = TRUE]
   write.report(weo, file = valfile, append = TRUE)
 
-  ## IEA EV Outook
+  ## IEA EV Outlook ----
 
   calcOutput(
     type = "IEA_EVOutlook", file = valfile,
@@ -83,13 +83,31 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE
   )
 
-  ## Global Energy Monitor
+  ## Global Energy Monitor ----
 
   calcOutput(
     type = "GlobalEnergyMonitor", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE
   )
+
+  ## AGEB ----
+
+  # AGEB only has DEU values and crashes in H12
+  if (getConfig("regionmapping") == "regionmapping_21_EU11.csv") {
+
+    calcOutput(
+      type = "AGEB", subtype = "balances", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+
+    calcOutput(
+      type = "AGEB", subtype = "electricity", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+  }
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
