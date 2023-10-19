@@ -83,6 +83,14 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE
   )
 
+  ## Global Energy Monitor
+
+  calcOutput(
+    type = "GlobalEnergyMonitor", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE
+  )
+
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
 

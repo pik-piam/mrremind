@@ -326,11 +326,6 @@ calcHistorical <- function() {
   steelStock <- calcOutput("SteelStock", aggregate = FALSE)
   steelStock <- add_dimension(steelStock, dim = 3.1, add = "model", nm = "Mueller")
 
-
-  ## add Global Energy Monitor capacities ----
-
-  gem <- readSource("GlobalEnergyMonitor")
-
   # blow up to union of years ====
   # find all existing years (y) and variable names (n)
 
@@ -344,7 +339,7 @@ calcHistorical <- function() {
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     # EEA_GHGES,
     INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_Bal,
-    AGEB_SE, UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement, gem
+    AGEB_SE, UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement
   )
 
   y <- Reduce(union, lapply(varlist, getYears))
