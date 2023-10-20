@@ -6,6 +6,9 @@
 \usage{
 convertIEA_EVOutlook(x)
 }
+\arguments{
+\item{x}{a magclass object returned from `readIEA_EVOutlook()`}
+}
 \description{
 Convert IEA EV Outlook
 }
