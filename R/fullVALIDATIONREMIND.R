@@ -17,10 +17,12 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
 
-  rel <- "global"   # always compute global aggregate
+  rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
-    columns <- setdiff(colnames(toolGetMapping(mapping, "regional")),
-                       c("X", "CountryCode"))
+    columns <- setdiff(
+      colnames(toolGetMapping(mapping, "regional")),
+      c("X", "CountryCode")
+    )
 
     if (any(columns %in% rel)) {
       warning(
@@ -75,7 +77,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   weo <- weo["GLO", , invert = TRUE]
   write.report(weo, file = valfile, append = TRUE)
 
-  ## IEA EV Outook
+  ## IEA EV Outlook ----
 
   calcOutput(
     type = "IEA_EVOutlook", file = valfile,
@@ -83,7 +85,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE
   )
 
-  ## Global Energy Monitor
+  ## Global Energy Monitor ----
 
   calcOutput(
     type = "GlobalEnergyMonitor", file = valfile,
@@ -91,7 +93,23 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE
   )
 
+  ## AGEB ----
+
+  # AGEB only has DEU values and crashes when not present in regions
+  if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
+    calcOutput(
+      type = "AGEB", subtype = "balances", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+
+    calcOutput(
+      type = "AGEB", subtype = "electricity", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+  }
+
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
-
 }

@@ -1,5 +1,6 @@
 #' Convert IEA EV Outlook
 #'
+#' @param x a magclass object returned from `readIEA_EVOutlook()`
 #' @author Falk Benke
 
 convertIEA_EVOutlook <- function(x) {
