@@ -1165,13 +1165,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
               2020 >= .data$year ~ .data$base.change,
               TRUE ~  ( ( (.data$base.change - 1)
                           * .data$factor ^ sign(1 - .data$base.change)
-              )
-              + 1)),
+                        )
+                      + 1)),
             specific.production =
-              ( .data$base.specific.production[2015 == .data$year]
+              ( .data$base.specific.production[2020 == .data$year]
                 * .data$change
               ),
-            value = ifelse(!is.finite(.data$base.change),
+            value = ifelse(!is.finite(.data$base.change) | 2020 >= .data$year,
                            .data$base.value,
                            .data$specific.production * .data$GDP)) %>%
           ungroup() %>%
