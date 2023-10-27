@@ -219,12 +219,6 @@ calcHistorical <- function() {
   UBA_emi <- calcOutput("UBA", aggregate = FALSE)
   UBA_emi <- add_dimension(UBA_emi, dim = 3.1, add = "model", nm = "UBA")
 
-  # UNFCCC emission data
-  UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
-  # remove years before 1990 due to incomplete data
-  UNFCCC <- UNFCCC[, seq(1986, 1989, 1), , invert = T]
-  UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
-
   # BP data
   BP <- calcOutput("BP", aggregate = FALSE)
   BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
@@ -331,7 +325,7 @@ calcHistorical <- function() {
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     # EEA_GHGES,
-    INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, UBA_emi, UNFCCC, BP,
+    INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, UBA_emi, BP,
     worldsteel, steelStock, USGS_cement
   )
 
