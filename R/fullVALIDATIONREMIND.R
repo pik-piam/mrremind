@@ -110,6 +110,16 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     )
   }
 
+  ## UNFCCC ----
+
+  x <- calcOutput(
+    type = "UNFCCC", aggregate = columnsForAggregation,
+    warnNA = FALSE, try = FALSE
+  )
+
+  write.report(x, file = valfile, append = TRUE, scenario = "historical")
+
+
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
 }

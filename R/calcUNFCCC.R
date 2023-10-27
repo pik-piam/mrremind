@@ -44,6 +44,8 @@ calcUNFCCC <- function() {
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 
+  mappedVariables <- getNames(x)
+
   # aggregate pollutants ----
 
   x <- add_columns(x, "Emi|CH4 (Mt CH4/yr)", dim = 3.1)
@@ -234,6 +236,18 @@ calcUNFCCC <- function() {
   x[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
+
+  # return results ----
+
+  # set 0 to NA in calculated variables
+  calculatedVariabes <- setdiff(getNames(x), mappedVariables)
+  tmp <- x[, , calculatedVariabes]
+  tmp[tmp == 0] <- NA
+  x[, , calculatedVariabes] <- tmp
+
+  # remove years before 1990 due to incomplete data
+  x <- x[, seq(1986, 1989, 1), , invert = TRUE]
+  x <- add_dimension(x, dim = 3.1, add = "model", nm = "UNFCCC")
 
   return(list(
     x = x, weight = NULL,
