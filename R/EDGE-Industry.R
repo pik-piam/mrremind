@@ -1476,7 +1476,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       nls(formula = manufacturing / population ~ a * exp(b / GDPpC),
           data = regression_data %>%
             filter(.data$region == r,
-                   'Total' != .data$iso3c),
+                   'Total' == .data$iso3c),
           start = list(a = 1000, b = -2000),
           trace = FALSE) %>%
         tidy() %>%

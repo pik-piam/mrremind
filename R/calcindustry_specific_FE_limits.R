@@ -1,7 +1,7 @@
 #' Thermodynamic Limits for Industry Specific FE Demand
 #'
-#' Return `readExpertGuess('industry_specific_FE_limits')` in a format usable as
-#' a REMIND input.
+#' Return `readindustry_subsectors_specific('industry_specific_FE_limits')` in a
+#' format usable as a REMIND input.
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
@@ -15,7 +15,7 @@
 
 #' @export
 calcindustry_specific_FE_limits <- function() {
-  return(list(x = readSource(type = 'ExpertGuess',
+  return(list(x = readSource(type = 'industry_subsectors_specific',
                              subtype = 'industry_specific_FE_limits',
                              convert = FALSE) %>%
                 madrat_mule() %>%

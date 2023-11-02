@@ -51,6 +51,8 @@ calcIEA_EVOutlook <- function() {
   # set 0s in other CHA countries than China to approximate CHA as China
   x[c("HKG", "MAC", "TWN"),,] <- 0
 
+  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
+
   return(list(
     x = x,
     weight = NULL,

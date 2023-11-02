@@ -5,7 +5,8 @@
 #'
 #' @author Falk Benke
 #'
-#' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
+#' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
+#'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
@@ -42,9 +43,11 @@ calcAGEB <- function(subtype = "balances") {
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 
+  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
+  x <- add_dimension(x, dim = 3.2, add = "model", nm = "AGEB")
+
   return(list(
-    x = x, weight = NULL,
-    unit = "EJ/yr",
+    x = x, weight = NULL, unit = "EJ/yr",
     description = "Historical AGEB values as REMIND variables"
   ))
 }

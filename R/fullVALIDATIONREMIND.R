@@ -17,10 +17,12 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
 
-  rel <- "global"   # always compute global aggregate
+  rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
-    columns <- setdiff(colnames(toolGetMapping(mapping, "regional")),
-                       c("X", "CountryCode"))
+    columns <- setdiff(
+      colnames(toolGetMapping(mapping, "regional")),
+      c("X", "CountryCode")
+    )
 
     if (any(columns %in% rel)) {
       warning(
@@ -43,39 +45,81 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   calcOutput("Historical",
     round = 5, file = valfile, aggregate = columnsForAggregation,
-    append = FALSE, warnNA = FALSE, try = TRUE
+    append = FALSE, warnNA = FALSE, try = FALSE
   )
 
   calcOutput(
     type = "IEA_ETP", aggregate = columnsForAggregation, file = valfile,
-    append = TRUE, warnNA = FALSE, try = TRUE, isValidation = TRUE
+    append = TRUE, warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   ## industry value added ----
   calcOutput(
     type = "UNIDO", subtype = "INDSTAT2", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = TRUE
+    try = FALSE
   )
 
   ## add WEO data on regional and global level ----
   weo <- calcOutput(
     type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = TRUE, isValidation = TRUE
+    warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   weo <- weo["GLO", , ]
-  write.report(weo, file = file.path(getConfig("outputfolder"), valfile), append = TRUE)
+  write.report(weo, file = valfile, append = TRUE)
 
   weo <- calcOutput(
     type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = TRUE, isValidation = TRUE
+    warnNA = FALSE, try = FALSE, isValidation = TRUE
   )
 
   weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = file.path(getConfig("outputfolder"), valfile), append = TRUE)
+  write.report(weo, file = valfile, append = TRUE)
+
+  ## IEA EV Outlook ----
+
+  calcOutput(
+    type = "IEA_EVOutlook", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE
+  )
+
+  ## Global Energy Monitor ----
+
+  calcOutput(
+    type = "GlobalEnergyMonitor", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE
+  )
+
+  ## AGEB ----
+
+  # AGEB only has DEU values and crashes when not present in regions
+  if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
+    calcOutput(
+      type = "AGEB", subtype = "balances", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+
+    calcOutput(
+      type = "AGEB", subtype = "electricity", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE
+    )
+  }
+
+  ## UNFCCC ----
+
+  x <- calcOutput(
+    type = "UNFCCC", aggregate = columnsForAggregation,
+    warnNA = FALSE, try = FALSE
+  )
+
+  write.report(x, file = valfile, append = TRUE, scenario = "historical")
+
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
-
 }

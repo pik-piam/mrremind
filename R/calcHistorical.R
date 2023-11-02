@@ -178,8 +178,6 @@ calcHistorical <- function() {
     dim = 3.1, add = "model", nm = "ARIADNE"
   )
 
-  IEA_EVOutlook <- calcOutput("IEA_EVOutlook", aggregate = F)
-
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate = FALSE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
@@ -217,22 +215,9 @@ calcHistorical <- function() {
   JRC_ResCom <- calcOutput("JRC_IDEES", subtype = "ResCom", aggregate = FALSE)
   JRC_ResCom <- add_dimension(JRC_ResCom, dim = 3.1, add = "model", nm = "JRC")
 
-  # AGEB final energy data
-  AGEB_Bal <- calcOutput("AGEB", subtype = "balances", aggregate = FALSE)
-  AGEB_Bal <- add_dimension(AGEB_Bal, dim = 3.1, add = "model", nm = "AGEB")
-
-  AGEB_SE <- calcOutput("AGEB", subtype = "electricity", aggregate = FALSE)
-  AGEB_SE <- add_dimension(AGEB_SE, dim = 3.1, add = "model", nm = "AGEB")
-
   # UBA Emission data
   UBA_emi <- calcOutput("UBA", aggregate = FALSE)
   UBA_emi <- add_dimension(UBA_emi, dim = 3.1, add = "model", nm = "UBA")
-
-  # UNFCCC emission data
-  UNFCCC <- calcOutput("UNFCCC", aggregate = FALSE)
-  # remove years before 1990 due to incomplete data
-  UNFCCC <- UNFCCC[, seq(1986, 1989, 1), , invert = T]
-  UNFCCC <- add_dimension(UNFCCC, dim = 3.1, add = "model", nm = "UNFCCC")
 
   # BP data
   BP <- calcOutput("BP", aggregate = FALSE)
@@ -340,8 +325,8 @@ calcHistorical <- function() {
     ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     # EEA_GHGES,
-    IEA_EVOutlook, INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, AGEB_Bal,
-    AGEB_SE, UBA_emi, UNFCCC, BP, worldsteel, steelStock, USGS_cement
+    INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, UBA_emi, BP,
+    worldsteel, steelStock, USGS_cement
   )
 
   y <- Reduce(union, lapply(varlist, getYears))

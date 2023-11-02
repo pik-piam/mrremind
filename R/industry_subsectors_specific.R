@@ -94,7 +94,15 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
                comment = '#',
                progress = FALSE) %>%
         madrat_mule()
-    })
+    },
+
+    'industry_specific_FE_limits' = function() {
+      read_csv(file = file.path(path, 'industry_specific_FE_limits.csv'),
+               comment = '#',
+               show_col_types = FALSE) %>%
+        madrat_mule()
+    }
+  )
 
   # check if the subtype called is available ----
   if (!subtype %in% names(switchboard)) {
