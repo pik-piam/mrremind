@@ -20,7 +20,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   ver <- "1.12"
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("EU", "_lowEn", paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")))),
+    SSP2s = paste0("SSP2", c("EU", "_lowEn",
+                             paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+                             paste0("EU_CAMP_", c("weak", "strong")))),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
