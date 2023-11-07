@@ -16,7 +16,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     # remove period where only 0s appear
     data <- data[, 2021, , invert = T]
 
-    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", 
+    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv",
                               returnPathOnly = TRUE, where = "mappingfolder")
     target <- c("output")
     map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
@@ -58,6 +58,24 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
       x[, , "SE|Heat|Gas|HP (EJ/yr)"], "SE|Heat|Gas (EJ/yr)"))
     x <- mbind(x, setNames(x[, , "SE|Heat|Biomass|CHP (EJ/yr)"] +
       x[, , "SE|Heat|Biomass|HP (EJ/yr)"], "SE|Heat|Biomass (EJ/yr)"))
+
+
+    # add secondary energy totals
+    x <- mbind(x, setNames(x[, , "SE|Gases|Biomass (EJ/yr)"]
+                           + x[, , "SE|Gases|Fossil|Coal (EJ/yr)"]
+                           + x[, , "SE|Gases|Fossil|Natural Gas (EJ/yr)"], "SE|Gases (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Liquids|Bio Oil (EJ/yr)"]
+                           + x[, , "SE|Liquids|Fossil|Gas (EJ/yr)"]
+                           + x[, , "SE|Liquids|Fossil|Oil (EJ/yr)"], "SE|Liquids (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Heat|Biomass (EJ/yr)"]
+                           + x[, , "SE|Heat|Coal (EJ/yr)"]
+                           + x[, , "SE|Heat|Gas (EJ/yr)"], "SE|Heat (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Solids|Biomass (EJ/yr)"]
+                           + x[, , "SE|Solids|Coal (EJ/yr)"]
+                           + x[, , "SE|Solids|Traditional Biomass (EJ/yr)"], "SE|Solids (EJ/yr)"))
 
     # rename Diesel/Petrol to LDV/non-LDV
     x <- mbind(x, setNames(x[, , "FE|Transport|Liquids|Diesel|Biomass (EJ/yr)"], "FE|Transport|non-LDV|Liquids|Biomass (EJ/yr)"))
@@ -115,12 +133,14 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
       + x[, , "FE|Buildings|Solids (EJ/yr)"]
       + x[, , "FE|Buildings|Heat (EJ/yr)"]
       + x[, , "FE|Buildings|Electricity (EJ/yr)"], "FE|Buildings (EJ/yr)"))
+
     # add total for industry
     x <- mbind(x, setNames(x[, , "FE|Industry|Liquids (EJ/yr)"]
     + x[, , "FE|Industry|Gases (EJ/yr)"]
       + x[, , "FE|Industry|Solids (EJ/yr)"]
       + x[, , "FE|Industry|Heat (EJ/yr)"]
       + x[, , "FE|Industry|Electricity (EJ/yr)"], "FE|Industry (EJ/yr)"))
+
     # add total for transport
     x <- mbind(x, setNames(x[, , "FE|Transport|Liquids (EJ/yr)"]
     + x[, , "FE|Transport|Gases (EJ/yr)"]
