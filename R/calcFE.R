@@ -77,6 +77,22 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
                            + x[, , "SE|Solids|Coal (EJ/yr)"]
                            + x[, , "SE|Solids|Traditional Biomass (EJ/yr)"], "SE|Solids (EJ/yr)"))
 
+    # add secondary energy fossil variables
+    x <- mbind(x, setNames(x[, , "SE|Gases|Fossil|Coal (EJ/yr)"]
+                           + x[, , "SE|Gases|Fossil|Natural Gas (EJ/yr)"], "SE|Gases|Fossil (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Liquids|Fossil|Gas (EJ/yr)"]
+                           + x[, , "SE|Liquids|Fossil|Oil (EJ/yr)"], "SE|Liquids|Fossil (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Heat|Coal (EJ/yr)"]
+                           + x[, , "SE|Heat|Gas (EJ/yr)"], "SE|Heat|Fossil (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Solids|Coal (EJ/yr)"], "SE|Solids|Fossil (EJ/yr)"))
+
+    x <- mbind(x, setNames(x[, , "SE|Electricity|Coal (EJ/yr)"]
+                           + x[, , "SE|Electricity|Gas (EJ/yr)"]
+                           + x[, , "SE|Electricity|Oil (EJ/yr)"], "SE|Electricity|Fossil (EJ/yr)"))
+
     # rename Diesel/Petrol to LDV/non-LDV
     x <- mbind(x, setNames(x[, , "FE|Transport|Liquids|Diesel|Biomass (EJ/yr)"], "FE|Transport|non-LDV|Liquids|Biomass (EJ/yr)"))
     x <- mbind(x, setNames(x[, , "FE|Transport|Liquids|Diesel|Fossil (EJ/yr)"], "FE|Transport|non-LDV|Liquids|Fossil (EJ/yr)"))
