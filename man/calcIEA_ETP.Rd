@@ -4,10 +4,7 @@
 \alias{calcIEA_ETP}
 \title{Calculate REMIND emission variables from IEA ETP values}
 \usage{
-calcIEA_ETP(isValidation = FALSE)
-}
-\arguments{
-\item{isValidation}{indicates if result will be used in validation (as opposed to generating input data)}
+calcIEA_ETP()
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

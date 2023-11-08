@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.171.0
-Date: 2023-11-02
+Version: 0.171.1
+Date: 2023-11-08
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -38,7 +38,7 @@ License: LGPL-3 | file LICENSE
 URL: https://github.com/pik-piam/mrremind
 Depends:
     R (>= 2.10.0),
-    madrat (>= 2.5.1),
+    madrat (>= 3.7.1),
     magclass (>= 3.17),
     mrdrivers (>= 1.0.0),
     mrcommons (>= 1.33.3),

@@ -48,77 +48,177 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     append = FALSE, warnNA = FALSE, try = FALSE
   )
 
-  calcOutput(
-    type = "IEA_ETP", aggregate = columnsForAggregation, file = valfile,
-    append = TRUE, warnNA = FALSE, try = FALSE, isValidation = TRUE
-  )
-
-  ## industry value added ----
-  calcOutput(
-    type = "UNIDO", subtype = "INDSTAT2", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE
-  )
-
-  ## add WEO data on regional and global level ----
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, isValidation = TRUE
-  )
-
-  weo <- weo["GLO", , ]
-  write.report(weo, file = valfile, append = TRUE)
-
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, isValidation = TRUE
-  )
-
-  weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = valfile, append = TRUE)
-
-  ## IEA EV Outlook ----
-
-  calcOutput(
-    type = "IEA_EVOutlook", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE
-  )
-
-  ## Global Energy Monitor ----
-
-  calcOutput(
-    type = "GlobalEnergyMonitor", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE
-  )
-
-  ## AGEB ----
+  # AGEB ----
 
   # AGEB only has DEU values and crashes when not present in regions
   if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
+
     calcOutput(
       type = "AGEB", subtype = "balances", file = valfile,
       aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-      try = FALSE
+      try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
     )
 
     calcOutput(
       type = "AGEB", subtype = "electricity", file = valfile,
       aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-      try = FALSE
+      try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
+    )
+
+  }
+
+  # BP ----
+
+  calcOutput(
+    type = "BP", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "BP")
+  )
+
+  # EDGAR Emissions----
+
+  # Historical emissions from EDGAR v5.0 and v6.0
+  calcOutput(
+    type = "Emissions", datasource = "EDGAR6", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EDGAR6")
+  )
+
+  # Ember electricity data ----
+
+  calcOutput(
+    type = "Ember", subtype = "all", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Ember")
+  )
+
+  # European Eurostat data ----
+
+  calcOutput(
+    type = "EuropeanEnergyDatasheets",  subtype = "EU27", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Eurostat")
+  )
+
+  # EU Reference Scenario ----
+
+  calcOutput(
+    type = "EU_ReferenceScenario", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # Global Energy Monitor ----
+
+  calcOutput(
+    type = "GlobalEnergyMonitor", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # Heat Roadmap Europe (Final Energy) ----
+
+  calcOutput(
+    type = "HRE", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # IEA ETP ----
+
+  calcOutput(
+    type = "IEA_ETP", aggregate = columnsForAggregation, file = valfile,
+    append = TRUE, warnNA = FALSE, try = FALSE, isValidation = TRUE,
+    writeArgs = list(scenario = "historical")
+  )
+
+  # IEA EV Outlook ----
+
+  calcOutput(
+    type = "IEA_EVOutlook", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # INNOPATHS ----
+
+  calcOutput(
+    type = "INNOPATHS", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # JRC IDEES ----
+
+  calcOutput(
+    type = "JRC_IDEES", subtype = "Industry", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
+  )
+
+  calcOutput(
+    type = "JRC_IDEES", subtype = "Transport", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
+  )
+
+  calcOutput(
+    type = "JRC_IDEES", subtype = "ResCom", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
+  )
+
+  # Steel Stock ----
+
+  calcOutput(
+    type = "SteelStock", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Mueller")
+  )
+
+  # UBA Emission data ----
+
+  # UBA only has DEU values and crashes when not present in regions
+  if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
+    calcOutput(
+      type = "UBA", file = valfile,
+      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+      try = FALSE, writeArgs = list(scenario = "historical", model = "UBA")
     )
   }
 
-  ## UNFCCC ----
+  # UNFCCC ----
 
-  x <- calcOutput(
-    type = "UNFCCC", aggregate = columnsForAggregation,
+  calcOutput(
+    type = "UNFCCC", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # UNIDO ----
+
+  calcOutput(
+    type = "UNIDO", subtype = "INDSTAT2", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "INDSTAT2")
+  )
+
+  # WEO 2021  ----
+  weo <- calcOutput(
+    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
     warnNA = FALSE, try = FALSE
   )
 
-  write.report(x, file = valfile, append = TRUE, scenario = "historical")
+  weo <- weo["GLO", , ]
+  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
+  weo <- calcOutput(
+    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
+    warnNA = FALSE, try = FALSE
+  )
+
+  weo <- weo["GLO", , invert = TRUE]
+  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()

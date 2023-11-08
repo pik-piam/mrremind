@@ -21,9 +21,6 @@ calcHistorical <- function() {
   fe_weo <- collapseNames(fe_weo)
   fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
 
-  # Final Energy - Heat Roadmap Europe
-  fe_hre <- calcOutput("HRE", aggregate = FALSE)
-
   # Primary Energy
   pe_iea <- calcOutput("PE", subtype = "IEA", aggregate = FALSE)
   pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
@@ -65,10 +62,6 @@ calcHistorical <- function() {
   #  ceds[,,"Emi|CH4 (Mt CH4/yr)"]*28 +
   #  ceds[,,"Emi|N2O (kt N2O/yr)"]/1000*265
   ceds <- add_dimension(ceds, dim = 3.1, add = "model", nm = "CEDS")
-
-  # Historical emissions from EDGAR v5.0 and v6.0
-  edgar6 <- calcOutput("Emissions", datasource = "EDGAR6", aggregate = FALSE)
-  edgar6 <- add_dimension(edgar6, dim = 3.1, add = "model", nm = "EDGAR6")
 
   # Historical emissions from PRIMAPhist data base
   # select total
@@ -120,14 +113,7 @@ calcHistorical <- function() {
   IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[, , "Cap|Electricity|Solar|CSP (GW)"] + IRENAcap[, , "Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
   IRENAcap <- add_dimension(IRENAcap, dim = 3.1, add = "model", nm = "IRENA")
 
-  # Ember electricity data ====
-  Ember <- calcOutput("Ember", subtype = "all", aggregate = FALSE)
-  Ember <- add_dimension(Ember, dim = 3.1, add = "model", nm = "Ember")
-
   # Region specific historical data ====
-  # European Eurostat data
-  eurostat <- calcOutput("EuropeanEnergyDatasheets", subtype = "EU27", aggregate = FALSE)
-  eurostat <- add_dimension(eurostat, dim = 3.1, add = "model", nm = "Eurostat")
 
   # Emissions market data
   # emiMktES <- setNames(readSource("Eurostat_EffortSharing",subtype="emissions"),"Emi|GHG|ESR (Mt CO2-equiv/yr)") # Effort Sharing
@@ -159,8 +145,7 @@ calcHistorical <- function() {
   # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
 
-  # EU Reference Scenario
-  EU_ReferenceScenario <- calcOutput("EU_ReferenceScenario", aggregate = F)
+
 
   # ARIADNE Reference Scenario
   ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE", subtype = "gdp")
@@ -200,28 +185,6 @@ calcHistorical <- function() {
     setNames(eurostatEmi[, , "N2O_native.Land use, land use change, and forestry (LULUCF)"], "Emi|N2O|Land-Use Change (kt N2O/yr)") * 1000
   )
   emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
-
-  # INNOPATHS data
-  INNOPATHS <- calcOutput("INNOPATHS", aggregate = F)
-  INNOPATHS <- add_dimension(INNOPATHS, dim = 3.1, add = "model", nm = "INNOPATHS")
-
-  # JRC IDEES data
-  JRC_Industry <- calcOutput("JRC_IDEES", subtype = "Industry", aggregate = FALSE)
-  JRC_Industry <- add_dimension(JRC_Industry, dim = 3.1, add = "model", nm = "JRC")
-
-  JRC_Transport <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE)
-  JRC_Transport <- add_dimension(JRC_Transport, dim = 3.1, add = "model", nm = "JRC")
-
-  JRC_ResCom <- calcOutput("JRC_IDEES", subtype = "ResCom", aggregate = FALSE)
-  JRC_ResCom <- add_dimension(JRC_ResCom, dim = 3.1, add = "model", nm = "JRC")
-
-  # UBA Emission data
-  UBA_emi <- calcOutput("UBA", aggregate = FALSE)
-  UBA_emi <- add_dimension(UBA_emi, dim = 3.1, add = "model", nm = "UBA")
-
-  # BP data
-  BP <- calcOutput("BP", aggregate = FALSE)
-  BP <- add_dimension(BP, dim = 3.1, add = "model", nm = "BP")
 
   # Cement Production ----
   USGS_cement <- readSource(
@@ -309,24 +272,16 @@ calcHistorical <- function() {
     ) %>%
     as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
 
-  # Steel Stock ----
-  steelStock <- calcOutput("SteelStock", aggregate = FALSE)
-  steelStock <- add_dimension(steelStock, dim = 3.1, add = "model", nm = "Mueller")
-
   # blow up to union of years ====
   # find all existing years (y) and variable names (n)
 
   varlist <- list(
-    fe_iea, fe_weo, fe_hre, pe_iea, pe_weo, trade, pop, gdpp_James,
-    gdpp_WB, gdpp_IMF, ceds, edgar6, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, Ember, eurostat,
-    # emiMktES, emiMktETS, emiMktESOthers,
-    EU_ReferenceScenario, emiEurostat, ARIADNE_ReferenceScenarioGdp,
-    ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
+    fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdpp_James,
+    gdpp_WB, gdpp_IMF, ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiEurostat,
+    ARIADNE_ReferenceScenarioGdp,ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
-    # EEA_GHGES,
-    INNOPATHS, JRC_Industry, JRC_Transport, JRC_ResCom, UBA_emi, BP,
-    worldsteel, steelStock, USGS_cement
+    worldsteel, USGS_cement
   )
 
   y <- Reduce(union, lapply(varlist, getYears))

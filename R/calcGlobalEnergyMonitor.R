@@ -10,7 +10,6 @@
 calcGlobalEnergyMonitor <- function() {
 
   x <- readSource("GlobalEnergyMonitor")
-  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
 
   return(list(
     x = x,
