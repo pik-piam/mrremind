@@ -542,7 +542,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
 
     if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
-      mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
+      mapping = toolGetMapping(type = "sectoral",
+                               name = "structuremappingIO_outputs.csv",
+                               where = "mrcommons")
 
       REMIND_dimensions = "REMINDitems_out"
       sets_names = getSets(data)
@@ -557,8 +559,10 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
 
-        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv",
-                                    returnPathOnly = TRUE, where = "mappingfolder")
+        mapping_path <- toolGetMapping(type = "sectoral",
+                                       name = "structuremappingIO_EsUeFe.csv",
+                                       where = "mrremind",
+                                       returnPathOnly = TRUE)
         mapping = read.csv2(mapping_path, stringsAsFactors = F)
     }
     #----- PROCESS DATA ------------------

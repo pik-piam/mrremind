@@ -29,46 +29,50 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   switch(
     subtype,
     input = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_inputs.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_biomass = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     trade = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_trade.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_trade.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_enty", "REMINDitems_trade")
     },
     input_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs_Industry_subsectors.csv",
-                                returnPathOnly = TRUE, where = "mappingfolder")
+      mapping <- "structuremappingIO_inputs_Industry_subsectors.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs_Industry_subsectors.csv",
-                                returnPathOnly = TRUE, where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs_Industry_subsectors.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     IEA_output = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", 
-                                returnPathOnly = TRUE, where = "mappingfolder")
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech", "iea_product", "iea_flows")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
+      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
+                  "iea_product", "iea_flows")
     },
     IEA_input = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", 
-                                returnPathOnly = TRUE, where = "mappingfolder")
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech", "iea_product", "iea_flows")
+      mapping <- "structuremappingIO_inputs.csv"
+      where <- "mrremind"
+      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
+                  "iea_product", "iea_flows")
     }
   )
+  mapping <- toolGetMapping(type = "sectoral", name = mapping, where = where,
+                            returnPathOnly = TRUE)
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5

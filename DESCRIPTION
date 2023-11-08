@@ -41,7 +41,7 @@ Depends:
     madrat (>= 3.7.1),
     magclass (>= 6.11.3),
     mrdrivers (>= 1.0.0),
-    mrcommons (>= 1.33.3),
+    mrcommons (>= 1.38.0),
     edgeTransport (>= 0.17.0)
 Imports:
     assertr,
