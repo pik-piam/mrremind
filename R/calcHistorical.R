@@ -145,24 +145,6 @@ calcHistorical <- function() {
   # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
 
-
-
-  # ARIADNE Reference Scenario
-  ARIADNE_ReferenceScenarioGdp <- readSource("ARIADNE", subtype = "gdp")
-  ARIADNE_ReferenceScenarioGdp <- add_dimension(ARIADNE_ReferenceScenarioGdp,
-    dim = 3.1, add = "model", nm = "ARIADNE"
-  )
-
-  ARIADNE_ReferenceScenarioGdpCorona <- readSource("ARIADNE", subtype = "gdp_corona")
-  ARIADNE_ReferenceScenarioGdpCorona <- add_dimension(ARIADNE_ReferenceScenarioGdpCorona,
-    dim = 3.1, add = "model", nm = "ARIADNE - Corona"
-  )
-
-  ARIADNE_ReferenceScenarioPop <- readSource("ARIADNE", subtype = "population")
-  ARIADNE_ReferenceScenarioPop <- add_dimension(ARIADNE_ReferenceScenarioPop,
-    dim = 3.1, add = "model", nm = "ARIADNE"
-  )
-
   # Calculate Emission Reference Values
   Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate = FALSE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
@@ -279,7 +261,6 @@ calcHistorical <- function() {
     fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdpp_James,
     gdpp_WB, gdpp_IMF, ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiEurostat,
-    ARIADNE_ReferenceScenarioGdp,ARIADNE_ReferenceScenarioGdpCorona, ARIADNE_ReferenceScenarioPop,
     EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
     worldsteel, USGS_cement
   )
