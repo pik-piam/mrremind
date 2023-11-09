@@ -75,7 +75,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "BP")
   )
 
-  # EDGAR Emissions----
+  # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
   calcOutput(
@@ -116,7 +116,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical")
   )
 
-  # Heat Roadmap Europe (Final Energy) ----
+  # HRE Heat Roadmap Europe (Final Energy) ----
 
   calcOutput(
     type = "HRE", file = valfile,
@@ -140,12 +140,30 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical")
   )
 
+
+  # IEA WEO 2021  ----
+  weo <- calcOutput(
+    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
+    warnNA = FALSE, try = FALSE
+  )
+
+  weo <- weo["GLO", , ]
+  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
+
+  weo <- calcOutput(
+    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
+    warnNA = FALSE, try = FALSE
+  )
+
+  weo <- weo["GLO", , invert = TRUE]
+  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
+
   # INNOPATHS ----
 
   calcOutput(
     type = "INNOPATHS", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "INNOPATHS")
   )
 
   # JRC IDEES ----
@@ -168,7 +186,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
   )
 
-  # Steel Stock ----
+  # Mueller Steel Stock ----
 
   calcOutput(
     type = "SteelStock", file = valfile,
@@ -202,23 +220,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "INDSTAT2")
   )
-
-  # WEO 2021  ----
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE
-  )
-
-  weo <- weo["GLO", , ]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
-
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE
-  )
-
-  weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
