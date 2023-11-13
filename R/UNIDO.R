@@ -308,10 +308,6 @@ calcUNIDO <- function(subtype = 'INDSTAT2')
 
             getNames(x) <- variable_names[match(getNames(x), subsector_names)]
 
-            x <- x %>%
-                add_dimension(dim = 3.1, add = 'model',    nm = 'INDSTAT2') %>%
-                add_dimension(dim = 3.2, add = 'scenario', nm = 'historical')
-
             return(list(x = x,
                         weight = NULL,
                         unit = 'billion US$2005/yr',

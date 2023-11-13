@@ -43,9 +43,6 @@ calcAGEB <- function(subtype = "balances") {
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 
-  x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
-  x <- add_dimension(x, dim = 3.2, add = "model", nm = "AGEB")
-
   return(list(
     x = x, weight = NULL, unit = "EJ/yr",
     description = "Historical AGEB values as REMIND variables"
