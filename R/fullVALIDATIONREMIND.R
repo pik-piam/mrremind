@@ -50,22 +50,17 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # AGEB ----
 
-  # AGEB only has DEU values and crashes when not present in regions
-  if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
+  calcOutput(
+    type = "AGEB", subtype = "balances", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
+  )
 
-    calcOutput(
-      type = "AGEB", subtype = "balances", file = valfile,
-      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-      try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
-    )
-
-    calcOutput(
-      type = "AGEB", subtype = "electricity", file = valfile,
-      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-      try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
-    )
-
-  }
+  calcOutput(
+    type = "AGEB", subtype = "electricity", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
+  )
 
   # BP ----
 
@@ -196,14 +191,11 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # UBA Emission data ----
 
-  # UBA only has DEU values and crashes when not present in regions
-  if ("DEU" %in% toolGetMapping(getConfig("regionmapping"), "regional", where = "mappingfolder")[, "RegionCode"]) {
-    calcOutput(
-      type = "UBA", file = valfile,
-      aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-      try = FALSE, writeArgs = list(scenario = "historical", model = "UBA")
-    )
-  }
+  calcOutput(
+    type = "UBA", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "UBA")
+  )
 
   # UNFCCC ----
 

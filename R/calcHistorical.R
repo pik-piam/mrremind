@@ -4,13 +4,6 @@
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
 calcHistorical <- function() {
-  .fillZeros <- function(data) {
-    Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
-    tmp <- data[Non28EUcountries, , ]
-    tmp[is.na(tmp)] <- 0
-    data[Non28EUcountries, , ] <- tmp[Non28EUcountries, , ]
-    return(data)
-  }
 
   # Final Energy
   fe_iea <- calcOutput("FE", source = "IEA", aggregate = FALSE)
@@ -99,7 +92,6 @@ calcHistorical <- function() {
   # remove duplicates from LU_FAO_EmisAg
   LU_FAO_EmisAg <- LU_FAO_EmisAg[, , which(!duplicated(getNames(LU_FAO_EmisAg)))]
 
-
   # Capacities historical data ====
 
   # IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
@@ -133,20 +125,20 @@ calcHistorical <- function() {
   # emiMktESOthers <- add_dimension(emiMktESOthers, dim=3.1, add="model",nm="Eurostat")
 
   # EEA GHG Projections
-  EEA_GHGProjections <- .fillZeros(calcOutput("EEAGHGProjections", aggregate = FALSE))
+  EEA_GHGProjections <- toolFillEU34Countries(calcOutput("EEAGHGProjections", aggregate = FALSE))
 
   # EEA GHG Sectoral Historical Data
-  EEA_GHGSectoral <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
+  EEA_GHGSectoral <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
   EEA_GHGSectoral <- add_dimension(EEA_GHGSectoral, dim = 3.1, add = "model", nm = "EEA_historical")
 
-  EEA_GHGTotal <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype = "total"))
+  EEA_GHGTotal <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "total"))
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim = 3.1, add = "model", nm = "EEA_historical")
 
-  # EEA_GHGES <- .fillZeros(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
+  # EEA_GHGES <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype="ESR"))
   # EEA_GHGES <- add_dimension(EEA_GHGES, dim=3.1,add="model",nm="EEA_historical")
 
   # Calculate Emission Reference Values
-  Emi_Reference <- .fillZeros(calcOutput("EmiReference", aggregate = FALSE))
+  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
 
   # Eurostat emissions
@@ -270,7 +262,7 @@ calcHistorical <- function() {
   y <- sort(y)
 
   # create empty object with full temporal, regional and data dimensionality
-  data <- new.magpie(getRegions(fe_iea), y, n, fill = NA)
+  data <- new.magpie(getISOlist(), y, n, fill = NA)
   getSets(data)[3] <- "model"
   getSets(data)[4] <- "variable"
 
