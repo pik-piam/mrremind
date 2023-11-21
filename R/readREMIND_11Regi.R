@@ -39,6 +39,7 @@ readREMIND_11Regi<- function(subtype) {
     x <- as.magpie(x,datacol=2)
   } else if (subtype=="capacityFactorGlobal") {
     x <- read.csv("f_cf-global.csv",sep=";")
+    x[x$Tech == "rockgrind", "Tech"] <- "weathering"
     x <- as.magpie(x,datacol=2)
   } else if (subtype=="capacityFactorRules") {
     x <- read.csv("f_cf-rules.csv",sep=";")

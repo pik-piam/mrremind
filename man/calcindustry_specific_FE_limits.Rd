@@ -10,8 +10,8 @@ calcindustry_specific_FE_limits()
 A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
-Return \code{readExpertGuess('industry_specific_FE_limits')} in a format usable as
-a REMIND input.
+Return \code{readindustry_subsectors_specific('industry_specific_FE_limits')} in a
+format usable as a REMIND input.
 }
 \author{
 Michaja Pehl

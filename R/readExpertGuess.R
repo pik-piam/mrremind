@@ -68,11 +68,6 @@ readExpertGuess <- function(subtype) {
                     comment = '#',
                     show_col_types = FALSE) %>%
       madrat_mule()
-  } else if ('industry_specific_FE_limits' == subtype) {
-    out <- read_csv(file = file.path(path, 'industry_specific_FE_limits.csv'),
-                    comment = '#',
-                    show_col_types = FALSE) %>%
-      madrat_mule()
   } else if ('industry_max_secondary_steel_share' == subtype) {
     out <- read_csv(
       file = file.path(path, 'industry_max_secondary_steel_share.csv'),

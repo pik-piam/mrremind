@@ -4,14 +4,12 @@
 \alias{calcIEA_WEO_2021}
 \title{Calculate REMIND variables from IEA WEO 2021 data}
 \usage{
-calcIEA_WEO_2021(subtype, isValidation = FALSE)
+calcIEA_WEO_2021(subtype)
 }
 \arguments{
 \item{subtype}{Either "global" or "region". On global level, the source offers
 more variables than on regional level, but the data should not be used on sub-
 global level due to its coarse disaggregation.}
-
-\item{isValidation}{indicates if result will be used in validation (as opposed to generating input data)}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

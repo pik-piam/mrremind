@@ -13,11 +13,11 @@
 #' @export
 calcUBA <- function() {
   uba <- readSource("UBA")
-  
+
   mapping <- toolGetMapping("Mapping_UBA_REMIND.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    select("variable" = "UBA_variable", "REMIND_variable", "Unit_REMIND") %>% 
+    select("variable" = "UBA_variable", "REMIND_variable", "Unit_REMIND") %>%
     filter(!!sym("REMIND_variable") != "")
-  
+
   x <- left_join(
     uba %>%
       mselect(region = "DEU", variable = unique(mapping$variable)) %>%
@@ -34,11 +34,11 @@ calcUBA <- function() {
       !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
     ) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
-  
+
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie()  %>%
     toolCountryFill(fill = NA)
-  
+
   return(list(
     x = x, weight = NULL,
     unit = c("Mt CO2/yr", "Mt CO2-equiv/yr"),

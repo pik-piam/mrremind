@@ -13,7 +13,8 @@
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join lag last left_join
 #'   matches mutate n rename right_join select semi_join summarise ungroup
-#' @importFrom magclass mselect getItems getItems<-
+#' @importFrom magclass mselect getItems getItems<- time_interpolate
+#' @importFrom madrat toolAggregate
 #' @importFrom magrittr %>% %<>%
 #' @importFrom quitte as.quitte cartesian character.data.frame
 #'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule
@@ -64,6 +65,34 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       paste(rep(x,each=length(y)),y,sep=".")
     }
 
+    aggTimeSteps <- function(x, nYears = 5) {
+      periods <- sort(as.numeric(sub("^y", "", getItems(x, 2))))
+      periodsTarget <- min(periods):max(periods)
+      periodsTarget <- periodsTarget[periodsTarget %% nYears == 0]
+      periodsMissing <- setdiff(periodsTarget, periods)
+      periodsSubN <- sort(union(head(periods, -1)[diff(periods) != nYears],
+                                tail(periods, -1)[diff(periods) != nYears]))
+      periodsFill <- intersect(periodsTarget,
+                               union(periodsSubN, periodsMissing))
+      periodsKeep <- setdiff(periodsTarget, periodsFill)
+
+      periodsBuffer <- unique(do.call(c, lapply(periodsFill, function(y) {
+        (y - round(nYears / 2 - 0.1)):(y + round(nYears / 2 - 0.1))
+        })))
+      xBuffer <- time_interpolate(x, periodsBuffer)
+      rel <- expand.grid(period = periodsBuffer, periodAgg = periodsFill)
+      rel <- rel[abs(rel$period - rel$periodAgg) <= round(nYears / 2 - 0.1), ]
+      rel$w <- ifelse(abs(rel$period - rel$periodAgg) < round(nYears / 2 + 0.1), 1, 0.5)
+      w <- xBuffer
+      for (y in periodsBuffer) w[, y, ] <- unique(rel[rel$period == y, "w"])
+      rel$period <- paste0("y", rel$period)
+      rel$periodAgg <- paste0("y", rel$periodAgg)
+      xAgg <- toolAggregate(xBuffer, rel = rel, weight = w,
+                            from = "period", to = "periodAgg", dim = 2)
+      mbind(xAgg, x[, periodsKeep, ])
+    }
+
+
     addSDP_transport <- function(rmnditem){
       ## adding dummy vars and funcs to avoid global var complaints
       scenario.item  <- year <- scenario <- item <- region <- value <- variable <- .SD  <- dem_cap  <- fact <- toadd <- Year <- gdp_cap <- ssp2dem <- window <- train_add <- NULL
@@ -72,7 +101,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
       ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", 
+      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv",
                                     returnPathOnly = TRUE, where = "mappingfolder")
       rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
 
@@ -260,7 +289,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # - cumulate the reduction factor over the time horizon
 
       SSA_countries <- read_delim(
-        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv', 
+        file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv',
         returnPathOnly = TRUE, where = "mappingfolder"),
         delim = ';',
         col_names = c('country', 'iso3c', 'region'),
@@ -364,8 +393,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings",
                        "UE_buildings", "FE_for_Eff", "UE_for_Eff")) {
 
-      stationary <- readSource("EDGE",subtype="FE_stationary")
-      buildings  <- readSource("EDGE",subtype="FE_buildings")
+      stationary <- readSource("EDGE", subtype = "FE_stationary")
+      buildings  <- readSource("EDGE", subtype = "FE_buildings")
+
+      # aggregate to 5-year averages to suppress volatility
+      buildings <- buildings[, 2016, invert = TRUE] # all 2016 values are zero
+      buildings <- aggTimeSteps(buildings)
+      stationary <- aggTimeSteps(stationary)
 
       # filter RCP scenario
       if (subtype %in% c("FE_buildings", "UE_buildings")) {
@@ -523,7 +557,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
 
-        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv", 
+        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv",
                                     returnPathOnly = TRUE, where = "mappingfolder")
         mapping = read.csv2(mapping_path, stringsAsFactors = F)
     }
@@ -632,7 +666,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     # remove missing Navigate scenarios
     if (subtype %in% c("FE_buildings", "UE_buildings")) {
-      reminditems <- reminditems[, , grep("SSP2EU_NAV_.{3}\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
+      reminditems <- reminditems[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
     }
 
     #Change the scenario names for consistency with REMIND sets
@@ -1131,13 +1165,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
               2020 >= .data$year ~ .data$base.change,
               TRUE ~  ( ( (.data$base.change - 1)
                           * .data$factor ^ sign(1 - .data$base.change)
-              )
-              + 1)),
+                        )
+                      + 1)),
             specific.production =
-              ( .data$base.specific.production[2015 == .data$year]
+              ( .data$base.specific.production[2020 == .data$year]
                 * .data$change
               ),
-            value = ifelse(!is.finite(.data$base.change),
+            value = ifelse(!is.finite(.data$base.change) | 2020 >= .data$year,
                            .data$base.value,
                            .data$specific.production * .data$GDP)) %>%
           ungroup() %>%
@@ -1659,7 +1693,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       # scale industry subsector total FE by subsector activity and exogenous
       # energy efficiency gains
 
-      specific_FE_limits <- readSource(type = 'ExpertGuess',
+      specific_FE_limits <- readSource(type = 'industry_subsectors_specific',
                                        subtype = 'industry_specific_FE_limits',
                                        convert = FALSE) %>%
         madrat_mule()
@@ -1948,18 +1982,19 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       description_out <- "useful energy demand in buildings"
     }
     if (subtype == "FE") {
-      # duplicate SSP2EU scenarios of industry for Navigate scenarios
+      # duplicate SSP2EU scenarios of industry for Navigate and Campaigners scenarios
       industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
                             getItems(reminditems, 3.2), value = TRUE)
       nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
-      navigateScenarios <- grep("SSP2EU_NAV_", getItems(reminditems, 3.1), value = TRUE)
-      nonNavigateScenarios <- setdiff(getItems(reminditems, 3.1), navigateScenarios)
+      duplScenarios <- grep("SSP2EU_(NAV|CAMP)_", getItems(reminditems, 3.1), value = TRUE)
+      nonDuplScenarios <- setdiff(getItems(reminditems, 3.1), duplScenarios)
       reminditems <- mbind(
-        mselect(reminditems, scenario = nonNavigateScenarios),
-        mselect(reminditems, scenario = navigateScenarios, item = nonIndustryItems),
+        mselect(reminditems, scenario = nonDuplScenarios),
+        mselect(reminditems, scenario = duplScenarios, item = nonIndustryItems),
         addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                        collapseNames = TRUE),
-               paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+               c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+                 paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
                "scenario", 3.1)
       )
     }

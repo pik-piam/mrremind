@@ -5,7 +5,6 @@
 #' @param subtype Either "global" or "region". On global level, the source offers
 #' more variables than on regional level, but the data should not be used on sub-
 #' global level due to its coarse disaggregation.
-#' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
 #' @importFrom madrat toolGetMapping
@@ -14,7 +13,7 @@
 #' @importFrom stats aggregate
 #' @export
 
-calcIEA_WEO_2021 <- function(subtype, isValidation = FALSE) { # nolint
+calcIEA_WEO_2021 <- function(subtype) { # nolint
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables",
                              where = "mappingfolder") %>%
@@ -98,10 +97,6 @@ calcIEA_WEO_2021 <- function(subtype, isValidation = FALSE) { # nolint
   x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] - x[, , "PE|Nuclear (EJ/yr)"]
   x[, , "PE|Nuclear (EJ/yr)"] <- x[, , "PE|Nuclear (EJ/yr)"] / 3
   x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] + x[, , "PE|Nuclear (EJ/yr)"]
-
-  if (isValidation) {
-    x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
-  }
 
   return(list(
     x = x,
