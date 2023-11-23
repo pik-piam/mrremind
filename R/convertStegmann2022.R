@@ -8,10 +8,7 @@
 convertStegmann2022 <- function(x) {
   x <- x[c("World"), , , invert = TRUE]
 
-  regmapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv", where = "mappingfolder", type = "regional")
-  # todo: move mapping to where = "mrremind" (before PR)
-  # leave the mapping only as part of the library
-  # regmapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv", where = "mrremind", type = "regional")
+  regmapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv", where = "mrremind", type = "regional")
 
   fe <- calcOutput("FE", source = "IEA", aggregate = FALSE)[unique(regmapping$CountryCode), 2016, "FE (EJ/yr)"]
 

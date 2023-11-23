@@ -67,10 +67,10 @@ calcPlasticsEoL <- function() {
                         `Plastics|Waste|Total`
                         ",
       units = "fraction", only.new = TRUE
-      ) %>%
+    ) %>%
       # remove unused dimensions
-    select(c(-model,-scenario,-variable,-unit)) %>%
-    interpolate_missing_periods(seq(2050,2060,5),method = "linear")
+    select(-"model", -"scenario", -"variable", -"unit") %>%
+    interpolate_missing_periods(seq(2050, 2060, 5), method = "linear")
 
   # as magpie
   x <- as.magpie(incinerationShares)
