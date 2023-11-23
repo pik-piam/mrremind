@@ -40,11 +40,11 @@ fullREMIND <- function(rev = 0) {
   calcOutput("FEdemand",  subtype = "FE",             signif = 4,  file = "f_fedemand.cs4r")
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
-    type = 'Steel_Projections', subtype = 'secondary.steel.max.share',
-    file = 'p37_steel_secondary_max_share.cs4r',
-    match.steel.historic.values = TRUE, match.steel.estimates = 'IEA_ETP',
-    China_Production = readSource(type = 'ExpertGuess',
-                                  subtype = 'Chinese_Steel_Production',
+    type = "Steel_Projections", subtype = "secondary.steel.max.share",
+    file = "p37_steel_secondary_max_share.cs4r",
+    match.steel.historic.values = TRUE, match.steel.estimates = "IEA_ETP",
+    China_Production = readSource(type = "ExpertGuess",
+                                  subtype = "Chinese_Steel_Production",
                                   convert = FALSE) %>%
       madrat_mule())
   calcOutput("FEdemand",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
@@ -64,8 +64,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("DevelopmentState",                      round = 4,  file = "f_developmentState.cs3r")
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f50_pop.cs3r", aggregate = FALSE)
   calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f50_gdp.cs3r", aggregate = FALSE)
-  calcOutput("TCdamage", subtype = "const",           round=8, file="f50_TC_df_const.cs4r", aggregate=FALSE)
-  calcOutput("TCdamage", subtype = "tasK",            round=8, file="f50_TC_df_tasK.cs4r", aggregate=FALSE)
+  calcOutput("TCdamage", subtype = "const",           round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
+  calcOutput("TCdamage", subtype = "tasK",            round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
 
   #-------------- energy services parameter -----------------------------------------------------------
   calcOutput("FEdemand", subtype = "EsUeFe_in",       round = 8, file = "p36_serviceInputs.cs4r")
@@ -162,8 +162,9 @@ fullREMIND <- function(rev = 0) {
   # calcOutput("GEA2012", subtype="bounds",datatype="decoffset",   round=8,  file="f31_decoffset.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="exportbound", round=8,  file="f31_Xport.cs4r")
   # calcOutput("GEA2012", subtype="bounds",datatype="extraseed",   round=8,  file="f31_extraseed.cs4r")
-  calcOutput('industry_specific_FE_limits', aggregate = FALSE,
-             file = 'pm_energy_limit.csv')
+  calcOutput("industry_specific_FE_limits", aggregate = FALSE,
+             file = "pm_energy_limit.csv")
+  calcOutput("PlasticsEoL", round = 5, file = "f_incinerationShares.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")

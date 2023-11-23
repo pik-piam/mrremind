@@ -1,0 +1,223 @@
+X;CountryCode;RegionCode;RegionAbbreviation
+Aruba;ABW;Central America;RCAM
+Afghanistan;AFG;Rest of South Asia;RSAS
+Angola;AGO;Rest of South Africa;RSAF
+Anguilla;AIA;Central America;RCAM
+Albania;ALB;Central Europe;CEU
+Andorra;AND;West Europe;WEU
+United Arab Emirates;ARE;Middle East;ME
+Argentina;ARG;Rest of South-America;RSAM
+Armenia;ARM;Russia;RUS
+American Samoa;ASM;Oceania;OCE
+Australia;AUS;Oceania;OCE
+Austria;AUT;West Europe;WEU
+Azerbaijan;AZE;Russia;RUS
+Burundi;BDI;East Africa;EAF
+Belgium;BEL;West Europe;WEU
+Benin;BEN;West Africa;WAF
+Burkina Faso;BFA;West Africa;WAF
+Bangladesh;BGD;Rest of South Asia;RSAS
+Bulgaria;BGR;Central Europe;CEU
+Bahrain;BHR;Middle East;ME
+Bahamas;BHS;Central America;RCAM
+Bosnia and Herzegovina;BIH;Central Europe;CEU
+Belarus;BLR;Ukraine region;UKR
+Belize;BLZ;Central America;RCAM
+Bermuda;BMU;Central America;RCAM
+Bolivia, Plurinational State of;BOL;Rest of South-America;RSAM
+Brazil;BRA;Brazil;BRA
+Barbados;BRB;Central America;RCAM
+Brunei Darussalam;BRN;South East Asia;SEAS
+Bhutan;BTN;Rest of South Asia;RSAS
+Botswana;BWA;Rest of South Africa;RSAF
+Central African Republic;CAF;West Africa;WAF
+Canada;CAN;Canada;CAN
+Switzerland;CHE;West Europe;WEU
+Chile;CHL;Rest of South-America;RSAM
+China;CHN;China+;CHN
+Cote d Ivoire;CIV;West Africa;WAF
+Cameroon;CMR;West Africa;WAF
+Congo, the Democratic Republic of the;COD;West Africa;WAF
+Congo;COG;West Africa;WAF
+Cook Islands;COK;Oceania;OCE
+Colombia;COL;Rest of South-America;RSAM
+Comoros;COM;East Africa;EAF
+Cape Verde;CPV;West Africa;WAF
+Costa Rica;CRI;Central America;RCAM
+Cayman Islands;CYM;Central America;RCAM
+Cyprus;CYP;Central Europe;CEU
+Czech Republic;CZE;Central Europe;CEU
+Germany;DEU;West Europe;WEU
+Djibouti;DJI;East Africa;EAF
+Dominica;DMA;Central America;RCAM
+Denmark;DNK;West Europe;WEU
+Dominican Republic;DOM;Central America;RCAM
+Algeria;DZA;North Africa;NAF
+Ecuador;ECU;Rest of South-America;RSAM
+Egypt;EGY;North Africa;NAF
+Eritrea;ERI;East Africa;EAF
+Western Sahara;ESH;North Africa;NAF
+Spain;ESP;West Europe;WEU
+Estonia;EST;Central Europe;CEU
+Ethiopia;ETH;East Africa;EAF
+Finland;FIN;West Europe;WEU
+Fiji;FJI;Oceania;OCE
+Falkland Islands (Malvinas);FLK;Rest of South-America;RSAM
+France;FRA;West Europe;WEU
+Faroe Islands;FRO;West Europe;WEU
+Micronesia, Federated States of;FSM;South East Asia;OCE
+Gabon;GAB;West Africa;WAF
+United Kingdom;GBR;West Europe;WEU
+Georgia;GEO;Russia;RUS
+Ghana;GHA;West Africa;WAF
+Gibraltar;GIB;West Europe;WEU
+Guinea;GIN;West Africa;WAF
+Guadeloupe;GLP;Central America;RCAM
+Gambia;GMB;West Africa;WAF
+Guinea-Bissau;GNB;West Africa;WAF
+Equatorial Guinea;GNQ;West Africa;WAF
+Greece;GRC;West Europe;WEU
+Grenada;GRD;Central America;RCAM
+Guatemala;GTM;Central America;RCAM
+French Guiana;GUF;Rest of South-America;RSAM
+Guyana;GUY;Rest of South-America;RSAM
+Hong Kong;HKG;China+;CHN
+Honduras;HND;Central America;RCAM
+Croatia;HRV;Central Europe;CEU
+Haiti;HTI;Central America;RCAM
+Hungary;HUN;Central Europe;CEU
+Indonesia;IDN;Indonesia;INDO
+India;IND;India;INDIA
+Ireland;IRL;West Europe;WEU
+Iran, Islamic Republic of;IRN;Middle East;ME
+Iraq;IRQ;Middle East;ME
+Iceland;ISL;West Europe;WEU
+Israel;ISR;Middle East;ME
+Italy;ITA;West Europe;WEU
+Jamaica;JAM;Central America;RCAM
+Jordan;JOR;Middle East;ME
+Japan;JPN;Japan;JAP
+Kazakhstan;KAZ;Kazachstan;STAN
+Kenya;KEN;East Africa;EAF
+Kyrgyzstan;KGZ;Kazachstan;STAN
+Cambodia;KHM;South East Asia;SEAS
+Kiribati;KIR;Oceania;OCE
+Saint Kitts and Nevis;KNA;Central America;RCAM
+Korea, Republic of;KOR;Korea;KOR
+Kuwait;KWT;Middle East;ME
+Lao People's Democratic Republic;LAO;South East Asia;SEAS
+Lebanon;LBN;Middle East;ME
+Liberia;LBR;West Africa;WAF
+Libya;LBY;North Africa;NAF
+Saint Lucia;LCA;Central America;RCAM
+Liechtenstein;LIE;West Europe;WEU
+Sri Lanka;LKA;Rest of South Asia;RSAS
+Lesotho;LSO;Rest of South Africa;RSAF
+Lithuania;LTU;Central Europe;CEU
+Luxembourg;LUX;West Europe;WEU
+Latvia;LVA;Central Europe;CEU
+Macao;MAC;China+;CHN
+Morocco;MAR;North Africa;NAF
+Monaco;MCO;West Europe;WEU
+Moldova, Republic of;MDA;Ukraine region;UKR
+Madagascar;MDG;East Africa;EAF
+Maldives;MDV;Rest of South Asia;RSAS
+Mexico;MEX;Mexico;MEX
+Marshall Islands;MHL;Oceania;OCE
+Macedonia, the former Yugoslav Republic of;MKD;Central Europe;CEU
+Mali;MLI;West Africa;WAF
+Malta;MLT;West Europe;WEU
+Myanmar;MMR;South East Asia;SEAS
+Montenegro;MNE;Central Europe;CEU
+Mongolia;MNG;China+;CHN
+Northern Mariana Islands;MNP;Oceania;OCE
+Mozambique;MOZ;Rest of South Africa;RSAF
+Mauritania;MRT;West Africa;WAF
+Montserrat;MSR;Central America;RCAM
+Martinique;MTQ;Central America;RCAM
+Mauritius;MUS;East Africa;EAF
+Malawi;MWI;Rest of South Africa;RSAF
+Malaysia;MYS;South East Asia;SEAS
+Namibia;NAM;Rest of South Africa;RSAF
+New Caledonia;NCL;Oceania;OCE
+Niger;NER;West Africa;WAF
+Nigeria;NGA;West Africa;WAF
+Nicaragua;NIC;Central America;RCAM
+Niue;NIU;Oceania;OCE
+Netherlands;NLD;West Europe;WEU
+Norway;NOR;West Europe;WEU
+Nepal;NPL;Rest of South Asia;RSAS
+Nauru;NRU;Oceania;OCE
+New Zealand;NZL;Oceania;OCE
+Oman;OMN;Middle East;ME
+Pakistan;PAK;Rest of South Asia;RSAS
+Panama;PAN;Central America;RCAM
+Pitcairn;PCN;Oceania;OCE
+Peru;PER;Rest of South-America;RSAM
+Philippines;PHL;South East Asia;SEAS
+Palau;PLW;Oceania;OCE
+Papua New Guinea;PNG;Indonesia;INDO
+Poland;POL;Central Europe;CEU
+Puerto Rico;PRI;Central America;RCAM
+Korea, Democratic People's Republic of;PRK;Korea;KOR
+Portugal;PRT;West Europe;WEU
+Paraguay;PRY;Rest of South-America;RSAM
+French Polynesia;PYF;Oceania;OCE
+Qatar;QAT;Middle East;ME
+Reunion;REU;East Africa;EAF
+Romania;ROU;Central Europe;CEU
+Russian Federation;RUS;Russia;RUS
+Rwanda;RWA;East Africa;EAF
+Saudi Arabia;SAU;Middle East;ME
+Sudan;SDN;East Africa;EAF
+Senegal;SEN;West Africa;WAF
+Singapore;SGP;South East Asia;SEAS
+Saint Helena, Ascension and Tristan da Cunha;SHN;West Africa;WAF
+Solomon Islands;SLB;Oceania;OCE
+Sierra Leone;SLE;West Africa;WAF
+El Salvador;SLV;Central America;RCAM
+San Marino;SMR;West Europe;WEU
+Somalia;SOM;East Africa;EAF
+Saint Pierre and Miquelon;SPM;USA;USA
+Serbia;SRB;Central Europe;CEU
+Sao Tome and Principe;STP;West Africa;WAF
+Suriname;SUR;Rest of South-America;RSAM
+Slovakia;SVK;Central Europe;CEU
+Slovenia;SVN;Central Europe;CEU
+Sweden;SWE;West Europe;WEU
+Swaziland;SWZ;Rest of South Africa;RSAF
+Seychelles;SYC;East Africa;EAF
+Syrian Arab Republic;SYR;Middle East;ME
+Turks and Caicos Islands;TCA;Central America;RCAM
+Chad;TCD;West Africa;WAF
+Togo;TGO;West Africa;WAF
+Thailand;THA;South East Asia;SEAS
+Tajikistan;TJK;Kazachstan;STAN
+Tokelau;TKL;Oceania;OCE
+Turkmenistan;TKM;Kazachstan;STAN
+Timor-Leste;TLS;Indonesia;INDO
+Tonga;TON;Oceania;OCE
+Trinidad and Tobago;TTO;Central America;RCAM
+Tunisia;TUN;North Africa;NAF
+Turkey;TUR;Turkey;TUR
+Tuvalu;TUV;Oceania;OCE
+Taiwan, Province of China;TWN;China+;CHN
+Tanzania, United Republic of;TZA;Rest of South Africa;RSAF
+Uganda;UGA;East Africa;EAF
+Ukraine;UKR;Ukraine region;UKR
+Uruguay;URY;Rest of South-America;RSAM
+United States;USA;USA;USA
+Uzbekistan;UZB;Kazachstan;STAN
+Holy See (Vatican City State);VAT;West Europe;WEU
+Saint Vincent and the Grenadines;VCT;Central America;RCAM
+Venezuela, Bolivarian Republic of;VEN;Rest of South-America;RSAM
+Virgin Islands, British;VGB;Central America;RCAM
+Virgin Islands, U.S.;VIR;Central America;RCAM
+Viet Nam;VNM;South East Asia;SEAS
+Vanuatu;VUT;Oceania;OCE
+Wallis and Futuna;WLF;Oceania;OCE
+Samoa;WSM;Oceania;OCE
+Yemen;YEM;Middle East;ME
+South Africa;ZAF;South Africa;SAF
+Zambia;ZMB;Rest of South Africa;RSAF
+Zimbabwe;ZWE;Rest of South Africa;RSAF
