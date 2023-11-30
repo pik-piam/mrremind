@@ -104,7 +104,7 @@ fullREMIND <- function(rev = 0) {
   calcOutput("PotentialWindOff",                      round = 3,  file = "f_maxProdGradeRegiWindOff.cs3r")
   calcOutput("PotentialGeothermal",                   round = 3,  file = "f_maxProdGeothermal.cs3r")
   calcOutput("PotentialWeathering",                   round = 3,  file = "f33_maxProdGradeRegiWeathering.cs3r")
-  calcOutput("PotentialWeathering",                   round = 3,  file = "f33_maxProdGradeRegiWeathering.cs3r")
+  calcOutput("CostsWeathering",                       round = 8,  file = "p33_transportCostsWeathering.cs4r")
   calcOutput("CostsTrade",                            round = 5,  file = "pm_costsPEtradeMp.cs4r")
   calcOutput("CostsTradePeFinancial",                 round = 5,  file = "pm_costsTradePeFinancial.cs3r")
   calcOutput("ShareCHP",                              round = 3,  file = "f32_shCHP.cs4r")
