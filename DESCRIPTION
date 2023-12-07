@@ -1,7 +1,7 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.173.0.9001
+Version: 0.173.1
 Date: 2023-12-07
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
