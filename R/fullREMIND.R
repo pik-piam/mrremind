@@ -2,8 +2,6 @@
 #'
 #' Function that produces the complete regional data set required for the
 #' REMIND model.
-#'
-#' @param rev data revision which should be used as input (positive numeric).
 #' @importFrom madrat madratAttach
 #' @importFrom magrittr %>%
 #' @importFrom quitte cartesian madrat_mule
@@ -15,7 +13,7 @@
 #' fullREMIND()
 #' }
 #'
-fullREMIND <- function(rev = 0) {
+fullREMIND <- function() {
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
 
