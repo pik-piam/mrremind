@@ -27,7 +27,7 @@ calcIEA_EVOutlook <- function() {
       !!sym("scenario") == "Projection-STEPS" ~ "IEA EV Outlook STEPS"
     ))
 
-  mapping <- toolGetMapping("Mapping_IEA_EV_Outlook.csv", type = "reportingVariables", where = "mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_IEA_EV_Outlook.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND_Variable")), !!sym("REMIND_Variable") != "") %>%
     mutate(!!sym("REMIND") := paste0(!!sym("REMIND_Variable"), " (", !!sym("REMIND_Unit"), ")")) %>%
     select("variable" = "Variable", "REMIND", "Factor")
@@ -49,7 +49,7 @@ calcIEA_EVOutlook <- function() {
     toolCountryFill(fill = NA, verbosity = 2)
 
   # set 0s in other CHA countries than China to approximate CHA as China
-  x[c("HKG", "MAC", "TWN"),,] <- 0
+  x[c("HKG", "MAC", "TWN"), , ] <- 0
 
   return(list(
     x = x,
