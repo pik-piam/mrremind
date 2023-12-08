@@ -12,6 +12,8 @@
 #' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
+#' collapseDim
+#' @importFrom utils read.csv
 readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
                                  "ES_buildings")) {
   subtype <- match.arg(subtype)
@@ -22,7 +24,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
     SSPs  = paste0("SSP", 1:5),
     SSP2s = paste0("SSP2", c("EU", "_lowEn",
                              paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                             paste0("EU_CAMP_", c("weak", "strong")))),
+                             paste0("EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")))))),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
@@ -47,7 +49,10 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- as.magpie(data)
       getNames(data) <- gsub("rcp", "", getNames(data))
       getNames(data) <- gsub("NoC", "fixed", getNames(data))
-      getSets(data) <- c("region", "year", "scenario", "rcp", "item")},
+      getSets(data) <- c("region", "year", "scenario", "rcp", "item")
+      data <- mbind(data,
+        addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
+               "SSP2EU_CAMP_strong_all", "scenario", 3.1))},
     Capital = {
       data <- read.csv(file.path(ver, "capitalProjections.csv"))
       data <- as.magpie(data)
@@ -67,6 +72,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
+      data <- mbind(data,
+        addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
+               "SSP2EU_CAMP_strong_all", "scenario", 3.1))
       getSets(data) <- c("region", "year", "scenario", "variable")},
     ES_buildings = {
       data <- read.csv(file.path(ver, "EDGE_buildings_service.csv"))

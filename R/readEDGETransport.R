@@ -65,7 +65,19 @@ readEDGETransport <- function(subtype = "logit_exponent") {
                 dt[.("gdp_SSP2EU_demRedWeak", "gdp_SSP2EU", "CAMP_lscWeak"), nomatch=NULL][
                   , DEM_scenario := "gdp_SSP2EU_CAMP_weak"],
                 dt[.("gdp_SSP2EU_demRedStrong", "gdp_SSP2EU", "CAMP_lscStrong"), nomatch=NULL][
-                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_temperature"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_renovation"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_floorspace"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_hotwater"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_ecomode"],
+                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "Mix2"), nomatch=NULL][
+                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong_all"]
     )
     setkeyv(dt, "DEM_scenario")
     dt[.("gdp_SSP2EU_demRedStrong"), DEM_scenario := "gdp_SSP2_lowEn"]
