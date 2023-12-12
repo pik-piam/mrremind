@@ -4,10 +4,11 @@
 \alias{fullVALIDATIONREMIND}
 \title{fullVALIDATIONREMIND}
 \usage{
-fullVALIDATIONREMIND(rev = 0)
+fullVALIDATIONREMIND(years = NULL)
 }
 \arguments{
-\item{rev}{data revision which should be used as input (positive numeric).}
+\item{years}{A vector of years that should be returned. If set to NULL all
+available years are returned.}
 }
 \description{
 Function that generates the historical regional dataset against which the
@@ -23,5 +24,5 @@ fullVALIDATIONREMIND()
 \code{\link{fullREMIND}},\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
 }
 \author{
-David Klein
+David Klein, Falk Benke
 }
