@@ -9,7 +9,7 @@ calcBiomassPrices <- function(){
   x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
 
   # rename the rcp-scenarios to cm_rcp_scen switches used in REMIND
-  getNames(x) <- gsub("NDC-nocc_hist-PkBudg600",  "rcp20", getNames(x)) 
+  getNames(x) <- gsub("NDC-nocc_hist-PkBudg650",  "rcp20", getNames(x)) 
   getNames(x) <- gsub("NDC-nocc_hist-PkBudg1050", "rcp26", getNames(x))
   getNames(x) <- gsub("NDC-nocc_hist-NDC",        "rcp45", getNames(x))
   getNames(x) <- gsub("NPI-nocc_hist-Base",       "none" , getNames(x))
