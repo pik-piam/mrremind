@@ -1996,7 +1996,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                        collapseNames = TRUE),
                c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                 paste0("gdp_SSP2EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all"))))),
+                 paste0("gdp_SSP2EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "weak_all"))),
                "scenario", 3.1)
       )
     }

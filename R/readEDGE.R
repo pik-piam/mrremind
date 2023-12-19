@@ -24,7 +24,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
     SSPs  = paste0("SSP", 1:5),
     SSP2s = paste0("SSP2", c("EU", "_lowEn",
                              paste0("EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                             paste0("EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")))))),
+                             paste0("EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "weak_all")))),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   addDim <- function(x, addnm, dim, dimCode = 3.2) {
@@ -52,7 +52,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getSets(data) <- c("region", "year", "scenario", "rcp", "item")
       data <- mbind(data,
         addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
-               "SSP2EU_CAMP_strong_all", "scenario", 3.1))},
+               "SSP2EU_CAMP_strong_all", "scenario", 3.1),
+        addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_weak"), "scenario"),
+               "SSP2EU_CAMP_weak_all", "scenario", 3.1))},
     Capital = {
       data <- read.csv(file.path(ver, "capitalProjections.csv"))
       data <- as.magpie(data)
@@ -74,7 +76,9 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- collapseNames(data)
       data <- mbind(data,
         addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
-               "SSP2EU_CAMP_strong_all", "scenario", 3.1))
+               "SSP2EU_CAMP_strong_all", "scenario", 3.1),
+        addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_weak"), "scenario"),
+               "SSP2EU_CAMP_weak_all", "scenario", 3.1))
       getSets(data) <- c("region", "year", "scenario", "variable")},
     ES_buildings = {
       data <- read.csv(file.path(ver, "EDGE_buildings_service.csv"))
