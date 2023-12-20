@@ -50,6 +50,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       getNames(data) <- gsub("rcp", "", getNames(data))
       getNames(data) <- gsub("NoC", "fixed", getNames(data))
       getSets(data) <- c("region", "year", "scenario", "rcp", "item")
+      # duplicate the buildings demands for the _all scenarios that only
+      # consider life style changes in buildings and not the other sectors
       data <- mbind(data,
         addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
                "SSP2EU_CAMP_strong_all", "scenario", 3.1),
@@ -74,6 +76,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
+      # duplicate the buildings demands for the _all scenarios that only
+      # consider life style changes in buildings and not the other sectors
       data <- mbind(data,
         addDim(collapseDim(mselect(data, scenario = "SSP2EU_CAMP_strong"), "scenario"),
                "SSP2EU_CAMP_strong_all", "scenario", 3.1),
