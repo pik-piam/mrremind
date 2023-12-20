@@ -92,7 +92,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       mbind(xAgg, x[, periodsKeep, ])
     }
 
-
     addSDP_transport <- function(rmnditem){
       ## adding dummy vars and funcs to avoid global var complaints
       scenario.item  <- year <- scenario <- item <- region <- value <- variable <- .SD  <- dem_cap  <- fact <- toadd <- Year <- gdp_cap <- ssp2dem <- window <- train_add <- NULL
@@ -390,8 +389,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
 
     #----- READ-IN DATA ------------------
-    if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings",
-                       "UE_buildings", "FE_for_Eff", "UE_for_Eff")) {
+    if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff")) {
 
       stationary <- readSource("EDGE", subtype = "FE_stationary")
       buildings  <- readSource("EDGE", subtype = "FE_buildings")
@@ -416,7 +414,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       }
 
       ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
-      if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings", "UE_buildings") &
+      if (subtype %in% c("FE", "FE_buildings", "UE_buildings") &
           all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
         stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
       }
@@ -427,7 +425,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       fill_years <- setdiff(getYears(stationary),getYears(buildings))
       buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
 
-      y <- if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out", "FE_buildings", "UE_Buildings")) {
+      y <- if (subtype %in% c("FE", "FE_buildings", "UE_Buildings")) {
         getYears(stationary)  # >= 1993
       } else {
         intersect(getYears(stationary), getYears(buildings))  # >= 2000
@@ -441,7 +439,9 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         "demand pathways for final energy in buildings and industry in the original file")
     }
 
-    if (subtype %in% c("FE", "EsUeFe_in", "EsUeFe_out")) {
+    # --> Industry
+    if (subtype == "FE") {
+
       # ---- _ modify Industry FE data to carry on current trends ----
       v <- grep('\\.fe(..i$|ind)', getNames(data), value = TRUE)
 
@@ -555,12 +555,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
           mutate(REMINDitems_out = "feelb")
       )
 
-    } else if (subtype %in% c("EsUeFe_in","EsUeFe_out")){
-
-        mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_EsUeFe.csv",
-                                    returnPathOnly = TRUE, where = "mappingfolder")
-        mapping = read.csv2(mapping_path, stringsAsFactors = F)
     }
+
     #----- PROCESS DATA ------------------
 
     regions  <- getRegions(data)
@@ -578,26 +574,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       }
       # Reduce data set to relevant items
       data = data[,,unique(mapping$EDGEitems)]
-    }
-
-    #Modify mapping
-    if (subtype == "EsUeFe_in"){
-      mapping = mapping[c("EDGEinput","REMINDitems_in","REMINDitems_out","REMINDitems_tech","weight_input")]
-      REMIND_dimensions = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech")
-      colnames(mapping) = c("EDGEitems",REMIND_dimensions,"weight_Fedemand")
-
-      data = data[,,unique(mapping$EDGEitems)]
-
-      sets_names = c("region","year","scenario","item","out","tech")
-
-    } else if (subtype == "EsUeFe_out"){
-      mapping = mapping[c("EDGEoutput","REMINDitems_in","REMINDitems_out","REMINDitems_tech","weight_output")]
-      REMIND_dimensions = c("REMINDitems_in","REMINDitems_out","REMINDitems_tech")
-      colnames(mapping) = c("EDGEitems",REMIND_dimensions,"weight_Fedemand")
-
-      data = data[,,unique(mapping$EDGEitems)]
-
-      sets_names = c("region","year","scenario","in","item","tech")
     }
 
     edge_names = getNames(data, dim = "item")

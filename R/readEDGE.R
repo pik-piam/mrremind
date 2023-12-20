@@ -32,6 +32,7 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
   }
 
   switch(subtype,
+    # TODO: what is this about and can this be moved somewhere else?
     FE_stationary = {
       data <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
       data[is.na(data)] <- 0

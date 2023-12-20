@@ -65,10 +65,6 @@ fullREMIND <- function() {
   calcOutput("TCdamage", subtype = "const",           round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "tasK",            round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
 
-  #-------------- energy services parameter -----------------------------------------------------------
-  calcOutput("FEdemand", subtype = "EsUeFe_in",       round = 8, file = "p36_serviceInputs.cs4r")
-  calcOutput("FEdemand", subtype = "EsUeFe_out",      round = 8, file = "p36_serviceOutputs.cs4r")
-
   #-------------- emission parameter ------------------------------------------------------------------
   calcOutput("EconometricEmiParameter",                             round = 5, file = "p_emineg_econometric.cs3r")
   calcOutput("EmissionsTe",                                         round = 5, file = "p_boundEmi.cs4r")
