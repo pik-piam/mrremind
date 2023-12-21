@@ -26,8 +26,12 @@
 #'   pivot_wider replace_na separate spread unite
 #' @importFrom zoo na.fill
 #'
-#' @author Antoine Levesque
-calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
+#' @author Antoine Levesque, Falk Benke
+calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
+
+    if (!subtype %in% c("FE", "ES", "FE_for_Eff", "UE_for_Eff")) {
+      stop(paste0("Unsupported subtype:", subtype ))
+    }
 
     #----- Functions ------------------
     getScens = function(mag) {
@@ -40,23 +44,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       }))
     }
 
-    fillNa <- function(x) {
-      itemsFull <- apply(
-        do.call("expand.grid", lapply(tail(getSets(x), -2), function(dim) {
-          getItems(x, dim)
-        })),
-        1, "paste", collapse = "."
-      )
-      xFull <- new.magpie(
-        cells_and_regions = getRegions(x),
-        years = getYears(x),
-        names = itemsFull,
-        sets = getSets(x)
-      )
-      xFull[getRegions(x), getYears(x), getItems(x, 3)] <- x
-      return(xFull)
-    }
-
     expand_vectors = function(x,y) {
       if (is.data.frame(y)) {
         y = apply(y,1,paste,collapse=".")
@@ -66,7 +53,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
 
     aggTimeSteps <- function(x, nYears = 5) {
-      periods <- sort(as.numeric(sub("^y", "", getItems(x, 2))))
+      periods <- sort(getYears(x, as.integer = T))
       periodsTarget <- min(periods):max(periods)
       periodsTarget <- periodsTarget[periodsTarget %% nYears == 0]
       periodsMissing <- setdiff(periodsTarget, periods)
@@ -389,7 +376,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     }
 
     #----- READ-IN DATA ------------------
-    if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff")) {
+    if (subtype %in% c("FE", "FE_for_Eff", "UE_for_Eff")) {
 
       stationary <- readSource("EDGE", subtype = "FE_stationary")
       buildings  <- readSource("EDGE", subtype = "FE_buildings")
@@ -399,22 +386,10 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       buildings <- aggTimeSteps(buildings)
       stationary <- aggTimeSteps(stationary)
 
-      # filter RCP scenario
-      if (subtype %in% c("FE_buildings", "UE_buildings")) {
-        rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
-        rcps <- gsub("rcpfixed", "none", rcps)
-        getItems(buildings, "rcp") <- rcps
-        stationary <- addDim(stationary, rcps, "rcp")
-        # add NAs for Navigate scenarios and RCP variants
-        stationary <- fillNa(stationary)
-        buildings  <- fillNa(buildings)
-      } else {
-        rcps <- NULL
-        buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
-      }
+      buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
       ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
-      if (subtype %in% c("FE", "FE_buildings", "UE_buildings") &
+      if (subtype == "FE" &
           all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
         stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
       }
@@ -425,7 +400,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       fill_years <- setdiff(getYears(stationary),getYears(buildings))
       buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
 
-      y <- if (subtype %in% c("FE", "FE_buildings", "UE_Buildings")) {
+      y <- if (subtype == "FE") {
         getYears(stationary)  # >= 1993
       } else {
         intersect(getYears(stationary), getYears(buildings))  # >= 2000
@@ -541,21 +516,20 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       description_out = "demand pathways for energy service in buildings"
     }
 
-    if (subtype %in% c("FE", "FE_buildings", "UE_buildings", "FE_for_Eff", "UE_for_Eff", "ES")) {
-      mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
-      REMIND_dimensions = "REMINDitems_out"
-      sets_names = getSets(data)
+    mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
-      # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
-      mapping <- rbind(
-        mapping,
-        mapping %>%
-          filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-          mutate(REMINDitems_out = "feelb")
-      )
+    REMIND_dimensions = "REMINDitems_out"
+    sets_names = getSets(data)
 
-    }
+    # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+    mapping <- rbind(
+      mapping,
+      mapping %>%
+        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
+        mutate(REMINDitems_out = "feelb")
+    )
+
 
     #----- PROCESS DATA ------------------
 
@@ -563,7 +537,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     years    <- getYears(data)
     scenarios <- getScens(data)
 
-    if(subtype %in% c("FE_for_Eff", "UE_for_Eff")){
+    if (subtype %in% c("FE_for_Eff", "UE_for_Eff")) {
 
       #Select items from EDGE v3, which is based on the distinct UE and FE
       mapping = mapping[grepl("^.*_fe$",mapping$EDGEitems),]
@@ -584,26 +558,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     magpnames = mapping[REMIND_dimensions]
     magpnames <- unique(magpnames)
-    if (subtype %in% c("FE_buildings", "UE_buildings")) {
-      # filter only buildings (simple) ppf
-      magpnames <- filter(magpnames, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
-    }
-    if (subtype == "UE_buildings") {
-      # change mapping from FE to UE
-      mapping <- mapping %>%
-        mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
-               REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
-        rbind(mapping)
-      magpnames <- magpnames %>%
-        mutate(REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]]))
-    }
-    magpnames <- expand_vectors(
-      if (subtype %in% c("FE_buildings", "UE_buildings")) {
-        cartesian(scenarios, rcps)
-      } else {
-        scenarios
-      },
-      magpnames)
+
+    magpnames <- expand_vectors(scenarios, magpnames)
 
     if (length(setdiff(edge_names, mapping$EDGEitems) > 0 )) stop("Not all EDGE items are in the mapping")
 
@@ -614,14 +570,8 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     getSets(reminditems) <- sets_names
 
     datatmp <- data
-    # Take the names of reminditems without scenario and rcp dimension
-    names_NoScen <- unique(lapply(getNames(reminditems), function(name) {
-      strsplit(name, ".", fixed = TRUE)[[1]] %>%
-        `[`(!tail(getSets(reminditems), -2) %in% c("scenario", "rcp")) %>%
-        paste(collapse = ".")
-    }))
 
-    for (reminditem in names_NoScen) {
+    for (reminditem in getNames(reminditems, dim = "item")) {
       # Concatenate names from mapping columns so that they are comparable with
       # names from magclass object
       if (length(REMIND_dimensions) > 1) {
@@ -638,11 +588,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       mselect(datatmp, item = prfl) <- mselect(data, item = prfl) * as.magpie(vec)
       reminditems[, , reminditem] <- dimSums(mselect(datatmp, item = prfl),
                                              dim = "item", na.rm = TRUE)
-    }
-
-    # remove missing Navigate scenarios
-    if (subtype %in% c("FE_buildings", "UE_buildings")) {
-      reminditems <- reminditems[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(reminditems, 3), value = TRUE), invert = TRUE]
     }
 
     #Change the scenario names for consistency with REMIND sets
@@ -1952,11 +1897,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                          'ue_secondary_steel (Gt) and ue_chemicals and ',
                          'ue_otherInd ($tn)')
     }
-    if (subtype == "UE_buildings") {
-      # change item names back from UE to FE
-      getItems(reminditems, "item") <- gsub("^ue", "fe", getItems(reminditems, "item"))
-      description_out <- "useful energy demand in buildings"
-    }
+
     if (subtype == "FE") {
       # duplicate SSP2EU scenarios of industry for Navigate and Campaigners scenarios
       industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
@@ -1977,8 +1918,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     structure_data <- switch(subtype,
                              FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-                             FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-                             UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
                              FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
