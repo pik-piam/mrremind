@@ -26,11 +26,11 @@
 #'   pivot_wider replace_na separate spread unite
 #' @importFrom zoo na.fill
 #'
-#' @author Antoine Levesque, Falk Benke
+#' @author Michaja Pehl, Robin Hasse, Falk Benke
 calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
     if (!subtype %in% c("FE", "ES", "FE_for_Eff", "UE_for_Eff")) {
-      stop(paste0("Unsupported subtype:", subtype ))
+      stop(paste0("Unsupported subtype: ", subtype ))
     }
 
     #----- Functions ------------------
@@ -50,33 +50,6 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       }
 
       paste(rep(x,each=length(y)),y,sep=".")
-    }
-
-    aggTimeSteps <- function(x, nYears = 5) {
-      periods <- sort(getYears(x, as.integer = T))
-      periodsTarget <- min(periods):max(periods)
-      periodsTarget <- periodsTarget[periodsTarget %% nYears == 0]
-      periodsMissing <- setdiff(periodsTarget, periods)
-      periodsSubN <- sort(union(head(periods, -1)[diff(periods) != nYears],
-                                tail(periods, -1)[diff(periods) != nYears]))
-      periodsFill <- intersect(periodsTarget,
-                               union(periodsSubN, periodsMissing))
-      periodsKeep <- setdiff(periodsTarget, periodsFill)
-
-      periodsBuffer <- unique(do.call(c, lapply(periodsFill, function(y) {
-        (y - round(nYears / 2 - 0.1)):(y + round(nYears / 2 - 0.1))
-        })))
-      xBuffer <- time_interpolate(x, periodsBuffer)
-      rel <- expand.grid(period = periodsBuffer, periodAgg = periodsFill)
-      rel <- rel[abs(rel$period - rel$periodAgg) <= round(nYears / 2 - 0.1), ]
-      rel$w <- ifelse(abs(rel$period - rel$periodAgg) < round(nYears / 2 + 0.1), 1, 0.5)
-      w <- xBuffer
-      for (y in periodsBuffer) w[, y, ] <- unique(rel[rel$period == y, "w"])
-      rel$period <- paste0("y", rel$period)
-      rel$periodAgg <- paste0("y", rel$periodAgg)
-      xAgg <- toolAggregate(xBuffer, rel = rel, weight = w,
-                            from = "period", to = "periodAgg", dim = 2)
-      mbind(xAgg, x[, periodsKeep, ])
     }
 
     addSDP_transport <- function(rmnditem){
@@ -383,8 +356,8 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
       # aggregate to 5-year averages to suppress volatility
       buildings <- buildings[, 2016, invert = TRUE] # all 2016 values are zero
-      buildings <- aggTimeSteps(buildings)
-      stationary <- aggTimeSteps(stationary)
+      buildings <- toolAggregateTimeSteps(buildings)
+      stationary <- toolAggregateTimeSteps(stationary)
 
       buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 

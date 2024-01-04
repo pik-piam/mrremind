@@ -1,12 +1,12 @@
-
-# FE_Buildings, UE_Buildings -> FE, UE
-
+#' Returns the EDGE-Buildings data at the REMIND level
+#'
+#' @param subtype Final energy (FE) or Energy service (ES)
+#'
 #' @author Robin Hasse, Falk Benke
-
 calcFeDemandBuildings <- function(subtype) {
 
   if (!subtype %in% c("FE", "UE")) {
-    stop(paste0("Unsupported subtype:", subtype))
+    stop(paste0("Unsupported subtype: ", subtype))
   }
 
   # Helper Functions ----
@@ -15,33 +15,6 @@ calcFeDemandBuildings <- function(subtype) {
     do.call("mbind", lapply(dimVals, function(item) {
       add_dimension(x, dim = dimCode, add = dimName, nm = item)
     }))
-  }
-
-  aggTimeSteps <- function(x, nYears = 5) {
-    periods <- sort(getYears(x, as.integer = TRUE))
-    periodsTarget <- min(periods):max(periods)
-    periodsTarget <- periodsTarget[periodsTarget %% nYears == 0]
-    periodsMissing <- setdiff(periodsTarget, periods)
-    periodsSubN <- sort(union(head(periods, -1)[diff(periods) != nYears],
-                              tail(periods, -1)[diff(periods) != nYears]))
-    periodsFill <- intersect(periodsTarget,
-                             union(periodsSubN, periodsMissing))
-    periodsKeep <- setdiff(periodsTarget, periodsFill)
-
-    periodsBuffer <- unique(do.call(c, lapply(periodsFill, function(y) {
-      (y - round(nYears / 2 - 0.1)):(y + round(nYears / 2 - 0.1))
-    })))
-    xBuffer <- time_interpolate(x, periodsBuffer)
-    rel <- expand.grid(period = periodsBuffer, periodAgg = periodsFill)
-    rel <- rel[abs(rel$period - rel$periodAgg) <= round(nYears / 2 - 0.1), ]
-    rel$w <- ifelse(abs(rel$period - rel$periodAgg) < round(nYears / 2 + 0.1), 1, 0.5)
-    w <- xBuffer
-    for (y in periodsBuffer) w[, y, ] <- unique(rel[rel$period == y, "w"])
-    rel$period <- paste0("y", rel$period)
-    rel$periodAgg <- paste0("y", rel$periodAgg)
-    xAgg <- toolAggregate(xBuffer, rel = rel, weight = w,
-                          from = "period", to = "periodAgg", dim = 2)
-    mbind(xAgg, x[, periodsKeep, ])
   }
 
   # Data Processing ----
@@ -53,8 +26,8 @@ calcFeDemandBuildings <- function(subtype) {
   buildings <- buildings[, 2016, invert = TRUE]
 
   # aggregate to 5-year averages to suppress volatility
-  buildings <- aggTimeSteps(buildings)
-  stationary <- aggTimeSteps(stationary)
+  buildings <- toolAggregateTimeSteps(buildings)
+  stationary <- toolAggregateTimeSteps(stationary)
 
   # rename RCP scenarios in buildings
   rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
@@ -89,7 +62,7 @@ calcFeDemandBuildings <- function(subtype) {
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
     na.omit() %>%
-    filter(EDGEitems %in% getNames(data, dim = "item")) %>%
+    filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
     distinct()
 
   if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
