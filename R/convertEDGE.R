@@ -264,7 +264,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
 
 
 
-  } else if (subtype %in% c("Capital")) {
+  } else if (subtype == "Capital") {
 
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
                                   returnPathOnly = TRUE, where = "mappingfolder")
@@ -295,8 +295,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
                   })
     )
 
-    years_select <- intersect(intersect(getYears(x), getYears(wg)),
-getYears(wfe))
+    years_select <- intersect(intersect(getYears(x), getYears(wg)), getYears(wfe))
 
     wfe <- wfe[, years_select, ]
     wg <- wg[, years_select, ]
@@ -304,20 +303,6 @@ getYears(wfe))
     weights <- mbind(wfe, wg)
 
     x <- toolAggregate(x[, years_select, ], mappingfile, weight = weights[, , getNames(x)], from = region_col, to = iso_col)
-    result <- x
-
-  } else if (subtype %in% c("CapitalUnit")) {
-
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
-                                  returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
-    region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
-    iso_col <- which(names(mapping) == "CountryCode")
-
-    wg     <- NULL
-
-
-    x <- toolAggregate(x[, , ], mappingfile, weight = wg, from = region_col, to = iso_col)
     result <- x
 
   } else if (subtype == "Floorspace") {

@@ -33,8 +33,7 @@ fullREMIND <- function() {
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
-  calcOutput("Capital",   subtype = "Capital",        signif = 4, file = "f29_capitalQuantity.cs4r") # TODO
-  calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r") # TODO
+  calcOutput("Capital",                               signif = 4, file = "f29_capitalQuantity.cs4r") # TODO
   calcOutput("FEdemand",  subtype = "FE",             signif = 4,  file = "f_fedemand.cs4r")
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
