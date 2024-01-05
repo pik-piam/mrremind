@@ -4,10 +4,7 @@
 \alias{readEDGE}
 \title{Read EDGE}
 \usage{
-readEDGE(
-  subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
-    "ES_buildings")
-)
+readEDGE(subtype = c("FE_stationary", "FE_buildings", "Floorspace"))
 }
 \arguments{
 \item{subtype}{One of the possible subtypes, see default argument.}

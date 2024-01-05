@@ -348,44 +348,45 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         return()
     }
 
-    #----- READ-IN DATA ------------------
-    if (subtype %in% c("FE", "FE_for_Eff", "UE_for_Eff")) {
+    # Data Processing ----
 
-      stationary <- readSource("EDGE", subtype = "FE_stationary")
-      buildings  <- readSource("EDGE", subtype = "FE_buildings")
+    stationary <- readSource("EDGE", subtype = "FE_stationary")
+    buildings  <- readSource("EDGE", subtype = "FE_buildings")
 
-      # aggregate to 5-year averages to suppress volatility
-      buildings <- buildings[, 2016, invert = TRUE] # all 2016 values are zero
-      buildings <- toolAggregateTimeSteps(buildings)
-      stationary <- toolAggregateTimeSteps(stationary)
+    # all 2016 values are zero
+    buildings <- buildings[, 2016, invert = TRUE]
 
-      buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
+    # aggregate to 5-year averages to suppress volatility
+    buildings <- toolAggregateTimeSteps(buildings)
+    stationary <- toolAggregateTimeSteps(stationary)
 
-      ## fix issue with trains in transport trajectories: they seem to be 0 for t>2100
-      if (subtype == "FE" &
-          all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
-        stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
-      }
+    buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
-      ## common years
-
-      ## stationary year range is in line with requirements on the RMND side
-      fill_years <- setdiff(getYears(stationary),getYears(buildings))
-      buildings <- time_interpolate(buildings,interpolated_year = fill_years, integrate_interpolated_years = T, extrapolation_type = "constant")
-
-      y <- if (subtype == "FE") {
-        getYears(stationary)  # >= 1993
-      } else {
-        intersect(getYears(stationary), getYears(buildings))  # >= 2000
-      }
-
-      data <- mbind(stationary[, y, ], buildings[, y, ])
-
-      unit_out = "EJ"
-      description_out <- ifelse(subtype %in% c("FE_for_Eff", "UE_for_Eff"),
-        "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
-        "demand pathways for final energy in buildings and industry in the original file")
+    ## fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
+    if (subtype == "FE" & all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
+      stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
+
+    # extrapolate years missing in buildings, but existing in stationary
+    misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
+    buildings <- time_interpolate(buildings,
+                                  interpolated_year = misingYearsBuildings,
+                                  integrate_interpolated_years = TRUE,
+                                  extrapolation_type = "constant")
+
+    if (subtype == "FE") {
+      y <- getYears(stationary)  # >= 1993
+    } else {
+      y <- intersect(getYears(stationary), getYears(buildings))  # >= 2000
+    }
+
+    data <- mbind(stationary[, y, ], buildings[, y, ])
+
+    unit_out = "EJ"
+    description_out <- ifelse(subtype %in% c("FE_for_Eff", "UE_for_Eff"),
+      "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
+      "demand pathways for final energy in buildings and industry in the original file")
+
 
     # --> Industry
     if (subtype == "FE") {
@@ -478,7 +479,6 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
           data[,y[i],v] <- data[,y[i],v] * f[i]
         }
       }
-
     }
 
     # SAME FOR ALL ----

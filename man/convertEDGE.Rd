@@ -9,7 +9,7 @@ convertEDGE(x, subtype = "FE_stationary")
 \arguments{
 \item{x}{MAgPIE object containing EDGE values at ISO country resolution}
 
-\item{subtype}{FE for final energy or Capital for capital projections}
+\item{subtype}{either FE_stationary, FE_buildings, or Floorspace}
 }
 \value{
 EDGE data as MAgPIE object aggregated to country level

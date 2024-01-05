@@ -4,10 +4,10 @@
 \alias{calcFEdemand}
 \title{Edge data with its original sectoral division}
 \usage{
-calcFEdemand(subtype = "FE", use_ODYM_RECC = FALSE)
+calcFEdemand(subtype, use_ODYM_RECC = FALSE)
 }
 \arguments{
-\item{subtype}{Final energy (FE) or Energy service (ES) or Useful/Final
+\item{subtype}{Final energy (FE) or Useful/Final
 Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,
 FE_for_Eff)}
 
@@ -18,5 +18,5 @@ to `FALSE`.)}
 Returns the Edge data at the Remind level
 }
 \author{
-Antoine Levesque
+Michaja Pehl, Robin Hasse, Falk Benke
 }
