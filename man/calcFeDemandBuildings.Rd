@@ -7,7 +7,7 @@
 calcFeDemandBuildings(subtype)
 }
 \arguments{
-\item{subtype}{Final energy (FE) or Energy service (ES)}
+\item{subtype}{FE_buildings or UE_buildings}
 }
 \description{
 Returns the EDGE-Buildings data at the REMIND level

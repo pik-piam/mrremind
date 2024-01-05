@@ -13,7 +13,7 @@
 #'
 calcFloorspace <- function(onlyTotal = FALSE) {
 
-  data <- readSource("EDGE", subtype = "Floorspace")
+  data <- readSource("EdgeBuildings", subtype = "Floorspace")
 
   if (onlyTotal) {
     data <- collapseNames(data[, , "buildings"])

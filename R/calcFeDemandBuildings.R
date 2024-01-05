@@ -1,28 +1,21 @@
 #' Returns the EDGE-Buildings data at the REMIND level
 #'
-#' @param subtype Final energy (FE) or Energy service (ES)
+#' @param subtype FE_buildings or UE_buildings
 #'
 #' @author Robin Hasse, Falk Benke
 calcFeDemandBuildings <- function(subtype) {
 
-  if (!subtype %in% c("FE", "UE")) {
+  if (!subtype %in% c("FE_buildings", "UE_buildings")) {
     stop(paste0("Unsupported subtype: ", subtype))
-  }
-
-  # Helper Functions ----
-
-  addDimensions <- function(x, dimVals, dimName, dimCode = 3.2) {
-    do.call("mbind", lapply(dimVals, function(item) {
-      add_dimension(x, dim = dimCode, add = dimName, nm = item)
-    }))
   }
 
   # Data Processing ----
 
-  stationary <- readSource("EDGE", subtype = "FE_stationary")
-  buildings  <- readSource("EDGE", subtype = "FE_buildings")
+  stationary <- readSource("Stationary")
+  buildings  <- readSource("EdgeBuildings", subtype = "FE")
 
   # all 2016 values are zero
+  # TODO: RH please revisit this # nolint
   buildings <- buildings[, 2016, invert = TRUE]
 
   # aggregate to 5-year averages to suppress volatility
@@ -35,7 +28,7 @@ calcFeDemandBuildings <- function(subtype) {
   getItems(buildings, "rcp") <- rcps
 
   # expand stationary to all RCP scenarios
-  stationary <- addDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+  stationary <- toolAddDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
 
   # extrapolate years missing in buildings, but existing in stationary
   misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
@@ -74,7 +67,7 @@ calcFeDemandBuildings <- function(subtype) {
 
   # extend mapping for Useful Energy
 
-  if (subtype == "UE") {
+  if (subtype == "UE_buildings") {
     mapping <- mapping %>%
       mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
              REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
@@ -114,18 +107,18 @@ calcFeDemandBuildings <- function(subtype) {
   getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
 
   # change item names back from UE to FE
-  if (subtype == "UE") {
+  if (subtype == "UE_buildings") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
   }
 
   description <- switch(subtype,
-    FE = "demand pathways for final energy in buildings and industry in the original file",
-    UE = "useful energy demand in buildings"
+    FE_buildings = "demand pathways for final energy in buildings and industry in the original file",
+    UE_buildings = "useful energy demand in buildings"
   )
 
   outputStructure <- switch(subtype,
-    FE = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
+    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )
 
   return(list(x = remind,

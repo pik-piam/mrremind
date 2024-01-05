@@ -33,15 +33,9 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       stop(paste0("Unsupported subtype: ", subtype ))
     }
 
-    #----- Functions ------------------
+    # Functions ------------------
     getScens = function(mag) {
       getNames(mag, dim = "scenario")
-    }
-
-    addDimensions <- function(x, dimVals, dimName, dimCode = 3.2) {
-      do.call("mbind", lapply(dimVals, function(item) {
-        add_dimension(x, dim = dimCode, add = dimName, nm = item)
-      }))
     }
 
     expand_vectors = function(x,y) {
@@ -350,10 +344,11 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
     # Data Processing ----
 
-    stationary <- readSource("EDGE", subtype = "FE_stationary")
-    buildings  <- readSource("EDGE", subtype = "FE_buildings")
+    stationary <- readSource("Stationary")
+    buildings  <- readSource("EdgeBuildings", subtype = "FE")
 
     # all 2016 values are zero
+    # TODO: RH please revisit this # nolint
     buildings <- buildings[, 2016, invert = TRUE]
 
     # aggregate to 5-year averages to suppress volatility
@@ -363,8 +358,8 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
     buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
     ## fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
-    if (subtype == "FE" & all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
-      stationary[, seq(2105, 2150, 5), "feelt"] = time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
+    if (subtype == "FE" && all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
+      stationary[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
 
     # extrapolate years missing in buildings, but existing in stationary
@@ -381,14 +376,9 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
     }
 
     data <- mbind(stationary[, y, ], buildings[, y, ])
+    unit <- "EJ"
 
-    unit_out = "EJ"
-    description_out <- ifelse(subtype %in% c("FE_for_Eff", "UE_for_Eff"),
-      "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
-      "demand pathways for final energy in buildings and industry in the original file")
-
-
-    # --> Industry
+    #### Industry
     if (subtype == "FE") {
 
       # ---- _ modify Industry FE data to carry on current trends ----
@@ -1857,7 +1847,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       reminditems <- mbind(reminditems, industry_subsectors_en,
                            industry_subsectors_ue)
 
-      unit_out <- paste0(unit_out,
+      unit <- paste0(unit,
                          ', except ue_cement (Gt), ue_primary_steel and ',
                          'ue_secondary_steel (Gt) and ue_chemicals and ',
                          'ue_otherInd ($tn)')
@@ -1873,7 +1863,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       reminditems <- mbind(
         mselect(reminditems, scenario = nonDuplScenarios),
         mselect(reminditems, scenario = duplScenarios, item = nonIndustryItems),
-        addDimensions(x = mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
+        toolAddDimensions(x = mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
                                   collapseNames = TRUE),
                       dimVals = c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                                   paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
@@ -1884,14 +1874,21 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
     # SAME FOR ALL ----
 
-    structure_data <- switch(subtype,
+    description <- ifelse(
+      subtype %in% c("FE_for_Eff", "UE_for_Eff"),
+      "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
+      "demand pathways for final energy in buildings and industry in the original file"
+    )
+
+    outputStructure <- switch(subtype,
                              FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
                              FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
-    return(list(x=reminditems,weight=NULL,
-                unit = unit_out,
-                description = description_out,
-                structure.data = structure_data))
+    return(list(x = reminditems,
+                weight = NULL,
+                unit = unit,
+                description = description,
+                structure.data = outputStructure))
 }

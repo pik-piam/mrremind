@@ -1,22 +1,17 @@
-#' Read EDGE
-#'
 #' Load an EDGE Buildings file as magclass object.
 #'
 #' @param subtype One of the possible subtypes, see default argument.
 #' @return magclass object
 #'
-#' @examples
-#' \dontrun{
-#' a <- readSource("EDGE")
-#' }
 #' @author Antoine Levesque, Robin Hasse
-#' @seealso \code{\link{readSource}}
-#' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
-readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Floorspace")) {
+#' @importFrom magclass mselect as.magpie
+readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
+
   subtype <- match.arg(subtype)
 
   # input data version
   ver <- "1.12"
+
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
     SSP2s = paste0("SSP2", c("EU", "_lowEn",
@@ -24,25 +19,8 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Floorspace"))
                              paste0("EU_CAMP_", c("weak", "strong")))),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
-  addDim <- function(x, addnm, dim, dimCode = 3.2) {
-    do.call("mbind", lapply(addnm, function(item) {
-      add_dimension(x, dim = dimCode, add = dim, nm = item)
-    }))
-  }
-
   switch(subtype,
-    FE_stationary = {
-      data <- read.magpie(file.path(ver, "EDGE_TradMod.cs4r"))
-      data[is.na(data)] <- 0
-      getSets(data) <- c("region", "year", "scenario", "item")
-      data <- mbind(
-        data,
-        addDim(mselect(data, scenario = "SSP2", collapseNames = TRUE),
-               scenarios$SSP2s, "scenario", 3.1),
-        addDim(mselect(data, scenario = "SSP1", collapseNames = TRUE),
-               scenarios$SDPs, "scenario", 3.1))
-    },
-    FE_buildings = {
+    FE = {
       data <- read.csv(file.path(ver, "EDGE_buildings_energy.csv"))
       data <- as.magpie(data)
       getNames(data) <- gsub("rcp", "", getNames(data))
