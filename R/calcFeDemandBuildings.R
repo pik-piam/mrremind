@@ -116,10 +116,12 @@ calcFeDemandBuildings <- function(subtype) {
   # change item names back from UE to FE
   if (subtype == "UE") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
-    description <- "useful energy demand in buildings"
-  } else {
-    description <- "demand pathways for final energy in buildings and industry in the original file"
   }
+
+  description <- switch(subtype,
+    FE = "demand pathways for final energy in buildings and industry in the original file",
+    UE = "useful energy demand in buildings"
+  )
 
   outputStructure <- switch(subtype,
     FE = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",

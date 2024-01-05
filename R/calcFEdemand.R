@@ -2,7 +2,7 @@
 #'
 #' Returns the Edge data at the Remind level
 #'
-#' @param subtype Final energy (FE) or Energy service (ES) or Useful/Final
+#' @param subtype Final energy (FE) or Useful/Final
 #'   Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,
 #'   FE_for_Eff)
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
@@ -29,7 +29,7 @@
 #' @author Michaja Pehl, Robin Hasse, Falk Benke
 calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
-    if (!subtype %in% c("FE", "ES", "FE_for_Eff", "UE_for_Eff")) {
+    if (!subtype %in% c("FE", "FE_for_Eff", "UE_for_Eff")) {
       stop(paste0("Unsupported subtype: ", subtype ))
     }
 
@@ -38,9 +38,9 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       getNames(mag, dim = "scenario")
     }
 
-    addDim <- function(x, addnm, dim, dimCode = 3.2) {
-      do.call("mbind", lapply(addnm, function(item) {
-        add_dimension(x, dim = dimCode, add = dim, nm = item)
+    addDimensions <- function(x, dimVals, dimName, dimCode = 3.2) {
+      do.call("mbind", lapply(dimVals, function(item) {
+        add_dimension(x, dim = dimCode, add = dimName, nm = item)
       }))
     }
 
@@ -479,16 +479,9 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         }
       }
 
-    } else if (subtype == "ES"){
-      Unit2Million = 1e-6
-
-      services <- readSource("EDGE",subtype="ES_buildings")
-      getSets(services) <- gsub("data", "item", getSets(services))
-      data <- services*Unit2Million
-      unit_out = "million square meters times degree [1e6.m2.C]"
-      description_out = "demand pathways for energy service in buildings"
     }
 
+    # SAME FOR ALL ----
 
     mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
@@ -502,9 +495,6 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
         mutate(REMINDitems_out = "feelb")
     )
-
-
-    #----- PROCESS DATA ------------------
 
     regions  <- getRegions(data)
     years    <- getYears(data)
@@ -566,6 +556,8 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
     #Change the scenario names for consistency with REMIND sets
     getNames(reminditems) <- gsub("^SSP","gdp_SSP",getNames(reminditems))
     getNames(reminditems) <- gsub("SDP","gdp_SDP",getNames(reminditems))
+
+    # FE only ----
 
     if ('FE' == subtype) {
 
@@ -1881,19 +1873,21 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       reminditems <- mbind(
         mselect(reminditems, scenario = nonDuplScenarios),
         mselect(reminditems, scenario = duplScenarios, item = nonIndustryItems),
-        addDim(mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
-                       collapseNames = TRUE),
-               c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                 paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
-               "scenario", 3.1)
+        addDimensions(x = mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
+                                  collapseNames = TRUE),
+                      dimVals = c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
+                                  paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
+                      dimName = "scenario",
+                      dimCode = 3.1)
       )
     }
+
+    # SAME FOR ALL ----
 
     structure_data <- switch(subtype,
                              FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
                              FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
-                             ES = "^gdp_(SSP[1-5]|SDP).*\\.esswb$",
                              "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
     return(list(x=reminditems,weight=NULL,

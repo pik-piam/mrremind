@@ -12,8 +12,7 @@
 #' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
-readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace",
-                                 "ES_buildings")) {
+readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "CapitalUnit", "Floorspace")) {
   subtype <- match.arg(subtype)
 
   # input data version
@@ -41,19 +40,22 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
         addDim(mselect(data, scenario = "SSP2", collapseNames = TRUE),
                scenarios$SSP2s, "scenario", 3.1),
         addDim(mselect(data, scenario = "SSP1", collapseNames = TRUE),
-               scenarios$SDPs, "scenario", 3.1))},
+               scenarios$SDPs, "scenario", 3.1))
+    },
     FE_buildings = {
       data <- read.csv(file.path(ver, "EDGE_buildings_energy.csv"))
       data <- as.magpie(data)
       getNames(data) <- gsub("rcp", "", getNames(data))
       getNames(data) <- gsub("NoC", "fixed", getNames(data))
-      getSets(data) <- c("region", "year", "scenario", "rcp", "item")},
+      getSets(data) <- c("region", "year", "scenario", "rcp", "item")
+    },
     Capital = {
       data <- read.csv(file.path(ver, "capitalProjections.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
       getItems(data, 3.1) <- sub("gdp_", "", getItems(data, 3.1))
-      getSets(data) <- c("region", "year", "scenario", "variable")},
+      getSets(data) <- c("region", "year", "scenario", "variable")
+    },
     CapitalUnit = {
       mcapitalunitCap <- read.csv(file.path(ver, "capitalUnitCost_cap.csv"))
       mcapitalunitCap$type <- "cap"
@@ -62,18 +64,14 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Ca
       data <- rbind(mcapitalunitCap, mcapitalunitInv)
       data <- data[c(setdiff(colnames(data), "value"), "value")]
       data <- as.magpie(data, tidy = TRUE)
-      data <- collapseNames(data)},
+      data <- collapseNames(data)
+    },
     Floorspace = {
       data <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))
       data <- as.magpie(data)
       data <- collapseNames(data)
-      getSets(data) <- c("region", "year", "scenario", "variable")},
-    ES_buildings = {
-      data <- read.csv(file.path(ver, "EDGE_buildings_service.csv"))
-      data <- as.magpie(data)
-      # Only consider trajectories with fixed climate for services
-      data <- mselect(data, rcp = "rcpNoC", collapseNames = TRUE)
-      getSets(data) <- c("region", "year", "scenario", "item")}
+      getSets(data) <- c("region", "year", "scenario", "variable")
+    }
   )
 
   if ("scenario" %in% getSets(data)) {

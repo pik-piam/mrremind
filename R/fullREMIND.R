@@ -33,8 +33,8 @@ fullREMIND <- function() {
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
-  calcOutput("Capital",                               signif = 4,  file = "f29_capitalQuantity.cs4r")
-  calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r")
+  calcOutput("Capital",   subtype = "Capital",        signif = 4, file = "f29_capitalQuantity.cs4r") # TODO
+  calcOutput("Capital",   subtype = "CapitalUnit",    round = 6,  file = "f29_capitalUnitProjections.cs4r") # TODO
   calcOutput("FEdemand",  subtype = "FE",             signif = 4,  file = "f_fedemand.cs4r")
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
@@ -47,7 +47,6 @@ fullREMIND <- function() {
       madrat_mule())
   calcOutput("FeDemandBuildings",  subtype = "FE",   round = 8,  file = "f_fedemand_build.cs4r")
   calcOutput("FeDemandBuildings",  subtype = "UE",   round = 8,  file = "f36_uedemand_build.cs4r")
-  calcOutput("FEdemand",  subtype = "ES",             round = 6,  file = "f29_esdemand.cs4r")
   calcOutput("ChemicalFeedstocksShare", round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("EnergyEffPaths",                        round = 6,  file = "f29_efficiency_growth.cs4r")
   calcOutput("Floorspace", onlyTotal = TRUE,          round = 1,  file = "p36_floorspace_scen.cs4r")
