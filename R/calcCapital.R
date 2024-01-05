@@ -1,15 +1,4 @@
 calcCapital <- function() {
-  #--- Parameters ---
-
-  # get capital stocks for EDGE sectors
-  cap_macro <- readSource("EDGE", subtype = "Capital")
-  millionDol2trillionDol <- 1e-6
-
-  additional_years <- seq(2105, 2150, 5)
-  cap_macro <- time_interpolate(cap_macro,
-                                additional_years,
-                                integrate_interpolated_years = TRUE,
-                                extrapolation_type = "constant")
 
   # compute macroeconomic capital stock based on capital intensities from PWT and ssp scenarios
   # t.b.d.: correct for capital stock part that enters energy sectors
@@ -18,7 +7,6 @@ calcCapital <- function() {
   capital[is.na(capital)] <- 0
   gdpppp_hist <- calcOutput("GDPPast", GDPPast = "PWT", aggregate = FALSE)
   cap_intensity <- capital / setNames(gdpppp_hist, NULL)
-
 
   # use initial gdp as in REMIND which differs from PWT
   gdpppp_hist <- calcOutput("GDPPast", aggregate = FALSE)
@@ -53,8 +41,8 @@ calcCapital <- function() {
   getRegions(cap_intensity_ref) <- "GLO"
   lambda <- 0
   for (t in getYears(gdpppp)) {
-      cap_intensity_future[, t, ] <- ((convtime[, t, ] - lambda) * collapseNames(setYears(cap_intensity[, "y2010", ])) +                      +
-lambda * setNames(setYears(cap_intensity_ref, NULL), NULL)) / convtime[, t, ]
+      cap_intensity_future[, t, ] <- ((convtime[, t, ] - lambda) * collapseNames(setYears(cap_intensity[, "y2010", ])) +
+                                        lambda * setNames(setYears(cap_intensity_ref, NULL), NULL)) / convtime[, t, ]
       lambda <- lambda + 5
       gdp_weight[, t, ] <- gdpppp[, t, ]
   }
@@ -62,60 +50,44 @@ lambda * setNames(setYears(cap_intensity_ref, NULL), NULL)) / convtime[, t, ]
   cap_int_new <- cap_intensity_future
   for (t in getYears(cap_intensity_future)) {
     for (r in getRegions(cap_intensity_future)) {
-    if (cap_intensity_future[r, t, "gdp_SSP2"] == 0) {
-      # get current mapping
-      map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"), where = "mappingfolder")
-      # get list of countries that belong to the same region as r
-      regi   <- map$RegionCode[map$CountryCode == r]
-      c_regi <- map$CountryCode[map$RegionCode == regi]
-      # filter out the regions that are 0
-      c_regi <- c_regi[!cap_intensity_future[c_regi, t, "gdp_SSP2"] == 0]
-      # generate mapping for the aggregation
-      mapping            <- map[which(map$CountryCode %in% c_regi), ]
-      mapping$RegionCode <- r
-      # store calculated data in separate file
-      cap_int_new[r, t, ] <- toolAggregate(cap_intensity_future[c_regi, t, ], mapping, weight = gdp_weight[c_regi, t, ])
-    }
+      if (cap_intensity_future[r, t, "gdp_SSP2"] == 0) {
+        # get current mapping
+        map <- toolGetMapping(type = "regional", name = getConfig("regionmapping"), where = "mappingfolder")
+        # get list of countries that belong to the same region as r
+        regi   <- map$RegionCode[map$CountryCode == r]
+        c_regi <- map$CountryCode[map$RegionCode == regi]
+        # filter out the regions that are 0
+        c_regi <- c_regi[!cap_intensity_future[c_regi, t, "gdp_SSP2"] == 0]
+        # generate mapping for the aggregation
+        mapping            <- map[which(map$CountryCode %in% c_regi), ]
+        mapping$RegionCode <- r
+        # store calculated data in separate file
+        cap_int_new[r, t, ] <- toolAggregate(cap_intensity_future[c_regi, t, ],
+                                             mapping,
+                                             weight = gdp_weight[c_regi, t, ])
+      }
     }
   }
 
-  cap_future <- cap_int_new * gdp_weight
-  y <- intersect(getYears(cap_future), getYears(cap_macro))
-
-
-  # Add SSP2EU and SDP scenarios
-  cap_macro_SSP2A <- cap_macro[, , "gdp_SSP2"]
-  getNames(cap_macro_SSP2A) <- gsub("SSP2", "SSP2EU", getNames(cap_macro_SSP2A))
-  cap_macro <- mbind(cap_macro, cap_macro_SSP2A)
-
-  cap_macro_SDP <- cap_macro[, , "gdp_SSP1"]
-  for (i in c("SDP", "SDP_EI", "SDP_RC", "SDP_MC")) {
-    getNames(cap_macro_SDP) <- gsub("SSP1", i, getNames(cap_macro[, , "gdp_SSP1"]))
-    cap_macro <- mbind(cap_macro, cap_macro_SDP)
-  }
-
-
-  cap_macro <- mbind(cap_macro[, y, ], cap_future[, y, ])
-
-  cap_macro <- cap_macro * millionDol2trillionDol
+  cap_future <- cap_int_new * gdp_weight * 1e-6
 
   # add industry subsectors energy efficiency capital stocks ----
 
-  kap <- cap_macro %>%
+  kap <- cap_future %>%
     `[`(, 2015, "gdp_SSP2EU.kap") %>%
     quitte::magclass_to_tibble(c("iso3c", NA, NA, NA, "kap")) %>%
     dplyr::select("iso3c", "kap")
 
   EEK <- calcOutput("Industry_EEK", kap = kap, supplementary = FALSE,
-                    aggregate = FALSE, years = getYears(cap_macro))
+                    aggregate = FALSE, years = getYears(cap_future))
 
   # tie outputs together ----
   output <- list(
-    x = mbind(cap_macro, EEK),
+    x = mbind(cap_future, EEK),
     weight = NULL,
     unit = "trillion 2005US$",
-    description = "Capital stock at constant 2005 national prices")
-
+    description = "Capital stock at constant 2005 national prices"
+  )
 
   return(output)
 }

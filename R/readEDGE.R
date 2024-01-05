@@ -12,7 +12,7 @@
 #' @author Antoine Levesque, Robin Hasse
 #' @seealso \code{\link{readSource}}
 #' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
-readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Floorspace")) {
+readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Floorspace")) {
   subtype <- match.arg(subtype)
 
   # input data version
@@ -48,13 +48,6 @@ readEDGE <- function(subtype = c("FE_stationary", "FE_buildings", "Capital", "Fl
       getNames(data) <- gsub("rcp", "", getNames(data))
       getNames(data) <- gsub("NoC", "fixed", getNames(data))
       getSets(data) <- c("region", "year", "scenario", "rcp", "item")
-    },
-    Capital = {
-      data <- read.csv(file.path(ver, "capitalProjections.csv"))
-      data <- as.magpie(data)
-      data <- collapseNames(data)
-      getItems(data, 3.1) <- sub("gdp_", "", getItems(data, 3.1))
-      getSets(data) <- c("region", "year", "scenario", "variable")
     },
     Floorspace = {
       data <- read.csv(file.path(ver, "EDGE_buildings_floorspace.csv"))

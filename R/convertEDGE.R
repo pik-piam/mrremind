@@ -2,7 +2,7 @@
 #'
 #' Convert EDGE data to data on ISO country level.
 #'
-#' @param subtype FE for final energy or Capital for capital projections
+#' @param subtype either FE_stationary, FE_buildings, or Floorspace
 #' @param x MAgPIE object containing EDGE values at ISO country resolution
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque, Robin Hasse
@@ -263,47 +263,6 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     }
 
 
-
-  } else if (subtype == "Capital") {
-
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
-                                  returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
-    region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
-    iso_col <- which(names(mapping) == "CountryCode")
-
-    x <- x[, getYears(x, TRUE)[which(getYears(x, TRUE) <= 2100)], ]
-    getItems(x, 3.1) <- paste0("gdp_", getItems(x, 3.1))
-
-    wg     <- calcOutput("GDP", aggregate = FALSE)
-    wfe    <- calcOutput("FEdemand", subtype = "FE", aggregate = FALSE)
-
-    getSets(wg) <- gsub("variable", "scenario", getSets(wg))
-    getSets(wfe) <- gsub("item", "data", getSets(wfe))
-    wg <- add_dimension(wg, dim = 3.2, add = "data", nm = "kap")
-
-    #*** Reproduce this in the aggregation of CapitalUnit in calcCapital
-    corres_ener_cap <- c(kapal = "fealelb",
-                        kapsc = "fescelb",
-                        kaphc = "ueswb")
-    wfe <- do.call(mbind,
-                  lapply(names(corres_ener_cap), function(kap_nm) {
-                    ener_nm <- corres_ener_cap[kap_nm]
-                    tmp <- wfe[, , ener_nm]
-                    getNames(tmp) <- gsub(ener_nm, kap_nm, getNames(tmp))
-                    return(tmp)
-                  })
-    )
-
-    years_select <- intersect(intersect(getYears(x), getYears(wg)), getYears(wfe))
-
-    wfe <- wfe[, years_select, ]
-    wg <- wg[, years_select, ]
-
-    weights <- mbind(wfe, wg)
-
-    x <- toolAggregate(x[, years_select, ], mappingfile, weight = weights[, , getNames(x)], from = region_col, to = iso_col)
-    result <- x
 
   } else if (subtype == "Floorspace") {
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
