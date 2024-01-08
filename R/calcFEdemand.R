@@ -2,9 +2,6 @@
 #'
 #' Returns the Edge data at the Remind level
 #'
-#' @param subtype Final energy (FE) or Useful/Final
-#'   Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,
-#'   FE_for_Eff)
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
 #'
@@ -27,11 +24,7 @@
 #' @importFrom zoo na.fill
 #'
 #' @author Michaja Pehl, Robin Hasse, Falk Benke
-calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
-
-    if (!subtype %in% c("FE", "FE_for_Eff", "UE_for_Eff")) {
-      stop(paste0("Unsupported subtype: ", subtype ))
-    }
+calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
     # Functions ------------------
 
@@ -347,7 +340,7 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
     buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
     # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
-    if (subtype == "FE" && all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
+    if (all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
       stationary[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
 
@@ -359,15 +352,16 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
                                   extrapolation_type = "constant")
 
     data <- mbind(stationary, buildings)
-    y <- getYears(data) # TODO # nolint
-    unit <- "EJ" # TODO # nolint
 
-    if (subtype == "FE") {
-      feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
-      data <- mbind(data[ , , getNames(feIndustry), invert = TRUE], feIndustry)
-    }
+    feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
 
-    # SAME FOR ALL ----
+    data <- mbind(data[ , , getNames(feIndustry), invert = TRUE], feIndustry)
+    data <- feIndustry
+
+
+
+
+    # Prepare Mapping ----
 
     mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
@@ -380,22 +374,6 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
         mutate(REMINDitems_out = "feelb")
     )
 
-    years <- getYears(data) # TODO # nolint
-
-    if (subtype %in% c("FE_for_Eff", "UE_for_Eff")) {
-
-      # select items from EDGE v3, which is based on the distinct UE and FE
-      mapping = mapping[grepl("^.*_fe$", mapping$EDGEitems), ]
-
-      # replace the FE input with UE inputs, but let the output names as in REMIND
-      if (subtype %in% c("UE_for_Eff")){
-        mapping$EDGEitems = gsub("_fe$", "_ue", mapping$EDGEitems)
-      }
-
-      # reduce data set to relevant items
-      data = data[ , , unique(mapping$EDGEitems)]
-    }
-
     mapping <- mapping %>%
       select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
       na.omit() %>%
@@ -406,16 +384,14 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       stop("Not all EDGE items are in the mapping")
     }
 
-    remindVars <- unique(mapping$REMINDitems_out)
-
     # Apply Mapping ----
 
     remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
                          years = getYears(data),
-                         names = cartesian(getNames(data, dim = "scenario"), remindVars),
+                         names = cartesian(getNames(data, dim = "scenario"), unique(mapping$REMINDitems_out)),
                          sets = getSets(data))
 
-    for (v in remindVars) {
+    for (v in unique(mapping$REMINDitems_out)) {
 
       w <- mapping %>%
         filter(.data$REMINDitems_out == v) %>%
@@ -430,13 +406,16 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       remind[, , getNames(tmp)] <- tmp
     }
 
-    # Prepare Output ----
-
     # change the scenario names for consistency with REMIND sets
     getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
     getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
 
-    # FE only ----
+
+    ######################
+    years <- getYears(data)
+    y <- getYears(data)
+    unit <- "EJ"
+    subtype <- "FE"
 
     if ('FE' == subtype) {
 
@@ -1761,23 +1740,13 @@ calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
       )
     }
 
-    # SAME FOR ALL ----
+    ###########################
 
-    description <- ifelse(
-      subtype %in% c("FE_for_Eff", "UE_for_Eff"),
-      "demand pathways for useful/final energy in buildings and industry corresponding to the final energy items in REMIND",
-      "demand pathways for final energy in buildings and industry in the original file"
-    )
-
-    outputStructure <- switch(subtype,
-                             FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-                             FE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
-                             UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
-                             "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
+    # Prepare Output ----
 
     return(list(x = remind,
                 weight = NULL,
                 unit = unit,
-                description = description,
-                structure.data = outputStructure))
+                description = "demand pathways for final energy in buildings and industry in the original file",
+                structure.data = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)"))
 }

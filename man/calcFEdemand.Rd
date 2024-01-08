@@ -4,13 +4,9 @@
 \alias{calcFEdemand}
 \title{Edge data with its original sectoral division}
 \usage{
-calcFEdemand(subtype = "FE", use_ODYM_RECC = FALSE)
+calcFEdemand(use_ODYM_RECC = FALSE)
 }
 \arguments{
-\item{subtype}{Final energy (FE) or Useful/Final
-Energy items from EDGEv3 corresponding to REMIND FE items (UE_for_Eff,
-FE_for_Eff)}
-
 \item{use_ODYM_RECC}{per-capita pathways for `SDP_xx` scenarios?  (Defaults
 to `FALSE`.)}
 }

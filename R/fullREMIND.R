@@ -47,7 +47,6 @@ fullREMIND <- function() {
   calcOutput("FeDemandBuildings",  subtype = "FE_buildings",   round = 8,  file = "f_fedemand_build.cs4r")
   calcOutput("FeDemandBuildings",  subtype = "UE_buildings",   round = 8,  file = "f36_uedemand_build.cs4r")
   calcOutput("ChemicalFeedstocksShare", round = 2, file = "p37_chemicals_feedstock_share.cs4r")
-  calcOutput("EnergyEffPaths",                        round = 6,  file = "f29_efficiency_growth.cs4r")
   calcOutput("Floorspace", onlyTotal = TRUE,          round = 1,  file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace",                            round = 1,  file = "f36_floorspace_scen.cs4r")
   calcOutput("WeightNash",                            round = 6,  file = "p80_eoWeights_fix.cs4r")
