@@ -27,24 +27,13 @@
 #' @importFrom zoo na.fill
 #'
 #' @author Michaja Pehl, Robin Hasse, Falk Benke
-calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
+calcFEdemand <- function(subtype = "FE", use_ODYM_RECC = FALSE) {
 
     if (!subtype %in% c("FE", "FE_for_Eff", "UE_for_Eff")) {
       stop(paste0("Unsupported subtype: ", subtype ))
     }
 
     # Functions ------------------
-    getScens = function(mag) {
-      getNames(mag, dim = "scenario")
-    }
-
-    expand_vectors = function(x,y) {
-      if (is.data.frame(y)) {
-        y = apply(y,1,paste,collapse=".")
-      }
-
-      paste(rep(x,each=length(y)),y,sep=".")
-    }
 
     addSDP_transport <- function(rmnditem){
       ## adding dummy vars and funcs to avoid global var complaints
@@ -357,7 +346,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
     buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
-    ## fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
+    # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
     if (subtype == "FE" && all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
       stationary[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
     }
@@ -369,116 +358,21 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                                   integrate_interpolated_years = TRUE,
                                   extrapolation_type = "constant")
 
+    data <- mbind(stationary, buildings)
+    y <- getYears(data) # TODO # nolint
+    unit <- "EJ" # TODO # nolint
+
     if (subtype == "FE") {
-      y <- getYears(stationary)  # >= 1993
-    } else {
-      y <- intersect(getYears(stationary), getYears(buildings))  # >= 2000
-    }
-
-    data <- mbind(stationary[, y, ], buildings[, y, ])
-    unit <- "EJ"
-
-    #### Industry
-    if (subtype == "FE") {
-
-      # ---- _ modify Industry FE data to carry on current trends ----
-      v <- grep('\\.fe(..i$|ind)', getNames(data), value = TRUE)
-
-      dataInd <- data[,,v] %>%
-        as.quitte() %>%
-        as_tibble() %>%
-        select('scenario', 'iso3c' = 'region', 'pf' = 'item', 'year' = 'period',
-               'value') %>%
-        character.data.frame()
-
-      regionmapping <- toolGetMapping(type = 'regional',
-                                      name = 'regionmappingH12.csv', where = "mappingfolder") %>%
-        select(country = 'X', iso3c = 'CountryCode', region = 'RegionCode')
-
-      historic_trend <- c(2004, 2020)
-      phasein_period <- c(2020, 2050)   # FIXME: extend to 2055 to keep 35 yrs?
-      phasein_time   <- phasein_period[2] - phasein_period[1]
-
-      dataInd <- bind_rows(
-        dataInd %>%
-          filter(phasein_period[1] > !!sym('year')),
-        inner_join(
-          # calculate regional trend
-          dataInd %>%
-            # get trend period
-            filter(between(!!sym('year'), historic_trend[1], historic_trend[2]),
-                   0 != !!sym('value')) %>%
-            # sum regional totals
-            full_join(regionmapping %>% select(-!!sym('country')), 'iso3c') %>%
-            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf'),
-                     !!sym('year')) %>%
-              summarise(value = sum(!!sym('value')), .groups = 'drop') %>%
-            # calculate average trend over trend period
-            interpolate_missing_periods(year = seq_range(historic_trend), expand.values = TRUE) %>%
-            group_by(!!sym('scenario'), !!sym('region'), !!sym('pf')) %>%
-            summarise(trend = mean(!!sym('value') / lag(!!sym('value')),
-                                     na.rm = TRUE),
-                        .groups = 'drop') %>%
-            # only use negative trends (decreasing energy use)
-            mutate(trend = ifelse(!!sym('trend') < 1, !!sym('trend'), NA)),
-          # modify data projection
-          dataInd %>%
-            filter(phasein_period[1] <= !!sym('year')) %>%
-            interpolate_missing_periods(year = phasein_period[1]:max(dataInd$year)) %>%
-            group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>%
-            mutate(growth = replace_na(!!sym('value') / lag(!!sym('value')), 1)) %>%
-            full_join(regionmapping %>% select(-'country'), 'iso3c'),
-          c('scenario', 'region', 'pf')) %>%
-          group_by(!!sym('scenario'), !!sym('iso3c'), !!sym('pf')) %>%
-          mutate(
-          # replace NA (positive) trends with end. growth rates -> no change
-          trend = ifelse(is.na(!!sym('trend')), !!sym('growth'), !!sym('trend')),
-          value_ = first(!!sym('value'))
-            * cumprod(
-              ifelse(
-                phasein_period[1] == !!sym('year'), 1,
-                ( !!sym('trend')
-                * pmax(0, phasein_period[2] - !!sym('year') + 1)
-                + !!sym('growth')
-                * pmin(phasein_time, !!sym('year') - phasein_period[1] - 1)
-                ) / phasein_time)),
-          value = ifelse(is.na(!!sym('value_')) | 0 == !!sym('value_'),
-                         !!sym('value'), !!sym('value_'))) %>%
-        ungroup() %>%
-        select(-'region', -'value_', -'trend', -'growth') %>%
-        filter(!!sym('year') %in% unique(dataInd$year))
-      ) %>%
-        rename('region' = 'iso3c', 'item' = 'pf') %>%
-        as.magpie()
-
-      data <- mbind(data[,,v, invert = TRUE], dataInd)
-
-      # ---- _ modify SSP1 Industry FE demand ----
-      # compute a reduction factor of 1 before 2021, 0.84 in 2050, and increasing
-      # to 0.78 in 2150
-      f <- as.integer(sub('^y', '', y)) - 2020
-      f[f < 0] <- 0
-      f <- 0.95 ^ pmax(0, log(f))
-
-      # get Industry FE items
-      v <- grep('^SSP1\\.fe(..i$|ind)', getNames(data), value = TRUE)
-
-      # apply changes
-      for (i in 1:length(y)) {
-        if (1 != f[i]) {
-          data[,y[i],v] <- data[,y[i],v] * f[i]
-        }
-      }
+      feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
+      data <- mbind(data[ , , getNames(feIndustry), invert = TRUE], feIndustry)
     }
 
     # SAME FOR ALL ----
 
     mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
 
-    REMIND_dimensions = "REMINDitems_out"
-    sets_names = getSets(data)
-
     # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+
     mapping <- rbind(
       mapping,
       mapping %>%
@@ -486,66 +380,61 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         mutate(REMINDitems_out = "feelb")
     )
 
-    regions  <- getRegions(data)
-    years    <- getYears(data)
-    scenarios <- getScens(data)
+    years <- getYears(data) # TODO # nolint
 
     if (subtype %in% c("FE_for_Eff", "UE_for_Eff")) {
 
-      #Select items from EDGE v3, which is based on the distinct UE and FE
-      mapping = mapping[grepl("^.*_fe$",mapping$EDGEitems),]
+      # select items from EDGE v3, which is based on the distinct UE and FE
+      mapping = mapping[grepl("^.*_fe$", mapping$EDGEitems), ]
 
-      # Replace the FE input with UE inputs, but let the output names as in REMIND
+      # replace the FE input with UE inputs, but let the output names as in REMIND
       if (subtype %in% c("UE_for_Eff")){
-      mapping$EDGEitems = gsub("_fe$","_ue",mapping$EDGEitems)
+        mapping$EDGEitems = gsub("_fe$", "_ue", mapping$EDGEitems)
       }
-      # Reduce data set to relevant items
-      data = data[,,unique(mapping$EDGEitems)]
+
+      # reduce data set to relevant items
+      data = data[ , , unique(mapping$EDGEitems)]
     }
 
-    edge_names = getNames(data, dim = "item")
+    mapping <- mapping %>%
+      select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
+      na.omit() %>%
+      filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
+      distinct()
 
-    mapping = na.omit(mapping[c("EDGEitems",REMIND_dimensions,"weight_Fedemand")])
-    mapping = mapping[which(mapping$EDGEitems %in% edge_names),]
-    mapping = unique(mapping)
-
-    magpnames = mapping[REMIND_dimensions]
-    magpnames <- unique(magpnames)
-
-    magpnames <- expand_vectors(scenarios, magpnames)
-
-    if (length(setdiff(edge_names, mapping$EDGEitems) > 0 )) stop("Not all EDGE items are in the mapping")
-
-
-    # make an empty new magpie object
-    reminditems <- as.magpie(array(dim = c(length(regions), length(years), length(magpnames)),
-                                   dimnames = list(regions, years, magpnames)))
-    getSets(reminditems) <- sets_names
-
-    datatmp <- data
-
-    for (reminditem in getNames(reminditems, dim = "item")) {
-      # Concatenate names from mapping columns so that they are comparable with
-      # names from magclass object
-      if (length(REMIND_dimensions) > 1) {
-        names_mapping <- apply(mapping[REMIND_dimensions], 1, paste, collapse = ".")
-      } else {
-        names_mapping <- mapping[[REMIND_dimensions]]
-      }
-      # Only select EDGE variables which correspond to the remind
-      testdf <- mapping[names_mapping == reminditem,
-                        c("EDGEitems", "weight_Fedemand")]
-      prfl <- testdf[,"EDGEitems"]
-      vec <- as.numeric(mapping[rownames(testdf),"weight_Fedemand"])
-      names(vec) <- prfl
-      mselect(datatmp, item = prfl) <- mselect(data, item = prfl) * as.magpie(vec)
-      reminditems[, , reminditem] <- dimSums(mselect(datatmp, item = prfl),
-                                             dim = "item", na.rm = TRUE)
+    if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
+      stop("Not all EDGE items are in the mapping")
     }
 
-    #Change the scenario names for consistency with REMIND sets
-    getNames(reminditems) <- gsub("^SSP","gdp_SSP",getNames(reminditems))
-    getNames(reminditems) <- gsub("SDP","gdp_SDP",getNames(reminditems))
+    remindVars <- unique(mapping$REMINDitems_out)
+
+    # Apply Mapping ----
+
+    remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
+                         years = getYears(data),
+                         names = cartesian(getNames(data, dim = "scenario"), remindVars),
+                         sets = getSets(data))
+
+    for (v in remindVars) {
+
+      w <- mapping %>%
+        filter(.data$REMINDitems_out == v) %>%
+        select(-"REMINDitems_out") %>%
+        as.magpie()
+
+      tmp <- mselect(data, item = getNames(w)) * w
+
+      tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
+        add_dimension(dim = 3.3, add = "item", nm = v)
+
+      remind[, , getNames(tmp)] <- tmp
+    }
+
+    # Prepare Output ----
+
+    # change the scenario names for consistency with REMIND sets
+    getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
+    getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
 
     # FE only ----
 
@@ -608,7 +497,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       mod_r <- unique(mod_factors$region)
       mod_sp <- cartesian(unique(mod_factors$scenario), unique(mod_factors$pf))
 
-      reminditems[mod_r,,mod_sp] <- reminditems[mod_r,,mod_sp] %>%
+      remind[mod_r,,mod_sp] <- remind[mod_r,,mod_sp] %>%
         as.quitte() %>%
         as_tibble() %>%
         mutate(scenario = as.character(!!sym('scenario')),
@@ -622,12 +511,12 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         as.magpie()
 
       # add SDP transport and industry scenarios
-      SDP_industry_transport <- mbind(addSDP_transport(reminditems),
-                                      addSDP_industry(reminditems))
+      SDP_industry_transport <- mbind(addSDP_transport(remind),
+                                      addSDP_industry(remind))
 
       # delete punk SDP data calculated illicitly in readEDGE('FE_stationary')
-      reminditems <- mbind(
-        reminditems[,,setdiff(getNames(reminditems),
+      remind <- mbind(
+        remind[,,setdiff(getNames(remind),
                               getNames(SDP_industry_transport))],
         SDP_industry_transport)
 
@@ -643,8 +532,8 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
       ##  greenhouse gas emissions? Renewable and Sustainable Energy Reviews,
       ##  submitted (in review). https://www.psi.ch/en/media/57994/download
 
-      #reminditems[,, "ueLDVt"] <- reminditems[,, "ueLDVt"] * 0.22
-      #reminditems[,, "ueHDVt"] <- reminditems[,, "ueHDVt"] * 0.24
+      #remind[,, "ueLDVt"] <- remind[,, "ueLDVt"] * 0.22
+      #remind[,, "ueHDVt"] <- remind[,, "ueHDVt"] * 0.24
 
 
       # ---- Industry subsectors data and FE stubs ----
@@ -659,7 +548,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                                         convert = FALSE) %>%
             madrat_mule(),
           aggregate = FALSE,
-          years = getYears(reminditems), supplementary = FALSE),
+          years = getYears(remind), supplementary = FALSE),
 
         calcOutput(
           type = 'Steel_Projections',
@@ -671,12 +560,12 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                                         convert = FALSE) %>%
             madrat_mule(),
           aggregate = FALSE,
-          years = getYears(reminditems), supplementary = FALSE)
+          years = getYears(remind), supplementary = FALSE)
       )
 
       ## re-curve specific industry activity per unit GDP ----
       GDP <- calcOutput(type = 'GDP', average2020 = FALSE,
-                        years = getYears(reminditems), aggregate = FALSE,
+                        years = getYears(remind), aggregate = FALSE,
                         supplementary = FALSE) %>%
         as.data.frame() %>%
         as_tibble() %>%
@@ -705,8 +594,8 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
 
         GDP_fuckup_point <- GDP_fuckup_point %>%
           group_by(!!!syms(c('iso3c', 'scenario'))) %>%
-          mutate(base.year = getYears(reminditems, TRUE) %>%
-                   `[`(which(getYears(reminditems, TRUE) == !!sym('year')) - 1),
+          mutate(base.year = getYears(remind, TRUE) %>%
+                   `[`(which(getYears(remind, TRUE) == !!sym('year')) - 1),
                  base.scenario = GDP_replacement_scenario) %>%
           ungroup() %>%
           select(-'GDP')
@@ -1080,7 +969,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
             select(-'scenario', -'GDP', -'year') %>%
             inner_join(
               calcOutput(type = 'Population', aggregate = FALSE,
-                         years = getYears(reminditems)) %>%
+                         years = getYears(remind)) %>%
                 magclass_to_tibble() %>%
                 select('iso3c', 'scenario' = 'variable', 'year',
                        'population' = 'value') %>%
@@ -1403,7 +1292,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                                   .data$subsector)) %>%
         interpolate_missing_periods_(
           periods = list(year = unique(pmax(min(IEA_ETP_Ind_FE_shares$year),
-                                            getYears(reminditems,
+                                            getYears(remind,
                                                      as.integer = TRUE)))),
           value = 'share',
           expand.values = TRUE) %>%
@@ -1455,7 +1344,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                    scenario = unique(IEA_ETP_Ind_FE_shares$scenario)) %>%
           interpolate_missing_periods_(
             periods = list(year = unique(c(industry_subsectors_en_shares$year,
-                                           getYears(reminditems,
+                                           getYears(remind,
                                                     as.integer = TRUE)))),
             value = 'share',
             expand.values = TRUE) %>%
@@ -1469,7 +1358,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         IEA_ETP_Ind_FE_shares %>%
           interpolate_missing_periods_(
             periods = list(period = unique(c(industry_subsectors_en_shares$year,
-                                             getYears(reminditems,
+                                             getYears(remind,
                                                       as.integer = TRUE)))),
             value = 'share',
             expand.values = TRUE) %>%
@@ -1792,7 +1681,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         select(-'foo', -'share.global') %>%
         # fill possible gaps in the time steps
         interpolate_missing_periods_(
-          periods = list(year = getYears(reminditems, TRUE)),
+          periods = list(year = getYears(remind, TRUE)),
           value = 'share',
           expand.values = TRUE) %>%
         group_by(!!!syms(c('scenario', 'year', 'region', 'subsector'))) %>%
@@ -1844,7 +1733,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
         as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
 
-      reminditems <- mbind(reminditems, industry_subsectors_en,
+      remind <- mbind(remind, industry_subsectors_en,
                            industry_subsectors_ue)
 
       unit <- paste0(unit,
@@ -1856,14 +1745,14 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
     if (subtype == "FE") {
       # duplicate SSP2EU scenarios of industry for Navigate and Campaigners scenarios
       industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
-                            getItems(reminditems, 3.2), value = TRUE)
-      nonIndustryItems <- setdiff(getItems(reminditems, 3.2), industryItems)
-      duplScenarios <- grep("SSP2EU_(NAV|CAMP)_", getItems(reminditems, 3.1), value = TRUE)
-      nonDuplScenarios <- setdiff(getItems(reminditems, 3.1), duplScenarios)
-      reminditems <- mbind(
-        mselect(reminditems, scenario = nonDuplScenarios),
-        mselect(reminditems, scenario = duplScenarios, item = nonIndustryItems),
-        toolAddDimensions(x = mselect(reminditems, scenario = "gdp_SSP2EU", item = industryItems,
+                            getItems(remind, 3.2), value = TRUE)
+      nonIndustryItems <- setdiff(getItems(remind, 3.2), industryItems)
+      duplScenarios <- grep("SSP2EU_(NAV|CAMP)_", getItems(remind, 3.1), value = TRUE)
+      nonDuplScenarios <- setdiff(getItems(remind, 3.1), duplScenarios)
+      remind <- mbind(
+        mselect(remind, scenario = nonDuplScenarios),
+        mselect(remind, scenario = duplScenarios, item = nonIndustryItems),
+        toolAddDimensions(x = mselect(remind, scenario = "gdp_SSP2EU", item = industryItems,
                                   collapseNames = TRUE),
                       dimVals = c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
                                   paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
@@ -1886,7 +1775,7 @@ calcFEdemand <- function(subtype, use_ODYM_RECC = FALSE) {
                              UE_for_Eff = "^gdp_(SSP[1-5]|SDP).*\\.fe.*(b|s)$",
                              "^gdp_(SSP[1-5].*|SDP.*)\\.fe..s\\.ue.*b\\.te_ue.*b$")
 
-    return(list(x = reminditems,
+    return(list(x = remind,
                 weight = NULL,
                 unit = unit,
                 description = description,

@@ -4,7 +4,7 @@
 \alias{calcFEdemand}
 \title{Edge data with its original sectoral division}
 \usage{
-calcFEdemand(subtype, use_ODYM_RECC = FALSE)
+calcFEdemand(subtype = "FE", use_ODYM_RECC = FALSE)
 }
 \arguments{
 \item{subtype}{Final energy (FE) or Useful/Final
