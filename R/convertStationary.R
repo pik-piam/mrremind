@@ -215,5 +215,10 @@ convertStationary <- function(x, subtype = "FE") {
   # extrapolating missing historical years
   result[, getYears(feTransp), getNames(feTransp)] <- feTransp[, getYears(feTransp), getNames(feTransp)]
 
+  # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
+  if (all(mselect(result, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
+    result[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(result[, 2100, "feelt"], seq(2105, 2150, 5))
+  }
+
   return(result)
 }

@@ -6,11 +6,6 @@ calcFeDemandIndustry <- function() {
   # aggregate to 5-year averages to suppress volatility
   stationary <- toolAggregateTimeSteps(stationary)
 
-  # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
-  if (all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
-    stationary[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
-  }
-
   # ---- _ modify Industry FE data to carry on current trends ----
   v <- grep("\\.fe(..i$|ind)", getNames(stationary), value = TRUE)
 

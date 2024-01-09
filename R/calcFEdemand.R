@@ -28,148 +28,6 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
     # Functions ------------------
 
-    addSDP_transport <- function(rmnditem){
-      ## adding dummy vars and funcs to avoid global var complaints
-      scenario.item  <- year <- scenario <- item <- region <- value <- variable <- .SD  <- dem_cap  <- fact <- toadd <- Year <- gdp_cap <- ssp2dem <- window <- train_add <- NULL
-
-      ## start of actual function
-      trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
-
-      ## we work in the REMIND H12 regions to avoid strange ISO country behavior when rescaling
-      mappingfile <- toolGetMapping(type = "regional", name = "regionmappingH12.csv",
-                                    returnPathOnly = TRUE, where = "mappingfolder")
-      rmnd_reg <- toolAggregate(rmnditem, mappingfile, from="CountryCode", to="RegionCode")
-
-      ## to data.table (we use gdp_SSP2 as a starting point)
-      rmndt <- data.table::as.data.table(rmnd_reg)
-      rmndt[, c("scenario", "item") := data.table::tstrsplit(scenario.item, ".", fixed = TRUE)][
-        , "scenario.item" := NULL][
-        , year := as.numeric(gsub("y", "", year))]
-      data.table::setnames(rmndt, "V3", "region", skip_absent = TRUE)
-      trpdem <- rmndt[item %in% trp_nodes & scenario == "gdp_SSP2"][, scenario := "gdp_SDP"]
-
-      ## get population
-      pop <- data.table::as.data.table(calcOutput("Population"))[
-        , year := as.numeric(gsub("y", "", year))]
-      data.table::setnames(pop, c("variable", 'iso3c'), c("scenario", 'region'),
-                           skip_absent = TRUE)
-
-      ## intrapolate missing years
-      yrs <- sort(union(pop$year, trpdem$year))
-      pop <- pop[data.table::CJ(region=pop$region, year=yrs, scenario=pop$scenario, unique=T),
-                 on=c("region", "year", "scenario")]
-      pop[, value := stats::approx(x=.SD$year, y=.SD$value, xout=.SD$year)$y,
-          by=c("region", "scenario")]
-
-      ## merge scenario names
-      pop[, scenario := gsub("pop_", "gdp_", scenario)]
-      data.table::setnames(pop, "value", "pop")
-
-      demPop <- pop[trpdem, on=c("year", "region", "scenario")]
-      demPop[, dem_cap := value/pop * 1e3] # EJ/10^6=TJ (pop. in millions), scale to GJ/cap*yr
-
-      gdp_iso <- calcOutput("GDP", aggregate = F)[,, "gdp_SDP"]
-      gdp_iso <- time_interpolate(gdp_iso, getYears(rmnd_reg))
-      gdp_reg <- toolAggregate(gdp_iso, mappingfile, from="CountryCode", to="RegionCode")
-      getSets(gdp_reg) <- c("region", "Year", "scenario")
-      ## load GDP
-      gdp <- data.table::as.data.table(gdp_reg)[
-        , year := as.numeric(gsub("y", "", Year))][
-        , Year := NULL]
-
-      data.table::setnames(gdp, "value", "gdp")
-
-      ## merge
-      demPop <- gdp[demPop, on=c("year", "region", "scenario")]
-      demPop[, gdp_cap := gdp/pop]
-
-      ## add new scenario from SSP2
-      newdem <- demPop
-
-      data.table::setkey(newdem, "year", "item")
-      newdem[, ssp2dem := dem_cap]
-      for(yr in seq(2025, 2100, 5)){
-        it <- "ueLDVt"
-        target <- 7 ## GJ
-        switch_yrs <- 10
-        drive <- 0.12
-        prv_row <- newdem[year == yr - 5 & item == it]
-        newdem[year == yr & item == it,
-               window := ifelse(prv_row$dem_cap - target >= 0,
-                                drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                                -drive * (target - prv_row$dem_cap)/target)]
-
-        newdem[year == yr & item == it,
-               dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
-
-        it <- "ueHDVt"
-        target <- 9
-        prv_row <- newdem[year == yr - 5 & item == it]
-        newdem[year == yr & item == it,
-               window := ifelse(prv_row$dem_cap - target >= 0,
-                                drive * pmin((prv_row$dem_cap - target)^2/target^2, 0.2),
-                                -drive * (target - prv_row$dem_cap)/target)]
-        newdem[year == yr & item == it,
-               dem_cap := (1-window)^5 * prv_row$dem_cap * pmin((yr - 2020)/switch_yrs, 1) + ssp2dem * (1 - pmin((yr - 2020)/switch_yrs, 1))]
-
-      }
-
-      newdem[, c("window", "ssp2dem") := NULL]
-
-      ## toplot <- rbind(demPop, newdem)
-
-      ## ggplot(toplot[item == "ueHDVt" & region %in% c("CHN", "USA", "IND", "JPN") & scenario %in% c("gdp_SDP", "gdp_SSP2")], aes(x=year, y=dem_cap)) +
-      ##   geom_line(aes(color=scenario)) +
-      ##   facet_wrap(~region)
-
-      ## add trains
-      trns <- function(year){
-        if(year <= 2020)
-          return(0)
-        else
-          return((year-2020)^2 * 0.000018) # at 2100, this is ~ 11.5%
-      }
-
-      yrs <- unique(newdem$year)
-      trainsdt <- data.table::data.table(year=yrs, fact=sapply(yrs, trns))
-
-      newdem <- newdem[trainsdt, on="year"]
-
-      ## both freight and passenger road are reduced in favour of trains
-      newdem[item %in% c("ueHDVt", "ueLDVt"), toadd := dem_cap * fact]
-      newdem[item %in% c("ueHDVt", "ueLDVt"), dem_cap := dem_cap - toadd]
-
-      newdem[, train_add := 0]
-      newdem[item == "ueelTt" & year > 2025, dem_cap := newdem[item == "ueelTt" & year == 2025]$dem_cap, by=year]
-
-      ## we add it to trains
-      newdem[year > 2020, train_add := sum(toadd, na.rm = T),
-             by=c("year", "region")]
-      ## replace old values
-      newdem[item == "ueelTt", dem_cap := dem_cap + train_add][
-        , c("toadd", "train_add", "fact") := NULL]
-
-      ## ggplot(newdem[region %in% c("SSA", "USA", "IND", "JPN")], aes(x=year, y=dem_cap)) +
-      ##   geom_line(aes(color=item)) +
-      ##   facet_wrap(~region)
-
-      ## multiply by population
-      newdem[, value := dem_cap * pop / 1e3] # back to EJ
-
-      ## constant for t>2100
-      newdem[year > 2100, value := newdem[year == 2100]$value, by="year"]
-
-      ## ggplot(newdem[region %in% c("CHN", "USA", "IND", "JPN"), sum(dem_cap), by=.(year, region)], aes(x=year, y=V1)) +
-      ##   geom_line() +
-      ##   facet_wrap(~region)
-      newdem <- suppressWarnings(as.magpie(newdem[, c("region", "year", "scenario", "item", "value")]))
-      dem_iso <- toolAggregate(newdem, mappingfile, gdp_iso, from="RegionCode", to="CountryCode")
-      getSets(dem_iso)[1] <- "region"
-
-      return(dem_iso)
-
-    }
-
     addSDP_industry <- function(reminditems) {
       # Modify industry FE trajectories of SSP1 (and SSP2) to generate SDP
       # scenario trajectories
@@ -339,11 +197,6 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
     buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
 
-    # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
-    if (all(mselect(stationary, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
-      stationary[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(stationary[, 2100, "feelt"], seq(2105, 2150, 5))
-    }
-
     # extrapolate years missing in buildings, but existing in stationary
     misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
     buildings <- time_interpolate(buildings,
@@ -356,10 +209,6 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
     feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
 
     data <- mbind(data[ , , getNames(feIndustry), invert = TRUE], feIndustry)
-    data <- feIndustry
-
-
-
 
     # Prepare Mapping ----
 
@@ -413,7 +262,6 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
     ######################
     years <- getYears(data)
-    y <- getYears(data)
     unit <- "EJ"
     subtype <- "FE"
 
@@ -461,7 +309,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         complete(t = c(1993:2015, 2041:2150), fill = list(f = 1)) %>%
         arrange(!!sym('t')) %>%
         mutate(f = cumprod(!!sym('f'))) %>%
-        filter(t %in% as.integer(sub('y', '', y))) %>%
+        filter(t %in% getYears(data, as.integer = TRUE)) %>%
         ungroup() %>%
         select(-'IEIR', -'FEIR')
 
@@ -489,8 +337,10 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         as.quitte() %>%
         as.magpie()
 
+      feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
+
       # add SDP transport and industry scenarios
-      SDP_industry_transport <- mbind(addSDP_transport(remind),
+      SDP_industry_transport <- mbind(feTransport,
                                       addSDP_industry(remind))
 
       # delete punk SDP data calculated illicitly in readEDGE('FE_stationary')
