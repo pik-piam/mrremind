@@ -88,6 +88,8 @@ fullREMIND <- function(rev = 0) {
   calcOutput("MACCsN2O",                  source = "PBL_MACC_2019", round = 6, file = "p_abatparam_N2O_PBL_2019.cs4r")
   calcOutput("MACCsCH4",                  source = "PBL_MACC_2022", round = 6, file = "p_abatparam_CH4_PBL_2022.cs4r")
   calcOutput("MACCsN2O",                  source = "PBL_MACC_2022", round = 6, file = "p_abatparam_N2O_PBL_2022.cs4r")
+  calcOutput("MACCsCH4",                  source = "PBL_MACC_SSP2_2022", round = 6, file = "p_abatparam_CH4_PBL_SSP2_2022.cs4r")
+  calcOutput("MACCsN2O",                  source = "PBL_MACC_SSP2_2022", round = 6, file = "p_abatparam_N2O_PBL_SSP2_2022.cs4r")
   calcOutput("FGas",                                                round = 6, file = "f_emiFgas.cs4r")
   calcOutput("EmiFossilFuelExtr",                                   round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("Region2MAGICC",                                       round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
