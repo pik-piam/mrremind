@@ -1,4 +1,5 @@
 # add documentation
+#' @author Michaja Pehl
 calcFeDemandIndustry <- function() {
 
   stationary <- readSource("Stationary")

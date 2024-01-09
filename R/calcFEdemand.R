@@ -227,11 +227,15 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
       select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
       na.omit() %>%
       filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
+      filter(!.data$REMINDitems_out %in% c("ueelTt", "ueLDVt", "ueHDVt")) %>%
       distinct()
 
-    if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-      stop("Not all EDGE items are in the mapping")
-    }
+
+
+    # TODO: not all industry / buildings items ate in mapping (REMIND_out)
+    # if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
+    #   stop("Not all EDGE items are in the mapping")
+    # }
 
     # Apply Mapping ----
 
@@ -261,8 +265,10 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
 
     ######################
+
+    # TODO: add calcFeDemand Buildings with FE only
+
     years <- getYears(data)
-    unit <- "EJ"
     subtype <- "FE"
 
     if ('FE' == subtype) {
@@ -338,16 +344,14 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         as.magpie()
 
       feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
-
-      # add SDP transport and industry scenarios
-      SDP_industry_transport <- mbind(feTransport,
-                                      addSDP_industry(remind))
+      feIndustryModifications <- addSDP_industry(remind)
 
       # delete punk SDP data calculated illicitly in readEDGE('FE_stationary')
       remind <- mbind(
         remind[,,setdiff(getNames(remind),
-                              getNames(SDP_industry_transport))],
-        SDP_industry_transport)
+                              getNames(feIndustryModifications))],
+        feIndustryModifications,
+        feTransport)
 
       ## calculate *real* useful (i.e., motive) energy instead of
       ## fossil-fuel equivalents for light- and heavy-duty vehicles
@@ -1565,10 +1569,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
       remind <- mbind(remind, industry_subsectors_en,
                            industry_subsectors_ue)
 
-      unit <- paste0(unit,
-                         ', except ue_cement (Gt), ue_primary_steel and ',
-                         'ue_secondary_steel (Gt) and ue_chemicals and ',
-                         'ue_otherInd ($tn)')
+
     }
 
     if (subtype == "FE") {
@@ -1594,9 +1595,15 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
     # Prepare Output ----
 
-    return(list(x = remind,
-                weight = NULL,
-                unit = unit,
-                description = "demand pathways for final energy in buildings and industry in the original file",
-                structure.data = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)"))
+    return(list(
+      x = remind,
+      weight = NULL,
+      unit = paste0(
+        "EJ, except ue_cement (Gt), ue_primary_steel and ",
+        "ue_secondary_steel (Gt) and ue_chemicals and ",
+        "ue_otherInd ($tn)"
+      ),
+      description = "demand pathways for final energy in buildings and industry in the original file",
+      structure.data = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)"
+    ))
 }

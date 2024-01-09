@@ -44,7 +44,13 @@ calcFeDemandTransport <- function() {
     remind[, , getNames(tmp)] <- tmp
   }
 
-  # Start of actual function ----
+  # change the scenario names for consistency with REMIND sets
+  getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
+  getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
+
+  # Corrections for gdp_SDP  ----
+
+  ## Start of actual function
 
   ## adding dummy vars and functions to avoid global var complaints
   year <- scenario <- item <- value <- .SD <- dem_cap <- fact <-
@@ -62,7 +68,7 @@ calcFeDemandTransport <- function() {
   trpdem <- rmnd_reg %>%
     as.quitte() %>%
     select("scenario", "region", "year" = "period", "item", "value") %>%
-    filter(.data$scenario == "SSP2") %>%
+    filter(.data$scenario == "gdp_SSP2") %>%
     mutate("scenario" = "gdp_SDP") %>%
     as.data.table()
 
@@ -171,7 +177,12 @@ calcFeDemandTransport <- function() {
   dem_iso <- toolAggregate(newdem, mappingfile, gdp_iso, from = "RegionCode", to = "CountryCode")
   getSets(dem_iso)[1] <- "region"
 
-  return(list(x = dem_iso, weight = NULL, unit = "EJ",
+  # Prepare Output ----
+
+  # replace SDP data calculated in readSource("Stationary") with corrected data
+  remind <- mbind(remind[ , , getNames(dem_iso), invert = TRUE], dem_iso)
+
+  return(list(x = remind, weight = NULL, unit = "EJ",
               description = "final energy demand in transport"))
 
 }
