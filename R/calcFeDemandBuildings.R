@@ -1,11 +1,11 @@
 #' Returns the EDGE-Buildings data at the REMIND level
 #'
-#' @param subtype FE_buildings or UE_buildings
+#' @param subtype FE, FE_buildings or UE_buildings
 #'
 #' @author Robin Hasse, Falk Benke
 calcFeDemandBuildings <- function(subtype) {
 
-  if (!subtype %in% c("FE_buildings", "UE_buildings")) {
+  if (!subtype %in% c("FE", "FE_buildings", "UE_buildings")) {
     stop(paste0("Unsupported subtype: ", subtype))
   }
 
@@ -22,13 +22,18 @@ calcFeDemandBuildings <- function(subtype) {
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)
 
-  # rename RCP scenarios in buildings
-  rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
-  rcps <- gsub("rcpfixed", "none", rcps)
-  getItems(buildings, "rcp") <- rcps
+  if (subtype == "FE") {
+    # drop RCP dimension (use fixed RCP)
+    buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
+  } else {
+    # rename RCP scenarios in buildings
+    rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
+    rcps <- gsub("rcpfixed", "none", rcps)
+    getItems(buildings, "rcp") <- rcps
 
-  # expand stationary to all RCP scenarios
-  stationary <- toolAddDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+    # expand stationary to all RCP scenarios
+    stationary <- toolAddDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+  }
 
   # extrapolate years missing in buildings, but existing in stationary
   misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
@@ -37,11 +42,12 @@ calcFeDemandBuildings <- function(subtype) {
                                 integrate_interpolated_years = TRUE,
                                 extrapolation_type = "constant")
 
-  data <- mbind(stationary[, getYears(stationary), ], buildings[, getYears(stationary), ])
+  data <- mbind(stationary, buildings)
 
   # Prepare Mapping ----
 
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
+                            where = "mappingfolder")
 
   # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
 
@@ -62,24 +68,39 @@ calcFeDemandBuildings <- function(subtype) {
     stop("Not all EDGE items are in the mapping")
   }
 
-  remindVars <- filter(mapping, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
-  remindVars <- unique(remindVars$REMINDitems_out)
+  if (subtype == "FE") {
 
-  # extend mapping for Useful Energy
-
-  if (subtype == "UE_buildings") {
+    # REMIND variables in focus: those ending with b and stationary items not in industry focus
     mapping <- mapping %>%
-      mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
-             REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
-      rbind(mapping)
-    remindVars <- gsub("^fe", "ue", remindVars)
+      filter(grepl("b$", .data$REMINDitems_out) |
+               (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
+    remindVars <- unique(mapping$REMINDitems_out)
+    remindDims <- cartesian(getNames(data, dim = "scenario"), remindVars)
+
+  } else {
+
+    remindVars <- filter(mapping, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
+    remindVars <- unique(remindVars$REMINDitems_out)
+
+
+    # extend mapping for Useful Energy
+
+    if (subtype == "UE_buildings") {
+      mapping <- mapping %>%
+        mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
+               REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
+        rbind(mapping)
+      remindVars <- gsub("^fe", "ue", remindVars)
+    }
+
+    remindDims <- cartesian(getNames(data, dim = "scenario"), rcps, remindVars)
   }
 
   # Apply Mapping ----
 
   remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
                        years = getYears(data),
-                       names = cartesian(getNames(data, dim = "scenario"), rcps, remindVars),
+                       names = remindDims,
                        sets = getSets(data))
 
   for (v in remindVars) {
@@ -100,7 +121,10 @@ calcFeDemandBuildings <- function(subtype) {
   # Prepare Output ----
 
   # remove missing NAVIGATE scenarios
-  remind <- remind[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(remind, 3), value = TRUE), invert = TRUE]
+  if (subtype %in% c("FE_buildings", "UE_buildings")) {
+    remind <- remind[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(remind, 3), value = TRUE),
+                     invert = TRUE]
+  }
 
   # change the scenario names for consistency with REMIND sets
   getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
@@ -112,11 +136,13 @@ calcFeDemandBuildings <- function(subtype) {
   }
 
   description <- switch(subtype,
-    FE_buildings = "demand pathways for final energy in buildings and industry in the original file",
+    FE = "final energy demand in buildings and industry (stationary)",
+    FE_buildings = "final energy demand in buildings",
     UE_buildings = "useful energy demand in buildings"
   )
 
   outputStructure <- switch(subtype,
+    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
     FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
     UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )

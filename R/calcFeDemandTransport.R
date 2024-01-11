@@ -1,16 +1,18 @@
 #' @author Alois Dirnaicher, Johanna Hoppe, Falk Benke
 calcFeDemandTransport <- function() {
 
+  # Read in stationary data and map to REMIND variables ----
+
+  # REMIND transport items
   trp_nodes <- c("ueelTt", "ueLDVt", "ueHDVt")
 
-  # Read in stationary data and map to REMIND variables ----
   data <- readSource("Stationary")
 
   # aggregate to 5-year averages to suppress volatility
   data <- toolAggregateTimeSteps(data)
 
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                           where = "mappingfolder")
+                            where = "mappingfolder")
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
@@ -180,7 +182,7 @@ calcFeDemandTransport <- function() {
   # Prepare Output ----
 
   # replace SDP data calculated in readSource("Stationary") with corrected data
-  remind <- mbind(remind[ , , getNames(dem_iso), invert = TRUE], dem_iso)
+  remind <- mbind(remind[, , getNames(dem_iso), invert = TRUE], dem_iso)
 
   return(list(x = remind, weight = NULL, unit = "EJ",
               description = "final energy demand in transport"))

@@ -10,7 +10,7 @@ calcFeDemandIndustry <- function() {
   # ---- _ modify Industry FE data to carry on current trends ----
   v <- grep("\\.fe(..i$|ind)", getNames(stationary), value = TRUE)
 
-  dataInd <- stationary[, , v] %>%
+  modified <- stationary[, , v] %>%
     as.quitte() %>%
     as_tibble() %>%
     select("scenario", "iso3c" = "region", "pf" = "item", "year" = "period",
@@ -25,12 +25,12 @@ calcFeDemandIndustry <- function() {
   phasein_period <- c(2020, 2050)   # FIXME: extend to 2055 to keep 35 yrs?
   phasein_time   <- phasein_period[2] - phasein_period[1]
 
-  dataInd <- bind_rows(
-    dataInd %>%
+  modified <- bind_rows(
+    modified %>%
       filter(phasein_period[1] > !!sym("year")),
     inner_join(
       # calculate regional trend
-      dataInd %>%
+      modified %>%
         # get trend period
         filter(between(!!sym("year"), historic_trend[1], historic_trend[2]),
                0 != !!sym("value")) %>%
@@ -48,9 +48,9 @@ calcFeDemandIndustry <- function() {
         # only use negative trends (decreasing energy use)
         mutate(trend = ifelse(!!sym("trend") < 1, !!sym("trend"), NA)),
       # modify data projection
-      dataInd %>%
+      modified %>%
         filter(phasein_period[1] <= !!sym("year")) %>%
-        interpolate_missing_periods(year = phasein_period[1]:max(dataInd$year)) %>%
+        interpolate_missing_periods(year = phasein_period[1]:max(modified$year)) %>%
         group_by(!!sym("scenario"), !!sym("iso3c"), !!sym("pf")) %>%
         mutate(growth = replace_na(!!sym("value") / lag(!!sym("value")), 1)) %>%
         full_join(regionmapping %>% select(-"country"), "iso3c"),
@@ -72,7 +72,7 @@ calcFeDemandIndustry <- function() {
                        !!sym("value"), !!sym("value_"))) %>%
       ungroup() %>%
       select(-"region", -"value_", -"trend", -"growth") %>%
-      filter(!!sym("year") %in% unique(dataInd$year))
+      filter(!!sym("year") %in% unique(modified$year))
   ) %>%
     rename("region" = "iso3c", "item" = "pf") %>%
     as.magpie()
@@ -86,16 +86,57 @@ calcFeDemandIndustry <- function() {
   f <- 0.95^pmax(0, log(f))
 
   # get Industry FE items
-  v <- grep("^SSP1\\.fe(..i$|ind)", getNames(dataInd), value = TRUE)
+  v <- grep("^SSP1\\.fe(..i$|ind)", getNames(modified), value = TRUE)
 
   # apply changes
   for (i in 1:length(y)) {
     if (1 != f[i]) {
-      dataInd[, y[i], v] <- dataInd[, y[i], v] * f[i]
+      modified[, y[i], v] <- modified[, y[i], v] * f[i]
     }
   }
 
-  return(list(x = dataInd, weight = NULL, unit = "EJ",
-              description = "final energy demand in industry"))
+  # ---- _ apply mapping ----
 
+  data <- mbind(stationary[, , getNames(modified), invert = TRUE], modified)
+
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
+                            where = "mappingfolder")
+
+  mapping <- mapping %>%
+    select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
+    na.omit() %>%
+    filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
+    # REMIND variables in focus: those ending with i and stationary items with industry focus
+    filter(grepl("i$", .data$REMINDitems_out) |
+             (grepl("s$", .data$REMINDitems_out)) & grepl("fe(..i$|ind)", .data$EDGEitems)) %>%
+    distinct()
+
+  remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
+                       years = getYears(data),
+                       names = cartesian(getNames(data, dim = "scenario"), unique(mapping$REMINDitems_out)),
+                       sets = getSets(data))
+
+  for (v in unique(mapping$REMINDitems_out)) {
+
+    w <- mapping %>%
+      filter(.data$REMINDitems_out == v) %>%
+      select(-"REMINDitems_out") %>%
+      as.magpie()
+
+    tmp <- mselect(data, item = getNames(w)) * w
+
+    tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
+      add_dimension(dim = 3.3, add = "item", nm = v)
+
+    remind[, , getNames(tmp)] <- tmp
+  }
+
+  # change the scenario names for consistency with REMIND sets
+  getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
+  getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
+
+  # ---- _ prepare output
+
+  return(list(x = remind, weight = NULL, unit = "EJ",
+              description = "final energy demand in industry"))
 }

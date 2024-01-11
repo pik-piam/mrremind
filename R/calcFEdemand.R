@@ -4,7 +4,6 @@
 #'
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
-#'
 #' @importFrom assertr assert not_na verify
 #' @importFrom data.table :=
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
@@ -83,7 +82,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
 
       SSA_countries <- read_delim(
         file = toolGetMapping(type = 'regional', name = 'regionmappingH12.csv',
-        returnPathOnly = TRUE, where = "mappingfolder"),
+                              returnPathOnly = TRUE, where = "mappingfolder"),
         delim = ';',
         col_names = c('country', 'iso3c', 'region'),
         col_types = 'ccc',
@@ -106,7 +105,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
           # no reduction for SSA countries before 2050, to allow for more
           # equitable industry and infrastructure development
           f = cumprod(ifelse(2020 > year, 1, pmin(cutoff, 1 + 4*epsilon*((sgma/GDPpC)^exp1 - (sgma/GDPpC)^exp2))
-                             ))) %>%
+          ))) %>%
         ungroup() %>%
         select(-GDPpC) %>%
         filter(year %in% years)
@@ -182,93 +181,26 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         return()
     }
 
-    # Data Processing ----
+    # TODO: move stationary fix to transport
 
-    stationary <- readSource("Stationary")
-    buildings  <- readSource("EdgeBuildings", subtype = "FE")
-
-    # all 2016 values are zero
-    # TODO: RH please revisit this # nolint
-    buildings <- buildings[, 2016, invert = TRUE]
-
-    # aggregate to 5-year averages to suppress volatility
-    buildings <- toolAggregateTimeSteps(buildings)
-    stationary <- toolAggregateTimeSteps(stationary)
-
-    buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
-
-    # extrapolate years missing in buildings, but existing in stationary
-    misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
-    buildings <- time_interpolate(buildings,
-                                  interpolated_year = misingYearsBuildings,
-                                  integrate_interpolated_years = TRUE,
-                                  extrapolation_type = "constant")
-
-    data <- mbind(stationary, buildings)
-
+    feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
     feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
+    feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
 
-    data <- mbind(data[ , , getNames(feIndustry), invert = TRUE], feIndustry)
 
-    # Prepare Mapping ----
+    # add up industry and buildings contributions to stationary
+    stationaryItems <- c("fehes", "feh2s")
+    feStationary <- feIndustry[, , stationaryItems] + feBuildings[, , stationaryItems]
 
-    mapping = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mappingfolder")
-
-    # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
-
-    mapping <- rbind(
-      mapping,
-      mapping %>%
-        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-        mutate(REMINDitems_out = "feelb")
+    remind <- mbind(
+      feBuildings[, , stationaryItems, invert = T],
+      feIndustry[, , stationaryItems, invert = T],
+      feStationary,
+      feTransport
     )
-
-    mapping <- mapping %>%
-      select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-      na.omit() %>%
-      filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
-      filter(!.data$REMINDitems_out %in% c("ueelTt", "ueLDVt", "ueHDVt")) %>%
-      distinct()
-
-
-
-    # TODO: not all industry / buildings items ate in mapping (REMIND_out)
-    # if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-    #   stop("Not all EDGE items are in the mapping")
-    # }
-
-    # Apply Mapping ----
-
-    remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
-                         years = getYears(data),
-                         names = cartesian(getNames(data, dim = "scenario"), unique(mapping$REMINDitems_out)),
-                         sets = getSets(data))
-
-    for (v in unique(mapping$REMINDitems_out)) {
-
-      w <- mapping %>%
-        filter(.data$REMINDitems_out == v) %>%
-        select(-"REMINDitems_out") %>%
-        as.magpie()
-
-      tmp <- mselect(data, item = getNames(w)) * w
-
-      tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
-        add_dimension(dim = 3.3, add = "item", nm = v)
-
-      remind[, , getNames(tmp)] <- tmp
-    }
-
-    # change the scenario names for consistency with REMIND sets
-    getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
-    getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
-
 
     ######################
 
-    # TODO: add calcFeDemand Buildings with FE only
-
-    years <- getYears(data)
     subtype <- "FE"
 
     if ('FE' == subtype) {
@@ -315,7 +247,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         complete(t = c(1993:2015, 2041:2150), fill = list(f = 1)) %>%
         arrange(!!sym('t')) %>%
         mutate(f = cumprod(!!sym('f'))) %>%
-        filter(t %in% getYears(data, as.integer = TRUE)) %>%
+        filter(t %in% getYears(remind, as.integer = TRUE)) %>%
         ungroup() %>%
         select(-'IEIR', -'FEIR')
 
@@ -343,15 +275,14 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
         as.quitte() %>%
         as.magpie()
 
-      feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
-      feIndustryModifications <- addSDP_industry(remind)
+
+      feIndustryModifications <- addSDP_industry(remind) # TODO
 
       # delete punk SDP data calculated illicitly in readEDGE('FE_stationary')
       remind <- mbind(
-        remind[,,setdiff(getNames(remind),
+        remind[,,setdiff(getNames(remind), # TODO
                               getNames(feIndustryModifications))],
-        feIndustryModifications,
-        feTransport)
+        feIndustryModifications)
 
       ## calculate *real* useful (i.e., motive) energy instead of
       ## fossil-fuel equivalents for light- and heavy-duty vehicles
@@ -585,7 +516,7 @@ calcFEdemand <- function(use_ODYM_RECC = FALSE) {
             unique(industry_subsectors_material_relative_change$scenario))) %>%
           interpolate_missing_periods_(
             periods = list(
-              year = unique(pmax(as.integer(sub('y', '', years, fixed = TRUE)),
+              year = unique(pmax(getYears(remind, as.integer = TRUE),
                                  min(.$year)))),
             expand.values = TRUE)
       }
