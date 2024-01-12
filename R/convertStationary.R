@@ -1,7 +1,8 @@
 #' Convert Stationary data to data on ISO country level.
 #'
 #' @author Antoine Levesque, Robin Hasse
-convertStationary <- function(x, subtype = "FE") {
+#' @param x MAgPIE object to be converted
+convertStationary <- function(x) {
 
   #---- Functions -------------
   noYearDim <- function(x) setYears(x, NULL)

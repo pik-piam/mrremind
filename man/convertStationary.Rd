@@ -4,7 +4,10 @@
 \alias{convertStationary}
 \title{Convert Stationary data to data on ISO country level.}
 \usage{
-convertStationary(x, subtype = "FE")
+convertStationary(x)
+}
+\arguments{
+\item{x}{MAgPIE object to be converted}
 }
 \description{
 Convert Stationary data to data on ISO country level.

@@ -2,17 +2,13 @@
 % Please edit documentation in R/calcFEdemand.R
 \name{calcFEdemand}
 \alias{calcFEdemand}
-\title{Edge data with its original sectoral division}
+\title{Calculates Final Energy Demand for Industry, Buildings and Transport}
 \usage{
-calcFEdemand(use_ODYM_RECC = FALSE)
-}
-\arguments{
-\item{use_ODYM_RECC}{per-capita pathways for `SDP_xx` scenarios?  (Defaults
-to `FALSE`.)}
+calcFEdemand()
 }
 \description{
-Returns the Edge data at the Remind level
+Calculates Final Energy Demand for Industry, Buildings and Transport
 }
 \author{
-Michaja Pehl, Robin Hasse, Falk Benke
+Falk Benke
 }
