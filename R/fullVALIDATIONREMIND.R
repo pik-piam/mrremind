@@ -1,19 +1,21 @@
-#' fullVALIDATIONREMIND
+#' Generate Validation Data for REMIND
 #'
 #' Function that generates the historical regional dataset against which the
 #' REMIND model results can be compared.
 #'
-#' @param years A vector of years that should be returned. If set to NULL all
-#' available years are returned.
+#' @md
+#' @param rev Unused parameter here for the pleasure of [`madrat`].
+#' @param years A vector of years that should be returned. If set to `NULL` all
+#'     available years are returned.
 #' @author David Klein, Falk Benke
-#' @seealso
-#' \code{\link{fullREMIND}},\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
+#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
+#'     [`calcOutput()`]
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()
 #' }
-#'
-fullVALIDATIONREMIND <- function(years = NULL) {
+
+fullVALIDATIONREMIND <- function(rev = 0, years = NULL) {
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
