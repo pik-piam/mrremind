@@ -12,7 +12,7 @@
 #' @importFrom stats aggregate na.pass
 #' @export
 
-calcIEA_ETP <- function(useCorrected = FALSE) {
+calcIEA_ETP <- function() {
 
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%

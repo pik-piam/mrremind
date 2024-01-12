@@ -4,7 +4,7 @@
 \alias{calcIEA_ETP}
 \title{Calculate REMIND emission variables from IEA ETP values}
 \usage{
-calcIEA_ETP(useCorrected = FALSE)
+calcIEA_ETP()
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
