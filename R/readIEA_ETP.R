@@ -2,6 +2,7 @@
 #'
 #' @author Falk Benke
 #' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
+#' @param useCorrected. boolean indicating if the corrected version of the input sheet should be used
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows bind_cols select mutate
 #' @importFrom readxl read_xlsx
@@ -9,8 +10,9 @@
 #' @importFrom rlang sym
 #' @importFrom magclass as.magpie
 
-readIEA_ETP <- function(subtype) {
+readIEA_ETP <- function(subtype, useCorrected = FALSE) {
 
+  version <- if (isTRUE(useCorrected)) "1.1" else "1.0"
   region <- NULL
 
   subtypes <- list(
@@ -526,7 +528,12 @@ readIEA_ETP <- function(subtype) {
     )
   }
 
-  file <- subtypes[[subtype]]$file
+  file <- file.path(version, subtypes[[subtype]]$file)
+
+  # correct inconsistency in older version of the sources
+  if (version == "1.0") {
+    subtypes[["transport"]]$sheets[2] <- "NonOECD"
+  }
 
   col_names <- c("rownames", "2014", "2025", "2030", "2035", "2040", "2045", "2050", "2055", "2060")
   col_types <- c("text", rep("numeric", length(col_names) - 1))

@@ -5,6 +5,7 @@
 #'
 #' @author Falk Benke
 #'
+#' @param useCorrected. boolean indicating if the corrected version of the input data should be used
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
@@ -12,7 +13,7 @@
 #' @importFrom stats aggregate na.pass
 #' @export
 
-calcIEA_ETP <- function() {
+calcIEA_ETP <- function(useCorrected = FALSE) {
 
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
@@ -22,10 +23,10 @@ calcIEA_ETP <- function() {
   mapping$variable <- trimws(mapping$variable)
   mapping$REMIND <- trimws(mapping$REMIND)
 
-  x1 <- readSource("IEA_ETP", subtype = "industry")
-  x2 <- readSource("IEA_ETP", subtype = "transport")
-  x3 <- readSource("IEA_ETP", subtype = "buildings")
-  x4 <- readSource("IEA_ETP", subtype = "summary")
+  x1 <- readSource("IEA_ETP", subtype = "industry", useCorrected = useCorrected)
+  x2 <- readSource("IEA_ETP", subtype = "transport", useCorrected = useCorrected)
+  x3 <- readSource("IEA_ETP", subtype = "buildings", useCorrected = useCorrected)
+  x4 <- readSource("IEA_ETP", subtype = "summary", useCorrected = useCorrected)
 
   data <- mbind(x1, x2, x3, x4)
 
