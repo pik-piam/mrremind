@@ -1,4 +1,6 @@
-#' @author Alois Dirnaicher, Johanna Hoppe, Falk Benke
+#' Calculates FE demand in transport as REMIND variables
+#'
+#' @author Alois Dirnaicher, Johanna Hoppe
 calcFeDemandTransport <- function() {
 
   # Read in stationary data and map to REMIND variables ----

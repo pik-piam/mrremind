@@ -1,8 +1,8 @@
-#' Returns the EDGE-Buildings data at the REMIND level
+#' Returns the EDGE-Buildings data as REMIND variables
 #'
-#' @param subtype FE, FE_buildings or UE_buildings
+#' @param subtype either "FE", "FE_buildings", or "UE_buildings"
 #'
-#' @author Robin Hasse, Falk Benke
+#' @author Robin Hasse
 calcFeDemandBuildings <- function(subtype) {
 
   if (!subtype %in% c("FE", "FE_buildings", "UE_buildings")) {
@@ -15,7 +15,7 @@ calcFeDemandBuildings <- function(subtype) {
   buildings  <- readSource("EdgeBuildings", subtype = "FE")
 
   # all 2016 values are zero
-  # TODO: RH please revisit this # nolint
+  # TODO: remove filtering, as 2016 values are available now
   buildings <- buildings[, 2016, invert = TRUE]
 
   # aggregate to 5-year averages to suppress volatility

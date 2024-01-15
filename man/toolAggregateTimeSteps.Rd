@@ -2,17 +2,20 @@
 % Please edit documentation in R/toolAggregateTimeSteps.R
 \name{toolAggregateTimeSteps}
 \alias{toolAggregateTimeSteps}
-\title{aggregate values to 5-year averages to suppress volatility}
+\title{Aggregate values to n-year averages to suppress volatility}
 \usage{
 toolAggregateTimeSteps(x, nYears = 5)
 }
 \arguments{
-\item{x}{magpie object ...}
+\item{x}{a magclass object}
 
-\item{nYears}{integer ...}
+\item{nYears}{time steps to be used for averaging, defaults to 5}
+}
+\value{
+magclass object with averages
 }
 \description{
-aggregate values to 5-year averages to suppress volatility
+Aggregate values to n-year averages to suppress volatility
 }
 \author{
 Robin Hasse

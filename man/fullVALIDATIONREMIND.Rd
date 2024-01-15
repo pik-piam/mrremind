@@ -2,12 +2,14 @@
 % Please edit documentation in R/fullVALIDATIONREMIND.R
 \name{fullVALIDATIONREMIND}
 \alias{fullVALIDATIONREMIND}
-\title{fullVALIDATIONREMIND}
+\title{Generate Validation Data for REMIND}
 \usage{
-fullVALIDATIONREMIND(years = NULL)
+fullVALIDATIONREMIND(rev = 0, years = NULL)
 }
 \arguments{
-\item{years}{A vector of years that should be returned. If set to NULL all
+\item{rev}{Unused parameter here for the pleasure of \code{\link{madrat}}.}
+
+\item{years}{A vector of years that should be returned. If set to \code{NULL} all
 available years are returned.}
 }
 \description{
@@ -18,10 +20,10 @@ REMIND model results can be compared.
 \dontrun{
 fullVALIDATIONREMIND()
 }
-
 }
 \seealso{
-\code{\link{fullREMIND}},\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
+\code{\link[=fullREMIND]{fullREMIND()}}, \code{\link[=readSource]{readSource()}}, \code{\link[=getCalculations]{getCalculations()}},
+\code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
 David Klein, Falk Benke

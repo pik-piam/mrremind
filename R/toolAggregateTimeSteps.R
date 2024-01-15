@@ -1,10 +1,10 @@
-#' aggregate values to 5-year averages to suppress volatility
+#' Aggregate values to n-year averages to suppress volatility
 #'
-#' @param x magpie object ...
-#' @param nYears integer ...
+#' @param x a magclass object
+#' @param nYears time steps to be used for averaging, defaults to 5
 #' @author Robin Hasse
+#' @returns magclass object with averages
 #' @export
-# TODO: consider moving this to convertEDGE
 toolAggregateTimeSteps <- function(x, nYears = 5) {
 
   periods <- sort(getYears(x, as.integer = TRUE))

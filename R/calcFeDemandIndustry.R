@@ -1,3 +1,5 @@
+#' Calculates FE demand in industry as REMIND variables
+#'
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
 #' @importFrom assertr assert not_na verify
