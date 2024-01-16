@@ -15,7 +15,7 @@ Calculates industry subsector shares in final energy carrier use for the
 }
 \details{
 For the region mapping \code{regionmapping_21_EU11.csv}, these are based on IEA
-data from \code{calcOutput(type = 'FEdemand', subtype = 'FE')}, for all other
+data from \code{calcOutput(type = 'FEdemand')}, for all other
 region mappings on vintage data which is ultimately based on Enerdata data.
 }
 \note{

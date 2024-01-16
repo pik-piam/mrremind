@@ -20,9 +20,9 @@ fullREMIND <- function() {
   madratAttach("edgeTransport")   # enable madrat caching for edgeTransport
 
   #-------------- macro-economic parameters -----------------------------------------------------------
-  calcOutput("Population", years = rem_years_hist,      round = 8,  file = "f_pop.cs3r")
-  calcOutput("Labour",     years = rem_years,           round = 8,  file = "f_lab.cs3r")
-  calcOutput("GDP",     years = rem_years_hist,      round = 8,  file = "f_gdp.cs3r")
+  calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f_pop.cs3r")
+  calcOutput("Labour",     years = rem_years,         round = 8,  file = "f_lab.cs3r")
+  calcOutput("GDP",     years = rem_years_hist,       round = 8,  file = "f_gdp.cs3r")
   calcOutput("RatioPPP2MER",                          round = 8,  file = "pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
@@ -34,7 +34,7 @@ fullREMIND <- function() {
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital",                               signif = 4, file = "f29_capitalQuantity.cs4r")
-  calcOutput("FEdemand",  subtype = "FE",             signif = 4,  file = "f_fedemand.cs4r")
+  calcOutput("FEdemand",                              signif = 4, file = "f_fedemand.cs4r")
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
     type = "Steel_Projections", subtype = "secondary.steel.max.share",
