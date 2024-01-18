@@ -19,7 +19,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
     do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC")),
                               paste0("SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                              paste0("SSP2EU_CAMP_", c("weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "weak_all"))),
+                              paste0("SSP2EU_CAMP_", c("low", "weak", "strong", paste0("strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "weak_all"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
   }
@@ -29,7 +29,7 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
       scens <- list(
         gdp_SSP2EU = paste0("gdp_SSP2EU_",
                             c("NAV_act", "NAV_ele", "NAV_tec", "NAV_lce", "NAV_all",
-                              "CAMP_weak", "CAMP_strong", paste0("CAMP_strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "CAMP_weak_all")),
+                              "CAMP_low", "CAMP_weak", "CAMP_strong", paste0("CAMP_strong_", c("temperature", "renovation", "floorspace", "hotwater", "ecomode", "all")), "CAMP_weak_all")),
         gdp_SSP2 = "gdp_SSP2_lowEn"
       )
     }
