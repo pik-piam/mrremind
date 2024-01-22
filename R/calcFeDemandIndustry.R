@@ -1605,26 +1605,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
 
   remind <- mbind(remind, industry_subsectors_en, industry_subsectors_ue)
 
-  # ---- _ duplicate SSP2EU scenarios of industry for Navigate and Campaigners scenarios ----
-
-  industryItems <- grep("(.*i$)|chemicals|steel|otherInd|cement",
-                        getItems(remind, 3.2), value = TRUE)
-  nonIndustryItems <- setdiff(getItems(remind, 3.2), industryItems)
-  duplScenarios <- grep("SSP2EU_(NAV|CAMP)_", getItems(remind, 3.1), value = TRUE)
-  nonDuplScenarios <- setdiff(getItems(remind, 3.1), duplScenarios)
-  remind <- mbind(
-    mselect(remind, scenario = nonDuplScenarios),
-    mselect(remind, scenario = duplScenarios, item = nonIndustryItems),
-    toolAddDimensions(x = mselect(remind, scenario = "gdp_SSP2EU", item = industryItems,
-                                  collapseNames = TRUE),
-                      dimVals = c(paste0("gdp_SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                                  paste0("gdp_SSP2EU_CAMP_", c("weak", "strong"))),
-                      dimName = "scenario",
-                      dimCode = 3.1)
-  )
-
   # ---- _ prepare output ----
-
 
   return(list(
     x = remind,

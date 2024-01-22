@@ -9,27 +9,9 @@ convertStationary <- function(x) {
 
   addSSPnames <- function(x) {
     do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
-                              paste0("SDP", c("", "_EI", "_RC", "_MC")),
-                              paste0("SSP2EU_NAV_", c("act", "tec", "ele", "lce", "all")),
-                              paste0("SSP2EU_CAMP_", c("weak", "strong"))),
+                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
                             function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
-  }
-
-  duplScens <- function(x, scens = NULL) {
-    if (is.null(scens)) {
-      scens <- list(
-        gdp_SSP2EU = paste0("gdp_SSP2EU_",
-                            c("NAV_act", "NAV_ele", "NAV_tec", "NAV_lce", "NAV_all",
-                              "CAMP_weak", "CAMP_strong")),
-        gdp_SSP2 = "gdp_SSP2_lowEn"
-      )
-    }
-    mbind(x, do.call(mbind, lapply(names(scens), function(from) {
-      do.call(mbind, lapply(scens[[from]], function(to) {
-        setItems(x[, , from], 3, to)
-      }))
-    })))
   }
 
   renameExtraWeights <- function(magObj, magWeight, mapping) {
@@ -84,9 +66,9 @@ convertStationary <- function(x) {
   #--- Load the Weights
   #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
   wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
-  # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate and Campaigners scenarios
-  wg <- duplScens(wg)
   getNames(wg) <- gsub("gdp_", "", getNames(wg))
+  # duplicate SSP2 for SSP2_lowEn
+  wg <- mbind(wg, setItems(wg[, , "SSP2"], 3, "SSP2_lowEn"))
 
 
   #--- Then load the final energy data

@@ -22,10 +22,19 @@ calcFeDemandBuildings <- function(subtype) {
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)
 
+  # add scenarios to stationary to match buildings scenarios by duplication
+  duplicateScens <- paste0("SSP2EU_", c("NAV_act", "NAV_ele", "NAV_tec", "NAV_lce", "NAV_all", "CAMP_weak", "CAMP_strong"))
+  stationary <- mbind(stationary, do.call(mbind, lapply(duplicateScens, function(to) {
+    setItems(stationary[, , "SSP2EU"], 3.1, to)
+  })))
+
   if (subtype == "FE") {
+
     # drop RCP dimension (use fixed RCP)
     buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
+
   } else {
+
     # rename RCP scenarios in buildings
     rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
     rcps <- gsub("rcpfixed", "none", rcps)
@@ -33,6 +42,7 @@ calcFeDemandBuildings <- function(subtype) {
 
     # expand stationary to all RCP scenarios
     stationary <- toolAddDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+
   }
 
   # extrapolate years missing in buildings, but existing in stationary
@@ -123,8 +133,7 @@ calcFeDemandBuildings <- function(subtype) {
 
   # remove missing NAVIGATE scenarios
   if (subtype %in% c("FE_buildings", "UE_buildings")) {
-    remind <- remind[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(remind, 3), value = TRUE),
-                     invert = TRUE]
+    remind <- remind[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(remind, 3), value = TRUE), invert = TRUE]
   }
 
   # change the scenario names for consistency with REMIND sets
