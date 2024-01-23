@@ -16,15 +16,15 @@ EV sales share|Vans|EV;percent;;;;
 EV sales|Buses|BEV;no;Sales|Transport|Bus|Electric;Million vehicles;;1.00E-06
 EV sales|Buses|PHEV;no;;;;
 EV sales|Buses|FCEV;no;Sales|Transport|Bus|FCEV;Million vehicles;;1.00E-06
-EV sales|Cars|BEV;no;;;;
-EV sales|Cars|PHEV;no;;;;
-EV sales|Cars|FCEV;no;;;;
-EV sales|Trucks|BEV;no;;;;
-EV sales|Trucks|FCEV;no;;;;
+EV sales|Cars|BEV;no;Sales|Transport|Car|Electric;Million vehicles;;1.00E-06
+EV sales|Cars|PHEV;no;Sales|Transport|Car|Hybrid Electric;Million vehicles;;1.00E-06
+EV sales|Cars|FCEV;no;Sales|Transport|Car|FCEV;Million vehicles;;1.00E-06
+EV sales|Trucks|BEV;no;Sales|Transport|Truck|Electric;Million vehicles;;1.00E-06
+EV sales|Trucks|FCEV;no;Sales|Transport|Truck|FCEV;Million vehicles;;1.00E-06
 EV sales|Trucks|PHEV;no;;;;
-EV sales|Vans|BEV;no;;;;
-EV sales|Vans|PHEV;no;;;;
-EV sales|Vans|FCEV;no;;;;
+EV sales|Vans|BEV;no;Sales|Transport|LDV|Van|BEV;Million vehicles;;1.00E-06
+EV sales|Vans|PHEV;no;Sales|Transport|LDV|Van|Hybrid Electric;Million vehicles;;1.00E-06
+EV sales|Vans|FCEV;no;Sales|Transport|LDV|Van|FCEV;Million vehicles;;1.00E-06
 EV stock share|Buses|EV;percent;;;;
 EV stock share|Cars|EV;percent;;;;
 EV stock share|Trucks|EV;percent;;;;
@@ -32,15 +32,15 @@ EV stock share|Vans|EV;percent;;;;
 EV stock|Buses|BEV;no;Stock|Transport|Bus|Electric;Million vehicles;;1.00E-06
 EV stock|Buses|PHEV;no;;;;
 EV stock|Buses|FCEV;no;Stock|Transport|Bus|FCEV;Million vehicles;;1.00E-06
-EV stock|Cars|BEV;no;;;;
-EV stock|Cars|PHEV;no;;;;
-EV stock|Cars|FCEV;no;;;;
-EV stock|Trucks|BEV;no;;;;
-EV stock|Trucks|FCEV;no;;;;
+EV stock|Cars|BEV;no;Stock|Transport|Car|Electric;Million vehicles;;1.00E-06
+EV stock|Cars|PHEV;no;Stock|Transport|Car|Hybrid Electric;Million vehicles;;1.00E-06
+EV stock|Cars|FCEV;no;Sales|Transport|Car|FCEV;Million vehicles;;1.00E-06
+EV stock|Trucks|BEV;no;Stock|Transport|Truck|Electric;Million vehicles;;1.00E-06
+EV stock|Trucks|FCEV;no;Stock|Transport|Truck|FCEV;Million vehicles;;1.00E-06
 EV stock|Trucks|PHEV;no;;;;
-EV stock|Vans|BEV;no;;;;
-EV stock|Vans|PHEV;no;;;;
-EV stock|Vans|FCEV;no;;;;
+EV stock|Vans|BEV;no;Stock|Transport|LDV|Van|BEV;Million vehicles;;1.00E-06
+EV stock|Vans|PHEV;no;Stock|Transport|LDV|Van|Hybrid Electric;Million vehicles;;1.00E-06
+EV stock|Vans|FCEV;no;Stock|Transport|LDV|Van|FCEV;Million vehicles;;1.00E-06
 Oil displacement|Buses|EV;Milion liters of gasoline equivalent;;;;
 Oil displacement|Buses|BEV;Milion liters of gasoline equivalent;;;;
 Oil displacement|Buses|PHEV;Milion liters of gasoline equivalent;;;;
