@@ -68,8 +68,10 @@ convertEDGE <- function(x, subtype = "FE_stationary") {
   rem_years_hist <- seq(1990,2150,5)
   keep_years <- getYears(x)
 
-  struct_mapping_path = toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                      returnPathOnly = TRUE, where = "mappingfolder")
+  struct_mapping_path = toolGetMapping(type = "sectoral",
+                                       name = "structuremappingIO_outputs.csv",
+                                       where = "mrcommons",
+                                       returnPathOnly = TRUE)
   struct_mapping = read.csv2(struct_mapping_path, na.strings = "")
 
   #Select the relevant part of the mapping
