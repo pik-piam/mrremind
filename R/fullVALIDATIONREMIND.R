@@ -5,8 +5,6 @@
 #'
 #' @md
 #' @param rev Unused parameter here for the pleasure of [`madrat`].
-#' @param years A vector of years that should be returned. If set to `NULL` all
-#'     available years are returned.
 #' @author David Klein, Falk Benke
 #' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
 #'     [`calcOutput()`]
@@ -15,7 +13,10 @@
 #' fullVALIDATIONREMIND()
 #' }
 
-fullVALIDATIONREMIND <- function(rev = 0, years = NULL) {
+fullVALIDATIONREMIND <- function(rev = 0) {
+
+  years = NULL
+
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.

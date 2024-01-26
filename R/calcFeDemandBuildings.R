@@ -56,9 +56,8 @@ calcFeDemandBuildings <- function(subtype) {
 
   # Prepare Mapping ----
 
-  # TODO: load from mrcommons
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mappingfolder")
+                            where = "mrcommons")
 
   # TODO: remove once this is in the mapping
   # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb

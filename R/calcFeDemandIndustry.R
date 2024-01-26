@@ -277,7 +277,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
   data <- mbind(stationary[, , getNames(modified), invert = TRUE], modified)
 
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mappingfolder")
+                            where = "mrcommons")
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
