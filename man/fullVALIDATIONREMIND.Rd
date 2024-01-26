@@ -4,13 +4,10 @@
 \alias{fullVALIDATIONREMIND}
 \title{Generate Validation Data for REMIND}
 \usage{
-fullVALIDATIONREMIND(rev = 0, years = NULL)
+fullVALIDATIONREMIND(rev = 0)
 }
 \arguments{
 \item{rev}{Unused parameter here for the pleasure of \code{\link{madrat}}.}
-
-\item{years}{A vector of years that should be returned. If set to \code{NULL} all
-available years are returned.}
 }
 \description{
 Function that generates the historical regional dataset against which the
