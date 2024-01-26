@@ -59,7 +59,7 @@ convertStationary <- function(x) {
   #---- Parameters and Mappings ------
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                        returnPathOnly = TRUE, where = "mappingfolder")
+                                        returnPathOnly = TRUE, where = "mrcommons")
   struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping

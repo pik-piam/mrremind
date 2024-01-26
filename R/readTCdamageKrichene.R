@@ -12,22 +12,19 @@
 readTCdamageKrichene <- function(subtype) {
 
         if (subtype == "const") {
-                a <- read.csv(file = "./TC_df_parameters_const.csv")
+                a <- read.csv(file = "./TC_df_parameters_const.csv",sep=";")
         } else if (subtype == "tasK") {
-                a <- read.csv(file = "./TC_df_parameters_tasK.csv")
+                a <- read.csv(file = "./TC_df_parameters_tasK.csv",sep=";")
         }
 
         quant <- gsub("estimates_", "", colnames(a)[grepl("estimates", colnames(a))])
-        for (p in unique(a$persistence)) {
                 for (q in quant) {
-                        a2 <- a[which(a$persistence == p), ]
-                        col <- which(colnames(a2) == paste0("estimates_", q))
-                        if (p == unique(a$persistence)[1] && q == quant[1]) {
-                                out <- new.magpie(a2$iso, NULL, paste0(p, ".", q), a2[, col], sets = c("CountryCode", "year", "persistence.quantile"))
+                        col <- which(colnames(a) == paste0("estimates_", q))
+                        if (q == quant[1]) {
+                                out <- new.magpie(a$iso, NULL, q, a[, col], sets = c("CountryCode", "year", "quantile"))
                         } else {
-                                out <- mbind(out, new.magpie(a2$iso, NULL, paste0(p, ".", q), a2[, col], sets = c("CountryCode", "year", "persistence.quantile")))
+			out <- mbind(out, new.magpie(a$iso, NULL, q, a[, col], sets = c("CountryCode", "year", "quantile")))
                         }
                 }
-    }
         return(out)
 }

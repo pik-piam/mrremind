@@ -16,8 +16,9 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     # remove period where only 0s appear
     data <- data[, 2021, , invert = T]
 
-    mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_reporting.csv", 
-                              returnPathOnly = TRUE, where = "mappingfolder")
+    mapping <- toolGetMapping(type = "sectoral",
+                              name = "structuremappingIO_reporting.csv",
+                              where = "mrremind", returnPathOnly = TRUE)
     target <- c("output")
     map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows

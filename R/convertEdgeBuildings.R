@@ -64,7 +64,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   rem_years_hist <- seq(1990, 2150, 5)
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                      returnPathOnly = TRUE, where = "mappingfolder")
+                                      returnPathOnly = TRUE, where = "mrcommons")
   struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping

@@ -14,7 +14,7 @@ calcFeDemandTransport <- function() {
   data <- toolAggregateTimeSteps(data)
 
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mappingfolder")
+                            where = "mrcommons")
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
