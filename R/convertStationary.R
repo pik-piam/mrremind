@@ -206,7 +206,7 @@ convertStationary <- function(x) {
   feShares[, , "fedie"] <- (1 - setNames(setNames(share[getRegions(share), getYears(feShares), "share_LDV_totliq"], "fepet"), NULL))
   feTransp <- new.magpie(cells_and_regions = getRegions(share), years = getYears(feShares), names = getNames(result[, , c("fepet", "fedie")]))
 
-  for (i in c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "SDP", "SDP_EI", "SDP_RC", "SDP_MC", "SSP2EU")) {
+  for (i in getNames(result, dim = 1)) {
     i1 <- paste0(i, ".fepet")
     i2 <- paste0(i, ".fedie")
     feTransp[, getYears(feShares), i1] <- feShares[, getYears(feShares), i1] * setNames(feTotal[, getYears(feShares), i], i1)
