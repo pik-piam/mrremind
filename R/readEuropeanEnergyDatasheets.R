@@ -658,7 +658,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
           mutate(
             "year" := as.numeric(as.character(.data$year)),
             "region" := sheet,
-            "value" := ifelse(is.numeric(.data$value), as.numeric(.data$value), NA)
+            "value" := suppressWarnings(as.numeric(.data$value))
           )
       )
     }
