@@ -1,0 +1,67 @@
+Variable;Unit;REMIND_Variable;REMIND_Unit;Comment;Factor
+Capacity|Aggregate fuel|Clean;GW;;;;
+Capacity|Aggregate fuel|Fossil;GW;;;;
+Capacity|Aggregate fuel|Gas and Other Fossil;GW;;;;
+Capacity|Aggregate fuel|Hydro, Bioenergy and Other Renewables;GW;;;;
+Capacity|Aggregate fuel|Renewables;GW;;;;
+Capacity|Aggregate fuel|Wind and Solar;GW;;;;
+Capacity|Fuel|Bioenergy;GW;Cap|Electricity|Biomass;GW;better use � w/o CC?;1
+Capacity|Fuel|Coal;GW;Cap|Electricity|Coal;GW;;1
+Capacity|Fuel|Gas;GW;Cap|Electricity|Gas;GW;;1
+Capacity|Fuel|Hydro;GW;Cap|Electricity|Hydro;GW;;1
+Capacity|Fuel|Nuclear;GW;Cap|Electricity|Nuclear;GW;;1
+Capacity|Fuel|Other Fossil;GW;Cap|Electricity|Oil;GW;Assume to be all oil;1
+Capacity|Fuel|Other Renewables;GW;;;could add sum of other renewables, Geothermal + Hydrogen?;
+Capacity|Fuel|Solar;GW;Cap|Electricity|Solar;GW;;1
+Capacity|Fuel|Wind;GW;Cap|Electricity|Wind;GW;;1
+Electricity demand|Demand|Demand;TWh;;;;
+Electricity demand|Demand per capita|Demand per capita;MWh;;;;
+Electricity generation|Aggregate fuel|Clean;%;;;;
+Electricity generation|Aggregate fuel|Fossil;%;;;;
+Electricity generation|Aggregate fuel|Gas and Other Fossil;%;;;;
+Electricity generation|Aggregate fuel|Hydro, Bioenergy and Other Renewables;%;;;;
+Electricity generation|Aggregate fuel|Renewables;%;;;;
+Electricity generation|Aggregate fuel|Wind and Solar;%;;;;
+Electricity generation|Aggregate fuel|Clean;TWh;;;;
+Electricity generation|Aggregate fuel|Fossil;TWh;;;;
+Electricity generation|Aggregate fuel|Gas and Other Fossil;TWh;;;;
+Electricity generation|Aggregate fuel|Hydro, Bioenergy and Other Renewables;TWh;;;;
+Electricity generation|Aggregate fuel|Renewables;TWh;;;;
+Electricity generation|Aggregate fuel|Wind and Solar;TWh;;;;
+Electricity generation|Fuel|Bioenergy;%;;;;
+Electricity generation|Fuel|Coal;%;;;;
+Electricity generation|Fuel|Gas;%;;;;
+Electricity generation|Fuel|Hydro;%;;;;
+Electricity generation|Fuel|Nuclear;%;;;;
+Electricity generation|Fuel|Other Fossil;%;;;;
+Electricity generation|Fuel|Other Renewables;%;;;;
+Electricity generation|Fuel|Solar;%;;;;
+Electricity generation|Fuel|Wind;%;;;;
+Electricity generation|Fuel|Bioenergy;TWh;SE|Electricity|Biomass;EJ/yr;;0.0036
+Electricity generation|Fuel|Coal;TWh;SE|Electricity|Coal;EJ/yr;;0.0036
+Electricity generation|Fuel|Gas;TWh;SE|Electricity|Gas;EJ/yr;;0.0036
+Electricity generation|Fuel|Hydro;TWh;SE|Electricity|Hydro;EJ/yr;;0.0036
+Electricity generation|Fuel|Nuclear;TWh;SE|Electricity|Nuclear;EJ/yr;;0.0036
+Electricity generation|Fuel|Other Fossil;TWh;;;SE|Electricity|+|Oil ?;
+Electricity generation|Fuel|Other Renewables;TWh;;;SE|Electricity|+|Hydrogen ? SE|Electricity|+|Geothermal;
+Electricity generation|Fuel|Solar;TWh;SE|Electricity|Solar;EJ/yr;;0.0036
+Electricity generation|Fuel|Wind;TWh;SE|Electricity|Wind;EJ/yr;;0.0036
+Electricity generation|Total|Total Generation;TWh;SE|Electricity;EJ/yr;;0.0036
+Electricity imports|Electricity imports|Net Imports;TWh;;;;
+Power sector emissions|Aggregate fuel|Clean;mtCO2;;;actually is CO2eq;
+Power sector emissions|Aggregate fuel|Fossil;mtCO2;;;;
+Power sector emissions|Aggregate fuel|Gas and Other Fossil;mtCO2;;;;
+Power sector emissions|Aggregate fuel|Hydro, Bioenergy and Other Renewables;mtCO2;;;;
+Power sector emissions|Aggregate fuel|Renewables;mtCO2;;;;
+Power sector emissions|Aggregate fuel|Wind and Solar;mtCO2;;;;
+Power sector emissions|CO2 intensity|CO2 intensity;gCO2/kWh;;;;
+Power sector emissions|Fuel|Bioenergy;mtCO2;;;;
+Power sector emissions|Fuel|Coal;mtCO2;;;;
+Power sector emissions|Fuel|Gas;mtCO2;;;;
+Power sector emissions|Fuel|Hydro;mtCO2;;;;
+Power sector emissions|Fuel|Nuclear;mtCO2;;;;
+Power sector emissions|Fuel|Other Fossil;mtCO2;;;;
+Power sector emissions|Fuel|Other Renewables;mtCO2;;;;
+Power sector emissions|Fuel|Solar;mtCO2;;;;
+Power sector emissions|Fuel|Wind;mtCO2;;;;
+Power sector emissions|Total|Total emissions;mtCO2;Emi|CO2|Energy|Supply|Electricity w/ couple prod;Mt CO2eq/yr;;1

@@ -4,7 +4,8 @@
 \alias{convertEuropeanEnergyDatasheets}
 \title{Convert European Energy Datasheets}
 \source{
-European Energy Datasheets public database https://ec.europa.eu/energy/en/data-analysis/country
+European Energy Datasheets public database
+https://energy.ec.europa.eu/data-and-analysis/eu-energy-statistical-pocketbook-and-country-datasheets_en
 }
 \usage{
 convertEuropeanEnergyDatasheets(x, subtype)
@@ -12,7 +13,8 @@ convertEuropeanEnergyDatasheets(x, subtype)
 \arguments{
 \item{x}{European Energy Datasheets magpie object derived from readEuropeanEnergyDatasheets function}
 
-\item{subtype}{data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)}
+\item{subtype}{data subtype. Either "EU28" (data from June 20 including GBR)
+or "EU27" (latest data from August 23 without GBR)}
 }
 \value{
 converted European Energy Datasheets magpie object
