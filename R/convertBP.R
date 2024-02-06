@@ -8,7 +8,6 @@
 #' @importFrom madrat getISOlist toolGetMapping toolCountryFill
 #' @importFrom magclass magpply
 #' @importFrom rlang sym
-#'
 
 convertBP <- function(x, subtype) {
 
