@@ -168,7 +168,6 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "esCapCost",                               file = "esCapCost.cs4r")
   calcOutput("EDGETransport", subtype = "pm_trp_demand",                           file = "pm_trp_demand.cs4r")
   calcOutput("EDGETransport", subtype = "pm_fe_demand_EDGETbased",                 file = "pm_fe_demand_EDGETbased.cs4r")
-  calcOutput("EDGETransport", subtype = "f35_bunkers_fe",                          file = "f35_bunkers_fe.cs4r") # TODO delete
   calcOutput("EDGETransport", subtype = "annual_mileage",                          file = "annual_mileage.cs4r")
 
   # not to be aggregated as global
