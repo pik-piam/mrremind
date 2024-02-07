@@ -2,7 +2,6 @@
 #'
 #' @author Falk Benke
 #' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
-#' @param useCorrected boolean indicating if the corrected version of the input sheet should be used
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows bind_cols select mutate
 #' @importFrom readxl read_xlsx
