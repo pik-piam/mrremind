@@ -8,6 +8,8 @@ readIEA_ETP(subtype)
 }
 \arguments{
 \item{subtype}{data subtype. Either "industry", "buildings", "summary", or "transport"}
+
+\item{useCorrected}{boolean indicating if the corrected version of the input sheet should be used}
 }
 \description{
 Read IEA ETP projections
