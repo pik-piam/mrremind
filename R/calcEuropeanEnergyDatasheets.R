@@ -2,8 +2,8 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)
-#'
+#' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
+#' or "EU27" (latest data from August 23 without GBR)
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
@@ -28,7 +28,7 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
       )
 
     mapping <- toolGetMapping("Mapping_EuropeanEnergyDatasheets.csv", type = "reportingVariables",
-                              where = "mappingfolder") %>%
+                              where = "mrremind") %>%
       filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
       mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
       select("variable" = "EED", "REMIND", "Conversion")

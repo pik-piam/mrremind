@@ -14,7 +14,7 @@ provides transport subsidies
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("TransportSubsidies")
 }
 

@@ -1,0 +1,483 @@
+"EED";"unit";"REMIND";"Conversion"
+"Energy Balance|Production";"Mtoe";;
+"Energy Balance|Production|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Production|Solid fossil fuels|of which hard coal";"Mtoe";;
+"Energy Balance|Production|Solid fossil fuels|of which brown coal";"Mtoe";;
+"Energy Balance|Production|Peat and peat products";"Mtoe";;
+"Energy Balance|Production|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Production|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Production|Oil and petroleum products|of which crude oil";"Mtoe";;
+"Energy Balance|Production|Natural gas";"Mtoe";;
+"Energy Balance|Production|Nuclear";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Hydro";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Wind";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Solar photovoltaic";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Solar thermal";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Solid biofuels";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Biogases";"Mtoe";;
+"Energy Balance|Production|Renewables and biofuels|Liquid biofuels";"Mtoe";;
+"Energy Balance|Production|Wastes, Non-Renewable";"Mtoe";;
+"Energy Balance|Imports";"Mtoe";;
+"Energy Balance|Imports|Solid fossil fuels";"Mtoe";"Trade|Imports|Coal (EJ/yr)";0.041868
+"Energy Balance|Imports|Solid fossil fuels|of which hard coal";"Mtoe";;
+"Energy Balance|Imports|Oil and petroleum products";"Mtoe";"Trade|Imports|Oil (EJ/yr)";0.041868
+"Energy Balance|Imports|Oil and petroleum products|of which crude oil and NGL";"Mtoe";;
+"Energy Balance|Imports|Natural gas";"Mtoe";"Trade|Imports|Gas (EJ/yr)";0.041868
+"Energy Balance|Imports|Renewables and biofuels";"Mtoe";"Trade|Imports|Biomass (EJ/yr)";0.041868
+"Energy Balance|Imports|Electricity";"Mtoe";"Trade|Imports|Electricity (EJ/yr)";0.041868
+"Energy Balance|Imports|Heat";"Mtoe";;
+"Energy Balance|Imports|Waste, Non-Renewable";"Mtoe";;
+"Energy Balance|Exports";"Mtoe";;
+"Energy Balance|Exports|Solid fossil fuels";"Mtoe";"Trade|Exports|Coal (EJ/yr)";0.041868
+"Energy Balance|Exports|Solid fossil fuels|of which hard coal";"Mtoe";;
+"Energy Balance|Exports|Oil and petroleum products";"Mtoe";"Trade|Exports|Oil (EJ/yr)";0.041868
+"Energy Balance|Exports|Oil and petroleum products|of which crude oil and NGL";"Mtoe";;
+"Energy Balance|Exports|Natural gas";"Mtoe";"Trade|Exports|Gas (EJ/yr)";0.041868
+"Energy Balance|Exports|Renewables and biofuels";"Mtoe";"Trade|Exports|Biomass (EJ/yr)";0.041868
+"Energy Balance|Exports|Electricity";"Mtoe";"Trade|Exports|Electricity (EJ/yr)";0.041868
+"Energy Balance|Exports|Heat";"Mtoe";;
+"Energy Balance|Exports|Waste, Non-Renewable";"Mtoe";;
+"Energy Balance|Net Imports";"Mtoe";;
+"Energy Balance|Net Imports|Solid fossil fuels";"Mtoe";"Trade|Coal (EJ/yr)";-0.041868
+"Energy Balance|Net Imports|Solid fossil fuels|of which hard coal";"Mtoe";;
+"Energy Balance|Net Imports|Oil and petroleum products";"Mtoe";"Trade|Oil (EJ/yr)";-0.041868
+"Energy Balance|Net Imports|Oil and petroleum products|of which crude oil and NGL";"Mtoe";;
+"Energy Balance|Net Imports|Natural gas";"Mtoe";"Trade|Gas (EJ/yr)";-0.041868
+"Energy Balance|Net Imports|Renewables and biofuels";"Mtoe";"Trade|Biomass (EJ/yr)";-0.041868
+"Energy Balance|Net Imports|Electricity";"Mtoe";"Trade|Electricity (EJ/yr)";-0.041868
+"Energy Balance|Net Imports|Heat";"Mtoe";;
+"Energy Balance|Net Imports|Waste, Non-Renewable";"Mtoe";;
+"Energy Balance|Gross available energy";"Mtoe";;
+"Energy Balance|International maritime bunkers";"Mtoe";"FE (EJ/yr)";0.041868
+"Energy Balance|International maritime bunkers";"Mtoe";"FE|Transport (EJ/yr)";0.041868
+"Energy Balance|International maritime bunkers|of which petroleum products";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|International maritime bunkers|of which petroleum products";"Mtoe";"FE|Transport|Liquids (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption";"Mtoe";"PE (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Gross inland consumption|Solid fossil fuels|of which hard coal";"Mtoe";"PE|Coal (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Solid fossil fuels|of which brown coal";"Mtoe";"PE|Coal (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Manufactured gases";"Mtoe";"PE|Gas (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Peat and peat products";"Mtoe";"PE|Coal (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Oil shale and oil sands";"Mtoe";"PE|Oil (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Oil and petroleum products";"Mtoe";"PE|Oil (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Oil and petroleum products|of which crude and NGL";"Mtoe";;
+"Energy Balance|Gross inland consumption|Natural gas";"Mtoe";"PE|Gas (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Nuclear";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Hydro";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Wind";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Solar photovoltaic";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Solar thermal";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Tide, Wave and Ocean";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Biofuels and renewable waste";"Mtoe";"PE|Biomass (EJ/yr)";0.041868
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Geothermal";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Ambient heat, heat pumps";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Electricity";"Mtoe";;
+"Energy Balance|Gross inland consumption|Renewables and biofuels|Heat";"Mtoe";;
+"Energy Balance|Gross inland consumption|Waste, non-renewable";"Mtoe";;
+"Energy Balance|International aviation";"Mtoe";"FE (EJ/yr)";0.041868
+"Energy Balance|International aviation";"Mtoe";"FE|Transport (EJ/yr)";0.041868
+"Energy Balance|International aviation|of which petroleum products";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|International aviation|of which petroleum products";"Mtoe";"FE|Transport|Liquids (EJ/yr)";0.041868
+"Energy Balance|Total energy supply";"Mtoe";;
+"Energy Balance|Total energy supply|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Total energy supply|Solid fossil fuels|of which hard coal";"Mtoe";;
+"Energy Balance|Total energy supply|Solid fossil fuels|of which brown coal";"Mtoe";;
+"Energy Balance|Total energy supply|Manufactured gases";"Mtoe";;
+"Energy Balance|Total energy supply|Peat and peat products";"Mtoe";;
+"Energy Balance|Total energy supply|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Total energy supply|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Total energy supply|Oil and petroleum products|of which crude and NGL";"Mtoe";;
+"Energy Balance|Total energy supply|Natural gas";"Mtoe";;
+"Energy Balance|Total energy supply|Nuclear";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Hydro";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Wind";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Solar photovoltaic";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Solar thermal";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Tide, Wave and Ocean";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Solid biofuels and renewable waste";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Liquid biofuels";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Biogases";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Geothermal";"Mtoe";;
+"Energy Balance|Total energy supply|Renewables and biofuels|Ambient heat, heat pumps";"Mtoe";;
+"Energy Balance|Total energy supply|Electricity";"Mtoe";;
+"Energy Balance|Total energy supply|Heat";"Mtoe";;
+"Energy Balance|Total energy supply|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Input";"Mtoe";;
+"Energy Balance|Transformation Input|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Transformation Input|Manufactured gases";"Mtoe";;
+"Energy Balance|Transformation Input|Peat and peat products";"Mtoe";;
+"Energy Balance|Transformation Input|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Transformation Input|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Transformation Input|Natural gas";"Mtoe";;
+"Energy Balance|Transformation Input|Nuclear";"Mtoe";;
+"Energy Balance|Transformation Input|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Transformation Input|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Manufactured gases";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Peat and peat products";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Nuclear";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Natural gas";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Derived heat for electricity production";"Mtoe";;
+"Energy Balance|Transformation Input|Electricity producers|Electricity from pumped storage";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Manufactured gases";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Peat and peat products";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Nuclear";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Natural gas";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Input|Heat producers|Electric boilers and electrically driven heat pumps";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Manufactured gases";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Peat and peat products";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Oil shale and oil sands";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Nuclear";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Natural gas";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Transformation Input|CHP producers|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Input|Refineries, Petroleum and sub-products";"Mtoe";;
+"Energy Balance|Transformation Input|Other transformation input";"Mtoe";;
+"Energy Balance|Transformation Output";"Mtoe";;
+"Energy Balance|Transformation Output|Solid fossil fuels";"Mtoe";"SE|Solids (EJ/yr)";0.041868
+"Energy Balance|Transformation Output|Manufactured gases";"Mtoe";;
+"Energy Balance|Transformation Output|Peat and peat products";"Mtoe";"SE|Solids (EJ/yr)";0.041868
+"Energy Balance|Transformation Output|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Transformation Output|Natural gas";"Mtoe";;
+"Energy Balance|Transformation Output|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Transformation Output|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Transformation Output|Electricity";"Mtoe";;
+"Energy Balance|Transformation Output|Heat";"Mtoe";;
+"Energy Balance|Transformation Output|Electricity producers";"Mtoe";;
+"Energy Balance|Transformation Output|Electricity from pumped storage";"Mtoe";;
+"Energy Balance|Transformation Output|Heat producers";"Mtoe";;
+"Energy Balance|Transformation Output|CHP producers";"Mtoe";;
+"Energy Balance|Transformation Output|CHP producers|Electricity";"Mtoe";;
+"Energy Balance|Transformation Output|CHP producers|Heat";"Mtoe";;
+"Energy Balance|Transformation Output|Refineries, Petroleum and sub-products";"Mtoe";;
+"Energy Balance|Transformation Output|Other transformation output";"Mtoe";;
+"Energy Balance|Transformation Losses";"Mtoe";;
+"Energy Balance|Energy Sector";"Mtoe";;
+"Energy Balance|Energy Sector|Solid fossil fuels";"Mtoe";;
+"Energy Balance|Energy Sector|Peat and products, oil shale and sands";"Mtoe";;
+"Energy Balance|Energy Sector|Oil and petroleum products";"Mtoe";;
+"Energy Balance|Energy Sector|Natural gas and manufactured gases";"Mtoe";;
+"Energy Balance|Energy Sector|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Energy Sector|Waste, non-renewable";"Mtoe";;
+"Energy Balance|Energy Sector|Electricity";"Mtoe";;
+"Energy Balance|Energy Sector|Heat";"Mtoe";;
+"Energy Balance|Distribution losses";"Mtoe";;
+"Energy Balance|Available for final consumption";"Mtoe";;
+"Energy Balance|Final non-energy consumption";"Mtoe";"FE (EJ/yr)";0.041868
+"Energy Balance|Final non-energy consumption";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|Final non-energy consumption";"Mtoe";"FE|Industry (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption";"Mtoe";"FE (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Solid fossil fuels";"Mtoe";"FE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Solid fossil fuels|of which hard coal";"Mtoe";"FE|Solids|Coal (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Solid fossil fuels|of which brown coal";"Mtoe";"FE|Solids|Coal (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Manufactured gases";"Mtoe";"FE|Gases (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Manufactured gases";"Mtoe";"FE|Gases|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Peat and peat products";"Mtoe";"FE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Peat and peat products";"Mtoe";"FE|Solids|Coal (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Oil shale and oil sands";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Oil shale and oil sands";"Mtoe";"FE|Liquids|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Oil and petroleum products";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Oil and petroleum products";"Mtoe";"FE|Liquids|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Natural gas";"Mtoe";"FE|Gases (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Natural gas";"Mtoe";"FE|Gases|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels";"Mtoe";;
+"Energy Balance|Final energy consumption|Renewables and biofuels|Solar thermal";"Mtoe";"FE|Heat (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Solar thermal";"Mtoe";"FE|Heat|Solar (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Geothermal";"Mtoe";"FE|Heat (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Geothermal";"Mtoe";"FE|Heat|Geothermal (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Solid biofuels and renewable waste";"Mtoe";"FE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Solid biofuels and renewable waste";"Mtoe";"FE|Solids|Biomass (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Biogases";"Mtoe";"FE|Gases (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Biogases";"Mtoe";"FE|Gases|Biomass (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Liquid biofuels";"Mtoe";"FE|Liquids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Liquid biofuels";"Mtoe";"FE|Liquids|Biomass (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Ambient heat, heat pumps";"Mtoe";"FE|Heat (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Renewables and biofuels|Ambient heat, heat pumps";"Mtoe";"FE|Heat|Heat Pumps (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"FE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"FE|Solids|Waste (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Electricity";"Mtoe";"FE|Electricity (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Heat";"Mtoe";"FE|Heat (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Industry";"Mtoe";"FE|Industry (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Industry|Iron and steel";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Chemical and petrochemical";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Non-ferrous metals";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Non-metallic minerals";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Mining and quarrying";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Food, beverages and tobacco";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Textile and leather";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Paper, pulp and print";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Transport equipment";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Machinery";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Wood and wood products";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Construction";"Mtoe";;
+"Energy Balance|Final energy consumption|Industry|Other industry";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport";"Mtoe";"FE|Transport (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Transport";"Mtoe";"FE|Transport|w/o Bunkers (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Transport|Rail";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport|Road";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport|Domestic aviation";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport|Domestic navigation";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport|Pipeline transport";"Mtoe";;
+"Energy Balance|Final energy consumption|Transport|Other transport";"Mtoe";;
+"Energy Balance|Final energy consumption|Residential";"Mtoe";"FE|Buildings (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Services";"Mtoe";"FE|Buildings (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Agriculture and Fishing";"Mtoe";"FE|AFOFI (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Others";"Mtoe";"FE|Other Sector (EJ/yr)";0.041868
+"Electricity Production|Gross Electricity Generation";"TWh";"SE|Electricity (EJ/yr)";0.0036
+"Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands";"TWh";"SE|Electricity|Solids (EJ/yr)";0.0036
+"Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which hard coal";"TWh";"SE|Electricity|Coal (EJ/yr)";0.0036
+"Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which brown coal";"TWh";"SE|Electricity|Coal (EJ/yr)";0.0036
+"Electricity Production|Oil and petroleum products";"TWh";"SE|Electricity|Liquids (EJ/yr)";0.0036
+"Electricity Production|Oil and petroleum products";"TWh";"SE|Electricity|Oil (EJ/yr)";0.0036
+"Electricity Production|Natural gas and manufactured gas";"TWh";"SE|Electricity|Gas (EJ/yr)";0.0036
+"Electricity Production|Natural gas and manufactured gas|of which natural gas";"TWh";;
+"Electricity Production|Nuclear";"TWh";"SE|Electricity|Nuclear (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels";"TWh";;
+"Electricity Production|Renewables and biofuels|Hydro";"TWh";"SE|Electricity|Hydro (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Wind";"TWh";"SE|Electricity|Wind (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Solid biofuels and renewable wastes";"TWh";"SE|Electricity|Biomass (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Biogases";"TWh";"SE|Electricity|Gas (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Biogases";"TWh";"SE|Electricity|Gas|Biomass (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Liquid biofuels";"TWh";"SE|Electricity|Biomass (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Solar";"TWh";"SE|Electricity|Solar (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Geothermal";"TWh";"SE|Electricity|Geothermal (EJ/yr)";0.0036
+"Electricity Production|Renewables and biofuels|Tide, Wave and Ocean";"TWh";"SE|Electricity|Other (EJ/yr)";0.0036
+"Electricity Production|Wastes non-RES";"TWh";"SE|Electricity|Other (EJ/yr)";0.0036
+"Electricity Production|Other";"TWh";"SE|Electricity|Other (EJ/yr)";0.0036
+"Electricity Production|Main Activity Electricity Only";"TWh";;
+"Electricity Production|Main Activity CHP Plants";"TWh";;
+"Electricity Production|Autoproducer Electricity Only";"TWh";;
+"Electricity Production|Autoproducer CHP Plants";"TWh";;
+"Electricity Production|Installed Electricity Capacity";"MW";"Cap|Electricity (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Combustible Fuels";"MW";"Cap|Electricity|Fossil (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Nuclear";"MW";"Cap|Electricity|Nuclear (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Hydro";"MW";"Cap|Electricity|Hydro (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Wind";"MW";"Cap|Electricity|Wind (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Solar PV";"MW";"Cap|Electricity|Solar|PV (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Solar Thermal";"MW";"Cap|Electricity|Solar|CSP (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Geothermal";"MW";"Cap|Electricity|Geothermal (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Tide, Wave and Ocean";"MW";"Cap|Electricity|Other (GW)";0.001
+"Electricity Production|Installed Electricity Capacity|Other Sources";"MW";"Cap|Electricity|Other (GW)";0.001
+"Electricity Production|Solar and Wind Energy|Cumulative Solar and Wind Capacity";"MW";;
+"Electricity Production|Solar and Wind Energy|Cumulative Solar and Wind Capacity";"%";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Cumulative Installed Capacity";"MW";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Cumulative Installed Capacity";"%";;
+"Electricity Production|Solar and Wind Energy|Wind|Annual Installed Wind Capacity";"MW";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Cumulative Capacity Growth Rate";"% YoY";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Gross Electricity Production";"TWh";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Gross Electricity Penetration Level";"%";;
+"Electricity Production|Solar and Wind Energy|Wind|Wind Annual Average Capacity Factor";"%";;
+"Electricity Production|Solar and Wind Energy|Solar|Solar Thermal Collector's Surface";"1000 m2";;
+"Electricity Production|Solar and Wind Energy|Solar|Solar Total Installed Capacity";"MW";;
+"Electricity Production|Solar and Wind Energy|Solar|Solar Gross Electricity Production";"TWh";;
+"Electricity Production|Solar and Wind Energy|Solar|Solar Gross Electricity Penetration Level";"%";;
+"Market Indicators|Natural Gas|Entities bringing gas into the country";"Nr";;
+"Market Indicators|Natural Gas|Main Entities bringing gas in the country, Deal >5% Total";"Nr";;
+"Market Indicators|Natural Gas|Cumulative Market Share, Main Entities";"%";;
+"Market Indicators|Natural Gas|Market Share - Largest Production & Import Company";"%";;
+"Market Indicators|Natural Gas|Retailers to Final Consumers";"Nr";;
+"Market Indicators|Natural Gas|Main Retailers, Sales >5% Total";"Nr";;
+"Market Indicators|Natural Gas|Cumulative Market Share, Main Retailers";"%";;
+"Market Indicators|Natural Gas|Market Share, Largest Retailer";"%";;
+"Market Indicators|Electricity|Producers, Representing 95% Total";"Nr";;
+"Market Indicators|Electricity|Main Producers, >5% Total";"Nr";;
+"Market Indicators|Electricity|Cumulative Market Share Generation, Main Entities";"%";;
+"Market Indicators|Electricity|Cumulative Market Share Capacity, Main Entities";"%";;
+"Market Indicators|Electricity|Market Share Largest Producer";"%";;
+"Market Indicators|Electricity|New Capacity in the Year";"MW";;
+"Market Indicators|Electricity|Retailers to Final Consumers";"Nr";;
+"Market Indicators|Electricity|Main Retailers, Sales >5% Total";"Nr";;
+"Market Indicators|Electricity|Cumulative Market Share, Main Retailers";"%";;
+"Heat Production";"PJ";"SE|Heat (EJ/yr)";0.001
+"Heat Production|Solid fossil fuels, peat and products, oil shale and oil sands";"PJ";"SE|Heat|Solids (EJ/yr)";0.001
+"Heat Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which hard coal";"PJ";"SE|Heat|Coal (EJ/yr)";0.001
+"Heat Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which brown coal";"PJ";"SE|Heat|Coal (EJ/yr)";0.001
+"Heat Production|Oil and petroleum products";"PJ";"SE|Heat|Oil (EJ/yr)";0.001
+"Heat Production|Natural gas and manufactured gas";"PJ";"SE|Heat|Gas (EJ/yr)";0.001
+"Heat Production|Natural gas and manufactured gas|of which natural gas";"PJ";;
+"Heat Production|Nuclear";"PJ";"SE|Heat|Nuclear (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels";"PJ";;
+"Heat Production|Renewables and biofuels|Solid biofuels and renewable wastes";"PJ";"SE|Heat|Biomass (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels|Biogases";"PJ";"SE|Heat|Biomass (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels|Liquid biofuels";"PJ";"SE|Heat|Liquids (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels|Solar thermal";"PJ";;
+"Heat Production|Renewables and biofuels|Geothermal";"PJ";"SE|Heat|Geothermal (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels|Ambient heat";"PJ";;
+"Heat Production|Renewables and biofuels|Wastes non-RES";"PJ";"SE|Heat|Waste (EJ/yr)";0.001
+"Heat Production|Renewables and biofuels|Other";"PJ";"SE|Heat|Other (EJ/yr)";0.001
+"Cogeneration Heat and Power|CHP Electricity Generation";"TWh";;
+"Cogeneration Heat and Power|CHP Electricity Generation";"PJ";"SE|Electricity|Combined Heat and Power w/o CC (EJ/yr)";0.001
+"Cogeneration Heat and Power|CHP Electrical Capacity";"GW";;
+"Cogeneration Heat and Power|CHP in Total Electricity Generation";"%";;
+"Cogeneration Heat and Power|CHP Heat Production";"PJ";;
+"Cogeneration Heat and Power|CHP Heat Capacity";"GW";;
+"Cogeneration Heat and Power|Fuel Input Into CHP";"PJ";;
+"Cogeneration Heat and Power|Share Solid fossil fuels";"%";;
+"Cogeneration Heat and Power|Share Oil";"%";;
+"Cogeneration Heat and Power|Share Natural Gas";"%";;
+"Cogeneration Heat and Power|Share RES and Waste";"%";;
+"Cogeneration Heat and Power|Share Other Fuels";"%";;
+"Transport Fuels|Production biofuels";"ktoe";;
+"Transport Fuels|Production biofuels|Pure biogasoline";"ktoe";;
+"Transport Fuels|Production biofuels|Pure biodiesel";"ktoe";;
+"Transport Fuels|Production biofuels|Other liquid biofuels";"ktoe";;
+"Transport Fuels|Final consumption biofuels";"ktoe";"FE|Transport|w/o Bunkers|Liquids (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption biofuels";"ktoe";"FE|Transport|Liquids|Biomass (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption biofuels";"ktoe";"FE|Transport|Liquids (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption biofuels|Pure biogasoline";"ktoe";;
+"Transport Fuels|Final consumption biofuels|Blended biogasoline";"ktoe";;
+"Transport Fuels|Final consumption biofuels|Pure biodiesel";"ktoe";;
+"Transport Fuels|Final consumption biofuels|Blended biodiesel";"ktoe";;
+"Transport Fuels|Final consumption biofuels|Other liquid biofuels";"ktoe";;
+"Transport Fuels|Final consumption petroleum products";"ktoe";"FE|Transport|w/o Bunkers|Liquids (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption petroleum products";"ktoe";"FE|Transport|Liquids|Oil (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption petroleum products";"ktoe";"FE|Transport|Liquids (EJ/yr)";4.1868E-05
+"Transport Fuels|Final consumption petroleum products|of which LPG";"ktoe";;
+"Transport Fuels|Final consumption petroleum products|of which motor gasoline";"ktoe";;
+"Transport Fuels|Final consumption petroleum products|of which Gas/Diesel oil";"ktoe";;
+"Transport Fuels|Final consumption natural gas";"ktoe";"FE|Transport|Gases (EJ/yr)";4.1868E-05
+"Transport Fuels|Biofuels Production Capacity";"kton/year";;
+"Transport Fuels|Biofuels Production Capacity|Biogasoline";"kton/year";;
+"Transport Fuels|Biofuels Production Capacity|Biodiesel";"kton/year";;
+"Transport Fuels|Biofuels Production Capacity|Other liquid biofuels";"kton/year";;
+"Transport Fuels|Share of Biofuels in Transport Fuels";"%";;
+"Transport Fuels|Share of Biofuels in Transport Fuels|of Biogasoline in Motor Gasoline";"%";;
+"Transport Fuels|Share of Biofuels in Transport Fuels|of Biodiesel in Gas/Diesel Oil";"%";;
+"Main Energy Indicators|Gross inland consumption 2020-2030";"Mtoe";;
+"Main Energy Indicators|Primary energy consumption 2020-2030";"Mtoe";;
+"Main Energy Indicators|Final energy consumption 2020-2030";"Mtoe";;
+"Main Energy Indicators|Final energy intensity 2020-2030";"toe/MEUR15";;
+"Main Energy Indicators|Primary Energy Intensity 2020-2030";"toe/MEUR15";;
+"Main Energy Indicators|Overall Renewable share [with aviation cap]";"%";;
+"Main Energy Indicators|RE-T - Renewable energy in Transport";"%";;
+"Main Energy Indicators|RES-E - Renewable Electricity Generation";"%";;
+"Main Energy Indicators|RES-H&C - Renewable Heating and Cooling";"%";;
+"Main Energy Indicators|Energy Intensity [GAE/GDP2015]";"toe/MEUR15";;
+"Main Energy Indicators|Energy per Capita [GIC/pop]";"kgoe/cap";;
+"Main Energy Indicators|Final Electricity per Capita";"KWh per Capita";;
+"Main Energy Indicators|Import Dependency";"%";;
+"Main Energy Indicators|Import Dependency|of Solid fossil fuels";"%";;
+"Main Energy Indicators|Import Dependency|of Hard Coal";"%";;
+"Main Energy Indicators|Import Dependency|of Oil and petroleum products";"%";;
+"Main Energy Indicators|Import Dependency|of Crude and NGL";"%";;
+"Main Energy Indicators|Import Dependency|of Natural Gas";"%";;
+"Main Energy Indicators|Energy Mix|Solid fossil fuels";"%";;
+"Main Energy Indicators|Energy Mix|Oil and petroleum products";"%";;
+"Main Energy Indicators|Energy Mix|Natural gas";"%";;
+"Main Energy Indicators|Energy Mix|Nuclear";"%";;
+"Main Energy Indicators|Energy Mix|Renewables and biofuels";"%";;
+"Main Energy Indicators|Energy Mix|Others [non-res waste, peat, oil shale and sands, manufactured gases]";"%";;
+"Main Energy Indicators|Electricity Mix|Solid fossil fuels, oil shale and sands, peat";"%";;
+"Main Energy Indicators|Electricity Mix|Oil and petroleum products";"%";;
+"Main Energy Indicators|Electricity Mix|Natural gas and manufactured gases";"%";;
+"Main Energy Indicators|Electricity Mix|Nuclear";"%";;
+"Main Energy Indicators|Electricity Mix|Renewables and biofuels";"%";;
+"Main Energy Indicators|Electricity Mix|Others";"%";;
+"Main Energy Indicators|Final Energy by sector|Industry";"%";;
+"Main Energy Indicators|Final Energy by sector|Transport";"%";;
+"Main Energy Indicators|Final Energy by sector|Households";"%";;
+"Main Energy Indicators|Final Energy by sector|Services";"%";;
+"Main Energy Indicators|Final Energy by sector|Agriculture and Fishing";"%";;
+"Main Energy Indicators|Final Energy by sector|Other";"%";;
+"CO2 emissions - National total [incl_ int_ aviation, without LULUCF]";"Mt CO2";"Emi|CO2 (Mt CO2/yr)";1
+"CO2 emissions|Energy";"Mt CO2";"Emi|CO2|Energy (Mt CO2/yr)";1
+"CO2 emissions|Energy|Energy Industries";"Mt CO2";"Emi|CO2|Fossil Fuels and Industry|Indirect (Mt CO2/yr)";1
+"CO2 emissions|Energy|Energy Industries|Public Electricity and Heat Production";"Mt CO2";"Emi|CO2|Energy|Supply|Electricity and Heat (Mt CO2/yr)";1
+"CO2 emissions|Energy|Energy Industries|Petroleum Refining";"Mt CO2";"Emi|CO2|Energy|Supply|Liquids w/ couple prod (Mt CO2/yr)";1
+"CO2 emissions|Energy|Energy Industries|Manufacture of Solid Fuels and Other Energy Industries";"Mt CO2";"Emi|CO2|Energy|Supply|Solids w/ couple prod (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction";"Mt CO2";"Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction";"Mt CO2";"Emi|CO2|Industry|Direct (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Iron and Steel";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Non-Ferrous Metals";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Chemicals";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Pulp, Paper and Print";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Food Processing, Beverages and Tobacco";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Non-metallic minerals";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Manufacturing Industries and Construction|Other Manufacturing Industries and Constructions";"Mt CO2";"Emi|CO2|Energy|Industry|Non ETS (Mt CO2/yr)";1
+"CO2 emissions|Energy|Transport";"Mt CO2";"Emi|CO2|Energy|Demand|Transport (Mt CO2/yr)";1
+"CO2 emissions|Energy|Transport|Domestic Aviation";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation|Cars";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation|Light duty trucks";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation|Heavy duty trucks and buses";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation|Motorcycles";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Road Transportation|Other road transportation";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Railways";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Domestic Navigation";"Mt CO2";;
+"CO2 emissions|Energy|Transport|Other Transportation";"Mt CO2";;
+"CO2 emissions|Energy|Commercial/Institutional";"Mt CO2";"Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr)";1
+"CO2 emissions|Energy|Commercial/Institutional";"Mt CO2";"Emi|CO2|Buildings|Direct (Mt CO2/yr)";1
+"CO2 emissions|Energy|Residential";"Mt CO2";"Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr)";1
+"CO2 emissions|Energy|Residential";"Mt CO2";"Emi|CO2|Buildings|Direct (Mt CO2/yr)";1
+"CO2 emissions|Energy|Agriculture/Forestry/Fisheries";"Mt CO2";"Emi|CO2|Energy|Demand|Industry|Other Industry|AFOFI (Mt CO2/yr)";1
+"CO2 emissions|Energy|Other Sectors";"Mt CO2";"Emi|CO2|Energy|Other Sectors (Mt CO2/yr)";1
+"CO2 emissions|Energy|Other Combustion and Fugitive Emissions";"Mt CO2";"Emi|CO2|Energy|Other (Mt CO2/yr)";1
+"CO2 emissions|Industrial Processes and Product Use";"Mt CO2";"Emi|CO2|Industrial Processes (Mt CO2/yr)";1
+"CO2 emissions|Industrial Processes and Product Use";"Mt CO2";"Emi|CO2|FFaI|Industry|Process (Mt CO2/yr)";1
+"CO2 emissions|Agriculture";"Mt CO2";"Emi|CO2|AFOLU (Mt CO2/yr)";1
+"CO2 emissions|Waste and Others";"Mt CO2";"Emi|CO2|Waste (Mt CO2/yr)";1
+"CO2 emissions|Indirect CO2";"Mt CO2";"Emi|CO2|Indirect CO2 (Mt CO2/yr)";1
+"CO2 emissions|International aviation";"Mt CO2";"Emi|CO2|Transport|Pass|Aviation|International|Demand (Mt CO2/yr)";1
+"CO2 emissions|International aviation";"Mt CO2";"Emi|CO2 (Mt CO2/yr)";-1
+"CO2 emissions|International navigation";"Mt CO2";"Emi|CO2|Transport|Freight|International Shipping|Demand (Mt CO2/yr)";1
+"GHG emissions - National total [incl_ int_ aviation, without LULUCF]";"Mt CO2eq";"Emi|GHG (Mt CO2eq/yr)";1
+"GHG emissions|Energy";"Mt CO2eq";"Emi|GHG|Energy (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Energy Industries";"Mt CO2eq";;
+"GHG emissions|Energy|Energy Industries|Public Electricity and Heat Production";"Mt CO2eq";"Emi|GHG|Energy|Electricity and Heat (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Energy Industries|Petroleum Refining";"Mt CO2eq";"Emi|GHG|Energy|Liquids (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Energy Industries|Manufacture of Solid Fuels and Other Energy Industries";"Mt CO2eq";"Emi|GHG|Energy|Solids (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction";"Mt CO2eq";"Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Iron and Steel";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Non-Ferrous Metals";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Chemicals";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Pulp, Paper and Print";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Food Processing, Beverages and Tobacco";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Non-metallic minerals";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Manufacturing Industries and Construction|Other Manufacturing Industries and Constructions";"Mt CO2eq";"Emi|GHG|Energy|Industry|Non ETS (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Transport";"Mt CO2eq";"Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Transport|Domestic Aviation";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Cars";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Light duty trucks";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Heavy duty trucks and buses";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Motorcycles";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Other road transportation";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Railways";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Domestic Navigation";"Mt CO2eq";;
+"GHG emissions|Energy|Transport|Road Transportation|Other Transportation";"Mt CO2eq";;
+"GHG emissions|Energy|Commercial/Institutional";"Mt CO2eq";"Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Residential";"Mt CO2eq";"Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Agriculture/Forestry/Fisheries";"Mt CO2eq";"Emi|GHG|Energy|Demand|Industry|Other Industry|AFOFI (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Other Sectors";"Mt CO2eq";"Emi|GHG|Energy|Other Sectors (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Other Combustion and Fugitive Emissions";"Mt CO2eq";"Emi|GHG|Energy|Other (Mt CO2eq/yr)";1
+"GHG emissions|Industrial Processes and Product Use";"Mt CO2eq";"Emi|GHG|Industrial Processes (Mt CO2eq/yr)";1
+"GHG emissions|Agriculture";"Mt CO2eq";"Emi|GHG|AFOLU (Mt CO2eq/yr)";1
+"GHG emissions|Waste and Others";"Mt CO2eq";"Emi|GHG|Waste (Mt CO2eq/yr)";1
+"GHG emissions|Indirect CO2";"Mt CO2eq";"Emi|GHG|Indirect CO2 (Mt CO2eq/yr)";1
+"GHG emissions|International aviation";"Mt CO2eq";"Emi|GHG|Bunkers|International Aviation (Mt CO2eq/yr)";1
+"GHG emissions|International aviation";"Mt CO2eq";"Emi|GHG (Mt CO2eq/yr)";-1
+"GHG emissions|International navigation";"Mt CO2eq";"Emi|GHG|Bunkers|International Maritime Transport (Mt CO2eq/yr)";1
+"Main Emissions Indicators|GHG national total emissions";"index 1990=100";;
+"Main Emissions Indicators|Total GHG per capita";"t CO2 eq_/capita";;
+"Main Emissions Indicators|GHG Intensity of Energy";"kg CO2 eq_/toe";;
+"Main Emissions Indicators|Total GHG - GDP Intensity";"ton CO2 eq_/MEUR15";;
+"Total Population";"thousands of people";"Population (million)";0.001
+"GDP2015";"Mrd EUR at 2015 exchange rates";;
+"GDP-market prices";"Mrd EUR at current prices";;

@@ -46,8 +46,7 @@ calcIndustry_EEK <- function(kap) {
     madrat_mule()
 
   ## industry subsector activity and FE projections ----
-  FEdemand <- calcOutput(type = 'FEdemand', subtype = 'FE', aggregate = FALSE,
-                         supplementary = FALSE)
+  FEdemand <- calcOutput(type = 'FEdemand', aggregate = FALSE, supplementary = FALSE)
 
   # calculate EEK ----
   ## split industry VA into IEA investment sectors ----

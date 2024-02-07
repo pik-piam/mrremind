@@ -1,0 +1,69 @@
+remind;products;description
+pecoal;HARDCOAL;Hard coal (if no detail)
+pecoal;BROWN;Brown coal (if no detail)
+pecoal;ANTCOAL;Anthracite
+pecoal;COKCOAL;Coking coal
+pecoal;BITCOAL;Other bituminous coal
+pecoal;SUBCOAL;Sub-bituminous coal
+pecoal;LIGNITE;Lignite
+pecoal;PATFUEL;Patent fuel
+pecoal;OVENCOKE;Coke oven coke
+pecoal;GASCOKE;Gas coke
+pecoal;COALTAR;Coal tar
+pecoal;BKB;BKB
+pegas;GASWKSGS;Gas works gas
+pegas;COKEOVGS;Coke oven gas
+pegas;BLFURGS;Blast furnace gas
+pegas;OGASES;Other recovered gases
+pecoal;PEAT;Peat
+pecoal;PEATPROD;Peat products
+peoil;OILSHALE;Oil shale and oil sands
+pegas;NATGAS;Natural gas
+peoil;CRNGFEED;Crude/NGL/feedstocks (if no detail)
+peoil;CRUDEOIL;Crude oil
+peoil;NGL;Natural gas liquids
+peoil;REFFEEDS;Refinery feedstocks
+peoil;ADDITIVE;Additives/blending components
+peoil;NONCRUDE;Other hydrocarbons
+peoil;REFINGAS;Refinery gas
+peoil;ETHANE;Ethane
+peoil;LPG;Liquefied petroleum gases (LPG)
+peoil;NONBIOGASO;Motor gasoline excl. biofuels
+peoil;AVGAS;Aviation gasoline
+peoil;JETGAS;Gasoline type jet fuel
+peoil;NONBIOJETK;Kerosene type jet fuel excl. biofuels
+peoil;OTHKERO;Other kerosene
+peoil;NONBIODIES;Gas/diesel oil excl. biofuels
+peoil;RESFUEL;Fuel oil
+peoil;NAPHTHA;Naphtha
+peoil;WHITESP;White spirit & SBP
+peoil;LUBRIC;Lubricants
+peoil;BITUMEN;Bitumen
+peoil;PARWAX;Paraffin waxes
+peoil;PETCOKE;Petroleum coke
+peoil;ONONSPEC;Other oil products
+pebio;INDWASTE;Industrial waste
+pebio;MUNWASTER;Municipal waste (renewable)
+pebio;MUNWASTEN;Municipal waste (non-renewable)
+pebio;PRIMSBIO;Primary solid biofuels
+pebio;BIOGASES;Biogases
+pebio;BIOGASOL;Biogasoline
+pebio;BIODIESEL;Biodiesels
+pebio;BIOJETKERO;Bio jet kerosene
+pebio;OBIOLIQ;Other liquid biofuels
+pebio;RENEWNS;Non-specified primary biofuels and waste
+pebio;CHARCOAL;Charcoal
+pegas;MANGAS;Elec/heat output from non-specified manufactured gases
+;HEATNS;Heat output from non-specified combustible fuels
+peur;NUCLEAR;Nuclear
+pehyd;HYDRO;Hydro
+pegeo;GEOTHERM;Geothermal
+;SOLARPV;Solar photovoltaics
+;SOLARTH;Solar thermal
+;TIDE;Tide, wave and ocean
+pewin;WIND;Wind
+;OTHER;Other sources
+seel;ELECTR;Electricity
+;HEAT;Heat
+;MRENEW;Renewables
+;TOTAL;Total
