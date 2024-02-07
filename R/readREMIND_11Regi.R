@@ -1,19 +1,19 @@
 
 #' Read REMIND region dependent data
-#' 
+#'
 #' Read-in an csv files that contains regional data
-#' 
+#'
 #' @param subtype Name of the regional data, e.g. "p4", "biomass", "ch4waste", "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal", "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff", "RLDCCoefficientsLoB", "RLDCCoefficientsPeak", "earlyRetirementAdjFactor"
 #' @return magpie object of region dependent data
 #' @author original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' 
+#'
 #' \dontrun{ a <- readSource(type="REMIND_11Regi",subtype="capacityFactorGlobal")
 #' }
 
 readREMIND_11Regi<- function(subtype) {
-  
+
   if (subtype == "p4") {
     x <- read.csv("EconometricEmissionParameter_p4.csv",sep=";",row.names=1)
     x <- as.magpie(x)
@@ -72,16 +72,13 @@ readREMIND_11Regi<- function(subtype) {
   } else if (subtype=="gridFactor") {
     x <- read.csv("homogenous_regions_for grids.csv", sep=";")
     x$X <- NULL
-    x <- as.magpie(x,datacol=2) 
+    x <- as.magpie(x,datacol=2)
   } else if (subtype=="AP_starting_values") {
     x <- read.csv("f11_emiAPexsolve.cs4r", sep=",", skip = 1, header = F)
     x <- as.magpie(x,datacol=6)
-  } else if (subtype=="vintage") {
-    x <- read.csv("factorVintage.csv",sep=";")
-    x <- as.magpie(x,spatial=1,datacol=3)
   } else if (subtype=="ccs") {
     x <- read.csv("p_dataccs.csv",sep=";")
-    x <- as.magpie(x,spatial=1,datacol=2)  
+    x <- as.magpie(x,spatial=1,datacol=2)
 	} else if (subtype=="ffPolyRent") {
     x <- read.csv("ffPolyRent.csv",sep=";")
     x <- as.magpie(x,spatial=1,datacol=5)
@@ -93,7 +90,7 @@ readREMIND_11Regi<- function(subtype) {
     #removing the X string added to the column names because how the read.table call inside the read.csv function converts column name numbers to valid variable strings (by using check.names)
     colnames(x) <- gsub("^X", "",  colnames(x))
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
-    #JPN SSP5 gas extraction zero-order coeff was originally negative. 
+    #JPN SSP5 gas extraction zero-order coeff was originally negative.
     x["JPN",,"highGas.0"] <- 0
   } else if (subtype=="uraniumExtractionCoeff") {
     x <- read.csv("uranium_extraction_cost_eq_coefficients.csv",sep=";")
@@ -103,14 +100,14 @@ readREMIND_11Regi<- function(subtype) {
     x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
   } else if (subtype=="RLDCCoefficientsPeak") {
     x <- read.csv("RLDC_Coefficients_Peak.csv",sep=";")
-    x <- as.magpie(x,spatial=1,temporal=0,datacol=3)  
+    x <- as.magpie(x,spatial=1,temporal=0,datacol=3)
   } else if (subtype=="earlyRetirementAdjFactor") {
     y <- read.csv("earlyRetirementAdjFactor.csv",sep=";",skip=5)
-    x <- as.magpie(y,spatial=1,temporal=0,datacol=2)  
+    x <- as.magpie(y,spatial=1,temporal=0,datacol=2)
     x <- setNames(x,colnames(y)[-1])
   } else if (subtype=="nashWeight") {
     x <- read.csv("nash_weights.csv",sep=";")
-    x <- as.magpie(x,spatial=1,datacol=2)  
+    x <- as.magpie(x,spatial=1,datacol=2)
   } else {
     stop("Not a valid subtype!")
   }
