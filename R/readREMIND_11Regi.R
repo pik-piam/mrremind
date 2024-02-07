@@ -50,10 +50,6 @@ readREMIND_11Regi<- function(subtype) {
   } else if (subtype=="residuesShare") {
     x <- read.csv("residuesShare.csv", row.names = 1)
     x <- as.magpie(x,datacol=4)
-  } else if (subtype=="transpEff") {
-    x <- read.csv2("transpEff.csv", stringsAsFactors = FALSE)
-    x[,2:5] <- apply(x[,2:5], 2, as.numeric)
-    x <- as.magpie(x, datacol=2)
   } else if (subtype=="shareIndFE") {
     x <- read.csv("shareIndustyFE.csv", sep=";",skip=3)
     x <- as.magpie(x,datacol=3)
