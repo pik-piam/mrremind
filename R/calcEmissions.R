@@ -487,6 +487,66 @@ calcEmissions <- function(datasource="CEDS16") {
     tmp <- emi
     description <- "historic emissions from 1970-2018"
 
+    ## ---- EDGAR 8 ----
+  } else if (datasource == "EDGAR8") {
+
+    emi <- readSource("EDGAR8")
+    emi[is.na(emi)] <- 0
+
+    # map variables
+    map_sec <- toolGetMapping("mappingEDGAR8toREMIND.csv", type = "sectoral",
+                              where = "mrremind")
+    emi <- toolAggregate(emi, dim=3.2, rel = map_sec,
+                         from = "EDGAR8", to = "REMIND", partrel = TRUE)
+
+
+    # aggregate pollutants to GHG (they already are given as GWPs)
+    emi <- add_columns(emi, addnm = "GHG", dim = 3.1, fill = 0)
+    emi[, , "GHG"] <- dimSums(emi, dim = 3.1)
+
+    # convert units, rename pollutants (F-Gases stay as GWPs)
+    map_pol <- c(GWP_100_AR5_N2O = "N2O", GWP_100_AR5_CH4 = "CH4", CO2 = "CO2",
+                 `GWP_100_AR5_F-gases` = "F-Gases", GHG = "GHG")
+    getNames(emi, dim = 1) <- map_pol[getNames(emi, dim = 1)]
+
+    # convert from Mt CO2eq/yr to Mt CH4/yr (AR5 GWP100)
+    emi[, , "CH4"] <- emi[, , "CH4"] / 28
+
+    # convert from Mt CO2eq/yr to kt N2O/yr (AR5 GWP100)
+    emi[, , "N2O"] <- emi[, , "N2O"] * 1000 / 265
+
+
+    # sectoral sums
+    emi <- add_columns(emi, "Energy|Supply", dim=3.2)
+    emi[,, "Energy|Supply"] <- emi[,, "Energy|Supply|Electricity and Heat"] +
+      emi[,, "Energy|Supply|Fuel Production"]
+
+    emi <- add_columns(emi, "Energy|Demand", dim=3.2)
+    emi[,, "Energy|Demand"] <- emi[,, "Energy|Demand|Transport"] +
+      emi[,, "Energy|Demand|Buildings"] +
+      emi[,, "Energy|Demand|Industry"]
+
+    emi <- add_columns(emi,"Energy", dim=3.2)
+    emi[,, "Energy"] <- emi[,, "Energy|Demand"] +
+      emi[,, "Energy|Supply"]
+
+    emi <- add_columns(emi,"Energy and Industrial Processes", dim=3.2)
+    emi[,, "Energy and Industrial Processes"] <- emi[,, "Energy"] +
+      emi[,, "Industrial Processes"]
+
+    # Add "Emi" and replace "." by "|" hereby reducing name dimension, add units
+    getNames(emi) <- gsub("^([^\\.]*)\\.(.*$)", "Emi|\\1|\\2 (Mt \\1/yr)",
+                          getNames(emi))
+    getNames(emi) <- gsub("Mt N2O", "kt N2O", getNames(emi))
+    getNames(emi) <- gsub("Mt F-Gases", "Mt CO2eq", getNames(emi))
+    getNames(emi) <- gsub("Mt GHG", "Mt CO2eq", getNames(emi))
+
+    getSets(emi) <- c("region", "period", "variable")
+
+    tmp <- emi
+
+    description <- "historic emissions from 1970-2022"
+
     ## ---- LIMITS ----
   } else if (datasource == "LIMITS") {
     # read LIMITS emissions from sources
