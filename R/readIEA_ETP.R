@@ -10,9 +10,10 @@
 #' @importFrom magclass as.magpie
 
 readIEA_ETP <- function(subtype) {
-  
+
   region <- NULL
-  
+
+  # nolint start
   subtypes <- list(
     industry = {
       list(
@@ -452,7 +453,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_transport_summary.xlsx",
         prefix = "Transport",
         sheets = list(
-          "OECD", "NonOECD",
+          "OECD", "Non-OECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -517,7 +518,7 @@ readIEA_ETP <- function(subtype) {
       )
     }
   )
-
+  # nolint end
   # ---- guardians ----
   if (!subtype %in% names(subtypes)) {
     stop(
@@ -526,7 +527,7 @@ readIEA_ETP <- function(subtype) {
     )
   }
 
-  file <- subtypes[[subtype]]$file
+  file <- file.path("1.1", subtypes[[subtype]]$file)
 
   col_names <- c("rownames", "2014", "2025", "2030", "2035", "2040", "2045", "2050", "2055", "2060")
   col_types <- c("text", rep("numeric", length(col_names) - 1))
@@ -559,13 +560,13 @@ readIEA_ETP <- function(subtype) {
   tmp <- tmp %>%
     select("region", "year", "scenario", "variable", "unit", "value") %>%
     as.magpie(spatial = 1, temporal = 2, tidy = TRUE)
-  
+
   # set all 2055 data (for RTS/OECD/Chemicals with feedstocks) to NA due to faulty data in source
   if (subtype == "industry") {
     tmp[, 2055, "RTS.Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|",
-      pmatch = T
-    ]["OECD",,] <- NA
+      pmatch = TRUE
+    ]["OECD", , ] <- NA
   }
-  
+
   return(tmp)
 }

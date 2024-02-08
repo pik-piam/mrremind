@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.175.4
-Date: 2024-02-06
+Version: 0.175.6
+Date: 2024-02-08
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -37,12 +37,12 @@ Description: The mrremind packages contains data preprocessing for the
 License: LGPL-3 | file LICENSE
 URL: https://github.com/pik-piam/mrremind
 Depends:
-    R (>= 2.10.0),
+    edgeTransport (>= 0.17.0),
     madrat (>= 3.7.1),
     magclass (>= 6.11.3),
-    mrdrivers (>= 1.0.0),
     mrcommons (>= 1.38.0),
-    edgeTransport (>= 0.17.0)
+    mrdrivers (>= 1.0.0),
+    R (>= 2.10.0)
 Imports:
     assertr,
     assertthat,
@@ -60,6 +60,7 @@ Imports:
     plyr,
     purrr,
     quitte (>= 0.3105.0),
+    R.utils,
     readODS,
     readr,
     readxl,
@@ -67,11 +68,10 @@ Imports:
     reshape2,
     rlang,
     rmndt,
-    R.utils,
     tibble,
     tidyr,
     tidyselect,
-    zoo,
+    zoo
 Suggests: 
     covr,
     knitr,
