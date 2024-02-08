@@ -13,6 +13,7 @@ readIEA_ETP <- function(subtype) {
 
   region <- NULL
 
+  # nolint start
   subtypes <- list(
     industry = {
       list(
@@ -517,7 +518,7 @@ readIEA_ETP <- function(subtype) {
       )
     }
   )
-
+  # nolint end
   # ---- guardians ----
   if (!subtype %in% names(subtypes)) {
     stop(
@@ -563,8 +564,8 @@ readIEA_ETP <- function(subtype) {
   # set all 2055 data (for RTS/OECD/Chemicals with feedstocks) to NA due to faulty data in source
   if (subtype == "industry") {
     tmp[, 2055, "RTS.Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|",
-      pmatch = T
-    ]["OECD",,] <- NA
+      pmatch = TRUE
+    ]["OECD", , ] <- NA
   }
 
   return(tmp)
