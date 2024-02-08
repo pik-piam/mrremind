@@ -8,6 +8,8 @@ convertStrefler(x, subtype)
 }
 \arguments{
 \item{x}{unconverted magpie object from read-script}
+
+\item{subtype}{data subtype. Either "weathering_graderegi", or "weathering_costs"}
 }
 \value{
 magpie object with a completed dataset
