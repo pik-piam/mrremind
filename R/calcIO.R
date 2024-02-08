@@ -78,7 +78,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   mapping <- toolGetMapping(type = "sectoral", name = mapping, where = where,
                             returnPathOnly = TRUE)
 
-  # read in data and convert from ktoe to EJ
   if (!(ieaVersion %in% c("default", "latest"))) {
     stop("Invalid parameter `ieaVersion`. Must be either 'default' or 'latest'")
   }
@@ -178,8 +177,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
-    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
-    feBio <- calcOutput("IO", subtype = "output_biomass", aggregate = FALSE)
+    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", ieaVersion = ieaVersion, aggregate = FALSE)
+    feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
     shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
     shareBiotrad[is.na(shareBiotrad)] <- 0
     reminditems <- mbind(reminditems,
