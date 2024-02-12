@@ -15,9 +15,6 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default
     data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion,
                        aggregate = FALSE)
 
-    # remove period where only 0s appear
-    data <- data[, 2021, , invert = TRUE]
-
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
                               where = "mrremind", returnPathOnly = TRUE)
