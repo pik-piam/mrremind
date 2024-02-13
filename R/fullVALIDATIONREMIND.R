@@ -87,6 +87,23 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "EDGAR6")
   )
 
+  # EDGAR8 Emissions----
+  edg8 <- calcOutput(
+    type = "Emissions", datasource = "EDGAR8",
+    aggregate = columnsForAggregation, warnNA = FALSE,
+    try = FALSE, years = years
+  )
+
+  # write all regions of non-bunker variables to report
+  non_bunk <- edg8[, , "International", pmatch = TRUE, invert = TRUE]
+  write.report(non_bunk, file = valfile, append = TRUE,
+               scenario = "historical", model = "EDGAR8")
+
+  # write only global values of bunker variables
+  bunkers <- edg8["GLO", , "International", pmatch = TRUE]
+  write.report(bunkers, file = valfile, append = TRUE,
+               scenario = "historical", model = "EDGAR8")
+
   # Ember electricity data ----
 
   calcOutput(

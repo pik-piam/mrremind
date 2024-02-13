@@ -6,7 +6,7 @@
 calcHistorical <- function() {
 
   # Final Energy
-  fe_iea <- calcOutput("FE", source = "IEA", aggregate = FALSE)
+  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE)
   fe_iea <- add_dimension(fe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   fe_weo <- calcOutput("FE", source = "IEA_WEO", aggregate = FALSE)
@@ -15,7 +15,7 @@ calcHistorical <- function() {
   fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
 
   # Primary Energy
-  pe_iea <- calcOutput("PE", subtype = "IEA", aggregate = FALSE)
+  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE)
   pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   pe_weo <- calcOutput("PE", subtype = "IEA_WEO", aggregate = FALSE)

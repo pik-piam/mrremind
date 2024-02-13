@@ -1,10 +1,10 @@
 #' @title convertStrefler
 #' @description Converts data on enhanced weathering
 #' @param x unconverted magpie object from read-script
+#' @param subtype data subtype. Either "weathering_graderegi", or "weathering_costs"
 #'
 #' @return magpie object with a completed dataset
 #'
-
 convertStrefler <- function(x, subtype) {
 
   if (subtype == "weathering_graderegi") {

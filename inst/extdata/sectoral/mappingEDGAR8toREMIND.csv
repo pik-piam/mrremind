@@ -1,0 +1,11 @@
+EDGAR8;REMIND;Comment
+Power Industry;Energy|Supply|Electricity and Heat;Power and heat generation plants (public & autoproducers)
+Fuel Exploitation;Energy|Supply|Fuel Production;Production, transformation and refining of fuels. This variable does not exist in REMIND yet, it is the sum of Supply|Liquids/Gases/Solids
+Industrial Combustion;Energy|Demand|Industry;Combustion for industrial manufacturing
+Transport;Energy|Demand|Transport;Mobile combustion (road & rail & ship & aviation)
+Buildings;Energy|Demand|Buildings;Small scale non-industrial stationary combustion
+Processes;Industrial Processes;Industrial processes (e.g. emissions from the production of cement, iron and steel, aluminum, chemicals, solvents, etc.)
+Agriculture;Agriculture;Agricultural soils, crop residues burning, enteric fermentation, manure management, indirect N2O emissions from agriculture
+Waste;Waste;Solid waste disposal and waste water treatment
+Aviation;Transport|Pass|Aviation|International|Demand;
+Shipping;Transport|Freight|International Shipping|Demand;
