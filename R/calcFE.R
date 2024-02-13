@@ -6,15 +6,14 @@
 #' @importFrom stats na.omit
 #' @param source "IEA" or "IEA_WEO"
 #' @param scenario_proj "SSP2" by default unless overwritten
+#' @param ieaVersion Release version of IEA data, either 'default' (vetted and used in REMIND)
+#' or 'latest'.
 
-
-calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
+calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default") {
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA") {
-    data <- calcOutput("IO", subtype = "output", aggregate = FALSE)
-
-    # remove period where only 0s appear
-    data <- data[, 2021, , invert = T]
+    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion,
+                       aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
@@ -28,7 +27,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     colnames(map) <- gsub("io", "names_in", colnames(map))
 
     # Give description
-    descript <- "IEA Final Energy Data based on 2017 version of IEA Energy Balances"
+    descript <- "IEA Final Energy Data based on 2022 version of IEA Energy Balances"
 
     #------ PROCESS DATA ------------------------------------------
     # select data that have names
@@ -129,7 +128,6 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
   } else if (source == "IEA_WEO") {
     data <- readSource(type = "IEA_WEO", subtype = "FE")
     regions <- toolGetMapping(getConfig()[1], where = "mappingfolder", type = "regional")
-    # regions <- unique(regions$RegionCode)
 
     # gdp of all countries in 2015
     gdp <- calcOutput("GDPPast", years = 2015, aggregate = FALSE)
@@ -140,7 +138,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     var <- getNames(data)[1]
     data_new <- new.magpie(getRegions(data), years = getYears(data), names = getNames(data), fill = NA)
     for (i in regions$CountryCode) {
-      if (!is.na(data[i, "y2010", var]) & gdp[i, , ] > 0.9 * dimSums(gdp[regions[regions$RegionCode == regions[regions$CountryCode == i, ]$RegionCode, ]$CountryCode, , ], dim = 1)) {
+      if (!is.na(data[i, "y2010", var]) && gdp[i, , ] > 0.9 * dimSums(gdp[regions[regions$RegionCode == regions[regions$CountryCode == i, ]$RegionCode, ]$CountryCode, , ], dim = 1)) {
         data_new[i, , ] <- data[i, , ]
         countries <- regions[regions$RegionCode == regions[regions$CountryCode == i, ]$RegionCode, ]$CountryCode
         data_new[setdiff(countries, i), , ] <- 0 # countries other than the "main" country
@@ -151,9 +149,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2") {
     data <- data_new
 
     data <- data[, , ] * 4.1868e-2 # Mtoe to EJ
-    # data <- collapseNames(data)
-    # vars <- c("Coal","Oil","Gas")
-    # data <- data[,,vars,pmatch=T]
+
     # converting to remind convention
     getNames(data) <- gsub(pattern = "Final Energy", replacement = "FE", x = getNames(data))
     getNames(data) <- paste0(getNames(data), " (EJ/yr)")
