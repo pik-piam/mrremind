@@ -5,12 +5,15 @@
 \title{Calculates FE historical from IEA energy balances, projections from EDGE, and historical
 values from IEA WEO 2019}
 \usage{
-calcFE(source = "IEA", scenario_proj = "SSP2")
+calcFE(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default")
 }
 \arguments{
 \item{source}{"IEA" or "IEA_WEO"}
 
 \item{scenario_proj}{"SSP2" by default unless overwritten}
+
+\item{ieaVersion}{Release version of IEA data, either 'default' (vetted and used in REMIND)
+or 'latest'.}
 }
 \description{
 Calculates FE historical from IEA energy balances, projections from EDGE, and historical

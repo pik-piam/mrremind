@@ -17,7 +17,7 @@
 calcPotentialWeathering <- function() {
   
   # read weathering data 
-  pot <- readSource("Strefler") 
+  pot <- readSource("Strefler", subtype = "weathering_graderegi") 
 
   # change the unit:  10^6 km^2 -> kg/m^2 =  Gt / 10^6 km^2
   pot <- pot * 15

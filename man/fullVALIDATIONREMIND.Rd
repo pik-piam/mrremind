@@ -2,12 +2,12 @@
 % Please edit documentation in R/fullVALIDATIONREMIND.R
 \name{fullVALIDATIONREMIND}
 \alias{fullVALIDATIONREMIND}
-\title{fullVALIDATIONREMIND}
+\title{Generate Validation Data for REMIND}
 \usage{
 fullVALIDATIONREMIND(rev = 0)
 }
 \arguments{
-\item{rev}{data revision which should be used as input (positive numeric).}
+\item{rev}{Unused parameter here for the pleasure of \code{\link{madrat}}.}
 }
 \description{
 Function that generates the historical regional dataset against which the
@@ -17,11 +17,11 @@ REMIND model results can be compared.
 \dontrun{
 fullVALIDATIONREMIND()
 }
-
 }
 \seealso{
-\code{\link{fullREMIND}},\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
+\code{\link[=fullREMIND]{fullREMIND()}}, \code{\link[=readSource]{readSource()}}, \code{\link[=getCalculations]{getCalculations()}},
+\code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
-David Klein
+David Klein, Falk Benke
 }

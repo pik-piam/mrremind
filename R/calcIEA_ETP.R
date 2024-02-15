@@ -5,7 +5,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @param isValidation indicates if result will be used in validation (as opposed to generating input data)
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
@@ -13,9 +12,9 @@
 #' @importFrom stats aggregate na.pass
 #' @export
 
-calcIEA_ETP <- function(isValidation = FALSE) {
+calcIEA_ETP <- function() {
 
-  mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
     select("variable" = "IEA_ETP", "REMIND", "Conversion", "Unit_REMIND")
@@ -40,7 +39,8 @@ calcIEA_ETP <- function(isValidation = FALSE) {
   x <- left_join(
     data,
     mapping,
-    by = "variable"
+    by = "variable",
+    relationship = "many-to-many"
   ) %>%
     filter(!!sym("REMIND") != "") %>%
     mutate(
@@ -53,10 +53,6 @@ calcIEA_ETP <- function(isValidation = FALSE) {
 
   x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.pass) %>%
     as.magpie()
-
-  if (isValidation) {
-    x <- add_dimension(x, dim = 3.1, add = "scenario", nm = "historical")
-  }
 
   return(list(
     x = x,

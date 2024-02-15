@@ -4,13 +4,15 @@
 \alias{readEuropeanEnergyDatasheets}
 \title{Read European Energy Datasheets}
 \source{
-European Energy Datasheets public database https://ec.europa.eu/energy/en/data-analysis/energy-statistical-pocketbook
+European Energy Datasheets public database
+https://energy.ec.europa.eu/data-and-analysis/eu-energy-statistical-pocketbook-and-country-datasheets_en
 }
 \usage{
 readEuropeanEnergyDatasheets(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)}
+\item{subtype}{data subtype. Either "EU28" (data from June 20 including GBR)
+or "EU27" (latest data from August 23 without GBR)}
 }
 \value{
 magpie object of European Energy Datasheets

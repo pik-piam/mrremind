@@ -1,3 +1,8 @@
+#' Convert IEA EV Outlook
+#'
+#' @param x a magclass object returned from `readIEA_EVOutlook()`
+#' @author Falk Benke
+
 convertIEA_EVOutlook <- function(x) {
   Non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
 
@@ -39,7 +44,7 @@ convertIEA_EVOutlook <- function(x) {
   europe <- europe[, , !na.vars]
 
   # remove regions that require disaggregation
-  x <- x[c("World", "Rest of the world", "Europe", "Other Europe"), , invert = TRUE]
+  x <- x[c("World", "Rest of the world", "Europe", "Other Europe", "EU27"), , invert = TRUE]
   getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))
 
   varlist <- list(x)
@@ -70,7 +75,7 @@ convertIEA_EVOutlook <- function(x) {
   )
 
   # if no finer disaggregation of Europe (countries + Other Europe) is available,
-  # use the coarse disaggregation (Europe to 28 countries) 
+  # use the coarse disaggregation (Europe to 28 countries)
   for (v in getNames(europe)) {
     if (all(is.na(data[getRegions(europe), , v]))) {
       data[getRegions(europe), , v] <- europe[, , v]

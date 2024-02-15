@@ -26,7 +26,7 @@
 #' @export
 filter_historical_mif <- function(path = NULL, filter_table = NULL) {
     if (is.null(path))
-        path <- file.path(getConfig('outputfolder'), 'historical.mif')
+        path <- 'historical.mif'
 
     if (is.null(filter_table))
         filter_table <- read.csv(

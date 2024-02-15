@@ -11,6 +11,8 @@
 #'
 #' @md
 #' @param subtype Data subtype. See default argument for possible values.
+#' @param ieaVersion Release version of IEA data, either 'default'
+#' (vetted and used in REMIND) or 'latest'.
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis
 #' @seealso \code{\link{calcOutput}}
@@ -24,54 +26,66 @@
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
-                               "input_Industry_subsectors", "output_Industry_subsectors", "IEA_output", "IEA_input")) {
+                               "input_Industry_subsectors", "output_Industry_subsectors",
+                               "IEA_output", "IEA_input"),
+                   ieaVersion = "default") {
   subtype <- match.arg(subtype)
   switch(
     subtype,
     input = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_inputs.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_biomass = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     trade = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_trade.csv", returnPathOnly = TRUE, 
-                                where = "mappingfolder")
+      mapping <- "structuremappingIO_trade.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_enty", "REMINDitems_trade")
     },
     input_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs_Industry_subsectors.csv",
-                                returnPathOnly = TRUE, where = "mappingfolder")
+      mapping <- "structuremappingIO_inputs_Industry_subsectors.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs_Industry_subsectors.csv",
-                                returnPathOnly = TRUE, where = "mappingfolder")
+      mapping <- "structuremappingIO_outputs_Industry_subsectors.csv"
+      where <- "mrremind"
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     IEA_output = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", 
-                                returnPathOnly = TRUE, where = "mappingfolder")
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech", "iea_product", "iea_flows")
+      mapping <- "structuremappingIO_outputs.csv"
+      where <- "mrcommons"
+      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
+                  "iea_product", "iea_flows")
     },
     IEA_input = {
-      mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_inputs.csv", 
-                                returnPathOnly = TRUE, where = "mappingfolder")
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech", "iea_product", "iea_flows")
+      mapping <- "structuremappingIO_inputs.csv"
+      where <- "mrremind"
+      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
+                  "iea_product", "iea_flows")
     }
   )
+  mapping <- toolGetMapping(type = "sectoral", name = mapping, where = where,
+                            returnPathOnly = TRUE)
+
+  if (!(ieaVersion %in% c("default", "latest"))) {
+    stop("Invalid parameter `ieaVersion`. Must be either 'default' or 'latest'")
+  }
+
+  ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
 
   # read in data and convert from ktoe to EJ
-  data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5
+  data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
@@ -90,29 +104,31 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                                       threshold = 1e-2)
     # warn if dimensions not present in the mapping have been added to the data
     new_product_flows <- tibble(
-      text = setdiff(getNames(data), names_data_before)) %>%
-      separate('text', c('product', 'flow'), sep = '\\.') %>%
+      text = setdiff(getNames(data), names_data_before)
+    ) %>%
+      separate("text", c("product", "flow"), sep = "\\.") %>%
       anti_join(
         ieamatch %>%
           as_tibble() %>%
-          select(product = 'iea_product', flow = 'iea_flows'),
+          select(product = "iea_product", flow = "iea_flows"),
 
-        c('product', 'flow')
+        c("product", "flow")
       ) %>%
-      unite('text', c('product', 'flow'), sep = '.') %>%
-      pull('text')
+      unite("text", c("product", "flow"), sep = ".") %>%
+      pull("text")
 
     if (!is_empty(new_product_flows)) {
-      warning('Product/flow combinations not present in mapping added by ',
-           'fix_IEA_data_for_Industry_subsectors():\n',
-           paste(new_product_flows, collapse = '\n'))
+      warning("Product/flow combinations not present in mapping added by ",
+        "fix_IEA_data_for_Industry_subsectors():\n",
+        paste(new_product_flows, collapse = "\n")
+      )
     }
 
     # FIXME remove product/flow combinations from the mapping that have been
     # removed from the data while replacing coke oven and blast furnace outputs
     ieamatch <- ieamatch %>%
       as_tibble() %>%
-      filter(paste(.data$iea_product, .data$iea_flows, sep = '.')
+      filter(paste(.data$iea_product, .data$iea_flows, sep = ".")
              %in% getNames(data))
   }
 
@@ -122,7 +138,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     na.omit() %>%
     unite("target", all_of(target), sep = ".", remove = FALSE) %>%
-    unite('product.flow', c('iea_product', 'iea_flows'),sep = '.') %>%
+    unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
     filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 
@@ -140,20 +156,20 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
            function(item) {
              product_flow <- ieamatch %>%
                filter(item == .data$target) %>%
-               pull('product.flow')
+               pull("product.flow")
 
              weights <- ieamatch %>%
                filter(item == .data$target) %>%
-               pull('Weight') %>%
+               pull("Weight") %>%
                as.numeric()
 
-             tmp <- dimSums(  data[,,product_flow]
+             tmp <- dimSums(data[, , product_flow]
                             * setNames(as.magpie(weights), product_flow),
                             dim = 3, na.rm = TRUE)
              getNames(tmp) <- item
 
              return(tmp)
-             })
+           })
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
@@ -161,8 +177,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
-    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
-    feBio <- calcOutput("IO", subtype = "output_biomass", aggregate = FALSE)
+    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", ieaVersion = ieaVersion, aggregate = FALSE)
+    feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
     shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
     shareBiotrad[is.na(shareBiotrad)] <- 0
     reminditems <- mbind(reminditems,
@@ -221,5 +237,5 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   return(list(x = reminditems, weight = NULL, unit = "EJ",
-              description = "IEA SE Output Data based on 2017 edition of IEA World Energy Balances"))
+              description = "IEA SE Output Data based on 2022 edition of IEA World Energy Balances"))
 }

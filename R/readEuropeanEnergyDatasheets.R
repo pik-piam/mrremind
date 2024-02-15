@@ -4,13 +4,15 @@
 #'
 #' @return magpie object of European Energy Datasheets
 #' @author Renato Rodrigues, Atreya Shankar, Falk Benke
-#' @source European Energy Datasheets public database https://ec.europa.eu/energy/en/data-analysis/energy-statistical-pocketbook
+#' @source European Energy Datasheets public database
+#' https://energy.ec.europa.eu/data-and-analysis/eu-energy-statistical-pocketbook-and-country-datasheets_en
 #' @examples
 #' \dontrun{
 #' test <- readSource("EuropeanEnergyDatasheet", subtype = "EU27", convert = FALSE)
 #' }
 #' @importFrom readxl excel_sheets read_excel
-#' @param subtype data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)
+#' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
+#' or "EU27" (latest data from August 23 without GBR)
 #' @importFrom reshape2 melt
 #' @importFrom dplyr %>%
 #' @importFrom tidyr drop_na extract
@@ -25,7 +27,6 @@ readEuropeanEnergyDatasheets <- function(subtype) {
   if (subtype == "EU28") {
     # load mapping and find mappable parameters
     mapping <- read_excel("eurostat2REMIND.xlsx")
-    # mapping <- read.csv("mapping2REMIND.csv",sep=";",na.strings = c("NA",""))
     mapping <- mapping[-which(is.na(mapping$Original)), ]
     # creating vector with mapping
     indices_1 <- which(!(is.na(mapping$REMIND)))
@@ -51,8 +52,10 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       # replace with remind_1 mapping
       countrySheet_1 <- countrySheet[indices_1, nameColumn:ncol(countrySheet)]
       countrySheet_1 <- cbind(hold, countrySheet_1)
-      countrySheet_1[, -c(1, 2, 3)] <- sapply(countrySheet_1[, -c(1, 2, 3)], as.numeric) # making sure the data is numeric
-      countrySheet_1[, -c(1, 2, 3)] <- countrySheet_1[, -c(1, 2, 3)] * countrySheet_1[, c("factor")] # converting unit to REMIND unit
+      # making sure the data is numeric
+      countrySheet_1[, -c(1, 2, 3)] <- sapply(countrySheet_1[, -c(1, 2, 3)], as.numeric)
+      # converting unit to REMIND unit
+      countrySheet_1[, -c(1, 2, 3)] <- countrySheet_1[, -c(1, 2, 3)] * countrySheet_1[, c("factor")]
       countrySheet_1 <- countrySheet_1[, -c(2, 3)] # removing extra columns
       countrySheet_1 <- cbind(region, countrySheet_1) # adding region column
       countrySheet_1 <- aggregate(. ~ REMIND + region, data = countrySheet_1, FUN = sum, na.action = na.pass)
@@ -60,20 +63,26 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       # replace with remind_2 mapping
       countrySheet_2 <- countrySheet[indices_2, nameColumn:ncol(countrySheet)]
       countrySheet_2 <- cbind(hold_2, countrySheet_2)
-      countrySheet_2[, -c(1, 2, 3)] <- sapply(countrySheet_2[, -c(1, 2, 3)], as.numeric) # making sure the data is numeric
-      countrySheet_2[, -c(1, 2, 3)] <- countrySheet_2[, -c(1, 2, 3)] * countrySheet_2[, c("factor")] # converting unit to REMIND unit
+      # making sure the data is numeric
+      countrySheet_2[, -c(1, 2, 3)] <- sapply(countrySheet_2[, -c(1, 2, 3)], as.numeric)
+      # converting unit to REMIND unit
+      countrySheet_2[, -c(1, 2, 3)] <- countrySheet_2[, -c(1, 2, 3)] * countrySheet_2[, c("factor")]
       countrySheet_2 <- countrySheet_2[, -c(2, 3)] # removing extra columns
       countrySheet_2 <- cbind(region, countrySheet_2) # adding region column
-      countrySheet_2 <- aggregate(. ~ REMIND_2 + region, data = countrySheet_2, FUN = sum, na.action = na.pass) # merge repeated items
+      # merge repeated items
+      countrySheet_2 <- aggregate(. ~ REMIND_2 + region, data = countrySheet_2, FUN = sum, na.action = na.pass)
       colnames(countrySheet_2) <- c("variable", "region", 1990:(1990 + ncol(countrySheet_2) - 3))
       # replace with remind_3 mapping
       countrySheet_3 <- countrySheet[indices_3, nameColumn:ncol(countrySheet)]
       countrySheet_3 <- cbind(hold_3, countrySheet_3)
-      countrySheet_3[, -c(1, 2, 3)] <- sapply(countrySheet_3[, -c(1, 2, 3)], as.numeric) # making sure the data is numeric
-      countrySheet_3[, -c(1, 2, 3)] <- countrySheet_3[, -c(1, 2, 3)] * countrySheet_3[, c("factor")] # converting unit to REMIND unit
+      # making sure the data is numeric
+      countrySheet_3[, -c(1, 2, 3)] <- sapply(countrySheet_3[, -c(1, 2, 3)], as.numeric)
+      # converting unit to REMIND unit
+      countrySheet_3[, -c(1, 2, 3)] <- countrySheet_3[, -c(1, 2, 3)] * countrySheet_3[, c("factor")]
       countrySheet_3 <- countrySheet_3[, -c(2, 3)] # removing extra columns
       countrySheet_3 <- cbind(region, countrySheet_3) # adding region column
-      countrySheet_3 <- aggregate(. ~ REMIND_3 + region, data = countrySheet_3, FUN = sum, na.action = na.pass) # merge repeated items
+      # merge repeated items
+      countrySheet_3 <- aggregate(. ~ REMIND_3 + region, data = countrySheet_3, FUN = sum, na.action = na.pass)
       colnames(countrySheet_3) <- c("variable", "region", 1990:(1990 + ncol(countrySheet_3) - 3))
       # merge both REMIND mappings
       countrySheet <- rbind(countrySheet_1, countrySheet_2, countrySheet_3)
@@ -88,6 +97,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
     x <- as.magpie(data, spatial = 2, datacol = 4, temporal = 3)
     return(x)
   } else {
+    # nolint start
     rows <- tibble(
       name = {
         c(
@@ -630,8 +640,9 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       }
     ) %>%
       extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+    # nolint end
 
-    file <- "energy_statistical_countrydatasheets.xlsx"
+    file <- "energy_statistical_countrydatasheets_aug23.xlsx"
     sheets <- excel_sheets(file)
     sheets <- sheets[which(nchar(sheets) == 2)]
 
@@ -639,15 +650,15 @@ readEuropeanEnergyDatasheets <- function(subtype) {
     for (sheet in sheets) {
       tmp <- rbind(
         tmp,
-        suppressMessages(read_xlsx(path = file, sheet = sheet, range = "C8:AG543", )) %>%
+        suppressMessages(read_xlsx(path = file, sheet = sheet, range = "C8:AI543", )) %>%
           bind_cols(rows) %>%
           drop_na("variable", "unit") %>%
           select(-1) %>%
           melt(id.vars = c("variable", "unit"), variable.name = "year") %>%
           mutate(
-            !!sym("year") := as.numeric(as.character(!!sym("year"))),
-            !!sym("region") := sheet,
-            !!sym("value") := as.numeric(!!sym("value"))
+            "year" := as.numeric(as.character(.data$year)),
+            "region" := sheet,
+            "value" := suppressWarnings(as.numeric(.data$value))
           )
       )
     }

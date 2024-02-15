@@ -4,10 +4,7 @@
 \alias{fullREMIND}
 \title{fullREMIND}
 \usage{
-fullREMIND(rev = 0)
-}
-\arguments{
-\item{rev}{data revision which should be used as input (positive numeric).}
+fullREMIND()
 }
 \description{
 Function that produces the complete regional data set required for the

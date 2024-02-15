@@ -2,8 +2,8 @@
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)
-#'
+#' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
+#' or "EU27" (latest data from August 23 without GBR)
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
@@ -27,8 +27,8 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
         "year" = "Year", "value" = "Value"
       )
 
-    mapping <- toolGetMapping("Mapping_EuropeanEnergyDatasheets.csv", type = "reportingVariables", 
-                              where = "mappingfolder") %>%
+    mapping <- toolGetMapping("Mapping_EuropeanEnergyDatasheets.csv", type = "reportingVariables",
+                              where = "mrremind") %>%
       filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
       mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
       select("variable" = "EED", "REMIND", "Conversion")
@@ -39,7 +39,8 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
     x <- left_join(
       data,
       mapping,
-      by = "variable"
+      by = "variable",
+      relationship = "many-to-many"
     ) %>%
       filter(!!sym("REMIND") != "") %>%
       mutate(
@@ -51,9 +52,20 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
       as.magpie() %>%
       toolCountryFill(fill = NA, verbosity = 2)
 
+
     # get GBR data from older versions of the source, as it is no longer updated
     eurostat.gbr <- readSource("EuropeanEnergyDatasheets", subtype = "EU28")["GBR", , ]
     x["GBR", getItems(eurostat.gbr, dim = 2), ] <- eurostat.gbr
+
+    x <- add_columns(x, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
+    x[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
+      x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
+      x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
+
+    x <- add_columns(x, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
+    x[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
+      x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
+      x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
   } else {
     x <- readSource("EuropeanEnergyDatasheets", subtype = "EU28")
   }

@@ -7,7 +7,8 @@
 calcEuropeanEnergyDatasheets(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "EU28" (older data from Jun 2020, including GBR) or "EU27" (data from Jun 2021)}
+\item{subtype}{data subtype. Either "EU28" (data from June 20 including GBR)
+or "EU27" (latest data from August 23 without GBR)}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

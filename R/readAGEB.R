@@ -26,7 +26,7 @@ readAGEB <- function(subtype = "balances") {
         "2.1", "2.2",
         "3.1",
         "4.1", "4.2",
-        "6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.8"
+        "6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8"
       ),
       name = c(
         "1.1 Primaerenergiegewinnung im Inland nach Energietraegern",
@@ -45,14 +45,15 @@ readAGEB <- function(subtype = "balances") {
         "6.4 Endenergieverbrauch Gewerbe, Handel, Dienstleistungen (GHD) nach Energietraegern",
         "6.5 Endenergieverbrauch Landwirtschaft, Fischerei, Bauwirtschaft nach Energietraegern",
         "6.6 Endenergieverbrauch Verkehr nach Energietraegern",
+        "6.7 Endenergieverbrauch Verkehr nach Subsektoren und ausgewaehlten Energietraegern",
         "6.8 Endenergieverbrauch im Subsektor Strassenverkehr nach Energietraegern"
       ),
       range = c(
-        "B4:AI13", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI10",
-        "B4:AI15", "B4:AI16",
-        "B4:AI15",
-        "B4:AI15", "B4:AI15",
-        "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI15", "B4:AI12"
+        "B4:AJ13", "B4:AJ15", "B4:AJ15", "B4:AJ15", "B4:AJ10",
+        "B4:AJ15", "B4:AJ16",
+        "B4:AJ15",
+        "B4:AJ15", "B4:AJ15",
+        "B4:AJ15", "B4:AJ15", "B4:AJ15", "B4:AJ15", "B4:AJ15", "B4:AJ15", "B4:AJ13", "B4:AJ12"
       )
     )
 
@@ -61,8 +62,8 @@ readAGEB <- function(subtype = "balances") {
     for (i in seq(1:nrow(sheets))) {
       tmp <- suppressWarnings(
         read_xlsx(
-          path = "awt_2021_d.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
-          col_types = c("text", "text", rep("numeric", 32)),
+          path = "awt_2022_d.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
+          col_types = c("text", "text", rep("numeric", 33)),
           range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
         )
       ) %>%
