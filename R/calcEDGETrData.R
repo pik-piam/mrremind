@@ -51,7 +51,7 @@ calcEDGETrData <- function() {
       'SSP2EU',    'CAMP_lscLow_noBan',          'SSP2EU_demRedLow',
       'SSP2EU',    'CAMP_lscWeak_noBan',         'SSP2EU_demRedWeak',
       'SSP2EU',    'CAMP_lscStrong_noBan',       'SSP2EU_demRedStrong',
-      'SSP2EU',    'Mix2_Ban',                   'default'
+      'SSP2EU',    'Mix2_ban',                   'default'
       )
   )
 
