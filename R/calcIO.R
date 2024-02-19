@@ -83,6 +83,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
+  ieaYear <- if (ieaVersion == "default") 2022 else 2023
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
@@ -177,7 +178,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
-    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", ieaVersion = ieaVersion, aggregate = FALSE)
+    edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings",
+                          ieaVersion = ieaVersion, aggregate = FALSE)
     feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
     shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
     shareBiotrad[is.na(shareBiotrad)] <- 0
@@ -237,5 +239,5 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   return(list(x = reminditems, weight = NULL, unit = "EJ",
-              description = "IEA SE Output Data based on 2022 edition of IEA World Energy Balances"))
+              description = paste0("IEA SE Output Data based on ", ieaYear, " edition of IEA World Energy Balances")))
 }
