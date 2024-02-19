@@ -127,13 +127,10 @@ fullREMIND <- function() {
   calcOutput("FEShares", subtype = "ind_bio",                          round = 5,  file = "p_share_ind_fesos_bio.cs4r")
   calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
-  calcOutput("CapacityEV",                                             round = 8,  file = "pm_boundCapEV.cs4r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity",                                            round = 8,  file = "pm_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
-  calcOutput("TranspEff",                                              round = 8,  file = "f35_transp_eff.cs3r")
-  calcOutput("VintagesTransport",                                      round = 8,  file = "f35_factorVintages.cs3r")
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -171,7 +168,6 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "esCapCost",                               file = "esCapCost.cs4r")
   calcOutput("EDGETransport", subtype = "pm_trp_demand",                           file = "pm_trp_demand.cs4r")
   calcOutput("EDGETransport", subtype = "pm_fe_demand_EDGETbased",                 file = "pm_fe_demand_EDGETbased.cs4r")
-  calcOutput("EDGETransport", subtype = "f35_bunkers_fe",                          file = "f35_bunkers_fe.cs4r")
   calcOutput("EDGETransport", subtype = "annual_mileage",                          file = "annual_mileage.cs4r")
 
   # not to be aggregated as global
@@ -190,5 +186,4 @@ fullREMIND <- function() {
   calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
   calcOutput("ETSRefEmi", subtype = "EEA_GHG",                              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-  calcOutput("TransportSubsidies",                                          round = 8, file = "f21_vehiclesSubsidies.cs4r")
 }
