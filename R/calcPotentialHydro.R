@@ -220,12 +220,12 @@ calcPotentialHydro <- function() {
   data["DEU",,"maxprod"] <- data["DEU",,"maxprod"]*1.05
   
   # AO: Increase hydro potential in ECE region to avoid infeasibilities
-  data["CZE",,"maxprod"] <- data["CZE",,"maxprod"]*1.2
-  data["EST",,"maxprod"] <- data["EST",,"maxprod"]*1.2
-  data["LVA",,"maxprod"] <- data["LVA",,"maxprod"]*1.2
-  data["LTU",,"maxprod"] <- data["LTU",,"maxprod"]*1.2
-  data["POL",,"maxprod"] <- data["POL",,"maxprod"]*1.2
-  data["SVK",,"maxprod"] <- data["SVK",,"maxprod"]*1.2
+  data["CZE",,"maxprod"] <- data["CZE",,"maxprod"]*1.3
+  data["EST",,"maxprod"] <- data["EST",,"maxprod"]*1.3
+  data["LVA",,"maxprod"] <- data["LVA",,"maxprod"]*1.3
+  data["LTU",,"maxprod"] <- data["LTU",,"maxprod"]*1.3
+  data["POL",,"maxprod"] <- data["POL",,"maxprod"]*1.3
+  data["SVK",,"maxprod"] <- data["SVK",,"maxprod"]*1.3
 
   return(list(x                 = data,
               weight            = w,
