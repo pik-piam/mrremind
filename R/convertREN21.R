@@ -20,7 +20,7 @@ convertREN21 <- function(x, subtype) {
     hist_gen <- readSource("IRENA", subtype = "Generation") # Units are GWh
 
     # Real world capacity factor for hydro = Generation in last year/Capacity in 2015
-    cf_realworld <- hist_gen[, 2015, "Hydropower"] / (8760 * hist_cap[, 2015, "Hydropower"])
+    cf_realworld <- hist_gen[, 2015, "Renewable hydropower"] / (8760 * hist_cap[, 2015, "Renewable hydropower"])
     cf_realworld[is.na(cf_realworld)] <- 0
     getNames(cf_realworld) <- "Hydro"
 
@@ -89,7 +89,7 @@ convertREN21 <- function(x, subtype) {
     }
 
     # for hydro overwrite capacity  with generation
-    x_cap[, , "Hydro"] <- setYears(hist_gen[getRegions(x_cap), 2015, "Hydropower"])
+    x_cap[, , "Hydro"] <- setYears(hist_gen[getRegions(x_cap), 2015, "Renewable hydropower"])
 
 
     # x_current <- x_cap
