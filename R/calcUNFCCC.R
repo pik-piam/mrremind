@@ -7,7 +7,6 @@
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
-#' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
 calcUNFCCC <- function() {
@@ -15,7 +14,7 @@ calcUNFCCC <- function() {
   data <- readSource("UNFCCC")
 
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
+    mutate("conversion" = as.numeric(.data$Factor) * .data$Weight) %>%
     select("variable" = "UNFCCC", "REMIND", "conversion", "unit" = "Unit_UNFCCC", "Unit_REMIND")
 
   mapping$variable <- gsub(pattern = "\\.", replacement = "_", mapping$variable) %>% trimws()
@@ -31,12 +30,13 @@ calcUNFCCC <- function() {
         "year" = "Year", "value" = "Value"
       ),
     mapping,
-    by = "variable"
+    by = "variable",
+    relationship = "many-to-many"
   ) %>%
-    filter(!!sym("REMIND") != "") %>%
+    filter(.data$REMIND != "") %>%
     mutate(
-      !!sym("value") := !!sym("value") * !!sym("conversion"),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")") # nolint
+      "value" = .data$value * .data$conversion,
+      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")")
     ) %>%
     select("variable" = "REMIND", "region", "year", "value")
 
@@ -215,7 +215,6 @@ calcUNFCCC <- function() {
     x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)"]
-
 
   x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)", dim = 3.1)
   x[, , "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)"] <-
