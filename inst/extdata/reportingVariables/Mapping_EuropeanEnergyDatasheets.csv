@@ -195,6 +195,8 @@
 "Energy Balance|Final energy consumption";"Mtoe";"FE (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Solid fossil fuels";"Mtoe";"FE|Solids (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Solid fossil fuels";"Mtoe";"SE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Solid fossil fuels";"Mtoe";"FE|Solids|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Solid fossil fuels";"Mtoe";"SE|Solids|Fossil (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Solid fossil fuels|of which hard coal";"Mtoe";"FE|Solids|Coal (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Solid fossil fuels|of which hard coal";"Mtoe";"SE|Solids|Coal (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Solid fossil fuels|of which brown coal";"Mtoe";"FE|Solids|Coal (EJ/yr)";0.041868
@@ -227,6 +229,8 @@
 "Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"FE|Solids (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"FE|Solids|Waste (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"SE|Solids (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"FE|Solids|Fossil (EJ/yr)";0.041868
+"Energy Balance|Final energy consumption|Waste, non-renewable";"Mtoe";"SE|Solids|Fossil (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Electricity";"Mtoe";"FE|Electricity (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Heat";"Mtoe";"FE|Heat (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Industry";"Mtoe";"FE|Industry (EJ/yr)";0.041868
@@ -257,7 +261,6 @@
 "Energy Balance|Final energy consumption|Agriculture and Fishing";"Mtoe";"FE|AFOFI (EJ/yr)";0.041868
 "Energy Balance|Final energy consumption|Others";"Mtoe";"FE|Other Sector (EJ/yr)";0.041868
 "Electricity Production|Gross Electricity Generation";"TWh";"SE|Electricity (EJ/yr)";0.0036
-"Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands";"TWh";"SE|Electricity|Solids (EJ/yr)";0.0036
 "Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands";"TWh";"SE|Electricity|Coal (EJ/yr)";0.0036
 "Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which hard coal";"TWh";;
 "Electricity Production|Solid fossil fuels, peat and products, oil shale and oil sands|of which brown coal";"TWh";;
@@ -430,6 +433,7 @@
 "CO2 emissions|Energy|Manufacturing Industries and Construction|Non-metallic minerals";"Mt CO2";"Emi|CO2|Energy|Industry|ETS (Mt CO2/yr)";1
 "CO2 emissions|Energy|Manufacturing Industries and Construction|Other Manufacturing Industries and Constructions";"Mt CO2";"Emi|CO2|Energy|Industry|Non ETS (Mt CO2/yr)";1
 "CO2 emissions|Energy|Transport";"Mt CO2";"Emi|CO2|Energy|Demand|Transport (Mt CO2/yr)";1
+"CO2 emissions|Energy|Transport";"Mt CO2";"Emi|CO2|w/ Bunkers|Energy|Demand|Transport (MtCO2/yr)";1
 "CO2 emissions|Energy|Transport|Domestic Aviation";"Mt CO2";;
 "CO2 emissions|Energy|Transport|Road Transportation";"Mt CO2";;
 "CO2 emissions|Energy|Transport|Road Transportation|Cars";"Mt CO2";;
@@ -456,9 +460,11 @@
 "CO2 emissions|International aviation";"Mt CO2";"Emi|CO2|Transport|Pass|Aviation|International|Demand (Mt CO2/yr)";1
 "CO2 emissions|International aviation";"Mt CO2";"Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)";1
 "CO2 emissions|International aviation";"Mt CO2";"Emi|CO2|w/ Bunkers|Energy and Industrial Processes (Mt CO2/yr)";1
+"CO2 emissions|International aviation";"Mt CO2";"Emi|CO2|w/ Bunkers|Energy|Demand|Transport (MtCO2/yr)";1
 "CO2 emissions|International navigation";"Mt CO2";"Emi|CO2|Transport|Freight|International Shipping|Demand (Mt CO2/yr)";1
 "CO2 emissions|International navigation";"Mt CO2";"Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)";1
 "CO2 emissions|International navigation";"Mt CO2";"Emi|CO2|w/ Bunkers|Energy and Industrial Processes (Mt CO2/yr)";1
+"CO2 emissions|International navigation";"Mt CO2";"Emi|CO2|w/ Bunkers|Energy|Demand|Transport (MtCO2/yr)";1
 "GHG emissions - National total [incl_ int_ aviation, without LULUCF]";"Mt CO2eq";"Emi|GHG|w/ Bunkers|w/o Land-Use Change (Mt CO2eq/yr)";1
 "GHG emissions|Energy";"Mt CO2eq";"Emi|GHG|Energy (Mt CO2eq/yr)";1
 "GHG emissions|Energy|Energy Industries";"Mt CO2eq";;
@@ -474,6 +480,7 @@
 "GHG emissions|Energy|Manufacturing Industries and Construction|Non-metallic minerals";"Mt CO2eq";"Emi|GHG|Energy|Industry|ETS (Mt CO2eq/yr)";1
 "GHG emissions|Energy|Manufacturing Industries and Construction|Other Manufacturing Industries and Constructions";"Mt CO2eq";"Emi|GHG|Energy|Industry|Non ETS (Mt CO2eq/yr)";1
 "GHG emissions|Energy|Transport";"Mt CO2eq";"Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)";1
+"GHG emissions|Energy|Transport";"Mt CO2eq";"Emi|GHG|w/ Bunkers|Energy|Demand|Transport (MtCO2eq/yr)";1
 "GHG emissions|Energy|Transport|Domestic Aviation";"Mt CO2eq";;
 "GHG emissions|Energy|Transport|Road Transportation";"Mt CO2eq";;
 "GHG emissions|Energy|Transport|Road Transportation|Cars";"Mt CO2eq";;
@@ -494,9 +501,9 @@
 "GHG emissions|Waste and Others";"Mt CO2eq";"Emi|GHG|Waste (Mt CO2eq/yr)";1
 "GHG emissions|Indirect CO2";"Mt CO2eq";"Emi|GHG|Indirect CO2 (Mt CO2eq/yr)";1
 "GHG emissions|International aviation";"Mt CO2eq";"Emi|GHG|Bunkers|International Aviation (Mt CO2eq/yr)";1
-"GHG emissions|International aviation";"Mt CO2eq";"Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)";1
+"GHG emissions|International aviation";"Mt CO2eq";"Emi|GHG|w/ Bunkers|Energy|Demand|Transport (MtCO2eq/yr)";1
 "GHG emissions|International navigation";"Mt CO2eq";"Emi|GHG|Bunkers|International Maritime Transport (Mt CO2eq/yr)";1
-"GHG emissions|International navigation";"Mt CO2eq";"Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)";1
+"GHG emissions|International navigation";"Mt CO2eq";"Emi|GHG|w/ Bunkers|Energy|Demand|Transport (MtCO2eq/yr)";1
 "GHG emissions|International navigation";"Mt CO2eq";"Emi|GHG|w/ Bunkers|w/o Land-Use Change (Mt CO2eq/yr)";1
 "Main Emissions Indicators|GHG national total emissions";"index 1990=100";;
 "Main Emissions Indicators|Total GHG per capita";"t CO2 eq_/capita";;
