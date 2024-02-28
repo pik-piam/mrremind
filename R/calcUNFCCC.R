@@ -7,7 +7,6 @@
 #' @importFrom dplyr select mutate left_join
 #' @importFrom madrat toolGetMapping toolCountryFill
 #' @importFrom magclass as.magpie mselect
-#' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
 calcUNFCCC <- function() {
@@ -15,7 +14,7 @@ calcUNFCCC <- function() {
   data <- readSource("UNFCCC")
 
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
+    mutate("conversion" = as.numeric(.data$Factor) * .data$Weight) %>%
     select("variable" = "UNFCCC", "REMIND", "conversion", "unit" = "Unit_UNFCCC", "Unit_REMIND")
 
   mapping$variable <- gsub(pattern = "\\.", replacement = "_", mapping$variable) %>% trimws()
@@ -31,20 +30,19 @@ calcUNFCCC <- function() {
         "year" = "Year", "value" = "Value"
       ),
     mapping,
-    by = "variable"
+    by = "variable",
+    relationship = "many-to-many"
   ) %>%
-    filter(!!sym("REMIND") != "") %>%
+    filter(.data$REMIND != "") %>%
     mutate(
-      !!sym("value") := !!sym("value") * !!sym("conversion"),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")") # nolint
+      "value" = .data$value * .data$conversion,
+      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")")
     ) %>%
     select("variable" = "REMIND", "region", "year", "value")
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
-
-  mappedVariables <- getNames(x)
 
   # aggregate pollutants ----
 
@@ -216,7 +214,6 @@ calcUNFCCC <- function() {
     x[, , "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)"]
 
-
   x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)", dim = 3.1)
   x[, , "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|Energy|Demand (Mt CO2eq/yr)"] +
@@ -239,11 +236,14 @@ calcUNFCCC <- function() {
 
   # return results ----
 
-  # set 0 to NA in calculated variables
-  calculatedVariabes <- setdiff(getNames(x), mappedVariables)
-  tmp <- x[, , calculatedVariabes]
-  tmp[tmp == 0] <- NA
-  x[, , calculatedVariabes] <- tmp
+  # fill countries of selected regions with 0 to allow for regional aggregation
+  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
+  mapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder") %>%
+    filter(.data$RegionCode %in% regions.fill)
+
+  tmp <- x[unique(mapping$CountryCode), , ]
+  tmp[is.na(tmp)] <- 0
+  x[unique(mapping$CountryCode), , ] <- tmp
 
   # remove years before 1990 due to incomplete data
   x <- x[, seq(1986, 1989, 1), , invert = TRUE]
