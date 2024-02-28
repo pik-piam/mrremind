@@ -36,26 +36,19 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
     mapping$variable <- trimws(mapping$variable)
     mapping$REMIND <- trimws(mapping$REMIND)
 
-    x <- left_join(
-      data,
-      mapping,
-      by = "variable",
-      relationship = "many-to-many"
-    ) %>%
-      filter(!!sym("REMIND") != "") %>%
-      mutate(
-        !!sym("value") := !!sym("value") * !!sym("Conversion")
-      ) %>%
+    x <- left_join(data, mapping, by = "variable", relationship = "many-to-many") %>%
+      filter(.data$REMIND != "") %>%
+      mutate("value" = .data$value * .data$Conversion) %>%
       select("region", "year", "variable" = "REMIND", "value")
 
     x <- aggregate(value ~ region + year + variable, x, sum, na.action = na.exclude) %>%
       as.magpie() %>%
       toolCountryFill(fill = NA, verbosity = 2)
 
-
     # get GBR data from older versions of the source, as it is no longer updated
     eurostat.gbr <- readSource("EuropeanEnergyDatasheets", subtype = "EU28")["GBR", , ]
-    x["GBR", getItems(eurostat.gbr, dim = 2), ] <- eurostat.gbr
+    commonVars <- intersect(getNames(eurostat.gbr), getNames(x))
+    x["GBR", getItems(eurostat.gbr, dim = 2), commonVars] <- eurostat.gbr[, , commonVars]
 
     x <- add_columns(x, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
     x[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
