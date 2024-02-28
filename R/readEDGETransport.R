@@ -12,6 +12,8 @@
 #' \dontrun{ a <- readSource(type = "EDGETransport")
 #' }
 #' @importFrom magclass read.magpie
+#' @importFrom tydir expand_grid
+#' @importFrom dplyr bind_rows
 #' @importFrom data.table data.table rbindlist fread setcolorder := setnames setkeyv
 
 readEDGETransport <- function(subtype) {
@@ -21,17 +23,17 @@ readEDGETransport <- function(subtype) {
   ## input data should be generated
   #############################################################
 
-  allscens <- bind_rows(
+  allScens <- bind_rows(
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     expand_grid(
-      SSP_scen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      tech_scen = c("Mix1", "Mix2", "Mix3", "Mix4"),
-      DEM_scenario = c("default", "SSP2EU_demRedWeak", "SSP2EU_demRedStrong")),
+      SSPscen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+      transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
+      demScen = c("default", "SSP2EU_demRedWeak", "SSP2EU_demRedStrong")),
 
     ## Specific project scenarios
     tribble(
-      ~SSP_scen,   ~tech_scen,                   ~DEM_scenario,
+      ~SSPscen,   ~transportPolScen,                   ~demScen,
       'SDP_EI',    'Mix4',                       'default',
       'SDP_MC',    'Mix4',                       'default',
       'SDP_RC',    'Mix3',                       'default',
@@ -54,8 +56,8 @@ readEDGETransport <- function(subtype) {
   )
 
   # generate list from data frame rows
-  allScens <- lapply(1:nrow(allscens), function(x) {
-    setNames(unlist(allscens[x, ]), NULL)
+  allScens <- lapply(1:nrow(allScens), function(x) {
+    setNames(unlist(allScens[x, ]), NULL)
   })
 
   #############################################################
@@ -64,9 +66,9 @@ readEDGETransport <- function(subtype) {
 
   EdgeTransportSAdata <- lapply(allScens,
                      function(x) {
-                       toolEdgeTransport <- function(SSPscen = x[SSP_scen],
-                                                     transportPolScen = x[tech_scen],
-                                                     demScen = x[DEM_scenario],
+                       toolEdgeTransport <- function(SSPscen = x[1],
+                                                     transportPolScen = x[2],
+                                                     demScen = x[3],
                                                      generateTransportData = FALSE,
                                                      generateREMINDinputData = TRUE)
                      })
