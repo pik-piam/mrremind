@@ -66,7 +66,7 @@ readEDGETransport <- function(subtype) {
                      function(x) {
                        toolEdgeTransport <- function(SSPscen = x[SSP_scen],
                                                      transportPolScen = x[tech_scen],
-                                                     demScen = "default",
+                                                     demScen = x[DEM_scenario],
                                                      generateTransportData = FALSE,
                                                      generateREMINDinputData = TRUE)
                      })
