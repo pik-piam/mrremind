@@ -1,16 +1,21 @@
+#' calc CCS capacity
+#'
+#' Calculate CCS capacity from IEA CCUS data
+#'
+#' @author Anne Merfort, Falk Benke
+#'
+#' @param subtype either `historical` for data from until 2022 or `projections`
+#' for projections in 2025 and 2030
+#'
+#' @export
+calcCCScapacity <- function(subtype) {
 
-calcCCScapacity <- function(){
-  
-  # Read capacity factor inputs
-  ccs <- readSource("GlobalCCSinstitute")
-  
-  # convert from MtCO2/yr to GtC/yr
-  out <- 1 / (3.666666666667 * 1000) * ccs
-  
-  return(list(x           = out, 
-              weight      = NULL,
-              unit        ="% of capacity", 
-              description ="Installed capacity availability - capacity factor (fraction of the year that a plant is running)"              
+  out <- readSource("IEA_CCUS", subtype = subtype)
+
+  return(list(
+    x = out,
+    weight = NULL,
+    unit = "MtCO2/yr",
+    description = "CCS capacitiy derived from IEA CCUS project database"
   ))
-  
 }
