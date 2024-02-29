@@ -1,10 +1,9 @@
 #' Convert IEA CCUS data
 #'
 #' @md
-#' @param x A [`magpie`][magclass::magclass] object returned from
-#'          [`readIEA_CCUS()`].
+#' @param x A magclass object returned from readIEA_CCUS().
 #'
-#' @return A [`magpie`][magclass::magclass] object.
+#' @return A magclass object.
 #'
 #' @author Anne Merfort, Falk Benke
 #'

@@ -43,7 +43,7 @@ readIEA_CCUS <- function(subtype) {
 
   if (subtype == "historical") {
     hist <- data %>%
-      filter(start <= 2022)
+      filter(.data$start <= 2022)
 
     tmp <- NULL
     for (i in seq_len(nrow(hist))) {
@@ -57,7 +57,7 @@ readIEA_CCUS <- function(subtype) {
     }
 
     cap <- aggregate(value ~ country + period, data = tmp, FUN = sum) %>%
-      filter(period <= 2022) %>%
+      filter(.data$period <= 2022) %>%
       mutate(variable = "Capacity|CCS")
 
     cap <- cap[, c("country", "period", "variable", "value")]

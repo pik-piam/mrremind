@@ -6,15 +6,9 @@
 \usage{
 readGlobalEnergyMonitor()
 }
-\value{
-A [`magpie`][magclass::magclass] object.
-}
 \description{
 Read Global Energy Monitor data
 }
-\seealso{
-[`readSource()`]
-}
 \author{
-Falk Benke
+Rahel Mandaroux, Falk Benke
 }
