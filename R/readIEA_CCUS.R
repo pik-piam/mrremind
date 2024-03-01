@@ -36,7 +36,7 @@ readIEA_CCUS <- function(subtype) {
       "end" = ifelse(is.na(.data$end), 2030, .data$end)
     ) %>%
     # remove entries where suspension is before operation or in same year
-    filter(.data$start < .data$end)
+    filter(.data$start <= .data$end)
 
   # manually assign shared project(s) to one country
   data[data$project == "EU2NSEA", "country"] <- "Norway"
@@ -58,11 +58,13 @@ readIEA_CCUS <- function(subtype) {
 
     cap <- aggregate(value ~ country + period, data = tmp, FUN = sum) %>%
       filter(.data$period <= 2022) %>%
-      mutate(variable = "Capacity|CCS")
+      mutate(variable = "Carbon Management|Storage")
 
     cap <- cap[, c("country", "period", "variable", "value")]
     x <- as.magpie(cap, spatial = 1)
+
   } else if (subtype == "projections") {
+
     statusLow <- c("Operational", "Under construction")
     statusHigh <- c(statusLow, "Planned")
 

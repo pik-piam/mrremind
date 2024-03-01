@@ -4,8 +4,8 @@
 #'
 #' @author Anne Merfort, Falk Benke
 #'
-#' @param subtype either `historical` for data from until 2022 or `projections`
-#' for projections in 2025 and 2030
+#' @param subtype either `historical` for data until 2022 or `projections`
+#' for projections in 2025 and 2030 (including some redistribution on EU/NEU level)
 #'
 #' @export
 calcCCScapacity <- function(subtype) {
