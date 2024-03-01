@@ -8,7 +8,7 @@ calcCCScapacity(subtype)
 }
 \arguments{
 \item{subtype}{either `historical` for data until 2022 or `projections`
-for projections in 2025 and 2030 (including some redistribution on EU/NEU level)}
+for projections in 2020, 2025 and 2030 (including some redistribution on EU/NEU level)}
 }
 \description{
 Calculate CCS capacity from IEA CCUS data
