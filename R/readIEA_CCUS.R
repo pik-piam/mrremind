@@ -5,7 +5,7 @@
 #' @author Anne Merfort, Falk Benke
 #'
 #' @param subtype either `historical` for data from until 2022 or `projections`
-#' for projections in 2025 and 2030
+#' for projections in 2020, 2025 and 2030
 #' @importFrom dplyr %>% filter mutate select
 #' @importFrom magclass as.magpie
 #' @importFrom readxl read_xlsx
@@ -97,7 +97,7 @@ readIEA_CCUS <- function(subtype) {
     cap <- rbind(capLow, capHigh)
     cap <- cap[, c("country", "period", "variable", "value")]
     x <- as.magpie(cap, spatial = 1)
-    x <- x[, c(2025, 2030), ]
+    x <- x[, c(2020, 2025, 2030), ]
   } else {
     stop("Invalid subtype. Must be eiter `historical` or `projections`")
   }

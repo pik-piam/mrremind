@@ -8,7 +8,7 @@ readIEA_CCUS(subtype)
 }
 \arguments{
 \item{subtype}{either `historical` for data from until 2022 or `projections`
-for projections in 2025 and 2030}
+for projections in 2020, 2025 and 2030}
 }
 \description{
 Reads in capacities from projects in IEA CCUS database
