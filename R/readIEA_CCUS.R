@@ -86,13 +86,13 @@ readIEA_CCUS <- function(subtype) {
       data = filter(tmp, .data$status %in% statusLow),
       FUN = sum
     ) %>%
-      mutate(variable = "capacity low")
+      mutate(variable = "low")
 
     capHigh <- aggregate(value ~ country + period,
       data = filter(tmp, .data$status %in% statusHigh),
       FUN = sum
     ) %>%
-      mutate(variable = "capacity high")
+      mutate(variable = "high")
 
     cap <- rbind(capLow, capHigh)
     cap <- cap[, c("country", "period", "variable", "value")]
