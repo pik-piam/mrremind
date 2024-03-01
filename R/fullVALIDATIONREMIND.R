@@ -183,6 +183,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   weo <- weo["GLO", , invert = TRUE]
   write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
+  # IEA CCUS  ----
+
+  calcOutput(
+    type = "CCScapacity", subtype = "historical", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "IEA CCUS")
+  )
+
   # INNOPATHS ----
 
   calcOutput(

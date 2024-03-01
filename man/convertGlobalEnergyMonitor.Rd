@@ -7,15 +7,11 @@
 convertGlobalEnergyMonitor(x)
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
-\code{\link[=readGlobalEnergyMonitor]{readGlobalEnergyMonitor()}}.}
-}
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+\item{x}{A magclass object returned from readGlobalEnergyMonitor().}
 }
 \description{
 Convert Global Energy Monitor data
 }
 \author{
-Falk Benke
+Rahel Mandaroux, Falk Benke
 }
