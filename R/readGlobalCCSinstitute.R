@@ -1,7 +1,7 @@
 #' Read Global CCS Institute Project Database
 #'
 #' @md
-#' @param version Project Database version to read, one of
+#' @param subtype Project Database version to read, one of
 #'     - `'08-09-2017'`: Data apparently from June 2017.
 #'     - `'2023-11'`: Data from the
 #'       [Global Status of CCS 2023](zotero://select/items/3_E5GNNPZ8) report.
@@ -15,8 +15,8 @@
 #' @importFrom readxl read_excel
 #'
 #' @export
-readGlobalCCSinstitute <- function(version = '08-09-2017') {
-   if ('08-09-2017' == version) { # 08-09-2017 ----
+readGlobalCCSinstitute <- function(subtype = '08-09-2017') {
+   if ('08-09-2017' == subtype) { # 08-09-2017 ----
       . <- NULL
       read_excel("status-ccs-project-database-current-08-09-2017.xlsx",
                  skip = 3) %>%
@@ -30,7 +30,7 @@ readGlobalCCSinstitute <- function(version = '08-09-2017') {
          `[<-`(is.na(.), value = 0) %>%
          return()
    }
-   else if ('2023-11' == version) { # 2023-11 ----
+   else if ('2023-11' == subtype) { # 2023-11 ----
       read_csv(file = 'Global_Status_of_CCS_2023-11.csv', col_types = 'cccicnc',
                na = 'Under Evaluation', comment = '#', trim_ws = TRUE) %>%
          madrat_mule() %>%

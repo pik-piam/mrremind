@@ -13,8 +13,8 @@
 #' @importFrom quitte add_countrycode_ madrat_mule
 #'
 #' @export
-convertGlobalCCSinstitute <- function(x, version = '08-09-2017') {
-  if ('08-09-2017' == version) { # 08-09-2017 ----
+convertGlobalCCSinstitute <- function(x, subtype = '08-09-2017') {
+  if ('08-09-2017' == subtype) { # 08-09-2017 ----
 
     # sum over districts of a country
     y <- dimSums(x, dim = 3)
