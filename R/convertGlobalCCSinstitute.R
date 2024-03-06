@@ -27,17 +27,8 @@ convertGlobalCCSinstitute <- function(x, version = '08-09-2017') {
 
     return(y)
   }
-  else if ('2023-11' == version) { # 2023-11 ----
-    x %>%
-      madrat_mule() %>%
-      add_countrycode_(origin = c('Country' = 'country.name'),
-                          destination = 'iso3c') %>%
-         select(-'Lifecycle stage', 'Facility', 'iso3c', 'Operational date',
-                'Facility Industry',
-                'Capture, transport and/or storage capacity (Mtpa CO2)',
-                'Facility storage code') %>%
-      madrat_mule() %>%
-      return()
+  else if ('2023-11' == subtype) { # 2023-11 ----
+    stop('Subtype "2023-11" does not support conversion.')
   }
   else {
     stop('Unsupported version argument.')
