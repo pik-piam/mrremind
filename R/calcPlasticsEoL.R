@@ -86,9 +86,8 @@ calcPlasticsEoL <- function() {
   xNew[, c(seq(2110, 2150, 20)), ] <- x[, 2100, ]
 
   x <- mbind(x, xNew) %>%
-    toolCountryFill(fill = 0) %>%
+    toolCountryFill(fill = 0, verbosity = 2) %>%
     collapseDim()
-
 
   # create weights ----
 

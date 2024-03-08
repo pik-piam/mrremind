@@ -72,7 +72,7 @@ calcJRC_IDEES <- function(subtype) {
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
-    toolCountryFill(fill = NA)
+    toolCountryFill(fill = NA, verbosity = 2)
 
   # fill smaller EU-countries with 0s to allow for aggregation of EU-region
   x[c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY"),,] <- 0

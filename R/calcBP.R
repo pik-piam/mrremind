@@ -136,7 +136,7 @@ calcBP <- function() {
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
-    toolCountryFill(fill = 0)
+    toolCountryFill(fill = 0, verbosity = 2)
 
   weights <- x
   weights[,,] <- NA

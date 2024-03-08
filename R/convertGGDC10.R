@@ -14,7 +14,7 @@ convertGGDC10 <- function(x) {
   #removing unnecessary regions
   data <- x[!(getItems(x, dim = 1) %in% c("NGA(alt)", "DEW", "MOR")), , ]
   data[is.na(data)] <- 0
-  data <- toolCountryFill(data, fill = 0)
+  data <- toolCountryFill(data, fill = 0, verbosity = 2)
 
   return(data)
 

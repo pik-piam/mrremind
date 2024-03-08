@@ -37,7 +37,7 @@ calcUBA <- function() {
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie()  %>%
-    toolCountryFill(fill = NA)
+    toolCountryFill(fill = NA, verbosity = 2)
 
   return(list(
     x = x, weight = NULL,

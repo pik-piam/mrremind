@@ -10,11 +10,11 @@ convertConferenceBoard <- function(x){
   #avg <- colMeans(x,dims = 1,na.rm = T)
  #means <- colMeans(x,na.rm = T)
  #means1 <- as.numeric(means["GLO","y2019","Output per person (without agriculture)"])
-y <- toolCountryFill(x[,,"Output per person (without agriculture)"],fill = 58302 )# all countries with no value get average labour productivity (without agriculture) of the world
- z <- toolCountryFill(x[,,"Output per Employed Person"],fill = 54114.77)
- a <- toolCountryFill(x[,,"Employment in agriculture"],fill = 0)
+ y <- toolCountryFill(x[,,"Output per person (without agriculture)"], fill = 58302, verbosity = 2 ) # all countries with no value get average labour productivity (without agriculture) of the world
+ z <- toolCountryFill(x[,,"Output per Employed Person"], fill = 54114.77, verbosity = 2)
+ a <- toolCountryFill(x[,,"Employment in agriculture"], fill = 0, verbosity = 2)
  x <- mbind(y,z,a)
- 
- return (x)
-  
+
+ return(x)
+
 }

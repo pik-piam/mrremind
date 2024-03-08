@@ -10,7 +10,7 @@ convertEDGAR7Fgases <- function(x) {
 
     # Aggregate regions, but not species yet
     x[is.na(x)] <- 0 #set NA to 0
-    x  <- toolCountryFill(x,fill=0,verbosity=0) # fill missing countries
+    x  <- toolCountryFill(x, fill = 0, verbosity = 2) # fill missing countries
     # map <- toolGetMapping(getConfig("regionmapping", where = "mappingfolder"),type="regional")
     # fgaskt <- toolAggregate(x,map,weight=NULL)
     fgaskt <- x
@@ -58,14 +58,14 @@ convertEDGAR7Fgases <- function(x) {
     # individual emissions of the following gases (in kt of themselves):
     # HFC, which is the total of HFC125, HFC134a, HFC143a, HFC227ea, HFC23, HFC245fa, HFC32, HFC43-10
     # HFC125, HFC134a, HFC143a, HFC227ea, HFC23, HFC245fa, HFC32, HFC43-10, PFC, SF6, C2F6, C6F14, CF4
-    
+
     # Total CO2eq
     co2eq_tot <- setNames(dimSums(co2eq_gas, 3.1), "emiFgasTotal")
     # getSets(co2eq_tot)[3] <- "Gas"
 
     # PFC and HFC gases
     gases_pfc <- c("CF4","C2F6","C3F8","C4F10","C5F12","C6F14")
-    gases_hfc <- c("HFC-125", "HFC-134a", "HFC-143a", "HFC-152a", "HFC-227ea", "HFC-245fa", "HFC-32", "HFC-365mfc", "HFC-23","HFC-134", 
+    gases_hfc <- c("HFC-125", "HFC-134a", "HFC-143a", "HFC-152a", "HFC-227ea", "HFC-245fa", "HFC-32", "HFC-365mfc", "HFC-23","HFC-134",
     "HFC-143", "HFC-236fa", "HFC-41", "HFC-43-10-mee")
 
     pfc_tot <- setNames(dimSums(fgaskt[,,gases_pfc], 3.1), "emiFgasPFC")
@@ -89,7 +89,7 @@ convertEDGAR7Fgases <- function(x) {
         "HFC-23" = "emiFgasHFC23",
         "C6F14" = "emiFgasC6F14"
     )
-    
+
     fgaskt_ind <- fgaskt[,,names(eminame_mapping)]
     fgaskt_ind <- setNames(fgaskt_ind,eminame_mapping)
 

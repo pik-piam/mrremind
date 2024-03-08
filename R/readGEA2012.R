@@ -5,10 +5,10 @@
 #' @author Stephen Bi
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' 
+#'
 #' \dontrun{ a <- readSource("GEA2012","coal")
 #' }
-#' 
+#'
 #' @importFrom readxl read_excel
 #' @importFrom madrat toolNAreplace
 #' @importFrom dplyr relocate mutate
@@ -29,14 +29,14 @@ readGEA2012 <- function(subtype) {
   tmp <- NULL
   enty <- NULL
   scenario <- NULL
-  
+
   #Ordering of SSPs in this vector corresponds to ordering of coded scenarios in "Scenario data XX.xlsx"
   scen <- c('SSP5','SSP2','SSP1','SSP3','SSP4')
   if ("gas" %in% subtype)  ffType <- c('SHG-rv','COG-rv','CMG-rv','TIG-rv','HYG-rv','DEG-rv','SHG-rs','COG-rs','CMG-rs','TIG-rs','HYG-rs','DEG-rs')
   if ("oil" %in% subtype)  ffType <- c('TAO-rv','SHO-rv','EHO-rv','COO-rv','TAO-rs','SHO-rs','EHO-rs','COO-rs')
   #subtype <- c('SHG-rv','COG-rv','CMG-rv','TIG-rv','HYG-rv','DEG-rv','SHG-rs','COG-rs','CMG-rs','TIG-rs','HYG-rs','DEG-rs',
   #             'TAO-rv','SHO-rv','EHO-rv','COO-rv','TAO-rs','SHO-rs','EHO-rs','COO-rs','HAC','LIC')
-  
+
   if ("coal" %in% subtype) {
     rawData <- read.csv2("Scenario Data HAC_LIC.csv",header=TRUE,as.is = T)
     rawData$grade <- as.factor(rawData$grade)
@@ -51,7 +51,7 @@ readGEA2012 <- function(subtype) {
     for (ts in ttot[-1])  out <- mbind(out,setYears(out[,ttot[1],],ts))
     out[,,"xi3"] <- out[,,"xi3"]/EJ_2_TWyr
     out[,,c("xi1","xi2")] <- out[,,c("xi1","xi2")]*EJ_2_TWyr
-    
+
   }else {
     # Loop over FF types
     for (i in ffType) {
@@ -70,12 +70,12 @@ readGEA2012 <- function(subtype) {
       numData <- rawData[1:nreg,5:dim(rawData)[2]]
       #Execute pre-processing function
       ffTypeData[[i]] <- ppFunc(numData)
-      
+
       #Read Scenario data (cost and quantity mark-ups/factors)
       scenFilename <- paste0("Scenario data ",i,".xlsx")
       scenData <- as.data.frame(readxl::read_excel(scenFilename))
       scenData <- scenData[,which(!is.na(scenData[1,]))]
-      
+
       #Some data files are associated with 2 scenario adjustment functions -- these must be handled differently (EHO and TAO)
       n_scenFuncs <- length(unique(scenData[,"R Scenario Function"]))
       #Loop over scenarios
@@ -92,7 +92,7 @@ readGEA2012 <- function(subtype) {
             scenFunc <- as.character(scenData[1+(j-1)*nreg,"R Scenario Function"])
             scenFunc <- source(file=paste0(scenFunc,".r"))[[1]]
             ffTypeScenData[[i]][[scen[j]]] <- scenFunc(ffTypeData[[i]],scenData[((j-1)*nreg+1):(j*nreg),which(grepl("Data",colnames(scenData)))])
-            #Case 3: Different scenario adjustment functions across regions within the scenario of the FF type 
+            #Case 3: Different scenario adjustment functions across regions within the scenario of the FF type
           }else {
             ffTypeScenData[[i]][[scen[j]]] <- array(NA,dim=dim(ffTypeData[[i]]))
             #Read and use the scenario function for each region
@@ -115,10 +115,10 @@ readGEA2012 <- function(subtype) {
     }
     getSets(tmp) <- c("region","year","xi","type","scen","grade")
     tmp <- toolNAreplace(tmp,replaceby=0)[[1]]
-    
-    
+
+
     #Conversion to REMIND-readable data
-    
+
     #Store regions, FF types, data type (xi), and scenarios from input data
     regions <- getRegions(tmp)
     types <- getNames(tmp,fulldim=TRUE,"type")
@@ -127,7 +127,7 @@ readGEA2012 <- function(subtype) {
     scens <- c("SSP2",scens[which(scens!="SSP2")])
     sets <- c("region","year","type","scen","xi","grade")
     xis <- c(paste0('xi',1:3),"dec")
-    
+
     # Cost grades taken from expert judgment of production cost curves by JH & NB (FFECCM) in 2012
     costGrades = list(
       SSP1 = list(    # US$(2005)/TWa
@@ -150,9 +150,9 @@ readGEA2012 <- function(subtype) {
         "gas_mea"  = c(0.011044924, 0.030294649, 0.040471758, 0.094670778, 0.175077825, 0.416974811, 3.170979198),
         "gas_row"  = c(0.011044924, 0.030294649, 0.043864127, 0.094670778, 0.175077825, 0.416974811, 3.170979198),
         "coal"     = c(0.0158548960, 0.0761035008, 0.0919583968, 0.1331811263, 0.1997716895, 0.2980720446, 0.9512937595)
-      )  
+      )
     )
-    
+
     if ("grades2poly" %in% subtype) {
       #More granular function for grades2poly parametrization
       for (ssp in names(costGrades)) {
@@ -180,7 +180,7 @@ readGEA2012 <- function(subtype) {
     #Convert to magpie for use as a disaggregation weight, convert countries to ISO code and set missing countries to 0
     w <- as.magpie(w,spatial=1,temporal=0,datacol=2)
     getRegions(w) <- toolCountry2isocode(getRegions(w))
-    w <- toolNAreplace(toolCountryFill(w,fill=0))[[1]]
+    w <- toolNAreplace(toolCountryFill(w, fill = 0, verbosity = 2))[[1]]
     #Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
     w <- dimSums(w,dim=3)
     sp_IEADecRat <- toolAggregate(sp_IEADecRat,mappingREM11,weight=NULL)
@@ -194,21 +194,21 @@ readGEA2012 <- function(subtype) {
         ordered_names[[scen]][[r]] <- getNames(tmp[r,,'qtys'][,,scen])[order(tmp[r,,'costs'][,,scen])]
         tmp[r,,'costs'][,,scen] <- tmp[r,,'costs'][,,scen][order(tmp[r,,'costs'][,,scen])] * EJ_2_TWyr
       }
-      
+
       #For plotting cumulative production cost curve
       #cum_qtys[[scen]] <- cumsum(as.numeric(dimSums(tmp[,,'qtys'][,,scen],dim=1)))
     }
-    
+
     #For plotting cumulative production cost curve
     #return(data.frame(qtys=cum_qtys$SSP2/EJ_2_TWyr,costs=as.numeric(tmp[r,,'costs'][,,"SSP2"])/EJ_2_TWyr,type=substr(ordered_names[["SSP2"]][[r]],6,8)))
-    
+
     row <- paste0(subtype,'_row')
     mea <- paste0(subtype,'_mea')
     ngrades <- length(costGrades[['SSP2']][[row]])-1
     out <- new.magpie(regions,ttot,paste(paste0("pe",subtype),rep(names(costGrades),each=ngrades*length(xis)),rep(xis,each=ngrades),as.character(1:ngrades),sep="."),fill=0)
     conv <- new.magpie(regions,ttot,paste(rep(names(costGrades),each=ngrades),"dec",as.character(1:ngrades),sep="."),fill=0)
     unconv <- new.magpie(regions,ttot,paste(rep(names(costGrades),each=ngrades),"dec",as.character(1:ngrades),sep="."),fill=0)
-    
+
     for (s in scens) {
       if (s %in% names(costGrades)) {
         #if (s=="SSP2") {
@@ -281,7 +281,7 @@ readGEA2012 <- function(subtype) {
         convRatio[which(conv[,,s]==0)] <- 0
         out[,,s][,,'dec'] <- (sp_IEADecRat[,,"conv"] * convRatio) + (sp_IEADecRat[,,"unconv"] * (1-convRatio))
         for (regi in regions) {
-          out[regi,,paste0(s,".dec.1")][which(out[regi,,paste0(s,".dec.1")]==sp_IEADecRat[regi,,"unconv"])] <- 
+          out[regi,,paste0(s,".dec.1")][which(out[regi,,paste0(s,".dec.1")]==sp_IEADecRat[regi,,"unconv"])] <-
             sp_IEADecRat[regi,,"conv"]
         }
       }
