@@ -91,11 +91,11 @@ calcHistorical <- function() {
 
   # Read IRENA renewables capacity data
   IRENAcap <- readSource(type = "IRENA", subtype = "Capacity")[, , c("Concentrated solar power",
-                                                                     "Geothermal", "Hydropower",
+                                                                     "Geothermal", "Renewable hydropower",
                                                                      "Solar photovoltaic", "Wind")]
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame(
-    IRENA_techs = c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
+    IRENA_techs = c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind"),
     REMIND_var = c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)",
                    "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)",
                    "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE
