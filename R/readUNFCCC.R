@@ -24,6 +24,7 @@
 readUNFCCC <- function() {
 
   # structural definition of the source ----
+  # nolint start
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -437,6 +438,7 @@ readUNFCCC <- function() {
       )
     )
   )
+  # nolint end
 
   # parse directories ----
 
@@ -467,7 +469,7 @@ readUNFCCC <- function() {
         if (!is.null(sheets[[i]][["extraVariables"]])) {
           extra <- suppressMessages(
             read_xlsx(path = file.path("2023", dir, file), sheet = i) %>%
-            select(seq(1:4))
+              select(seq(1:4))
           )
           colnames(extra) <- c("variable", sheets[[i]][["colnames"]])
           extra <- extra %>%
