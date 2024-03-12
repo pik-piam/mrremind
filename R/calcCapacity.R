@@ -22,7 +22,7 @@ calcCapacity <- function(subtype) {
       IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
 
       IRENAcap <- IRENAcap[,,c("Concentrated solar power",
-                               "Geothermal", "Hydropower",
+                               "Geothermal", "Renewable hydropower",
                                "Solar photovoltaic",
                                "Onshore wind energy",
                                "Offshore wind energy"
@@ -30,7 +30,7 @@ calcCapacity <- function(subtype) {
 
       mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
                                           "Geothermal",
-                                          "Hydropower",
+                                          "Renewable hydropower",
                                           "Solar photovoltaic",
                                           "Onshore wind energy",
                                           "Offshore wind energy"),
@@ -45,10 +45,10 @@ calcCapacity <- function(subtype) {
         # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
         IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
         # selecting data used on REMIND
-        IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")]
+        IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind")]
 
         mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
-                                          "Geothermal", "Hydropower",
+                                          "Geothermal", "Renewable hydropower",
                                           "Solar photovoltaic",
                                           "Wind"),
                             REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind"),
