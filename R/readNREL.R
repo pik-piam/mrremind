@@ -17,7 +17,8 @@ readNREL <- function(subtype) {
   if (subtype == "onshore") {
 
     # read in data
-    x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx", sheet = "Onshore Energy", skip = 2))
+    x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx", sheet = "Onshore Energy",
+                                  skip = 2, .name_repair = "unique_quiet"))
     x <- x[1:182, 1:32]
     x <- x[-length(names(x))]
     names(x) <- sub("\\.[0-9]*$", "", names(x))
@@ -29,7 +30,9 @@ readNREL <- function(subtype) {
   } else if (subtype == "offshore") {
 
     # read in data
-    x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx", sheet = "Offshore Energy", skip = 3))
+    x <- as.data.frame(read_excel("nrelcfddawindsc20130603.xlsx",
+                                  sheet = "Offshore Energy", skip = 3,
+                                  .name_repair = "unique_quiet"))
     x <- x[1:560, 1:33]
     x <- x[-length(names(x))]
     names(x) <- sub("\\.[0-9]*$", "", names(x))
