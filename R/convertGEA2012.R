@@ -6,52 +6,54 @@
 #' @author Stephen Bi
 #' @seealso \code{\link{readSource}}
 #' @examples
-#'
-#' \dontrun{ a <- readSource("GEA2012")
+#' \dontrun{
+#' a <- readSource("GEA2012")
 #' }
 #'
+convertGEA2012 <- function(x, subtype) {
+  if (subtype == "coal") {
 
-convertGEA2012 <- function(x,subtype) {
-  if (subtype=='coal') {
-    #Load mapping file for GEA regions to country level
-    mapping <- toolGetMapping("regionmappingREMIND.csv","regional", where = "mappingfolder")
-    #Load country-level BGR data on coal combined reserve & resource distribution to serve as a disaggregation weight
-    w <- read.csv(paste0(getConfig("sourcefolder"),"/BGR/coal_reserves.csv"),header=TRUE,sep=";")[,c("Land_Region","Remaining_Potential")]
-    #convert the data into a magpie object, convert countries to ISO code and set missing countries to 0
-    w <- as.magpie(w,spatial=1,temporal=0,datacol=2)
-    getRegions(w) <- toolCountry2isocode(getRegions(w))
+    # Load mapping file for GEA regions to country level
+    mapping <- toolGetMapping("regionmappingREMIND.csv", "regional", where = "mappingfolder")
+
+    # Load country-level BGR data on coal combined reserve & resource distribution to serve as a disaggregation weight
+    w <- readSource("BGR", subtype = "coal", convert = FALSE)[, , "Remaining_Potential"]
+    getItems(w, dim = 1) <- toolCountry2isocode(getRegions(w))
     w <- toolNAreplace(toolCountryFill(w, fill = 0, verbosity = 2))[[1]]
-    #Disaggregate GEA coal data to country level based on the BGR weights
-    out <- toolAggregate(x[,,'xi3'],mapping,w)
-    #Cost data xi1 and xi2 kept constant across regions
-    out <- mbind(out,toolAggregate(x[,,c('xi1','xi2')],mapping,weight=NULL))
-  }else if (subtype %in% c('oil','gas')) {
-    #Load mapping file for GEA regions to country level
-    mapping <- toolGetMapping("regionmappingGEA2012.csv","regional")
-    mapping$RegionCode[which(mapping$RegionCode=="ARC")] <- "WEU"
-    mapping$RegionCode[which(mapping$RegionCode=="SOO")] <- "LAC"
+
+    # Disaggregate GEA coal data to country level based on the BGR weights
+    out <- toolAggregate(x[, , "xi3"], mapping, w)
+
+    # Cost data xi1 and xi2 kept constant across regions
+    out <- mbind(out, toolAggregate(x[, , c("xi1", "xi2")], mapping, weight = NULL))
+
+  } else if (subtype %in% c("oil", "gas")) {
+
+    # Load mapping file for GEA regions to country level
+    mapping <- toolGetMapping("regionmappingGEA2012.csv", "regional")
+    mapping$RegionCode[which(mapping$RegionCode == "ARC")] <- "WEU"
+    mapping$RegionCode[which(mapping$RegionCode == "SOO")] <- "LAC"
     # Divide ARC fuels equally among EUR (WEU), USA, RUS (FSU), CAN
     # UNCLOS not ratified by USA, and territorial dispute would be uncertain even if it were
     for (reg in c("WEU", "USA", "FSU", "CAN")) {
-      x[reg,,"xi3"] <- x[reg,,"xi3"] + 0.25 * x["ARC",,"xi3"]
+      x[reg, , "xi3"] <- x[reg, , "xi3"] + 0.25 * x["ARC", , "xi3"]
     }
-    x <- x[getRegions(x)!="ARC",,]  #Remove ARC region
-    # Antarctic Treaty banned resource extraction until at least 2048
-    x <- x[getRegions(x)!="SOO",,]  #Remove SOO region
+    x <- x["ARC", , invert = TRUE] # Remove ARC region
 
-    #Read country-level BGR data, distinguished between reserves and resources
-    w <- read.csv(paste0(getConfig("sourcefolder"),"/BGR/",subtype,"_reserves.csv"),header=TRUE,sep=";")[,c("Land_Region","Reserves","Resources")]
-    #Remove NAs
-    w[is.na(w)] <- 0
-    #Convert to magpie for use as a disaggregation weight, convert countries to ISO code and set missing countries to 0
-    w <- as.magpie(w,spatial=1,temporal=0,datacol=2)
-    getRegions(w) <- toolCountry2isocode(getRegions(w))
+    # Antarctic Treaty banned resource extraction until at least 2048
+    x <- x["SOO", , invert = TRUE] # Remove SOO region
+
+    # Read country-level BGR data, distinguished between reserves and resources
+    w <- readSource("BGR", subtype = subtype, convert = FALSE)[, , c("Reserves", "Resources")]
+    getItems(w, dim = 1) <- toolCountry2isocode(getRegions(w))
     w <- toolNAreplace(toolCountryFill(w, fill = 0, verbosity = 2))[[1]]
-    #Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
-    w <- dimSums(w,dim=3)
-    out <- toolAggregate(x[,,getNames(x[,,'xi3'])],mapping,weight=w)
-    #Cost data xi1 and xi2 kept constant across regions
-    out <- mbind(out,toolAggregate(x[,,c('xi1','xi2','dec')],mapping,weight=NULL))
+
+    # Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
+    w <- dimSums(w, dim = 3)
+    out <- toolAggregate(x[, , getNames(x[, , "xi3"])], mapping, weight = w)
+
+    # Cost data xi1 and xi2 kept constant across regions
+    out <- mbind(out, toolAggregate(x[, , c("xi1", "xi2", "dec")], mapping, weight = NULL))
   }
 
   return(out)
