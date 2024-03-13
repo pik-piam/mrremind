@@ -18,8 +18,8 @@ MAgPIE object containing country-level disaggregation of GEA 2012 data
 Converts oil, gas and coal data from the Global Energy Assessment 2012 to country-level aggregation
 }
 \examples{
-
-\dontrun{ a <- readSource("GEA2012")
+\dontrun{
+a <- readSource("GEA2012")
 }
 
 }

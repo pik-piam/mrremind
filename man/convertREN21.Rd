@@ -15,7 +15,8 @@ convertREN21(x, subtype)
 Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
 }
 \description{
-This code aggregates and homogenises different types of renewable energy targets into total installed capacity targets (in GW).
+This code aggregates and homogenises different types of
+renewable energy targets into total installed capacity targets (in GW).
 }
 \details{
 Policy database accessible in "inputdata/sources/REN21/README"

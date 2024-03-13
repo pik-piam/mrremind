@@ -2,7 +2,7 @@
 % Please edit documentation in R/convertRCP.R
 \name{convertRCP}
 \alias{convertRCP}
-\title{convertRCP 
+\title{convertRCP
 convert RCP data}
 \usage{
 convertRCP(x, subtype)
@@ -16,7 +16,7 @@ convertRCP(x, subtype)
 magpie object of the RCP data
 }
 \description{
-convertRCP 
+convertRCP
 convert RCP data
 }
 \author{

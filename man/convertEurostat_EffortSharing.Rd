@@ -21,7 +21,7 @@ Converts EU Effort Sharing targets and historical emissions
 
 \dontrun{ a <- convertEurostat_EffortSharing(x,subtype="target")
 }
- 
+
 }
 \author{
 Renato Rodrigues

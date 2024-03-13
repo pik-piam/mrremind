@@ -17,7 +17,7 @@ provides region specific target
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("SharedTarget",subtype="FErenewablesShare")
 }
 

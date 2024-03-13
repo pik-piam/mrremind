@@ -17,7 +17,7 @@ provides region specific Effort Sharing Reference Emissions
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("EffortSharingRefEmi",subtype="Eurostat_GHG")
 }
 

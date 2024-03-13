@@ -16,8 +16,8 @@ MAgPIE object of the GEA data
 Read in datafiles comprising fossil fuel data from the Global Energy Assessment 2012
 }
 \examples{
-
-\dontrun{ a <- readSource("GEA2012","coal")
+\dontrun{
+a <- readSource("GEA2012", "coal")
 }
 
 }
