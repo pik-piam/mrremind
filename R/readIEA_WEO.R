@@ -102,9 +102,9 @@ readIEA_WEO <- function(subtype) {
     tmp_all <- list()
     for (ksheet in sheets_balance) {
       kreg <- substr(ksheet, 1, nchar(ksheet) - nchar("_Balance"))
-      tmp_sps <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "A5:H56")
-      tmp_cps <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "M5:Q56")
-      tmp_sds <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "U5:X56")
+      tmp_sps <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "A5:H56", .name_repair = "unique_quiet")
+      tmp_cps <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "M5:Q56", .name_repair = "unique_quiet")
+      tmp_sds <- readxl::read_excel("WEO2019_AnnexA.xlsx", sheet = ksheet, range = "U5:X56", .name_repair = "unique_quiet")
 
       names(tmp_sps)[1] <- "variable"
       names(tmp_cps)[1] <- "variable"
