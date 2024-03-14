@@ -68,9 +68,9 @@ calcPlasticsEoL <- function() {
                         ",
       units = "fraction", only.new = TRUE
     ) %>%
-      # remove unused dimensions
+    # remove unused dimensions
     select(-"model", -"scenario", -"variable", -"unit") %>%
-    interpolate_missing_periods(seq(2050, 2060, 5), method = "linear")
+    suppressWarnings(interpolate_missing_periods(seq(2050, 2060, 5), method = "linear"))
 
   # as magpie
   x <- as.magpie(incinerationShares)

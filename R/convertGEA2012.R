@@ -30,7 +30,7 @@ convertGEA2012 <- function(x, subtype) {
   } else if (subtype %in% c("oil", "gas")) {
 
     # Load mapping file for GEA regions to country level
-    mapping <- toolGetMapping("regionmappingGEA2012.csv", "regional")
+    mapping <- toolGetMapping("regionmappingGEA2012.csv", "regional", where = "mappingfolder")
     mapping$RegionCode[which(mapping$RegionCode == "ARC")] <- "WEU"
     mapping$RegionCode[which(mapping$RegionCode == "SOO")] <- "LAC"
     # Divide ARC fuels equally among EUR (WEU), USA, RUS (FSU), CAN

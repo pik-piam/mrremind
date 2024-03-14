@@ -20,12 +20,12 @@ calcBP <- function() {
       factors,
       data.frame(year = seq(1965, 2000, 1), factor = 0.36)
     ) %>%
-      filter(!is.na(as.numeric(!!sym("year"))))
+      filter(!is.na(suppressWarnings(as.numeric(!!sym("year")))))
 
     return(factors[order(factors$year), ])
   }
 
-  mapping <- toolGetMapping("Mapping_BP.csv", type = "reportingVariables") %>%
+  mapping <- toolGetMapping("Mapping_BP.csv", type = "reportingVariables", where = "mappingfolder") %>%
     mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
     select("variable" = "BP", "REMIND", "conversion", "unit" = "Unit_BP", "Unit_REMIND")
 

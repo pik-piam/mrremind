@@ -42,12 +42,12 @@ readIEA_WEO_2021 <- function() { # nolint
   # investment data uses yearly ranges and needs special treatment
   # we currently don't read in cumulative investment spending, only annual average spending
   rangeData <- filter(
-    data, is.na(as.numeric(!!sym("year"))),
+    data, is.na(suppressWarnings(as.numeric(!!sym("year")))),
     grepl("Investment spending, annual average", !!sym("variable"))
   )
 
   # remove non-annual data
-  data <- filter(data, !is.na(as.numeric(!!sym("year"))))
+  data <- filter(data, !is.na(suppressWarnings(as.numeric(!!sym("year")))))
 
   years <- as.numeric(unique(data$year))
 
