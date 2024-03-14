@@ -5,6 +5,6 @@
 #' @return MAgPIE object containing values for all 249 ISO countries
 
 convertTCdamageKrichene <- function(x){
-	out <- toolCountryFill(x, fill = 0, verbosity = 2)
+	out <- toolCountryFill(x, fill = 0, verbosity = 2, no_remove_warning = c("GLB"))
 	return(out)
 }
