@@ -1,64 +1,90 @@
 #' Calculate waste energy use shares based on IEA World Energy Balances
 #'
 #' @author Robert Pietzcker, Falk Benke
-#' @param mapping an optional mapping for regional (dis)aggregration, if not provided,
-#' "regionmapping_21_EU11.csv" is used
 #'
-calcWasteEnergyUseShares <- function(mapping = NULL) {
+calcWasteEnergyUseShares <- function() {
+  x <- readSource("IEA", subtype = "EnergyBalances")
+  x <- dimSums(x[, , c("INDWASTE", "MUNWASTEN")], dim = 3.1, na.rm = TRUE)
 
-  data <- readSource("IEA", subtype = "EnergyBalances")
+  numerator <- NULL
+  denominator <- NULL
 
-  data <- dimSums(data[, , c("INDWASTE", "MUNWASTEN")], dim = 3.1, na.rm = TRUE)
-
-  if (is.null(mapping)) {
-    mapping <- toolGetMapping("regionmapping_21_EU11.csv",
-      where = "mappingfolder", type = "regional"
-    )
-  }
-  x <- toolAggregate(data, rel = mapping)
-
-  out <- NULL
-
-  out <- mbind(out, setNames(
-    x[, , "TFC"] / (x[, , "TFC"] - x[, , "TOTTRANF"]),
+  numerator <- mbind(numerator, setNames(
+    x[, , "TFC"],
     "Waste for FE|Share in Waste"
   ))
 
-  out <- mbind(out, setNames(
-    -x[, , "TOTTRANF"] / (x[, , "TFC"] - x[, , "TOTTRANF"]),
+  denominator <- mbind(denominator, setNames(
+    x[, , "TFC"] - x[, , "TOTTRANF"],
+    "Waste for FE|Share in Waste"
+  ))
+
+  numerator <- mbind(numerator, setNames(
+    -x[, , "TOTTRANF"],
     "Waste for Energy Supply|Share in Waste"
   ))
 
-  out <- mbind(out, setNames(
-    x[, , "TOTIND"] / x[, , "TFC"],
+  denominator <- mbind(denominator, setNames(
+    x[, , "TFC"] - x[, , "TOTTRANF"],
+    "Waste for Energy Supply|Share in Waste"
+  ))
+
+  numerator <- mbind(numerator, setNames(
+    x[, , "TOTIND"],
     "Waste for Industry|Share in Waste for FE"
   ))
 
-  out <- mbind(out, setNames(
-    x[, , "COMMPUB"] / x[, , "TFC"],
+  denominator <- mbind(denominator, setNames(
+    x[, , "TFC"],
+    "Waste for Industry|Share in Waste for FE"
+  ))
+
+  numerator <- mbind(numerator, setNames(
+    x[, , "COMMPUB"],
+    "Waste for CommPub|Share in Waste for FE"
+  ))
+
+  denominator <- mbind(denominator, setNames(
+    x[, , "TFC"],
     "Waste for CommPub|Share in Waste for FE"
   ))
 
   # the factor 2 represents the lower conversion efficiency of heat to electricity
-  out <- mbind(out, setNames(
-    2 * x[, , "ELOUTPUT"] / (2 * x[, , "ELOUTPUT"] + x[, , "HEATOUT"]),
+  numerator <- mbind(numerator, setNames(
+    2 * x[, , "ELOUTPUT"],
     "Waste for Electricity|Share in Waste for Energy Supply"
   ))
 
-  out <- mbind(out, setNames(
-    x[, , "HEATOUT"] / (2 * x[, , "ELOUTPUT"] + x[, , "HEATOUT"]),
+  denominator <- mbind(denominator, setNames(
+    2 * x[, , "ELOUTPUT"] + x[, , "HEATOUT"],
+    "Waste for Electricity|Share in Waste for Energy Supply"
+  ))
+
+  numerator <- mbind(numerator, setNames(
+    x[, , "HEATOUT"],
     "Waste for Heat|Share in Waste for Energy Supply"
   ))
 
-  out <- toolAggregate(out, rel = mapping, from = "RegionCode", to = "CountryCode")
-  weight <- out
-  weight[] <- 1
+  denominator <- mbind(denominator, setNames(
+    2 * x[, , "ELOUTPUT"] + x[, , "HEATOUT"],
+    "Waste for Heat|Share in Waste for Energy Supply"
+  ))
+
+  .calcShares <- function(x, rel, denominator) {
+    return(
+      toolAggregate(x, rel = rel) /
+        toolAggregate(denominator, rel = rel)
+    )
+  }
+
 
   return(list(
-    x = out,
-    weight = weight,
+    x = numerator,
+    weight = NULL,
     unit = "%",
-    mixed_aggregation = TRUE,
+    aggregationFunction = .calcShares,
+    aggregationArguments = list(denominator = denominator),
+    min = 0, max = 1,
     description = "Waste Energy Use Shares based on IEA World Energy Balances"
   ))
 }
