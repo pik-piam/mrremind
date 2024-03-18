@@ -419,7 +419,10 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
                                     convert = FALSE) %>%
         madrat_mule(),
       aggregate = FALSE,
-      years = getYears(remind), supplementary = FALSE),
+      years = getYears(remind),
+      supplementary = FALSE,
+      warnNA = FALSE
+    ),
 
     calcOutput(
       type = "Steel_Projections",

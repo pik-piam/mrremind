@@ -162,7 +162,8 @@ calcSteel_Projections <- function(subtype = 'production',
   # load required data ----
   ## region mapping for aggregation ----
   region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                   type = 'regional') %>%
+                                   type = 'regional',
+                                   where = 'mappingfolder') %>%
     as_tibble() %>%
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
@@ -196,7 +197,8 @@ calcSteel_Projections <- function(subtype = 'production',
 
   ## set of OECD countries ----
   OECD_iso3c <- toolGetMapping(name = 'regionmappingOECD.csv',
-                               type = 'regional') %>%
+                               type = 'regional',
+                               where = 'mappingfolder') %>%
     as_tibble() %>%
     select(iso3c = 'CountryCode', region = 'RegionCode') %>%
     filter('OECD' == .data$region) %>%
@@ -1315,7 +1317,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   # load required data ----
   ## region mapping for aggregation ----
   region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                   type = 'regional') %>%
+                                   type = 'regional',
+                                   where = 'mappingfolder') %>%
     as_tibble() %>%
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
@@ -1417,7 +1420,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
-  data_cement_production <- calcOutput('Cement', aggregate = FALSE) %>%
+  data_cement_production <- calcOutput('Cement', aggregate = FALSE, warnNA = FALSE) %>%
     magclass_to_tibble() %>%
     select(-'data') %>%
     filter(!is.na(.data$value))
