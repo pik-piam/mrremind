@@ -15,7 +15,7 @@
 
 fullVALIDATIONREMIND <- function(rev = 0) {
 
-  years = NULL
+  years <- NULL
 
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
@@ -168,7 +168,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # IEA WEO 2021  ----
   weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
+    type = "IEA_WorldEnergyOutlook", subtype = "2021-global", aggregate = columnsForAggregation,
     warnNA = FALSE, try = FALSE, years = years,
   )
 
@@ -176,7 +176,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
   weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
+    type = "IEA_WorldEnergyOutlook", subtype = "2021-region", aggregate = columnsForAggregation,
     warnNA = FALSE, try = FALSE, years = years,
   )
 

@@ -1,16 +1,20 @@
-#' Disaggregates IEA WEO 2021 Data
-#' @param x MAgPIE object to be converted
-#' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "global" or "region". On global level, the source offers
-#' more variables than on regional level, but the data should not be used on sub-
-#' global level due to its coarse disaggregation.
+#' Convert IEA WEO 2021 Data
+#'
+#' @param x magclass object to be converted
+#' @param subtype Either "2021-global" or "2021-region".
+#' - For 2021 we have complete paid data.
+#' - On global level, the source offers more variables than on regional level,
+#' but the data should not be used on sub-global level due to its coarse
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
 
-convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
+convertIEA_WorldEnergyOutlook <- function(x, subtype = "2021-global") { # nolint
+
   pe <- calcOutput("PE", aggregate = FALSE)
-  if (subtype == "global") {
+
+  if (subtype == "2021-global") {
+
     # for now, we only have complete data on global level
     xWorld <- x["World", , ]
 
@@ -30,13 +34,16 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
     weight <- pe[, 2014, "PE (EJ/yr)"]
     xWorld <- toolAggregate(xWorld, rel = mappingWorld, weight = weight)
     return(xWorld)
-  } else if (subtype == "region") {
+
+  } else if (subtype == "2021-region") {
+
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
     }
 
-    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional", where = "mappingfolder")
+    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv",
+                                  type = "regional", where = "mappingfolder")
 
     .disaggregateRegions <- function(xIn, regionsIn) {
       x <- .removeNaRegions(xIn)
@@ -128,6 +135,6 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
 
     return(xRegional)
   } else {
-    stop("Not a valid subtype! Must be either \"region\" or \"global\"")
+    stop("Not a valid subtype! Must be either \"2021-region\" or \"2021-global\"")
   }
 }

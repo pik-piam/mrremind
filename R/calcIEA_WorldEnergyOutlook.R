@@ -13,7 +13,7 @@
 #' @importFrom stats aggregate
 #' @export
 
-calcIEA_WEO_2021 <- function(subtype) { # nolint
+calcIEA_WorldEnergyOutlook <- function(subtype) { # nolint
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables",
                              where = "mappingfolder") %>%
@@ -26,7 +26,7 @@ calcIEA_WEO_2021 <- function(subtype) { # nolint
 
   mapping$variable <- trimws(mapping$variable)
 
-  data <- readSource("IEA_WEO_2021", subtype = subtype)
+  data <- readSource("IEA_WorldEnergyOutlook", subtype = subtype)
 
   # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
   for (s in getNames(data, dim = 1)) {
