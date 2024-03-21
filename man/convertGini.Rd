@@ -13,15 +13,17 @@ convertGini(x)
 MAgPIE object of the Gini data in ISO countries, range 0-1
 }
 \description{
-Converts Gini data from readGini() to ISO country level. 
-Countries missing in the original data set will have their Gini set to zero (a very small number for numerical reasons to be precise).
-The original data range is 2011-2100 in one-year steps, here we extend it to 2000-2150 in 5-year steps. 
+Converts Gini data from readGini() to ISO country level.
+Countries missing in the original data set will have their Gini set to zero (
+a very small number for numerical reasons to be precise).
+The original data range is 2011-2100 in one-year steps,
+here we extend it to 2000-2150 in 5-year steps.
 Values before (after) the original range are held fixed at 2011 (2100) levels.
 Gini values for the SDP scenario are taken from the SSP1 scenario
 }
 \examples{
-
-\dontrun{ a <- convertGini(x)
+\dontrun{
+a <- convertGini(x)
 }
 }
 \seealso{

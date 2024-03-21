@@ -16,8 +16,7 @@ Emissions and emission factors
 Provides input data for exoGAINSAirpollutants.R
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("calcGAINSEmi")
 }
 }

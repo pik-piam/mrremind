@@ -35,7 +35,7 @@ calcIndustry_EEK <- function(kap) {
                                   subtype = 'Chinese_Steel_Production',
                                   convert = FALSE) %>%
       madrat_mule(),
-    aggregate = FALSE, years = base_year, supplementary = FALSE) %>%
+    aggregate = FALSE, years = base_year, supplementary = FALSE, warnNA = FALSE) %>%
     `[`(,,'gdp_SSP2EU') %>%
     quitte::magclass_to_tibble() %>%
     select('iso3c', subsector = 'name', VA = 'value') %>%

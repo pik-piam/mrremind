@@ -289,9 +289,9 @@ readGCPT <- function(subtype) {
     meanAge <- retire %>% select(Country,`Plant Age`,`Capacity (MW)`,Status) %>%
       filter(Status %in% c("Operating","operating") & !is.na(`Capacity (MW)`) & !is.na(`Plant Age`))
     meanAge_c <- meanAge %>% group_by(Country) %>% summarise(meanAge=weighted.mean(`Plant Age`,`Capacity (MW)`))
-    meanAge_c <- toolCountryFill(as.magpie(meanAge_c,spatial=1),fill=0)
+    meanAge_c <- toolCountryFill(as.magpie(meanAge_c,spatial=1),fill=0, verbosity = 2)
     capWeight <- meanAge %>% group_by(Country) %>% summarise(Capacity=sum(`Capacity (MW)`))
-    capWeight <- toolCountryFill(as.magpie(capWeight,spatial=1),fill=0)
+    capWeight <- toolCountryFill(as.magpie(capWeight,spatial=1),fill=0, verbosity = 2)
     return(toolAggregate(meanAge_c,map,capWeight))
   }
 
@@ -842,7 +842,7 @@ readGCPT <- function(subtype) {
 
         output[,2025,] <- as.numeric(pubfinex$Foreign) * (1-as.numeric(pubfinex$Ann_share))
         output[,2030,] <- as.numeric(pubfinex$Foreign) * as.numeric(pubfinex$Ann_share)
-        return(toolCountryFill(output,fill = 0))
+        return(toolCountryFill(output,fill = 0, verbosity = 2))
       }
       for (iii in c("Ann","Pre","Perm")) {
         cap_sum[pubfinex$Country,,grepl(iii,getNames(cap_sum),ignore.case = F)] <- pubfinex[,paste0(iii,"_dom")]

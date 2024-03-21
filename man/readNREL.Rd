@@ -16,8 +16,8 @@ magpie object of NREL
 Read-in NREL xlsx file as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="NREL",subtype="onshore")
+\dontrun{
+a <- readSource(type = "NREL", subtype = "onshore")
 }
 
 }

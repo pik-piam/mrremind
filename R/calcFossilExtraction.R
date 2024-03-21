@@ -5,30 +5,30 @@
 #' @param subtype Either 'FossilExtraction' or 'UraniumExtraction'
 #' @seealso \code{\link{calcOutput}}
 #' @examples
-#' 
-#' \dontrun{ 
+#'
+#' \dontrun{
 #' calcOutput(type="FossilExtraction",subtype='FossilExtraction')
 #' }
 #' @importFrom dplyr %>% mutate select rename arrange
 #' @importFrom stats lm coef
 
 calcFossilExtraction <- function(subtype="FossilExtraction"){
-  
+
   if (!((subtype=="FossilExtraction") || (subtype=="UraniumExtraction"))){
     stop("Not a valid subtype!")
   }
-  
+
   #setting the weight to the country reserves potential (same weight used on the convertREMIND_11Regi, fossilExtractionCoeff and uraniumExtractionCoeff subtypes)
   if (subtype == "FossilExtraction") {
-    
+
     description <- "Coefficients for the 3rd-order polynomial Oil, Gas and Coal extraction costs."
     #loading coefficients data at country level
     output <- readSource("REMIND_11Regi", subtype="fossilExtractionCoeff")
     # upper bound
     upperBoundMaxExtraction <- readSource("REMIND_11Regi", subtype = "ffPolyCumEx")[,,"max"]
-    # high cost curve -> empty list :the aggregation function will choose the coefficients even for regions with no extraction potential 
+    # high cost curve -> empty list :the aggregation function will choose the coefficients even for regions with no extraction potential
     highCostCurve = list()
-    
+
 
 
 
@@ -80,28 +80,28 @@ calcFossilExtraction <- function(subtype="FossilExtraction"){
     output["AUS",,"medGas.1"] <- coef(linfit)[2]
     output["AUS",,"medGas.2"] <- 0
     output["AUS",,"medGas.3"] <- 0
-    
+
     # SB & NB edit 2019/09/11:
     # Shift SSP5 coal extraction cost curve down by 33% based on calibration with the SSP IAM project 2017
     output[,,c("highCoal.0","highCoal.1")] <- output[,,c("highCoal.0","highCoal.1")]*(1 - 0.33)
     # Shift SSP5 oil extraction cost curve for USA and CAZ down by 20% based on calibration with the SSP IAM project 2017
-    output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <- 
+    output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] <-
       output[c("USA","CAN","AUS","NZL","HMD","SPM"),,c("highOil.0","highOil.1")] * (1 - 0.2)
-    
+
     #SB & NB edit 2019/11/14:
     # Reduce SSP5 coal extraction costs for USA and CAZ by 25%
     output[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highCoal.0"] <- output[c("USA","CAN","AUS","NZL","HMD","SPM"),,"highCoal.0"] * (1 - 0.25)
     # Reduce SSP5 gas extraction costs for all regions by 10%
     output[,,"highGas.0"] <- output[,,"highGas.0"] * (1 - 0.1)
-    
+
   } else if (subtype == "UraniumExtraction"){
-    
+
     description <- "Coefficients for the 3rd-order polynomial Uranium extraction costs."
     #loading coefficients data at country level
     data <- readSource("REMIND_11Regi", subtype="uraniumExtractionCoeff")
     # maxExtraction (upper limit for function estimation)
-    BGRuranium <- readSource("BGR", subtype="uranium")[,,"Remaining_Potential"] # Remaining extraction potential per country 
-    BGRuranium  <- toolCountryFill(BGRuranium,fill=0) 
+    BGRuranium <- readSource("BGR", subtype="uranium")[,,"Remaining_Potential"] # Remaining extraction potential per country
+    BGRuranium  <- toolCountryFill(BGRuranium, fill = 0, verbosity = 2)
     totalBGRuranium <- as.numeric(colSums(BGRuranium))
     upperBoundMaxExtraction <- 23* ( BGRuranium/totalBGRuranium ) # 23 -> from s31_max_disp_peur -> max global "maximum amount of cumulative uranium production in Megatonnes of metal uranium (U3O8, the stuff that is traded at 40-60US$/lb)."
     upperBoundMaxExtraction <- add_dimension(upperBoundMaxExtraction, dim = 3.1, add = "pe", nm = "peur")
@@ -109,14 +109,14 @@ calcFossilExtraction <- function(subtype="FossilExtraction"){
     output <- data
     #set high cost curve if all countries within a region have zero extraction capacity
     highCostCurve <- list("xi1" = 0.025, "xi2" = 1000, "xi3" = 0, "xi4" = 0)
-    
+
   }
-  
+
   return(list(x=output, weight=NULL,
               unit="tr USD2005/TWa",
               description=description,
               aggregationFunction=toolCubicFunctionAggregate,
               aggregationArguments=list(xUpperBound=upperBoundMaxExtraction,steepCurve = highCostCurve)
   ))
-  
+
 }

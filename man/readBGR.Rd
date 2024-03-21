@@ -10,16 +10,17 @@ readBGR(subtype)
 \item{subtype}{data subtype. Either "oil", "gas", "coal" or "uranium".}
 }
 \value{
-magpie object of the BGR (Federal Institute for Geosciences and Natural Resources) data of reserves of oil, gas, coal and uranium per country.
+magpie object of the BGR (Federal Institute for Geosciences and
+Natural Resources) data of reserves of oil, gas, coal and uranium per country.
 }
 \description{
 Read-in BGR csv files as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="BGR",subtype="oil")
+\dontrun{
+a <- readSource(type = "BGR", subtype = "oil")
 }
- 
+
 }
 \seealso{
 \code{\link{readSource}}

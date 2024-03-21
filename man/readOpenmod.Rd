@@ -13,10 +13,10 @@ magpie object of the LIMES team updated Openmod data on capacities (GW)
 Read-in an modified openmod capacities data file as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="Openmod")
+\dontrun{
+a <- readSource(type = "Openmod")
 }
- 
+
 }
 \seealso{
 \code{\link{readSource}}

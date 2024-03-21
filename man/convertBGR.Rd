@@ -12,16 +12,17 @@ convertBGR(x, subtype)
 \item{subtype}{data subtype. Either "oil", "gas", "coal" or "uranium".}
 }
 \value{
-A MAgPIE object containing BGR (Federal Institute for Geosciences and Natural Resources) country reserves disaggregated data of oil, gas, coal and uranium.
+A MAgPIE object containing BGR (Federal Institute for Geosciences and
+Natural Resources) country reserves disaggregated data of oil, gas, coal and uranium.
 }
 \description{
 Converts BGR oil, gas, coal and uranium reserves data
 }
 \examples{
-
-\dontrun{ a <- convertBGR(x,subtype="oil")
+\dontrun{
+a <- convertBGR(x, subtype = "oil")
 }
- 
+
 }
 \author{
 Renato Rodrigues

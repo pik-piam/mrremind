@@ -16,8 +16,8 @@ NRELWirsenius data as MAgPIE object aggregated to country level
 Convert NREL data on ISO country level.
 }
 \examples{
-
-\dontrun{ a <- convertNREL(x,subtype="onshore")
+\dontrun{
+a <- convertNREL(x, subtype = "onshore")
 }
 }
 \author{

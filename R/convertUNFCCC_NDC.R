@@ -247,7 +247,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
 
     x_final <- magpiesort(mbind(x_capacity, x_other))
     x_final[is.na(x_final)] <- 0
-    x <- toolCountryFill(x_final, fill = NA) # will be returned
+    x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
     getNames(x) <- c("wind", "spv", "hydro", "tnrs", "bioigcc")
     # end subtype contains Capacity
 
@@ -376,7 +376,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
         ghgfactor[regi, , ][ghgfactor[regi, , ] > 2.5] <- NA
       }
     }
-    x <- toolCountryFill(ghgfactor, fill = NA)
+    x <- toolCountryFill(ghgfactor, fill = NA, verbosity = 2)
 
   } # end subtype = Emissions_all
 

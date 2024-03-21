@@ -488,7 +488,7 @@ readUNFCCC <- function() {
                 filter(!is.na(!!sym("name"))) %>%
                 melt(id.vars = c("name", "region", "year")) %>%
                 mutate(
-                  !!sym("value") := as.double(!!sym("value")),
+                  !!sym("value") := suppressWarnings(as.double(!!sym("value"))),
                   !!sym("name") := paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
                 ) %>%
                 select(-"name", "unit" = "variable", "variable" = "name") %>%

@@ -1,7 +1,8 @@
 #' BP Capacity and Generation Data
 #' @description  BP data. See README in input file for more details.
 #'
-#' @param subtype Either "Emission", Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
+#' @param subtype Either "Emission", Capacity", "Generation", "Production",
+#' "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
 #' @importFrom tidyr gather
@@ -103,7 +104,7 @@ readBP <- function(subtype) {
     ))
 
     data <- filter(data, !grepl("\\.", data$Year))
-  } 
+  }
   else if (subtype == "Production") {
     data_oil <- read_excel(filename, sheet = "Oil Production - Tonnes", range = "A3:BE73")
     data_oil <- tidy_data(data_oil, "Oil Production (million t)")
@@ -121,7 +122,7 @@ readBP <- function(subtype) {
     # further refining) and NGLs (natural gas liquids - ethane, LPG and naphtha separated from the production of natural gas).
     data <- reshape::merge_recurse(list(data_oil, data_coal_ej, data_coal_ton, data_gas)) # merging all datasets into one
     data <- filter(data, !grepl("\\.", data$Year))
-  } 
+  }
   else if (subtype == "Consumption") {
     data_pe_consumption <- read_excel(filename, sheet = "Primary Energy Consumption", range = "A3:BE114")
     data_pe_consumption <- tidy_data(data_pe_consumption, "Primary Energy Consumption (EJ)")
@@ -162,7 +163,8 @@ readBP <- function(subtype) {
     data_oil_trade_import <- tidy_data(data_oil_trade[seq(1, 8), ], "Trade|Import|Oil (kb/d)")
     data_oil_trade_export <- tidy_data(data_oil_trade[seq(9, 24), ], "Trade|Export|Oil (kb/d)")
 
-    data_oil_trade_detail <- read_excel(filename, sheet = "Oil - Trade 2019 - 2020", range = "A28:I50")
+    data_oil_trade_detail <- read_excel(filename, sheet = "Oil - Trade 2019 - 2020", range = "A28:I50",
+                                        .name_repair = "unique_quiet")
     colnames(data_oil_trade_detail) <- c("Country", rep(c(
       "Trade|Import|Oil|Crude (kb/d)", "Trade|Import|Oil|Product (kb/d)",
       "Trade|Export|Oil|Crude (kb/d)", "Trade|Export|Oil|Product (kb/d)"
@@ -178,9 +180,9 @@ readBP <- function(subtype) {
   else if (subtype == "Trade Coal") {
 
     data_coal_trade <- read_excel(filename, sheet = "Coal - Trade movements", range = "A3:V34")
-    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)", 
+    data_coal_trade_import <- tidy_data(data_coal_trade[seq(1, 15), ], "Trade|Import|Coal (EJ)",
                                         rows2remove = c("Total|OECD|European|Rest"))
-    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)", 
+    data_coal_trade_export <- tidy_data(data_coal_trade[seq(17, 31), ], "Trade|Export|Coal (EJ)",
                                         rows2remove = c("Total|OECD|European|Rest"))
 
     data <- reshape::merge_recurse(list(data_coal_trade_import, data_coal_trade_export))
@@ -309,7 +311,7 @@ readBP <- function(subtype) {
 
   }
   else if (subtype == "Price") {
-    
+
     data_oil_spot_crude_price <- read_excel(filename, sheet = "Oil - Spot crude prices", range = "A4:E54")
     colnames(data_oil_spot_crude_price) <- c(
       "Year",
@@ -327,7 +329,7 @@ readBP <- function(subtype) {
       "Price|Crude Oil ($2020/bbl)"
     )
 
-    data_gas_price <- read_excel(filename, sheet = "Gas - Prices ", range = "A5:H42")
+    data_gas_price <- read_excel(filename, sheet = "Gas - Prices ", range = "A5:H42", .name_repair = "unique_quiet")
     colnames(data_gas_price) <- c(
       "Year",
       "Price|LNG|Japan|CIF ($/mbtu)",
@@ -353,7 +355,7 @@ readBP <- function(subtype) {
     data_coal_price <- filter(data_coal_price, !is.na(Year))
 
     data <- reshape::merge_recurse(list(data_oil_spot_crude_price, data_oil_crude_price, data_gas_price, data_coal_price))
-    data[-1] <- lapply(data[-1], as.numeric)
+    data[-1] <- lapply(data[-1], function(x) { suppressWarnings(as.numeric(x)) })
     data <- cbind(Country = "GLO", data)
   }
   else {

@@ -141,7 +141,7 @@ calcCapacity <- function(subtype) {
     output[getRegions(USA.2025.PVData),getYears(USA.2025.PVData), getNames(USA.2025.PVData)] <- USA.2025.PVData
 
     output[is.na(output)] <- 0 #set NA to 0
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    output  <- toolCountryFill(output,fill=0,verbosity=2) # fill missing countries
 
   }
   else if (grepl("capacityByPE", subtype)) {
@@ -226,7 +226,7 @@ calcCapacity <- function(subtype) {
       }
     }
 
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    output  <- toolCountryFill(output,fill=0,verbosity=2) # fill missing countries
 
     output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
 

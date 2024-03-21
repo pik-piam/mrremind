@@ -1,6 +1,7 @@
 #' Disaggregates and cleans BP data.
 #' @param x MAgPIE object to be converted
-#' @param subtype Either "Emission", "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
+#' @param subtype Either "Emission", "Capacity", "Generation", "Production",
+#' "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @description Disaggregates historical data.
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke

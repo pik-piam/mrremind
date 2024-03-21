@@ -6,7 +6,7 @@
 calcHistorical <- function() {
 
   # Final Energy
-  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE)
+  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
   fe_iea <- add_dimension(fe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   fe_weo <- calcOutput("FE", source = "IEA_WEO", aggregate = FALSE)
@@ -15,7 +15,7 @@ calcHistorical <- function() {
   fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
 
   # Primary Energy
-  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE)
+  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
   pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   pe_weo <- calcOutput("PE", subtype = "IEA_WEO", aggregate = FALSE)
@@ -65,11 +65,11 @@ calcHistorical <- function() {
   cdiac <- add_dimension(cdiac, dim = 3.1, add = "model", nm = "CDIAC")
 
   # Historical land use emissions (taken from "mrvalidation/R/fullVALIDATION.R")
-  LU_EDGAR_LU <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, try = TRUE)
-  LU_CEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, try = TRUE)
-  LU_FAO_EmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, try = TRUE)
-  LU_FAO_EmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, try = TRUE)
-  LU_PRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, try = TRUE)
+  LU_EDGAR_LU <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_CEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_FAO_EmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_FAO_EmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_PRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, try = TRUE, warnNA = FALSE)
 
   # remove scenario dimension (will be added below as also for remind variables)
   LU_EDGAR_LU <- collapseNames(LU_EDGAR_LU, collapsedim = 1)
@@ -109,7 +109,7 @@ calcHistorical <- function() {
   # Region specific historical data ====
 
   # EEA GHG Projections
-  EEA_GHGProjections <- toolFillEU34Countries(calcOutput("EEAGHGProjections", aggregate = FALSE))
+  EEA_GHGProjections <- toolFillEU34Countries(calcOutput("EEAGHGProjections", aggregate = FALSE, warnNA = FALSE))
 
   # EEA GHG Sectoral Historical Data
   EEA_GHGSectoral <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
@@ -119,7 +119,7 @@ calcHistorical <- function() {
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim = 3.1, add = "model", nm = "EEA_historical")
 
   # Calculate Emission Reference Values
-  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE))
+  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE, warnNA = TRUE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
 
   # Eurostat emissions

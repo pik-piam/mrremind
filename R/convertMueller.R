@@ -27,7 +27,7 @@ convertMueller <- function(x, subtype) {
       mutate(!!sym("variable") := paste0("Steel stock per-capita|", !!sym("estimate"), " (t)")) %>%
       select("region" = "iso3c", "period" = "year", "variable", "value" = "steel.stock.per.capita") %>%
       as.magpie() %>%
-      toolCountryFill(fill = 0, verbosity = 2) %>%
+      toolCountryFill(fill = 0, verbosity = 2, no_remove_warning = c("ANT")) %>%
       return()
   } else {
     return(x)

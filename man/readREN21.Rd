@@ -13,9 +13,9 @@ readREN21(subtype)
 magpie object with Total Installed Capacity targets in GW for different target years
 }
 \description{
-Reads excel sheet with data on proposed policies, 
-on Renewable energy capacity targets (which are broken down into Total Installed Capacity 
-(TIC-Absolute), Additional Installed Capacity (AC-Absolute), and Production Absolute targets) 
+Reads excel sheet with data on proposed policies,
+on Renewable energy capacity targets (which are broken down into Total Installed Capacity
+(TIC-Absolute), Additional Installed Capacity (AC-Absolute), and Production Absolute targets)
 or regional technology costs
 }
 \details{

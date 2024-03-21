@@ -10,21 +10,22 @@
 #' @param subtype data subtype. Either "const" or "tasK"
 
 readTCdamageKrichene <- function(subtype) {
+  if (subtype == "const") {
+    a <- read.csv(file = "TC_df_parameters_const.csv", sep = ";")
+  } else if (subtype == "tasK") {
+    a <- read.csv(file = "TC_df_parameters_tasK.csv", sep = ";")
+  }
 
-        if (subtype == "const") {
-                a <- read.csv(file = "./TC_df_parameters_const.csv",sep=";")
-        } else if (subtype == "tasK") {
-                a <- read.csv(file = "./TC_df_parameters_tasK.csv",sep=";")
-        }
+  quant <- gsub("estimates_", "", colnames(a)[grepl("estimates", colnames(a))])
 
-        quant <- gsub("estimates_", "", colnames(a)[grepl("estimates", colnames(a))])
-                for (q in quant) {
-                        col <- which(colnames(a) == paste0("estimates_", q))
-                        if (q == quant[1]) {
-                                out <- new.magpie(a$iso, NULL, q, a[, col], sets = c("CountryCode", "year", "quantile"))
-                        } else {
-			out <- mbind(out, new.magpie(a$iso, NULL, q, a[, col], sets = c("CountryCode", "year", "quantile")))
-                        }
-                }
-        return(out)
+  for (q in quant) {
+    col <- which(colnames(a) == paste0("estimates_", q))
+    if (q == quant[1]) {
+      out <- new.magpie(a$iso, NULL, q, a[, col], sets = c("CountryCode", "year", "quantile"))
+    } else {
+      out <- mbind(out, new.magpie(a$iso, NULL, q, a[, col],
+                                   sets = c("CountryCode", "year", "quantile")))
+    }
+  }
+  return(out)
 }

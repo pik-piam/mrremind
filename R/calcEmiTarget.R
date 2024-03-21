@@ -27,7 +27,7 @@ calcEmiTarget <- function(sources, subtype) {
                                              "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
   # create global data for checking plausibility of data
   globGhg <- dimSums(ghg, dim = 1)
-  ghg <- toolCountryFill(ghg, fill = 0)
+  ghg <- toolCountryFill(ghg, fill = 0, verbosity = 2)
 
   # Future GDP values
   gdp <- calcOutput("GDP", aggregate = FALSE)

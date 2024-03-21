@@ -34,7 +34,7 @@ convertRutovitz2015 <- function(x, subtype) {
   # assign all countries and techs, same value as x
   oecd_ef[, , ] <- x
   oecd_ef[is.na(oecd_ef)] <- 0
-  x <- toolCountryFill(oecd_ef, fill = 0)
+  x <- toolCountryFill(oecd_ef, fill = 0, verbosity = 2)
 
 
   }
@@ -58,7 +58,7 @@ convertRutovitz2015 <- function(x, subtype) {
 
     x <- as.magpie(reg_mult2)
 
-    x <- toolCountryFill(x, fill = 0)
+    x <- toolCountryFill(x, fill = 0, verbosity = 2)
     x["CYP", , ] <- as.numeric(x["DEU", , ]) # cyprus gets oecd values
 
   }
@@ -71,7 +71,7 @@ convertRutovitz2015 <- function(x, subtype) {
     getItems(x, dim = 1) <- gsub(getItems(x, dim = 1), replacement = c("OECD Americas"), pattern = c("OECD North America")) # replace OECD Americas with OECD North America
 
 
-    x_df <- as.data.frame(x) %>% 
+    x_df <- as.data.frame(x) %>%
       select(2, 4, 5, 6) %>%
       rename(region = 1, tech = 2, activity = 3, value = 4) %>%
       na.omit() %>%
@@ -80,7 +80,7 @@ convertRutovitz2015 <- function(x, subtype) {
 
     x <- as.magpie(x_df, spatial = 1, temporal = NULL, datacol = 4)
     x[is.na(x)] <- 0 # for all countries with no data, replace by 0
-    x <- toolCountryFill(x, fill = 0)
+    x <- toolCountryFill(x, fill = 0, verbosity = 2)
     getYears(x) <- 2015
 
   }
@@ -109,7 +109,7 @@ convertRutovitz2015 <- function(x, subtype) {
 
     x <- as.magpie(x_df, spatial = 1, temporal = NULL, datacol = 4)
     getYears(x) <- 2015
-    x <- toolCountryFill(x, fill = 0)
+    x <- toolCountryFill(x, fill = 0, verbosity = 2)
 
    }
   if (subtype == "gas_ef") {
@@ -148,7 +148,7 @@ convertRutovitz2015 <- function(x, subtype) {
 
       x <- as.magpie(x_df, spatial = 1, temporal = NULL, datacol = 4)
       getYears(x) <- 2015
-      x <- toolCountryFill(x, fill = 0)
+      x <- toolCountryFill(x, fill = 0, verbosity = 2)
       # Oil EF for Fuel_supply is same as Gas Fuel supply
       x <- add_columns(x, addnm = "Oil", dim = 3.1)
       x[, , "Oil"] <- x[, , "Gas"]

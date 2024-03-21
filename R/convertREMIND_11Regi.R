@@ -36,7 +36,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     # Converting old Region data to country data
     y <- toolAggregate(x, mapping, weight=NULL)
     # Filling missing country data with zero values to avoid convert error check
-    y  <- toolCountryFill(y,fill=0)
+    y  <- toolCountryFill(y, fill = 0, verbosity = 2)
   } else if (subtype == "fossilExtractionCoeff"){
     # weight
     oil <- readSource("BGR", subtype="oil")[,,"Remaining_Potential"]
@@ -45,7 +45,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     BGRData <- list(lowOil = oil, medOil = oil, highOil = oil, lowGas = gas, medGas = gas, highGas = gas, lowCoal = coal, medCoal = coal, highCoal = coal)
     # filling all countries weights and adding a very small weight to countries with no remaining potential to estimate a very step cost curve in this case
     weight <- lapply(BGRData, function(df){
-      df  <- toolCountryFill(df,fill=0)
+      df  <- toolCountryFill(df, fill = 0, verbosity = 2)
       df[df == 0] <- 1E-20
       return(df)
     })
@@ -71,7 +71,7 @@ convertREMIND_11Regi <- function(x,subtype) {
     x[,,"peur.xi4"] <- 0
     # weight
     BGRuranium <- readSource("BGR", subtype="uranium")[,,"Remaining_Potential"] # Remaining extraction potential per country
-    BGRuranium  <- toolCountryFill(BGRuranium,fill=0)
+    BGRuranium  <- toolCountryFill(BGRuranium, fill = 0, verbosity = 2)
     BGRuranium[BGRuranium == 0] <- 1E-3 # assigning small uranium extraction potential for countries with none to help the curves estimation
     weight <- list(peur = BGRuranium)
     #  mapping - original REMIND region mapping (11 regions)

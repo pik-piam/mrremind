@@ -7,14 +7,17 @@
 readIEA_WEO(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "Capacity", "Generation", "Emissions", "Investment Costs", "O&M Costs" or "Efficiency"}
+\item{subtype}{data subtype. Either "Capacity", "Generation", "Emissions",
+"Investment Costs", "O&M Costs" or "Efficiency"}
 }
 \value{
-magpie object of the WEO data on generation (TWh), capacities (GW), emissions (Mt CO2) or disaggregated investment cost as magpie object
+magpie object of the WEO data on generation (TWh), capacities (GW),
+emissions (Mt CO2) or disaggregated investment cost as magpie object
 }
 \description{
-Read-in IEA WEO 2016 data for investment costs, O&M costs and Efficiency of different technologies, and
-WEO 2017 data for historical electricity capacities (GW), generation (TWh) or emissions (Mt CO2).
+Read-in IEA WEO 2016 data for investment costs, O&M costs and
+Efficiency of different technologies, and WEO 2017 data for historical
+electricity capacities (GW), generation (TWh) or emissions (Mt CO2).
 WEO 2019 data for PE and FE (Mtoe).
 }
 \examples{

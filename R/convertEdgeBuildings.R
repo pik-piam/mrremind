@@ -148,7 +148,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     xadd <- toolAggregate(x, mappingfile, weight = wfe,
                           from = region_col,
                           to = iso_col)
-    result <- toolCountryFill(xadd, 0)
+    result <- toolCountryFill(xadd, 0, verbosity = 2)
 
     # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
     # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL

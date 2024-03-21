@@ -63,7 +63,7 @@ calcIEA_WEO_2021 <- function(subtype) { # nolint
 
   x <- aggregate(value ~ region + year + model + variable, x, sum) %>%
     as.magpie(spatial = 1, temporal = 2, data = 5) %>%
-    toolCountryFill(fill = NA)
+    toolCountryFill(fill = NA, verbosity = 2)
 
   if (subtype == "global") {
     x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)

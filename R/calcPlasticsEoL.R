@@ -68,9 +68,10 @@ calcPlasticsEoL <- function() {
                         ",
       units = "fraction", only.new = TRUE
     ) %>%
-      # remove unused dimensions
+    # remove unused dimensions
     select(-"model", -"scenario", -"variable", -"unit") %>%
-    interpolate_missing_periods(seq(2050, 2060, 5), method = "linear")
+    interpolate_missing_periods(seq(2050, 2060, 5), method = "linear") %>%
+    suppressWarnings()
 
   # as magpie
   x <- as.magpie(incinerationShares)
@@ -86,9 +87,8 @@ calcPlasticsEoL <- function() {
   xNew[, c(seq(2110, 2150, 20)), ] <- x[, 2100, ]
 
   x <- mbind(x, xNew) %>%
-    toolCountryFill(fill = 0) %>%
+    toolCountryFill(fill = 0, verbosity = 2) %>%
     collapseDim()
-
 
   # create weights ----
 

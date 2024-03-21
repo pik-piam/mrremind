@@ -5,20 +5,20 @@
 #' @importFrom utils read.csv read.csv2
 #' @importFrom quitte as.quitte
 
-
-
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
 
-  if (!(subtype %in% c("emission_factors", "activities", "emissions"))) stop('subtype must be in c("emission_factors", "activities", "emissions")')
+  if (!(subtype %in% c("emission_factors", "activities", "emissions"))) {
+    stop('subtype must be in c("emission_factors", "activities", "emissions")')
+  }
 
   #-- INITIALISATION ----------------
+
   vcat(2, ">> Initialization...\n")
+
   # local functions
   allocate_c2r_ef <- function(id_ef, ip_region, ip_country, ip_year, ip_scenario) {
-    dummy                   <- id_ef[ip_region, ip_year, ip_scenario]
-    dummy[, , ]               <- setCells(id_ef[ip_country, ip_year, ip_scenario], "GLO")
-    # names(dimnames(dummy))  <- c("region", "years", "data1.data2.species.scenario")
-
+    dummy <- id_ef[ip_region, ip_year, ip_scenario]
+    dummy[, , ] <- setCells(id_ef[ip_country, ip_year, ip_scenario], "GLO")
     return(dummy)
   }
 
@@ -28,7 +28,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
 
     # Get minimum values across country group
     tmp <- as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
-      group_by(!!!syms(c('data1', 'data2'))) %>%
+      group_by(!!!syms(c("data1", "data2"))) %>%
       summarise(value = ifelse(all(.data$value == 0), 0,
                                min(.data$value[.data$value > 0], na.rm = TRUE))
                 ) %>%  # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
@@ -43,33 +43,9 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
     return(dummy)
   }
 
-  fill_NAs_with_Emissions <- function(mdata, filldata, scenario = "CLE") {
-    # index gives the set elements where all values in a region for a sector are NA
-    index <- apply(mdata, c(1, 3), function(x) {
-      return(all(is.na(x)))
-    })
-    index <- as.magpie(index)
-    index2 <- new.magpie(getCells(mdata), getYears(mdata), getNames(mdata))
-    index2[, , ] <- index
-    index3 <- which(index2 == 1, arr.ind = TRUE)
-
-    # filldata2 takes the structure of mdata and is filled with the values of filldata for the scenario chosen
-
-    filldata2 <- new.magpie(getCells(mdata), getYears(mdata), getNames(mdata))
-    if (!is.null(scenario)) filldata2[, , ] <- collapseNames(filldata[, getYears(mdata), scenario][, , getNames(filldata2, dim = 1)])
-    if (is.null(scenario)) filldata2[, , ] <- collapseNames(filldata[, getYears(mdata), getNames(filldata2, dim = 1)])
-
-    mdata[index3] <- filldata2[index3]
-
-    return(mdata)
-  }
-
   # conversion factors
-  # TODO: should be centralised somewhere
-  conv_ktSO2_to_ktS            <- 1 / 2     # 32/(32+2*16)
+  conv_ktSO2_to_ktS <- 1 / 2 # 32/(32+2*16)
   conv_kt_per_PJ_to_Tg_per_TWa <- 1e-3 / (1e15 / (365 * 24 * 60 * 60) * 1e-12)
-  conv_kt_to_Tg  <- 1e-3
-  conv_PJ_to_Twa <- (1e15 / (365 * 24 * 60 * 60) * 1e-12)
 
   # user-defined parameters
   time     <- c(seq(2005, 2055, 5), seq(2060, 2110, 10), 2130, 2150)
@@ -106,25 +82,15 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   #  > emission data
   emissions <- readSource("ECLIPSE", subtype = paste0("emissions.", sectoral_resolution))
   emissions <- emissions[, c(2005, 2010, 2020, 2030, 2050), ]
-  setsEmissions <- getSets(emissions)
 
   # read in sectoral mapping (ECLIPSE (IMAGE) <> REMIND)
-  map_sectors_ECLIPSE2Agg    <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoAggREMINDsectors.csv",
-                                                        returnPathOnly = TRUE, where = "mappingfolder"),
-                                         stringsAsFactors = TRUE)
-  map_sectors_Agg2REMIND     <- read.csv(toolGetMapping(type = "sectoral", name = "mappingAggREMINDtoREMINDsectors.csv",
-                                                        returnPathOnly = TRUE, where = "mappingfolder"),
-                                         stringsAsFactors = TRUE)
   map_sectors_ECLIPSE2REMIND <- read.csv(toolGetMapping(type = "sectoral", name = "mappingECLIPSEtoREMINDsectors.csv",
                                                         returnPathOnly = TRUE, where = "mappingfolder"),
                                          stringsAsFactors = TRUE)
-  # map_sectors <- map_sectors[which(!is.na(map_sectors$EDGE)),] # Remove transport sector (which is not represented in EDGE)
 
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
-  map_REMINDregions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingREMIND.csv",
-                                                 returnPathOnly = TRUE, where = "mappingfolder"),
-                                  stringsAsFactors = TRUE)
-  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, 
+
+  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE,
                 where = "mappingfolder"),
                             stringsAsFactors = TRUE)[, c(2, 3)]
   map_regions  <- map_regions %>%
@@ -207,23 +173,35 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   emissions_exogenous <- emissions[, , dimSector_skipEF]
 
   # make output dummy "ef" and "emi" which then has to be filled by the data
-  ef <- do.call("mbind",
-                lapply(scenario,
-                       function(s) {
-new.magpie(getRegions(ef_eclipse),
-                                               c(2005, 2010, 2030, 2050, 2100),
-                                               gsub("CLE", s, getNames(ef_eclipse[, , "CLE"])))
-                       }))
+  ef <- do.call(
+    "mbind",
+    lapply(
+      scenario,
+      function(s) {
+        new.magpie(
+          getRegions(ef_eclipse),
+          c(2005, 2010, 2030, 2050, 2100),
+          gsub("CLE", s, getNames(ef_eclipse[, , "CLE"]))
+        )
+      }
+    )
+  )
 
   getSets(ef) <- c("region", "year", "data1", "data2", "data3") # forcing set names to avoid errors while filtering
 
-  emi <- do.call("mbind",
-                lapply(scenario,
-                       function(s) {
-new.magpie(getRegions(emissions_exogenous),
-                                               c(2005, 2010, 2030, 2050, 2100),
-                                               gsub("CLE", s, getNames(emissions_exogenous[, , "CLE"])))
-                       }))
+  emi <- do.call(
+    "mbind",
+    lapply(
+      scenario,
+      function(s) {
+        new.magpie(
+          getRegions(emissions_exogenous),
+          c(2005, 2010, 2030, 2050, 2100),
+          gsub("CLE", s, getNames(emissions_exogenous[, , "CLE"]))
+        )
+      }
+    )
+  )
 
   # define country categories
   if (p_countryCategories == "perCountry") {
@@ -238,8 +216,8 @@ new.magpie(getRegions(emissions_exogenous),
   } else {
     # Compute mean GDP/Cap per GAINS region
     regionMean_gdppcap <- sapply(unique(map_regions$RegionCode), function(x) {
-mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x], , ])
-})
+      mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x], , ])
+    })
 
     # low income countries (using World Bank definition < 2750 US$(2010)/Cap)
     r_L        <- levels(map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])])
@@ -324,6 +302,7 @@ mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x], , ])
                                      setYears(emissions_exogenous[r_L, 2030, "CLE"]))                                     # 2050: Min CLE30 -> CLE30
   emi[r_L, 2100, "SSP2"]       <- pmin(setYears(emi[r_L, 2050, "SSP2"]),
                                      setYears(emissions_exogenous[r_L, 2030, "SLE"] * 0.95))                                # 2100: CLE30 WEU -> 0.95*SLE30
+
   # H-M-Strong:   2030 CLE30; 2050 SLE30;     2100 Lowest SLE30 or lower [EUR, JPN]                     = [3 5]
   # H-M-Rest:     2030 CLE30; 2050 Min CLE30; 2100 EUR SLE30             [CHN, LAM, MEA, ROW, RUS, USA] = [2 6 7 9 10 11]
   # Low:          2030 CLE20; 2050 Min CLE30; 2100 EUR CLE30             [AFR, IND, OAS]                = [1 4 8]
@@ -339,59 +318,8 @@ mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x], , ])
   ef[, , "SSP5"]  <- ef[, , "SSP1"]
   emi[, , "SSP5"] <- emi[, , "SSP1"] # does not really make sense...
 
-  # Find occurences where the EF path is not monotonously decreasing
-#   for (kregi in getRegions(ef)) {
-#     for (kdata in getNames(ef)) {
-#
-#       y1 = ef[kregi,2005,kdata] %>% as.numeric()
-#       y2 = ef[kregi,2010,kdata] %>% as.numeric()
-#       y3 = ef[kregi,2030,kdata] %>% as.numeric()
-#       y4 = ef[kregi,2050,kdata] %>% as.numeric()
-#       y5 = ef[kregi,2100,kdata] %>% as.numeric()
-#
-#       if (y1 > y2 || y2 > y3 || y3 > y4 || y4 > y5) {
-#         print(paste0(kregi, ": ", kdata))
-#       }
-#     }
-#     stop()
-#   }
-
-  # make sure that SSP2 is always higher than SSP1 (and SSP5)
-  # Takes toooooooooooooo much time (~1h30). commented out for now
-#   for (kregi in getRegions(ef)) {
-#     for (kssp1 in getNames(ef[,,"SSP1"])) {
-#
-#       kssp2 = paste0(strsplit(kdata, ".", fixed=TRUE)[[1]][1], ".", strsplit(kdata, ".", fixed=TRUE)[[1]][2], ".SSP2")
-#
-#       for (kyear in getYears(ef)) {
-#         y1 = ef[kregi,kyear,kssp1] %>% as.numeric()
-#         y2 = ef[kregi,kyear,kssp2] %>% as.numeric()
-#
-#         if (y1 > y2) {
-#           ef[kregi,kyear,kssp2] = y1
-#         }
-#       }
-#     }
-#   }
-#   for (kregi in getRegions(emi)) {
-#     for (kssp1 in getNames(emi[,,"SSP1"])) {
-#
-#       kssp2 = paste0(strsplit(kdata, ".", fixed=TRUE)[[1]][1], ".", strsplit(kdata, ".", fixed=TRUE)[[1]][2], ".SSP2")
-#
-#       for (kyear in getYears(emi)) {
-#         y1 = emi[kregi,kyear,kssp1] %>% as.numeric()
-#         y2 = emi[kregi,kyear,kssp2] %>% as.numeric()
-#
-#         if (y1 > y2) {
-#           emi[kregi,kyear,kssp2] = y1
-#         }
-#       }
-#     }
-#   }
-
   # filter all regions and sectors that are constant between 2030 and 2050 and continue to decline afterwards. Replace by linear interpolation
   # between 2030 and 2100
-
 
   # ----------------- CLE and MFR -------------------------------
   ef[, c(2005, 2010, 2030, 2050), c("CLE", "MFR")] <- ef_eclipse[, c(2005, 2010, 2030, 2050), c("CLE", "MFR")]
@@ -433,19 +361,18 @@ mean(gdp_cap[map_regions$CountryCode[map_regions$RegionCode == x], , ])
       do.call("expand.grid", emiNam), as.character),
     1, paste, collapse = ".")
 
-  activities.EF <- do.call("mbind",
-                             lapply(newdim,
-                                    function(scen) {
-setNames(activities[, , dimSector_EF], paste(getNames(activities[, , dimSector_EF]), scen, sep = "."))
-}))
-  # activities.full <- time_interpolate(activities.full, interpolated_year=time, integrate=TRUE, extrapolation_type="constant")
-  # activities.full <- activities.full[,time,] #remove 2000
+  activities.EF <- do.call(
+    "mbind",
+    lapply(
+      newdim,
+      function(scen) {
+        setNames(activities[, , dimSector_EF], paste(getNames(activities[, , dimSector_EF]), scen, sep = "."))
+      }
+    )
+  )
 
   getSets(ef) <- c("region", "year", "sector.species.scenario")
   getSets(activities.EF) <- c("region", "year", "sector.species.scenario")
-
-  # ef_eclipseR = toolAggregate(ef_eclipse[,,dimSector_EF], map_REMINDregions[,2:3], weight=setYears(activities[,2010,dimSector_EF]))
-  # ef_remind   = toolAggregate(ef, map_REMINDregions[,2:3], weight=setYears(activities.EF[,2010,]))
 
   # ----- EFs for advanced coal and biomass technologies -------
   mapsec <- map_sectors_ECLIPSE2REMIND[map_sectors_ECLIPSE2REMIND$eclipse %in% getNames(ef, dim = 1), c(1, 3)]
@@ -453,22 +380,24 @@ setNames(activities[, , dimSector_EF], paste(getNames(activities[, , dimSector_E
 
   adv_techs     <- c("igcc", "igccc", "pcc", "pco", "coalgas", "bioigcc", "bioigccc", "biogas")
   adv_coaltechs <- c("igcc", "igccc", "pcc", "pco")
-  adv_biotechs  <- c("coalgas", "bioigcc", "bioigccc", "biogas")
   adv_specs  <- c("NOx", "SO2", "BC", "OC")
   adv_factor <- c(0.85,   0.6,  0.6,  0.6)
 
-  for (kscen in getNames(ef,  dim = 6)) {
+  for (kscen in getNames(ef, dim = 6)) {
     for (ktech in adv_techs) {
       curtech <- ifelse(ktech %in% adv_coaltechs, "Power_Gen_Coal.", "Power_Gen_Bio_Trad.")
-      for (kspec in adv_specs)
+      for (kspec in adv_specs) {
         nm <- getNames(ef[, , paste0("power.", kspec)][, , ktech][, , kscen])
-        ef[, intersect(getYears(ef), getYears(ef_eclipse)), paste0("power.", kspec)][, , ktech][, , kscen] <- setNames(
-          pmin(
-            mbind(lapply(getYears(ef), function(x) {
-setYears(ef_eclipse[, 2030, paste0(curtech, kspec, ".MFR")] / adv_factor[adv_specs == kspec], x)
-}))[, intersect(getYears(ef), getYears(ef_eclipse)), ],
-            ef_eclipse[, intersect(getYears(ef), getYears(ef_eclipse)), paste0(curtech, kspec, ".CLE")]),
-          nm)
+      }
+      ef[, intersect(getYears(ef), getYears(ef_eclipse)), paste0("power.", kspec)][, , ktech][, , kscen] <- setNames(
+        pmin(
+          mbind(lapply(getYears(ef), function(x) {
+            setYears(ef_eclipse[, 2030, paste0(curtech, kspec, ".MFR")] / adv_factor[adv_specs == kspec], x)
+          }))[, intersect(getYears(ef), getYears(ef_eclipse)), ],
+          ef_eclipse[, intersect(getYears(ef), getYears(ef_eclipse)), paste0(curtech, kspec, ".CLE")]
+        ),
+        nm
+      )
     }
   }
 
@@ -481,10 +410,6 @@ setYears(ef_eclipse[, 2030, paste0(curtech, kspec, ".MFR")] / adv_factor[adv_spe
   ef  <- time_interpolate(ef, interpolated_year = time, integrate_interpolated_years = TRUE, extrapolation_type = "constant")
   emi <- time_interpolate(emi, interpolated_year = time, integrate_interpolated_years = TRUE, extrapolation_type = "constant")
 
-  # change scenario names
-  # getNames(emi) <- gsub("SSP","forcing_SSP",getNames(emi))
-  # getNames(ef)  <- gsub("SSP","forcing_SSP",getNames(ef))
-
   if (subtype == "emissions") {
     x <- emi
     w <- NULL
@@ -493,7 +418,6 @@ setYears(ef_eclipse[, 2030, paste0(curtech, kspec, ".MFR")] / adv_factor[adv_spe
     w <- setYears(activities.EF[, 2010, dimSector_EF])
     mapsec <- map_sectors_ECLIPSE2REMIND[map_sectors_ECLIPSE2REMIND$eclipse %in% getNames(w, dim = 1), c(1, 3)]
     w <- toolAggregate(w, mapsec, dim = 3.1)
-  #  getNames(w)  <- gsub("SSP","forcing_SSP",getNames(w))
   } else (stop("do not know which weight to use for acrivities"))
 
   return(list(x           = x,
