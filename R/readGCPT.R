@@ -309,7 +309,7 @@ readGCPT <- function(subtype) {
       summarise(Retired_cap=sum(`Capacity (MW)`))
     early_ret <- as.magpie(early_ret,spatial=1,temporal=2)
     early_ret <- toolCountryFill(early_ret,fill=0,no_remove_warning = "KOS",verbosity = 0)
-    ret_rate <- new.magpie(getItems(dim = 1, x = mavgRetAge),seq(2000,2015,5),names="Early_Retirement",fill=2)
+    ret_rate <- new.magpie(getItems(dim = 1, x = mavgRetAge),seq(2000,2015,5),names="Early_Retirement",fill=0)
     for (t in seq(2000,2015,5)) {
       ret_rate[,t,] <- dimSums(early_ret[,t:(t+5),],dim=2)/cap[,t,]
     }
