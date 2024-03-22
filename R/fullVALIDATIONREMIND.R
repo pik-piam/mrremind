@@ -166,22 +166,18 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
 
-  # IEA WEO 2021  ----
-  weo <- calcOutput(
-    type = "IEA_WorldEnergyOutlook", subtype = "2021-global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, years = years,
+  # IEA WEO  ----
+  calcOutput(
+    type = "IEA_WorldEnergyOutlook", year = 2021, file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years
   )
 
-  weo <- weo["GLO", , ]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
-
-  weo <- calcOutput(
-    type = "IEA_WorldEnergyOutlook", subtype = "2021-region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, years = years,
+  calcOutput(
+    type = "IEA_WorldEnergyOutlook", year = 2023, file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
   )
-
-  weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
   # IEA CCUS  ----
 
