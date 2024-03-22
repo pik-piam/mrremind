@@ -9,22 +9,24 @@
 #' @importFrom dplyr select mutate left_join case_when
 #' @importFrom madrat toolGetMapping
 #' @importFrom magclass as.magpie
-#' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
 
 calcIEA_WorldEnergyOutlook <- function(subtype) { # nolint
 
-  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv", type = "reportingVariables",
-                             where = "mappingfolder") %>%
-    filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
+  mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv",
+    type = "reportingVariables",
+    where = "mrremind"
+  ) %>%
+    filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
     mutate(
-      !!sym("WEO") := paste0(!!sym("WEO"), " (", !!sym("Unit_WEO"), ")"), # nolint
-      !!sym("Conversion") := as.numeric(!!sym("Conversion")) # nolint
+      "WEO" := paste0(.data$WEO, " (", .data$Unit_WEO, ")"),
+      "Conversion" := as.numeric(.data$Conversion)
     ) %>%
     select("variable" = "WEO", "REMIND", "Conversion", "unit" = "Unit_WEO", "Unit_REMIND")
 
   mapping$variable <- trimws(mapping$variable)
+
 
   data <- readSource("IEA_WorldEnergyOutlook", subtype = subtype)
 
@@ -40,7 +42,7 @@ calcIEA_WorldEnergyOutlook <- function(subtype) { # nolint
       "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
       "year" = "Year", "value" = "Value"
     ) %>%
-    mutate(!!sym("scenario_short") := case_when( # nolint
+    mutate("scenario_short" = case_when( # nolint
       scenario == "Stated Policies Scenario" ~ "SPS",
       scenario == "Announced pledges scenario" ~ "APS",
       scenario == "Announced Pledges Scenario" ~ "APS",
@@ -53,11 +55,11 @@ calcIEA_WorldEnergyOutlook <- function(subtype) { # nolint
     mapping,
     by = "variable"
   ) %>%
-    filter(!!sym("REMIND") != "") %>%
+    filter(.data$REMIND != "") %>%
     mutate(
-      !!sym("value") := !!sym("value") * !!sym("Conversion"),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"), # nolint
-      !!sym("model") := paste0("IEA WEO 2021 ", !!sym("scenario_short")) # nolint
+      "value" = .data$value * .data$Conversion,
+      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")"),
+      "model" = paste0("IEA WEO 2021 ", .data$scenario_short)
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
