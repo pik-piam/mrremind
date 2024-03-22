@@ -1,6 +1,6 @@
 #' Calculate REMIND variables from IEA World Energy Outlook data. TODO
 #'
-#' @param year 2021 (full paid date) or 2023 (free data).
+#' @param refYear 2021 (full paid date) or 2023 (free data).
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
 #' @importFrom madrat toolGetMapping
@@ -8,7 +8,7 @@
 #' @importFrom stats aggregate
 #' @export
 
-calcIEA_WorldEnergyOutlook <- function(year) { # nolint
+calcIEA_WorldEnergyOutlook <- function(refYear = 2021) { # nolint
 
   mapping <- toolGetMapping("Mapping_IEA_WEO_2021_complete.csv",
     type = "reportingVariables", where = "mrremind"
@@ -22,15 +22,17 @@ calcIEA_WorldEnergyOutlook <- function(year) { # nolint
 
   mapping$variable <- trimws(mapping$variable)
 
-  dataGlo <- readSource("IEA_WorldEnergyOutlook", subtype = "2021-global")
-  dataReg <- readSource("IEA_WorldEnergyOutlook", subtype = "2021-region")
+  dataGlo <- readSource("IEA_WorldEnergyOutlook", subtype = paste0(refYear, "-global"))
+  dataReg <- readSource("IEA_WorldEnergyOutlook", subtype = paste0(refYear, "-region"))
 
   .mapToRemind <- function(data) {
 
-    # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
-    for (s in getNames(data, dim = 1)) {
-      data[, c("y2010", "y2019", "y2020"), s] <-
-        data[, c("y2010", "y2019", "y2020"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
+    if (refYear == 2021) {
+      # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
+      for (s in getNames(data, dim = 1)) {
+        data[, c("y2010", "y2019", "y2020"), s] <-
+          data[, c("y2010", "y2019", "y2020"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
+      }
     }
 
     data <- as.data.frame(data) %>%
@@ -52,7 +54,7 @@ calcIEA_WorldEnergyOutlook <- function(year) { # nolint
       mutate(
         "value" = .data$value * .data$Conversion,
         "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")"),
-        "model" = paste0("IEA WEO 2021 ", .data$scenario_short)
+        "model" = paste0("IEA WEO ", refYear, " ", .data$scenario_short)
       ) %>%
       select("region", "year", "model", "variable" = "REMIND", "value")
 
@@ -70,6 +72,7 @@ calcIEA_WorldEnergyOutlook <- function(year) { # nolint
   .calcAdditionalVars <- function(x, glo) {
 
     if (glo) {
+
       x <- add_columns(x, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
       x[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
         x[, , "Cap|Electricity|Biomass (GW)"] - x[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
@@ -105,14 +108,16 @@ calcIEA_WorldEnergyOutlook <- function(year) { # nolint
     return(x)
   }
 
-
-  dataGlo <- .calcAdditionalVars(dataGlo, glo = TRUE)
-  dataReg <- .calcAdditionalVars(dataReg, glo = FALSE)
+  # do additional calculations on full dataset for 2021 (won't work for incomplete 2023 data)
+  if (refYear == 2021) {
+    dataGlo <- .calcAdditionalVars(dataGlo, glo = TRUE)
+    dataReg <- .calcAdditionalVars(dataReg, glo = FALSE)
+  }
 
   .customAggregate <- function(x, rel, to = NULL, glo) {
     x <- toolAggregate(x, rel = rel, to = to)
 
-    if ("GLO" %in% getRegions(x)) {
+    if ("GLO" %in% getItems(x, dim = 1)) {
       x <- x["GLO", , , invert = TRUE]
 
       glo <- dimSums(glo, dim = 1, na.rm = TRUE)
