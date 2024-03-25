@@ -168,13 +168,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # IEA World Energy Outlook  ----
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", refYear = 2021, file = valfile,
+    type = "IEA_WorldEnergyOutlook", version = "default", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years, writeArgs = list(scenario = "historical")
   )
 
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", refYear = 2023, file = valfile,
+    type = "IEA_WorldEnergyOutlook", refYear = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years, writeArgs = list(scenario = "historical")
   )
