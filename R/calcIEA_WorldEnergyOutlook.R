@@ -119,6 +119,8 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
 
   }
 
+  # includes values from the original source for global region instead of calculating
+  # it as the sum of all regions (as regions are incomplete)
   .customAggregate <- function(x, rel, to = NULL, glo) {
     x <- toolAggregate(x, rel = rel, to = to)
 
