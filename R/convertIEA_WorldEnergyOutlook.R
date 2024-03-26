@@ -1,16 +1,20 @@
-#' Disaggregates IEA WEO 2021 Data
-#' @param x MAgPIE object to be converted
-#' @return A [`magpie`][magclass::magclass] object.
-#' @param subtype Either "global" or "region". On global level, the source offers
-#' more variables than on regional level, but the data should not be used on sub-
-#' global level due to its coarse disaggregation.
+#' Convert IEA WEO 2021 Data
+#'
+#' @param x magclass object to be converted
+#' @param subtype "2021-global", "2021-region", "2023-global", or "2023-region".
+#' - For 2021 we have complete paid data. For 2023 we have only the free dataset.
+#' - On global level, the source offers more variables than on regional level,
+#' but the data should not be used on sub-global level due to its coarse disaggregation.
 #' @author Falk Benke
 #' @importFrom madrat getISOlist
 #'
 
-convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
+convertIEA_WorldEnergyOutlook <- function(x, subtype = "2021-global") { # nolint
+
   pe <- calcOutput("PE", aggregate = FALSE)
-  if (subtype == "global") {
+
+  if (grepl("-global$", subtype)) {
+
     # for now, we only have complete data on global level
     xWorld <- x["World", , ]
 
@@ -29,14 +33,18 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
 
     weight <- pe[, 2014, "PE (EJ/yr)"]
     xWorld <- toolAggregate(xWorld, rel = mappingWorld, weight = weight)
+
     return(xWorld)
-  } else if (subtype == "region") {
+
+  } else if (grepl("-region$", subtype)) {
+
     .removeNaRegions <- function(x) {
       remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
       return(x[!remove, , ])
     }
 
-    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv", type = "regional", where = "mappingfolder")
+    mappingFull <- toolGetMapping("regionmapping_IEA_WEO_2021.csv",
+                                  type = "regional", where = "mappingfolder")
 
     .disaggregateRegions <- function(xIn, regionsIn) {
       x <- .removeNaRegions(xIn)
@@ -97,13 +105,14 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
       "Advanced economies", "Emerging market and developing economies",
       "International Energy Agency", "OECD", "Non-OECD",
       "North Africa", "Sub-Saharan Africa", "Rest of world",
-      "Other Asia Pacific", "Other Europe"
+      "Other Asia Pacific", "Other Europe", "Non-OPEC"
     ), , , invert = TRUE]
 
     # remove all-NA variables
     remove <- magpply(xReg, function(y) all(is.na(y)), MARGIN = 3)
     xReg <- xReg[, , !remove]
 
+    # regions we disaggregate
     regions <- c(
       "Africa", "Asia Pacific", "Central and South America", "Europe",
       "Eurasia", "Middle East", "North America"
@@ -111,23 +120,26 @@ convertIEA_WEO_2021 <- function(x, subtype = "global") { # nolint
     x1 <- xReg[regions, , ]
 
     # convert country names to ISO
-    ctry <- toolCountry2isocode(getItems(xReg, dim = 1), warn = FALSE)
-    x2 <- xReg[!is.na(ctry), , ]
-    getItems(x2, dim = 1) <- ctry[!is.na(ctry)]
+    x2 <- xReg[regions, , , invert = TRUE]
+    getItems(x2, dim = 1) <- toolCountry2isocode(getItems(x2, dim = 1), warn = TRUE)
+
     xReg <- mbind(x1, x2)
 
     xRegional <- NULL
-    for (i in getItems(xReg, dim = 3)) {
-      j <- xReg[, , i]
-      j <- .removeNaRegions(j)
-      xRegional <- mbind(xRegional, .disaggregateRegions(xIn = j, regionsIn = regions))
+
+    # disaggregate regions per variable
+    for (v in getItems(xReg, dim = 3)) {
+      xRegional <- mbind(
+        xRegional,
+        .disaggregateRegions(xIn = xReg[, , v], regionsIn = regions)
+      )
     }
 
-    non28EUcountries <- c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY")
-    xRegional[non28EUcountries, , ] <- 0
+    xRegional <- toolFillEU34Countries(xRegional)
 
     return(xRegional)
+
   } else {
-    stop("Not a valid subtype! Must be either \"region\" or \"global\"")
+    stop("Not a valid subtype! Must be one of: '2021-region', '2021-global', '2023-region', '2023-global'")
   }
 }

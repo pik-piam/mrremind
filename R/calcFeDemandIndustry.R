@@ -964,7 +964,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
         industry_subsectors_en %>%
           filter(2010 == .data$year),
 
-        readSource(type = "IEA_WEO_2021", subtype = "region",
+        readSource(type = "IEA_WorldEnergyOutlook", subtype = "2021-region",
                    convert = TRUE) %>%
           magclass_to_tibble(c("iso3c", "year", "scenario", "variable", "industry.FE")) %>%
           filter(.data$year %in% c(2010, IEA_WEO_2021_ref_year),
