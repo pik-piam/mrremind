@@ -174,7 +174,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", refYear = "latest", file = valfile,
+    type = "IEA_WorldEnergyOutlook", version = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years, writeArgs = list(scenario = "historical")
   )
