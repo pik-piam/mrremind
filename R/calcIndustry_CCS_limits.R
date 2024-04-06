@@ -55,11 +55,12 @@
 #'     rename select summarise tibble ungroup
 #' @importFrom quitte add_countrycode_ madrat_mule magclass_to_tibble
 #' @importFrom readr read_delim
+#' @importFrom rlang .data
 #' @importFrom tidyr complete pivot_longer
 #'
 #' @export
 calcIndustry_CCS_limits <- function(
-    annual_growth_factor = 1.2, # 20 %
+    a1 = 0.7, a2 = 0.2
     stage_weight = c('Operational'          = 1,
                      'In construction'      = 1,
                      'Advanced development' = 0.5,
@@ -77,9 +78,9 @@ calcIndustry_CCS_limits <- function(
   facility_subsector <- tibble(`Facility Industry` = names(facility_subsector),
                                subsector = facility_subsector)
 
-  ## read 2030 SSP2EU industry activity ----
-  ind_activity_2030 <- calcOutput('FEdemand', aggregate = FALSE,
-                                  years = 2030) %>%
+  ## read 2025 SSP2EU industry activity ----
+  ind_activity_2025 <- calcOutput('FEdemand', aggregate = FALSE,
+                                  years = 2025) %>%
     `[`(,,paste0('gdp_SSP2EU.',
                  c('ue_cement', 'ue_chemicals', 'ue_steel_primary'))) %>%
     magclass_to_tibble() %>%
@@ -116,49 +117,96 @@ calcIndustry_CCS_limits <- function(
                      destination = 'iso3c') %>%
     left_join(region_mapping, 'iso3c' ) %>%
     left_join(stage_weight, 'stage') %>%
+    # split facilities existing already in 2025 or only in 2030
+    mutate(`2025` = .data$`Operational date` <= 2027,
+           `2030` = .data$`Operational date` <= 2032) %>%
+    pivot_longer(cols = c('2025', '2030'), names_to = 'period',
+                 names_transform = as.integer, values_to = 'include') %>%
+    filter(.data$include) %>%
+    select(-'include') %>%
     # regional aggregation and applying stage factors
-    group_by(.data$region, .data$subsector) %>%
+    group_by(.data$period, .data$region, .data$subsector) %>%
     summarise(value = sum(.data$value * .data$factor), .groups = 'drop') %>%
-    # set data for missing regions/countries to zero
-    complete(region = sort(unique(region_mapping$region)),
-             .data$subsector,
-             fill = list(value = 0)) %>%
-    # calculate data for regions/countries w/o CCS projects through scaling with
-    # industry subsector activity
     full_join(
-      full_join(ind_activity_2030, region_mapping, 'iso3c') %>%
+      full_join(ind_activity_2025, region_mapping, 'iso3c') %>%
         group_by(.data$region, .data$subsector) %>%
         summarise(activity = sum(.data$activity), .groups = 'drop'),
 
       c('region', 'subsector')
     ) %>%
-    group_by(.data$subsector) %>%
-    mutate(total.value = sum(.data$value, na.rm = TRUE),
-           total.activity = sum(.data$activity, na.rm = TRUE)) %>%
+    replace_na(list(period = 2025L, value = 0)) %>%
     group_by(.data$region) %>%
-    mutate(
-      value_2035 = case_when(
-        0 != .data$value ~
-          .data$value * annual_growth_factor ^ 5,
-        0 != sum(.data$value, na.rm = TRUE) ~
-          .data$total.value / .data$total.activity * .data$activity,
-        TRUE ~
-          0),
-      value_2040 = case_when(
-        0 != .data$value ~
-          .data$value * annual_growth_factor ^ 10,
-        0 != .data$value_2035 ~
-          .data$value_2035 * annual_growth_factor ^ 5,
-        TRUE ~
-          .data$total.value / .data$total.activity * .data$activity)) %>%
+    # classes: - A: non-zero 2025 data (is continued)
+    #          - B: zero 2025 data, but non-zero 2025 data in different
+    #               subsector (gets initialised in 2030)
+    #          - C: zero 2025 data in all subsectors (get initialised in 2035)
+    mutate(class = case_when(
+      0 != .data$value                            ~ 'A',
+      0 != sum(.data$value[2025 == .data$period]) ~ 'B',
+      0 == sum(.data$value[2025 == .data$period]) ~ 'C')) %>%
     ungroup() %>%
-    select('region', 'subsector',
-           '2030' = 'value', '2035' = 'value_2035', '2040' = 'value_2040') %>%
-    pivot_longer(c('2030', '2035', '2040'), names_to = 'period',
-                 names_transform = as.integer) %>%
+    complete(nesting(!!!syms(c('region', 'subsector', 'class', 'activity'))),
+             period = unique(remind_timesteps$period),
+             fill = list(value = NA)) %>%
+    group_by(.data$period, .data$subsector) %>%
+    mutate(activity.total = sum(.data$activity, na.rm = TRUE),
+           value.total = case_when(
+             .data$period <= 2030 ~ sum(.data$value, na.rm = TRUE))) %>%
+    group_by(.data$subsector) %>%
+    fill('value.total', .direction = 'down') %>%
+    arrange(.data$region, .data$subsector, .data$period) %>%
+    group_by(.data$region, .data$subsector) %>%
+    mutate(
+      value = case_when(
+        .data$period <  2025 ~ 0,
+
+        'A' == .data$class & 2030 == .data$period ~
+          # either the 2030 value, or the expanded 2025 value, whichever is higher
+          max(sum(.data$value, na.rm = TRUE),
+              .data$value[2025 == .data$period] * (1 + a1) ^ 5),
+
+        'B' == .data$class & 2030 == .data$period ~
+          # global 2025 subsector CCS times regional share in global subsector
+          # activity
+          .data$value.total * .data$activity / .data$activity.total,
+
+        'C' == .data$class & 2030 == .data$period ~ 0,
+
+        TRUE ~ .data$value),
+
+      value = case_when(
+        .data$class %in% c('A', 'B') & 2035 == .data$period ~
+          # expanded 2030 value
+          .data$value[2030 == .data$period] * (1 + a1) ^ 5,
+
+        'C' == .data$class & 2035 == .data$period ~
+          # global 2025 subsector CCS times regional share in global subsector
+          # activity
+          .data$value.total * .data$activity / .data$activity.total,
+
+        TRUE ~ .data$value),
+
+      value = case_when(
+        .data$class %in% c('A', 'B') & 2040 == .data$period ~
+          # expand 2035 value, using a2
+          .data$value[2035 == .data$period] * (1 + a2) ^ 5,
+
+        'C' == .data$class & 2040 == .data$period ~
+          # expand 2035 value, using a1
+          .data$value[2035 == .data$period] * (1 + a1) ^ 5,
+
+        TRUE ~ .data$value),
+
+      value = ifelse(!is.na(.data$value), .data$value,
+                     ( last(.data$value[!is.na(.data$value)])
+                     * (1 + a2)
+                     ^ (.data$period - last(.data$period[!is.na(.data$value)]))
+                     ))) %>%
+    ungroup() %>%
+    select('region', 'subsector', 'period', 'value') %>%
     # expand from regions to iso3c (if different), convert unit
     full_join(
-      full_join(ind_activity_2030, region_mapping, 'iso3c'),
+      full_join(ind_activity_2025, region_mapping, 'iso3c'),
 
       by = c('region', 'subsector'),
       relationship = 'many-to-many'
