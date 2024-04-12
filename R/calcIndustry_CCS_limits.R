@@ -63,7 +63,8 @@
 #'
 #' @export
 calcIndustry_CCS_limits <- function(
-    a1 = 0.7, a2 = 0.2,
+    a1 = 0.5, a2 = 0.2,
+    installation_minimum = 0,
     stage_weight = c('Operational'          = 1,
                      'In construction'      = 1,
                      'Advanced development' = 0.5,
@@ -175,14 +176,16 @@ calcIndustry_CCS_limits <- function(
         ## 2030 ----
 
         'A' == .data$class & 2030 == .data$period ~
-          # either the 2030 value, or the expanded 2025 value, whichever is higher
+          # either the 2030 value, or the expanded 2025 value, whichever is
+          # higher
           max(sum(.data$value, na.rm = TRUE),
               .data$value[2025 == .data$period] * (1 + a1) ^ 5),
 
         'B' == .data$class & 2030 == .data$period ~
           # global 2025 subsector CCS times regional share in global subsector
-          # activity
-          .data$value.total * .data$activity / .data$activity.total,
+          # activity, rounded up to 1 MtCO2/a
+          max(installation_minimum,
+              .data$value.total * .data$activity / .data$activity.total),
 
         'C' == .data$class & 2030 == .data$period ~ 0,
 
@@ -196,8 +199,9 @@ calcIndustry_CCS_limits <- function(
 
         'C' == .data$class & 2035 == .data$period ~
           # global 2025 subsector CCS times regional share in global subsector
-          # activity
-          .data$value.total * .data$activity / .data$activity.total,
+          # activity, rounded up to 1 MtCO2/a
+          max(installation_minimum,
+              .data$value.total * .data$activity / .data$activity.total),
 
         TRUE ~ .data$value),
 
@@ -241,6 +245,7 @@ calcIndustry_CCS_limits <- function(
       relationship = 'many-to-many'
     ) %>%
     group_by(.data$region, .data$subsector, .data$period) %>%
+    ## convert units ----
     # MtCO2/yr * 1e-3 Gt/Mt / (44/12 CO2/C) = GtC/yr
     mutate(value = .data$value
                  * .data$activity / sum(.data$activity)
