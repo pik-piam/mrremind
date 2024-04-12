@@ -26,18 +26,21 @@
 #'    | Early development    |  20 %  |
 #'
 #' The resulting project capacities constitute the limits on industry subsector
-#' CCS capacity for 2030.  The limit on CCS capacities for regions (or countries
-#' if `region_mapping` is `NULL`) is set to a value of total 2030 subsector CCS
-#' capacity, times the regions share in 2030 subsector activity (e.g. cement
-#' production)
-#' - in 2035 if the region as some CCS capacity in 2030 in a different industry
+#' CCS capacity for 2025.  The limit on CCS capacities for regions (or countries
+#' if `region_mapping` is `NULL`) is set to a value of total 2025 subsector CCS
+#' capacity, times the regions share in 2025 subsector activity (e.g. cement
+#' production) of the SSP2EU scenario
+#' - in 2030 if the region as some CCS capacity in 2025 in a different industry
 #'   subsector, or
-#' - in 2040 if the region has no industry CCS capacity in 2030 at all.
+#' - in 2035 if the region has no industry CCS capacity in 2030 at all.
 #'
-#' CCS capacities are increase by the annual growth factor (default: 20 %/p.a.).
+#' CCS capacities are increased by the annual growth factor `a1` for the ten
+#' first years, and by the annual growth factor `a2` afterwards (defaulting to
+#' 70 % and 20 %, respectively).
 #'
-#' @param annual_growth_factor Annual growth factor of CCS capacity limits,
-#'     defaults to 1.2 (20 % annually).
+#' @param a1,a2 Annual growth factors of CCS capacity limits, for the first ten
+#'     years and thereafter, default to `0.7` and `0.2` (70 % and 20 %,
+#'     respectively).
 #' @param stage_weight  A named vector of weight factors for different lifecycle
 #'     stages.  See Details.
 #' @param facility_subsector A named vector mapping the "Facility Industry" of
@@ -51,16 +54,16 @@
 #'
 #' @author Michaja Pehl
 #'
-#' @importFrom dplyr %>% group_by full_join inner_join left_join mutate pull
-#'     rename select summarise tibble ungroup
+#' @importFrom dplyr %>% arrange group_by full_join inner_join left_join mutate
+#'     pull rename select summarise tibble ungroup
 #' @importFrom quitte add_countrycode_ madrat_mule magclass_to_tibble
 #' @importFrom readr read_delim
 #' @importFrom rlang .data
-#' @importFrom tidyr complete pivot_longer
+#' @importFrom tidyr complete fill pivot_longer replace_na
 #'
 #' @export
 calcIndustry_CCS_limits <- function(
-    a1 = 0.7, a2 = 0.2
+    a1 = 0.7, a2 = 0.2,
     stage_weight = c('Operational'          = 1,
                      'In construction'      = 1,
                      'Advanced development' = 0.5,
@@ -127,6 +130,8 @@ calcIndustry_CCS_limits <- function(
     # regional aggregation and applying stage factors
     group_by(.data$period, .data$region, .data$subsector) %>%
     summarise(value = sum(.data$value * .data$factor), .groups = 'drop') %>%
+    complete(crossing(!!!syms(c('region', 'subsector', 'period'))),
+             fill = list(value = 0)) %>%
     full_join(
       full_join(ind_activity_2025, region_mapping, 'iso3c') %>%
         group_by(.data$region, .data$subsector) %>%
@@ -135,18 +140,22 @@ calcIndustry_CCS_limits <- function(
       c('region', 'subsector')
     ) %>%
     replace_na(list(period = 2025L, value = 0)) %>%
-    group_by(.data$region) %>%
     # classes: - A: non-zero 2025 data (is continued)
     #          - B: zero 2025 data, but non-zero 2025 data in different
     #               subsector (gets initialised in 2030)
     #          - C: zero 2025 data in all subsectors (get initialised in 2035)
-    mutate(class = case_when(
-      0 != .data$value                            ~ 'A',
-      0 != sum(.data$value[2025 == .data$period]) ~ 'B',
-      0 == sum(.data$value[2025 == .data$period]) ~ 'C')) %>%
+    group_by(.data$region, .data$subsector) %>%
+    mutate(
+      class = ifelse(0 != .data$value[2025 == .data$period], 'A', NA)) %>%
+    group_by(.data$region) %>%
+    mutate(
+      class = case_when(
+        'A' == .data$class                          ~ .data$class,
+        0 != sum(.data$value[2025 == .data$period]) ~ 'B',
+        0 == sum(.data$value[2025 == .data$period]) ~ 'C')) %>%
     ungroup() %>%
     complete(nesting(!!!syms(c('region', 'subsector', 'class', 'activity'))),
-             period = unique(remind_timesteps$period),
+             period = unique(quitte::remind_timesteps$period),
              fill = list(value = NA)) %>%
     group_by(.data$period, .data$subsector) %>%
     mutate(activity.total = sum(.data$activity, na.rm = TRUE),
@@ -158,7 +167,12 @@ calcIndustry_CCS_limits <- function(
     group_by(.data$region, .data$subsector) %>%
     mutate(
       value = case_when(
+        ## before 2025 ----
         .data$period <  2025 ~ 0,
+
+        # 2025 just keeps data present
+
+        ## 2030 ----
 
         'A' == .data$class & 2030 == .data$period ~
           # either the 2030 value, or the expanded 2025 value, whichever is higher
@@ -174,6 +188,7 @@ calcIndustry_CCS_limits <- function(
 
         TRUE ~ .data$value),
 
+      ## 2035 ----
       value = case_when(
         .data$class %in% c('A', 'B') & 2035 == .data$period ~
           # expanded 2030 value
@@ -186,17 +201,31 @@ calcIndustry_CCS_limits <- function(
 
         TRUE ~ .data$value),
 
+      ## 2040 ----
       value = case_when(
-        .data$class %in% c('A', 'B') & 2040 == .data$period ~
+        'A' == .data$class & 2040 == .data$period ~
           # expand 2035 value, using a2
           .data$value[2035 == .data$period] * (1 + a2) ^ 5,
 
-        'C' == .data$class & 2040 == .data$period ~
+        .data$class %in% c('B', 'C') & 2040 == .data$period ~
           # expand 2035 value, using a1
           .data$value[2035 == .data$period] * (1 + a1) ^ 5,
 
         TRUE ~ .data$value),
 
+      ## 2045 ----
+      value = case_when(
+        .data$class %in% c('A', 'B') & 2045 == .data$period ~
+          # expand 2040 value, using a2
+          .data$value[2040 == .data$period] * (1 + a2) ^ 5,
+
+        'C' == .data$class & 2045 == .data$period ~
+          # expand 2040 value, using a1
+          .data$value[2040 == .data$period] * (1 + a1) ^ 5,
+
+        TRUE ~ .data$value),
+
+      ## after 2045 ----
       value = ifelse(!is.na(.data$value), .data$value,
                      ( last(.data$value[!is.na(.data$value)])
                      * (1 + a2)
