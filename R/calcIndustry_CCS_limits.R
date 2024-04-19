@@ -65,8 +65,8 @@
 #'
 #' @export
 calcIndustry_CCS_limits <- function(
-    a1 = 0.5, a2 = 0.2,
-    installation_minimum = 0.5,
+    a1 = 0.3, a2 = 0.15,
+    installation_minimum = 1,
     stage_weight = c('Operational'          = 1,
                      'In construction'      = 1,
                      'Advanced development' = 0.5,
