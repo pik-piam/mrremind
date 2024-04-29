@@ -14,7 +14,6 @@
 #'
 #' @export
 readUBA <- function() {
-
   sheets <- tibble(
     sheet = c("THG", "CO2"),
     name = c("Emi|GHG", "Emi|CO2"),
@@ -25,23 +24,38 @@ readUBA <- function() {
   data <- NULL
 
   for (i in seq(1:nrow(sheets))) {
-    tmp <- read_xlsx(
-      path = "2023_03_15_em_entwicklung_in_d_ksg-sektoren_pm.xlsx", sheet = sheets[["sheet"]][[i]], col_names = T,
-      range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
-    ) %>% select(-2)
 
-    colnames(tmp) <- c("sektor", seq(1990,2022,1))
+    tmp <- suppressWarnings(
+      read_xlsx(
+        path = "2024_03_13_em_entwicklung_in_d_ksg-sektoren_thg_v1.0.xlsx",
+        sheet = sheets[["sheet"]][[i]],
+        col_names = T,
+        col_types = c("text", rep("numeric", 34)),
+        range = sheets[["range"]][[i]],
+        .name_repair = "minimal",
+        na = c("n/a")
+      )
+    )
 
-    tmp <- filter(tmp, !is.na(!!sym("sektor"))) %>%
-      mutate(!!sym("sektor") := paste0(sheets[["name"]][[i]], "|", sub("\\d - ", "", !!sym("sektor"))), !!sym("unit") := sheets[["unit"]][[i]])
+    colnames(tmp) <- c("sektor", seq(1990, 2023, 1))
+
+    tmp <- tmp %>%
+      filter(!is.na(.data$sektor)) %>%
+      mutate(
+        "sektor" = paste0(sheets[["name"]][[i]], "|", sub("\\d - ", "", .data$sektor)),
+        "unit" = sheets[["unit"]][[i]]
+      )
 
     data <- bind_rows(data, tmp)
   }
 
-  melt(data, id.vars = c("sektor", "unit"))  %>%
-    select("period" = "variable", "unit" = "unit", "value", "variable" = "sektor")  %>%
-    mutate("region" := "DEU", "value" := as.numeric(!!sym("value")) / 1000) %>%
-    select("region", "variable", "unit", "period", "value")  %>%
+  melt(data, id.vars = c("sektor", "unit")) %>%
+    select("period" = "variable", "unit" = "unit", "value", "variable" = "sektor") %>%
+    mutate(
+      "region" = "DEU",
+      "value" = as.numeric(.data$value) / 1000
+    ) %>%
+    select("region", "variable", "unit", "period", "value") %>%
     filter(!is.na(!!sym("value"))) %>%
     as.magpie() %>%
     return()
