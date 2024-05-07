@@ -1,8 +1,9 @@
 #' @importFrom dplyr left_join select filter mutate %>%
 #' @importFrom madrat toolGetMapping
 #'
-calcINNOPATHS <- function(x) {
-  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mappingfolder") %>%
+calcINNOPATHS <- function() {
+
+  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND"))) %>%
     mutate(
       !!sym("REMIND_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("REMIND"))),
@@ -38,12 +39,13 @@ calcINNOPATHS <- function(x) {
 
   weights <- x
   weights[, , ] <- NA
-  weights[, , "US$2005", pmatch = T] <- 1
+  weights[, , "US$2005", pmatch = TRUE] <- 1
+  weights[, , "GDP|MER (billion US$2005/yr)"] <- NA
 
   return(list(
     x = x,
     weight = weights,
-    mixed_aggregation = T,
+    mixed_aggregation = TRUE,
     unit = "Various",
     description = "INNOPATHS projections as REMIND variables"
   ))
