@@ -22,7 +22,6 @@
 #' @importFrom dplyr bind_rows filter group_by inner_join left_join mutate
 #'             select summarise
 #' @importFrom quitte add_countrycode_ madrat_mule
-#' @importFrom readODS read_ods
 #' @importFrom readr read_delim read_rds
 #' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
@@ -51,7 +50,7 @@ readworldsteel <- function(subtype = 'detailed') {
           'Apparent Steel Use (Crude Steel Equivalent)'),
         function(sheet) {
           # from this file
-          read_ods(path = file_path, sheet = sheet, na = '...') %>%
+          readODS::read_ods(path = file_path, sheet = sheet, na = '...') %>%
             as_tibble() %>%
             mutate(name = sheet) %>%
             pivot_longer(c(-'country', -'name'), names_to = 'year',

@@ -30,7 +30,7 @@ readHRE <- function() {
   x <- as.magpie(df, spatial="Country", temporal="year", tidy = TRUE)
   
   # change country code to iso3
-  getItems(x, dim=1) <- countrycode(getItems(x, dim=1), "eurostat", "iso3c")
+  getItems(x, dim=1) <- countrycode::countrycode(getItems(x, dim=1), "eurostat", "iso3c")
   getSets(x)[1] <- "region"
 
   return(x)

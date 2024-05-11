@@ -33,11 +33,8 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert not_na verify within_bounds
-#' @importFrom broom tidy
-#' @importFrom car logit
 #' @importFrom dplyr %>% case_when bind_rows between distinct first last n
 #'   mutate pull right_join select semi_join vars
-#' @importFrom Hmisc wtd.quantile
 #' @importFrom ggplot2 aes coord_cartesian expand_limits facet_wrap geom_area
 #'   geom_line geom_path geom_point ggplot ggsave guide_legend labs
 #'   scale_colour_manual scale_fill_discrete scale_fill_manual
@@ -272,15 +269,15 @@ calcSteel_Projections <- function(subtype = 'production',
     Asym <- regression_data %>%
       filter(.estimate == .data$estimate) %>%
       group_by(.data$year) %>%
-      summarise(Asym = 1.1 * wtd.quantile(x = .data$steel.stock.per.capita,
-                                          weights = .data$population,
-                                          probs = 0.99),
+      summarise(Asym = 1.1 * Hmisc::wtd.quantile(x = .data$steel.stock.per.capita,
+                                                 weights = .data$population,
+                                                 probs = 0.99),
                 .groups = 'drop') %>%
       pull('Asym') %>%
       max()
 
     coefficients <- lm(
-      formula = logit(x, adjust = 0.025) ~ y,
+      formula = car::logit(x, adjust = 0.025) ~ y,
       data = regression_data %>%
         filter(.estimate == .data$estimate,
                between(.data$steel.stock.per.capita, 0, Asym)) %>%
@@ -304,7 +301,7 @@ calcSteel_Projections <- function(subtype = 'production',
           start = list(Asym = Asym, xmid = xmid, scal = scal),
           algorithm = 'port',
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(estimate = .estimate)
@@ -1481,7 +1478,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    'Total' == .data$iso3c),
           start = list(a = 1000, b = -2000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -1626,7 +1623,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 500, b = 500),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -1899,7 +1896,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 1, b = -1000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -2008,7 +2005,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    GDPpC       = .data$GDP / .data$population),
           start = list(a = 250, b = -4000),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
@@ -2376,7 +2373,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                    !.data$censored),
           start = list(a = 1000, b = -100),
           trace = FALSE) %>%
-        tidy() %>%
+        broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
         mutate(region = r)
