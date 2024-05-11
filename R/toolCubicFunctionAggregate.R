@@ -50,7 +50,6 @@
 #'
 #' @author Renato Rodrigues
 #' @export
-#' @importFrom magclass is.magpie as.data.frame
 #' @importFrom reshape2 acast
 #' @importFrom stats reshape uniroot
 #' @seealso \code{\link{toolCubicFunctionDisaggregate}}

@@ -3,7 +3,6 @@
 #' @author Falk Benke
 #' @importFrom utils read.csv
 #' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #' @importFrom dplyr select filter mutate %>%
 
 readINNOPATHS <- function() {

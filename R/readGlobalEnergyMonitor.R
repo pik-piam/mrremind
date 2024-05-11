@@ -4,7 +4,6 @@
 #' @author Rahel Mandaroux, Falk Benke
 #'
 #' @importFrom dplyr %>% filter mutate select
-#' @importFrom magclass as.magpie
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
 #'

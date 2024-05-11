@@ -8,7 +8,6 @@
 #' @source https://heatroadmap.eu/roadmaps/
 #'
 #' @importFrom dplyr select
-#' @importFrom magclass as.magpie
 #' @importFrom tidyr separate
 #' @importFrom readxl read_xlsx
 #'

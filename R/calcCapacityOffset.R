@@ -1,4 +1,3 @@
-#' @importFrom magclass getYears<-
 
 calcCapacityOffset <- function() {
     x <- readSource("REMIND_11Regi", subtype="deltacapoffset")

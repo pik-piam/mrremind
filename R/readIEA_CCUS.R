@@ -7,7 +7,6 @@
 #' @param subtype either `historical` for data from until 2022 or `projections`
 #' for projections in 2020, 2025 and 2030
 #' @importFrom dplyr %>% filter mutate select
-#' @importFrom magclass as.magpie
 #' @importFrom readxl read_xlsx
 #'
 #' @export

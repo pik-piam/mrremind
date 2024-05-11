@@ -14,8 +14,6 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr %>% mutate select
-#' @importFrom madrat getISOlist toolCountryFill
-#' @importFrom magclass as.magpie
 #' @importFrom quitte madrat_mule
 #'
 #'

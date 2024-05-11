@@ -12,7 +12,6 @@
 #' \dontrun{ 
 #' calcOutput("calcEmiMac1990")
 #' }
-#' @importFrom magclass getNames<- getYears<-
 calcEmiMac1990 <- function() {
   
   # emissions for the calculation of econometric paramter p1

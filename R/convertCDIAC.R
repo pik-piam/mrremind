@@ -1,4 +1,3 @@
-#' @importFrom madrat toolCountry2isocode toolISOhistorical toolAggregate
 
 convertCDIAC <- function(x) {
 

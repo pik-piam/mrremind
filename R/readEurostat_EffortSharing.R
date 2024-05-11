@@ -13,7 +13,6 @@
 #' }
 #'  
 #' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #' 
 
 readEurostat_EffortSharing <- function(subtype) {

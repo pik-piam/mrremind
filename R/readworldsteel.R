@@ -21,8 +21,6 @@
 #'
 #' @importFrom dplyr bind_rows filter group_by inner_join left_join mutate
 #'             select summarise
-#' @importFrom madrat toolISOhistorical
-#' @importFrom magclass as.data.frame as.magpie
 #' @importFrom quitte add_countrycode_ madrat_mule
 #' @importFrom readODS read_ods
 #' @importFrom readr read_delim read_rds

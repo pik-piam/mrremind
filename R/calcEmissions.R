@@ -5,7 +5,6 @@
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
-#' @importFrom magclass ndim setNames getNames<-
 #' @importFrom utils read.csv2
 #' @importFrom dplyr filter_ mutate_
 

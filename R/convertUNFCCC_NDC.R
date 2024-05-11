@@ -7,7 +7,6 @@
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
-#' @importFrom magclass nyears
 #' @importFrom R.utils isZero
 
 convertUNFCCC_NDC <- function(x, subtype) {                                # nolint: object_name_linter.

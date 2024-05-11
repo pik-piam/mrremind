@@ -17,7 +17,6 @@
 #'
 #' @seealso [`calcOutput()`]
 #'
-#' @importFrom magclass new.magpie getItems time_interpolate magpiesort
 #' @export
 #'
 

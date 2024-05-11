@@ -1,5 +1,4 @@
 
-#' @importFrom magclass setYears
 
 calcCapacityNuclear <- function() {
  ### overall philosophy:

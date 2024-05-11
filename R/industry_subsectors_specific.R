@@ -50,7 +50,6 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom dplyr anti_join bind_rows filter select
-#' @importFrom magclass as.magpie
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom tidyr complete nesting

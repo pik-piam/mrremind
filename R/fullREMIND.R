@@ -2,7 +2,6 @@
 #'
 #' Function that produces the complete regional data set required for the
 #' REMIND model.
-#' @importFrom madrat madratAttach
 #' @importFrom magrittr %>%
 #' @importFrom quitte cartesian madrat_mule
 #' @author Lavinia Baumstark

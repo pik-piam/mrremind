@@ -8,8 +8,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom madrat getISOlist
-#' @importFrom magclass add_columns
 #'
 #' @export
 convertUBA <- function(x)

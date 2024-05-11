@@ -10,7 +10,6 @@
 #' @importFrom dplyr select mutate
 #' @importFrom rlang sym
 #' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #'
 #' @export
 readUBA <- function() {

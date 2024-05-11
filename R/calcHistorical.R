@@ -1,5 +1,4 @@
 #' Gather reference data from various sources.
-#' @importFrom magclass setNames getNames getSets add_columns
 #' @importFrom dplyr filter group_by mutate select ungroup
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting

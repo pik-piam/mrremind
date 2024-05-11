@@ -6,8 +6,6 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom madrat toolGetMapping toolCountryFill
-#' @importFrom magclass as.magpie
 #' @importFrom rlang sym
 #' @importFrom quitte calc_addVariable
 #' @export

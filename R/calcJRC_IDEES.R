@@ -12,8 +12,6 @@
 #'
 #'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom madrat toolGetMapping toolCountryFill
-#' @importFrom magclass as.magpie mbind mselect
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 

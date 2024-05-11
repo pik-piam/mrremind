@@ -6,7 +6,6 @@
 #' @param subtype Only "Capacity" asof now
 #' @return Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
 #' @importFrom R.utils isZero
-#' @importFrom magclass magpiesort getItems
 #' @author Aman Malik
 
 convertREN21 <- function(x, subtype) {

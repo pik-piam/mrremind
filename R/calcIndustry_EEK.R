@@ -9,8 +9,6 @@
 #' @importFrom assertr assert
 #' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate n
 #'                   row_number select
-#' @importFrom madrat calcOutput readSource getISOlist
-#' @importFrom magclass mbind
 #' @importFrom quitte madrat_mule
 #' @importFrom purrr map reduce
 #' @importFrom rlang .data .env sym syms

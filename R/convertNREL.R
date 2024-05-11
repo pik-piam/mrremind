@@ -10,7 +10,6 @@
 #' \dontrun{
 #' a <- convertNREL(x, subtype = "onshore")
 #' }
-#' @importFrom madrat toolCountryFill
 convertNREL <- function(x) {
   # rename countries with ISO-code
   getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))

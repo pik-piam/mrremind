@@ -5,7 +5,6 @@
 #' @author Stephen Bi
 #' @importFrom readxl read_excel
 #' @importFrom dplyr %>% filter select mutate summarize group_by left_join across everything starts_with
-#' @importFrom magclass replace_non_finite
 #' @importFrom quitte removeColNa
 #' @aliases readEndCoal
 

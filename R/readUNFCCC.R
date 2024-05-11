@@ -8,7 +8,6 @@
 #'
 #' @importFrom dplyr %>% bind_rows bind_cols mutate select
 #'
-#' @importFrom magclass as.magpie
 #' @importFrom tibble tibble
 #' @importFrom tidyr drop_na
 #' @importFrom reshape2 melt

@@ -4,7 +4,6 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
-#' @importFrom magclass mselect collapseNames getNames getRegions
 
 
 

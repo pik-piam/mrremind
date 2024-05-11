@@ -7,8 +7,6 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom madrat toolGetMapping
-#' @importFrom magclass as.magpie
 #' @importFrom rlang sym
 #' @importFrom stats aggregate na.exclude
 
