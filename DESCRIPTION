@@ -56,7 +56,6 @@ Imports:
     luscale,
     magrittr,
     nnls,
-    plyr,
     purrr,
     quitte (>= 0.3105.0),
     R.utils,
