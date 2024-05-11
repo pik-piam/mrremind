@@ -1,5 +1,4 @@
 #' @importFrom dplyr mutate_ rename_ filter_ select_
-#' @importFrom tidyr gather_
 # NH3 only has one scenario
 
 readECLIPSE <- function(subtype) {

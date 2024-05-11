@@ -13,7 +13,6 @@
 #'
 #' @importFrom readxl read_excel
 #' @importFrom dplyr filter_ mutate_ rename_ select_ recode
-#' @importFrom tidyr gather_ separate_
 #' @importFrom stats complete.cases
 
 readRCP <- function(subtype) {
