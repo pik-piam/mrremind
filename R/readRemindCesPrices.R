@@ -13,8 +13,6 @@
 #' \dontrun{ a <- readSource(type="RemindCesPrices", subtype = "ccd632d33a")
 #' }
 #' @importFrom quitte inline.data.frame
-#' @importFrom dplyr  mutate_ group_by_ summarise_
-#'
 #'
 readRemindCesPrices <- function(subtype = "ccd632d33a") {
 

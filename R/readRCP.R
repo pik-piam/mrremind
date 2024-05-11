@@ -12,7 +12,7 @@
 #' @param subtype Either 'Waste' or 'AviationShipping'
 #'
 #' @importFrom readxl read_excel
-#' @importFrom dplyr filter_ mutate_ rename_ select_ recode
+#' @importFrom dplyr recode
 #' @importFrom stats complete.cases
 
 readRCP <- function(subtype) {

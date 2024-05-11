@@ -1,4 +1,4 @@
-#' @importFrom dplyr group_by_ summarise_ ungroup mutate_ rename_ filter_ select_
+#' @importFrom dplyr ungroup
 #' @importFrom utils read.csv read.csv2
 #' @importFrom quitte as.quitte
 
