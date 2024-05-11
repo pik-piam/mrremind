@@ -55,7 +55,6 @@ Imports:
     Hmisc,
     luscale,
     magrittr,
-    mgsub,
     nnls,
     plyr,
     purrr,
