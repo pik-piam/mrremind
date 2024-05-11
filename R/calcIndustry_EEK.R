@@ -10,7 +10,6 @@
 #' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate n
 #'                   row_number select
 #' @importFrom quitte madrat_mule
-#' @importFrom purrr map reduce
 #' @importFrom rlang .data .env sym syms
 #' @importFrom tidyr nest pivot_longer unnest
 
@@ -232,7 +231,7 @@ calcIndustry_EEK <- function(kap) {
     # depreciation limit, as it has already been processed.  reduce() returns
     # only the last row of the computation, so we get one output row for each
     # of the input rows.
-    reduce(
+    purrr::reduce(
       .f = function(x, y) {
         bind_rows(x, y) %>%
           group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
@@ -266,7 +265,7 @@ calcIndustry_EEK <- function(kap) {
     group_by(.data$year2) %>%
     nest() %>%
     pull(.data$data) %>%
-    reduce(
+    purrr::reduce(
       .f = function(x, y) {
         bind_rows(x, y) %>%
           group_by(.data$iso3c, .data$scenario, .data$subsector) %>%
