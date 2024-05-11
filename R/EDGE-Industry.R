@@ -40,7 +40,7 @@
 #'   scale_colour_manual scale_fill_discrete scale_fill_manual
 #'   scale_linetype_manual scale_shape_manual theme theme_minimal
 #' @importFrom quitte calc_mode character.data.frame df_populate_range duplicate
-#'   duplicate_ list_to_data_frame madrat_mule magclass_to_tibble order.levels
+#'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
 #' @importFrom stats nls SSlogis sd
