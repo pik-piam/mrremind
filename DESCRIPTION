@@ -62,7 +62,6 @@ Imports:
     readODS,
     readr,
     readxl,
-    reshape,
     reshape2,
     rlang,
     rmndt,
