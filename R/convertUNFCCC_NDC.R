@@ -7,7 +7,6 @@
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
-#' @importFrom R.utils isZero
 
 convertUNFCCC_NDC <- function(x, subtype) {                                # nolint: object_name_linter.
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -171,7 +170,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
           tmp_target <- numeric(10)
           name <- paste0(t, ".maxprod")
           name2 <- paste0("Production-Absolute.", t)
-          if (!isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &
+          if (!R.utils::isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &
               dimSums(data_combined[r, , name], na.rm = TRUE) > max(x_mod5[r, , name2])) {
             # extracting the first non-zero location of maxprod
             name <- paste0(t, ".maxprod")
