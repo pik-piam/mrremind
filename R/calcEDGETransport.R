@@ -14,15 +14,15 @@ calcEDGETransport <- function(subtype) {
 
   gdp <- calcOutput("GDP", aggregate = TRUE, regionmapping = "regionmapping_21_EU11.csv")
   x <- convertEDGETransport(readEDGETransport(subtype), subtype)
-
+  browser()
   switch(subtype,
          "p35_esCapCost" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "2005US$/(p|t)km"
            description = "Capital cost (purchase) per energy service demand on CES level."
          },
          "p35_fe2es" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "trn (p|t)km/Twa"
            description = "Energy efficiency on CES level."
          },
@@ -32,32 +32,32 @@ calcEDGETransport <- function(subtype) {
            description = "Final energy demand on CES level."
          },
          "CAPEXandNonFuelOPEX" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "2005US$/(p|t)km"
            description = "Capital cost (purchase) and non-fuel operational costs on technology level."
          },
          "scenSpecPrefTrends" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "-"
            description = "Scenario specific preference trends on technology level."
          },
          "scenSpecEnIntensity" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "MJ/vehkm"
            description = "Scenario specific energy intensity on technology level."
          },
          "initialIncoCosts" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "2005US$/(p|t)km"
            description = "Initial inconvenience cost values."
          },
          "annualMileage" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "vehkm/yr"
            description = "Annual vehicle km traveled."
          },
          "timeValueCosts" = {
-           weight = gdp
+           weight = gdp |> time_interpolate(getYears(x))
            unit = "2005US$/(p|t)km"
            description = "Value of time cost equivalent."
          }
