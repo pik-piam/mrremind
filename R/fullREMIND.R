@@ -155,24 +155,16 @@ fullREMIND <- function() {
   calcOutput("PlasticsEoL",                                            round = 5,  file = "f_incinerationShares.cs4r")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
-  calcOutput("TransportGDPshare", round = 6,                                       file = "f35_transportGDPshare.cs4r")
 
-  calcOutput("EDGETransport", subtype = "value_time",                              file = "value_time.cs4r")
-  calcOutput("EDGETransport", subtype = "harmonized_intensities",                  file = "harmonized_intensities.cs4r")
-  calcOutput("EDGETransport", subtype = "price_nonmot",                            file = "price_nonmot.cs4r")
-  calcOutput("EDGETransport", subtype = "pref",                                    file = "pref.cs4r")
-  calcOutput("EDGETransport", subtype = "UCD_NEC_iso",                             file = "UCD_NEC_iso.cs4r")
-  calcOutput("EDGETransport", subtype = "loadFactor",                              file = "loadFactor.cs4r")
-  calcOutput("EDGETransport", subtype = "fe_demand_tech",                          file = "fe_demand_tech.cs4r")
-  calcOutput("EDGETransport", subtype = "fe2es",                                   file = "fe2es.cs4r")
-  calcOutput("EDGETransport", subtype = "esCapCost",                               file = "esCapCost.cs4r")
-  calcOutput("EDGETransport", subtype = "pm_trp_demand",                           file = "pm_trp_demand.cs4r")
-  calcOutput("EDGETransport", subtype = "pm_fe_demand_EDGETbased",                 file = "pm_fe_demand_EDGETbased.cs4r")
-  calcOutput("EDGETransport", subtype = "annual_mileage",                          file = "annual_mileage.cs4r")
-
-  # not to be aggregated as global
-  calcOutput("EDGETransport", subtype = "logit_exponent", aggregate = FALSE,       file = "logit_exponent.cs4r")
-  calcOutput("EDGETransport", subtype = "ptab4W", aggregate = FALSE,               file = "ptab4W.cs4r")
+  calcOutput("EDGETransport", subtype = "p35_esCapCost",                           file = "p35_esCapCost.cs4r")
+  calcOutput("EDGETransport", subtype = "p35_fe2es",                               file = "p35_fe2es.cs4r")
+  calcOutput("EDGETransport", subtype = "p35_demByTech",                           file = "p35_demByTech.cs4r")
+  calcOutput("EDGETransport", subtype = "CAPEXandNonFuelOPEX",                     file = "CAPEXandNonFuelOPEX.cs4r")
+  calcOutput("EDGETransport", subtype = "scenSpecPrefTrends",                      file = "scenSpecPrefTrends.cs4r")
+  calcOutput("EDGETransport", subtype = "scenSpecEnIntensity",                     file = "scenSpecEnIntensity.cs4r")
+  calcOutput("EDGETransport", subtype = "initialIncoCosts",                        file = "initialIncoCosts.cs4r")
+  calcOutput("EDGETransport", subtype = "annualMileage",                           file = "annualMileage.cs4r")
+  calcOutput("EDGETransport", subtype = "timeValueCosts",                          file = "timeValueCosts.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
