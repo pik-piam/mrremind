@@ -12,9 +12,10 @@
 #'@importFrom data.table as.data.table
 calcEDGETransport <- function(subtype) {
 
-  gdp <- calcOutput("GDP", aggregate = TRUE, regionmapping = "regionmapping_21_EU11.csv")
-  x <- convertEDGETransport(readEDGETransport(subtype), subtype)
+  gdp <- calcOutput("GDP")
+  x <- readSource("EDGETransport", subtype)
   browser()
+
   switch(subtype,
          "p35_esCapCost" = {
            weight = gdp |> time_interpolate(getYears(x))
