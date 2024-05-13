@@ -53,7 +53,6 @@
 #'
 #' @author Renato Rodrigues
 #' @export
-#' @importFrom reshape2 acast
 #' @importFrom stats reshape uniroot
 #' @seealso \code{\link{toolCubicFunctionAggregate}}
 #' @examples

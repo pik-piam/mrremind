@@ -21,6 +21,3 @@ a <- readSource(type = "Openmod")
 \seealso{
 \code{\link{readSource}}
 }
-\author{
-Renato Rodrigues
-}

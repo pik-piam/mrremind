@@ -10,7 +10,6 @@
 #'
 #' @importFrom tibble tibble
 #' @importFrom tidyr drop_na
-#' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
 #'
@@ -485,7 +484,7 @@ readUNFCCC <- function() {
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
                 filter(!is.na(!!sym("name"))) %>%
-                melt(id.vars = c("name", "region", "year")) %>%
+                reshape2::melt(id.vars = c("name", "region", "year")) %>%
                 mutate(
                   !!sym("value") := suppressWarnings(as.double(!!sym("value"))),
                   !!sym("name") := paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
