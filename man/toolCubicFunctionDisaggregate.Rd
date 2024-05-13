@@ -93,16 +93,18 @@ defined inverse function in the selected boundaries.
 
 # Example
 # LAM coefficients
-df <- setNames(data.frame(30,50,0.34369,2),c("c1","c2","c3","c4"))
+df <- setNames(data.frame(30, 50, 0.34369, 2), c("c1", "c2", "c3", "c4"))
 row.names(df) <- "LAM"
 # weight
-weight <- setNames(c(21,0,579,3,228),c("ARG","BOL","BRA","CHL","COL"))
+weight <- setNames(c(21, 0, 579, 3, 228), c("ARG", "BOL", "BRA", "CHL", "COL"))
 # maxExtraction (upper limit for function estimation)
 maxExtraction <- 100
 # output
-output <- toolCubicFunctionDisaggregate(df, weight,xUpperBound=maxExtraction,
- returnMagpie=FALSE,returnChart=TRUE,returnSample=TRUE,
- label=list(x="Cumulated Extraction", y="Cost", legend="Region Fuel Functions"))#' output$chart
+output <- toolCubicFunctionDisaggregate(df, weight,
+  xUpperBound = maxExtraction,
+  returnMagpie = FALSE, returnChart = TRUE, returnSample = TRUE,
+  label = list(x = "Cumulated Extraction", y = "Cost", legend = "Region Fuel Functions")
+) #' output$chart
 output$coeff
 output$chart
 }
