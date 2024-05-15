@@ -8,7 +8,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom madrat toolCountryFill
 #'
 #' @export
 convertUNFCCC <- function(x) {

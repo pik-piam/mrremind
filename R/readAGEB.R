@@ -10,8 +10,6 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows select filter mutate
 #' @importFrom rlang sym
-#' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #'
 #' @export
 readAGEB <- function(subtype = "balances") {

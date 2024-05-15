@@ -8,7 +8,6 @@
 #' 
 #' @seealso [`calcOutput()`], [`readADVANCE_WP2()`], [`convertADVANCE_WP2()`]
 #' 
-#' @importFrom madrat readSource calcOutput
 #' 
 #' @export
 calcClinker_to_cement_ratio <- function() {

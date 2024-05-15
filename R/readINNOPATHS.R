@@ -1,22 +1,11 @@
 #' Read INNOPATHS
-#'
-#' @author Falk Benke
-#' @importFrom utils read.csv
-#' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
-#' @importFrom dplyr select filter mutate %>%
-
 readINNOPATHS <- function() {
-  
-  data <- read.csv(file = "INNPATHS database.csv", sep = ";")
-
-  data <- melt(data, id.vars = 1:5, variable.name = "period", value.name = "value") %>% 
-    filter(!is.na(!!sym("value"))) %>%
-    mutate(!!sym("value") := as.double(!!sym("value")),
-           !!sym("period") := as.numeric(sub("X","",!!sym("period")))) %>%
-    select(-c("MODEL", "SCENARIO"))
-  
-  x <- as.magpie(data, spatial = 1, temporal = 4)
-
-  return(x)
+  utils::read.csv(file = "INNPATHS database.csv", sep = ";") %>%
+    tidyr::pivot_longer(tidyselect::starts_with("X"),
+                        names_to = "period",
+                        names_pattern = "X(.*)",
+                        names_transform = as.numeric) %>%
+    dplyr::filter(!is.na(.data$value)) %>%
+    dplyr::select(-"MODEL", -"SCENARIO") %>%
+    as.magpie(spatial = 1, temporal = 4)
 }

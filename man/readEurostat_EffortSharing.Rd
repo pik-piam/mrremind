@@ -16,10 +16,10 @@ magpie object of the EU Effort Sharing targets (%) or Effort Sharing historical 
 Read-in EU Effort Sharing targets and historical emissions csv files as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="Eurostat_EffortSharing",subtype="target")
+\dontrun{
+a <- readSource(type = "Eurostat_EffortSharing", subtype = "target")
 }
- 
+
 }
 \seealso{
 \code{\link{readSource}}

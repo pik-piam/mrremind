@@ -10,7 +10,6 @@
 #' \dontrun{
 #' x <- calcOutput("FGas")
 #' }
-#' @importFrom magclass getNames<- getSets clean_magpie
 
 calcFGas <- function(subtype = "interpolate2025") {
   # read in IMAGE data

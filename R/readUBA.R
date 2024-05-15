@@ -9,8 +9,6 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr select mutate
 #' @importFrom rlang sym
-#' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #'
 #' @export
 readUBA <- function() {
@@ -49,7 +47,7 @@ readUBA <- function() {
     data <- bind_rows(data, tmp)
   }
 
-  melt(data, id.vars = c("sektor", "unit")) %>%
+  reshape2::melt(data, id.vars = c("sektor", "unit")) %>%
     select("period" = "variable", "unit" = "unit", "value", "variable" = "sektor") %>%
     mutate(
       "region" = "DEU",
@@ -57,6 +55,5 @@ readUBA <- function() {
     ) %>%
     select("region", "variable", "unit", "period", "value") %>%
     filter(!is.na(!!sym("value"))) %>%
-    as.magpie() %>%
-    return()
+    as.magpie()
 }

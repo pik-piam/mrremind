@@ -14,7 +14,6 @@
 #' @seealso [`readSource()`], [`convertADVANCE_WP2()`]
 #' 
 #' @importFrom dplyr %>%
-#' @importFrom magclass as.magpie
 #' @importFrom readr read_csv
 #' 
 #' @export

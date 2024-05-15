@@ -7,8 +7,6 @@
 #' @param onlyTotal boolean, only give total instead of sub-sectoral floor space
 #' @return MAgPIE object with buildings floor space
 #'
-#' @importFrom madrat readSource
-#' @importFrom magclass collapseNames
 #' @export
 #'
 calcFloorspace <- function(onlyTotal = FALSE) {

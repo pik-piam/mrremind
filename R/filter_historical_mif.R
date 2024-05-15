@@ -19,8 +19,6 @@
 #'   `include_regions`, and `exclude_regions`.  Defaults to the built-in
 #'   `./inst/extdata/historical_mif_filter_table.csv` of the `mrremind` package.
 #'
-#' @importFrom madrat getConfig
-#' @importFrom magclass getItems mbind read.report write.report
 #' @importFrom quitte cartesian
 
 #' @export

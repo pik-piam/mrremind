@@ -18,8 +18,6 @@
 #' 
 #' @importFrom assertr assert
 #' @importFrom dplyr %>% full_join select
-#' @importFrom madrat toolGetMapping
-#' @importFrom magclass as.data.frame as.magpie
 #' @importFrom rlang sym
 #' @importFrom tibble as_tibble
 #' @importFrom tidyselect everything

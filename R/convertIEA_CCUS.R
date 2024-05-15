@@ -7,7 +7,6 @@
 #'
 #' @author Anne Merfort, Falk Benke
 #'
-#' @importFrom madrat toolCountry2isocode toolCountryFill
 #'
 #' @export
 convertIEA_CCUS <- function(x) {

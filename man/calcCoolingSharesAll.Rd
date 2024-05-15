@@ -26,6 +26,7 @@ also made.
 a <- calcOutput("CoolingSharesAll")
 
 }
+
 }
 \seealso{
 \code{\link{calcOutput}}, \code{\link{readDaviesCooling}},

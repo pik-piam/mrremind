@@ -14,7 +14,6 @@
 #' calcOutput("PotentialWindOff")
 #' 
 #' }
-#' @importFrom magclass getNames
 calcPotentialWindOff <- function() {
   
   # read wind data 

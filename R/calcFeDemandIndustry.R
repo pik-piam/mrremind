@@ -7,8 +7,6 @@
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join lag last left_join
 #'   matches mutate n rename right_join select semi_join summarise ungroup
-#' @importFrom magclass mselect getItems getItems<- time_interpolate
-#' @importFrom madrat toolAggregate
 #' @importFrom magrittr %>% %<>%
 #' @importFrom quitte as.quitte cartesian character.data.frame
 #'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule

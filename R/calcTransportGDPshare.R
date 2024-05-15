@@ -9,7 +9,6 @@
 #' calcOutput("TransportGDPshare")
 #' }
 #'
-#' @importFrom magclass add_dimension
 #'
 
 calcTransportGDPshare <- function() {

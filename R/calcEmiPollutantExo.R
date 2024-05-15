@@ -12,7 +12,6 @@
 #' }
 #' 
 #'
-#' @importFrom magclass getSets getYears time_interpolate complete_magpie
 
 
 calcEmiPollutantExo <- function(subtype, aviationshippingsource="RCP"){

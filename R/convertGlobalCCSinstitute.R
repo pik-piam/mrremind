@@ -8,8 +8,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @importFrom dplyr %>%
-#' @importFrom madrat toolCountry2isocode toolCountryFill
-#' @importFrom magclass dimSums getRegions getItems<-
 #' @importFrom quitte add_countrycode_ madrat_mule
 #'
 #' @export

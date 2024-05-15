@@ -4,8 +4,6 @@
 #' 'latest' (free, restricted, up-to-date dataset)
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join case_when
-#' @importFrom madrat toolGetMapping
-#' @importFrom magclass as.magpie
 #' @importFrom stats aggregate
 #' @export
 

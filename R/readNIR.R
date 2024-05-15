@@ -1,4 +1,3 @@
-#' @importFrom magclass new.magpie as.magpie getYears
 #' @importFrom readxl read_excel
 
 

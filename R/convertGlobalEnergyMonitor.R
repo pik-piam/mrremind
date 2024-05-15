@@ -3,7 +3,6 @@
 #' @author Rahel Mandaroux, Falk Benke
 #'
 #' @param x A magclass object returned from readGlobalEnergyMonitor().
-#' @importFrom madrat toolCountry2isocode toolCountryFill
 #'
 #' @export
 convertGlobalEnergyMonitor <- function(x) {

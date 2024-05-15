@@ -2,7 +2,6 @@
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #' @param sources currently only UNFCCC_NDC
 #' @param subtype "Ghgshare2005", "Ghgfactor", "Ghghistshare"
-#' @importFrom magclass getNames
 
 calcEmiTarget <- function(sources, subtype) {
 

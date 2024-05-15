@@ -8,14 +8,9 @@
 #'
 #' @param subtype decides whether emissions or emission factors are returned
 #' @param sectoral_resolution aggreaged or extenden (uses different GAINS input data)
-#' @importFrom dplyr group_by_ summarise_ ungroup mutate_ rename_ filter_ select_
-#' @importFrom magclass as.magpie getCells getSets<- getNames<- getSets getRegions<- mselect<- setNames write.magpie
-#' @importFrom tidyr gather_
+#' @importFrom dplyr ungroup
 #' @importFrom utils read.csv read.csv2
 #' @importFrom quitte as.quitte
-
-
-
 calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "extended") {
 
   if (!(subtype %in% c("emission_factors", "emissions"))) stop('subtype must be in c("emission_factors", "emissions")')

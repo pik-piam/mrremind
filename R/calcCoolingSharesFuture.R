@@ -19,7 +19,6 @@
 #' a <- calcOutput("CoolingSharesFuture")
 #' 
 #' }
-#' @importFrom magclass getNames<- dimSums mbind
 #' @importFrom readxl read_excel
 #' 
 calcCoolingSharesFuture <- function() {

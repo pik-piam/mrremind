@@ -1,4 +1,3 @@
-#' @importFrom magclass getNames<-
 
 calcEmiFossilFuelExtr <- function() {
   

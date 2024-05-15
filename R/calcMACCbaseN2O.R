@@ -1,4 +1,3 @@
-#' @importFrom magclass getNames
 
 calcMACCbaseN2O <- function() {
   

@@ -14,7 +14,6 @@
 #' 
 #' \dontrun{ a <- readSource(type="MacknickIntensities", convert = FALSE)
 #' }
-#' @importFrom madrat toolSubtypeSelect
 readMacknickIntensities <- function(subtype) {  
   
   sheets <- c(data=1, missingAssumed=2)

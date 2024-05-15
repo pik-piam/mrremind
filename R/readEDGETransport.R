@@ -11,7 +11,6 @@
 #' @examples
 #' \dontrun{ a <- readSource(type="EDGETransport")
 #' }
-#' @importFrom magclass read.magpie
 #' @importFrom data.table data.table rbindlist fread setcolorder := setnames setkeyv
 
 readEDGETransport <- function(subtype = "logit_exponent") {

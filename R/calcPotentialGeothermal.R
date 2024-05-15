@@ -13,7 +13,6 @@
 #' 
 #' }
 #' 
-#' @importFrom magclass setNames
 
 calcPotentialGeothermal <- function() {
   

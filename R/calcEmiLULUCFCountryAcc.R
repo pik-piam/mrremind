@@ -3,7 +3,6 @@
 #' @return Magpie object with historical LULUCF emissions
 #' @param subtype Valid subtypes are 'UNFCCC'
 #' @author Felix Schreyer
-#' @importFrom magclass dimReduce
 
 calcEmiLULUCFCountryAcc <- function(subtype) {
   if (subtype == "UNFCCC") {

@@ -10,7 +10,6 @@
 #' @param weight aggregation weight
 #' @author Felix Schreyer
 #' @export
-#' @importFrom magclass as.magpie dimReduce
 #' @importFrom dplyr %>% mutate select rename left_join
 #' @importFrom quitte as.quitte
 
