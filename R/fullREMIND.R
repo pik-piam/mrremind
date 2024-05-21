@@ -132,6 +132,22 @@ fullREMIND <- function() {
   calcOutput("CCScapacity", subtype = "projections",                   round = 8,  file = "pm_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.5,
+                              'Early development'    = 0.2),
+             signif = 3, file = 'f37_indCCSlimit_default.cs4r',
+           years = seq(2005, 2050, 5))
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.8,
+                              'Early development'    = 0.5),
+             signif = 3, file = 'f37_indCCSlimit_high.cs4r',
+           years = seq(2005, 2050, 5))
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
