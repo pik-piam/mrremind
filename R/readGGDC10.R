@@ -5,7 +5,6 @@
 #' a <- readSource("GGDC10",convert=F)
 #' }
 #'
-#' @importFrom magclass as.magpie
 #' @importFrom readxl read_excel
 #' @importFrom tidyr gather
 #' @importFrom dplyr %>%

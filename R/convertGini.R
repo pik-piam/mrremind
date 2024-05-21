@@ -17,9 +17,6 @@
 #' \dontrun{
 #' a <- convertGini(x)
 #' }
-#' @importFrom countrycode countrycode
-
-
 convertGini <- function(x) {
   # add SDP scenario, with same data as SSP1
   xSDP <- x[, , "SSP1"]
@@ -32,8 +29,10 @@ convertGini <- function(x) {
   x <- mbind(x, xSSP2EU)
 
   # conversion to iso3c codes, match Somalia by hand because countrycode fails
-  getItems(x, dim = 1) <- countrycode(getRegions(x), origin = "wb",
-                                      destination = "iso3c", custom_match = c("SOM" = "SOM"))
+  getItems(x, dim = 1) <- countrycode::countrycode(getRegions(x),
+                                                   origin = "wb", 
+                                                   destination = "iso3c", 
+                                                   custom_match = c("SOM" = "SOM"))
   getSets(x)[1] <- "iso3c"
 
   # fill missing countries with a small number (not zero because this might cause numerical problems in Gini aggregation later)

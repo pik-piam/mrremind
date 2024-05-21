@@ -15,7 +15,6 @@
 #' 
 #' }
 #' 
-#' @importFrom magclass setNames
 
 calcPotentialHydro <- function() {
   

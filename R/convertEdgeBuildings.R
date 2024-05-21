@@ -5,7 +5,6 @@
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque, Robin Hasse
 #'
-#' @importFrom magclass new.magpie getItems<- getNames getSets getYears mselect mbind
 
 convertEdgeBuildings <- function(x, subtype = "FE") {
   #---- Functions -------------

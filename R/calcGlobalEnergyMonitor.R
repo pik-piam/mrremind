@@ -4,7 +4,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke
-#' @importFrom magclass add_dimension
 #' @export
 
 calcGlobalEnergyMonitor <- function() {

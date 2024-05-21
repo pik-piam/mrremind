@@ -6,7 +6,6 @@
 #' - On global level, the source offers more variables than on regional level,
 #' but the data should not be used on sub-global level due to its coarse disaggregation.
 #' @author Falk Benke
-#' @importFrom madrat getISOlist
 #'
 
 convertIEA_WorldEnergyOutlook <- function(x, subtype = "2021-global") { # nolint

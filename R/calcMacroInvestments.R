@@ -1,4 +1,3 @@
-#' @importFrom madrat toolFillWithRegionAvg
 
 calcMacroInvestments <- function() {
   

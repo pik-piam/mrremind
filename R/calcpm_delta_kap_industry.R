@@ -8,7 +8,6 @@
 #'
 #' @seealso [`calcOutput()`]
 #' 
-#' @importFrom magclass new.magpie
 #' 
 
 #' @export

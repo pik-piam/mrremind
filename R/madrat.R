@@ -1,4 +1,3 @@
-#' @importFrom madrat vcat
 
 .onAttach <- function(libname, pkgname) {
   madrat::madratAttach(pkgname)

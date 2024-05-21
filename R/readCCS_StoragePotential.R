@@ -1,4 +1,3 @@
-#' @importFrom magclass as.magpie
 #' @importFrom readxl read_excel
 #' 
 

@@ -10,12 +10,10 @@
 #'   codes.
 #'
 #' @importFrom dplyr anti_join group_by left_join mutate pull select summarise
-#' @importFrom purrr map
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom readxl excel_sheets read_excel
 #' @importFrom tidyr nest unnest
-
 #' @export
 readIEA_WEIO_2014 <- function() {
   # define file paths ----
@@ -30,7 +28,7 @@ readIEA_WEIO_2014 <- function() {
   country_groups <- read_csv(file = file_country_groups,
                              show_col_types = FALSE) %>%
     nest(data = .data$Countries) %>%
-    mutate(result = map(.data$data, function(x) {
+    mutate(result = purrr::map(.data$data, function(x) {
       tibble(iso3c = unlist(strsplit(x$Countries, ', ', fixed = TRUE)))
     })) %>%
     select(-'data') %>%
@@ -71,7 +69,7 @@ readIEA_WEIO_2014 <- function() {
   ) %>%
     mutate(`IEA region` = paste(.data$superset, 'w/o', .data$subsets)) %>%
     nest(data = .data$subsets) %>%
-    mutate(result = map(.data$data, function(x) {
+    mutate(result = purrr::map(.data$data, function(x) {
       tibble(subsets = unlist(strsplit(x$subsets, ', ', fixed = TRUE)))
     })) %>%
     select(-'data') %>%

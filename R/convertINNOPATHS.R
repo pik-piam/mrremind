@@ -1,4 +1,3 @@
-#' @importFrom madrat toolGetMapping
 #' @importFrom dplyr %>%
 convertINNOPATHS <- function(x) {
 

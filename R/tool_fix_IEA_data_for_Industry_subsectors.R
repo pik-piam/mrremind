@@ -29,7 +29,6 @@
 #' @importFrom assertr not_na assert
 #' @importFrom dplyr anti_join group_by inner_join left_join mutate pull rename
 #'     select summarise
-#' @importFrom magclass getRegions getYears getNames
 #' @importFrom readr read_delim cols col_skip col_character
 #' @importFrom quitte cartesian interpolate_missing_periods overwrite
 #'             character.data.frame interpolate_missing_periods_

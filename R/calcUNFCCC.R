@@ -5,8 +5,6 @@
 #'
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
-#' @importFrom madrat toolGetMapping toolCountryFill
-#' @importFrom magclass as.magpie mselect
 #' @importFrom stats aggregate
 #' @export
 calcUNFCCC <- function() {

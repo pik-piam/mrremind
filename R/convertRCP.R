@@ -6,7 +6,6 @@
 #' @param x Input object obtained by readSource
 #' @param subtype Either 'Waste' or 'AviationShipping'
 #'
-#' @importFrom madrat toolAggregate
 
 
 convertRCP <- function(x, subtype){

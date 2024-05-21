@@ -9,6 +9,3 @@ readINNOPATHS()
 \description{
 Read INNOPATHS
 }
-\author{
-Falk Benke
-}

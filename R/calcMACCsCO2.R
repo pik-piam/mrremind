@@ -10,7 +10,6 @@
 #' calcOutput("MACCsCO2")
 #' 
 #' }
-#' @importFrom magclass getNames
 calcMACCsCO2 <- function() {
   
   x <- readSource("MAgPIE", subtype = "abatparam_co2",convert=FALSE)

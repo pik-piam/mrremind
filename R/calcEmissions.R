@@ -5,11 +5,7 @@
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
-#' @importFrom magclass ndim setNames getNames<-
 #' @importFrom utils read.csv2
-#' @importFrom dplyr filter_ mutate_
-
-
 calcEmissions <- function(datasource = "CEDS16") {
   ## ---- CEDS 16 ----
   if (datasource == "CEDS16") {

@@ -11,8 +11,6 @@
 #' 
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
 #' @export
-#' @importFrom magclass is.magpie as.data.frame as.magpie collapseNames add_columns getSets getItems
-#' setItems collapseDim
 #' @importFrom dplyr %>% mutate select rename filter left_join group_by ungroup arrange summarise desc 
 #' lag full_join
 #' @importFrom tidyr spread gather complete

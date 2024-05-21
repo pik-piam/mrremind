@@ -14,8 +14,6 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom dplyr bind_rows left_join select filter mutate pull
-#' @importFrom madrat toolGetMapping calcOutput
-#' @importFrom magclass as.magpie dimSums
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym
 #' @importFrom tibble tribble as_tibble

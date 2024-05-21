@@ -6,8 +6,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Aman Malik, Falk Benke
 #' @importFrom dplyr filter
-#' @importFrom madrat getISOlist toolGetMapping toolCountryFill
-#' @importFrom magclass magpply
 #' @importFrom rlang sym
 
 convertBP <- function(x, subtype) {

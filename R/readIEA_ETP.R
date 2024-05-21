@@ -7,7 +7,6 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom tidyr drop_na pivot_longer extract
 #' @importFrom rlang sym
-#' @importFrom magclass as.magpie
 
 readIEA_ETP <- function(subtype) {
 

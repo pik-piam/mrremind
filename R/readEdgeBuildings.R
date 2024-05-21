@@ -4,7 +4,6 @@
 #' @return magclass object
 #'
 #' @author Antoine Levesque, Robin Hasse
-#' @importFrom magclass mselect as.magpie
 readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
 
   subtype <- match.arg(subtype)

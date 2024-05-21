@@ -14,7 +14,6 @@
 #' @seealso [calcOutput]
 #'
 #' @importFrom dplyr anti_join arrange bind_rows filter group_by select ungroup
-#' @importFrom magclass as.magpie
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data syms !!!
 

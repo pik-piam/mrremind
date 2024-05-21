@@ -1,4 +1,4 @@
-#' @importFrom dplyr group_by_ min_rank select_ mutate_
+#' @importFrom dplyr min_rank
 #' @importFrom quitte as.quitte
 
 convertECLIPSE <- function(x, subtype) {

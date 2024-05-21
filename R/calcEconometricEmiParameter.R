@@ -14,7 +14,6 @@
 #' calcOutput("calcEconometricEmiParameter")
 #' }
 #' @importFrom utils read.csv
-#' @importFrom magclass getNames<- getYears<-
 
 
 calcEconometricEmiParameter <- function() {

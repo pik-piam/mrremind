@@ -6,7 +6,6 @@
 #' @param subtype Investment Costs, I&M Costs, and Efficiency
 #' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
 #' @author Aman Malik
-#' @importFrom magclass new.magpie
 #' @importFrom dplyr filter %>%
 
 calcDiffInvestCosts <- function(subtype){

@@ -4,7 +4,6 @@
 #' @author  Felix Schreyer
 #' @param subtype type of data read from IEA PVPS
 #' @importFrom readxl read_excel
-#' @importFrom magclass collapseNames
 
 
 readIEA_PVPS <- function(subtype){

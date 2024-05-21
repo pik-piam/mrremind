@@ -1,4 +1,3 @@
-#' @importFrom reshape2 melt
 #' @importFrom utils read.table
 
 readDLR <- function() {
@@ -275,7 +274,7 @@ readDLR <- function() {
   df <- do.call(rbind, lapply(csv.files, read.csv.Solar))
   
 
-  dat <- melt(df, id.vars = c("technology", "distance", "bin", "type"))
+  dat <- reshape2::melt(df, id.vars = c("technology", "distance", "bin", "type"))
   # sort bin dimension
   dat <- dat[order(dat$bin),]
   

@@ -5,8 +5,6 @@
 #' @param x MAgPIE object to be converted
 #' @param subtype Only "Capacity" asof now
 #' @return Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
-#' @importFrom R.utils isZero
-#' @importFrom magclass magpiesort getItems
 #' @author Aman Malik
 
 convertREN21 <- function(x, subtype) {
@@ -181,9 +179,9 @@ convertREN21 <- function(x, subtype) {
         for (r in names(final)) {
           # Only start loop if Production targets are non-zero and if the maxprod for that country can absorb the targets set.
           name <- paste0(t, ".maxprod")
-          if (!isZero(x_cap_pt[r, y, t] &
+          if (!R.utils::isZero(x_cap_pt[r, y, t] &
             dimSums(data_combined[r, , name]) > max(x_cap_pt[r, , t]))) { # extracting the first non-zero location of maxprod
-            loc <- min(which(!isZero(data_combined[r, , name, pmatch = TRUE])))
+            loc <- min(which(!R.utils::isZero(data_combined[r, , name, pmatch = TRUE])))
             tmp_target[1] <- x_cap_pt[r, y, t]
             if (data_sel[r, , "maxprod"][, , loc] > tmp_target[1]) {
               final[r] <- tmp_target[1] / (8760 * data_sel[r, , "nur"][, , loc])

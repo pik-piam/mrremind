@@ -21,6 +21,7 @@ Converts Openmod capacities data
 a <- convertOpenmod(x)
 }
 
+
 }
 \author{
 Renato Rodrigues

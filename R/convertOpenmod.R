@@ -9,7 +9,6 @@
 #' a <- convertOpenmod(x)
 #' }
 #'
-#' @importFrom madrat toolCountry2isocode toolGetMapping toolCountryFill
 #'
 
 convertOpenmod <- function(x) {

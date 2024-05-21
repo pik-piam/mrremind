@@ -14,7 +14,6 @@
 #'
 #' @importFrom tidyr gather
 #' @importFrom readxl read_excel
-#' @importFrom magclass nregions
 convertIEA_WEO <- function(x, subtype) {
 
   if ((subtype == "Invest_Costs") || (subtype == "O&M_Costs") || (subtype == "Efficiency")) {

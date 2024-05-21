@@ -11,8 +11,6 @@
 #'
 #' @author Pascal Weigmann
 #'
-#' @importFrom madrat toolAggregate toolGetMapping
-#' @importFrom magclass collapseDim
 #'
 #' @export
 

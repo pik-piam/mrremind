@@ -10,8 +10,6 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom dplyr filter pull select
-#' @importFrom madrat getISOlist toolFillYears
-#' @importFrom magclass new.magpie getItems
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
 #' @importFrom quitte calc_addVariable

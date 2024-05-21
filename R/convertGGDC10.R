@@ -7,7 +7,6 @@
 #' a <- convertGGDC10(x)
 #' }
 #'
-#' @importFrom madrat toolCountryFill
 
 convertGGDC10 <- function(x) {
 

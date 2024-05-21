@@ -1,5 +1,4 @@
 #' @importFrom dplyr left_join select filter mutate %>%
-#' @importFrom madrat toolGetMapping
 #'
 calcINNOPATHS <- function() {
 
