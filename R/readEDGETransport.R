@@ -1,7 +1,7 @@
-#' Read EDGETransport inputs
+#' Read REMIND/EDGE-T iterative input data
 #'
-#' Read-in EDGETransport inputs csv file as magclass object
-#'
+#' Run EDGE-Transport Standalone in all used scenario combinations to supply input data
+#' to REMIND and the iterative EDGE-T script
 #'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Johanna Hoppe
@@ -11,10 +11,9 @@
 #' @examples
 #' \dontrun{ a <- readSource(type = "EDGETransport")
 #' }
-#' @importFrom magclass read.magpie
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
-#' @importFrom data.table data.table rbindlist fread setcolorder := setnames setkeyv
+#' @importFrom data.table data.table rbindlist := setnames setkeyv
 
 readEDGETransport <- function(subtype) {
 

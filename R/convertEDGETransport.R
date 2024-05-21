@@ -10,7 +10,8 @@ convertEDGETransport = function(x, subtype) {
   mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
                                       where = "mappingfolder"))[, .(iso = CountryCode, region = RegionCode)]
   if (subtype %in% c("p35_demByTech")) {
-    gdp <- calcOutput("GDP", aggregate = TRUE, regionmapping = "regionmapping_21_EU11.csv")
+    gdp <- calcOutput("GDP", aggregate = FALSE) |> time_interpolate(getYears(x))
+    gdp <- gdp[,,"gdp_SSP2"]
     result <- toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
   } else {
     result <- toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")

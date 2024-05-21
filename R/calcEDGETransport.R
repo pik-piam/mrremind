@@ -1,20 +1,17 @@
 #' @title Prepare EDGETransport inputs
 #'
-#' @return magpie object of EDGEtransport iterative inputs
-#' @author Alois Dirnaichner, Marianna Rottoli
+#' @author Johanna Hoppe
 #' @seealso \code{\link{readSource}}
-#' @param subtype refer to the code for a list of allowed subtypes.
-#'
+#' @param subtype  REMIND/iterative EDGE-T input data subtypes
+#' @return REMIND/iterative EDGE-T input data for all scenario combinations
 #' @examples
-#' \dontrun{ a <- calcOutput(type = "EDGETransport", subtype = "logit_exponent", aggregate = F)
+#' \dontrun{ a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
 #' }
-#'
-#'@importFrom data.table as.data.table
+
 calcEDGETransport <- function(subtype) {
 
-  gdp <- calcOutput("GDP")
+  gdp <- calcOutput("GDP", aggregate = FALSE)[,,"gdp_SSP2"]
   x <- readSource("EDGETransport", subtype)
-  browser()
 
   switch(subtype,
          "p35_esCapCost" = {
