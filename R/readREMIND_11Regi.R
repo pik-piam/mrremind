@@ -31,7 +31,7 @@ readREMIND_11Regi <- function(subtype) {
     },
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset.csv", sep = ";")    %>% as.magpie(datacol = 2),
     "capacityFactorGlobal" = {
-      x <- read.csv("f_cf-global.csv", sep = ";")
+      x <- read.csv("f_cf-global_REMIND_3.3.4.csv", sep = ";")
       x[x$Tech == "rockgrind", "Tech"] <- "weathering"
       as.magpie(x, datacol = 2)
     },
@@ -63,11 +63,11 @@ readREMIND_11Regi <- function(subtype) {
       x
     },
     "uraniumExtractionCoeff" = read.csv("uranium_extraction_cost_eq_coefficients.csv", sep = ";") %>%
-      as.magpie( spatial = 1, temporal = 0, datacol = 3),
+      as.magpie(spatial = 1, temporal = 0, datacol = 3),
     "RLDCCoefficientsLoB"    = read.csv("RLDC_Coefficients_LoB.csv", sep = ";") %>%
-      as.magpie( spatial = 1, temporal = 0, datacol = 3),
+      as.magpie(spatial = 1, temporal = 0, datacol = 3),
     "RLDCCoefficientsPeak"   = read.csv("RLDC_Coefficients_Peak.csv", sep = ";") %>%
-      as.magpie( spatial = 1, temporal = 0, datacol = 3),
+      as.magpie(spatial = 1, temporal = 0, datacol = 3),
     "earlyRetirementAdjFactor" = {
       y <- read.csv("earlyRetirementAdjFactor.csv", sep = ";", skip = 5)
       x <- as.magpie(y, spatial = 1, temporal = 0, datacol = 2)
