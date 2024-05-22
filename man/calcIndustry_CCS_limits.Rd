@@ -5,7 +5,9 @@
 \title{Calculate Limits on Industry CCS Capacities}
 \usage{
 calcIndustry_CCS_limits(
-  annual_growth_factor = 1.2,
+  a1 = 0.3,
+  a2 = 0.15,
+  installation_minimum = 1,
   stage_weight = c(Operational = 1, `In construction` = 1, `Advanced development` = 0.5,
     `Early development` = 0.2),
   facility_subsector = c(Cement = "cement", Chemical = "chemicals",
@@ -15,8 +17,12 @@ calcIndustry_CCS_limits(
 )
 }
 \arguments{
-\item{annual_growth_factor}{Annual growth factor of CCS capacity limits,
-defaults to 1.2 (20 \% annually).}
+\item{a1, a2}{Annual growth factors of CCS capacity limits, for the first ten
+years and thereafter, default to \code{0.7} and \code{0.2} (70 \% and 20 \%,
+respectively).}
+
+\item{installation_minimum}{Minimum emission capacity (in MtCO~2~/year)
+capacities are rounded up to.  Defaults to \code{0.5} (500 ktCO~2~/year).}
 
 \item{stage_weight}{A named vector of weight factors for different lifecycle
 stages.  See Details.}
@@ -63,17 +69,19 @@ which defaults to\tabular{ll}{
 }
 
 The resulting project capacities constitute the limits on industry subsector
-CCS capacity for 2030.  The limit on CCS capacities for regions (or countries
-if \code{region_mapping} is \code{NULL}) is set to a value of total 2030 subsector CCS
-capacity, times the regions share in 2030 subsector activity (e.g. cement
-production)
+CCS capacity for 2025.  The limit on CCS capacities for regions (or countries
+if \code{region_mapping} is \code{NULL}) is set to a value of total 2025 subsector CCS
+capacity, times the regions share in subsector activity (e.g. cement
+production) of the SSP2EU scenario
 \itemize{
-\item in 2035 if the region as some CCS capacity in 2030 in a different industry
+\item in 2030 if the region as some CCS capacity in 2025 in a different industry
 subsector, or
-\item in 2040 if the region has no industry CCS capacity in 2030 at all.
+\item in 2035 if the region has no industry CCS capacity in 2030 at all.
 }
 
-CCS capacities are increase by the annual growth factor (default: 20 \%/p.a.).
+CCS capacities are increased by the annual growth factor \code{a1} for the ten
+first years, and by the annual growth factor \code{a2} afterwards (defaulting to
+70 \% and 20 \%, respectively).
 }
 \author{
 Michaja Pehl

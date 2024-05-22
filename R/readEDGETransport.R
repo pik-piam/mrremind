@@ -6,11 +6,12 @@
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Johanna Hoppe
 #' @seealso \code{\link{readSource}}
-#' @param subtype
+#' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
 #' \dontrun{ a <- readSource(type = "EDGETransport")
 #' }
+#' @importFrom edgeTransport toolEdgeTransportSA
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
 #' @importFrom data.table data.table rbindlist := setnames setkeyv
@@ -29,31 +30,30 @@ readEDGETransport <- function(subtype) {
       SSPscen = c("SSP2EU"),
       transportPolScen = c("Mix2", "Mix4"),
       isICEban = TRUE,
-      demScen = c("default")#,
-
-    # ## Specific project scenarios
-    # tribble(
-    #   ~SSPscen,         ~transportPolScen,        ~ICEban   ~demScen,
-    #   'SDP_EI',        'Mix4',                    TRUE,   'default',
-    #   'SDP_MC',        'Mix4',                    TRUE,   'default',
-    #   'SDP_RC',        'Mix3',                    TRUE,   'default',
-    #   'SSP2EU',        'HydrHype4',               TRUE,   'default',
-    #   'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,   'default',
-    #   'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,   'SSP2EU_demRedStrong',
-    #   'SSP2EU',        'ECEMF_HighEl_ModEff',     TRUE,   'default',
-    #   'SSP2EU',        'ECEMF_HighH2_HighEff',    TRUE,   'default',
-    #   'SSP2EU',        'ECEMF_HighH2_LifestCha',  TRUE,   'SSP2EU_demRedStrong',
-    #   'SSP2EU',        'ECEMF_HighH2_ModEff',     TRUE,   'default',
-    #   'SSP2EU',        'NAV_act',                 FALSE,  'SSP2EU_demRedStrong',
-    #   'SSP2EU',        'NAV_tec',                 FALSE,  'default',
-    #   'SSP2EU',        'NAV_ele',                 TRUE,   'default',
-    #   'SSP2EU',        'NAV_all',                 TRUE,   'SSP2EU_demRedStrong',
-    #   'SSP2EU',        'NAV_lce',                 FALSE,  'SSP2EU_demRedStrong',
-    #   'SSP2EU',        'CAMP_lscLow',             TRUE,   'SSP2EU_demRedLow',
-    #   'SSP2EU',        'CAMP_lscWeak',            TRUE,   'SSP2EU_demRedWeak',
-    #   'SSP2EU',        'CAMP_lscStrong',          TRUE,   'SSP2EU_demRedStrong'
-    # )
-  ))
+      demScen = c("default")),
+    ## Specific project scenarios
+    tribble(
+      ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
+      'SDP_EI',        'Mix4',                    TRUE,       'default',
+      'SDP_MC',        'Mix4',                    TRUE,       'default',
+      'SDP_RC',        'Mix3',                    TRUE,       'default',
+      'SSP2EU',        'HydrHype4',               TRUE,       'default',
+      'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,       'default',
+      'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
+      'SSP2EU',        'ECEMF_HighEl_ModEff',     TRUE,       'default',
+      'SSP2EU',        'ECEMF_HighH2_HighEff',    TRUE,       'default',
+      'SSP2EU',        'ECEMF_HighH2_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
+      'SSP2EU',        'ECEMF_HighH2_ModEff',     TRUE,       'default',
+      'SSP2EU',        'NAV_act',                 FALSE,      'SSP2EU_demRedStrong',
+      'SSP2EU',        'NAV_tec',                 FALSE,      'default',
+      'SSP2EU',        'NAV_ele',                 TRUE,       'default',
+      'SSP2EU',        'NAV_all',                 TRUE,       'SSP2EU_demRedStrong',
+      'SSP2EU',        'NAV_lce',                 FALSE,      'SSP2EU_demRedStrong',
+      'SSP2EU',        'CAMP_lscLow',             TRUE,       'SSP2EU_demRedLow',
+      'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
+      'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
+    )
+  )
 
   # generate list from data frame rows
   allScens <- split(allScens, seq(nrow(allScens)))

@@ -4,25 +4,24 @@
 \alias{calcEDGETransport}
 \title{Prepare EDGETransport inputs}
 \usage{
-calcEDGETransport(subtype = "logit_exponent")
+calcEDGETransport(subtype)
 }
 \arguments{
-\item{subtype}{refer to the code for a list of allowed subtypes.}
+\item{subtype}{REMIND/iterative EDGE-T input data subtypes}
 }
 \value{
-magpie object of EDGEtransport iterative inputs
+REMIND/iterative EDGE-T input data for all scenario combinations
 }
 \description{
 Prepare EDGETransport inputs
 }
 \examples{
-\dontrun{ a <- calcOutput(type="EDGETransport", subtype="logit_exponent", aggregate=F)
+\dontrun{ a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
 }
-
 }
 \seealso{
 \code{\link{readSource}}
 }
 \author{
-Alois Dirnaichner, Marianna Rottoli
+Johanna Hoppe
 }

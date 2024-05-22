@@ -3,6 +3,8 @@
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #' @param x MAgPIE object containing EDGE-T values in 21 region resolution
 #' @return REMIND/iterative EDGE-T input data as MAgPIE object disaggregated to ISO level
+#' @importFrom data.table setDT
+#' @importFrom madrat toolAggregate
 #' @author Johanna Hoppe
 
 convertEDGETransport = function(x, subtype) {
