@@ -10,7 +10,7 @@ readIEA_REN()
 Reads the distributed solar pv capacity from IEA Renewables report (2019).
 }
 \details{
-Capacity in GW. Distributed solar, defined in the IEA Renewables (2019), includes 
+Capacity in GW. Distributed solar, defined in the IEA Renewables (2019), includes
 rooftop residential (0-10 kW, grid-connected), tooftop and ground-mounted commercial
  and industrial (10-1000kW, grid-connected), and off-grid (8W - 100 kW)
 }

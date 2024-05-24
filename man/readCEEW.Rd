@@ -16,7 +16,7 @@ Read Employment factors and cumulative jobs for RE techs (for India)
 Reports published by CEEW et al. See README.txt in the source folder for more information.
 }
 \examples{
- \dontrun{ 
+ \dontrun{
 a <- readSource("CEEW",convert=F,subtype="Employment")
 }
 }

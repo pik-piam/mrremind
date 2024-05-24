@@ -2,7 +2,6 @@
 #'
 #' Read-in NREL xlsx file as magclass object
 #'
-#'
 #' @param subtype type either "onshore" or "offshore"
 #' @return magpie object of NREL
 #' @author Lavinia Baumstark
