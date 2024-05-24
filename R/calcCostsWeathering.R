@@ -1,4 +1,4 @@
-#' Calculate costs of transport of enahnced weathering
+#' Calculate costs of transport of enhanced weathering
 #'
 #' @return transport costs of spreading rock on the fields
 #' @seealso \code{\link{calcOutput}}

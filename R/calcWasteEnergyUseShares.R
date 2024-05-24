@@ -1,5 +1,7 @@
 #' Calculate waste energy use shares based on IEA World Energy Balances
 #'
+#' The output of this function is used in remind2 for reporting purposes.
+#'
 #' @author Robert Pietzcker, Falk Benke
 #'
 calcWasteEnergyUseShares <- function() {
@@ -76,7 +78,6 @@ calcWasteEnergyUseShares <- function() {
         toolAggregate(denominator, rel = rel)
     )
   }
-
 
   return(list(
     x = numerator,
