@@ -16,11 +16,10 @@ magpie object of additional adjusment percentage to be added to the fraction of 
 provides the extra retirement rate to account for relatively old fleet technologies retirement
 }
 \examples{
-
-\dontrun{ 
-calcOutput(type="EarlyRetirementAdjFactor")
+\dontrun{
+calcOutput(type = "EarlyRetirementAdjFactor")
 }
- 
+
 }
 \seealso{
 \code{\link{calcOutput}}

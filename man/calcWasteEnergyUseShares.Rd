@@ -7,7 +7,7 @@
 calcWasteEnergyUseShares()
 }
 \description{
-Calculate waste energy use shares based on IEA World Energy Balances
+The output of this function is used in remind2 for reporting purposes.
 }
 \author{
 Robert Pietzcker, Falk Benke

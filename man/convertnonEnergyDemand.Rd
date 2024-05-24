@@ -16,8 +16,8 @@ A MAgPIE object containing country disaggregated data
 Converts Final energy demand for feedstocks (non-energy use)
 }
 \examples{
-
-\dontrun{ a <- convertnonEnergyDemand(x)
+\dontrun{
+a <- convertnonEnergyDemand(x)
 }
 
 }

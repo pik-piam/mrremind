@@ -7,10 +7,12 @@
 readAR6GWP(subtype = "GWP100")
 }
 \arguments{
-\item{subtype}{data subtype. Currently just "GWP100", but other metrics are also available in the input data}
+\item{subtype}{data subtype. Currently just "GWP100", but other metrics are
+also available in the input data}
 }
 \value{
-A data.frame with two columns, "Gas", with the common name of the GHG species, and "GWP", with the selected GWP
+A data.frame with two columns, "Gas", with the common name of the GHG
+species, and "GWP", with the selected GWP
 }
 \description{
 Read GWP (or other metrics) from the AR6 WGIII Table SM7 per GHG species

@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcCostsWeathering.R
 \name{calcCostsWeathering}
 \alias{calcCostsWeathering}
-\title{Calculate costs of transport of enahnced weathering}
+\title{Calculate costs of transport of enhanced weathering}
 \usage{
 calcCostsWeathering()
 }
@@ -10,7 +10,7 @@ calcCostsWeathering()
 transport costs of spreading rock on the fields
 }
 \description{
-Calculate costs of transport of enahnced weathering
+Calculate costs of transport of enhanced weathering
 }
 \examples{
 
