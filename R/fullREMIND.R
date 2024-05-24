@@ -155,10 +155,11 @@ fullREMIND <- function() {
   calcOutput("PlasticsEoL",                                            round = 5,  file = "f_incinerationShares.cs4r")
 
   #--------------- EDGE Transport ---------------------------------------------------------------------
-
-  calcOutput("EDGETransport", subtype = "p35_esCapCost",                           file = "p35_esCapCost.cs4r")
-  calcOutput("EDGETransport", subtype = "p35_fe2es",                               file = "p35_fe2es.cs4r")
-  calcOutput("EDGETransport", subtype = "p35_demByTech",                           file = "p35_demByTech.cs4r")
+  calcOutput("TransportGDPshare", round = 6,                                       file = "f35_transportGDPshare.cs4r")
+  
+  calcOutput("EDGETransport", subtype = "f35_esCapCost",                           file = "f35_esCapCost.cs4r")
+  calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
+  calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
   calcOutput("EDGETransport", subtype = "CAPEXandNonFuelOPEX",                     file = "CAPEXandNonFuelOPEX.cs4r")
   calcOutput("EDGETransport", subtype = "scenSpecPrefTrends",                      file = "scenSpecPrefTrends.cs4r")
   calcOutput("EDGETransport", subtype = "scenSpecLoadFactor",                      file = "scenSpecLoadFactor.cs4r")

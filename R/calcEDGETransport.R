@@ -14,20 +14,25 @@ calcEDGETransport <- function(subtype) {
   x <- readSource("EDGETransport", subtype)
 
   switch(subtype,
-         "p35_esCapCost" = {
+         "f35_esCapCost" = {
            weight = gdp |> time_interpolate(getYears(x))
            unit = "2005US$/(p|t)km"
            description = "Capital cost (purchase) per energy service demand on CES level."
          },
-         "p35_fe2es" = {
+         "f35_fe2es" = {
            weight = gdp |> time_interpolate(getYears(x))
            unit = "trn (p|t)km/Twa"
            description = "Energy efficiency on CES level."
          },
-         "p35_demByTech" = {
+         "f35_demByTech" = {
            weight = NULL
            unit = "TWa"
            description = "Final energy demand on CES level."
+         },
+         "f29_trpdemand" = {
+           weight = NULL
+           unit = "TWa"
+           description = "Energy service demand on CES level."
          },
          "CAPEXandNonFuelOPEX" = {
            weight = gdp |> time_interpolate(getYears(x))

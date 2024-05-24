@@ -11,13 +11,23 @@ convertEDGETransport = function(x, subtype) {
 
   mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
                                       where = "mappingfolder"))[, .(iso = CountryCode, region = RegionCode)]
-  if (subtype %in% c("p35_demByTech")) {
+  if (subtype %in% c("f35_demByTech", "f29_trpdemand")) {
     gdp <- calcOutput("GDP", aggregate = FALSE) |> time_interpolate(getYears(x))
     gdp <- gdp[,,"gdp_SSP2"]
     result <- toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
-  } else {
+  } else if (!subtype == "shares_LDV_transport") {
     result <- toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
-  }
+  } else if (subtype %in% c("shares_LDV_transport")) {
+    ## only the first EDGE-T scenario for SSP2 is used as a proxy for the LDV shares
+    x <- x[,, "gdp_SSP2.Mix1.share_LDV_totliq.shares_LDV_transport"]
 
+    for (year in getYears(x, as.integer = T)){
+      x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)
+    }
+    #extending values
+    x <- time_interpolate(x, integrate_interpolated_years=T, interpolated_year = seq(from = 1990, to = 2100), extrapolation_type = "linear")
+    x <- time_interpolate(x, integrate_interpolated_years=T, interpolated_year = c(seq(from = 1970, to = 1989),seq(from = 2101, to = 2150)), extrapolation_type = "constant")
+    result <- x
+  }
   return(result)
 }

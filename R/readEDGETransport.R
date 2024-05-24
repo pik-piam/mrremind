@@ -27,8 +27,8 @@ readEDGETransport <- function(subtype) {
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     expand_grid(
-      SSPscen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
+      SSPscen = "SSP1",#c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+      transportPolScen = "Mix1",# c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = FALSE,
       demScen = c("default")),
     ## Specific project scenarios
