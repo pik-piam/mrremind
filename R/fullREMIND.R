@@ -161,6 +161,7 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "p35_demByTech",                           file = "p35_demByTech.cs4r")
   calcOutput("EDGETransport", subtype = "CAPEXandNonFuelOPEX",                     file = "CAPEXandNonFuelOPEX.cs4r")
   calcOutput("EDGETransport", subtype = "scenSpecPrefTrends",                      file = "scenSpecPrefTrends.cs4r")
+  calcOutput("EDGETransport", subtype = "scenSpecLoadFactor",                      file = "scenSpecLoadFactor.cs4r")
   calcOutput("EDGETransport", subtype = "scenSpecEnIntensity",                     file = "scenSpecEnIntensity.cs4r")
   calcOutput("EDGETransport", subtype = "initialIncoCosts",                        file = "initialIncoCosts.cs4r")
   calcOutput("EDGETransport", subtype = "annualMileage",                           file = "annualMileage.cs4r")

@@ -39,6 +39,11 @@ calcEDGETransport <- function(subtype) {
            unit = "-"
            description = "Scenario specific preference trends on technology level."
          },
+         "scenSpecLoadFactor" = {
+           weight = gdp |> time_interpolate(getYears(x))
+           unit = "-"
+           description = "Scenario specific load factor on technology level."
+         },
          "scenSpecEnIntensity" = {
            weight = gdp |> time_interpolate(getYears(x))
            unit = "MJ/vehkm"
