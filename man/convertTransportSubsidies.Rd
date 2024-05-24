@@ -16,10 +16,10 @@ A MAgPIE object containing transport subsidies per technology
 Converts transport subsidies data
 }
 \examples{
-
-\dontrun{ a <- convertTransportSubsidies(x)
+\dontrun{
+a <- convertTransportSubsidies(x)
 }
- 
+
 }
 \author{
 Renato Rodrigues

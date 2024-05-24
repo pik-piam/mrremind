@@ -13,8 +13,7 @@ magpie object of the capacity factor data
 provides capacity factor values
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("StorageFactor")
 }
 

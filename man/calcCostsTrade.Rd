@@ -14,8 +14,7 @@ corresonding weights (1) as a list of two MAgPIE objects
 Provides REMIND data for PE tradecosts (energy losses on import).
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("calcCostsTrade")
 }
 

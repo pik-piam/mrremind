@@ -13,8 +13,7 @@ magpie object of the tax convergence levels
 tax convergence levels for specific regions
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("TaxConvergence")
 }
 
