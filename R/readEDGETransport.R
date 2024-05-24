@@ -11,7 +11,6 @@
 #' @examples
 #' \dontrun{ a <- readSource(type = "EDGETransport")
 #' }
-#' @importFrom edgeTransport toolEdgeTransportSA
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
 #' @importFrom data.table data.table rbindlist := setnames setkeyv
