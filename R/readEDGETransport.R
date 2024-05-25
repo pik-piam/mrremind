@@ -29,13 +29,13 @@ readEDGETransport <- function(subtype) {
       SSPscen = "SSP1",#c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
       transportPolScen = "Mix1",# c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = FALSE,
-      demScen = c("default")),
+      demScen = c("default"))#,
     ## Specific project scenarios
-    tribble(
-      ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
-      'SDP_EI',        'Mix4',                    TRUE,       'default',
-      'SDP_MC',        'Mix4',                    TRUE,       'default',
-      'SDP_RC',        'Mix3',                    TRUE,       'default',
+    #tribble(
+    #  ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
+     # 'SDP_EI',        'Mix4',                    TRUE,       'default',
+     #  'SDP_MC',        'Mix4',                    TRUE,       'default',
+     #  'SDP_RC',        'Mix3',                    TRUE,       'default',
       # 'SSP2EU',        'HydrHype4',               TRUE,       'default',
       # 'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,       'default',
       # 'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
@@ -51,7 +51,7 @@ readEDGETransport <- function(subtype) {
       # 'SSP2EU',        'CAMP_lscLow',             TRUE,       'SSP2EU_demRedLow',
       # 'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
       # 'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
-    )
+    #)
   )
 
   # generate list from data frame rows
