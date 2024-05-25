@@ -19,7 +19,7 @@ convertEDGETransport = function(x, subtype) {
     result <- toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")
   } else if (subtype %in% c("shares_LDV_transport")) {
     ## only the first EDGE-T scenario for SSP2 is used as a proxy for the LDV shares
-    x <- x[,, "gdp_SSP2.Mix1.share_LDV_totliq.shares_LDV_transport"]
+    x <- x[,, "gdp_SSP2.Mix1.gdp_SSP2.share_LDV_totliq.shares_LDV_transport"]
 
     for (year in getYears(x, as.integer = T)){
       x[,year,] <- as.vector(x[,c(2010),]) + ((0.55 - as.vector(x[,c(2010),]))/(2100-2010))*(year-2010)
