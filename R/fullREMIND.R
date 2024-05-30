@@ -67,6 +67,7 @@ fullREMIND <- function() {
   calcOutput("GDP", years = rem_years_hist,                 round = 8, file = "f50_gdp.cs3r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "const",                 round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "tasK",                  round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
+  calcOutput("ConsShare",                                   round = 8, file = "f_consShare.cs4r") #Should the prefix be extended by module.num 02?
 
   #-------------- emission parameter ------------------------------------------------------------------
   calcOutput("EconometricEmiParameter",                           round = 5, file = "p_emineg_econometric.cs3r")
