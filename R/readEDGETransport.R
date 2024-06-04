@@ -26,32 +26,32 @@ readEDGETransport <- function(subtype) {
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     expand_grid(
-      SSPscen = "SSP1",#c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
-      transportPolScen = "Mix1",# c("Mix1", "Mix2", "Mix3", "Mix4"),
-      isICEban = FALSE,
-      demScen = c("default"))#,
-    ## Specific project scenarios
-    #tribble(
-    #  ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
-     # 'SDP_EI',        'Mix4',                    TRUE,       'default',
-     #  'SDP_MC',        'Mix4',                    TRUE,       'default',
-     #  'SDP_RC',        'Mix3',                    TRUE,       'default',
-      # 'SSP2EU',        'HydrHype4',               TRUE,       'default',
-      # 'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,       'default',
-      # 'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
-      # 'SSP2EU',        'ECEMF_HighEl_ModEff',     TRUE,       'default',
-      # 'SSP2EU',        'ECEMF_HighH2_HighEff',    TRUE,       'default',
-      # 'SSP2EU',        'ECEMF_HighH2_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
-      # 'SSP2EU',        'ECEMF_HighH2_ModEff',     TRUE,       'default',
-      # 'SSP2EU',        'NAV_act',                 FALSE,      'SSP2EU_demRedStrong',
-      # 'SSP2EU',        'NAV_tec',                 FALSE,      'default',
-      # 'SSP2EU',        'NAV_ele',                 TRUE,       'default',
-      # 'SSP2EU',        'NAV_all',                 TRUE,       'SSP2EU_demRedStrong',
-      # 'SSP2EU',        'NAV_lce',                 FALSE,      'SSP2EU_demRedStrong',
-      # 'SSP2EU',        'CAMP_lscLow',             TRUE,       'SSP2EU_demRedLow',
-      # 'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
-      # 'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
-    #)
+      SSPscen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+      transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
+      isICEban = c(TRUE, FALSE),
+      demScen = c("default")),
+    # Specific project scenarios
+    tribble(
+     ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
+    'SDP_EI',        'Mix4',                    TRUE,       'default',
+    'SDP_MC',        'Mix4',                    TRUE,       'default',
+    'SDP_RC',        'Mix3',                    TRUE,       'default',
+    'SSP2EU',        'HydrHype4',               TRUE,       'default',
+    'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,       'default',
+    'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
+    'SSP2EU',        'ECEMF_HighEl_ModEff',     TRUE,       'default',
+    'SSP2EU',        'ECEMF_HighH2_HighEff',    TRUE,       'default',
+    'SSP2EU',        'ECEMF_HighH2_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
+    'SSP2EU',        'ECEMF_HighH2_ModEff',     TRUE,       'default',
+    'SSP2EU',        'NAV_act',                 FALSE,      'SSP2EU_demRedStrong',
+    'SSP2EU',        'NAV_tec',                 FALSE,      'default',
+    'SSP2EU',        'NAV_ele',                 TRUE,       'default',
+    'SSP2EU',        'NAV_all',                 TRUE,       'SSP2EU_demRedStrong',
+    'SSP2EU',        'NAV_lce',                 FALSE,      'SSP2EU_demRedStrong',
+    'SSP2EU',        'CAMP_lscLow',             TRUE,       'SSP2EU_demRedLow',
+    'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
+    'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
+    )
   )
 
   # generate list from data frame rows
@@ -63,7 +63,7 @@ readEDGETransport <- function(subtype) {
 
   EdgeTransportSAdata <- lapply(allScens,
                      function(x) {
-                       toolEdgeTransportSA(SSPscen = x[["SSPscen"]],
+                       calcEdgeTransportSA(SSPscen = x[["SSPscen"]],
                                            transportPolScen = x[["transportPolScen"]],
                                            isICEban = x[["isICEban"]],
                                            demScen = x[["demScen"]],
