@@ -33,50 +33,64 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   switch(
     subtype,
     input = {
-      mapping <- "structuremappingIO_inputs.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_biomass = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     trade = {
-      mapping <- "structuremappingIO_trade.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_trade.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_enty", "REMINDitems_trade")
     },
     input_Industry_subsectors = {
-      mapping <- "structuremappingIO_inputs_Industry_subsectors.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs_Industry_subsectors.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_Industry_subsectors = {
-      mapping <- "structuremappingIO_outputs_Industry_subsectors.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs_Industry_subsectors.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     IEA_output = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
                   "iea_product", "iea_flows")
     },
     IEA_input = {
-      mapping <- "structuremappingIO_inputs.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
                   "iea_product", "iea_flows")
     }
   )
-  mapping <- toolGetMapping(type = "sectoral", name = mapping, where = where,
-                            returnPathOnly = TRUE)
 
   if (!(ieaVersion %in% c("default", "latest"))) {
     stop("Invalid parameter `ieaVersion`. Must be either 'default' or 'latest'")
