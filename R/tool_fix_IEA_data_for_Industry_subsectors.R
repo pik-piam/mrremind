@@ -505,7 +505,8 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
     unique()
 
   region_mapping <- toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                   type = 'regional') %>%
+                                   type = 'regional',
+                                   where = 'mappingfolder') %>%
     as_tibble() %>%
     select('iso3c' = .data$CountryCode, 'region' = .data$RegionCode)
 
