@@ -1252,7 +1252,8 @@ calcSteel_Projections <- function(subtype = 'production',
   if ('secondary.steel.max.share' == subtype) {
     return(
       list(x = secondary.steel.max.share %>%
-             filter(.data$year %in% unique(quitte::remind_timesteps$period)) %>%
+             filter(.data$year %in% unique(quitte::remind_timesteps$period),
+                    'Total' != .data$iso3c) %>%
              mutate(scenario = paste0('gdp_', .data$scenario)) %>%
              select('scenario', 'iso3c', 'year', 'share') %>%
              as.magpie(spatial = 2, temporal = 3, data = 4),
