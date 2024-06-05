@@ -63,13 +63,16 @@ readEDGETransport <- function(subtype) {
 
   EdgeTransportSAdata <- lapply(allScens,
                      function(x) {
-                       calcEdgeTransportSA(SSPscen = x[["SSPscen"]],
-                                           transportPolScen = x[["transportPolScen"]],
-                                           isICEban = x[["isICEban"]],
-                                           demScen = x[["demScen"]],
-                                           isTransportReported = FALSE,
-                                           isREMINDinputReported = TRUE,
-                                           isStored = FALSE)
+                       calcOutput(type = "EdgeTransportSA",
+                                  aggregate = FALSE,
+                                  supplementary = FALSE,
+                                  SSPscen = x[["SSPscen"]],
+                                  transportPolScen = x[["transportPolScen"]],
+                                  isICEban = x[["isICEban"]],
+                                  demScen = x[["demScen"]],
+                                  isTransportReported = FALSE,
+                                  isREMINDinputReported = TRUE,
+                                  isStored = FALSE)
                      })
 
   types <- unique(unlist(lapply(EdgeTransportSAdata, names)))
