@@ -927,6 +927,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
       # estimates up to last historic year
       steel_historic_prod %>%
+        filter('Total' != .data$iso3c) %>%
         rename(historic = .data$value) %>%
         # Mt/year * 1e6 t/Mt = t/year
         mutate(historic = .data$historic * 1e6,
