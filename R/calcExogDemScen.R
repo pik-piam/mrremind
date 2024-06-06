@@ -8,16 +8,13 @@
 
 calcExogDemScen <- function() {
 
-  ### ARIADNE steel and cement production trajectories for Germany from FORECAST
-
   # read scenario data from Ariadne IIASA database
   data <- readSource("AriadneDB")
 
-  # which variables, scenarios and models from ariadne DB to select
+  # which variables, scenarios and models from Ariadne DB to select
   ariadne.vars <- c("Production|Steel|Primary", "Production|Steel|Secondary", "Production|Non-Metallic Minerals|Cement")
   ariadne.scens <- c("KN2045_Bal_v4", "KN2045plus_EasyRide", "KN2045minus_WorstCase")
   ariadne.model <- c("FORECAST v1_0")
-
 
   # select only specified variables and scenarios for Germany,
   # convert from Mt production to Gt production
@@ -27,7 +24,7 @@ calcExogDemScen <- function() {
     model = ariadne.model
   )
 
-  # map ariadne scenarios and variables to scenario and production factor names used for input data in REMIND
+  # map Ariadne scenarios and variables to scenario and production factor names used for input data in REMIND
   mapping.scens <- data.frame(
     scen.ariadne = ariadne.scens,
     scen.remind = c(
@@ -36,7 +33,6 @@ calcExogDemScen <- function() {
       "ariadne_highDem"
     )
   )
-
 
   mapping.vars <- data.frame(
     vars.ariadne = ariadne.vars,
@@ -61,9 +57,11 @@ calcExogDemScen <- function() {
     dim = 3.2
   )
 
-  # rearrange to ouptut format
-  years <- c(2005, 2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045,
-             2050, 2055, 2060, 2070, 2080, 2090, 2100)
+  # rearrange to output format
+  years <- c(
+    2005, 2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045,
+    2050, 2055, 2060, 2070, 2080, 2090, 2100
+  )
 
   out <- new.magpie(
     cells_and_regions = magclass::getItems(data, dim = 1),
@@ -76,7 +74,17 @@ calcExogDemScen <- function() {
   ariadne.period <- seq(2025, 2050, 5)
   out["DEU", paste0("y", ariadne.period), ] <- ariadne.ind.demand["DEU", paste0("y", ariadne.period), ]
 
-  ### end Ariadne trajectories
+  # FORECAST only provides data until 2050. After 2050, assume linear decline until 2080 to
+  # levels in line with REMIND runs with endogenous production".
+
+  out["DEU", 2080, "ue_steel_primary"] <- 10 * 1e-3
+  out["DEU", 2080, "ue_steel_secondary"] <- 20 * 1e-3
+  out["DEU", 2080, "ue_cement"] <- 20 * 1e-3
+
+
+  out["DEU", c(2050, 2055, 2060, 2070, 2080), ] <- madrat::toolFillYears(
+    out["DEU", c(2050, 2080), ], c(2050, 2055, 2060, 2070, 2080)
+  )
 
   return(list(
     x = out,
