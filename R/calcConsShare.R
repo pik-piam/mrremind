@@ -12,7 +12,7 @@
 #' @return magpie objects of regional consumption shares for each of the 10 deciles.
 #' weights = 1, such that the aggregation later takes country average
 #' @author Jiarui Zhong
-#' @seealso \code{\link{calcOutput}} \code{\link{calcGini},\link{readGini}.\link{calcTheil}}
+#' @seealso \code{\link{calcOutput}} \code{\link{convertGini},\link{readGini}.\link{calcTheil}}
 #' @examples
 #' \dontrun{
 #' a <- calcOutput("ConsShare")
@@ -33,17 +33,17 @@ calcConsShare <- function() {
     mu <- 1
 
     # decile boundaries
-    deciles <- qlnorm(seq(0, 1, by = 0.1), meanlog = mu, sdlog = sigma)
+    deciles <- stats::qlnorm(seq(0, 1, by = 0.1), meanlog = mu, sdlog = sigma)
 
     # function for the integrand x * f(x)
     integrand <- function(x) {
-      x * dlnorm(x, meanlog = mu, sdlog = sigma)
+      x * stats::dlnorm(x, meanlog = mu, sdlog = sigma)
     }
 
     # Compute shares by integrating over each decile range
     incomeShares <- numeric(length(deciles) - 1)
     for (i in 2:length(deciles)) {
-      incomeShares[i - 1] <- integrate(integrand, lower = deciles[i - 1], upper = deciles[i])$value
+      incomeShares[i - 1] <- stats::integrate(integrand, lower = deciles[i - 1], upper = deciles[i])$value
     }
 
     # Normalize
