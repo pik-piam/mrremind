@@ -3,13 +3,12 @@ calcCapital <- function() {
   # compute macroeconomic capital stock based on capital intensities from PWT and ssp scenarios
   # t.b.d.: correct for capital stock part that enters energy sectors
   capital <- readSource("PWT")[, , "rkna"]
+  gdppwt <- readSource("PWT")[, , "rgdpna"]
   getNames(capital) <- "kap"
-  capital[is.na(capital)] <- 0
-  gdpppp_hist <- calcOutput("GDPPast", GDPPast = "PWT", aggregate = FALSE)
-  cap_intensity <- capital / setNames(gdpppp_hist, NULL)
+  cap_intensity <- capital / setNames(gdppwt, NULL)
 
   # use initial gdp as in REMIND which differs from PWT
-  gdpppp_hist <- calcOutput("GDPPast", aggregate = FALSE)
+  gdpppp_hist <- calcOutput("GDP", aggregate = FALSE, years = c("y1995", "y2000", "y2005"))
   gdpppp <- calcOutput("GDP", aggregate = FALSE, years = seq(2005, 2150, 5))
   my_scen <- c("gdp_SSP1", "gdp_SSP2", "gdp_SSP3", "gdp_SSP4", "gdp_SSP5", "gdp_SSP2EU",
                "gdp_SDP", "gdp_SDP_EI", "gdp_SDP_RC", "gdp_SDP_MC")
@@ -78,16 +77,11 @@ calcCapital <- function() {
     quitte::magclass_to_tibble(c("iso3c", NA, NA, NA, "kap")) %>%
     dplyr::select("iso3c", "kap")
 
-  EEK <- calcOutput("Industry_EEK", kap = kap, supplementary = FALSE,
-                    aggregate = FALSE, years = getYears(cap_future))
+  EEK <- calcOutput("Industry_EEK", kap = kap, supplementary = FALSE, aggregate = FALSE, years = getYears(cap_future))
 
   # tie outputs together ----
-  output <- list(
-    x = mbind(cap_future, EEK),
-    weight = NULL,
-    unit = "trillion 2005US$",
-    description = "Capital stock at constant 2005 national prices"
-  )
-
-  return(output)
+  list(x = mbind(cap_future, EEK),
+       weight = NULL,
+       unit = "trillion 2005US$",
+       description = "Capital stock, computed using the capital to GDP ratio from PWT, and GDP scenarios from mrdrivers.")
 }
