@@ -10,7 +10,8 @@ calcExogDemScen()
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-prepare data for exogenuous FE and ES demand pathways that do not come from EDGE models but from other sources and/or scenario literature.
+prepare data for exogenuous FE and ES demand pathways that do not
+come from EDGE models but from other sources and/or scenario literature.
 REMIND can be fixed to those demand pathways if the switch cm_exogDem_scen is activated.
 }
 \author{
