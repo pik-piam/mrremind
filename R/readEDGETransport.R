@@ -48,7 +48,6 @@ readEDGETransport <- function(subtype) {
     'SSP2EU',        'NAV_ele',                 TRUE,       'default',
     'SSP2EU',        'NAV_all',                 TRUE,       'SSP2EU_demRedStrong',
     'SSP2EU',        'NAV_lce',                 FALSE,      'SSP2EU_demRedStrong',
-    'SSP2EU',        'CAMP_lscLow',             TRUE,       'SSP2EU_demRedLow',
     'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
     'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
     )
@@ -89,31 +88,14 @@ readEDGETransport <- function(subtype) {
   ## that are applied to all sectors simultaneously
   #############################################################
 
-  createCopyDemScens <- function(dt) {
-    setkeyv(dt, c("DEM_scenario", "GDP_scenario", "EDGE_scenario"))
-    ## Workaround for NAVIGATE: copy-create demand scenarios which we do not supply by EDGE-T
-    dt <- rbind(dt,
-                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "NAV_ele"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_ele"],
-                dt[.("gdp_SSP2EU", "gdp_SSP2EU", "NAV_tec"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_tec"],
-                dt[.("gdp_SSP2EU_demRedStrong", "gdp_SSP2EU", "NAV_act"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_act"],
-                dt[.("gdp_SSP2EU_demRedStrong", "gdp_SSP2EU", "NAV_all"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_all"],
-                dt[.("gdp_SSP2EU_demRedStrong", "gdp_SSP2EU", "NAV_lce"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_NAV_lce"],
-                dt[.("gdp_SSP2EU_demRedWeak", "gdp_SSP2EU", "CAMP_lscWeak"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_CAMP_weak"],
-                dt[.("gdp_SSP2EU_demRedStrong", "gdp_SSP2EU", "CAMP_lscStrong"), nomatch = NULL][
-                  , DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
-    )
-    setkeyv(dt, "DEM_scenario")
-    dt[.("gdp_SSP2EU_demRedStrong"), DEM_scenario := "gdp_SSP2_lowEn"]
-    return(dt)
-  }
-
-  EdgeTransportSAdata <- lapply(EdgeTransportSAdata, createCopyDemScens)
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
+  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
+  EdgeTransportSAdata[DEM_scenario == "SSP2EU_demRedStrong", DEM_scenario == "gdp_SSP2_lowEn"]
 
   #############################################################
   ## Create magpie object for every subtype
