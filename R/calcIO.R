@@ -186,6 +186,12 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
              return(tmp)
            })
   )
+  # Correct transport reporting issue in IEA data for MARBUNK in REF regions
+  # FE is not reported and set to zero. First data is available in 2007 for AZE.
+  # To not get zero MARBUNK FE in REF in transport, extrapolate data from 2007.
+  REFregions <- c("ARM","AZE","BLR","GEO","KAZ","KGZ","MDA","RUS","TJK","TKM","UKR","UZB")
+  reminditems[REFregions, c(2005, 2006), "MARBUNK", pmatch = TRUE] <-
+    reminditems[REFregions, 2007, "MARBUNK", pmatch = TRUE]
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
   if (subtype %in% c("output", "input", "output_Industry_subsectors")) {
