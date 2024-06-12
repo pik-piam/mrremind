@@ -87,16 +87,18 @@ readEDGETransport <- function(subtype) {
   ## Rename EDGE-Transport demScens and map to REMIND demScens
   ## that are applied to all sectors simultaneously
   #############################################################
-
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
-  EdgeTransportSAdata[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
-  EdgeTransportSAdata[DEM_scenario == "SSP2EU_demRedStrong", DEM_scenario == "gdp_SSP2_lowEn"]
-
+  translateEdgeTransportDemScentoREMIND <- function(dt) {
+    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
+    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
+    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong", DEM_scenario == "gdp_SSP2_lowEn"]
+    return(dt)
+  }
+  EdgeTransportSAdata <- lapply(EdgeTransportSAdata, translateEdgeTransportDemScentoREMIND)
   #############################################################
   ## Create magpie object for every subtype
   #############################################################
