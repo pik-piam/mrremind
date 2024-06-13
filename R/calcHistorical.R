@@ -38,7 +38,7 @@ calcHistorical <- function() {
   gdp <- add_dimension(gdp, dim = 3.1, add = "model", nm = "WDI")
 
   # Historical emissions from CEDS data base
-  ceds <- calcOutput("Emissions", datasource = "CEDS2021", aggregate = FALSE)
+  ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
   ceds <- add_dimension(ceds, dim = 3.1, add = "model", nm = "CEDS")
 
   # Historical emissions from PRIMAPhist data base

@@ -12,7 +12,7 @@ calcEmiTarget <- function(sources, subtype) {
   gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
   gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
   # calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-  # note: CEDS2021 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
+  # note: CEDS2024 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
   ghg <- ceds[, seq(1990, 2015, 1), c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)")] +
     +gwpN2O / 1000 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
                                                   "Emi|N2O|Land Use|Agriculture and Biomass Burning (kt N2O/yr)",
