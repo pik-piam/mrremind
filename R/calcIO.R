@@ -102,6 +102,15 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
+  # Correct transport reporting issue in IEA data for NONBIODIES.MARBUNK in RUS
+  # FE is reported in 1990 and 2010 but not in the years in between. This cause problems in the harmonization of EDGE-Transport
+  # and the IEA data in 2005 as there is no MARBUNK demand at all for REF regions.
+  data["RUS", seq(1990, 2010, 1), "NONBIODIES.MARBUNK"] <-
+    data["RUS", c(1990, 2010),"NONBIODIES.MARBUNK"]|> time_interpolate(seq(1990, 2010, 1))
+  #Adjust totals
+  data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] <-
+    data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] + data["RUS", seq(1991, 2009, 1), "NONBIODIES.MARBUNK"]
+
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
@@ -186,12 +195,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
              return(tmp)
            })
   )
-  # Correct transport reporting issue in IEA data for MARBUNK in REF regions
-  # FE is not reported and set to zero. First data is available in 2007 for AZE.
-  # To not get zero MARBUNK FE in REF in transport, extrapolate data from 2007.
-  REFregions <- c("ARM","AZE","BLR","GEO","KAZ","KGZ","MDA","RUS","TJK","TKM","UKR","UZB")
-  reminditems[REFregions, c(2005, 2006), "MARBUNK", pmatch = TRUE] <-
-    reminditems[REFregions, 2007, "MARBUNK", pmatch = TRUE]
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
   if (subtype %in% c("output", "input", "output_Industry_subsectors")) {
