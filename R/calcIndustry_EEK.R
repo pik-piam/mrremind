@@ -7,7 +7,7 @@
 #'   `unit`, and `description` fields.
 #'
 #' @importFrom assertr assert
-#' @importFrom dplyr %>% arrange bind_rows filter group_by lag lead mutate n
+#' @importFrom dplyr arrange bind_rows filter group_by lag lead mutate n
 #'                   row_number select
 #' @importFrom quitte madrat_mule
 #' @importFrom rlang .data .env sym syms

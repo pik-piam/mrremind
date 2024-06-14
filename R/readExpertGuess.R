@@ -21,7 +21,6 @@
 #' }
 #'
 #' @importFrom dplyr bind_rows filter pull select
-#' @importFrom magrittr %>%
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom tidyr expand_grid

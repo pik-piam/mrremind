@@ -3,7 +3,7 @@
 #'
 #' @author Rahel Mandaroux, Falk Benke
 #'
-#' @importFrom dplyr %>% filter mutate select
+#' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
 #'

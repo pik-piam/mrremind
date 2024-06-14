@@ -8,7 +8,7 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' @importFrom dplyr %>% mutate select
+#' @importFrom dplyr mutate select
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom readxl read_excel

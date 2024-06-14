@@ -13,7 +13,6 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom dplyr left_join mutate n group_by select ungroup
-#' @importFrom magrittr %>%
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom rlang syms

@@ -1,7 +1,6 @@
 #' Calculates FE historical from IEA energy balances, projections from EDGE, and historical
 #' values from IEA WEO 2019
 #' @author Lavinia Baumstark, Aman Malik
-#' @importFrom dplyr %>%
 #' @importFrom quitte inline.data.frame
 #' @importFrom stats na.omit
 #' @param source "IEA" or "IEA_WEO"

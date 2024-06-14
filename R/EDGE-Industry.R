@@ -33,7 +33,7 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert not_na verify within_bounds
-#' @importFrom dplyr %>% case_when bind_rows between distinct first last n
+#' @importFrom dplyr case_when bind_rows between distinct first last n
 #'   mutate pull right_join select semi_join vars
 #' @importFrom ggplot2 aes coord_cartesian expand_limits facet_wrap geom_area
 #'   geom_line geom_path geom_point ggplot ggsave guide_legend labs

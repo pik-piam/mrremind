@@ -7,7 +7,6 @@
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join lag last left_join
 #'   matches mutate n rename right_join select semi_join summarise ungroup
-#' @importFrom magrittr %>% %<>%
 #' @importFrom quitte as.quitte cartesian character.data.frame
 #'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule
 #'   magclass_to_tibble overwrite seq_range
@@ -589,7 +588,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
     mutate(subsector = paste0("ue_", .data$subsector))
 
   if (use_ODYM_RECC) {
-    industry_subsectors_material_relative %<>%
+    industry_subsectors_material_relative <- industry_subsectors_material_relative %>%
       filter(!.data$scenario %in% c("gdp_SDP_EI", "gdp_SDP_MC",
                                     "gdp_SDP_RC"))
   }
