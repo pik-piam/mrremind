@@ -15,7 +15,6 @@
 #' @return A `tibble`.
 #'
 #' @importFrom dplyr anti_join bind_rows filter select
-#' @importFrom magrittr %>%
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
 #' @importFrom tidyselect all_of

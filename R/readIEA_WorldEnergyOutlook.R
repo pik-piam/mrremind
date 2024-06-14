@@ -5,7 +5,7 @@
 #' - On global level, the source offers more variables than on regional level,
 #' but the data should not be used on sub-global level due to its coarse disaggregation.
 #' @author Falk Benke
-#' @importFrom dplyr filter %>% distinct group_by ungroup rename_all
+#' @importFrom dplyr filter distinct group_by ungroup rename_all
 #'
 readIEA_WorldEnergyOutlook <- function(subtype = "2021-region") { # nolint
 

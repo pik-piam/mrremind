@@ -4,7 +4,7 @@
 #' @param subtype Options are status, historical, future, lifespans, comp_rates and emissions
 #' @author Stephen Bi
 #' @importFrom readxl read_excel
-#' @importFrom dplyr %>% filter select mutate summarize group_by left_join across everything starts_with
+#' @importFrom dplyr filter select mutate summarize group_by left_join across everything starts_with
 #' @importFrom quitte removeColNa
 #' @aliases readEndCoal
 

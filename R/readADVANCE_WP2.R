@@ -8,14 +8,13 @@
 #'     (2015) [zotero://select/items/JP8X2QFK](zotero://select/items/JP8X2QFK)
 #'
 #' @return A [`magpie`][magclass::magclass] object.
-#' 
+#'
 #' @author Michaja Pehl
-#' 
+#'
 #' @seealso [`readSource()`], [`convertADVANCE_WP2()`]
-#' 
-#' @importFrom dplyr %>%
+#'
 #' @importFrom readr read_csv
-#' 
+#'
 #' @export
 readADVANCE_WP2 <- function(subtype) {
   # ---- list all available subtypes with functions doing all the work ----
@@ -23,14 +22,14 @@ readADVANCE_WP2 <- function(subtype) {
     'clinker-to-cement-ratio' = function() {
       read_csv(file = './clinker-to-cement-ratio.csv',
                col_types = 'cd',
-               comment = '#') %>% 
+               comment = '#') %>%
         as.magpie()
     }
   )
-  
+
   # ---- check if the subtype called is available ----
   if (is_empty(intersect(subtype, names(switchboard)))) {
-    stop(paste('Invalid subtype -- supported subtypes are:', 
+    stop(paste('Invalid subtype -- supported subtypes are:',
                paste(names(switchboard), collapse = ', ')))
   } else {
     # ---- load data and do whatever ----

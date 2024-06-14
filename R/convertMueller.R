@@ -13,7 +13,7 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr %>% mutate select
+#' @importFrom dplyr mutate select
 #' @importFrom quitte madrat_mule
 #'
 #'

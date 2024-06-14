@@ -5,7 +5,7 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr filter select mutate left_join %>%
+#' @importFrom dplyr filter select mutate left_join
 #' @export
 
 calcSteelStock <- function() {

@@ -4,7 +4,7 @@
 #' The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
 #' @author Aman Malik, Oliver Richters
 #' @param sources Database source
-#' @importFrom dplyr %>% filter
+#' @importFrom dplyr filter
 
 
 calcCapTarget <- function(sources) {
@@ -99,7 +99,7 @@ calcCapTarget <- function(sources) {
     # hydrogen capacity targets from national/EU hydrogen strategies
 
     # Region targets
-    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional", 
+    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional",
                               where = "mappingfolder") # get H12 regionmapping
     H2Target.reg <- new.magpie(unique(reg.map$RegionCode), getYears(x), "elh2", fill = 0)
     # Electrolyzer capacity target from the EU Hydrogen Strategy
