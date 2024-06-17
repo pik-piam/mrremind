@@ -412,7 +412,7 @@
 "NA";"Secondary Energy|Hydrogen|Oil (PJ/yr)";"NA";
 "NA";"Secondary Energy|Hydrogen|Other (PJ/yr)";"NA";
 "NA";"Secondary Energy|Hydrogen|Solar (PJ/yr)";"NA";
-"SE|Liquids|Hydrogen (EJ/yr)";"Secondary Energy|Liquids|Hydrogen (EJ/yr)";0.001;
+"SE|Liquids|Hydrogen (EJ/yr)";"Secondary Energy|Liquids|Hydrogen (PJ/yr)";0.001;
 "NA";"Secondary Energy|Liquids|Other (PJ/yr)";"NA";
 "NA";"Secondary Energy|Other Carrier (PJ/yr)";"NA";
 "NA";"Services and Products|Industry|Cement|Physical (Mt/yr)";"NA";

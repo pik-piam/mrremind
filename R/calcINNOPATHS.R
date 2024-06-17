@@ -1,40 +1,22 @@
-#' @importFrom dplyr left_join select filter mutate
-#'
 calcINNOPATHS <- function() {
 
-  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mrremind") %>%
-    filter(!is.na(!!sym("REMIND"))) %>%
-    mutate(
-      !!sym("REMIND_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("REMIND"))),
-      !!sym("REMIND") := gsub(" \\(.*", "", !!sym("REMIND")),
-      !!sym("INNOPATHS") := gsub(" \\(.*", "", !!sym("Variable")),
-      !!sym("INNOPATHS_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("Variable")))
-    ) %>%
-    select(
-      "INNOPATHS", "INNOPATHS_unit", "REMIND", "REMIND_unit", "factor"
-    )
+  x <- readSource("INNOPATHS")
 
-  data <- readSource("INNOPATHS") %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(
-      "region" = "Region", "variable" = "Data1",
-      "unit" = "Data2", "year" = "Year", "value" = "Value"
-    )
+  # merge variable and unit to one dimension
+  getNames(x, dim = 1) <- paste0(gsub("\\.", " (", getNames(x)), ")")
+  x <- collapseDim(x, dim = 3.2)
 
-  x <- left_join(
-    data,
-    mapping,
-    by = c("variable" = "INNOPATHS")
-  ) %>%
-    filter(!!sym("REMIND") != "") %>%
-    mutate(
-      !!sym("value") := !!sym("value") * !!sym("factor"),
-      !!sym("year") := as.numeric(as.character(!!sym("year"))),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("REMIND_unit"), ")")
-    ) %>%
-    select("region", "year", "variable" = "REMIND", "value") %>%
-    as.magpie()
+  map <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mrremind") %>%
+    filter(!is.na(.data$REMIND))
+
+  for (var in intersect(getNames(x, dim = 1), unique(map$Variable))) {
+    x[, , var] <- x[, , var] * map[map$Variable == var, "factor"]
+  }
+
+  x <- toolAggregate(x,
+    dim = 3.1, rel = map, from = "Variable",
+    to = "REMIND", partrel = TRUE, verbosity = 2
+  )
 
   weights <- x
   weights[, , ] <- NA
