@@ -10,7 +10,18 @@ calcINNOPATHS <- function() {
     filter(!is.na(.data$REMIND))
 
   for (var in intersect(getNames(x, dim = 1), unique(map$Variable))) {
-    x[, , var] <- x[, , var] * map[map$Variable == var, "factor"]
+
+    conv <- map[map$Variable == var, "factor"]
+
+    # there should be a distinct conversion factor in the mapping
+    # if there is more than one conversion factor, it means that one source variable
+    # is converted two more than one target variable using a different conversion
+    # this case is not covered by the logic
+    if (length(unique(conv)) > 1) {
+      stop(paste0("Cannot apply conversion factor for variable ", var))
+    }
+
+    x[, , var] <- x[, , var] * unique(conv)
   }
 
   x <- toolAggregate(x,
