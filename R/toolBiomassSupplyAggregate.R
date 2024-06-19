@@ -10,7 +10,7 @@
 #' @param weight aggregation weight
 #' @author Felix Schreyer
 #' @export
-#' @importFrom dplyr %>% mutate select rename left_join
+#' @importFrom dplyr mutate select rename left_join
 #' @importFrom quitte as.quitte
 
 toolBiomassSupplyAggregate <- function(x, rel=NULL, weight = calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",]){

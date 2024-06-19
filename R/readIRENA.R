@@ -12,7 +12,7 @@
 #' a <- readSource(type = "IRENA", subtype = "Capacity")
 #' }
 #'
-#' @importFrom dplyr mutate %>% rename
+#' @importFrom dplyr mutate rename
 #' @importFrom readr read_csv
 
 readIRENA <- function(subtype) {

@@ -5,7 +5,7 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
 #' @importFrom tidyr gather
-#' @importFrom dplyr filter %>% mutate
+#' @importFrom dplyr filter mutate
 #' @importFrom readxl read_excel
 
 readAriadneDB <- function() {

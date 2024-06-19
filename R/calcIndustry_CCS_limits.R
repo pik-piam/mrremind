@@ -56,7 +56,7 @@
 #'
 #' @author Michaja Pehl
 #'
-#' @importFrom dplyr %>% arrange group_by full_join inner_join left_join mutate
+#' @importFrom dplyr arrange group_by full_join inner_join left_join mutate
 #'     pull rename select summarise tibble ungroup
 #' @importFrom quitte add_countrycode_ madrat_mule magclass_to_tibble
 #' @importFrom readr read_delim

@@ -1,4 +1,4 @@
-#' @importFrom dplyr left_join select filter mutate %>%
+#' @importFrom dplyr left_join select filter mutate
 #'
 calcINNOPATHS <- function() {
 

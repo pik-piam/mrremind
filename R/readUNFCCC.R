@@ -6,7 +6,7 @@
 #'
 #' @seealso [`readSource()`]
 #'
-#' @importFrom dplyr %>% bind_rows bind_cols mutate select
+#' @importFrom dplyr bind_rows bind_cols mutate select
 #'
 #' @importFrom tibble tibble
 #' @importFrom tidyr drop_na

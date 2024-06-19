@@ -22,7 +22,7 @@
 #' }
 #'
 #' @importFrom rlang .data
-#' @importFrom dplyr %>% filter mutate
+#' @importFrom dplyr filter mutate
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
