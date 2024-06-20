@@ -8,7 +8,7 @@
 #' \dontrun{
 #' calcOutput(type = "FossilExtraction", subtype = "FossilExtraction")
 #' }
-#' @importFrom dplyr %>% mutate select rename arrange
+#' @importFrom dplyr mutate select rename arrange
 #' @importFrom stats lm coef
 
 calcFossilExtraction <- function(subtype = "FossilExtraction") {

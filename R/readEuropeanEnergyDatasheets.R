@@ -13,7 +13,6 @@
 #' @importFrom readxl excel_sheets read_excel
 #' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
 #' or "EU27" (latest data from August 23 without GBR)
-#' @importFrom dplyr %>%
 #' @importFrom tidyr drop_na extract
 #' @importFrom readxl excel_sheets read_excel
 #' @importFrom stats aggregate

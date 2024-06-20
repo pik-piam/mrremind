@@ -33,6 +33,10 @@ calcCCScapacity <- function(subtype) {
     x[eu27, , ] <- eu27Pool
   }
 
+  if (subtype == "historical") {
+    x <- x[, seq(2005, max(getYears(x, as.integer = TRUE))), ]
+  }
+
   return(list(
     x = x,
     weight = NULL,

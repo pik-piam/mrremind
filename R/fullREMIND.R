@@ -65,6 +65,9 @@ fullREMIND <- function() {
   calcOutput("GDP", years = rem_years_hist,                 round = 8, file = "f50_gdp.cs3r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "const",                 round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "tasK",                  round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
+  calcOutput("KLWdamage", subtype = "beta1",                 round = 8, file = "f50_KLW_df_beta1.cs4r", aggregate = FALSE)
+  calcOutput("KLWdamage", subtype = "beta2",                  round = 8, file = "f50_KLW_df_beta2.cs4r", aggregate = FALSE)
+  calcOutput("KLWdamage", subtype = "maxGMT",                  round = 8, file = "f50_KLW_df_maxGMT.cs4r", aggregate = FALSE)
 
   #-------------- emission parameter ------------------------------------------------------------------
   calcOutput("EconometricEmiParameter",                                         round = 5, file = "p_emineg_econometric.cs3r")

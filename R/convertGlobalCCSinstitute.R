@@ -7,7 +7,6 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' @importFrom dplyr %>%
 #' @importFrom quitte add_countrycode_ madrat_mule
 #'
 #' @export

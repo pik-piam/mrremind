@@ -7,7 +7,6 @@
 #'
 #' @importFrom readxl read_excel
 #' @importFrom tidyr gather
-#' @importFrom dplyr %>%
 #'
 
 readGGDC10 <- function() {

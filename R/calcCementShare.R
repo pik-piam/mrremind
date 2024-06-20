@@ -14,7 +14,6 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom dplyr bind_rows left_join select filter mutate pull
-#' @importFrom magrittr %>%
 #' @importFrom rlang sym
 #' @importFrom tibble tribble as_tibble
 #' @importFrom tidyr pivot_longer complete nesting
