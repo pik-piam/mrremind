@@ -3,8 +3,7 @@
 #' @param version of the WEO data, either 'default' (full paid version) or
 #' 'latest' (free, restricted, up-to-date dataset)
 #' @author Falk Benke
-#' @importFrom dplyr select mutate left_join case_when
-#' @importFrom stats aggregate
+#' @importFrom dplyr select mutate
 #' @export
 
 calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
@@ -19,7 +18,6 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
   dataReg <- readSource("IEA_WorldEnergyOutlook", subtype = paste0(refYear, "-region"))
 
   .mapToRemind <- function(data) {
-
     if (refYear == 2021) {
       # copy over Stated Policies Scenario for 2010 - 2020 to other scenarios
       for (s in getNames(data, dim = 1)) {
@@ -28,20 +26,18 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
       }
     }
 
-    data <- as.data.frame(data) %>%
-      select(
-        "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
-        "year" = "Year", "value" = "Value"
-      ) %>%
-      mutate("scenario_short" = case_when( # nolint
-        scenario == "Stated Policies Scenario" ~ "SPS",
-        scenario == "Announced pledges scenario" ~ "APS",
-        scenario == "Announced Pledges Scenario" ~ "APS",
-        scenario == "Sustainable Development Scenario" ~ "SDS",
-        scenario == "Net Zero Emissions by 2050 Scenario" ~ "Net2050"
-      ))
+    scens <- c(
+      "Stated Policies Scenario" = "SPS",
+      "Announced pledges scenario" = "APS",
+      "Announced Pledges Scenario" = "APS",
+      "Sustainable Development Scenario" = "SDS",
+      "Net Zero Emissions by 2050 Scenario" = "Net2050"
+    )
 
-    mapping <- toolGetMapping(
+    getNames(data, dim = 1) <- paste0("IEA WEO ", refYear, " ", scens[getNames(data, dim = 1)])
+    getSets(data)[3] <- "model"
+
+    map <- toolGetMapping(
       "Mapping_IEA_WEO_2021_complete.csv",
       type = "reportingVariables", where = "mrremind"
     ) %>%
@@ -53,31 +49,42 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
       ) %>%
       select("from", "to", "conversion")
 
-    x <- left_join(data, mapping, by = c("variable" = "from"), relationship = "many-to-many") %>%
-      filter(.data$to != "") %>%
-      mutate(
-        "value" = .data$value * .data$conversion,
-        "model" = paste0("IEA WEO ", refYear, " ", .data$scenario_short)
-      ) %>%
-      select("region", "year", "model", "variable" = "to", "value")
+    for (var in intersect(getNames(data, dim = 2), unique(map$from))) {
+      conv <- map[map$from == var, "conversion"]
 
-    x <- aggregate(value ~ region + year + model + variable, x, sum) %>%
-      as.magpie(spatial = 1, temporal = 2, data = 5) %>%
-      toolCountryFill(fill = NA, verbosity = 2)
+      # if there is more than one conversion factor, it means that one source variable
+      # is converted two more than one target variable using a different conversion
+      if (length(unique(conv)) > 1) {
+
+        # create unique "from" variables for each mapping entry
+        map[map$from == var, "from"] <- paste0(map[map$from == var, "from"], " ", seq(1, nrow(map[map$from == var, ])))
+
+        # duplicate "from" data with for each mapping entry
+        for (i in seq(1, length(unique(conv)))) {
+          dup <- data[, , var]
+          getNames(dup, dim = 2) <- paste0(getNames(dup, dim = 2), " ", i)
+          data <- mbind(data, dup)
+        }
+        data <- data[, , var, invert = TRUE]
+      } else {
+        data[, , var] <- data[, , var] * unique(conv)
+      }
+    }
+
+    x <- toolAggregate(data,
+      dim = 3.2, rel = map, from = "from",
+      to = "to", partrel = TRUE, verbosity = 2
+    )
 
     return(x)
-
   }
 
   dataGlo <- .mapToRemind(dataGlo)
   dataReg <- .mapToRemind(dataReg)
 
-
   # do additional calculations on full dataset for 2021 (won't work for incomplete 2023 data)
   if (refYear == 2021) {
-
     .calcAdditionalVars <- function(x) {
-
       # correct PE|Nuclear and PE
       # PE Nuclear is usually reported in direct equivalents, values from IEA are
       # roughly 3 times higher than the REMIND ones
@@ -114,7 +121,6 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
     dataGlo <- add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
     dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
       dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
-
   }
 
   # includes values from the original source for global region instead of calculating
