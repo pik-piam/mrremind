@@ -10,17 +10,39 @@
 
 calcEDGETransport <- function(subtype) {
 
-  gdp <- calcOutput("GDP", aggregate = FALSE)[,,"gdp_SSP2"]
   x <- readSource("EDGETransport", subtype)
 
   switch(subtype,
          "f35_esCapCost" = {
-           weight = gdp |> time_interpolate(getYears(x))
+           weight <- readSource("EDGETransport", subtype = "weightESdemand")
+           #Rule out numerical errors after disaggregating very small numbers
+           weight[weight < 1e-5] <- 0
+           #check whether weightsum is zero for some cases
+           #if so, the values should just be aggregated equally in order to prevent zeros in the results
+           weight <- magpie2dt(weight)
+           regMap <- toolGetMapping(getConfig("regionmapping"), where = "mappingfolder")
+           setnames(regMap, "CountryCode", "all_regi")
+           weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
+           weight[, weightSum := sum(value), by = c("RegionCode", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_teEs", "tall")]
+           weight[weightSum == 0, value := 1]
+           weight[, c("RegionCode", "weightSum") := NULL]
+           weight <- as.magpie(weight)
            unit = "2005US$/(p|t)km"
            description = "Capital cost (purchase) per energy service demand on CES level."
          },
          "f35_fe2es" = {
-           weight = gdp |> time_interpolate(getYears(x))
+           weight = readSource("EDGETransport", "f35_demByTech")
+           weight[weight < 1e-5] <- 0
+           #check whether weightsum is zero for some cases
+           #if so, the values should just be aggregated equally in order to prevent zeros in the results
+           weight <- magpie2dt(weight)
+           regMap <- toolGetMapping(getConfig("regionmapping"), where = "mappingfolder")
+           setnames(regMap, "CountryCode", "all_regi")
+           weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
+           weight[, weightSum := sum(value), by = c("RegionCode", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_enty", "all_in", "all_teEs", "tall")]
+           weight[weightSum == 0, value := 1]
+           weight[, c("RegionCode", "weightSum") := NULL]
+           weight <- as.magpie(weight)
            unit = "trn (p|t)km/Twa"
            description = "Energy efficiency on CES level."
          },
@@ -31,7 +53,7 @@ calcEDGETransport <- function(subtype) {
          },
          "f29_trpdemand" = {
            weight = NULL
-           unit = "TWa"
+           unit = "trillion pkm/trillion tkm"
            description = "Energy service demand on CES level."
          },
          "CAPEXandNonFuelOPEX" = {

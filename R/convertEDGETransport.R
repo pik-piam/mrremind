@@ -11,8 +11,8 @@ convertEDGETransport = function(x, subtype) {
 
   mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
                                       where = "mappingfolder"))[, .(iso = CountryCode, region = RegionCode)]
-  if (subtype %in% c("f35_demByTech", "f29_trpdemand")) {
-    gdp <- calcOutput("GDP", aggregate = FALSE) |> time_interpolate(getYears(x))
+  if (subtype %in% c("f35_demByTech", "f29_trpdemand", "weightESdemand")) {
+    gdp <- calcOutput("GDP", aggregate = FALSE) |> time_interpolate(getYears(x), extrapolation_type = "constant")
     gdp <- gdp[,,"gdp_SSP2"]
     result <- toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
   } else if (!subtype == "shares_LDV_transport") {
