@@ -1,0 +1,61 @@
+CEDS2024;REMIND;Comment
+1A1a_Electricity-autoproducer;Energy|Supply|Electricity;
+1A1a_Electricity-public;Energy|Supply|Electricity;
+1A1a_Heat-production;Energy|Supply|Heat;
+1A1bc_Other-transformation;Energy|Supply|Fuel Production;This variable does not exist in REMIND yet, it is the sum of Supply|Liquids/Gases/Solids
+1A2a_Ind-Comb-Iron-steel;Energy|Demand|Industry|Steel;
+1A2b_Ind-Comb-Non-ferrous-metals;Energy|Demand|Industry|Other;
+1A2c_Ind-Comb-Chemicals;Energy|Demand|Industry|Chemicals;
+1A2d_Ind-Comb-Pulp-paper;Energy|Demand|Industry|Other;
+1A2e_Ind-Comb-Food-tobacco;Energy|Demand|Industry|Other;
+1A2f_Ind-Comb-Non-metalic-minerals;Energy|Demand|Industry|Non-Metallic Minerals;
+1A2g_Ind-Comb-Construction;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-machinery;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-mining-quarying;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-other;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-textile-leather;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-transpequip;Energy|Demand|Industry|Other;
+1A2g_Ind-Comb-wood-products;Energy|Demand|Industry|Other;
+1A3ai_International-aviation;Transport|Pass|Aviation|International|Demand;Transport emissions variables from EDGE-T reporting do not comply with emissions reporting structure so far, once REMIND names adapted -> adapt here as well
+1A3aii_Domestic-aviation;Energy|Demand|Transport;
+1A3b_Road;Energy|Demand|Transport;
+1A3c_Rail;Energy|Demand|Transport;
+1A3di_International-shipping;Transport|Freight|International Shipping|Demand;Transport emissions variables from EDGE-T reporting do not comply with emissions reporting structure so far, once REMIND names adapted -> adapt here as well
+1A3dii_Domestic-navigation;Energy|Demand|Transport;
+1A3eii_Other-transp;Energy|Demand|Transport;
+1A4a_Commercial-institutional;Energy|Demand|Buildings;
+1A4b_Residential;Energy|Demand|Buildings;
+1A4c_Agriculture-forestry-fishing;Energy|Demand|Industry|Other;AFOFI energy use is accounted in industry in REMIND as it relies on IEA energy balances
+1A5_Other-unspecified;Energy|Demand|Industry|Other;
+1B1_Fugitive-solid-fuels;Energy|Supply|Fuel Production;In the future REMIND emissions accounting should separate fugitive from combustion emissions to be in line with IPCC accounting, once this is done in REMIND reporting -> adapt here
+1B2d_Fugitive-other-energy;Energy|Supply|Fuel Production;In the future REMIND emissions accounting should separate fugitive from combustion emissions to be in line with IPCC accounting, once this is done in REMIND reporting -> adapt here
+2A1_Cement-production;Industrial Processes|Non-Metallic Minerals;
+2A2_Lime-production;Industrial Processes|Non-Metallic Minerals;
+2B_Chemical-industry;Industrial Processes|Chemicals;
+2C1_Iron-steel-alloy-prod;Industrial Processes|Steel;
+2C3_Aluminum-production;Industrial Processes|Other;
+2C4_Non-Ferrous-other-metals;Industrial Processes|Other;
+2D_Degreasing-Cleaning;Industrial Processes|Other;
+2D_Paint-application;Industrial Processes|Other;
+2H_Pulp-and-paper-food-beverage-wood;Industrial Processes|Other;
+3B_Manure-management;Agriculture;
+3D_Rice-Cultivation;Agriculture;
+3D_Soil-emissions;Agriculture;
+3E_Enteric-fermentation;Agriculture;
+3I_Agriculture-other;Agriculture;
+5A_Solid-waste-disposal;Waste;
+5D_Wastewater-handling;Waste;
+5E_Other-waste-handling;Waste;
+6A_Other-in-total;Industrial Processes|Other;"Not sure what this is, put it to ""industrial processes"" category for now"
+7A_Fossil-fuel-fires;Energy|Supply|Fuel Production;
+1A3di_Oil_Tanker_Loading;Energy|Demand|Transport;
+1B2_Fugitive-petr;Energy|Supply|Fuel Production;In the future REMIND emissions accounting should separate fugitive from combustion emissions to be in line with IPCC accounting, once this is done in REMIND reporting -> adapt here
+1B2b_Fugitive-NG-distr;Energy|Supply|Fuel Production;In the future REMIND emissions accounting should separate fugitive from combustion emissions to be in line with IPCC accounting, once this is done in REMIND reporting -> adapt here
+1B2b_Fugitive-NG-prod;Energy|Supply|Fuel Production;In the future REMIND emissions accounting should separate fugitive from combustion emissions to be in line with IPCC accounting, once this is done in REMIND reporting -> adapt here
+2Ax_Other-minerals;Industrial Processes|Other;
+2B2_Chemicals-Nitric-acid;Industrial Processes|Chemicals;
+2B3_Chemicals-Adipic-acid;Industrial Processes|Chemicals;
+2D_Chemical-products-manufacture-processing;Industrial Processes|Chemicals;
+2D_Other-product-use;Industrial Processes|Other;
+5C_Waste-combustion;Waste;
+7BC_Indirect-N2O-non-agricultural-N;Industrial Processes|Other;"Not sure what this is, put it to ""industrial processes"" category for now"

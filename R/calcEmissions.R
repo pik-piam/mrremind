@@ -1,7 +1,8 @@
 #' @title calcEmissions
 #'
 #' @return magpie object with historical emissions
-#' @param datasource "CEDS16", "CEDS2REMIND", "CEDS2021", "EDGAR", "EDGAR6", "LIMITS", "ECLIPSE", "GFED", "CDIAC"
+#' @param datasource "CEDS16", "CEDS2REMIND", "CEDS2024", "EDGAR", "EDGAR6",
+#'        "EDGAR8" "LIMITS", "ECLIPSE", "GFED", "CDIAC"
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
@@ -229,47 +230,39 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     description <- "historic emissions from 1970-2015"
 
-    ## ---- CEDS 2021 ----
-  } else if (datasource == "CEDS2021") {
+    ## ---- CEDS 2024 ----
+  } else if (datasource == "CEDS2024") {
     # read CEDS emissions data from source (in Mt)
     # opposed to older version, doesn't contain Land-Use Change and thus no
     # aggregation to highest level is performed
-    emi <- readSource("CEDS2021")
+    emi <- readSource("CEDS2024")
 
-    # remove 6B_Other-not-in-total but warn in case it contains data
-    if (any(!emi[, , "6B_Other-not-in-total"] == 0)) {
-      cat(
-        "CEDS59 sector 6B_Other-not-in-total was removed
-            although it contains data! Please check CEDS source files.\n"
-      )
-    }
+    # remove 6B_Other-not-in-total (no data in there anyway)
     emi <- emi[, , "6B_Other-not-in-total", invert = TRUE]
 
-    # aggregate and rename CEDS59 sectors to REMIND sectors
-    map_CEDS59_to_REMIND <-
-      toolGetMapping(type = "sectoral",
-                     name = "mappingCEDS59toREMINDreporting_2021.csv",
-                     where = "mappingfolder")
+    # aggregate and rename CEDS sectors to REMIND sectors
+    map <- toolGetMapping(type = "sectoral",
+                          name = "mappingCEDS2024toREMIND.csv",
+                          where = "mrremind")
     emi <-
       toolAggregate(
         x = emi,
         weight = NULL,
         dim = 3.1,
-        rel = map_CEDS59_to_REMIND,
-        from = "CEDS59",
+        rel = map,
+        from = "CEDS2024",
         to = "REMIND"
       )
 
-    # undo unnecessary conversion from convertCEDS2021.R
+    # undo unnecessary conversion from convertCEDS2024
     emi[, , "n2o_n"] <- emi[, , "n2o_n"] * 44 / 28
     emi[, , "nh3_n"] <- emi[, , "nh3_n"] * 17 / 14
     emi[, , "no2_n"] <- emi[, , "no2_n"] * 46 / 14
     emi[, , "co2_c"] <- emi[, , "co2_c"] * 44 / 12
 
     # rename emissions according to map
-    map <-
-      c(
-        bc_c = "BC",
+    emi_map <-
+      c(bc_c = "BC",
         ch4 = "CH4",
         co = "CO",
         co2_c = "CO2",
@@ -278,9 +271,8 @@ calcEmissions <- function(datasource = "CEDS16") {
         no2_n = "NOX",
         nmvoc = "VOC",
         oc_c = "OC",
-        so2 = "SO2"
-      )
-    getNames(emi, dim = 2) <- map[getNames(emi, dim = 2)]
+        so2 = "SO2")
+    getNames(emi, dim = 2) <- emi_map[getNames(emi, dim = 2)]
 
     # sectoral sums
     emi <-
@@ -297,7 +289,7 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Energy|Supply|Heat"] +
       emi[, , "Energy|Supply|Fuel Production"]
 
-    #Addition of new items for industry subsectors
+    # Addition of new items for industry subsectors
     emi <- add_columns(emi, "Energy|Demand|Industry", dim = 3.1)
     emi[, , "Energy|Demand|Industry"] <-
       emi[, , "Energy|Demand|Industry|Chemicals"] +
@@ -422,7 +414,7 @@ calcEmissions <- function(datasource = "CEDS16") {
       tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
       tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
 
-    description <- "historic emissions from 1750-2019"
+    description <- "historic emissions from 1750-2022"
 
     ## ---- EDGAR ----
   } else if (datasource == "EDGAR") {
