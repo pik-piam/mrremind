@@ -6,11 +6,11 @@
 #' @author Falk Benke
 #' @importFrom dplyr select mutate left_join
 #' @importFrom readxl read_excel
-#' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
 
 calcBP <- function() {
+
   .readFactors <- function() {
     factors <- toolGetMapping("BP_Renewable_Efficiency_Factors.csv", type = "sectoral", where = "mappingfolder")
     colnames(factors) <- c("year", "factor")
@@ -23,12 +23,6 @@ calcBP <- function() {
     return(factors[order(factors$year), ])
   }
 
-  mapping <- toolGetMapping("Mapping_BP.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
-    select("variable" = "BP", "REMIND", "conversion", "unit" = "Unit_BP", "Unit_REMIND")
-
-  mapping$REMIND <- trimws(mapping$REMIND)
-
   .convert <- function(data) {
     data %>%
       mselect(data = unique(mapping$variable)) %>%
@@ -40,6 +34,11 @@ calcBP <- function() {
       ) %>%
       return()
   }
+
+  mapping <- toolGetMapping("Mapping_BP.csv", type = "reportingVariables", where = "mrremind") %>%
+    mutate("conversion" = as.numeric(.data$Factor) * .data$Weight,
+           "REMIND" = trimws(.data$REMIND)) %>%
+    select("variable" = "BP", "REMIND", "conversion", "unit" = "Unit_BP", "Unit_REMIND")
 
   # Emission
   data <- .convert(readSource("BP", subtype = "Emission"))
