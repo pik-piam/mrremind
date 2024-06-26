@@ -256,6 +256,16 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "INDSTAT2")
   )
 
+  # WDI ----
+
+  calcOutput(
+    type = "GDPpc", average2020 = FALSE, file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "WDI")
+  )
+
+
   # filter variables that are too imprecise on regional level ----
   filter_historical_mif()
 }
