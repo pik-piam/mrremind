@@ -95,6 +95,8 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Production") {
 
+    # This part is currently not used in any other madrat function
+
     dataOil <- readxl::read_excel(filename, sheet = "Oil Production - tonnes", range = "A3:BH76")
     dataOil <- tidyData(dataOil, "Oil Production (million t)")
 
@@ -102,7 +104,7 @@ readBP <- function(subtype) {
     dataCoalEj <- tidyData(dataCoalEj, "Coal Production (EJ)")
 
     dataCoalTon <- readxl::read_excel(filename, sheet = "Coal Production - mt", range = "A3:AR62")
-    dataCoalTon <- tidyData(dataCoalTon, "Coal Production (million t)") # TODO
+    dataCoalTon <- tidyData(dataCoalTon, "Coal Production (million t)")
 
     dataGas <- readxl::read_excel(filename, sheet = "Gas Production - EJ", range = "A3:BC78")
     dataGas <- tidyData(dataGas, "Gas Production (EJ)")
