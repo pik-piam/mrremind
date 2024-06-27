@@ -1,7 +1,7 @@
 #' Calculate REMIND variables from historical BP values
 #'
 #' @author Falk Benke
-#' @importFrom piamutils matchYears
+#' @importFrom magclass matchDim
 #' @importFrom quitte interpolate_missing_periods
 #'
 #' @export
@@ -12,12 +12,12 @@ calcBP <- function() {
   emissions <- readSource("BP", subtype = "Emission")
 
   capacity <- readSource("BP", subtype = "Capacity")
-  capacity <- matchYears(capacity, emissions, fill = NA)
+  capacity <- matchDim(capacity, emissions, dim = 2, fill = NA)
 
   generation <- readSource("BP", subtype = "Generation")
 
   price <- readSource("BP", subtype = "Price")
-  price <- matchYears(price, emissions, fill = NA)
+  price <- matchDim(price, emissions, dim = 2, fill = NA)
 
   # prepare consumption data ----
   consumption <- readSource("BP", subtype = "Consumption")
@@ -70,7 +70,7 @@ calcBP <- function() {
 
   # calculate net oil trade
   trade.oil <- readSource("BP", subtype = "Trade Oil")
-  trade.oil <- matchYears(trade.oil, emissions, fill = NA)
+  trade.oil <- matchDim(trade.oil, emissions, dim = 2, fill = NA)
 
   trade.oil.net <- trade.oil[, , "Trade|Export|Oil (kb/d)"] - trade.oil[, , "Trade|Import|Oil (kb/d)"]
   getNames(trade.oil.net) <- c("Net Trade|Oil (kb/d)")
@@ -78,7 +78,7 @@ calcBP <- function() {
 
   # calculate net coal trade
   trade.coal <- readSource("BP", subtype = "Trade Coal")
-  trade.coal <- matchYears(trade.coal, emissions, fill = NA)
+  trade.coal <- matchDim(trade.coal, emissions, dim = 2, fill = NA)
 
   trade.coal.net <- trade.coal[, , "Trade|Export|Coal (EJ)"] - trade.coal[, , "Trade|Import|Coal (EJ)"]
   getNames(trade.coal.net) <- c("Net Trade|Coal (EJ)")
@@ -86,7 +86,7 @@ calcBP <- function() {
 
   # calculate net gas trade
   trade.gas <- readSource("BP", subtype = "Trade Gas")
-  trade.gas <- matchYears(trade.gas, emissions, fill = NA)
+  trade.gas <- matchDim(trade.gas, emissions, dim = 2, fill = NA)
 
   trade.gas.net <- trade.gas[, , "Trade|Export|Gas (bcm)"] - trade.gas[, , "Trade|Import|Gas (bcm)"]
   getNames(trade.gas.net) <- c("Net Trade|Gas (bcm)")
