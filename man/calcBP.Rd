@@ -6,9 +6,6 @@
 \usage{
 calcBP()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Calculate REMIND variables from historical BP values
 }

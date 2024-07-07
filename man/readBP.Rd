@@ -14,7 +14,7 @@ readBP(subtype)
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-BP data. See README in input file for more details.
+BP Capacity and Generation Data
 }
 \author{
 Aman Malik, Falk Benke

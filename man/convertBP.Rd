@@ -16,7 +16,7 @@ convertBP(x, subtype)
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-Disaggregates historical data.
+Disaggregates and cleans BP data.
 }
 \author{
 Aman Malik, Falk Benke

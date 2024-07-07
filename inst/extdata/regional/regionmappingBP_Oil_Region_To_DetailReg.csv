@@ -1,0 +1,28 @@
+BP_Region,BP_Region_Detail,Type
+Middle East (ex Saudi Arabia),Iraq,Export
+Middle East (ex Saudi Arabia),Kuwait,Export
+Middle East (ex Saudi Arabia),United Arab Emirates,Export
+Middle East (ex Saudi Arabia),Other Middle East,Export
+Asia Pacific (ex Japan),Australasia,Export
+Asia Pacific (ex Japan),China,Export
+Asia Pacific (ex Japan),India,Export
+Asia Pacific (ex Japan),Singapore,Export
+Asia Pacific (ex Japan),Other Asia Pacific,Export
+Rest of World,East & S Africa,Export
+Rest of World,Japan,Export
+Rest of World,Canada,Import
+Rest of World,Mexico,Import
+Rest of World,S & C America,Import
+Rest of World,Russian Federation,Import
+Rest of World,Other CIS,Import
+Rest of World,Iraq,Import
+Rest of World,Kuwait,Import
+Rest of World,Saudi Arabia,Import
+Rest of World,United Arab Emirates,Import
+Rest of World,Other Middle East,Import
+Rest of World,North Africa,Import
+Rest of World,West Africa,Import
+Rest of World,East & S Africa,Import
+Rest of World,Australasia,Import
+Rest of World,Singapore,Import
+Rest of World,Other Asia Pacific,Import
