@@ -3,7 +3,6 @@
 #' @param version of the WEO data, either 'default' (full paid version) or
 #' 'latest' (free, restricted, up-to-date dataset)
 #' @author Falk Benke
-#' @importFrom dplyr select mutate
 #' @export
 
 calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
@@ -41,13 +40,13 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
       "Mapping_IEA_WEO_2021_complete.csv",
       type = "reportingVariables", where = "mrremind"
     ) %>%
-      filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
-      mutate(
-        "from" := paste0(trimws(.data$WEO), " (", .data$Unit_WEO, ")"),
-        "to" := paste0(trimws(.data$REMIND), " (", .data$Unit_REMIND, ")"),
-        "conversion" := as.numeric(.data$Conversion)
+      dplyr::filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
+      dplyr::mutate(
+        "from" = paste0(trimws(.data$WEO), " (", .data$Unit_WEO, ")"),
+        "to" = paste0(trimws(.data$REMIND), " (", .data$Unit_REMIND, ")"),
+        "conversion" = as.numeric(.data$Conversion)
       ) %>%
-      select("from", "to", "conversion")
+      dplyr::select("from", "to", "conversion")
 
     for (var in intersect(getNames(data, dim = 2), unique(map$from))) {
       conv <- map[map$from == var, "conversion"]
@@ -124,7 +123,7 @@ calcIEA_WorldEnergyOutlook <- function(version = "latest") { # nolint
   }
 
   # includes values from the original source for global region instead of calculating
-  # it as the sum of all regions (as regions are incomplete)
+  # it as the sum of all countries (as countries are incomplete)
   .customAggregate <- function(x, rel, to = NULL, glo) {
     x <- toolAggregate(x, rel = rel, to = to)
 

@@ -1,13 +1,12 @@
-#' Calculate REMIND variables from IEA EV Outlook data
-#'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
+#' Calculate REMIND variables from IEA Global EV Outlook data
 #'
 #' @author Falk Benke
 #' @export
-
 calcIEA_EVOutlook <- function() {
-  x <- readSource("IEA_EVOutlook")
+  x <- readSource("IEA_EVOutlook", convert = FALSE)[c("World", "Europe", "EU27"), , ]
+  getItems(x, dim = 1) <- c("GLO", "EUR", "EU27")
+
+  x <- mbind(x, readSource("IEA_EVOutlook", convert = TRUE))
 
   # merge variable and unit to one dimension
   getNames(x, dim = 2) <- unlist(
@@ -50,13 +49,44 @@ calcIEA_EVOutlook <- function() {
     to = "REMIND", partrel = TRUE, verbosity = 2
   )
 
-  # set 0s in other CHA countries than China to approximate CHA as China
-  x[c("HKG", "MAC", "TWN"), , ] <- 0
+  getSets(x)[3.1] <- "model"
+
+  dataReg <- x[c("GLO", "EUR", "EU27"), , ]
+  x <- x[c("GLO", "EUR", "EU27"), , , invert = TRUE]
+
+  # includes region values from the original source instead of calculating
+  # them as the sum of all countries (as countries are incomplete)
+  .customAggregate <- function(x, rel, to = NULL, reg) {
+    x <- toolAggregate(x, rel = rel, to = to)
+
+    if (any(c("GLO", "EUR", "EU27") %in% getItems(x, dim = 1))) {
+
+      r <- intersect(c("GLO", "EUR", "EU27"), getItems(x, dim = 1))
+      x <- x[r, , , invert = TRUE]
+
+      out <- new.magpie(
+        cells_and_regions = union(getItems(x, dim = 1), r),
+        years = union(getYears(x), getYears(reg)),
+        names = union(getNames(x), getNames(reg)),
+        fill = NA,
+        sets = names(dimnames(x))
+      )
+
+      out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
+      out[r, getYears(reg), getNames(reg)] <- reg[r, , ]
+
+      return(out)
+    } else {
+      return(x)
+    }
+  }
 
   return(list(
     x = x,
     weight = NULL,
     unit = c("EJ/yr", "Million vehicles"),
+    aggregationFunction = .customAggregate,
+    aggregationArguments = list(reg = dataReg),
     description = "IEA EV Outlook data in REMIND variables"
   ))
 }

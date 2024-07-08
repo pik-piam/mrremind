@@ -36,7 +36,7 @@ EV stock|Vans|PHEV;Vehicles;Stock|Transport|LDV|Van|Hybrid Electric;Million vehi
 Electricity demand|Buses|EV;GWh;FE|Transport|Pass|Road|Bus|Electricity;EJ/yr;;0.0000036
 Electricity demand|Cars|EV;GWh;FE|Transport|Pass|Road|LDV|Electricity;EJ/yr;Contains PHEV, but should be small;0.0000036
 Electricity demand|Trucks|EV;GWh;FE|Transport|Freight|Road|Electricity;EJ/yr;Contains light trucks, see below;0.0000036
-Electricity demand|Vans|EV;GWh;FE|Transport|Freight|Road|Truck (0-3$dot$5t)|Electricity;EJ/yr;;0.0000036
+Electricity demand|Vans|EV;GWh;FE|Transport|Freight|Road|Truck (0-3p5t)|Electricity;EJ/yr;;0.0000036
 Oil displacement Mbd|Buses|EV;Milion barrels per day;;;;
 Oil displacement Mbd|Cars|EV;Milion barrels per day;;;;
 Oil displacement Mbd|Trucks|EV;Milion barrels per day;;;;
