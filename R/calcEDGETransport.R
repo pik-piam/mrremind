@@ -41,7 +41,7 @@ calcEDGETransport <- function(subtype) {
            weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
            weight[, weightSum := sum(value), by = c("RegionCode", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_enty", "all_in", "all_teEs", "tall")]
            weight[weightSum == 0, value := 1]
-           weight[, c("RegionCode", "weightSum") := NULL]
+           weight[, c("RegionCode", "weightSum", "all_enty", "all_in") := NULL]
            weight <- as.magpie(weight)
            unit = "trn (p|t)km/Twa"
            description = "Energy efficiency on CES level."
