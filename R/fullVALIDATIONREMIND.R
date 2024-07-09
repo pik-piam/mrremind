@@ -157,7 +157,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical")
   )
 
-  # IEA EV Outlook ----
+  # IEA Global EV Outlook ----
 
   calcOutput(
     type = "IEA_EVOutlook", file = valfile,

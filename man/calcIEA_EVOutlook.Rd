@@ -2,15 +2,12 @@
 % Please edit documentation in R/calcIEA_EVOutlook.R
 \name{calcIEA_EVOutlook}
 \alias{calcIEA_EVOutlook}
-\title{Calculate REMIND variables from IEA EV Outlook data}
+\title{Calculate REMIND variables from IEA Global EV Outlook data}
 \usage{
 calcIEA_EVOutlook()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
-Calculate REMIND variables from IEA EV Outlook data
+Calculate REMIND variables from IEA Global EV Outlook data
 }
 \author{
 Falk Benke

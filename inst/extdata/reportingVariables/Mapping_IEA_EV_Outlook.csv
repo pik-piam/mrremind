@@ -1,55 +1,47 @@
 Variable;Unit;REMIND_Variable;REMIND_Unit;Comment;Factor
-Electricity demand|Buses|BEV;GWh;FE|Transport|Pass|Road|Bus|Electricity;EJ/yr;;0.0000036
-Electricity demand|Buses|PHEV;GWh;;;;
-Electricity demand|Cars|BEV;GWh;FE|Transport|Pass|Road|LDV|Electricity;EJ/yr;Contains PHEV, but should be small;0.0000036
-Electricity demand|Cars|PHEV;GWh;;;;
-Electricity demand|Trucks|BEV;GWh;FE|Transport|Freight|Road|Electricity;EJ/yr;Contains light trucks, see below;0.0000036
-Electricity demand|Trucks|PHEV;GWh;;;;
-Electricity demand|Vans|BEV;GWh;FE|Transport|Freight|Road|Truck (0-3$dot$5t)|Electricity;EJ/yr;;0.0000036
-Electricity demand|Vans|PHEV;GWh;;;;
-EV chargers|Publicly available fast;no;;;;
-EV chargers|Publicly available slow;no;;;;
+EV charging points|EV|Publicly available fast;charging points;;;;
+EV charging points|EV|Publicly available slow;charging points;;;;
 EV sales share|Buses|EV;percent;;;;
 EV sales share|Cars|EV;percent;;;;
 EV sales share|Trucks|EV;percent;;;;
 EV sales share|Vans|EV;percent;;;;
-EV sales|Buses|BEV;no;Sales|Transport|Bus|Electric;Million vehicles;;1.00E-06
-EV sales|Buses|PHEV;no;;;;
-EV sales|Buses|FCEV;no;Sales|Transport|Bus|FCEV;Million vehicles;;1.00E-06
-EV sales|Cars|BEV;no;Sales|Transport|Car|Electric;Million vehicles;;1.00E-06
-EV sales|Cars|PHEV;no;Sales|Transport|Car|Hybrid Electric;Million vehicles;;1.00E-06
-EV sales|Cars|FCEV;no;Sales|Transport|Car|FCEV;Million vehicles;;1.00E-06
-EV sales|Trucks|BEV;no;Sales|Transport|Truck|Electric;Million vehicles;;1.00E-06
-EV sales|Trucks|FCEV;no;Sales|Transport|Truck|FCEV;Million vehicles;;1.00E-06
-EV sales|Trucks|PHEV;no;;;;
-EV sales|Vans|BEV;no;Sales|Transport|LDV|Van|BEV;Million vehicles;;1.00E-06
-EV sales|Vans|PHEV;no;Sales|Transport|LDV|Van|Hybrid Electric;Million vehicles;;1.00E-06
-EV sales|Vans|FCEV;no;Sales|Transport|LDV|Van|FCEV;Million vehicles;;1.00E-06
+EV sales|Buses|BEV;Vehicles;Sales|Transport|Bus|Electric;Million vehicles;;0.000001
+EV sales|Buses|FCEV;Vehicles;Sales|Transport|Bus|FCEV;Million vehicles;;0.000001
+EV sales|Buses|PHEV;Vehicles;;;;
+EV sales|Cars|BEV;Vehicles;Sales|Transport|Car|Electric;Million vehicles;;0.000001
+EV sales|Cars|FCEV;Vehicles;Sales|Transport|Car|FCEV;Million vehicles;;0.000001
+EV sales|Cars|PHEV;Vehicles;Sales|Transport|Car|Hybrid Electric;Million vehicles;;0.000001
+EV sales|Trucks|BEV;Vehicles;Sales|Transport|Truck|Electric;Million vehicles;;0.000001
+EV sales|Trucks|FCEV;Vehicles;Sales|Transport|Truck|FCEV;Million vehicles;;0.000001
+EV sales|Trucks|PHEV;Vehicles;;;;
+EV sales|Vans|BEV;Vehicles;Sales|Transport|LDV|Van|BEV;Million vehicles;;0.000001
+EV sales|Vans|FCEV;Vehicles;Sales|Transport|LDV|Van|FCEV;Million vehicles;;0.000001
+EV sales|Vans|PHEV;Vehicles;Sales|Transport|LDV|Van|Hybrid Electric;Million vehicles;;0.000001
 EV stock share|Buses|EV;percent;;;;
 EV stock share|Cars|EV;percent;;;;
 EV stock share|Trucks|EV;percent;;;;
 EV stock share|Vans|EV;percent;;;;
-EV stock|Buses|BEV;no;Stock|Transport|Bus|Electric;Million vehicles;;1.00E-06
-EV stock|Buses|PHEV;no;;;;
-EV stock|Buses|FCEV;no;Stock|Transport|Bus|FCEV;Million vehicles;;1.00E-06
-EV stock|Cars|BEV;no;Stock|Transport|Car|Electric;Million vehicles;;1.00E-06
-EV stock|Cars|PHEV;no;Stock|Transport|Car|Hybrid Electric;Million vehicles;;1.00E-06
-EV stock|Cars|FCEV;no;Sales|Transport|Car|FCEV;Million vehicles;;1.00E-06
-EV stock|Trucks|BEV;no;Stock|Transport|Truck|Electric;Million vehicles;;1.00E-06
-EV stock|Trucks|FCEV;no;Stock|Transport|Truck|FCEV;Million vehicles;;1.00E-06
-EV stock|Trucks|PHEV;no;;;;
-EV stock|Vans|BEV;no;Stock|Transport|LDV|Van|BEV;Million vehicles;;1.00E-06
-EV stock|Vans|PHEV;no;Stock|Transport|LDV|Van|Hybrid Electric;Million vehicles;;1.00E-06
-EV stock|Vans|FCEV;no;Stock|Transport|LDV|Van|FCEV;Million vehicles;;1.00E-06
-Oil displacement|Buses|EV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Buses|BEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Buses|PHEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Cars|EV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Cars|BEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Cars|PHEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Trucks|EV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Trucks|BEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Trucks|PHEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Vans|EV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Vans|BEV;Milion liters of gasoline equivalent;;;;
-Oil displacement|Vans|PHEV;Milion liters of gasoline equivalent;;;;
+EV stock|Buses|BEV;Vehicles;Stock|Transport|Bus|Electric;Million vehicles;;0.000001
+EV stock|Buses|FCEV;Vehicles;Stock|Transport|Bus|FCEV;Million vehicles;;0.000001
+EV stock|Buses|PHEV;Vehicles;;;;
+EV stock|Cars|BEV;Vehicles;Stock|Transport|Car|Electric;Million vehicles;;0.000001
+EV stock|Cars|FCEV;Vehicles;Sales|Transport|Car|FCEV;Million vehicles;;0.000001
+EV stock|Cars|PHEV;Vehicles;Stock|Transport|Car|Hybrid Electric;Million vehicles;;0.000001
+EV stock|Trucks|BEV;Vehicles;Stock|Transport|Truck|Electric;Million vehicles;;0.000001
+EV stock|Trucks|FCEV;Vehicles;Stock|Transport|Truck|FCEV;Million vehicles;;0.000001
+EV stock|Trucks|PHEV;Vehicles;;;;
+EV stock|Vans|BEV;Vehicles;Stock|Transport|LDV|Van|BEV;Million vehicles;;0.000001
+EV stock|Vans|FCEV;Vehicles;Stock|Transport|LDV|Van|FCEV;Million vehicles;;0.000001
+EV stock|Vans|PHEV;Vehicles;Stock|Transport|LDV|Van|Hybrid Electric;Million vehicles;;0.000001
+Electricity demand|Buses|EV;GWh;FE|Transport|Pass|Road|Bus|Electricity;EJ/yr;;0.0000036
+Electricity demand|Cars|EV;GWh;FE|Transport|Pass|Road|LDV|Electricity;EJ/yr;Contains PHEV, but should be small;0.0000036
+Electricity demand|Trucks|EV;GWh;FE|Transport|Freight|Road|Electricity;EJ/yr;Contains light trucks, see below;0.0000036
+Electricity demand|Vans|EV;GWh;FE|Transport|Freight|Road|Truck (0-3p5t)|Electricity;EJ/yr;;0.0000036
+Oil displacement Mbd|Buses|EV;Milion barrels per day;;;;
+Oil displacement Mbd|Cars|EV;Milion barrels per day;;;;
+Oil displacement Mbd|Trucks|EV;Milion barrels per day;;;;
+Oil displacement Mbd|Vans|EV;Milion barrels per day;;;;
+Oil displacement, million lge|Buses|EV;Oil displacement, million lge;;;;
+Oil displacement, million lge|Cars|EV;Oil displacement, million lge;;;;
+Oil displacement, million lge|Trucks|EV;Oil displacement, million lge;;;;
+Oil displacement, million lge|Vans|EV;Oil displacement, million lge;;;;
