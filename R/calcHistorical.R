@@ -99,9 +99,6 @@ calcHistorical <- function() {
 
   # Region specific historical data ====
 
-  # EEA GHG Projections
-  EEA_GHGProjections <- toolFillEU34Countries(calcOutput("EEAGHGProjections", aggregate = FALSE, warnNA = FALSE))
-
   # EEA GHG Sectoral Historical Data
   EEA_GHGSectoral <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
   EEA_GHGSectoral <- add_dimension(EEA_GHGSectoral, dim = 3.1, add = "model", nm = "EEA_historical")
@@ -233,7 +230,7 @@ calcHistorical <- function() {
     fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
     ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiEurostat,
-    EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
+    EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
     worldsteel, USGS_cement
   )
 

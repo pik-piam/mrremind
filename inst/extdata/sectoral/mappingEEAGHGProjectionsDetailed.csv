@@ -1,0 +1,19 @@
+Variable;Category;Gas;unit;factor
+Emi|CO2;Total excluding LULUCF;CO2 (kt);Mt CO2/yr;0.001
+Emi|GHG;Total excluding LULUCF;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|CO2|Energy;1. Energy;CO2 (kt);Mt CO2/yr;0.001
+Emi|GHG|Energy;1. Energy;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|CO2|Energy|Supply;1.A.1. Energy industries;CO2 (kt);Mt CO2/yr;0.001
+Emi|CO2|Energy|Supply|Electricity and Heat;1.A.1.a. Public electricity and heat production;CO2 (kt);Mt CO2/yr;0.001
+Emi|CO2|Energy|Demand|Industry;1.A.2. Manufacturing industries and construction;CO2 (kt);Mt CO2/yr;0.001
+Emi|GHG|Energy|Demand|Industry;1.A.2. Manufacturing industries and construction;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|CO2|Energy|Demand|Transport;1.A.3. Transport;CO2 (kt);Mt CO2/yr;0.001
+Emi|CO2|Energy|Demand|Buildings|Commercial;1.A.4.a. Commercial/Institutional;CO2 (kt);Mt CO2/yr;0.001
+Emi|CO2|Energy|Demand|Buildings|Residential;1.A.4.b. Residential;CO2 (kt);Mt CO2/yr;0.001
+Emi|CO2|Industrial Processes;2. Industrial processes;CO2 (kt);Mt CO2/yr;0.001
+Emi|GHG|Industrial Processes;2. Industrial processes;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|GHG|Agriculture;3. Agriculture;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|CO2|Land-Use Change;4. Land Use, Land-Use Change and Forestry (LULUCF, reported emissions and removals) (9);CO2 (kt);Mt CO2/yr;0.001
+Emi|GHG|Land-Use Change;4. Land Use, Land-Use Change and Forestry (LULUCF, reported emissions and removals) (9);Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|GHG|Waste;5. Waste;Total GHG emissions (ktCO2e);Mt CO2eq/yr;0.001
+Emi|CO2|Energy|Demand|Transport|International Bunkers;International bunkers;CO2 (kt);Mt CO2/yr;0.001
