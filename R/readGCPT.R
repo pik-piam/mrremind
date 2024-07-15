@@ -19,16 +19,8 @@ readGCPT <- function(subtype) {
     stop("Invalid subtype!")
   }
 
-  year <- NULL
   `Announced + Pre-permit + Permitted` <- NULL
   . <- NULL
-  Jan15 <- NULL
-  Jan16 <- NULL
-  Jan17 <- NULL
-  Jan18 <- NULL
-  Jan19 <- NULL
-  Jan20 <- NULL
-  Jul20 <- NULL
   Country <- NULL
   CountryCode <- NULL
   MW <- NULL
@@ -57,51 +49,20 @@ readGCPT <- function(subtype) {
   map <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
 
   # Data files to be read in
+  summary_data <- "GCPT_data_Jan2023.xlsx"
+  status_changes <- "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
+  plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
+  lastCol <- "X"
+  sep <- ";"
+  latest_col <- 3
 
-  if (is.null(year)) {
-    summary_data <- "GCPT_data_Jan2023.xlsx"
-    status_changes <-
-      "Jan 2023 GCPT Status Changes - 2014 - 2022 (final).csv"
-    plant_data <- "Global-Coal-Plant-Tracker-January-2023.xlsx"
-    lastCol <- "X"
-    sep <- ";"
-    latest_col <- 3
-  } else if (grepl("2021", year)) {
-    summary_data <- "GCPT_data_Jan2021.xlsx"
-    status_changes <- "GCPT Status Changes_1Feb2021.csv"
-    plant_data <- "January 2021 Global Coal Plant Tracker.xlsx"
-    lastCol <- "V"
-    sep <- ","
-    latest_col <- 3
-  } else if (grepl("2022", year)) {
-    summary_data <- "GCPT_data_Jan2022.xlsx"
-    status_changes <-
-      "Jan 2022 GCPT Status Changes - 2014 - 2021 (b).csv"
-    plant_data <- "Global-Coal-Plant-Tracker-Jan-2022.xlsx"
-    lastCol <- "W"
-    sep <- ";"
-    latest_col <- 3
-  } else if (grepl("2020", year)) {
-    summary_data <- "GCPT_data_Jul2020.xlsx"
-    status_changes <- "GCPT Status Changes H1 2015 to H1 2020.xlsx"
-    plant_data <- "July 2020 Global Coal Plant Tracker.xlsx"
-    lastCol <- "V"
-    sep <- ","
-    plant_status <-
-      read_excel("GCPT Status Changes H1 2015 to H1 2020.xlsx", sheet = 2)
-    plant_status <-
-      plant_status %>% select(Country, MW, Jul20, Jan20, Jan19, Jan18, Jan17, Jan16, Jan15)
-    colnames(plant_status)[3:ncol(plant_status)] <- c(2020:2014)
-    latest_col <- 3
-  }
-
-  plant_status <- read.csv(status_changes, sep = sep,
-                           stringsAsFactors = FALSE)
+  plant_status <- read.csv2(status_changes, sep = sep, stringsAsFactors = FALSE, fileEncoding = "ISO-8859-13")
 
   plant_status <- plant_status %>%
     select(Country, MW, starts_with("H2")) %>%
-    mutate(Country = ifelse(grepl("rkiye", Country), "Turkey", Country),
-           Country = ifelse(grepl("Ivoire", Country), "Cote d'Ivoire", Country))
+    mutate("Country" = ifelse(grepl("rkiye", Country), "Turkey", Country),
+           "Country" = ifelse(grepl("Ivoire", Country), "Cote d'Ivoire", Country),
+           "MW" = as.numeric(MW))
 
   colnames(plant_status)[3:ncol(plant_status)] <- as.numeric(gsub("H2.", "", colnames(plant_status)[3:ncol(plant_status)]))
 
@@ -144,16 +105,23 @@ readGCPT <- function(subtype) {
 
   # Calculate capacity that was mothballed or restarted each year since 2014
   # (to be fed into back-calculation of annual capacity below)
-  cap_moth <- new.magpie(getItems(dim = 1, x = cap_sum), years = as.numeric(colnames(additions)[2:length(additions)]), names = c("Operating", "pre_status"), fill = 0)
+  cap_moth <- new.magpie(getItems(dim = 1, x = cap_sum),
+                         years = as.numeric(colnames(additions)[2:length(additions)]),
+                         names = c("Operating", "pre_status"), fill = 0)
+
   for (j in 4:ncol(mothballed)) {
+
     # Mothballed plants in 2020 which were operating earlier
     oper_moth <- mothballed %>%
       filter(mothballed[, j] == "Operating" & mothballed[, 3] == "Mothballed") %>%
       group_by(Country) %>%
       summarize(sum = sum(MW))
+
     oper_moth$Country <- toolCountry2isocode(mapping = c("DR Congo" = "COD"), country = oper_moth$Country)
+
     oper_moth <- suppressWarnings(
-      toolCountryFill(as.magpie(oper_moth, spatial = 1, temporal = as.numeric(colnames(mothballed)[j]), datacol = 2), verbosity = 2, fill = 0, no_remove_warning = "KOS")
+      toolCountryFill(as.magpie(oper_moth, spatial = 1, temporal = as.numeric(colnames(mothballed)[j]), datacol = 2),
+                      verbosity = 2, fill = 0, no_remove_warning = "KOS")
     )
 
     # Retired plants in 2020 which were mothballed earlier
@@ -193,6 +161,7 @@ readGCPT <- function(subtype) {
     filter(mothballed[, 3] == "Mothballed" & mothballed[, j] == "Mothballed") %>%
     group_by(Country) %>%
     summarize(sum = sum(MW))
+
   moth_moth$Country <- toolCountry2isocode(mapping = c("DR Congo" = "COD"), country = moth_moth$Country)
   moth_moth <- suppressWarnings(
     toolCountryFill(as.magpie(moth_moth, spatial = 1, temporal = as.numeric(colnames(mothballed)[j]), datacol = 2), verbosity = 2, fill = 0, no_remove_warning = "KOS")
@@ -378,9 +347,9 @@ readGCPT <- function(subtype) {
 
   # Relevant regional mappings and country classifications
   # Current members of PPCA
-  PPCAmap <- toolGetMapping("regionmappingPPCA.csv", type = "regional")
+  PPCAmap <- toolGetMapping("regionmappingPPCA.csv", type = "regional", where = "mappingfolder")
   # Current OECD members
-  OECDmap <- toolGetMapping("regionmappingOECD.csv", type = "regional")
+  OECDmap <- toolGetMapping("regionmappingOECD.csv", type = "regional", where = "mappingfolder")
   ppca <- PPCAmap$CountryCode[which(PPCAmap$RegionCode == "PPCA")]
   oecd <- OECDmap$CountryCode[which(OECDmap$RegionCode == "OECD")]
   EU27 <- map$CountryCode[which(map$RegionCode == "EUR")]
