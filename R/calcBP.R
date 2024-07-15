@@ -113,9 +113,9 @@ calcBP <- function() {
   map <- toolGetMapping("Mapping_BP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
     mutate(
-      "from" := paste0(trimws(.data$variable), " (", .data$unit, ")"),
-      "to" := paste0(trimws(.data$REMIND), " (", .data$Unit_REMIND, ")"),
-      "conversion" := as.numeric(.data$Factor)
+      "from" = paste0(trimws(.data$variable), " (", .data$unit, ")"),
+      "to" = paste0(trimws(.data$REMIND), " (", .data$Unit_REMIND, ")"),
+      "conversion" = as.numeric(.data$Factor)
     ) %>%
     select("from", "to", "conversion")
 

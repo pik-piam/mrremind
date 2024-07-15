@@ -35,9 +35,11 @@ Net Trade|Gas,bcm,0.036,EJ/yr,Trade|Gas,,
 Trade|Export|Coal,EJ,1,EJ/yr,Trade|Exports|Coal,,
 Trade|Import|Coal,EJ,1,EJ/yr,Trade|Imports|Coal,,
 Net Trade|Coal,EJ,1,EJ/yr,Trade|Coal,,
-Price|Crude Oil,$2023/bbl,0.12256904722994,US$2005/GJ,Price|Primary Energy|Oil,"Source: $2020 → $2005 = 0.75 (online)
-1 barrel of oil equivalent (boe) = 6.119 million kJ
-Conversion: 0.75 / 6.119",
-Price|Natural Gas,$/mbtu,1.05,US$2005/GJ,Price|Primary Energy|Gas,source: 1 trillion British thermal units = 1.050 petajoules NG,
-Price|Coal,$/t,0.025,US$2005/GJ,Price|Primary Energy|Coal,source: 1EJ = 40 million tonnes of hard coal,
+Price|Crude Oil,$2023/bbl,0.163425396306586,US$2023/GJ,Price|Primary Energy|Oil,"source: 1 barrel of oil equivalent (boe) = 6.119 million kJ
+Conversion: 1 / 6.119
+TODO: consider unit conversion to US$2017",
+Price|Natural Gas,$/mbtu,1.05,US$/GJ,Price|Primary Energy|Gas,"source: 1 trillion British thermal units = 1.050 petajoules NG
+TODO: consider unit conversion to US$2017",
+Price|Coal,$/t,0.025,US$/GJ,Price|Primary Energy|Coal,"source: 1EJ = 40 million tonnes of hard coal
+TODO: consider unit conversion to US$2017",
 Emi|CO2,Mt CO2,1,Mt CO2/yr,Emi|CO2|Energy,,
