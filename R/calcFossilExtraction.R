@@ -52,7 +52,7 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
       rbind(data.frame(Res = 23000, Price = 0.9)) %>%
       # convert from PJ to TWa
       mutate(Res = Res * 1e-15 / s_GJ_2_twa) %>%
-      # convert from 2005USD/GJ to tr 2005USD/Twa
+      # convert from USD/GJ to tr USD/Twa
       mutate(Price = Price / s_GJ_2_twa / 1e12) %>%
       arrange(Price)
 
@@ -104,7 +104,7 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
 
   return(list(
     x = output, weight = NULL,
-    unit = "tr USD2005/TWa",
+    unit = "tr USD2017/TWa",
     description = description,
     aggregationFunction = toolCubicFunctionAggregate,
     aggregationArguments = list(xUpperBound = upperBoundMaxExtraction, steepCurve = highCostCurve)
