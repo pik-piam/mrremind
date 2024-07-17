@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.182.10
-Date: 2024-07-15
+Version: 0.183.0
+Date: 2024-07-17
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -38,7 +38,7 @@ Description: The mrremind packages contains data preprocessing for the
 License: LGPL-3 | file LICENSE
 URL: https://github.com/pik-piam/mrremind
 Depends:
-    edgeTransport (>= 2.0),
+    edgeTransport (>= 1.5.5),
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
     mrcommons (>= 1.38.0),
