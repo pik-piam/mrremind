@@ -3,9 +3,8 @@
 #' Provides REMIND data for CO2 parameters to calculate baseline emissions of
 #' waste from population and investment.
 #'
-#'
-#' @return REMIND data forCO2 parameters to calculate baseline emissions of
-#' waste from population and investment and corresonding weights (population)
+#' @return REMIND data for CO2 parameters to calculate baseline emissions of
+#' waste from population and investment and corresponding weights (population)
 #' as a list of two MAgPIE objects
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
@@ -13,8 +12,6 @@
 #' \dontrun{
 #' calcOutput("calcEconometricEmiParameter")
 #' }
-#' @importFrom utils read.csv
-
 
 calcEconometricEmiParameter <- function() {
 
@@ -33,12 +30,24 @@ calcEconometricEmiParameter <- function() {
   getNames(p4) <- "co2cement_process.p4"
   getYears(p4) <- getYears(p3)
 
+  # convert data from $2005 to $2017
+  map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
+    dplyr::select("iso3c" = "CountryCode", "region" = "RegionCode")
+
+  p4 <- GDPuc::convertGDP(
+    gdp = p4,
+    unit_in = "constant 2005 Int$PPP",
+    unit_out = "constant 2017 Int$PPP",
+    with_regions = map,
+    replace_NAs = "regional_average"
+  )
+
   # combine all parameters
   x <- mbind(p3, p4)
   getYears(x) <- NULL
+
   return(list(x = x,
               weight = pop,
-              unit = "p3 - GtC/Cap, p4 - $US2005/Cap",
-              description = "CO2 parameters to calculate baseline emissions of waste from population and investment",
-              note = c("more to be added by Jessi")))
+              unit = "p3 - GtC/Cap, p4 - $US2017/Cap",
+              description = "CO2 parameters to calculate baseline emissions of waste from population and investment"))
 }
