@@ -28,7 +28,7 @@ calcCostsWeathering <- function() {
   return(list(
     x = x,
     weight = weight,
-    unit = "T$/Gt stone",
+    unit = "T US$2017/Gt stone",
     description = "Transport costs for spreading rocks on the fields.
               The first rlf corresponds to climate regions (1 - warm, 2 - temperate).
               The second rlf are the distances of fields from the sources of the material."
