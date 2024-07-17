@@ -88,6 +88,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   # EDGAR8 Emissions----
+
   edg8 <- calcOutput(
     type = "Emissions", datasource = "EDGAR8",
     aggregate = columnsForAggregation, warnNA = FALSE,
@@ -126,6 +127,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   calcOutput(
     type = "EU_ReferenceScenario", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical")
+  )
+
+  # EU National GHG Projections ----
+
+  calcOutput(
+    type = "EEAGHGProjections", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
     writeArgs = list(scenario = "historical")
