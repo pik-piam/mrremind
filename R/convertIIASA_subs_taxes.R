@@ -9,12 +9,16 @@
 #' @return IIASA_subs_taxes data as MAgPIE object aggregated to country level
 #' @author Christoph Bertram
 #' @examples
-#'
-#' \dontrun{ a <- convertIIASA_subs_taxes(x)
+#' \dontrun{
+#' a <- convertIIASA_subs_taxes(x)
 #' }
 #'
 convertIIASA_subs_taxes <- function(x) {
-  # fill all missing countries with 0, remove all countries not part of official 249 ISO countries
-  x <- toolCountryFill(x, verbosity = 2, fill = 0)
+
+  x <- toolCountryFill(x,
+    verbosity = 2, fill = 0,
+    no_remove_warning = c("ADO", "CHI", "ZAR", "IMY", "KSV", "ROM", "TMP", "WBG")
+  )
+
   return(x)
 }
