@@ -41,18 +41,6 @@ calcPETaxes <- function(subtype = "subsidies") {
   Rtax <- setNames(tax[, , tax_map], names(tax_map))
   Renergy <- setNames(energy[, , tax_map], names(tax_map))
 
-  # convert tax data from $2005 to $2017
-  map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-    dplyr::select("iso3c" = "CountryCode", "region" = "RegionCode")
-
-  Rtax <- GDPuc::convertGDP(
-    gdp = Rtax,
-    unit_in = "constant 2005 Int$PPP",
-    unit_out = "constant 2017 Int$PPP",
-    with_regions = map,
-    replace_NAs = "regional_average"
-  )
-
   # convert original data from bulk values to subsidies rates for the case of subsidies
   Rtax <- Rtax / Renergy * 1e9 # converting from billion$/GJ to $/GJ
   Rtax[is.na(Rtax)] <- 0

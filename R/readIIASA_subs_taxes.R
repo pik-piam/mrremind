@@ -6,7 +6,7 @@
 #'
 #' @param subtype Type of country level data as compiled by IIASA that should
 #' be read in. Available types are: \itemize{ \item \code{tax_rate}: tax rate
-#' pre final energy category \item \code{sub_rate}: subsidy rate per final
+#' pre final energy category \item \code{subsidies_bulk}: subsidy rate per final
 #' energy category \item \code{energy}: final energy quantities per category }
 #' @return magpie object of the IIASA_subs_taxes data
 #' @author Christoph Bertram
@@ -17,8 +17,14 @@
 #' }
 #'
 readIIASA_subs_taxes <- function(subtype) {
+
   file <- "unlinked_countries_2017_03.xlsx"
-  # subtype = tax_rate, sub_rate, energy
+
+  if (!subtype %in% c("tax_rate", "subsidies_bulk", "energy")) {
+    stop(paste('Invalid subtype -- supported subtypes are:',
+               paste(c("tax_rate", "subsidies_bulk", "energy"), collapse = ', ')))
+  }
+
   data <- read_excel(file, sheet = subtype)
   data <- data[!is.na(data[[1]]), ]
 
