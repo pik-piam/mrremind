@@ -43,7 +43,14 @@ calcTaxLimits <- function(subtype) {
     weight <- new.magpie(getItems(output, dim = 1), getYears(output), getNames(output), fill = 1)
   }
 
+  # convert data from $2005 to $2017
+  output <- GDPuc::convertGDP(
+    gdp = output,
+    unit_in = "constant 2005 Int$PPP",
+    unit_out = "constant 2017 Int$PPP",
+    replace_NAs = "with_USA"
+  )
+
   # Return tax convergence levels aggregated to selected REMIND regions
   return(list(x = output, weight = weight, unit = "$/GJ", description = description))
-
 }
