@@ -7,16 +7,16 @@
 convertEDGETransport(x, subtype)
 }
 \arguments{
-\item{x}{MAgPIE object containing EDGE values at ISO country resolution}
+\item{x}{MAgPIE object containing EDGE-T values in 21 region resolution}
 
-\item{subtype}{EDGE entries}
+\item{subtype}{REMIND/iterative EDGE-T input data subtypes}
 }
 \value{
-EDGETransport data as MAgPIE object aggregated to ISO level
+REMIND/iterative EDGE-T input data as MAgPIE object disaggregated to ISO level
 }
 \description{
-Ship EDGETransport data through, as already on ISO level
+Convert EDGEtransport
 }
 \author{
-Marianna Rottoli
+Johanna Hoppe
 }
