@@ -73,7 +73,22 @@ calcJRC_IDEES <- function(subtype) {
     toolCountryFill(fill = NA, verbosity = 2) %>%
     toolFillEU34Countries()
 
+  # convert currency units from €2010 to $2017
+  if (subtype == "Industry") {
+    tmp <-  x[, , "EUR2010", pmatch = TRUE]
+    x <- x[, , getNames(tmp), invert = TRUE]
+    getNames(tmp) <- gsub("EUR2010", "US$2017", getNames(tmp))
+
+    tmp <- GDPuc::convertGDP(
+      gdp = tmp,
+      unit_in = "constant 2010 €",
+      unit_out = "constant 2017 Int$PPP",
+      replace_NAs = "with_USA"
+    )
+    x <- mbind(x, tmp)
+  }
+
   return(list(x = x, weight = NULL,
-              unit = "billion US$2005/yr, EJ/yr, Mt CO2/yr, Mt/yr",
+              unit = "billion US$2017/yr, EJ/yr, Mt CO2/yr, Mt/yr",
               description = "Historical JRC IDEES values as REMIND variables"))
 }
