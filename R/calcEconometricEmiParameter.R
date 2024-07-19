@@ -31,15 +31,12 @@ calcEconometricEmiParameter <- function() {
   getYears(p4) <- getYears(p3)
 
   # convert data from $2005 to $2017
-  map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-    dplyr::select("iso3c" = "CountryCode", "region" = "RegionCode")
 
   p4 <- GDPuc::convertGDP(
     gdp = p4,
     unit_in = "constant 2005 Int$PPP",
     unit_out = "constant 2017 Int$PPP",
-    with_regions = map,
-    replace_NAs = "regional_average"
+    replace_NAs = "with_USA"
   )
 
   # combine all parameters

@@ -26,16 +26,11 @@ convertIIASA_subs_taxes <- function(x, subtype) {
 
   # convert monetary data from $2005 to $2017
   if (!subtype %in% c("subsidies_bulk", "tax_rate")) {
-
-    map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-      dplyr::select("iso3c" = "CountryCode", "region" = "RegionCode")
-
     x <- GDPuc::convertGDP(
       gdp = x,
       unit_in = "constant 2005 Int$PPP",
       unit_out = "constant 2017 Int$PPP",
-      with_regions = map,
-      replace_NAs = "regional_average"
+      replace_NAs = "with_USA"
     )
   }
 

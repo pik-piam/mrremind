@@ -11,15 +11,12 @@ calcCostsWeathering <- function() {
   costs <- readSource("Strefler", subtype = "weathering_costs")
 
   # convert from $2005 to $2017
-  map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-    select("iso3c" = "CountryCode", "region" = "RegionCode")
 
   x <- GDPuc::convertGDP(
     gdp = costs,
     unit_in = "constant 2005 Int$PPP",
     unit_out = "constant 2017 Int$PPP",
-    with_regions = map,
-    replace_NAs = "regional_average"
+    replace_NAs = "with_USA"
   )
 
   weight <- costs # get the same dimensions of the data

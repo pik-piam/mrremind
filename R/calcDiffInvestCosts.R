@@ -160,15 +160,12 @@ calcDiffInvestCosts <- function(subtype) {
     x_new[, "y2020", "spv"] <- x_adj_iso
 
     # convert data from $2015 to $2017
-    map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-      dplyr::select("iso3c" = "CountryCode", "region" = "RegionCode")
 
     x_new <- GDPuc::convertGDP(
       gdp = x_new,
       unit_in = "constant 2015 Int$PPP",
       unit_out = "constant 2017 Int$PPP",
-      with_regions = map,
-      replace_NAs = "regional_average"
+      replace_NAs = "with_USA"
     )
 
     return(list(

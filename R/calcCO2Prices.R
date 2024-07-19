@@ -4,17 +4,13 @@ calcCO2Prices <- function() {
   x <- readSource("ExpertGuess", subtype = "co2prices")
   getNames(x) <- NULL
 
-
   # convert from $2005 to $2017
-  map <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder") %>%
-    select("iso3c" = "CountryCode", "region" = "RegionCode")
 
   x <- GDPuc::convertGDP(
     gdp = x,
     unit_in = "constant 2005 Int$PPP",
     unit_out = "constant 2017 Int$PPP",
-    with_regions = map,
-    replace_NAs = "regional_average"
+    replace_NAs = "with_USA"
   )
 
   # read data used for weight
