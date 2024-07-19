@@ -31,7 +31,8 @@ calcTaxLimits <- function(subtype) {
   } else if (subtype == "maxPeSubsidy") {
     # Read max primary energy subsidy levels
     output <- readSource("REMIND_11Regi", subtype = "maxPeSubsidy")
-    description <- "maximum primary energy subsidy levels (in $/Gj) to provide plausible upper bound: 40$/barrel ~ 8 $/GJ"
+    description <- paste0("maximum primary energy subsidy levels (in $/Gj) to ",
+                          "provide plausible upper bound: 40$/barrel ~ 8 $/GJ")
     # using primary energy to weight the max subsidy levels
     weight <- calcOutput("PE", aggregate = FALSE)[, 2005, "PE (EJ/yr)"]
   } else if (subtype == "propFeSubsidy") {
