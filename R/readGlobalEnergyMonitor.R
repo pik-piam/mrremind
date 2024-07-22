@@ -76,9 +76,9 @@ readGlobalEnergyMonitor <- function() {
     ) %>%
       select(all_of(cols)) %>%
       mutate(
-        !!sym("value") := as.numeric(!!sym("value")),
-        !!sym("start") := as.numeric(!!sym("start")),
-        !!sym("end") := as.numeric(!!sym("end"))
+        "value" = as.numeric(!!sym("value")),
+        "start" = as.numeric(!!sym("start")),
+        "end" = as.numeric(!!sym("end"))
       )
 
     if (!is.null(nb$typeCol)) {
@@ -102,7 +102,7 @@ readGlobalEnergyMonitor <- function() {
         !is.na(!!sym("start")), is.na(!!sym("end")),
         !!sym("status") %in% status
       ) %>%
-      mutate(!!sym("end") := 2050)
+      mutate("end" = 2050)
 
     production <- rbind(completed, ongoing)
     tmp <- NULL
@@ -114,7 +114,7 @@ readGlobalEnergyMonitor <- function() {
       tmp <- rbind(tmp, d)
     }
     cap <- aggregate(value ~ region + period, data = tmp, FUN = sum) %>%
-      mutate(!!sym("variable") := nb$variable) %>%
+      mutate("variable" = nb$variable) %>%
       select("region", "period", "variable", "value")
 
     out <- rbind(out, cap)
