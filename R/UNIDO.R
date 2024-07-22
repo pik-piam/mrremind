@@ -258,11 +258,16 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                 # the maximum
                 summarise(value = max(.data$value), .groups = 'drop')
 
-            # return ----
+            # convert from $2005 to $2017 and return ----
             x %>%
-                as.magpie(spatial = 1, temporal = 3, data = ncol(.)) %>%
-                toolCountryFill(verbosity = 2) %>%
-                return()
+              as.magpie(spatial = 1, temporal = 3, data = ncol(.)) %>%
+              toolCountryFill(verbosity = 2) %>%
+              GDPuc::convertGDP(
+                unit_in = "constant 2005 Int$PPP",
+                unit_out = "constant 2017 Int$PPP",
+                replace_NAs = "with_USA"
+              ) %>%
+              return()
         }
     )
 
@@ -307,7 +312,7 @@ calcUNIDO <- function(subtype = 'INDSTAT2')
 
             return(list(x = x,
                         weight = NULL,
-                        unit = 'billion US$2005/yr',
+                        unit = 'billion US$2017/yr',
                         description = 'industry subsector value added'))
         }
     )
