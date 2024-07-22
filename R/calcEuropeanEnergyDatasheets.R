@@ -28,7 +28,7 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
     mapping <- toolGetMapping("Mapping_EuropeanEnergyDatasheets.csv", type = "reportingVariables",
                               where = "mrremind") %>%
       filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
-      mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
+      mutate("Conversion" = as.numeric(.data$Conversion)) %>%
       select("variable" = "EED", "REMIND", "Conversion")
 
     mapping$variable <- trimws(mapping$variable)

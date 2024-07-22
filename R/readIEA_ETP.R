@@ -546,12 +546,12 @@ readIEA_ETP <- function(subtype) {
           # drop rownames from worksheet
           select(-1) %>%
           # add variable prefix
-          mutate(variable = paste0(subtypes[[subtype]]$prefix, "|", !!sym("variable"))) %>%
+          mutate("variable" = paste0(subtypes[[subtype]]$prefix, "|", !!sym("variable"))) %>%
           pivot_longer(
             cols = c(-"variable", -"unit"), names_to = "year",
             names_transform = list("year" = as.integer)
           ) %>%
-          mutate(region := sheet, scenario := scenario)
+          mutate("region" = sheet, "scenario" = scenario)
       )
     }
   }

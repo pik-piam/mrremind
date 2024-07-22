@@ -14,7 +14,7 @@ calcIEA_ETP <- function() {
 
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
-    mutate(!!sym("Conversion") := as.numeric(!!sym("Conversion"))) %>%
+    mutate("Conversion" = as.numeric(!!sym("Conversion"))) %>%
     select("variable" = "IEA_ETP", "REMIND", "Conversion", "Unit_REMIND")
 
   mapping$variable <- trimws(mapping$variable)
@@ -42,10 +42,10 @@ calcIEA_ETP <- function() {
   ) %>%
     filter(!!sym("REMIND") != "") %>%
     mutate(
-      !!sym("value") := !!sym("value") * !!sym("Conversion"),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
-      !!sym("model") := paste0("IEA ETP ", !!sym("scenario")),
-      !!sym("year") := as.numeric(as.character(!!sym("year")))
+      "value" = !!sym("value") * !!sym("Conversion"),
+      "REMIND" = paste0(!!sym("REMIND"), " (", !!sym("Unit_REMIND"), ")"),
+      "model" = paste0("IEA ETP ", !!sym("scenario")),
+      "year" = as.numeric(as.character(!!sym("year")))
     ) %>%
     select("region", "year", "model", "variable" = "REMIND", "value")
 
