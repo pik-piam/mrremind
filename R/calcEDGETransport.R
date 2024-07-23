@@ -19,7 +19,7 @@ calcEDGETransport <- function(subtype) {
            weight[weight < 1e-5] <- 0
            #check whether weightsum is zero for some cases
            #if so, the values should just be aggregated equally in order to prevent zeros in the results
-           weight <- magpie2dt(weight)
+           weight <- rmndt::magpie2dt(weight)
            regMap <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
            setnames(regMap, "CountryCode", "all_regi")
            weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
@@ -35,7 +35,7 @@ calcEDGETransport <- function(subtype) {
            weight[weight < 1e-5] <- 0
            #check whether weightsum is zero for some cases
            #if so, the values should just be aggregated equally in order to prevent zeros in the results
-           weight <- magpie2dt(weight)
+           weight <- rmndt::magpie2dt(weight)
            regMap <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
            setnames(regMap, "CountryCode", "all_regi")
            weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")

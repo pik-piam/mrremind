@@ -18,8 +18,6 @@ fullREMIND <- function() {
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
 
-  madratAttach("edgeTransport")   # enable madrat caching for edgeTransport
-
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f_pop.cs3r")
   calcOutput("Labour",     years = rem_years_hist,    round = 8,  file = "f_lab.cs3r")
