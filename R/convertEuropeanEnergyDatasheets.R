@@ -17,10 +17,8 @@ convertEuropeanEnergyDatasheets <- function(x, subtype) {
   getItems(x, dim = 1) <- sapply(getRegions(x), function(y) iso3[which(iso3[, 1] == y), 2])
 
   # fill up zero countries
-  x <- toolCountryFill(x, fill = NA, verbosity = 2)
-
-  # fill smaller EU-countries with 0s to allow for aggregation of EU-region
-  x[c("ALA", "FRO", "GIB", "GGY", "IMN", "JEY"), , ] <- 0
+  x <- toolCountryFill(x, fill = NA, verbosity = 2) %>%
+    toolFillEU34Countries()
 
   # in never mapping, this is handled directly in mapping
   if (subtype == "EU28") {

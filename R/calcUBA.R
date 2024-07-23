@@ -28,9 +28,7 @@ calcUBA <- function() {
     mapping,
     by = "variable"
   ) %>%
-    mutate(
-      !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
-    ) %>%
+    mutate("REMIND_variable" = paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%

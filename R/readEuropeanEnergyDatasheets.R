@@ -654,9 +654,9 @@ readEuropeanEnergyDatasheets <- function(subtype) {
           select(-1) %>%
           reshape2::melt(id.vars = c("variable", "unit"), variable.name = "year") %>%
           mutate(
-            "year" := as.numeric(as.character(.data$year)),
-            "region" := sheet,
-            "value" := suppressWarnings(as.numeric(.data$value))
+            "year" = as.numeric(as.character(.data$year)),
+            "region" = sheet,
+            "value" = suppressWarnings(as.numeric(.data$value))
           )
       )
     }

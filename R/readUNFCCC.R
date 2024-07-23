@@ -486,8 +486,8 @@ readUNFCCC <- function() {
                 filter(!is.na(!!sym("name"))) %>%
                 reshape2::melt(id.vars = c("name", "region", "year")) %>%
                 mutate(
-                  !!sym("value") := suppressWarnings(as.double(!!sym("value"))),
-                  !!sym("name") := paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
+                  "value" = suppressWarnings(as.double(!!sym("value"))),
+                  "name" = paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
                 ) %>%
                 select(-"name", "unit" = "variable", "variable" = "name") %>%
                 filter(!is.na(!!sym("value")))
