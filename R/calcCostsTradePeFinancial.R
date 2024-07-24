@@ -1,8 +1,6 @@
 #' Calculate Trade Cost
 #'
-#' Provides REMIND data for PE trade cost (energy losses on import, export and
-#' use).
-#'
+#' Provides REMIND data for PE trade cost (energy losses on import, export and use).
 #'
 #' @author Regina Brecha, Lavinia Baumstark
 #' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
@@ -12,11 +10,21 @@
 #' }
 #'
 calcCostsTradePeFinancial <- function() {
-
   data <- readSource("ExpertGuess", subtype = "costsTradePeFinancial")
-  w    <- calcOutput("GDP", aggregate = FALSE)[, 2005, "gdp_SSP2"]
 
-  return(list(x = data, weight = w,
-              unit = "TW and ratio",
-              description = "PE tradecosts (financial costs on import, export and use)"))
+  data <- GDPuc::convertGDP(
+    gdp = data,
+    unit_in = "constant 2005 Int$PPP",
+    unit_out = "constant 2017 Int$PPP",
+    replace_NAs = "with_USA"
+  )
+
+  w <- calcOutput("GDP", aggregate = FALSE)[, 2005, "gdp_SSP2"]
+
+  return(list(
+    x = data,
+    weight = w,
+    unit = "T US$2017/TWa",
+    description = "PE tradecosts (financial costs on import, export and use)"
+  ))
 }
