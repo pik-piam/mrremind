@@ -22,18 +22,14 @@ calcGEA2012 <- function(subtype, datatype) {
   scens <- c("low", "med", "high")
   nscen <- length(scens)
 
-  if (subtype == "coal") {
+  if (subtype %in% c("oil", "gas", "coal")) {
     x <- readSource("GEA2012", subtype = subtype)
     w <- new.magpie(getRegions(x), getYears(x), getNames(x), fill = 1)
     w[, , "xi3"] <- NA
     mixed <- TRUE
-    unit <- "mixed"
-  } else if (subtype %in% c("oil", "gas")) {
-    x <- readSource("GEA2012", subtype = subtype)
-    w <- new.magpie(getRegions(x), getYears(x), getNames(x), fill = 1)
-    w[, , "xi3"] <- NA
-    mixed <- TRUE
-    unit <- "mixed"
+    # TODO: confirm the unit for cost grades, as it is merely an educated guess
+    unit <- "cost grades (xi1 and xi2) in T US$2017/TWa; quantities (xi3) in TWa"
+
   } else if (subtype == "bounds") {
     # This subtype is used to define region-specific bounds found in the GAMS code of the previous implementation of timeDepGrades
     if (datatype == "exportbound") {
@@ -68,7 +64,7 @@ calcGEA2012 <- function(subtype, datatype) {
   return(list(x = x,
               weight = w,
               unit = unit,
-              description = paste("Cost grades and quantities of", subtype),
+              description = paste("Cost grades and quantities of ", subtype),
               note = c("Data from the IIASA Global Energy Assessment 2012"),
               mixed_aggregation = mixed))
 

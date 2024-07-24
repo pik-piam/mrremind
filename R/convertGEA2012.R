@@ -56,5 +56,21 @@ convertGEA2012 <- function(x, subtype) {
     out <- mbind(out, toolAggregate(x[, , c("xi1", "xi2", "dec")], mapping, weight = NULL))
   }
 
+  if (subtype %in% c("oil", "coal", "gas")) {
+
+    # convert T US$2005/TWa -> T US$2017/TWa for cost factors xi1 and xi2
+    tmp <- GDPuc::convertGDP(
+      gdp = out[, , c("xi1", "xi2")],
+      unit_in = "constant 2005 Int$PPP",
+      unit_out = "constant 2017 Int$PPP",
+      replace_NAs = "with_USA"
+    )
+
+    out <- mbind(tmp, out[, , c("xi1", "xi2"), invert = TRUE])
+
+  } else {
+    out <- x
+  }
+
   return(out)
 }
