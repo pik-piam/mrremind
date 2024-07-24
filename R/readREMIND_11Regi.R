@@ -30,7 +30,7 @@ readREMIND_11Regi <- function(subtype) {
       x
     },
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset.csv", sep = ";")     %>% as.magpie(datacol = 2),
-    "capacityFactorGlobal" = read.csv("f_cf-global_REMIND_3.3.5.csv", sep = ";") %>% as.magpie(x, datacol = 2),
+    "capacityFactorGlobal" = read.csv("f_cf-global_REMIND_3.3.5.csv", sep = ";") %>% as.magpie(datacol = 2),
     "capacityFactorRules"  = read.csv("f_cf-rules.csv", sep = ";")               %>% as.magpie(datacol = 4),
     "storageFactor"        = read.csv("storageFactor.csv", sep = ";")            %>% as.magpie(datacol = 2),
     "residuesShare"        = read.csv("residuesShare.csv", row.names = 1)        %>% as.magpie(datacol = 4),
