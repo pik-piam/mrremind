@@ -23,6 +23,15 @@ calcBiomassPrices <- function() {
   x[, , "a"][is.na(x[, , "a"])] <- 1
   x[, , "b"][is.na(x[, , "b"])] <- 0.1
 
+  # apply conversion from US$2005 to US$2017 to "a" and "b", so that the price
+  # calculated with these coefficients will be in US$2017
+  x <- GDPuc::convertGDP(
+    gdp = x,
+    unit_in = "constant 2005 US$MER",
+    unit_out = "constant 2017 Int$PPP",
+    replace_NAs = "with_USA"
+  )
+
   return(list(x           = x,
               weight      = calcOutput("FAOLand", aggregate = FALSE)[, , "6610", pmatch = TRUE][, "y2010", ],
               unit        = "none",
