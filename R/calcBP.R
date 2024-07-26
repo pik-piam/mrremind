@@ -139,15 +139,46 @@ calcBP <- function() {
     to = "to", verbosity = 2
   )
 
+  # convert price units ----
+
+  # should be from US$2023, but 'convertGDP' currently returns NA
+  poil <- GDPuc::convertGDP(
+    gdp = x[, , "Price|Primary Energy|Oil (US$2023/GJ)"],
+    unit_in = "constant 2022 US$MER",
+    unit_out = "constant 2017 Int$PPP",
+    replace_NAs = "with_USA"
+  )
+
+  getNames(poil) <- gsub("\\$2023", "\\$2017", getNames(poil))
+
+  # assume these units are in current MER
+  pcoalgas <- GDPuc::convertGDP(
+    gdp = x[, , c("Price|Primary Energy|Gas (US$/GJ)", "Price|Primary Energy|Coal (US$/GJ)")],
+    unit_in = "current US$MER",
+    unit_out = "constant 2017 Int$PPP",
+    replace_NAs = "with_USA"
+  )
+
+  getNames(pcoalgas) <- gsub("\\$", "\\$2017", getNames(pcoalgas))
+
+
+  x <- x[, , c("Price|Primary Energy|Oil (US$2023/GJ)",
+               "Price|Primary Energy|Gas (US$/GJ)",
+               "Price|Primary Energy|Coal (US$/GJ)"), invert = TRUE]
+
+  x <- mbind(x, poil, pcoalgas)
+
+  # set weights ----
+
   weights <- x
   weights[, , ] <- NA
-  weights[, , "US$2005/GJ", pmatch = TRUE] <- 1
+  weights[, , "US$2017/GJ", pmatch = TRUE] <- 1
 
   return(list(
     x = x,
     weight = weights,
     mixed_aggregation = TRUE,
-    unit = c("Mt CO2/yr", "GW", "EJ/yr", "US$2005/GJ"),
+    unit = c("Mt CO2/yr", "GW", "EJ/yr", "US$2017/GJ"),
     description = "Historical World Energy Statistics values as REMIND variables"
   ))
 }
