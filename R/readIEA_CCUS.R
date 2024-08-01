@@ -12,7 +12,8 @@
 #'
 #' @export
 readIEA_CCUS <- function(subtype) {
-  # ASSUMPTION: project types filter applied to source
+  # ASSUMPTION: transport and storage are limiting factors for CCS
+  # project types filter applied to source
   projectTypes <- c("Full chain", "Storage", "T&S")
 
   data <- read_excel("IEA CCUS Projects Database 2024.xlsx",
@@ -32,12 +33,29 @@ readIEA_CCUS <- function(subtype) {
 
   # manually assign shared project(s) to one (currently: first) country
   data[data$project == "EU2NSEA", "country"] <- "Norway"
-  data[data$country == "Japan-Malaysia", "country"] <- "Japan"
-  data[data$country == "Australia-Japan", "country"] <- "Australia"
   data[data$country == "Japan-unknown", "country"] <- "Japan"
 
   # correct typo in IEA Data
   data[data$country == "Lybia", "country"] <- "Libya"
+
+  # share capacities of projects by multiple countries according to their GDP
+  gdp <- calcOutput("GDP", aggregate = FALSE)
+  gdp_JPN <- as.numeric(gdp["JPN", 2020, "gdp_SSP2EU"])
+  gdp_AUS <- as.numeric(gdp["AUS", 2020, "gdp_SSP2EU"])
+  gdp_MYS <- as.numeric(gdp["MYS", 2020, "gdp_SSP2EU"])
+
+  JM <- data[data$country == "Japan-Malaysia", ]
+  AJ <- data[data$country == "Australia-Japan", ]
+
+  # remove mixed-country data and attach single country data weighted by GDP
+  data <- data %>%
+    filter(!country %in% c("Japan-Malaysia", "Australia-Japan")) %>%
+    rbind(
+    mutate(JM, country = "Japan",     value = value*gdp_JPN/(gdp_JPN+gdp_MYS)),
+    mutate(JM, country = "Malaysia",  value = value*gdp_MYS/(gdp_JPN+gdp_MYS)),
+    mutate(AJ, country = "Australia", value = value*gdp_AUS/(gdp_JPN+gdp_AUS)),
+    mutate(AJ, country = "Japan",     value = value*gdp_JPN/(gdp_JPN+gdp_AUS))
+    )
 
   if (subtype == "historical") {
     hist <- data %>%

@@ -25,7 +25,7 @@ calcProjectPipelines <- function(subtype) {
     getItems(eu27Pool, dim = 1) <- "EU27"
 
     # distribute EU27 pool to the countries according to GDP
-    gdp <- calcOutput("GDP", aggregate = FALSE)[eu27, 2020, "gdp_SSP2"]
+    gdp <- calcOutput("GDP", aggregate = FALSE)[eu27, 2020, "gdp_SSP2EU"]
     eu27Pool <- toolAggregate(eu27Pool,
                               rel = mapping, weight = gdp,
                               from = "EU27_map", to = "CountryCode")
