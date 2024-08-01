@@ -41,6 +41,6 @@ calcCCScapacity <- function(subtype) {
     x = x,
     weight = NULL,
     unit = "MtCO2/yr",
-    description = "CCS capacitiy derived from IEA CCUS project database"
+    description = "CCS capacity derived from IEA CCUS project database"
   ))
 }
