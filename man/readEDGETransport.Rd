@@ -2,26 +2,27 @@
 % Please edit documentation in R/readEDGETransport.R
 \name{readEDGETransport}
 \alias{readEDGETransport}
-\title{Read EDGETransport inputs}
+\title{Read REMIND/EDGE-T iterative input data}
 \usage{
-readEDGETransport(subtype = "logit_exponent")
+readEDGETransport(subtype)
 }
 \arguments{
-\item{subtype}{logit_exponents, SW, pref, ptab4W, value_time, harmonized_intensities, price_nonmot, UCD_NEC_iso, loadFactor, esCapCost, fe_demand_tech, shares_LDV_transport, demISO, annual_mileage}
+\item{subtype}{REMIND/iterative EDGE-T input data subtypes}
 }
 \value{
 magpie object of EDGEtransport iterative inputs
 }
 \description{
-Read-in EDGETransport inputs csv file as magclass object
+Run EDGE-Transport Standalone in all used scenario combinations to supply input data
+to REMIND and the iterative EDGE-T script
 }
 \examples{
-\dontrun{ a <- readSource(type="EDGETransport")
+\dontrun{ a <- readSource(type = "EDGETransport")
 }
 }
 \seealso{
 \code{\link{readSource}}
 }
 \author{
-Marianna Rottoli, Alois Dirnaichner
+Johanna Hoppe
 }

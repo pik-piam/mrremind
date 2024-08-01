@@ -12,7 +12,7 @@ calcEU_ReferenceScenario <- function() {
 
   weights <- x
   weights[, , ] <- NA
-  weights[, , "Price|Secondary Energy|Electricity (US$2005/GJ)"] <- 1
+  weights[, , "Price|Secondary Energy|Electricity (EUR2013/GJ)"] <- 1
 
   return(list(
     x = x, weight = weights, mixed_aggregation = TRUE,
