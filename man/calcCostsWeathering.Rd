@@ -13,7 +13,6 @@ transport costs of spreading rock on the fields
 Calculate costs of transport of enhanced weathering
 }
 \examples{
-
 \dontrun{
 calcOutput("CostsWeathering")
 }

@@ -18,8 +18,8 @@ MAgPIE object containing regionally aggregated GEA 2012 data
 Extracts oil, gas and coal data from the GEA 2012 into a scenario- and time-dependent grade structure
 }
 \examples{
-
-\dontrun{ a <- calcOutput("GEA2012")
+\dontrun{
+a <- calcOutput("GEA2012")
 }
 
 }

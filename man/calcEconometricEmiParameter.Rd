@@ -7,8 +7,8 @@
 calcEconometricEmiParameter()
 }
 \value{
-REMIND data forCO2 parameters to calculate baseline emissions of
-waste from population and investment and corresonding weights (population)
+REMIND data for CO2 parameters to calculate baseline emissions of
+waste from population and investment and corresponding weights (population)
 as a list of two MAgPIE objects
 }
 \description{

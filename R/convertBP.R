@@ -11,8 +11,6 @@
 #'
 convertBP <- function(x, subtype) {
 
-  PE <- calcOutput("PE", aggregate = FALSE)
-
   .removeNaRegions <- function(x) {
     remove <- magpply(x, function(y) all(is.na(y)), MARGIN = 1)
     return(x[!remove, , ])
@@ -40,6 +38,7 @@ convertBP <- function(x, subtype) {
     mappingRegions <- mappingFull[mappingFull$Region_name %in% regions &
       !mappingFull$ISO3.code %in% ctry & mappingFull$ISO3.code != "SUN", ]
 
+    PE <- calcOutput("PE", aggregate = FALSE)
     weight <- PE[mappingRegions$ISO3.code, 2014, "PE (EJ/yr)"]
 
     # disaggregation of other regions to iso countries

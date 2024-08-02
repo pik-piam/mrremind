@@ -18,10 +18,8 @@ calculate taxes at primary energy level. Regional aggregation is done via the
 respective energy quantities as weights.
 }
 \examples{
-
 \dontrun{
 calcOutput("PETaxes")
-
 }
 
 }

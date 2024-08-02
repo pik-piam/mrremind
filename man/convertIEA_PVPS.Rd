@@ -4,12 +4,10 @@
 \alias{convertIEA_PVPS}
 \title{Convert IEA PVPS data from REMIND regions to iso countries}
 \usage{
-convertIEA_PVPS(x, subtype)
+convertIEA_PVPS(x)
 }
 \arguments{
 \item{x}{MAgPIE object to be converted}
-
-\item{subtype}{type of data read from IEA PVPS}
 }
 \value{
 Magpie object with IEA PVPS investment cost per country

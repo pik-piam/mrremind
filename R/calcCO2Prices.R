@@ -1,7 +1,17 @@
 calcCO2Prices <- function() {
+
   # read data
   x <- readSource("ExpertGuess", subtype = "co2prices")
   getNames(x) <- NULL
+
+  # convert from $2005 to $2017
+
+  x <- GDPuc::convertGDP(
+    gdp = x,
+    unit_in = "constant 2005 US$MER",
+    unit_out = mrdrivers::toolGetUnitDollar(),
+    replace_NAs = c("linear", "with_USA")
+  )
 
   # read data used for weight
   ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
@@ -12,7 +22,7 @@ calcCO2Prices <- function() {
   return(list(
     x = x,
     weight = ceds,
-    unit = "US$2005/t CO2",
+    unit = "US$2017/t CO2",
     description = "CO2 prices in 2010, 2015 and 2020"
   ))
 }
