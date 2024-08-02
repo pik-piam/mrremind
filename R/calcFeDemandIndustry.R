@@ -951,9 +951,11 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
     mutate(pf = sub("^feelwlth_", "feel_", .data$pf))
 
   ### extend to 2020 using WEO 2021 data ----
-  IEA_WEO_2021_ref_year <- 2020L
+  # valid possibilities in 2023 data: 2021 and 2022
+  IEA_WEO_2023_ref_year <- 2020L
   last_industry_subsectors_en_year <- max(industry_subsectors_en$year)
-  if (IEA_WEO_2021_ref_year > last_industry_subsectors_en_year) {
+
+  if (IEA_WEO_2023_ref_year > last_industry_subsectors_en_year) {
     industry_subsectors_en <- bind_rows(
       industry_subsectors_en,
 
@@ -961,10 +963,9 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
         industry_subsectors_en %>%
           filter(2010 == .data$year),
 
-        readSource(type = "IEA_WorldEnergyOutlook", subtype = "2021-region",
-                   convert = TRUE) %>%
+        readSource(type = "IEA_WorldEnergyOutlook", convert = TRUE) %>%
           magclass_to_tibble(c("iso3c", "year", "scenario", "variable", "industry.FE")) %>%
-          filter(.data$year %in% c(2010, IEA_WEO_2021_ref_year),
+          filter(.data$year %in% c(2010, IEA_WEO_2023_ref_year),
                  "Stated Policies Scenario" == .data$scenario,
                  "Energy-Total-Industry (EJ)" == .data$variable) %>%
           left_join(region_mapping_21, "iso3c") %>%
@@ -978,13 +979,13 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
         "region"
       ) %>%
         mutate(value = .data$value * .data$change,
-               year  = IEA_WEO_2021_ref_year) %>%
+               year  = IEA_WEO_2023_ref_year) %>%
         select(-"change")
     ) %>%
       pivot_wider(names_from = "year") %>%
       mutate(`2015` = (!!sym("2010")
                         + !!sym("2015")
-                        + !!sym(as.character(IEA_WEO_2021_ref_year))
+                        + !!sym(as.character(IEA_WEO_2023_ref_year))
       )
       / 3) %>%
       pivot_longer(matches("^[0-9]*$"), names_to = "year",
