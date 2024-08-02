@@ -163,9 +163,9 @@ calcDiffInvestCosts <- function(subtype) {
 
     x_new <- GDPuc::convertGDP(
       gdp = x_new,
-      unit_in = "constant 2015 Int$PPP",
-      unit_out = "constant 2017 Int$PPP",
-      replace_NAs = "with_USA"
+      unit_in = "constant 2015 US$MER",
+      unit_out = mrdrivers::toolGetUnitDollar(),
+      replace_NAs = c("linear", "with_USA")
     )
 
     return(list(
@@ -177,7 +177,7 @@ calcDiffInvestCosts <- function(subtype) {
 
   } else if (subtype == "Efficiency") {
     x <- readSource("IEA_WEO", subtype = "Efficiency")
-    x[, , ] <- as.numeric(x[, , ]) # convertng data values into numeric
+    x[, , ] <- as.numeric(x[, , ]) # converting data values into numeric
 
     # Various mapping files used to get needed mappings, for e.g., South Asia
     countries <- toolGetMapping("regionmappingREMIND.csv", where = "mappingfolder", type = "regional")

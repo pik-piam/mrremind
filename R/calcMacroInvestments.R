@@ -19,6 +19,6 @@ calcMacroInvestments <- function() {
     x = data,
     weight = NULL,
     unit = "trillion 20017US$",
-    description = "Investments in the macro-economic capital stock in constant 2017 Int$PPP"
+    description = "Investments in the macro-economic capital stock in constant 2017 US$MER"
   ))
 }

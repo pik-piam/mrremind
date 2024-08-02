@@ -109,9 +109,9 @@ calcIndustry_EEK <- function(kap) {
   ## Converting from billion 2012 to trillion 2017 dollars
   EEK <- EEK %>%
     dplyr::rename("value" = "EEK") %>%
-    GDPuc::convertGDP(unit_in = "constant 2012 Int$PPP",
-                      unit_out = "constant 2017 Int$PPP",
-                      replace_NAs = "with_USA") %>%
+    GDPuc::convertGDP(unit_in = "constant 2012 US$MER",
+                      unit_out = mrdrivers::toolGetUnitDollar(),
+                      replace_NAs = c("linear", "with_USA")) %>%
     dplyr::mutate(value = .data$value * 1e-3) %>%
     dplyr::rename("EEK" = "value")
 
