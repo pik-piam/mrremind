@@ -82,6 +82,6 @@ calcCapital <- function() {
   # tie outputs together ----
   list(x = mbind(cap_future, EEK),
        weight = NULL,
-       unit = "trillion 20017US$",
+       unit = "trillion US$2017",
        description = "Capital stock, computed using the capital to GDP ratio from PWT, and GDP scenarios from mrdrivers.")
 }

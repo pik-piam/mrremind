@@ -28,7 +28,7 @@ calcTaxConvergence <- function() {
   return(list(
     x = taxConvergence,
     weight = w,
-    unit = "$/GJ",
+    unit = "US$2017/GJ",
     description = "Tax convergence level for specific regions, year and final energy type"
   ))
 }

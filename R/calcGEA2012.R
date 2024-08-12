@@ -28,7 +28,7 @@ calcGEA2012 <- function(subtype, datatype) {
     w[, , "xi3"] <- NA
     mixed <- TRUE
     # TODO: confirm the unit for cost grades, as it is merely an educated guess
-    unit <- "cost grades (xi1 and xi2) in T US$2017/TWa; quantities (xi3) in TWa"
+    unit <- "cost grades (xi1 and xi2) in trillion US$2017/TWa; quantities (xi3) in TWa"
 
   } else if (subtype == "bounds") {
     # This subtype is used to define region-specific bounds found in the GAMS code of the previous implementation of timeDepGrades

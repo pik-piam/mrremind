@@ -362,6 +362,6 @@ calcIndustry_EEK <- function(kap) {
   return(list(x = EEK %>%
                 as.magpie(spatial = 1, temporal = 2, data = ncol(.)),
               weight = NULL,
-              unit = 'trillion 2017US$',
+              unit = 'trillion US$2017',
               description = 'Industry energy efficiency capital stock'))
 }

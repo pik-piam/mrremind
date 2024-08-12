@@ -21,7 +21,7 @@ calcTaxXport <- function() {
   return(list(
     x = x,
     weight = weight,
-    unit = "$/GJ",
+    unit = "US$2017/GJ",
     description = "resource export taxes, not used in default settings."
   ))
 }

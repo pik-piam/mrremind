@@ -117,7 +117,7 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
 
   return(list(
     x = output, weight = NULL,
-    unit = "tr USD2017/TWa",
+    unit = "trillion US$2017/TWa",
     description = description,
     aggregationFunction = toolCubicFunctionAggregate,
     aggregationArguments = list(xUpperBound = upperBoundMaxExtraction, steepCurve = highCostCurve)

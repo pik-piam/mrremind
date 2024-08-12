@@ -49,5 +49,5 @@ calcPETaxes <- function(subtype = "subsidies") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
-  return(list(x = Rtax, weight = Renergy, unit = "$2017/GJ", description = desc))
+  return(list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc))
 }

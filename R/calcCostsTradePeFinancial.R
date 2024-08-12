@@ -24,7 +24,7 @@ calcCostsTradePeFinancial <- function() {
   return(list(
     x = data,
     weight = w,
-    unit = "T US$2017/TWa",
+    unit = "trillion US$2017/TWa",
     description = "PE tradecosts (financial costs on import, export and use)"
   ))
 }

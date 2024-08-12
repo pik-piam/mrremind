@@ -45,6 +45,6 @@ calcEconometricEmiParameter <- function() {
 
   return(list(x = x,
               weight = pop,
-              unit = "p3 - GtC/Cap, p4 - $US2017/Cap",
+              unit = "p3 - GtC/Cap, p4 - US$2017/Cap",
               description = "CO2 parameters to calculate baseline emissions of waste from population and investment"))
 }

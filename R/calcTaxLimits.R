@@ -53,5 +53,5 @@ calcTaxLimits <- function(subtype) {
   )
 
   # Return tax convergence levels aggregated to selected REMIND regions
-  return(list(x = output, weight = weight, unit = "$/GJ", description = description))
+  return(list(x = output, weight = weight, unit = "US$2017/GJ", description = description))
 }

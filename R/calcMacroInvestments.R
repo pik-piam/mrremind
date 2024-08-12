@@ -18,7 +18,7 @@ calcMacroInvestments <- function() {
   return(list(
     x = data,
     weight = NULL,
-    unit = "trillion 20017US$",
+    unit = "trillion US$2017",
     description = "Investments in the macro-economic capital stock in constant 2017 US$MER"
   ))
 }
