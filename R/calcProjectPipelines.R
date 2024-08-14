@@ -1,7 +1,8 @@
 #' calc Project Pipelines
 #'
-#' Calculate the expected near-term deployment of technologies, for some
-#' technologies multiple sources are available
+#' Calculate the expected near-term deployment of technologies based on
+#' projects that are currently either being built or in a planning stage
+#' for some technologies multiple sources are available
 #'
 #' @author Pascal Weigmann
 #'
@@ -11,9 +12,10 @@
 #' @export
 calcProjectPipelines <- function(subtype) {
   # CCS ####
+  # Discussion about CCS assumptions
+  # https://gitlab.pik-potsdam.de/REMIND/committed/-/issues/1
   if (subtype == "CCS") {
 
-    # TODO: keep "status" dimension and only change later to "variable" only?
     x <- readSource("IEA_CCUS", subtype = "pipeline")
 
     # take away 50% of capacities from Norway and UK and shift to EUR
@@ -36,7 +38,7 @@ calcProjectPipelines <- function(subtype) {
                               from = "EU27_map", to = "CountryCode")
     x[eu27, , ] <- eu27Pool
 
-    # no projects are under way in Brasil which means all thresholds are equal
+    # ASSUMPTION: no projects are under way in Brasil which means all thresholds are equal
     # to avoid this, add manually an upper estimate of what could still be planned in BRA
     x["BRA", 2025:2029, "Carbon Management|Storage.planned"] <-
       x["BRA", 2025:2029, "Carbon Management|Storage.planned"] + 2
@@ -75,6 +77,8 @@ calcProjectPipelines <- function(subtype) {
     description <- "CCS project pipeline from IEA CCUS project database"
 
     # Hydro ####
+    # Discussion about Hydro assumptions
+    # https://gitlab.pik-potsdam.de/REMIND/committed/-/issues/2
   } else if (subtype == "hydro") {
     x <- readSource("GlobalEnergyMonitor")
     x <- x[, , "Hydro", pmatch = T]
