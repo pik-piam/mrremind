@@ -1,7 +1,8 @@
 #' Read Global Energy Monitor data
 #'
+#' read GEM data for all available technologies and relevant statuses
 #'
-#' @author Rahel Mandaroux, Falk Benke
+#' @author Rahel Mandaroux, Falk Benke, Pascal Weigmann
 #'
 #' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
@@ -9,122 +10,90 @@
 #'
 #' @export
 readGlobalEnergyMonitor <- function() {
-  notebooks <- list(
-    "Bioenergy" = list(
-      file = "Global-Bioenergy-Power-Tracker-January-2023.xlsx",
-      variable = "Cap|Electricity|Biomass",
-      statusCol = "Operating Status"
-    ),
-    "Hydropower" = list(
-      file = "Global-Hydropower-Tracker-May-2023.xlsx",
-      variable = "Cap|Electricity|Hydro",
-      # Hydro Power might affect 2 countries, we assign it to the first one
-      countryCol = "Country 1",
-      startCol = "Start Year",
-      endCol = "Retired Year"
-    ),
-    "Nuclear" = list(
-      file = "Global-Nuclear-Power-Tracker-January-2023.xlsx",
-      variable = "Cap|Electricity|Nuclear",
-      startCol = "Start Year",
-      endCol = "Retired Year"
-    ),
-    "Solar" = list(
-      file = "Global-Solar-Power-Tracker-May-2023.xlsx",
-      variable = "Cap|Electricity|Solar"
-    ),
-    "Wind Offshore" = list(
-      file = "Global-Wind-Power-Tracker-May-2023.xlsx",
-      variable = "Cap|Electricity|Wind|Offshore",
-      typeCol = "Installation Type",
-      typeVals = c("offshore hard mount", "offshore mount unknown", "offshore floating")
-    ),
-    "Wind Onshore" = list(
-      file = "Global-Wind-Power-Tracker-May-2023.xlsx",
-      variable = "Cap|Electricity|Wind|Onshore",
-      typeCol = "Installation Type",
-      typeVals = c("onshore")
-    ),
-    "Coal" = list(
-      file = "Global-Coal-Plant-Tracker-July-2023.xlsx",
-      variable = "Cap|Coal",
-      sheetName = "Units",
-      projectCol = "Plant name"
+  # GEM GIPT 2024
+  # file available after filling out questionnaire:
+  # https://globalenergymonitor.org/projects/global-integrated-power-tracker/download-data/
+  d <- read_excel("Global-Integrated-Power-June-2024.xlsx",
+                  sheet = "Power facilities",
+                  trim_ws = TRUE,
+                  col_types = "text") %>%
+    select(variable = "Type",
+           tech = "Technology",
+           region = "Country/area",
+           value = "Capacity (MW)",
+           status = "Status",
+           start = "Start year",
+           end = "Retired year") %>%
+    filter(status %in% c("announced", "pre-construction", "construction", "operating")) %>%
+    # ASSUMPTION: rows with empty start year are ignored
+    # only look at pipeline until 2030
+    filter(!is.na(start), start < 2031) %>%
+    # Oil/Gas needs to be separated by technology or fuel (seems complicated?)
+    # remove for now
+    filter(variable != "oil/gas") %>%
+    mutate(start = as.numeric(start), end = as.numeric(end), value = as.numeric(value))
+
+  # no end year defined:
+  # use average lifetime of technology (from generisdata_tech)
+  lifetime <- c(coal = 40, bioenergy = 40, nuclear = 50, hydropower = 130,
+                geothermal = 30, wind = 25, solar = 30)
+  for (tech in names(lifetime)) {
+    d[is.na(d$end) & d$variable == tech, "end"] <-
+      d[is.na(d$end) & d$variable == tech, "start"] + lifetime[[tech]]
+  }
+
+  # use proper variable names
+  d[d$variable == "coal", "variable"]       <- "Cap|Electricity|Coal"
+  d[d$variable == "bioenergy", "variable"]  <- "Cap|Electricity|Biomass"
+  d[d$variable == "nuclear", "variable"]    <- "Cap|Electricity|Nuclear"
+  # pumped storage would be available as tech category if differentiation needed
+  d[d$variable == "hydropower", "variable"] <- "Cap|Electricity|Hydro"
+  d[d$variable == "geothermal", "variable"] <- "Cap|Electricity|Geothermal"
+
+  # separate wind into on- and offshore, "Unknown"/"blank" are all onshore
+  offshore_tech <-  c("Offshore hard mount", "Offshore floating", "Offshore mount unknown")
+  d[d$variable == "wind" & d$tech %in% offshore_tech, "variable"] <- "Cap|Electricity|Wind|Offshore"
+  d[d$variable == "wind", "variable"] <- "Cap|Electricity|Wind|Onshore"
+
+  # separate solar into PV and CSP (called "Solar Thermal" by GEM)
+  d[d$variable == "solar" & d$tech == "Solar Thermal", "variable"] <- "Cap|Electricity|Solar|CSP"
+  d[d$variable == "solar", "variable"] <- "Cap|Electricity|Solar|PV"
+
+  # transform data from list of capacities with start and end date
+  # to sum of active capacities in 2025 and 2030
+  d <- mutate(d, end = pmin(end, 2030))  # improves performance of next step
+  tmp_list <- vector("list", nrow(d))
+  for (i in seq_len(nrow(d))) {
+    tmp_list[[i]] <- data.frame(
+      d[i, c("region", "value", "variable", "status")],
+      period = seq(as.numeric(d[i, "start"]), as.numeric(d[i, "end"]), 1)
     )
+  }
+  tmp <- do.call(rbind, tmp_list) %>%
+    group_by(region, variable, status, period) %>%
+    summarise(value = sum(value)) %>%
+    filter(period %in% c(2025, 2030))
+
+  # convert to magclass object
+  x <- as.magpie(tmp, spatial = "region")
+  x[is.na(x)] <- 0
+
+  # add solar and wind totals as variables
+  x <- mbind(
+    x,
+    dimSums(x[, , c("Cap|Electricity|Solar|PV", "Cap|Electricity|Solar|CSP")], dim = 3.1) %>%
+      add_dimension(dim = 3.1, add = "variable", nm = "Cap|Electricity|Solar"),
+    dimSums(x[, , c("Cap|Electricity|Wind|Offshore", "Cap|Electricity|Wind|Onshore")], dim = 3.1) %>%
+      add_dimension(dim = 3.1, add = "variable", nm = "Cap|Electricity|Wind")
   )
 
-  out <- NULL
+  # collapse variable and status dimension into one
+  # getNames(x) <- gsub(pattern = "\\.", replacement = "|", x = getNames(x))
 
-  for (nb in notebooks) {
-    cols <- c(
-      "region" = ifelse(is.null(nb$countryCol), "Country", nb$countryCol),
-      "project" = ifelse(is.null(nb$projectCol), "Project Name", nb$projectCol),
-      "value" = "Capacity (MW)",
-      "status" = ifelse(is.null(nb$statusCol), "Status", nb$statusCol),
-      "start" = ifelse(is.null(nb$startCol), "Start year", nb$startCol),
-      "end" = ifelse(is.null(nb$endCol), "Retired year", nb$endCol)
-    )
-
-    if (!is.null(nb$typeCol)) {
-      cols <- c(cols, "type" = nb$typeCol)
-    }
-
-    data <- read_excel(
-      path = nb$file,
-      sheet = ifelse(is.null(nb$sheetName), "Data", nb$sheetName),
-      trim_ws = TRUE, col_types = "text"
-    ) %>%
-      select(all_of(cols)) %>%
-      mutate(
-        "value" = as.numeric(!!sym("value")),
-        "start" = as.numeric(!!sym("start")),
-        "end" = as.numeric(!!sym("end"))
-      )
-
-    if (!is.null(nb$typeCol)) {
-      data <- data %>%
-        filter(
-          !!sym("type") %in% nb$typeVals
-        ) %>%
-        select(-"type")
-    }
-
-
-    # read in completed projects
-    completed <- data %>% filter(!is.na(!!sym("start")), !is.na(!!sym("end")))
-
-    # read in projects with start year and no retirement, as well as a status
-    # indicating probable realization, assume them running until 2050
-    # rows with empty start year are ignored
-    status <- c("announced", "pre-construction", "construction", "operating")
-    ongoing <- data %>%
-      filter(
-        !is.na(!!sym("start")), is.na(!!sym("end")),
-        !!sym("status") %in% status
-      ) %>%
-      mutate("end" = 2050)
-
-    production <- rbind(completed, ongoing)
-    tmp <- NULL
-    for (i in seq_len(nrow(production))) {
-      d <- data.frame(
-        production[i, c("region", "value", "project")],
-        period = seq(as.numeric(production[i, "start"]), as.numeric(production[i, "end"]), 1)
-      )
-      tmp <- rbind(tmp, d)
-    }
-    cap <- aggregate(value ~ region + period, data = tmp, FUN = sum) %>%
-      mutate("variable" = nb$variable) %>%
-      select("region", "period", "variable", "value")
-
-    out <- rbind(out, cap)
-  }
-  x <- as.magpie(out, spatial = 1)
-
-  # convert to GW
+  # convert MW to GW
   x <- x / 1000
-  x <- add_dimension(x, dim = 3.2, add = "unit", nm = "GW")
-  x <- add_dimension(x, dim = 3.1, add = "model", nm = "Global Energy Monitor")
+  x <- add_dimension(x, dim = 3.4, add = "unit", nm = "GW")
+  x <- add_dimension(x, dim = 3.1, add = "model", nm = "GlobalEnergyMonitor")
 
   return(x)
 }
