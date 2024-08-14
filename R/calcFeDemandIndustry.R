@@ -950,54 +950,8 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
   industry_subsectors_en <- industry_subsectors_en %>%
     mutate(pf = sub("^feelwlth_", "feel_", .data$pf))
 
-  ### extend to 2020 using WEO 2021 data ----
-  # valid possibilities in 2023 data: 2021 and 2022
-  IEA_WEO_2023_ref_year <- 2020L
-  last_industry_subsectors_en_year <- max(industry_subsectors_en$year)
 
-  if (IEA_WEO_2023_ref_year > last_industry_subsectors_en_year) {
-    industry_subsectors_en <- bind_rows(
-      industry_subsectors_en,
-
-      inner_join(
-        industry_subsectors_en %>%
-          filter(2010 == .data$year),
-
-        readSource(type = "IEA_WorldEnergyOutlook", convert = TRUE) %>%
-          magclass_to_tibble(c("iso3c", "year", "scenario", "variable", "industry.FE")) %>%
-          filter(.data$year %in% c(2010, IEA_WEO_2023_ref_year),
-                 "Stated Policies Scenario" == .data$scenario,
-                 "Energy-Total-Industry (EJ)" == .data$variable) %>%
-          left_join(region_mapping_21, "iso3c") %>%
-          group_by(!!!syms(c("region", "year"))) %>%
-          summarise(industry.FE = sum(.data$industry.FE, na.rm = TRUE),
-                    .groups = "drop_last") %>%
-          summarise(change = last(.data$industry.FE, order_by = .data$year)
-                    / first(.data$industry.FE, order_by = .data$year),
-                    .groups = "drop"),
-
-        "region"
-      ) %>%
-        mutate(value = .data$value * .data$change,
-               year  = IEA_WEO_2023_ref_year) %>%
-        select(-"change")
-    ) %>%
-      pivot_wider(names_from = "year") %>%
-      mutate(`2015` = (!!sym("2010")
-                        + !!sym("2015")
-                        + !!sym(as.character(IEA_WEO_2023_ref_year))
-      )
-      / 3) %>%
-      pivot_longer(matches("^[0-9]*$"), names_to = "year",
-                   names_transform = list(year = as.integer)) %>%
-      interpolate_missing_periods_(periods = list(year = seq_range(range(.$year)))) %>%
-      assert(not_na, everything()) %>%
-      verify(is.finite(.data$value))
-
-    FE_alpha_mod <- 0.9   # found by fiddling around
-  } else {
-    FE_alpha_mod <- 1
-  }
+  FE_alpha_mod <- 1
 
   ### calculate 1993-2020 industry subsector FE shares ----
   industry_subsectors_en_shares <- industry_subsectors_en %>%
