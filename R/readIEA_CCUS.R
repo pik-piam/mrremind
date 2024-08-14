@@ -160,24 +160,24 @@ readIEA_CCUS <- function(subtype) {
                        data = filter(tmp, .data$status %in% "Operational"),
                        FUN = sum
     ) %>%
-      mutate(variable = "Carbon Management|Storage|operational")
+      mutate(status = "operational")
 
     capCon <- aggregate(value ~ country + period,
                         data = filter(tmp, .data$status %in% "Under construction"),
                         FUN = sum
     ) %>%
-      mutate(variable = "Carbon Management|Storage|construction")
+      mutate(status = "construction")
 
     capPlan <- aggregate(value ~ country + period,
                          data = filter(tmp, .data$status %in% "Planned"),
                          FUN = sum
     ) %>%
-      mutate(variable = "Carbon Management|Storage|planned")
+      mutate(status = "planned")
 
-    cap <- rbind(capOp, capCon, capPlan)
-    cap <- cap[, c("country", "period", "variable", "value")]
+    cap <- rbind(capOp, capCon, capPlan) %>%
+      mutate(variable = "Carbon Management|Storage")
+    cap <- cap[, c("country", "period", "variable", "status", "value")]
     x <- as.magpie(cap, spatial = 1)
-    x <- x[, c(2020, 2025, 2030), ]
 
   } else {
     stop("Invalid subtype. Must be either
