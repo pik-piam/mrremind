@@ -46,8 +46,16 @@ exportThresholds <- function(type = "config", years = NULL) {
                     aggregate = columnsForAggregation, round = 3,
                     warnNA = FALSE, try = FALSE, years = years)
 
+  wind <- calcOutput("ProjectPipelines", subtype = "wind",
+                      aggregate = columnsForAggregation, round = 3,
+                      warnNA = FALSE, try = FALSE, years = years)
+
+  solar <- calcOutput("ProjectPipelines", subtype = "solar",
+                      aggregate = columnsForAggregation, round = 3,
+                      warnNA = FALSE, try = FALSE, years = years)
+
   # combine and export data to madrat output folder
-  out <- mbind(ccs, hydro)
+  out <- mbind(ccs, hydro, wind, solar)
   if (type == "full") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"
