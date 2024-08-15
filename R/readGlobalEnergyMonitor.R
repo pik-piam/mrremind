@@ -23,7 +23,12 @@ readGlobalEnergyMonitor <- function() {
            value = "Capacity (MW)",
            status = "Status",
            start = "Start year",
-           end = "Retired year") %>%
+           end = "Retired year",
+           # hydropower specific columns for shared projects
+           c1 = "Country/area 1 (hydropower only)",
+           c2 = "Country/area 2 (hydropower only)",
+           v1 = "Country/area 1 Capacity (MW) (hydropower only)",
+           v2 = "Country/area 2 Capacity (MW) (hydropower only)") %>%
     filter(status %in% c("announced", "pre-construction", "construction", "operating")) %>%
     # ASSUMPTION: rows with empty start year are ignored
     # only look at pipeline until 2030
@@ -42,13 +47,24 @@ readGlobalEnergyMonitor <- function() {
       d[is.na(d$end) & d$variable == tech, "start"] + lifetime[[tech]]
   }
 
+  # special case hydropower: some projects are divided between 2 countries
+  # find all of these cases and put them in 2 rows, one per country
+  d <- rbind(
+    d[is.na(d$c2), ],
+    d[!is.na(d$c2), ] %>% mutate(region = c1, value = as.numeric(v1)),
+    d[!is.na(d$c2), ] %>% mutate(region = c2, value = as.numeric(v2))
+    ) %>%
+    select(-c1, -c2, -v1, -v2)
+
   # use proper variable names
   d[d$variable == "coal", "variable"]       <- "Cap|Electricity|Coal"
   d[d$variable == "bioenergy", "variable"]  <- "Cap|Electricity|Biomass"
   d[d$variable == "nuclear", "variable"]    <- "Cap|Electricity|Nuclear"
-  # pumped storage would be available as tech category if differentiation needed
-  d[d$variable == "hydropower", "variable"] <- "Cap|Electricity|Hydro"
   d[d$variable == "geothermal", "variable"] <- "Cap|Electricity|Geothermal"
+
+  # remove pumped storage, keep ca. 3 GW of "conventional and pumped storage"
+  d <- d[!d$tech %in% "pumped storage", ]
+  d[d$variable == "hydropower", "variable"] <- "Cap|Electricity|Hydro"
 
   # separate wind into on- and offshore, "Unknown"/"blank" are all onshore
   offshore_tech <-  c("Offshore hard mount", "Offshore floating", "Offshore mount unknown")

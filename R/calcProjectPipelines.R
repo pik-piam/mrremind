@@ -80,6 +80,7 @@ calcProjectPipelines <- function(subtype) {
     # Discussion about Hydro assumptions
     # https://gitlab.pik-potsdam.de/REMIND/committed/-/issues/2
   } else if (subtype == "hydro") {
+    # without pumped storage
     x <- readSource("GlobalEnergyMonitor")
     x <- x[, , "Hydro", pmatch = T]
 
