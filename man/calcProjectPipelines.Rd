@@ -11,8 +11,9 @@ calcProjectPipelines(subtype)
 `nuclear`, `solar`, `wind` or `CCS`}
 }
 \description{
-Calculate the expected near-term deployment of technologies, for some
-technologies multiple sources are available
+Calculate the expected near-term deployment of technologies based on
+projects that are currently either being built or in a planning stage
+for some technologies multiple sources are available
 }
 \author{
 Pascal Weigmann
