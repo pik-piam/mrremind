@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcGlobalEnergyMonitor.R
 \name{calcGlobalEnergyMonitor}
 \alias{calcGlobalEnergyMonitor}
-\title{Calculate REMIND variables from Global Energy Monitor}
+\title{Calc capacities from Global Energy Monitor}
 \usage{
 calcGlobalEnergyMonitor()
 }
@@ -10,7 +10,7 @@ calcGlobalEnergyMonitor()
 A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
-Calculate REMIND variables from Global Energy Monitor
+Calculate near-term expectations of capacities for use in fullVALIDATION.R
 }
 \author{
 Falk Benke
