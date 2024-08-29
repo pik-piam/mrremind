@@ -15,6 +15,8 @@ convertIEA_WorldEnergyOutlook <- function(x) { # nolint
     type = "regional", where = "mrremind"
   )
 
+  pe <- calcOutput("PE", aggregate = FALSE)
+
   .disaggregateRegions <- function(xIn, regionsIn) {
     x <- .removeNaRegions(xIn)
 
@@ -47,7 +49,6 @@ convertIEA_WorldEnergyOutlook <- function(x) { # nolint
       regions <- setdiff(regions, coveredRegions)
     }
 
-    pe <- calcOutput("PE", aggregate = FALSE)
     weight <- pe[mappingRegions$ISO3.code, 2014, "PE (EJ/yr)"]
 
     # disaggregation of other regions to ISO countries

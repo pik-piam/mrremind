@@ -4,11 +4,7 @@
 \alias{calcIEA_WorldEnergyOutlook}
 \title{Calculate REMIND variables from IEA World Energy Outlook data.}
 \usage{
-calcIEA_WorldEnergyOutlook(version = "latest")
-}
-\arguments{
-\item{version}{of the WEO data, either 'default' (full paid version) or
-'latest' (free, restricted, up-to-date dataset)}
+calcIEA_WorldEnergyOutlook()
 }
 \description{
 Calculate REMIND variables from IEA World Energy Outlook data.
