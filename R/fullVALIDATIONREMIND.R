@@ -195,7 +195,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "IEA CCUS")
+    writeArgs = list(scenario = "historical")
   )
 
   # INNOPATHS ----

@@ -250,14 +250,11 @@ calcProjectPipelines <- function(subtype) {
                         "GlobalEnergyMonitor.Cap|Electricity|Wind.max_red.GW")
     )
 
-
     # meta data
     unit <- "GW"
     description <- "Wind project pipeline from GEM"
 
   }
-
-  x <- x[ ,c(2025, 2030), ]
 
   return(list(
     x = x,

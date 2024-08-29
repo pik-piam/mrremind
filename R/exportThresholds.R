@@ -6,10 +6,14 @@
 #' @author Pascal Weigmann
 #' @param type choose either "config" to export thresholds as used in the
 #'        validationConfig or "full" to export all pipeline data
-#' @param years choose years to include, currenty only 2025 and 2030 are
-#'        available, if NULL uses all available years
+#' @param years choose years to include, currently only 2025 and 2030 are
+#'        available for all sources
 #' @export
-exportThresholds <- function(type = "config", years = NULL) {
+exportThresholds <- function(type = "config", years = c(2025, 2030)) {
+  # extra regions for ELEVATE
+  # setConfig(regionmapping = "regionmappingR10_elevate.csv")
+  # setConfig(forcecache = "GDP")
+  # extraRegions <- c("CHN", "IND", "IDN", "VNM", "PAK")
 
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
@@ -55,7 +59,12 @@ exportThresholds <- function(type = "config", years = NULL) {
                       warnNA = FALSE, try = FALSE, years = years)
 
   # combine and export data to madrat output folder
+
   out <- mbind(ccs, hydro, wind, solar)
+  # remove ROW region, in case it exists
+  out <- out["ROW", , invert = TRUE]
+
+  # export
   if (type == "full") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"
@@ -70,10 +79,15 @@ exportThresholds <- function(type = "config", years = NULL) {
     # write report containing only the "min/max" thresholds in extra columns
     # (as used in a validationConfig)
     outfile <- "thresholds.mif"
-    out[, , c("min_", "max_"), pmatch = TRUE] %>%
+    out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       as.quitte() %>%
       pivot_wider(names_from = "status") %>%
-      select(-scenario) %>%
+      select(-scenario)
+    # exclude rows without any threshold
+    out[!(is.na(out$min_red)
+          & is.na(out$min_yel)
+          & is.na(out$max_yel)
+          & is.na(out$max_red)), ] %>%
       write.csv(file = paste0(getConfig("outputfolder"), "/", outfile),
                 row.names = FALSE, quote = FALSE)
 
