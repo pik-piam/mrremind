@@ -64,7 +64,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
   # subtype switchboard ----
   switchboard <- list(
     'FE' = function() {
-      read_csv(file = file.path(path, 'specific_FE.csv'),
+      read_csv(file = file.path(path, 'specific_FE.SSP3.csv'),
                col_types = 'cccd',
                comment = '#',
                progress = FALSE) %>%
