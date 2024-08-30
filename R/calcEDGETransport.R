@@ -27,7 +27,7 @@ calcEDGETransport <- function(subtype) {
            weight[weightSum == 0, value := 1]
            weight[, c("RegionCode", "weightSum") := NULL]
            weight <- as.magpie(weight)
-           unit = "2005US$/(p|t)km"
+           unit = "2017US$/(p|t)km"
            description = "Capital cost (purchase) per energy service demand on CES level."
          },
          "f35_fe2es" = {
@@ -59,7 +59,7 @@ calcEDGETransport <- function(subtype) {
          "CAPEXandNonFuelOPEX" = {
            gdp <- calcOutput("GDP", aggregate = FALSE)[,,"gdp_SSP2"]
            weight = gdp |> time_interpolate(getYears(x))
-           unit = "2005US$/(p|t)km"
+           unit = "2017US$/(p|t)km"
            description = "Capital cost (purchase) and non-fuel operational costs on technology level."
          },
          "scenSpecPrefTrends" = {
@@ -83,7 +83,7 @@ calcEDGETransport <- function(subtype) {
          "initialIncoCosts" = {
            gdp <- calcOutput("GDP", aggregate = FALSE)[,,"gdp_SSP2"]
            weight = gdp |> time_interpolate(getYears(x))
-           unit = "2005US$/(p|t)km"
+           unit = "2017US$/(p|t)km"
            description = "Initial inconvenience cost values."
          },
          "annualMileage" = {
@@ -95,7 +95,7 @@ calcEDGETransport <- function(subtype) {
          "timeValueCosts" = {
            gdp <- calcOutput("GDP", aggregate = FALSE)[,,"gdp_SSP2"]
            weight = gdp |> time_interpolate(getYears(x))
-           unit = "2005US$/(p|t)km"
+           unit = "2017US$/(p|t)km"
            description = "Value of time cost equivalent."
          }
        )
