@@ -16,7 +16,13 @@ production in total steel production and years between which a linear
 convergence from historic to target shares is to be applied.
 \item \code{cement_production_convergence_parameters}: convergence year and level
 (relative to global average) to which per-capita cement demand converges
-\item Any of the others nobody cared to document.
+\item \code{ies}
+\item \code{prtp}
+\item \code{CCSbounds}
+\item \code{costsTradePeFinancial}
+\item \code{tradeContsraints}: parameter by Nicolas Bauer (2024) for the region
+specific trade constraints, values different to 1 activate constraints
+and the value is used as effectiveness to varying degrees such as percentage numbers
 }}
 }
 \value{
@@ -26,8 +32,8 @@ magpie object of the data
 Read-in data that are based on expert guess
 }
 \examples{
-
-\dontrun{ a <- readSource(type="ExpertGuess",subtype="ies")
+\dontrun{
+a <- readSource(type = "ExpertGuess", subtype = "ies")
 }
 
 }
