@@ -9,7 +9,7 @@
 #' @param years choose years to include, currenty only 2025 and 2030 are
 #'        available, if NULL uses all available years
 #' @export
-exportThresholds <- function(type = "config", years = NULL) {
+fullTHRESHOLDS <- function(type = "config", years = NULL) {
 
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
@@ -17,7 +17,7 @@ exportThresholds <- function(type = "config", years = NULL) {
   rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
     columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
+      colnames(toolGetMapping(mapping, "regional", where = "mappingfolder")),
       c("X", "CountryCode")
     )
 
@@ -43,8 +43,8 @@ exportThresholds <- function(type = "config", years = NULL) {
                     warnNA = FALSE, try = FALSE, years = years)
 
   hydro <- calcOutput("ProjectPipelines", subtype = "hydro",
-                    aggregate = columnsForAggregation, round = 3,
-                    warnNA = FALSE, try = FALSE, years = years)
+                      aggregate = columnsForAggregation, round = 3,
+                      warnNA = FALSE, try = FALSE, years = years)
 
   # combine and export data to madrat output folder
   out <- mbind(ccs, hydro)
@@ -53,10 +53,10 @@ exportThresholds <- function(type = "config", years = NULL) {
     # thresholds attached to "variable"
     outfile <- "pipelines.mif"
     as.quitte(out) %>%
-      mutate(variable = paste(variable, status, sep = "|")) %>%
-      select(-scenario, -status) %>%
+      mutate("variable" = paste(.data$variable, .data$status, sep = "|")) %>%
+      select(-"scenario", -"status") %>%
       as.magpie() %>%
-      write.report(file = paste0(getConfig("outputfolder"), "/", outfile))
+      write.report(file = outfile)
 
   } else if (type == "config") {
     # write report containing only the "min/max" thresholds in extra columns
@@ -65,9 +65,8 @@ exportThresholds <- function(type = "config", years = NULL) {
     out[, , c("min_", "max_"), pmatch = TRUE] %>%
       as.quitte() %>%
       pivot_wider(names_from = "status") %>%
-      select(-scenario) %>%
-      write.csv(file = paste0(getConfig("outputfolder"), "/", outfile),
-                row.names = FALSE, quote = FALSE)
+      select(-"scenario") %>%
+      write.csv(file = outfile, row.names = FALSE, quote = FALSE)
 
   } else {
     warning("`type` must be either `full` or `config`")
