@@ -1,3 +1,5 @@
+#' Calculate expert guesses
+#'
 #' @author Falk Benke
 #'
 #' @param subtype must be 'tradeConstraints' (more to come)
