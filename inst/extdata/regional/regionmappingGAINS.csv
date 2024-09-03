@@ -1,0 +1,251 @@
+CountryName;CountryCode;RegionCode;RegionName;;;;
+Aruba                                   ;ABW;4 Rest Central America;Rest Central America;;Aruba;ABW;LAM
+Afghanistan                                ;AFG;25 Rest South Asia;Rest South Asia;;Afghanistan;AFG;OAS
+Angola;AGO;8 Western Africa;Western Africa;Added manually by JH;Angola;AGO;AFR
+Anguilla                                ;AIA;4 Rest Central America;Rest Central America;;Anguilla;AIA;LAM
+Aland Islands;ALA;11 Western Europe;Western Europe;Added manually by JH;Aland Islands;ALA;EUR
+Albania                                         ;ALB;12 Central Europe;Central Europe;;Albania;ALB;ROW
+Andorra                                     ;AND;11 Western Europe;Western Europe;;Andorra;AND;ROW
+Netherlands Antilles                    ;ANT;4 Rest Central America;Rest Central America;Removed afterwards in R scripts;;;
+United Arab Emirates                    ;ARE;17 Middle East;Middle East;;United Arab Emirates;ARE;MEA
+Argentina;ARG;6 Rest South America;Rest South America;;Argentina;ARG;LAM
+Armenia                                         ;ARM;16 Russia +;Russia +;;Armenia;ARM;MEA
+American Samoa                          ;ASM;24 Oceania;Oceania;;American Samoa;ASM;OAS
+Antarctica;ATA;;;Set to 0 afterwards in R scripts;Antarctica;ATA;ROW
+French Southern Territories             ;ATF;24 Oceania;Oceania;;French Southern Territories;ATF;OAS
+Antigua and Barbuda                       ;ATG;4 Rest Central America;Rest Central America;;Antigua and Barbuda;ATG;LAM
+Australia                               ;AUS;24 Oceania;Oceania;;Australia;AUS;ROW
+Austria                                         ;AUT;11 Western Europe;Western Europe;;Austria;AUT;EUR
+Azerbaijan;AZE;16 Russia +;Russia +;;Azerbaijan;AZE;MEA
+Burundi                                         ;BDI;8 Western Africa;Eastern Africa;;Burundi;BDI;AFR
+Belgium                                          ;BEL;11 Western Europe;Western Europe;;Belgium;BEL;EUR
+Benin                                           ;BEN;8 Western Africa;Western Africa;;Benin;BEN;AFR
+Bonaire Sint Eustatius and Saba;BES;4 Rest Central America;Rest Central America;Added manually by JH;Bonaire Sint Eustatius and Saba;BES;LAM
+Burkina Faso                            ;BFA;8 Western Africa;Western Africa;;Burkina Faso;BFA;AFR
+Bangladesh;BGD;25 Rest South Asia;Rest South Asia;;Bangladesh;BGD;OAS
+Bulgaria                                        ;BGR;12 Central Europe;Central Europe;;Bulgaria;BGR;EUR
+Bahrain                                            ;BHR;17 Middle East;Middle East;;Bahrain;BHR;MEA
+Bahamas                                 ;BHS;4 Rest Central America;Rest Central America;;Bahamas;BHS;LAM
+Bosnia and Herzegovina                          ;BIH;12 Central Europe;Central Europe;;Bosnia and Herzegovina;BIH;ROW
+Saint Barthelemy;BLM;4 Rest Central America;Rest Central America;Added manually by JH;Saint Barthelemy;BLM;LAM
+Belarus                                         ;BLR;14 Ukraine +;Ukraine +;;Belarus;BLR;ROW
+Belize                                  ;BLZ;4 Rest Central America;Rest Central America;;Belize;BLZ;LAM
+Bermuda                                 ;BMU;4 Rest Central America;Rest Central America;;Bermuda;BMU;LAM
+Bolivia;BOL;6 Rest South America;Rest South America;;Bolivia Plurinational State of;BOL;LAM
+Brazil                               ;BRA;5 Brazil;Brazil;;Brazil;BRA;LAM
+Barbados                                ;BRB;4 Rest Central America;Rest Central America;;Barbados;BRB;LAM
+Brunei Darussalam                       ;BRN;21 Southeastern Asia;Southeastern Asia;;Brunei Darussalam;BRN;OAS
+Bhutan                                           ;BTN;25 Rest South Asia;Rest South Asia;;Bhutan;BTN;OAS
+Bouvet Island;BVT;6 Rest South America;Rest South America;;Bouvet Island;BVT;ROW
+Botswana                                        ;BWA;8 Western Africa;Rest Southern Africa;;Botswana;BWA;AFR
+Central African Republic                ;CAF;8 Western Africa;Western Africa;;Central African Republic;CAF;AFR
+Canada                                  ;CAN;1 Canada;Canada;;Canada;CAN;ROW
+Cocos (Keeling) Islands                 ;CCK;24 Oceania;Oceania;;Cocos (Keeling) Islands;CCK;OAS
+Switzerland;CHE;11 Western Europe;Western Europe;;Switzerland;CHE;ROW
+Chile                                           ;CHL;6 Rest South America;Rest South America;;Chile;CHL;LAM
+China;CHN;20 China +;China +;;China;CHN;CHN
+Côte d'Ivoire                                    ;CIV;8 Western Africa;Western Africa;;Cote d Ivoire;CIV;AFR
+Cameroon                                        ;CMR;8 Western Africa;Western Africa;;Cameroon;CMR;AFR
+Congo, the Democratic Republic of the;COD;8 Western Africa;Western Africa;;Congo the Democratic Republic of the;COD;AFR
+Congo                                       ;COG;8 Western Africa;Western Africa;;Congo;COG;AFR
+Cook Islands                            ;COK;24 Oceania;Oceania;;Cook Islands;COK;OAS
+Colombia                                        ;COL;6 Rest South America;Rest South America;;Colombia;COL;LAM
+Comoros                     ;COM;8 Western Africa;Eastern Africa;;Comoros;COM;AFR
+Cape Verde                                      ;CPV;8 Western Africa;Western Africa;;Cape Verde;CPV;AFR
+Costa Rica                                      ;CRI;4 Rest Central America;Rest Central America;;Costa Rica;CRI;LAM
+Cuba                                            ;CUB;4 Rest Central America;Rest Central America;;Cuba;CUB;LAM
+Curacao;CUW;4 Rest Central America;Rest Central America;Added manually by JH;Curacao;CUW;LAM
+Christmas Island                        ;CXR;24 Oceania;Oceania;;Christmas Island;CXR;OAS
+Cayman Islands                          ;CYM;4 Rest Central America;Rest Central America;;Cayman Islands;CYM;LAM
+Cyprus                                          ;CYP;12 Central Europe;Central Europe;;Cyprus;CYP;EUR
+Czech Republic                          ;CZE;12 Central Europe;Central Europe;;Czech Republic;CZE;EUR
+Germany                                 ;DEU;11 Western Europe;Western Europe;;Germany;DEU;EUR
+Djibouti                                        ;DJI;8 Western Africa;Eastern Africa;;Djibouti;DJI;AFR
+Dominica                                    ;DMA;4 Rest Central America;Rest Central America;;Dominica;DMA;LAM
+Denmark                                          ;DNK;11 Western Europe;Western Europe;;Denmark;DNK;EUR
+Dominican Republic                      ;DOM;4 Rest Central America;Rest Central America;;Dominican Republic;DOM;LAM
+Algeria                      ;DZA;7 Northern Africa;Northern Africa;;Algeria;DZA;MEA
+Ecuador                                         ;ECU;6 Rest South America;Rest South America;;Ecuador;ECU;LAM
+Egypt                                      ;EGY;7 Northern Africa;Northern Africa;;Egypt;EGY;MEA
+Eritrea                                 ;ERI;8 Western Africa;Eastern Africa;;Eritrea;ERI;AFR
+Western Sahara                          ;ESH;7 Northern Africa;Northern Africa;;Western Sahara;ESH;MEA
+Spain                                            ;ESP;11 Western Europe;Western Europe;;Spain;ESP;EUR
+Estonia                                         ;EST;12 Central Europe;Central Europe;;Estonia;EST;EUR
+Ethiopia;ETH;8 Western Africa;Eastern Africa;;Ethiopia;ETH;AFR
+Finland                                         ;FIN;11 Western Europe;Western Europe;;Finland;FIN;EUR
+Fiji                                            ;FJI;24 Oceania;Oceania;;Fiji;FJI;OAS
+Falklands Islands (Malvinas);FLK;6 Rest South America;Rest South America;;Falkland Islands (Malvinas);FLK;LAM
+France;FRA;11 Western Europe;Western Europe;;France;FRA;EUR
+Faroe Islands;FRO;11 Western Europe;Western Europe;;Faroe Islands;FRO;EUR
+Micronesia, Federated States of;FSM;24 Oceania;Oceania;;Micronesia Federated States of;FSM;OAS
+Gabon;GAB;8 Western Africa;Western Africa;;Gabon;GAB;AFR
+United Kingdom;GBR;11 Western Europe;Western Europe;;United Kingdom;GBR;EUR
+Georgia                                 ;GEO;16 Russia +;Russia +;;Georgia;GEO;MEA
+Guernsey;GGY;11 Western Europe;Western Europe;Added manually by JH;Guernsey;GGY;ROW
+Ghana                                           ;GHA;8 Western Africa;Western Africa;;Ghana;GHA;AFR
+Gibraltar                               ;GIB;11 Western Europe;Western Europe;;Gibraltar;GIB;EUR
+Guinea                                          ;GIN;8 Western Africa;Western Africa;;Guinea;GIN;AFR
+Guadeloupe                              ;GLP;4 Rest Central America;Rest Central America;;Guadeloupe;GLP;LAM
+Gambia                                      ;GMB;8 Western Africa;Western Africa;;Gambia;GMB;AFR
+Guinea-Bissau                                   ;GNB;8 Western Africa;Western Africa;;Guinea-Bissau;GNB;AFR
+Equatorial Guinea                               ;GNQ;8 Western Africa;Western Africa;;Equatorial Guinea;GNQ;AFR
+Greece;GRC;11 Western Europe;Western Europe;;Greece;GRC;EUR
+Grenada                                 ;GRD;4 Rest Central America;Rest Central America;;Grenada;GRD;LAM
+Greenland;GRL;11 Western Europe;Western Europe;Added manually by JH;Greenland;GRL;EUR
+Guatemala                                       ;GTM;4 Rest Central America;Rest Central America;;Guatemala;GTM;LAM
+French Guiana                           ;GUF;4 Rest Central America;Rest South America;;French Guiana;GUF;LAM
+Guam                                    ;GUM;24 Oceania;Oceania;;Guam;GUM;OAS
+Guyana                                          ;GUY;4 Rest Central America;Rest South America;;Guyana;GUY;LAM
+Hong Kong                               ;HKG;20 China +;China +;;Hong Kong;HKG;CHN
+Heard Island and McDonald Islands         ;HMD;24 Oceania;Oceania;;Heard Island and McDonald Islands;HMD;ROW
+Honduras                                        ;HND;4 Rest Central America;Rest Central America;;Honduras;HND;LAM
+Croatia                                         ;HRV;12 Central Europe;Central Europe;;Croatia;HRV;ROW
+Haiti                                           ;HTI;4 Rest Central America;Rest Central America;;Haiti;HTI;LAM
+Hungary                                         ;HUN;12 Central Europe;Central Europe;;Hungary;HUN;EUR
+Indonesia                                       ;IDN;22 Indonesia +;Indonesia +;;Indonesia;IDN;OAS
+Isle of Man;IMN;11 Western Europe;Western Europe;Added manually by JH;Isle of Man;IMN;EUR
+India                                           ;IND;18 India ;India ;;India;IND;IND
+British Indian Ocean Territory;IOT;25 Rest South Asia;Rest South Asia;;British Indian Ocean Territory;IOT;OAS
+Ireland                                 ;IRL;11 Western Europe;Western Europe;;Ireland;IRL;EUR
+Iran, Islamic Republic of;IRN;17 Middle East;Middle East;;Iran Islamic Republic of;IRN;MEA
+Iraq                                            ;IRQ;17 Middle East;Middle East;;Iraq;IRQ;MEA
+Iceland                                         ;ISL;11 Western Europe;Western Europe;;Iceland;ISL;ROW
+Israel                                             ;ISR;17 Middle East;Middle East;;Israel;ISR;MEA
+Italy;ITA;11 Western Europe;Western Europe;;Italy;ITA;EUR
+Jamaica                                 ;JAM;4 Rest Central America;Rest Central America;;Jamaica;JAM;LAM
+Jersey;JEY;11 Western Europe;Western Europe;Added manually by JH;Jersey;JEY;EUR
+Jordan                                 ;JOR;17 Middle East;Middle East;;Jordan;JOR;MEA
+Japan                                   ;JPN;23 Japan;Japan;;Japan;JPN;JPN
+Kazakstan                                      ;KAZ;15 Asia-Stan;Asia-Stan;;Kazakhstan;KAZ;MEA
+Kenya                                           ;KEN;8 Western Africa;Eastern Africa;;Kenya;KEN;AFR
+Kyrgyzstan;KGZ;15 Asia-Stan;Asia-Stan;;Kyrgyzstan;KGZ;MEA
+Cambodia                                         ;KHM;21 Southeastern Asia;Southeastern Asia;;Cambodia;KHM;OAS
+Kiribati                                ;KIR;24 Oceania;Oceania;;Kiribati;KIR;OAS
+Saint Kitts and Nevis ;KNA;4 Rest Central America;Rest Central America;;Saint Kitts and Nevis;KNA;LAM
+Korea, Republic of;KOR;19 Korea;Korea;;Korea Republic of;KOR;OAS
+Kuwait                                             ;KWT;17 Middle East;Middle East;;Kuwait;KWT;MEA
+Lao People's Democratic Republic;LAO;21 Southeastern Asia;Southeastern Asia;;Lao People's Democratic Republic;LAO;OAS
+Lebanon;LBN;17 Middle East;Middle East;;Lebanon;LBN;MEA
+Liberia                                         ;LBR;8 Western Africa;Western Africa;;Liberia;LBR;AFR
+Libyan Arab Jamahiriya;LBY;7 Northern Africa;Northern Africa;;Libya;LBY;MEA
+Saint Lucia                             ;LCA;4 Rest Central America;Rest Central America;;Saint Lucia;LCA;LAM
+Liechtenstein                               ;LIE;11 Western Europe;Western Europe;;Liechtenstein;LIE;ROW
+Sri Lanka                  ;LKA;25 Rest South Asia;Rest South Asia;;Sri Lanka;LKA;OAS
+Lesotho                                          ;LSO;8 Western Africa;Rest Southern Africa;;Lesotho;LSO;AFR
+Lithuania                                       ;LTU;12 Central Europe;Central Europe;;Lithuania;LTU;EUR
+Luxembourg                                   ;LUX;11 Western Europe;Western Europe;;Luxembourg;LUX;EUR
+Latvia                                          ;LVA;12 Central Europe;Central Europe;;Latvia;LVA;EUR
+Macau                                   ;MAC;20 China +;China +;;Macao;MAC;CHN
+Saint Martin (French part);MAF;4 Rest Central America;Rest Central America;Added manually by JH;Saint Martin (French part);MAF;ROW
+Morocco                                          ;MAR;7 Northern Africa;Northern Africa;;Morocco;MAR;MEA
+Monaco                                      ;MCO;11 Western Europe;Western Europe;;Monaco;MCO;ROW
+Moldova, Republic of;MDA;14 Ukraine +;Ukraine +;;Moldova Republic of;MDA;ROW
+Madagascar                                      ;MDG;8 Western Africa;Eastern Africa;;Madagascar;MDG;AFR
+Maldives                                        ;MDV;25 Rest South Asia;Rest South Asia;;Maldives;MDV;OAS
+Mexico;MEX;3 Mexico;Mexico;;Mexico;MEX;LAM
+Marshall Islands                            ;MHL;24 Oceania;Oceania;;Marshall Islands;MHL;OAS
+Macedonia, the former Yugoslav Republic of;MKD;12 Central Europe;Central Europe;;Macedonia the former Yugoslav Republic of;MKD;ROW
+Mali                                            ;MLI;8 Western Africa;Western Africa;;Mali;MLI;AFR
+Malta                                           ;MLT;12 Central Europe;Central Europe;;Malta;MLT;EUR
+Myanmar                                            ;MMR;21 Southeastern Asia;Southeastern Asia;;Myanmar;MMR;OAS
+Yugoslavia                              ;MNE;12 Central Europe;Central Europe;;Montenegro;MNE;ROW
+Mongolia                                ;MNG;20 China +;China +;;Mongolia;MNG;OAS
+Northern Mariana Islands                ;MNP;24 Oceania;Oceania;;Northern Mariana Islands;MNP;OAS
+Mozambique                                      ;MOZ;8 Western Africa;Rest Southern Africa;;Mozambique;MOZ;AFR
+Mauritania                              ;MRT;8 Western Africa;Western Africa;;Mauritania;MRT;AFR
+Montserrat                              ;MSR;4 Rest Central America;Rest Central America;;Montserrat;MSR;LAM
+Martinique                              ;MTQ;4 Rest Central America;Rest Central America;;Martinique;MTQ;LAM
+Mauritius                                       ;MUS;8 Western Africa;Eastern Africa;;Mauritius;MUS;AFR
+Malawi                                          ;MWI;8 Western Africa;Rest Southern Africa;;Malawi;MWI;AFR
+Malaysia                                ;MYS;21 Southeastern Asia;Southeastern Asia;;Malaysia;MYS;OAS
+Mayotte                                 ;MYT;8 Western Africa;Eastern Africa;;Mayotte;MYT;AFR
+Namibia                                         ;NAM;8 Western Africa;Rest Southern Africa;;Namibia;NAM;AFR
+New Caledonia                           ;NCL;24 Oceania;Oceania;;New Caledonia;NCL;OAS
+Niger                                       ;NER;8 Western Africa;Western Africa;;Niger;NER;AFR
+Norfolk Island                          ;NFK;24 Oceania;Oceania;;Norfolk Island;NFK;OAS
+Nigeria                                 ;NGA;8 Western Africa;Western Africa;;Nigeria;NGA;AFR
+Nicaragua                                       ;NIC;4 Rest Central America;Rest Central America;;Nicaragua;NIC;LAM
+Niue                                    ;NIU;24 Oceania;Oceania;;Niue;NIU;OAS
+Netherlands                                  ;NLD;11 Western Europe;Western Europe;;Netherlands;NLD;EUR
+Norway                                           ;NOR;11 Western Europe;Western Europe;;Norway;NOR;ROW
+Nepal                                            ;NPL;25 Rest South Asia;Rest South Asia;;Nepal;NPL;OAS
+Nauru                                           ;NRU;24 Oceania;Oceania;;Nauru;NRU;ROW
+New Zealand                             ;NZL;24 Oceania;Oceania;;New Zealand;NZL;ROW
+Oman                                           ;OMN;17 Middle East;Middle East;;Oman;OMN;MEA
+Pakistan                                ;PAK;25 Rest South Asia;Rest South Asia;;Pakistan;PAK;OAS
+Panama                                          ;PAN;4 Rest Central America;Rest Central America;;Panama;PAN;LAM
+Pitcairn                                ;PCN;24 Oceania;Oceania;;Pitcairn;PCN;OAS
+Peru                                            ;PER;6 Rest South America;Rest South America;;Peru;PER;LAM
+Philippines                                 ;PHL;21 Southeastern Asia;Southeastern Asia;;Philippines;PHL;OAS
+Palau                                           ;PLW;24 Oceania;Oceania;;Palau;PLW;OAS
+Papua New Guinea                                            ;PNG;22 Indonesia +;Indonesia +;;Papua New Guinea;PNG;OAS
+Poland                                          ;POL;12 Central Europe;Central Europe;;Poland;POL;EUR
+Puerto Rico                                                 ;PRI;4 Rest Central America;Rest Central America;;Puerto Rico;PRI;LAM
+Korea, Democratic People's Republic of;PRK;19 Korea;Korea;;Korea Democratic People's Republic of;PRK;OAS
+Portugal;PRT;11 Western Europe;Western Europe;;Portugal;PRT;EUR
+Paraguay                                        ;PRY;6 Rest South America;Rest South America;;Paraguay;PRY;LAM
+Palestine, State of;PSE;17 Middle East;Middle East;Added manually by JH;Palestine State of;PSE;MEA
+French Polynesia;PYF;24 Oceania;Oceania;;French Polynesia;PYF;OAS
+Qatar                                              ;QAT;17 Middle East;Middle East;;Qatar;QAT;MEA
+Réunion                                 ;REU;8 Western Africa;Eastern Africa;;Reunion;REU;AFR
+Romania                                 ;ROU;12 Central Europe;Central Europe;;Romania;ROU;EUR
+Russian Federation                      ;RUS;16 Russia +;Russia +;;Russian Federation;RUS;RUS
+Rwanda;RWA;8 Western Africa;Eastern Africa;;Rwanda;RWA;AFR
+Saudi Arabia                                     ;SAU;17 Middle East;Middle East;;Saudi Arabia;SAU;MEA
+Sudan                                       ;SDN;7 Northern Africa;Eastern Africa;;Sudan;SDN;AFR
+Senegal                                         ;SEN;8 Western Africa;Western Africa;;Senegal;SEN;AFR
+Singapore                                       ;SGP;21 Southeastern Asia;Southeastern Asia;;Singapore;SGP;OAS
+South Georgia and the South Sandwich Islands;SGS;6 Rest South America;Rest South America;;South Georgia and the South Sandwich Islands;SGS;ROW
+Saint Helena                            ;SHN;8 Western Africa;Western Africa;;Saint Helena Ascension and Tristan da Cunha;SHN;AFR
+Svalbard and Jan Mayen                                      ;SJM;11 Western Europe;Western Europe;;Svalbard and Jan Mayen;SJM;ROW
+Solomon Islands                         ;SLB;24 Oceania;Oceania;;Solomon Islands;SLB;OAS
+Sierra Leone                                    ;SLE;8 Western Africa;Western Africa;;Sierra Leone;SLE;AFR
+El Salvador                                     ;SLV;4 Rest Central America;Rest Central America;;El Salvador;SLV;LAM
+San Marino                                      ;SMR;11 Western Europe;Western Europe;;San Marino;SMR;ROW
+Somalia;SOM;8 Western Africa;Eastern Africa;;Somalia;SOM;AFR
+Saint Pierre and Miquelon    ;SPM;2 USA;USA;;Saint Pierre and Miquelon;SPM;ROW
+Yugoslavia                              ;SRB;12 Central Europe;Central Europe;;Serbia;SRB;ROW
+South Sudan;SSD;8 Western Africa;Western Africa;Added manually by JH;South Sudan;SSD;AFR
+Sao Tome and Principe                ;STP;8 Western Africa;Western Africa;;Sao Tome and Principe;STP;AFR
+Suriname                                        ;SUR;4 Rest Central America;Rest Central America;;Suriname;SUR;LAM
+Slovakia;SVK;12 Central Europe;Central Europe;;Slovakia;SVK;EUR
+Slovenia                                        ;SVN;12 Central Europe;Central Europe;;Slovenia;SVN;EUR
+Sweden                                           ;SWE;11 Western Europe;Western Europe;;Sweden;SWE;EUR
+Swaziland                                        ;SWZ;8 Western Africa;Rest Southern Africa;;Swaziland;SWZ;AFR
+Sint Maarten (Dutch part);SXM;4 Rest Central America;Rest Central America;Added manually by JH;Sint Maarten (Dutch part);SXM;LAM
+Seychelles                                      ;SYC;8 Western Africa;Eastern Africa;;Seychelles;SYC;AFR
+Syrian Arab Republic;SYR;17 Middle East;Middle East;;Syrian Arab Republic;SYR;MEA
+Turks and Caicos Islands                                    ;TCA;4 Rest Central America;Rest Central America;;Turks and Caicos Islands;TCA;LAM
+Chad                                            ;TCD;8 Western Africa;Western Africa;;Chad;TCD;AFR
+Togo;TGO;8 Western Africa;Western Africa;;Togo;TGO;AFR
+Thailand                                         ;THA;21 Southeastern Asia;Southeastern Asia;;Thailand;THA;OAS
+Tajikistan                                      ;TJK;15 Asia-Stan;Asia-Stan;;Tajikistan;TJK;MEA
+Tokelau                                 ;TKL;24 Oceania;Oceania;;Tokelau;TKL;OAS
+Turkmenistan                            ;TKM;15 Asia-Stan;Asia-Stan;;Turkmenistan;TKM;MEA
+East Timor;TLS;22 Indonesia +;Indonesia +;;Timor-Leste;TLS;OAS
+Tonga                                            ;TON;24 Oceania;Oceania;;Tonga;TON;OAS
+Trinidad and Tobago                             ;TTO;4 Rest Central America;Rest Central America;;Trinidad and Tobago;TTO;LAM
+Tunisia                                         ;TUN;7 Northern Africa;Northern Africa;;Tunisia;TUN;MEA
+Turkey                                          ;TUR;13 Turkey;Turkey;;Turkey;TUR;ROW
+Tuvalu                                  ;TUV;24 Oceania;Oceania;;Tuvalu;TUV;OAS
+Taiwan, Province of China                                   ;TWN;20 China +;China +;;Taiwan Province of China;TWN;OAS
+Tanzania, United Republic of;TZA;8 Western Africa;Rest Southern Africa;;Tanzania United Republic of;TZA;AFR
+Uganda                                          ;UGA;8 Western Africa;Eastern Africa;;Uganda;UGA;AFR
+Ukraine                                 ;UKR;14 Ukraine +;Ukraine +;;Ukraine;UKR;ROW
+United States Minor Outlying Islands    ;UMI;2 USA;USA;;United States Minor Outlying Islands;UMI;OAS
+Uruguay                                 ;URY;6 Rest South America;Rest South America;;Uruguay;URY;LAM
+United States;USA;2 USA;USA;;United States;USA;USA
+Uzbekistan                                      ;UZB;15 Asia-Stan;Asia-Stan;;Uzbekistan;UZB;MEA
+Holy See (Vatican City State);VAT;11 Western Europe;Western Europe;;Holy See (Vatican City State);VAT;ROW
+Saint Vincent and the Grenadines;VCT;4 Rest Central America;Rest Central America;;Saint Vincent and the Grenadines;VCT;LAM
+Venezuela                                       ;VEN;6 Rest South America;Rest South America;;Venezuela Bolivarian Republic of;VEN;LAM
+Virgin Islands, British                                      ;VGB;4 Rest Central America;Rest Central America;;Virgin Islands British;VGB;LAM
+Virgin Islands, U.S.;VIR;4 Rest Central America;Rest Central America;;Virgin Islands U.S.;VIR;LAM
+Viet Nam                              ;VNM;21 Southeastern Asia;Southeastern Asia;;Viet Nam;VNM;OAS
+Vanuatu                                         ;VUT;24 Oceania;Oceania;;Vanuatu;VUT;OAS
+Wallis and Futuna;WLF;24 Oceania;Oceania;;Wallis and Futuna;WLF;OAS
+Samoa                          ;WSM;24 Oceania;Oceania;;Samoa;WSM;OAS
+Yemen                                           ;YEM;17 Middle East;Middle East;;Yemen;YEM;MEA
+South Africa                                    ;ZAF;10 South Africa;South Africa;;South Africa;ZAF;ROW
+Zambia                                          ;ZMB;8 Western Africa;Rest Southern Africa;;Zambia;ZMB;AFR
+Zimbabwe                                        ;ZWE;8 Western Africa;Rest Southern Africa;;Zimbabwe;ZWE;AFR
