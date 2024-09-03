@@ -6,7 +6,7 @@
 #' information but some assumptions on missing data are also made.
 #'
 #'
-#' @return MAgPIE object on water consumption coefficients per elecricity
+#' @return MAgPIE object on water consumption coefficients per electricity
 #' technology
 #' @author Ioanna Mouratiadou
 #' @seealso \code{\link{calcOutput}}, \code{\link{readMacknickIntensities}},
