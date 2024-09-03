@@ -146,7 +146,7 @@ calcBP <- function() {
     gdp = x[, , "Price|Primary Energy|Oil (US$2023/GJ)"],
     unit_in = "constant 2022 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   getNames(poil) <- gsub("\\$2023", "\\$2017", getNames(poil))
@@ -156,7 +156,7 @@ calcBP <- function() {
     gdp = x[, , c("Price|Primary Energy|Gas (US$/GJ)", "Price|Primary Energy|Coal (US$/GJ)")],
     unit_in = "current US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs =  "with_USA"
   )
 
   getNames(pcoalgas) <- gsub("\\$", "\\$2017", getNames(pcoalgas))

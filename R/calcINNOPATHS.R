@@ -38,7 +38,7 @@ calcINNOPATHS <- function() {
     gdp = tmp,
     unit_in = "constant 2015 €",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   x <- mbind(x, tmp)

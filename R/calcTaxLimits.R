@@ -49,7 +49,7 @@ calcTaxLimits <- function(subtype) {
     gdp = output,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   # Return tax convergence levels aggregated to selected REMIND regions

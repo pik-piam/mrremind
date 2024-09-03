@@ -7,7 +7,7 @@ calcEU_ReferenceScenario <- function() {
     gdp = euRef2016[, , "Price|Secondary Energy|Electricity (EUR2013/GJ)"],
     unit_in = "constant 2013 €",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   getNames(tmp) <- "Price|Secondary Energy|Electricity (US$2017/GJ)"
@@ -23,7 +23,7 @@ calcEU_ReferenceScenario <- function() {
     gdp = euRef2020[, , "Price|Secondary Energy|Electricity (EUR2015/GJ)"],
     unit_in = "constant 2015 €",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   getNames(tmp) <- "Price|Secondary Energy|Electricity (US$2017/GJ)"

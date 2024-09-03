@@ -34,7 +34,7 @@ calcBiomassPrices <- function() {
     gdp = x,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = c("linear", "with_USA")
+    replace_NAs = "with_USA"
   )
 
   return(list(x           = x,

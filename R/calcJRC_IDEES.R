@@ -83,7 +83,7 @@ calcJRC_IDEES <- function(subtype) {
       gdp = tmp,
       unit_in = "constant 2010 €",
       unit_out = mrdrivers::toolGetUnitDollar(),
-      replace_NAs = c("linear", "with_USA")
+      replace_NAs = "with_USA"
     )
     x <- mbind(x, tmp)
   }

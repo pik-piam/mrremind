@@ -111,7 +111,7 @@ calcIndustry_EEK <- function(kap) {
     dplyr::rename("value" = "EEK") %>%
     GDPuc::convertGDP(unit_in = "constant 2012 US$MER",
                       unit_out = mrdrivers::toolGetUnitDollar(),
-                      replace_NAs = c("linear", "with_USA")) %>%
+                      replace_NAs = "with_USA") %>%
     dplyr::mutate(value = .data$value * 1e-3) %>%
     dplyr::rename("EEK" = "value")
 

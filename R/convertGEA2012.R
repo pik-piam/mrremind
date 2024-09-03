@@ -63,7 +63,7 @@ convertGEA2012 <- function(x, subtype) {
       gdp = out[, , c("xi1", "xi2")],
       unit_in = "constant 2005 US$MER",
       unit_out = mrdrivers::toolGetUnitDollar(),
-      replace_NAs = c("linear", "with_USA")
+      replace_NAs = "with_USA"
     )
 
     out <- mbind(tmp, out[, , c("xi1", "xi2"), invert = TRUE])
