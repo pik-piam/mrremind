@@ -12,14 +12,16 @@
 "IGCC + CCS";"igccc";
 "CCGT + CCS";"ngccc";
 "Nuclear";"tnrs";
-"Bioenergy - Large scale unit";"NA";
-"Bioenergy - Cofiring";"NA";"Not in REMIND"
-"Bioenergy - Medium-scale CHP";"biochp";
-"Bioenergy + CCUS";"NA";
+"Biomass Power plant";"bioigcc";"Dummy for bio-electricity plants"
+"Biogas - DG Industry";"NA";" the IEA tech represents distributed generation of electricity from biogas in industry applications-not represented in REMIND"
+"Biomass Cofiring";"NA";"Not in REMIND"
+"Biomass CHP Medium";"biochp";
+"Biomass CHP Small";"biochp";
+"Biomass - waste incineration - CHP";"NA";"Not in REMIND"
 "Geothermal";"geohdr";
-"Hydropower - large-scale unit";"hydro";
-"Hydropower - small-scale unit";"hydro";
-"Solar photovoltaics - Large scale unit";"spv";
+"Hydropower - large-scale";"hydro";
+"Hydropower - small-scale";"hydro";
+"Solar photovoltaics - Large scale";"spv";
 "Solar photovoltaics - Buildings";"spv";
 "Concentrating solar power";"csp";
 "Marine";"NA";"Not in REMIND"
