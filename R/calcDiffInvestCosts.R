@@ -60,8 +60,8 @@ calcDiffInvestCosts <- function(subtype) {
         )
       ] <- 0
     }
-    tech_mapping <- toolGetMapping("comparison.csv", where = "mappingfolder", type = "sectoral") %>%
-      dplyr::filter(!is.na(!!sym("tech")))
+    tech_mapping <- toolGetMapping("techmappingIeaWeoPgAssumptions.csv", where = "mrremind", type = "sectoral") %>%
+      filter(!is.na(!!sym("tech")))
 
     # create new magpie object with names of corresponding REMIND technologies
     x_new <- new.magpie(getRegions(x), names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
@@ -220,8 +220,9 @@ calcDiffInvestCosts <- function(subtype) {
         )
       ] <- 0
     }
-    tech_mapping <- toolGetMapping("comparison.csv", where = "mappingfolder", type = "sectoral") %>%
-      dplyr::filter(!is.na(!!sym("tech")))
+
+    tech_mapping <- toolGetMapping("techmappingIeaWeoPgAssumptions.csv", where = "mrremind", type = "sectoral") %>%
+      filter(!is.na(!!sym("tech")))
 
     # create new magpie object with names of corresponding REMIND technologies
     x_new <- new.magpie(getRegions(x), names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
