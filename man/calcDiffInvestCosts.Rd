@@ -7,10 +7,10 @@
 calcDiffInvestCosts(subtype)
 }
 \arguments{
-\item{subtype}{Investment Costs, I&M Costs, and Efficiency}
+\item{subtype}{"Invest_Costs", or "Efficiency"}
 }
 \value{
-Magpie object with aggregated but diffrentiated investment costs for some technologies.
+Magpie object with aggregated but differentiated investment costs for some technologies.
 }
 \description{
 Disaggregated investment cost data is aggregated and technologies renamed to REMIND names
