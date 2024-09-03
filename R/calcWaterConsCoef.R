@@ -29,9 +29,10 @@ calcWaterConsCoef <- function() {
   # read in mapping to REMIND technologies
   map_table <- toolGetMapping(
     type = "sectoral",
-    name = "mappingMacknicktoREMIND.csv",
+    name = "techmappingMacknickToREMIND.csv",
     where = "mrremind"
   )
+
   map <- list()
   map$macknick <- paste(map_table$Macknick.Source,
     map_table$Macknick.Technology, map_table$Macknick.Cooling,
