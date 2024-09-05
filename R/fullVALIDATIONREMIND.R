@@ -259,7 +259,4 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, years = years,
     writeArgs = list(scenario = "historical", model = "INDSTAT2")
   )
-
-  # filter variables that are too imprecise on regional level ----
-  filter_historical_mif()
 }

@@ -11,7 +11,6 @@
 #' @export
 
 calcIEA_ETP <- function() {
-
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(!!sym("REMIND")), !!sym("REMIND") != "") %>%
     mutate("Conversion" = as.numeric(!!sym("Conversion"))) %>%
@@ -52,11 +51,25 @@ calcIEA_ETP <- function() {
   x <- aggregate(value ~ region + year + model + variable, x, sum, na.action = na.pass) %>%
     as.magpie()
 
+  .customAggregate <- function(x, rel, to = NULL) {
+    out <- toolAggregate(x, rel = rel, to = to)
+
+    # remove cement and industry production for all regions except for GLO
+    if ("GLO" %in% getItems(out, dim = 1)) {
+      out[setdiff(getItems(out, dim = 1), "GLO"), ,
+          c("Production|Industry|Cement (Mt/yr)", "Production|Industry|Steel (Mt/yr)")] <- NA
+
+    } else {
+      out <- out[, , c("Production|Industry|Cement (Mt/yr)", "Production|Industry|Steel (Mt/yr)"), invert = TRUE]
+    }
+    return(out)
+  }
+
   return(list(
     x = x,
     weight = NULL,
+    aggregationFunction = .customAggregate,
     unit = c("EJ/yr", "Mt CO2/yr", "Mt/yr", "bn pkm/yr", "bn tkm/yr"),
     description = "IEA ETP projections as REMIND variables"
   ))
-
 }
