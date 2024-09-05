@@ -26,7 +26,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default
     colnames(map) <- gsub("io", "names_in", colnames(map))
 
     # Give description
-    ieaYear <- if (ieaVersion == "default") 2022 else 2023
+    ieaYear <- if (ieaVersion == "default") 2022 else 2024
     descript <- paste0("IEA Final Energy Data based on ", ieaYear, " version of IEA Energy Balances")
 
     #------ PROCESS DATA ------------------------------------------
