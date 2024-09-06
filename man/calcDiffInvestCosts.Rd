@@ -8,7 +8,6 @@ calcDiffInvestCosts(subtype)
 }
 \arguments{
 \item{subtype}{either "Invest_Costs" or "Efficiency"}
->>>>>>> 5cf8202c9d28b75c700f4410b75b025d85523c59
 }
 \value{
 Magpie object with aggregated but differentiated investment costs for some technologies.
