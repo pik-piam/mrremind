@@ -12,5 +12,13 @@ convertTransportSubsidies <- function(x) {
   x <- toolCountryFill(x, fill = 0, verbosity = 2) # fill countries with no data
   x[is.na(x)] <- 0
 
+  # convert data from EUR 2020 to USD 2017
+  x <- GDPuc::convertGDP(
+    gdp = x,
+    unit_in = "constant 2020 €",
+    unit_out = mrdrivers::toolGetUnitDollar(),
+    replace_NAs = "with_USA"
+  )
+
   return(x)
 }
