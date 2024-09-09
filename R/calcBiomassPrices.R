@@ -16,10 +16,13 @@ calcBiomassPrices <- function() {
   getNames(x) <- gsub("SDP-MC", "SDP",  getNames(x))
 
   # Introduce new SSP/SDP dimension by replacing "-" with "."
-  getNames(x) <- gsub("(SSP[0-9]|SDP)-", "\\1.",getNames(x))
+  getNames(x) <- gsub("(SSP[0-9]|SDP)-", "\\1.", getNames(x))
+  getSets(x)["d3.1"] <- "scen1"
+  getSets(x)["d3.2"] <- "scen2"
+  getSets(x)["d3.3"] <- "char"
 
   # add supply curves for SSP3 using the curves from SSP2
-  tmp <- x[,,"SSP2"]
+  tmp <- x[, , "SSP2"]
   getNames(tmp) <- gsub("SSP2", "SSP3", getNames(tmp))
   x <- mbind(x, tmp)
 
