@@ -30,7 +30,9 @@ calcCapTarget <- function(sources) {
       "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2022_cond"),
       "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2022_uncond"),
       "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2023_cond"),
-      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond")
+      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond"),
+      "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2024_cond"),
+      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2024_uncond"),
     )
 
     listYears   <- lapply(listCapacitiesNDC, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
