@@ -11,15 +11,7 @@ calcCostsWeathering <- function() {
 
   costs <- readSource("Strefler", subtype = "weathering_costs")
 
-
   # convert from $2005 to $2017
-
-  # a hack: we must reformat the subdimensions 'rfl' and 'rfl1' so that its values are not
-  # integers, which causes the internal conversion back to maglass to wrongly guess
-  # the year dimension
-
-  getNames(costs, dim = 1) <- paste0(getNames(costs, dim = 1), "-rfl")
-  getNames(costs, dim = 2) <- paste0(getNames(costs, dim = 2), "-rfl1")
 
   x <- GDPuc::convertGDP(
     gdp = costs,
@@ -27,10 +19,6 @@ calcCostsWeathering <- function() {
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
-
-  # undo the hack after conversion
-  getNames(x, dim = 1) <- gsub("-rfl", "", getNames(x, dim = 1))
-  getNames(x, dim = 2) <- gsub("-rfl1", "", getNames(x, dim = 2))
 
   weight <- x # get the same dimensions of the data
   weight[, , ] <- 1 # this will take the average of the countries to get the regional resolution

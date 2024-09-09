@@ -58,12 +58,6 @@ convertGEA2012 <- function(x, subtype) {
 
   if (subtype %in% c("oil", "coal", "gas")) {
 
-    # a hack: we must reformat the subdimension 'grade' so that its values are not
-    # integers, which causes the internal conversion back to maglass to wrongly guess
-    # the year dimension
-
-    getNames(out, dim = 4) <- paste0(getNames(out, dim = 4), "-grade")
-
     # convert T US$2005/TWa -> T US$2017/TWa for cost factors xi1 and xi2
     tmp <- GDPuc::convertGDP(
       gdp = out[, , c("xi1", "xi2")],
@@ -73,9 +67,6 @@ convertGEA2012 <- function(x, subtype) {
     )
 
     out <- mbind(tmp, out[, , c("xi1", "xi2"), invert = TRUE])
-
-    # undo the hack after conversion
-    getNames(out, dim = 4) <- gsub("-grade", "", getNames(x, dim = 4))
 
   } else {
     out <- x

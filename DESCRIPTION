@@ -52,7 +52,7 @@ Imports:
     data.table,
     dplyr,
     ggplot2,
-    GDPuc,
+    GDPuc (>= 1.0.5),
     Hmisc,
     luscale,
     magrittr,
