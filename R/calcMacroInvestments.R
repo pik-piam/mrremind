@@ -3,6 +3,7 @@ calcMacroInvestments <- function() {
   # Read in investment share and SSP2 GDP in 2005
   shInv <- readSource("PWT")[, 2005, "csh_i"]
   gdp <- calcOutput("GDP", scenario = "SSP2", years = 2005, aggregate = FALSE)
+  getItems(gdp, dim = 2) <- "y2005"
 
   shInv_new <- toolFillWithRegionAvg(shInv, valueToReplace = 0, weight = gdp)
 
