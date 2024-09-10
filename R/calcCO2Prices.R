@@ -2,7 +2,6 @@ calcCO2Prices <- function() {
 
   # read data
   x <- readSource("ExpertGuess", subtype = "co2prices")
-  getNames(x) <- NULL
 
   # convert from $2005 to $2017
 
@@ -12,6 +11,8 @@ calcCO2Prices <- function() {
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
+
+  getNames(x) <- NULL
 
   # read data used for weight
   ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
