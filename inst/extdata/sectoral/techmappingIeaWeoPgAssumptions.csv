@@ -1,0 +1,29 @@
+"IEA";"tech";"Comments"
+"Steam Coal - SUBCRITICAL";"pc";"Africa, South Asia"
+"Steam Coal - SUPERCRITICAL";"pc";"LAM, IND, FSU, MEA"
+"Steam Coal - ULTRASUPERCRITICAL";"pc";"China, OECD/IEA"
+"IGCC";"igcc";
+"CCGT";"ngcc";
+"Gas turbine";"ngt";
+"CCGT - CHP";"gaschp";
+"Fuel cell (distributed electricity generation)";"NA";"Not in REMIND"
+"Coal + CCS";"NA";"pcc, no longer in REMIND"
+"Oxyfuel + CCS";"NA";"pco, no longer in REMIND"
+"IGCC + CCS";"igccc";
+"CCGT + CCS";"ngccc";
+"Nuclear";"tnrs";
+"Biomass Power plant";"bioigcc";"Dummy for bio-electricity plants"
+"Biogas - DG Industry";"NA";" the IEA tech represents distributed generation of electricity from biogas in industry applications-not represented in REMIND"
+"Biomass Cofiring";"NA";"Not in REMIND"
+"Biomass CHP Medium";"biochp";
+"Biomass CHP Small";"biochp";
+"Biomass - waste incineration - CHP";"NA";"Not in REMIND"
+"Geothermal";"geohdr";
+"Hydropower - large-scale";"hydro";
+"Hydropower - small-scale";"hydro";
+"Solar photovoltaics - Large scale";"spv";
+"Solar photovoltaics - Buildings";"spv";
+"Concentrating solar power";"csp";
+"Marine";"NA";"Not in REMIND"
+"Wind onshore";"wind";
+"Wind offshore";"NA";"Not in REMIND"
