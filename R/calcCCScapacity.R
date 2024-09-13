@@ -11,9 +11,9 @@
 calcCCScapacity <- function(subtype) {
   x <- calcOutput("ProjectPipelines", subtype = "CCS", aggregate = F)
 
-  if (subtype == "projections") {
+  if (subtype == "pipeline") {
     # used as input-data for CCS bounds
-    x <- x[, c(2020, 2025, 2030), ]
+    x <- x[, c(2020, 2025, 2030), c("operational", "construction", "planned")]
     # remove "model", "variable" and "unit" dimension
     x <- collapseDim(x, keepdim = "status")
   }

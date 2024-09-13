@@ -128,7 +128,7 @@ fullREMIND <- function() {
   calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
-  calcOutput("CCScapacity", subtype = "projections",                   round = 8,  file = "p_boundCapCCS.cs4r")
+  calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
   calcOutput('Industry_CCS_limits',
