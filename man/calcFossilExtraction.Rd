@@ -16,9 +16,8 @@ magpie object of the coefficients for fossil fuels and uranium extraction cost e
 provides coefficients for fossil fuels (oil, gas and coal) and uranium extraction cost equations.
 }
 \examples{
-
-\dontrun{ 
-calcOutput(type="FossilExtraction",subtype='FossilExtraction')
+\dontrun{
+calcOutput(type = "FossilExtraction", subtype = "FossilExtraction")
 }
 }
 \seealso{

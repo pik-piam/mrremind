@@ -1,4 +1,4 @@
-#' @importFrom dplyr group_by_ min_rank select_ mutate_
+#' @importFrom dplyr min_rank
 #' @importFrom quitte as.quitte
 
 convertECLIPSE <- function(x, subtype) {
@@ -104,7 +104,7 @@ convertECLIPSE <- function(x, subtype) {
 
     #-- Regional downscaling ---------------
     if (downscaling) {
-      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", 
+      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv",
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
@@ -120,7 +120,7 @@ convertECLIPSE <- function(x, subtype) {
       x <- toolAggregate(x[, , ], map, weight = w)
 
       # fill all missing countries with 0 (add Antarctica)
-      x <- toolCountryFill(x, fill = 0)
+      x <- toolCountryFill(x, fill = 0, verbosity = 2)
     }
   }
 
@@ -131,7 +131,7 @@ convertECLIPSE <- function(x, subtype) {
 
     #-- Regional downscaling ---------------
     if (downscaling) {
-      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", 
+      m <- toolGetMapping(type = "regional", name = "regionmappingGAINS.csv",
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
@@ -147,7 +147,7 @@ convertECLIPSE <- function(x, subtype) {
       x <- toolAggregate(x[, , ], map, weight = w)
 
       # fill all missing countries with 0 (add Antarctica)
-      x <- toolCountryFill(x, fill = 0)
+      x <- toolCountryFill(x, fill = 0, verbosity = 2)
     }
   }
 

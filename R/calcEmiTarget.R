@@ -2,7 +2,6 @@
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #' @param sources currently only UNFCCC_NDC
 #' @param subtype "Ghgshare2005", "Ghgfactor", "Ghghistshare"
-#' @importFrom magclass getNames
 
 calcEmiTarget <- function(sources, subtype) {
 
@@ -13,7 +12,7 @@ calcEmiTarget <- function(sources, subtype) {
   gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
   gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
   # calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-  # note: CEDS2021 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
+  # note: CEDS2024 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
   ghg <- ceds[, seq(1990, 2015, 1), c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)")] +
     +gwpN2O / 1000 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
                                                   "Emi|N2O|Land Use|Agriculture and Biomass Burning (kt N2O/yr)",
@@ -27,7 +26,7 @@ calcEmiTarget <- function(sources, subtype) {
                                              "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
   # create global data for checking plausibility of data
   globGhg <- dimSums(ghg, dim = 1)
-  ghg <- toolCountryFill(ghg, fill = 0)
+  ghg <- toolCountryFill(ghg, fill = 0, verbosity = 2)
 
   # Future GDP values
   gdp <- calcOutput("GDP", aggregate = FALSE)
@@ -47,7 +46,9 @@ calcEmiTarget <- function(sources, subtype) {
       "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2022_cond"),
       "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2022_uncond"),
       "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2023_cond"),
-      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2023_uncond")
+      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2023_uncond"),
+      "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2024_cond"),
+      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond")
     )
 
     listYears   <- lapply(listGhgfactors, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()

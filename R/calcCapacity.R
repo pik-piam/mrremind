@@ -22,7 +22,7 @@ calcCapacity <- function(subtype) {
       IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
 
       IRENAcap <- IRENAcap[,,c("Concentrated solar power",
-                               "Geothermal", "Hydropower",
+                               "Geothermal", "Renewable hydropower",
                                "Solar photovoltaic",
                                "Onshore wind energy",
                                "Offshore wind energy"
@@ -30,7 +30,7 @@ calcCapacity <- function(subtype) {
 
       mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
                                           "Geothermal",
-                                          "Hydropower",
+                                          "Renewable hydropower",
                                           "Solar photovoltaic",
                                           "Onshore wind energy",
                                           "Offshore wind energy"),
@@ -45,10 +45,10 @@ calcCapacity <- function(subtype) {
         # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
         IRENAcap <- readSource(type="IRENA",subtype="Capacity") # Read IRENA renewables capacity data
         # selecting data used on REMIND
-        IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind")]
+        IRENAcap <- IRENAcap[,,c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind")]
 
         mapping <- data.frame(IRENA_techs=c("Concentrated solar power",
-                                          "Geothermal", "Hydropower",
+                                          "Geothermal", "Renewable hydropower",
                                           "Solar photovoltaic",
                                           "Wind"),
                             REMIND_techs=c("csp", "geohdr", "hydro", "spv", "wind"),
@@ -141,7 +141,7 @@ calcCapacity <- function(subtype) {
     output[getRegions(USA.2025.PVData),getYears(USA.2025.PVData), getNames(USA.2025.PVData)] <- USA.2025.PVData
 
     output[is.na(output)] <- 0 #set NA to 0
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    output  <- toolCountryFill(output,fill=0,verbosity=2) # fill missing countries
 
   }
   else if (grepl("capacityByPE", subtype)) {
@@ -226,7 +226,7 @@ calcCapacity <- function(subtype) {
       }
     }
 
-    output  <- toolCountryFill(output,fill=0,verbosity=0) # fill missing countries
+    output  <- toolCountryFill(output,fill=0,verbosity=2) # fill missing countries
 
     output <- magclass::add_dimension(output, dim = 3.2, add = "enty", nm = "seel") # add secondary energy dimension
 

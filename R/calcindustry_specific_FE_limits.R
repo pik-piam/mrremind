@@ -9,8 +9,6 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom dplyr filter mutate select
-#' @importFrom madrat readSource
-#' @importFrom magclass as.magpie
 #' @importFrom quitte madrat_mule
 
 #' @export

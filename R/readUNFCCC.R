@@ -6,12 +6,10 @@
 #'
 #' @seealso [`readSource()`]
 #'
-#' @importFrom dplyr %>% bind_rows bind_cols mutate select
+#' @importFrom dplyr bind_rows bind_cols mutate select
 #'
-#' @importFrom magclass as.magpie
 #' @importFrom tibble tibble
 #' @importFrom tidyr drop_na
-#' @importFrom reshape2 melt
 #' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
 #'
@@ -24,6 +22,7 @@
 readUNFCCC <- function() {
 
   # structural definition of the source ----
+  # nolint start
   sheets <- list(
     "Table1s1" = list(
       range = "A7:H26",
@@ -437,6 +436,7 @@ readUNFCCC <- function() {
       )
     )
   )
+  # nolint end
 
   # parse directories ----
 
@@ -467,7 +467,7 @@ readUNFCCC <- function() {
         if (!is.null(sheets[[i]][["extraVariables"]])) {
           extra <- suppressMessages(
             read_xlsx(path = file.path("2023", dir, file), sheet = i) %>%
-            select(seq(1:4))
+              select(seq(1:4))
           )
           colnames(extra) <- c("variable", sheets[[i]][["colnames"]])
           extra <- extra %>%
@@ -484,10 +484,10 @@ readUNFCCC <- function() {
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
                 filter(!is.na(!!sym("name"))) %>%
-                melt(id.vars = c("name", "region", "year")) %>%
+                reshape2::melt(id.vars = c("name", "region", "year")) %>%
                 mutate(
-                  !!sym("value") := as.double(!!sym("value")),
-                  !!sym("name") := paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
+                  "value" = suppressWarnings(as.double(!!sym("value"))),
+                  "name" = paste0(sub("\\.", "_", i), "|", !!sym("name"), "|", sub(".+ ", "", !!sym("variable")))
                 ) %>%
                 select(-"name", "unit" = "variable", "variable" = "name") %>%
                 filter(!is.na(!!sym("value")))

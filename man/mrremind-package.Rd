@@ -46,6 +46,7 @@ Authors:
   \item Robin Hasse
   \item Sophie Fuchs
   \item Rahel Mandaroux
+  \item Johannes Koch
 }
 
 }

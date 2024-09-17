@@ -13,8 +13,8 @@ magpie object of region dependent data
 Read Final energy demand for feedstocks (non-energy use)
 }
 \examples{
-
-\dontrun{ a <- readSource(type="nonEnergyDemand")
+\dontrun{
+a <- readSource(type = "nonEnergyDemand")
 }
 
 }

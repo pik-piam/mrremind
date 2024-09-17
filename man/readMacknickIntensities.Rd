@@ -19,8 +19,8 @@ Read in Macknick (2011) data on water consumption and withdrawal
 coefficients per electricity technology
 }
 \examples{
-
-\dontrun{ a <- readSource(type="MacknickIntensities", convert = FALSE)
+\dontrun{
+a <- readSource(type = "MacknickIntensities", convert = FALSE)
 }
 }
 \seealso{

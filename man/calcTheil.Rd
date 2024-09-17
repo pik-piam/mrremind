@@ -7,16 +7,13 @@
 calcTheil()
 }
 \value{
-magpie objects of unweighted contribution to Theil,
-weights (= country shares of regional GDP), docstring
+magpie objects of unweighted contribution to Theil, weights (= country shares of regional GDP)
 }
 \description{
-To calculate the regional Theil-T index (= correction to welfare function for
-a lognormal income distribution) we do the following:
-(1) convert country-level Gini coefficients to Theil (2) calculate contribution
-to Theil-T index that includes both between-countries and within-country inequality
-(see e.g. https://en.wikipedia.org/wiki/Theil_index). The latter can then be
-aggregated with calcOutput().
+To calculate the regional Theil-T index (= correction to welfare function for a lognormal income distribution) we do
+the following: (1) convert country-level Gini coefficients to Theil (2) calculate contribution to Theil-T index that
+includes both between-countries and within-country inequality (see e.g. https://en.wikipedia.org/wiki/Theil_index).
+The latter can then be aggregated with calcOutput().
 }
 \details{
 NB 1: the aggregation depends on the region mapping. It is implemented such
@@ -27,7 +24,7 @@ Theil-T, but the unweighted contribution from a given country to the regional va
 }
 \examples{
 \dontrun{
-a <- calcOutput("Theil")
+  calcOutput("Theil")
 }
 
 }

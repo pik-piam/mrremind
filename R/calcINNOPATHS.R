@@ -1,49 +1,43 @@
-#' @importFrom dplyr left_join select filter mutate %>%
-#' @importFrom madrat toolGetMapping
-#'
-calcINNOPATHS <- function(x) {
-  mapping <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    filter(!is.na(!!sym("REMIND"))) %>%
-    mutate(
-      !!sym("REMIND_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("REMIND"))),
-      !!sym("REMIND") := gsub(" \\(.*", "", !!sym("REMIND")),
-      !!sym("INNOPATHS") := gsub(" \\(.*", "", !!sym("Variable")),
-      !!sym("INNOPATHS_unit") := gsub("\\)", "", gsub(".*\\(", "", !!sym("Variable")))
-    ) %>%
-    select(
-      "INNOPATHS", "INNOPATHS_unit", "REMIND", "REMIND_unit", "factor"
-    )
+calcINNOPATHS <- function() {
 
-  data <- readSource("INNOPATHS") %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(
-      "region" = "Region", "variable" = "Data1",
-      "unit" = "Data2", "year" = "Year", "value" = "Value"
-    )
+  x <- readSource("INNOPATHS")
 
-  x <- left_join(
-    data,
-    mapping,
-    by = c("variable" = "INNOPATHS")
-  ) %>%
-    filter(!!sym("REMIND") != "") %>%
-    mutate(
-      !!sym("value") := !!sym("value") * !!sym("factor"),
-      !!sym("year") := as.numeric(as.character(!!sym("year"))),
-      !!sym("REMIND") := paste0(!!sym("REMIND"), " (", !!sym("REMIND_unit"), ")")
-    ) %>%
-    select("region", "year", "variable" = "REMIND", "value") %>%
-    as.magpie()
+  # merge variable and unit to one dimension
+  getNames(x, dim = 1) <- paste0(gsub("\\.", " (", getNames(x)), ")")
+  x <- collapseDim(x, dim = 3.2)
+
+  map <- toolGetMapping("Mapping_INNOPATHS.csv", type = "reportingVariables", where = "mrremind") %>%
+    filter(!is.na(.data$REMIND))
+
+  for (var in intersect(getNames(x, dim = 1), unique(map$Variable))) {
+
+    conv <- map[map$Variable == var, "factor"]
+
+    # there should be a distinct conversion factor in the mapping
+    # if there is more than one conversion factor, it means that one source variable
+    # is converted two more than one target variable using a different conversion
+    # this case is not covered by the logic
+    if (length(unique(conv)) > 1) {
+      stop(paste0("Cannot apply conversion factor for variable ", var))
+    }
+
+    x[, , var] <- x[, , var] * unique(conv)
+  }
+
+  x <- toolAggregate(x,
+    dim = 3.1, rel = map, from = "Variable",
+    to = "REMIND", partrel = TRUE, verbosity = 2
+  )
 
   weights <- x
   weights[, , ] <- NA
-  weights[, , "US$2005", pmatch = T] <- 1
+  weights[, , "US$2005", pmatch = TRUE] <- 1
+  weights[, , "GDP|MER (billion US$2005/yr)"] <- NA
 
   return(list(
     x = x,
     weight = weights,
-    mixed_aggregation = T,
+    mixed_aggregation = TRUE,
     unit = "Various",
     description = "INNOPATHS projections as REMIND variables"
   ))

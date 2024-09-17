@@ -22,7 +22,7 @@
 #' }
 #'
 #' @importFrom rlang .data
-#' @importFrom dplyr %>% filter mutate
+#' @importFrom dplyr filter mutate
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
@@ -33,60 +33,83 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   switch(
     subtype,
     input = {
-      mapping <- "structuremappingIO_inputs.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_biomass = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     trade = {
-      mapping <- "structuremappingIO_trade.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_trade.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_enty", "REMINDitems_trade")
     },
     input_Industry_subsectors = {
-      mapping <- "structuremappingIO_inputs_Industry_subsectors.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs_Industry_subsectors.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output_Industry_subsectors = {
-      mapping <- "structuremappingIO_outputs_Industry_subsectors.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs_Industry_subsectors.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     IEA_output = {
-      mapping <- "structuremappingIO_outputs.csv"
-      where <- "mrcommons"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
                   "iea_product", "iea_flows")
     },
     IEA_input = {
-      mapping <- "structuremappingIO_inputs.csv"
-      where <- "mrremind"
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_inputs.csv",
+                                where = "mrremind",
+                                returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
                   "iea_product", "iea_flows")
     }
   )
-  mapping <- toolGetMapping(type = "sectoral", name = mapping, where = where,
-                            returnPathOnly = TRUE)
 
   if (!(ieaVersion %in% c("default", "latest"))) {
     stop("Invalid parameter `ieaVersion`. Must be either 'default' or 'latest'")
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
-  ieaYear <- if (ieaVersion == "default") 2022 else 2023
+  ieaYear <- if (ieaVersion == "default") 2022 else 2024
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
+
+  # Correct transport reporting issue in IEA data for NONBIODIES.MARBUNK in RUS
+  # FE is reported in 1990 and 2010 but not in the years in between. This cause problems in the harmonization of EDGE-Transport
+  # and the IEA data in 2005 as there is no MARBUNK demand at all for REF regions.
+  data["RUS", seq(1990, 2010, 1), "NONBIODIES.MARBUNK"] <-
+    data["RUS", c(1990, 2010),"NONBIODIES.MARBUNK"]|> time_interpolate(seq(1990, 2010, 1))
+  #Adjust totals
+  data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] <-
+    data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] + data["RUS", seq(1991, 2009, 1), "NONBIODIES.MARBUNK"]
 
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 

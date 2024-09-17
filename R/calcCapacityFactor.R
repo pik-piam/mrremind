@@ -2,7 +2,6 @@
 #' @description provides capacity factor values
 #' @return magpie object of the capacity factor data
 #' @author Renato Rodrigues, Stephen Bi
-#' @importFrom plyr round_any
 #' @examples
 #' \dontrun{
 #' calcOutput("CapacityFactor")
@@ -12,11 +11,15 @@ calcCapacityFactor <- function() {
   ### calculation of coal power capacity factor
   GWh_2_EJ <- 3.6e-6
 
+  # Taken from the plyr package
+  round_any <- function(x, accuracy, f = round) f(x/ accuracy) * accuracy
+
   # Read capacity factor inputs
   global <- readSource("REMIND_11Regi", subtype = "capacityFactorGlobal", convert = FALSE)
 
   # remove no longer used items
-  notUsed <- c("apcarelt", "aptrnelt", "apcarh2t", "apcarpet", "apcardit", "apcardiefft", "apcardieffH2t")
+  notUsed <- c("apcarelt", "aptrnelt", "apcarh2t", "apcarpet", "apcardit",
+               "apcardiefft", "apcardieffH2t", "pcc", "pco")
   global <- global[, , notUsed, invert = TRUE]
 
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)

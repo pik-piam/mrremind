@@ -6,8 +6,6 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join filter
-#' @importFrom madrat toolGetMapping toolCountryFill
-#' @importFrom magclass as.magpie mselect
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
@@ -30,14 +28,12 @@ calcUBA <- function() {
     mapping,
     by = "variable"
   ) %>%
-    mutate(
-      !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
-    ) %>%
+    mutate("REMIND_variable" = paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
   x <- aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie()  %>%
-    toolCountryFill(fill = NA)
+    toolCountryFill(fill = NA, verbosity = 2)
 
   return(list(
     x = x, weight = NULL,

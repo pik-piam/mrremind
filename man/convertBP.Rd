@@ -9,13 +9,14 @@ convertBP(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Either "Emission", "Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
+\item{subtype}{Either "Emission", "Capacity", "Generation", "Production",
+"Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
 }
 \value{
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-Disaggregates historical data.
+Disaggregates and cleans BP data.
 }
 \author{
 Aman Malik, Falk Benke

@@ -7,7 +7,7 @@
 readIAEA()
 }
 \description{
-Data on currently operating and under-construction nuclear power plants, reactors planned and proposed, 
+Data on currently operating and under-construction nuclear power plants, reactors planned and proposed,
 electricity generation from nuclear
 }
 \author{

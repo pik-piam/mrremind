@@ -1,12 +1,11 @@
 #' Gather reference data from various sources.
-#' @importFrom magclass setNames getNames getSets add_columns
 #' @importFrom dplyr filter group_by mutate select ungroup
 #' @importFrom rlang syms
 #' @importFrom tidyr complete nesting
 calcHistorical <- function() {
 
   # Final Energy
-  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE)
+  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
   fe_iea <- add_dimension(fe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   fe_weo <- calcOutput("FE", source = "IEA_WEO", aggregate = FALSE)
@@ -15,7 +14,7 @@ calcHistorical <- function() {
   fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
 
   # Primary Energy
-  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE)
+  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
   pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
 
   pe_weo <- calcOutput("PE", subtype = "IEA_WEO", aggregate = FALSE)
@@ -34,20 +33,12 @@ calcHistorical <- function() {
   pop <- add_dimension(pop, dim = 3.1, add = "model", nm = "WDI")
 
   # GDP in ppp
-  gdpp_James <- calcOutput("GDPPast", aggregate = FALSE) / 1000
-  getNames(gdpp_James) <- paste0("GDP|PPP (billion US$2005/yr)")
-  gdpp_James <- add_dimension(gdpp_James, dim = 3.1, add = "model", nm = "James_IHME")
-
-  gdpp_WB <- calcOutput("GDPPast", GDPPast = "WB_USD05_PPP_pc", aggregate = FALSE) / 1000
-  getNames(gdpp_WB) <- paste0("GDP|PPP (billion US$2005/yr)")
-  gdpp_WB <- add_dimension(gdpp_WB, dim = 3.1, add = "model", nm = "James_WB")
-
-  gdpp_IMF <- calcOutput("GDPPast", GDPPast = "IMF_USD05_PPP_pc", aggregate = FALSE) / 1000
-  getNames(gdpp_IMF) <- paste0("GDP|PPP (billion US$2005/yr)")
-  gdpp_IMF <- add_dimension(gdpp_IMF, dim = 3.1, add = "model", nm = "James_IMF")
+  gdp <- calcOutput("GDPPast", GDPPast = "WDI", aggregate = FALSE) / 1000
+  getNames(gdp) <- paste0("GDP|PPP (billion US$2017/yr)")
+  gdp <- add_dimension(gdp, dim = 3.1, add = "model", nm = "WDI")
 
   # Historical emissions from CEDS data base
-  ceds <- calcOutput("Emissions", datasource = "CEDS2021", aggregate = FALSE)
+  ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
   ceds <- add_dimension(ceds, dim = 3.1, add = "model", nm = "CEDS")
 
   # Historical emissions from PRIMAPhist data base
@@ -65,11 +56,11 @@ calcHistorical <- function() {
   cdiac <- add_dimension(cdiac, dim = 3.1, add = "model", nm = "CDIAC")
 
   # Historical land use emissions (taken from "mrvalidation/R/fullVALIDATION.R")
-  LU_EDGAR_LU <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, try = TRUE)
-  LU_CEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, try = TRUE)
-  LU_FAO_EmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, try = TRUE)
-  LU_FAO_EmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, try = TRUE)
-  LU_PRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, try = TRUE)
+  LU_EDGAR_LU <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_CEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_FAO_EmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_FAO_EmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  LU_PRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, try = TRUE, warnNA = FALSE)
 
   # remove scenario dimension (will be added below as also for remind variables)
   LU_EDGAR_LU <- collapseNames(LU_EDGAR_LU, collapsedim = 1)
@@ -91,11 +82,11 @@ calcHistorical <- function() {
 
   # Read IRENA renewables capacity data
   IRENAcap <- readSource(type = "IRENA", subtype = "Capacity")[, , c("Concentrated solar power",
-                                                                     "Geothermal", "Hydropower",
+                                                                     "Geothermal", "Renewable hydropower",
                                                                      "Solar photovoltaic", "Wind")]
   IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
   mapping <- data.frame(
-    IRENA_techs = c("Concentrated solar power", "Geothermal", "Hydropower", "Solar photovoltaic", "Wind"),
+    IRENA_techs = c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind"),
     REMIND_var = c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)",
                    "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)",
                    "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE
@@ -108,9 +99,6 @@ calcHistorical <- function() {
 
   # Region specific historical data ====
 
-  # EEA GHG Projections
-  EEA_GHGProjections <- toolFillEU34Countries(calcOutput("EEAGHGProjections", aggregate = FALSE))
-
   # EEA GHG Sectoral Historical Data
   EEA_GHGSectoral <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
   EEA_GHGSectoral <- add_dimension(EEA_GHGSectoral, dim = 3.1, add = "model", nm = "EEA_historical")
@@ -119,7 +107,7 @@ calcHistorical <- function() {
   EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim = 3.1, add = "model", nm = "EEA_historical")
 
   # Calculate Emission Reference Values
-  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE))
+  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE, warnNA = TRUE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
 
   # Eurostat emissions
@@ -239,10 +227,10 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n)
 
   varlist <- list(
-    fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdpp_James,
-    gdpp_WB, gdpp_IMF, ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
+    fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
+    ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiEurostat,
-    EEA_GHGSectoral, EEA_GHGTotal, EEA_GHGProjections, Emi_Reference,
+    EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
     worldsteel, USGS_cement
   )
 

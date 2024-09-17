@@ -16,8 +16,8 @@ WGBU data as MAgPIE object aggregated to country level
 Convert WGBU data on ISO country level.
 }
 \examples{
-
-\dontrun{ a <- convertWGBU(x)
+\dontrun{
+a <- convertWGBU(x)
 }
 
 }

@@ -1,23 +1,19 @@
-
-
-
 calcRiskPremium <- function() {
-  
-  # read data
-  x <- readSource("OECD",subtype = "riskClass")
-  
-  # convert into percent
+  # Read risk class data from OECD
+  x <- readSource("OECD")
+
+  # Convert into percent
   x <- x / 100
-  
-  # delete dimensions that are same and not in the GAMS-code
+
+  # Delete dimensions that are same and not in the GAMS-code
   getNames(x) <- NULL
   getYears(x) <- NULL
-  
-  # use GDP as weight
-  w <- calcOutput("GDP",aggregate=FALSE)[,2005,"gdp_SSP2"]
- 
-  return(list(x           = x,
-              weight      = w,
-              unit        = "dimensionless",
-              description = "risk premium that lowers the use of capital imports"))
+
+  # Use GDP as weight
+  w <- calcOutput("GDP", aggregate = FALSE)[, 2005, "gdp_SSP2"]
+
+  list(x           = x,
+       weight      = w,
+       unit        = "Dimensionless",
+       description = "Risk premium that lowers the use of capital imports")
 }

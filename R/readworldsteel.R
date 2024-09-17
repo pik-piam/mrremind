@@ -21,10 +21,7 @@
 #'
 #' @importFrom dplyr bind_rows filter group_by inner_join left_join mutate
 #'             select summarise
-#' @importFrom madrat toolISOhistorical
-#' @importFrom magclass as.data.frame as.magpie
 #' @importFrom quitte add_countrycode_ madrat_mule
-#' @importFrom readODS read_ods
 #' @importFrom readr read_delim read_rds
 #' @importFrom rlang is_empty
 #' @importFrom tibble as_tibble tribble
@@ -41,8 +38,40 @@ readworldsteel <- function(subtype = 'detailed') {
 
       # to facilitate debugging
       file_path <- './Steel_Statistical_Yearbook_combined.ods'
+      base_path <- file.path('./source/statistical_yearbook_2023_data/')
 
-      d <- lapply(
+      .country_to_iso3c <- function(data)
+      {
+        data %>%
+          add_countrycode_(origin = c(country = 'country.name'),
+                           destination = 'iso3c', warn = FALSE) %>%
+          # add fake iso3c codes for former countries and aggregates
+          left_join(
+            tribble(
+              ~country,                  ~iso3c.alt,
+              'Belgium-Luxembourg',      'blx',
+              'Belgium-Luxemburg',       'blx',
+              'Czechoslovakia',          'CSK',
+              'Serbia and Montenegro',   'SCG',
+              'Serbia-Montenegro',       'SCG',
+              'Yugoslavia',              'YUG',
+              'F.R. Yugoslavia',         'YUG',
+              'Former Yugoslavia',       'YUG'),
+
+            'country'
+          ) %>%
+          mutate(iso3c = ifelse(!is.na(.data$iso3c), .data$iso3c,
+                                .data$iso3c.alt)) %>%
+          select('iso3c', 'year', 'name', 'value') %>%
+          assert(not_na, 'iso3c') %>%
+          # combine country aggregates
+          group_by(.data$iso3c, .data$year, .data$name) %>%
+          summarise(value = sum(.data$value, na.rm = TRUE),
+                    .groups = 'drop') %>%
+          filter(0 != .data$value)
+      }
+
+      d_old <- lapply(
         # read these worksheets
         c('Pig Iron Production',
           'DRI Production',
@@ -53,7 +82,7 @@ readworldsteel <- function(subtype = 'detailed') {
           'Apparent Steel Use (Crude Steel Equivalent)'),
         function(sheet) {
           # from this file
-          read_ods(path = file_path, sheet = sheet, na = '...') %>%
+          readODS::read_ods(path = file_path, sheet = sheet, na = '...') %>%
             as_tibble() %>%
             mutate(name = sheet) %>%
             pivot_longer(c(-'country', -'name'), names_to = 'year',
@@ -61,27 +90,43 @@ readworldsteel <- function(subtype = 'detailed') {
                            as.integer(sub('^X', '', x)) }))
         }) %>%
         bind_rows() %>%
-        add_countrycode_(origin = c(country = 'country.name'),
-                         destination = 'iso3c', warn = FALSE) %>%
-        # add fake iso3c codes for former countries and aggregates
-        left_join(
-          tribble(
-            ~country,                  ~iso3c.alt,
-            'Belgium-Luxembourg',      'blx',
-            'Czechoslovakia',          'CSK',
-            'Serbia and Montenegro',   'SCG',
-            'Yugoslavia',              'YUG',
-            'F.R. Yugoslavia',         'YUG'),
+        .country_to_iso3c()
 
-          'country'
-        ) %>%
-        mutate(
-          iso3c = ifelse(!is.na(.data$iso3c), .data$iso3c, .data$iso3c.alt)) %>%
-        select('iso3c', 'year', 'name', 'value') %>%
-        # combine country aggregates
-        group_by(.data$iso3c, .data$year, .data$name) %>%
-        summarise(value = sum(.data$value, na.rm = TRUE), .groups = 'drop') %>%
-        filter(0 != .data$value)
+      layout <- tribble(
+        ~name,                                           ~file,                                                           ~range,
+        'Pig Iron Production',                           'P26_Production_of_pig_iron.xlsx',                               'A3:U54',
+        'DRI Production',                                'P27_Production_of_direct_reduced_iron.xlsx',                    'A3:U35',
+        'Total Production of Crude Steel',               'P01_Total_production_of_crude_steel.xlsx',                      'A3:U101',
+        'Production in Oxygen-Blown Converters',         'P05_Production_of_crude_steel_in_oxygen_blown_converters.xlsx', 'A3:U54',
+        'Production in Open Hearth Furnaces',            'P07_Production_of_crude_steel_in_other_processes.xlsx',         'A3:U82',
+        'Production in Electric Arc Furnaces',           'P06_Production_of_crude_steel_in_electric_furnaces.xlsx',       'A3:U100',
+        'Apparent Steel Use (Crude Steel Equivalent)',   'U01_Apparent_steel_use_(crude_steel_equivalent).xlsx',          'A3:U125')
+
+      d_new <- lapply(seq_len(nrow(layout)),
+                      function(i) {
+                        readxl::read_excel(path = file.path(base_path, layout[[i,'file']]),
+                                           range = layout[[i,'range']]) %>%
+                          rename(country = 'Country') %>%
+                          filter(!.data$country %in% c('World', 'Others')) %>%
+                          pivot_longer(-'country', names_to = 'year',
+                                       names_transform = as.integer) %>%
+                          mutate(name = layout[[i,'name']])
+                      }) %>%
+        bind_rows() %>%
+        .country_to_iso3c()
+
+      d_new_incomplete_years <- d_new %>%
+        group_by(.data$year) %>%
+        distinct(.data$name) %>%
+        summarise(count = n()) %>%
+        filter(max(.data$count) != .data$count) %>%
+        pull('year')
+
+      d_new <- d_new %>%
+        filter(!.data$year %in% d_new_incomplete_years)
+
+      d <- overwrite(d_new, d_old)
+
 
       # split historic aggregates into current countries
       d %>%

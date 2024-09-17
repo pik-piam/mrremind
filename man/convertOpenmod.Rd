@@ -10,17 +10,18 @@ convertOpenmod(x)
 \item{x}{MAgPIE object to be converted}
 }
 \value{
-A MAgPIE object containing openmod EU country disaggregated data with 2010 and 2015 electricity capacities (GW)
+A MAgPIE object containing openmod EU country disaggregated data with
+2010 and 2015 electricity capacities (GW)
 }
 \description{
 Converts Openmod capacities data
 }
 \examples{
-
-\dontrun{ a <- convertOpenmod(x)
+\dontrun{
+a <- convertOpenmod(x)
 }
- 
- 
+
+
 }
 \author{
 Renato Rodrigues

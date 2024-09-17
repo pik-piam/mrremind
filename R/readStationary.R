@@ -3,7 +3,6 @@
 #' @return magclass object
 #'
 #' @author Antoine Levesque, Robin Hasse
-#' @importFrom magclass read.magpie mselect as.magpie mbind add_dimension
 readStationary <- function() {
 
   scenarios <- list(

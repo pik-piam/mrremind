@@ -10,7 +10,8 @@ readAriadneDB()
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-Scenario data from the Ariadne modeling intercomparison project for Germany. See README in input file for more details.
+Scenario data from the Ariadne modeling intercomparison project for Germany.
+See README in input file for more details.
 }
 \author{
 Felix Schreyer

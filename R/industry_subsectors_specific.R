@@ -50,7 +50,6 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom dplyr anti_join bind_rows filter select
-#' @importFrom magclass as.magpie
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom tidyr complete nesting
@@ -65,7 +64,7 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
   # subtype switchboard ----
   switchboard <- list(
     'FE' = function() {
-      read_csv(file = file.path(path, 'specific_FE.csv'),
+      read_csv(file = file.path(path, 'specific_FE.SSP3.csv'),
                col_types = 'cccd',
                comment = '#',
                progress = FALSE) %>%

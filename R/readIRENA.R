@@ -12,7 +12,7 @@
 #' a <- readSource(type = "IRENA", subtype = "Capacity")
 #' }
 #'
-#' @importFrom dplyr mutate %>% rename
+#' @importFrom dplyr mutate rename
 #' @importFrom readr read_csv
 
 readIRENA <- function(subtype) {
@@ -31,7 +31,7 @@ readIRENA <- function(subtype) {
     id.vars = c(1, 2),
     variable.name = "years", value.name = "value"
   ) %>%
-    mutate(!!sym("value") := as.numeric(!!sym("value"))) %>%
+    mutate("value" = as.numeric(!!sym("value"))) %>%
     suppressWarnings()
 
   # rearrange column order to more readable format: year, country, tech, value (capacity or generation)

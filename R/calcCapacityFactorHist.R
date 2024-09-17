@@ -19,7 +19,7 @@ calcCapacityFactorHist <- function(subtype){
     
   #mapping of remind technology names to IRENA categories
   rem_Irena_map <- data.frame(rem=c("hydro","wind","spv","csp","bioigcc","geohdr"),
-                              irena= c("Hydropower","Wind","Solar photovoltaic","Concentrated solar power", "Bioenergy","Geothermal"))
+                              irena= c("Renewable hydropower","Wind","Solar photovoltaic","Concentrated solar power", "Bioenergy","Geothermal"))
   # Read capacity factor inputs
   hist_cap <- readSource(type="IRENA",subtype="Capacity")/1000 # converting from MW to GW
   hist_gen <- readSource("IRENA", subtype = "Generation")# Units are GWh
@@ -58,7 +58,7 @@ calcCapacityFactorHist <- function(subtype){
     #mapping of remind technology names to IRENA categories
     tech_list = c("hydro","wind","windoff","spv","csp","bioigcc","geohdr")
     rem_Irena_map <- data.frame(rem=tech_list,
-                                irena= c("Hydropower","Onshore wind energy", "Offshore wind energy","Solar photovoltaic","Concentrated solar power", "Bioenergy","Geothermal"))
+                                irena= c("Renewable hydropower","Onshore wind energy", "Offshore wind energy","Solar photovoltaic","Concentrated solar power", "Bioenergy","Geothermal"))
     # Read capacity factor inputs
     hist_cap <- readSource(type="IRENA",subtype="Capacity") / 1000 # converting from MW to GW
     hist_gen <- readSource("IRENA", subtype = "Generation")# Units are GWh

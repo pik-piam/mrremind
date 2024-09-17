@@ -15,7 +15,7 @@
 
 fullVALIDATIONREMIND <- function(rev = 0) {
 
-  years = NULL
+  years <- NULL
 
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
@@ -88,6 +88,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
   # EDGAR8 Emissions----
+
   edg8 <- calcOutput(
     type = "Emissions", datasource = "EDGAR8",
     aggregate = columnsForAggregation, warnNA = FALSE,
@@ -131,6 +132,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical")
   )
 
+  # EU National GHG Projections ----
+
+  calcOutput(
+    type = "EEAGHGProjections", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical")
+  )
+
   # Global Energy Monitor ----
 
   calcOutput(
@@ -157,7 +167,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical")
   )
 
-  # IEA EV Outlook ----
+  # IEA Global EV Outlook ----
 
   calcOutput(
     type = "IEA_EVOutlook", file = valfile,
@@ -166,22 +176,21 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
 
-  # IEA WEO 2021  ----
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "global", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, years = years,
+  # IEA World Energy Outlook  ----
+  calcOutput(
+    type = "IEA_WorldEnergyOutlook", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years, writeArgs = list(scenario = "historical")
   )
 
-  weo <- weo["GLO", , ]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
+  # IEA CCUS  ----
 
-  weo <- calcOutput(
-    type = "IEA_WEO_2021", subtype = "region", aggregate = columnsForAggregation,
-    warnNA = FALSE, try = FALSE, years = years,
+  calcOutput(
+    type = "CCScapacity", subtype = "historical", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical")
   )
-
-  weo <- weo["GLO", , invert = TRUE]
-  write.report(weo, file = valfile, append = TRUE, scenario = "historical")
 
   # INNOPATHS ----
 

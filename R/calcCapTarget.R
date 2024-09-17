@@ -4,7 +4,7 @@
 #' The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
 #' @author Aman Malik, Oliver Richters
 #' @param sources Database source
-#' @importFrom dplyr %>% filter
+#' @importFrom dplyr filter
 
 
 calcCapTarget <- function(sources) {
@@ -30,7 +30,9 @@ calcCapTarget <- function(sources) {
       "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2022_cond"),
       "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2022_uncond"),
       "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2023_cond"),
-      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond")
+      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond"),
+      "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2024_cond"),
+      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2024_uncond")
     )
 
     listYears   <- lapply(listCapacitiesNDC, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
@@ -99,7 +101,7 @@ calcCapTarget <- function(sources) {
     # hydrogen capacity targets from national/EU hydrogen strategies
 
     # Region targets
-    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional", 
+    reg.map <- toolGetMapping("regionmappingH12.csv", type = "regional",
                               where = "mappingfolder") # get H12 regionmapping
     H2Target.reg <- new.magpie(unique(reg.map$RegionCode), getYears(x), "elh2", fill = 0)
     # Electrolyzer capacity target from the EU Hydrogen Strategy

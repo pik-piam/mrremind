@@ -13,7 +13,7 @@ convertStegmann2022 <- function(x) {
   fe <- calcOutput("FE", source = "IEA", aggregate = FALSE)[unique(regmapping$CountryCode), 2016, "FE (EJ/yr)"]
 
   out <- toolAggregate(x, regmapping, from = "RegionAbbreviation", to = "CountryCode", weight = fe)
-  out <- toolCountryFill(out, fill = 0)
+  out <- toolCountryFill(out, fill = 0, verbosity = 2)
 
   return(out)
 }

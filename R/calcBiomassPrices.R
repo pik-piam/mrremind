@@ -1,7 +1,5 @@
 #' read biomass supply curves from Magpie emulator
 #' @return Magpie object with two parameters determining linear biomass supply curve
-#' @importFrom magclass dimReduce
-#' @importFrom madrat readSource
 #' @import mrcommons
 
 calcBiomassPrices <- function(){
@@ -20,6 +18,11 @@ calcBiomassPrices <- function(){
   
   # Introduce new SSP/SDP dimension by replacing "-" with "."
   getNames(x) <- gsub("(SSP[0-9]|SDP)-","\\1.",getNames(x))
+  
+  # add supply curves for SSP3 using the curves from SSP2
+  tmp <- x[,,"SSP2"]
+  getNames(tmp) <- gsub("SSP2", "SSP3", getNames(tmp))
+  x <- mbind(x, tmp)
   
   # if fit coefficients of a country are NA for all years (there is no supplycurve at all for this country)
   # generate artificial supplycurve with VERY high prices

@@ -19,8 +19,8 @@ Read in Davies (2013) data on shares of cooling types per electricity
 technology and GCAM region
 }
 \examples{
-
-\dontrun{ a <- readSource(type="DaviesCooling")
+\dontrun{
+a <- readSource(type = "DaviesCooling")
 }
 
 }

@@ -13,8 +13,8 @@ magpie object of WGBU
 Read-in an WGBU xlsx file as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="WGBU")
+\dontrun{
+a <- readSource(type = "WGBU")
 }
 
 }

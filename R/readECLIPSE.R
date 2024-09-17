@@ -1,7 +1,4 @@
-#' @importFrom dplyr mutate_ rename_ filter_ select_
-#' @importFrom tidyr gather_
 # NH3 only has one scenario
-
 readECLIPSE <- function(subtype) {
 
   if (is.null(subtype) | ! subtype %in% c('activities.aggregated', 'activities.extended', 'emissions.aggregated', 'emissions.extended', 'shipping.emi', 'shipping.ef'))

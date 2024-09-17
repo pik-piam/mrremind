@@ -7,13 +7,14 @@
 readBP(subtype)
 }
 \arguments{
-\item{subtype}{Either "Emission", Capacity", "Generation", "Production", "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
+\item{subtype}{Either "Emission", Capacity", "Generation", "Production",
+"Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
 }
 \value{
 A [`magpie`][magclass::magclass] object.
 }
 \description{
-BP data. See README in input file for more details.
+BP Capacity and Generation Data
 }
 \author{
 Aman Malik, Falk Benke

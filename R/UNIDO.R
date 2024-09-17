@@ -64,9 +64,6 @@
 #' @importFrom assertr assert not_na
 #' @importFrom dplyr anti_join bind_rows filter group_by inner_join left_join
 #'     mutate select summarise
-#' @importFrom madrat readSource toolCountryFill
-#' @importFrom magclass as.magpie dimSums mbind setNames
-#' @importFrom magrittr %>%
 #' @importFrom quitte list_to_data_frame madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom rlang .data is_empty

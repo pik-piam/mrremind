@@ -14,7 +14,6 @@
 #' calcOutput("PotentialWindOn")
 #' 
 #' }
-#' @importFrom magclass getNames
 calcPotentialWindOn <- function() {
   
   # read wind onshore data 

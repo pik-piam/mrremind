@@ -12,7 +12,6 @@
 #' @author Michaja Pehl
 #'
 #' @importFrom assertr assert
-#' @importFrom countrycode countrycode
 #' @importFrom dplyr bind_rows mutate pull rename select distinct
 #' @importFrom readr read_csv
 #' @importFrom readxl read_excel

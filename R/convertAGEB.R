@@ -8,9 +8,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr %>%
-#' @importFrom madrat getISOlist
-#'
 #' @export
 convertAGEB <- function(x) {
   add_columns(x, addnm = setdiff(getISOlist(), "DEU"), dim = 1, fill = NA) %>% return()

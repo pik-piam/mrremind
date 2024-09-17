@@ -7,8 +7,6 @@
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
-#' @importFrom magclass nyears
-#' @importFrom R.utils isZero
 
 convertUNFCCC_NDC <- function(x, subtype) {                                # nolint: object_name_linter.
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -75,7 +73,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
     hist_gen <- readSource("IRENA", subtype = "Generation")      # Units are GWh
 
     # Real world capacity factor for hydro = Generation in last year/Capacity in last year
-    cf_hydro_realworld <- hist_gen[, 2015, "Hydropower"] / (8760 * hist_cap[, 2015, "Hydropower"])
+    cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] / (8760 * hist_cap[, 2015, "Renewable hydropower"])
     cf_hydro_realworld[is.na(cf_hydro_realworld) | is.infinite(cf_hydro_realworld)] <- 0
     getNames(cf_hydro_realworld) <- "Hydro"
 
@@ -90,7 +88,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
     x_capacity[, , "Biomass"]           <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, "Bioenergy"])
 
     # special case for hydro.
-    x_capacity[, , "Hydro"]             <- setYears(hist_gen[getItems(x_capacity, dim = "region"), 2015, "Hydropower"])
+    x_capacity[, , "Hydro"]             <- setYears(hist_gen[getItems(x_capacity, dim = "region"), 2015, "Renewable hydropower"])
     # Special case for nuclear
     hist_gen_nuclear <- readSource("BP", subtype = "Generation") * 1000 # TWh to GWh
     for (i in targetYears) {
@@ -172,7 +170,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
           tmp_target <- numeric(10)
           name <- paste0(t, ".maxprod")
           name2 <- paste0("Production-Absolute.", t)
-          if (!isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &
+          if (!R.utils::isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &
               dimSums(data_combined[r, , name], na.rm = TRUE) > max(x_mod5[r, , name2])) {
             # extracting the first non-zero location of maxprod
             name <- paste0(t, ".maxprod")
@@ -243,11 +241,11 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
     x_other[, , c("Wind", "Solar")]  <- setYears(hist_cap[rest_regions, 2015, c("Solar", "Wind")])
     x_other[, , "Nuclear"] <- 0
     x_other[, , "Biomass"] <- setYears(hist_cap[rest_regions, 2015, "Bioenergy"])
-    x_other[, , "Hydro"] <- setYears(hist_cap[rest_regions, 2015, "Hydropower"]) * setYears(cf_hydro[rest_regions, , ])
+    x_other[, , "Hydro"] <- setYears(hist_cap[rest_regions, 2015, "Renewable hydropower"]) * setYears(cf_hydro[rest_regions, , ])
 
     x_final <- magpiesort(mbind(x_capacity, x_other))
     x_final[is.na(x_final)] <- 0
-    x <- toolCountryFill(x_final, fill = NA) # will be returned
+    x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
     getNames(x) <- c("wind", "spv", "hydro", "tnrs", "bioigcc")
     # end subtype contains Capacity
 
@@ -376,7 +374,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
         ghgfactor[regi, , ][ghgfactor[regi, , ] > 2.5] <- NA
       }
     }
-    x <- toolCountryFill(ghgfactor, fill = NA)
+    x <- toolCountryFill(ghgfactor, fill = NA, verbosity = 2)
 
   } # end subtype = Emissions_all
 

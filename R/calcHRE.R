@@ -6,8 +6,6 @@
 #' @author Pascal Weigmann
 #'
 #' @importFrom dplyr select
-#' @importFrom madrat toolGetMapping
-#' @importFrom magclass as.magpie
 #' @export
 
 calcHRE <- function() {

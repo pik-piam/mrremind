@@ -1,10 +1,11 @@
-#' Calculate REMIND variables from Global Energy Monitor
+#' Calc capacities from Global Energy Monitor
+#'
+#' Calculate near-term expectations of capacities for use in fullVALIDATION.R
 #'
 #' @md
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke
-#' @importFrom magclass add_dimension
 #' @export
 
 calcGlobalEnergyMonitor <- function() {
@@ -13,6 +14,10 @@ calcGlobalEnergyMonitor <- function() {
 
   # set 0s in other CHA countries than China to approximate CHA as China
   x[c("HKG", "MAC", "TWN"), , ] <- 0
+
+  # ASSUMPTION: sum over all statuses
+  # this means that all planned projects will be realized!
+  x <- dimSums(x, dim = "status")
 
   return(list(
     x = x,

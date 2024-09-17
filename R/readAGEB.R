@@ -10,8 +10,6 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows select filter mutate
 #' @importFrom rlang sym
-#' @importFrom reshape2 melt
-#' @importFrom magclass as.magpie
 #'
 #' @export
 readAGEB <- function(subtype = "balances") {
@@ -68,7 +66,7 @@ readAGEB <- function(subtype = "balances") {
         )
       ) %>%
         filter(!is.na(!!sym("Einheit"))) %>%
-        mutate(!!sym("Energietraeger") := paste0(sheets[["name"]][[i]], "|", !!sym("Energietr\u00E4ger"))) %>%
+        mutate("Energietraeger" = paste0(sheets[["name"]][[i]], "|", !!sym("Energietr\u00E4ger"))) %>%
         select(-1)
 
       data <- bind_rows(data, tmp)
@@ -89,13 +87,13 @@ readAGEB <- function(subtype = "balances") {
       col_types = c("text", rep("numeric", 32)),
       range = "B3:AH17", .name_repair = "minimal", na = c("k.A.")
     ) %>%
-      mutate(!!sym("TWh") := gsub(", darunter:", "", !!sym("TWh"))) %>%
-      mutate(!!sym("TWh") := gsub("- ", "", !!sym("TWh"))) %>%
-      mutate(!!sym("TWh") := gsub("[0-9])", "", !!sym("TWh"))) %>%
-      mutate(!!sym("variable") := paste0("9 Bruttostromerzeugung|", !!sym("TWh"))) %>%
+      mutate("TWh" = gsub(", darunter:", "", !!sym("TWh"))) %>%
+      mutate("TWh" = gsub("- ", "", !!sym("TWh"))) %>%
+      mutate("TWh" = gsub("[0-9])", "", !!sym("TWh"))) %>%
+      mutate("variable" = paste0("9 Bruttostromerzeugung|", !!sym("TWh"))) %>%
       select(-1) %>%
       reshape2::melt(id.vars = c("variable"), variable.name = "period", value.name = "value") %>%
-      mutate(!!sym("region") := "DEU", !!sym("unit") := "TWh") %>%
+      mutate("region" = "DEU", "unit" = "TWh") %>%
       select("region", "period", "variable", "unit", "value") %>%
       as.magpie() %>%
       return()

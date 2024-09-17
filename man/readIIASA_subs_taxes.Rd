@@ -20,8 +20,8 @@ Read-in country level data on final energy taxes and subsidies as provided
 from IIASA from .csv file as magclass object
 }
 \examples{
-
-\dontrun{ a <- readSource(type="IIASA_subs_taxes","tax_rate")
+\dontrun{
+a <- readSource(type = "IIASA_subs_taxes", "tax_rate")
 }
 
 }

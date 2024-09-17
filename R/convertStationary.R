@@ -164,7 +164,7 @@ convertStationary <- function(x) {
   xadd <- toolAggregate(x, mappingfile, weight = wfe,
                         from = region_col,
                         to = iso_col)
-  result <- toolCountryFill(xadd, 0)
+  result <- toolCountryFill(xadd, 0, verbosity = 2)
 
   # re-calculating fepet and fedie final energy based on updated EDGE shares
   share <- readSource(type = "EDGETransport", subtype = "shares_LDV_transport")

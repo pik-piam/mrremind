@@ -8,14 +8,13 @@
 #'
 #' @author Pascal Weigmann
 #'
-#' @importFrom madrat toolCountryFill
 #'
 #' @export
 
 convertEmber <- function(x) {
 
   # add missing countries
-  x <- toolCountryFill(x, fill = 0, verbosity = 2)
+  x <- toolCountryFill(x, fill = 0, verbosity = 2, no_remove_warning = "XKX")
 
   # replace NA by 0 to enable aggregation over incomplete regions
   x[is.na(x)] <- 0

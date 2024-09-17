@@ -5,11 +5,8 @@
 #' @return Magpie object with IEA PVPS investment cost per country
 #' @author Felix Schreyer
 
-
-
 convertIEA_PVPS <- function(x, subtype) {
-  
-  regmapping <- toolGetMapping("regionmappingH12.csv",where = "mappingfolder",type = "regional")
+  regmapping <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
   x_iso <- toolAggregate(x, regmapping)
- return(x_iso)
-}  
+  return(x_iso)
+}

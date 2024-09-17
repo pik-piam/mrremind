@@ -7,7 +7,8 @@
 calcEmissions(datasource = "CEDS16")
 }
 \arguments{
-\item{datasource}{"CEDS16", "CEDS2REMIND", "CEDS2021", "EDGAR", "EDGAR6", "LIMITS", "ECLIPSE", "GFED", "CDIAC"}
+\item{datasource}{"CEDS16", "CEDS2REMIND", "CEDS2024", "EDGAR", "EDGAR6",
+"EDGAR8" "LIMITS", "ECLIPSE", "GFED", "CDIAC"}
 }
 \value{
 magpie object with historical emissions

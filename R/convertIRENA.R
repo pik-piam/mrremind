@@ -5,7 +5,6 @@
 #' @return A MAgPIE object containing IRENA country disaggregated data  with
 #' historical electricity renewable capacities (MW) or generation levels (GWh)
 #' @author Renato Rodrigues
-#' @importFrom madrat toolCountry2isocode
 #' @examples
 #' \dontrun{
 #' a <- convertIRENA(x, subtype = "Capacity")
@@ -25,6 +24,6 @@ convertIRENA <- function(x, subtype) {
   x["SRB", , ] <- x["SRB", , ] + x1
   x <- x[c("KOS"), , , invert = TRUE]
   # fill countries with no data
-  x <- toolCountryFill(x, fill = 0, verbosity = 0)
+  x <- toolCountryFill(x, fill = 0, verbosity = 2)
   return(x)
 }

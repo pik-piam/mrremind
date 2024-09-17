@@ -8,8 +8,6 @@
 #' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
 #'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
-#' @importFrom madrat toolGetMapping toolCountryFill
-#' @importFrom magclass as.magpie mselect
 #' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
@@ -17,7 +15,7 @@ calcAGEB <- function(subtype = "balances") {
   ageb <- readSource("AGEB", subtype = subtype)
 
   mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    mutate(!!sym("conversion") := as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
+    mutate("conversion" = as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
     select("variable" = "AGEB_variable", "REMIND_variable", "conversion", "unit" = "Unit_AGEB", "Unit_REMIND") %>%
     filter(!!sym("REMIND_variable") != "")
 
@@ -34,8 +32,8 @@ calcAGEB <- function(subtype = "balances") {
     by = "variable"
   ) %>%
     mutate(
-      !!sym("value") := !!sym("value") * !!sym("conversion"),
-      !!sym("REMIND_variable") := paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
+      "value" = !!sym("value") * !!sym("conversion"),
+      "REMIND_variable" = paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
     ) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 

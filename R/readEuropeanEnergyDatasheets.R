@@ -13,8 +13,6 @@
 #' @importFrom readxl excel_sheets read_excel
 #' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
 #' or "EU27" (latest data from August 23 without GBR)
-#' @importFrom reshape2 melt
-#' @importFrom dplyr %>%
 #' @importFrom tidyr drop_na extract
 #' @importFrom readxl excel_sheets read_excel
 #' @importFrom stats aggregate
@@ -91,7 +89,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
     # merge into single dataframe
     data <- do.call("rbind", data)
     # long format
-    data <- melt(data, id.vars = 1:2)
+    data <- reshape2::melt(data, id.vars = 1:2)
     colnames(data) <- c("variable", "region", "period", "value")
     # dump contents into magpie
     x <- as.magpie(data, spatial = 2, datacol = 4, temporal = 3)
@@ -654,11 +652,11 @@ readEuropeanEnergyDatasheets <- function(subtype) {
           bind_cols(rows) %>%
           drop_na("variable", "unit") %>%
           select(-1) %>%
-          melt(id.vars = c("variable", "unit"), variable.name = "year") %>%
+          reshape2::melt(id.vars = c("variable", "unit"), variable.name = "year") %>%
           mutate(
-            "year" := as.numeric(as.character(.data$year)),
-            "region" := sheet,
-            "value" := suppressWarnings(as.numeric(.data$value))
+            "year" = as.numeric(as.character(.data$year)),
+            "region" = sheet,
+            "value" = suppressWarnings(as.numeric(.data$value))
           )
       )
     }
