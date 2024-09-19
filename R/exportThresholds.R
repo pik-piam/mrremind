@@ -6,15 +6,9 @@
 #' @author Pascal Weigmann
 #' @param type choose either "config" to export thresholds as used in the
 #'        validationConfig or "full" to export all pipeline data
-#' @param years choose years to include, currently only 2025 and 2030 are
-#'        available for all sources
+#'
 #' @export
-exportThresholds <- function(type = "config", years = c(2025, 2030)) {
-  # extra regions for ELEVATE
-  # setConfig(regionmapping = "regionmappingR10_elevate.csv")
-  # setConfig(forcecache = "GDP")
-  # extraRegions <- c("CHN", "IND", "IDN", "VNM", "PAK")
-
+exportThresholds <- function(type = "config") {
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
@@ -40,6 +34,10 @@ exportThresholds <- function(type = "config", years = c(2025, 2030)) {
     paste(rel, collapse = "+")
   )
 
+  # time horizon, currently not flexible
+  years <- c(2020, 2025, 2030)
+
+  # assemble data ----
   # the following magclass objects are expected to have the dimensions "status"
   # as dim 3.3
   ccs <- calcOutput("ProjectPipelines", subtype = "CCS",
@@ -62,13 +60,56 @@ exportThresholds <- function(type = "config", years = c(2025, 2030)) {
                       aggregate = columnsForAggregation, round = 3,
                       warnNA = FALSE, try = FALSE, years = years)
 
-  # combine and export data to madrat output folder
 
-  out <- mbind(ccs, hydro, wind, solar)
+  # combine and export data to madrat output folder
+  out <- mbind(ccs, hydro, nuclear, wind, solar)
   # remove ROW region, in case it exists
   out <- out["ROW", , invert = TRUE]
 
-  # export
+  # additional calculations ----
+  # threshold calculations after regional aggregation
+
+  # harmonize status name first
+  idx <- which(getNames(out, dim  = 3) == "operating")
+  getNames(out, dim = 3)[idx] <- "operational"
+
+  # ASSUMPTION
+  # regional bounds should be less strict than global ones: use logic of
+  # "red" bounds as "yel" regional bounds and remove "red" regional bounds
+  # (exception for 2020, see below)
+  regions <- getItems(out["GLO", , , invert = TRUE], dim = 1)
+  out[regions, , "min_yel"] <- out[regions, , "min_red"]
+  out[regions, , "max_yel"] <- out[regions, , "max_red"]
+  out[regions, , "min_red"] <- NA
+  out[regions, , "max_red"] <- NA
+
+  # ASSUMPTION[2020]: operational +- 5/10% (world) and +- 20/40% (regions)
+  out["GLO", 2020, "min_red"] <- out["GLO", 2020, "operational"]*0.9
+  out["GLO", 2020, "min_yel"] <- out["GLO", 2020, "operational"]*0.95
+  out["GLO", 2020, "max_yel"] <- out["GLO", 2020, "operational"]*1.05
+  out["GLO", 2020, "max_red"] <- out["GLO", 2020, "operational"]*1.1
+
+  # exception for 2020: use yel and red bounds for regions
+  out[regions, 2020, "min_red"] <- out[regions, 2020, "operational"]*0.6
+  out[regions, 2020, "min_yel"] <- out[regions, 2020, "operational"]*0.8
+  out[regions, 2020, "max_yel"] <- out[regions, 2020, "operational"]*1.2
+  out[regions, 2020, "max_red"] <- out[regions, 2020, "operational"]*1.4
+
+  # Additional tolerance for ALL Thresholds
+  #
+  # ASSUMPTION[2025, 2030] red: additional buffer +-10% (world)
+  # ASSUMPTION[2025, 2030] yel: additional buffer +- 5% (world)
+  #                             additional buffer +-40% (regions)
+  out["GLO", c(2025, 2030), "min_red"] <- out["GLO", c(2025, 2030), "min_red"]*0.9
+  out["GLO", c(2025, 2030), "min_yel"] <- out["GLO", c(2025, 2030), "min_yel"]*0.95
+  out["GLO", c(2025, 2030), "max_yel"] <- out["GLO", c(2025, 2030), "max_yel"]*1.05
+  out["GLO", c(2025, 2030), "max_red"] <- out["GLO", c(2025, 2030), "max_red"]*1.1
+
+  out[regions, c(2025, 2030), "min_yel"] <- out[regions, c(2025, 2030), "min_yel"]*0.6
+  out[regions, c(2025, 2030), "max_yel"] <- out[regions, c(2025, 2030), "max_yel"]*1.4
+
+
+  # export to file ----
   if (type == "full") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"

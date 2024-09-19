@@ -4,14 +4,11 @@
 \alias{exportThresholds}
 \title{export validation thresholds}
 \usage{
-exportThresholds(type = "config", years = c(2025, 2030))
+exportThresholds(type = "config")
 }
 \arguments{
 \item{type}{choose either "config" to export thresholds as used in the
 validationConfig or "full" to export all pipeline data}
-
-\item{years}{choose years to include, currently only 2025 and 2030 are
-available for all sources}
 }
 \description{
 assemble near-term thresholds from project pipelines and potentially other
