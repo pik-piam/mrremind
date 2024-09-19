@@ -50,6 +50,10 @@ exportThresholds <- function(type = "config", years = c(2025, 2030)) {
                     aggregate = columnsForAggregation, round = 3,
                     warnNA = FALSE, try = FALSE, years = years)
 
+  nuclear <- calcOutput("ProjectPipelines", subtype = "nuclear",
+                        aggregate = columnsForAggregation, round = 3,
+                        warnNA = FALSE, try = FALSE, years = years)
+
   wind <- calcOutput("ProjectPipelines", subtype = "wind",
                       aggregate = columnsForAggregation, round = 3,
                       warnNA = FALSE, try = FALSE, years = years)

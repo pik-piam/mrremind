@@ -162,19 +162,69 @@ calcProjectPipelines <- function(subtype) {
   #   # meta data
   #   unit <- "GW"
   #   description <- "Biomass project pipeline from GEM"
-  #
-  #   # Nuclear ####
-  # } else if (subtype == "nuclear") {
-  #   x <- readSource("GlobalEnergyMonitor")
-  #   x <- x[, , "Nuclear", pmatch = T]
-  #
-  #
-  #
-  #   # meta data
-  #   unit <- "GW"
-  #   description <- "Nuclear project pipeline from GEM"
-  #
-  #   # Coal ####
+
+  # Nuclear ----
+  } else if (subtype == "nuclear") {
+    # Source 1: GEM
+    x <- readSource("GlobalEnergyMonitor")
+    x <- x[, , "Nuclear", pmatch = T]
+
+    # initialize magclass object for thresholds
+    t <- new.magpie(getRegions(x),
+                    c(2020, 2025, 2030),
+                    c("GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_red.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_yel.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_yel.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_red.GW"),
+                    sets = getSets(x))
+
+    # ASSUMPTION: min_yel (only one project in Belarus with start date)
+    t[, , "min_yel"] <- x[, , "operating"]*0.8
+
+    # no max_yel, max_red -> would probably make sense to use construction also
+    # without start date, otherwise very low upper bounds
+
+    x <- mbind(x, t)
+
+    # Source 2: IEA PRIS
+    # doesn't contain dates for expected start of operation
+    # -> make assumptions for 2030
+    y <- readSource("IEA_PRIS")
+
+    # initialize magclass object for thresholds
+    t <- new.magpie(getRegions(y),
+                    c(2020, 2025, 2030),
+                    c("IEA_PRIS.Cap|Electricity|Nuclear.min_red.GW",
+                      "IEA_PRIS.Cap|Electricity|Nuclear.min_yel.GW",
+                      "IEA_PRIS.Cap|Electricity|Nuclear.max_yel.GW",
+                      "IEA_PRIS.Cap|Electricity|Nuclear.max_red.GW"),
+                    sets = getSets(y))
+
+    # ASSUMPTION: min_red
+    t[, 2030, "min_red"] <- y[, 2030, "operational"]*0.8
+
+    # TODO min_yel, max_yel
+    # ASSUMPTION: min_yel
+    t[, 2030, "min_yel"] <- y[, 2030, "operational"]*0.9
+
+    # ASSUMPTION: max_yel
+    t[, 2030, "max_yel"] <- y[, 2030, "operational"] + y[, 2030, "construction"]*0.75
+
+    # ASSUMPTION: max_red
+    t[, 2030, "max_red"] <- y[, 2030, "operational"] + y[, 2030, "construction"]
+
+    # add empty 2025 and 2030 column, so IEA and GEM data can be merged
+    y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
+    y <- mbind(y, t)
+
+    # combine data from both sources
+    x <- mbind(x, y)
+
+    # meta data
+    unit <- "GW"
+    description <- "Nuclear project pipeline from GEM and IEA PRIS"
+
+  #   # Coal ----
   # } else if (subtype == "coal") {
   #   x <- readSource("GlobalEnergyMonitor")
   #   x <- x[, , "Coal", pmatch = T]
