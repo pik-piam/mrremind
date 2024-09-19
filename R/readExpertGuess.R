@@ -11,13 +11,19 @@
 #'     convergence from historic to target shares is to be applied.
 #'   - `cement_production_convergence_parameters`: convergence year and level
 #'     (relative to global average) to which per-capita cement demand converges
-#'   - Any of the others nobody cared to document.
+#'   - `ies`
+#'   - `prtp`
+#'   - `CCSbounds`
+#'   - `costsTradePeFinancial`
+#'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
+#'      specific trade constraints, values different to 1 activate constraints
+#'      and the value is used as effectiveness to varying degrees such as percentage numbers
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{readSource}}
 #' @examples
-#'
-#' \dontrun{ a <- readSource(type="ExpertGuess",subtype="ies")
+#' \dontrun{
+#' a <- readSource(type = "ExpertGuess", subtype = "ies")
 #' }
 #'
 #' @importFrom dplyr bind_rows filter pull select
@@ -26,9 +32,6 @@
 #' @importFrom tidyr expand_grid
 
 readExpertGuess <- function(subtype) {
-  path <- '~/PIK/swap/inputdata/sources/ExpertGuess/'
-  path <- './'
-
   if (subtype == "ies") {
     a <- read.csv("ies.csv", sep = ";")
   } else if (subtype == "prtp") {
@@ -39,63 +42,69 @@ readExpertGuess <- function(subtype) {
     a <- read.csv("co2prices-2023-06.csv", sep = ";")
   } else if (subtype == "costsTradePeFinancial") {
     a <- read.csv("pm_costsTradePeFinancial.csv",
-                  sep = ";",
-                  skip = 2)
+      sep = ";",
+      skip = 2
+    )
   }
 
-  if (subtype == "ies" |
-      subtype == "prtp" |
-      subtype == "CCSbounds" | subtype == "co2prices") {
+  if (subtype == "ies" || subtype == "prtp" || subtype == "CCSbounds" || subtype == "co2prices") {
     a$RegionCode <- NULL
-    a$Country    <- NULL
+    a$Country <- NULL
     out <- as.magpie(a)
   } else if (subtype == "costsTradePeFinancial") {
     out <- as.magpie(a,
-                     spatial = 1,
-                     temporal = 0,
-                     datacol = 3)
+      spatial = 1,
+      temporal = 0,
+      datacol = 3
+    )
     out <- collapseNames(out)
-    #    getSets(out) <- c("region","year","type","pe")
   }
 
-  if (subtype == "ies" | subtype == "prtp") {
+  if (subtype == "ies" || subtype == "prtp") {
     getYears(out) <- "2005"
   }
 
-  if ('Chinese_Steel_Production' == subtype) {
-    out <- read_csv(file = file.path(path, 'Chinese_Steel_Production.csv'),
-                    comment = '#',
-                    show_col_types = FALSE) %>%
-      madrat_mule()
-  } else if ('industry_max_secondary_steel_share' == subtype) {
+  if ("Chinese_Steel_Production" == subtype) {
     out <- read_csv(
-      file = file.path(path, 'industry_max_secondary_steel_share.csv'),
-      comment = '#',
+      file = "Chinese_Steel_Production.csv",
+      comment = "#",
       show_col_types = FALSE
     ) %>%
       madrat_mule()
-  } else if ('cement_production_convergence_parameters' == subtype) {
+  } else if ("industry_max_secondary_steel_share" == subtype) {
     out <- read_csv(
-      file = file.path(path, 'cement_production_convergence_parameters.csv'),
-      col_types = 'cdi',
-      comment = '#')
+      file = "industry_max_secondary_steel_share.csv",
+      comment = "#",
+      show_col_types = FALSE
+    ) %>%
+      madrat_mule()
+  } else if ("cement_production_convergence_parameters" == subtype) {
+    out <- read_csv(
+      file = "cement_production_convergence_parameters.csv",
+      col_types = "cdi",
+      comment = "#"
+    )
 
     out <- bind_rows(
       out %>%
         filter(!is.na(.data$region)),
-
       out %>%
         head(n = 1) %>%
         filter(is.na(.data$region)) %>%
-        select(-'region') %>%
-        expand_grid(region = toolGetMapping(name = 'regionmapping_21_EU11.csv',
-                                            type = 'regional', where = "mappingfolder") %>%
-                      pull('RegionCode') %>%
-                      unique() %>%
-                      sort() %>%
-                      setdiff(out$region))
+        select(-"region") %>%
+        expand_grid(region = toolGetMapping(
+          name = "regionmapping_21_EU11.csv",
+          type = "regional", where = "mappingfolder"
+        ) %>%
+          pull("RegionCode") %>%
+          unique() %>%
+          sort() %>%
+          setdiff(out$region))
     ) %>%
       madrat_mule()
+  } else if (subtype == "tradeConstraints") {
+    a <- read.csv("tradeConstraints.csv", sep = ";")
+    out <- as.magpie(a)
   }
 
   return(out)

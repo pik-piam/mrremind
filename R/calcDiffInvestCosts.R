@@ -3,18 +3,15 @@
 #' @details REMIND does not have a classification of coal power plants e.g., sub-critical. Therefore, countries are given coal plant
 #' costs assuming what type of coal plants are expected to develop there. For other technologies, certain assumptions are taken
 #' to change to REMIND convention.
-#' @param subtype Investment Costs, I&M Costs, and Efficiency
-#' @return Magpie object with aggregated but diffrentiated investment costs for some technologies.
+#' @param subtype "Invest_Costs", or "Efficiency"
+#' @return Magpie object with aggregated but differentiated investment costs for some technologies.
 #' @author Aman Malik
 #' @importFrom dplyr filter
 
 calcDiffInvestCosts <- function(subtype) {
   if (subtype == "Invest_Costs") {
     x <- readSource("IEA_WEO", subtype = "Invest_Costs")
-    x_REN21 <- readSource("REN21", subtype = "investmentCosts")
-    x_IEA_PVPS <- readSource("IEA_PVPS", subtype = "CAPEX")
 
-    # x <- readSource("IEA_WEO")# reading data end of convert function
     x[, , ] <- as.numeric(x[, , ]) # convertng data values into numeric
 
     # Various mapping files used to get needed mappings, for e.g., South Asia
@@ -58,7 +55,8 @@ calcDiffInvestCosts <- function(subtype) {
         )
       ] <- 0
     }
-    tech_mapping <- toolGetMapping("comparison.csv", where = "mappingfolder", type = "sectoral") %>% filter(!is.na(!!sym("tech")))
+    tech_mapping <- toolGetMapping("techmappingIeaWeoPgAssumptions.csv", where = "mrremind", type = "sectoral") %>%
+      filter(!is.na(!!sym("tech")))
 
     # create new magpie object with names of corresponding REMIND technologies
     x_new <- new.magpie(getRegions(x), names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
@@ -80,9 +78,10 @@ calcDiffInvestCosts <- function(subtype) {
     further_techs_to_map <- filter(tech_mapping, !(!!sym("tech") %in% c("pc", "spv", "hydro", "biochp")))
     x_new[, , further_techs_to_map$tech] <- as.numeric(x[, , further_techs_to_map$IEA])
 
-    x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = T)
-    # overwrite investmetn costs vor renewables with data form REN21
+    x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = TRUE)
 
+    # overwrite investmetn costs vor renewables with data form REN21
+    x_REN21 <- readSource("REN21", subtype = "investmentCosts")
     x_REN21_wa <- collapseNames(x_REN21[, , "wa"]) # use weighted average
     getNames(x_REN21_wa) <- gsub("hydropower", "hydro", getNames(x_REN21_wa))
     getNames(x_REN21_wa) <- gsub("Solar PV", "spv", getNames(x_REN21_wa))
@@ -148,16 +147,16 @@ calcDiffInvestCosts <- function(subtype) {
     x_adj_iso <- toolAggregate(x_adj, regmapping)
 
     # regions which have not been manually adjusted -> replace by original IEA PVPS data
+    x_IEA_PVPS <- readSource("IEA_PVPS", subtype = "CAPEX")
     x_adj_iso[which(is.na(x_adj_iso))] <- x_IEA_PVPS[which(is.na(x_adj_iso))]
+
     # add new 2020 values PV
     x_new[, "y2020", "spv"] <- x_adj_iso
 
     return(list(x = x_new, weight = x_new, unit = "USD$/KW 2015", description = "Investment costs data"))
-  } else if (subtype == "O&M_Costs") {
-    x <- readSource("IEA_WEO", subtype = "Invest_Costs")
   } else if (subtype == "Efficiency") {
     x <- readSource("IEA_WEO", subtype = "Efficiency")
-    x[, , ] <- as.numeric(x[, , ]) # convertng data values into numeric
+    x[, , ] <- as.numeric(x[, , ]) # converting data values into numeric
 
     # Various mapping files used to get needed mappings, for e.g., South Asia
     countries <- toolGetMapping("regionmappingREMIND.csv", where = "mappingfolder", type = "regional")
@@ -200,7 +199,9 @@ calcDiffInvestCosts <- function(subtype) {
         )
       ] <- 0
     }
-    tech_mapping <- toolGetMapping("comparison.csv", where = "mappingfolder", type = "sectoral") %>% filter(!is.na(!!sym("tech")))
+
+    tech_mapping <- toolGetMapping("techmappingIeaWeoPgAssumptions.csv", where = "mrremind", type = "sectoral") %>%
+      filter(!is.na(!!sym("tech")))
 
     # create new magpie object with names of corresponding REMIND technologies
     x_new <- new.magpie(getRegions(x), names = unique(tech_mapping$tech), years = getYears(x), fill = 0)
@@ -213,12 +214,8 @@ calcDiffInvestCosts <- function(subtype) {
     further_techs_to_map <- filter(tech_mapping, !(!!sym("tech") %in% c("pc", "spv", "hydro", "biochp")))
     x_new[, , further_techs_to_map$tech] <- as.numeric(x[, , further_techs_to_map$IEA])
 
-    x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = T)
+    x_new <- time_interpolate(x_new, c(2025, 2035), integrate_interpolated_years = TRUE)
 
     return(list(x = x_new, weight = x_new, unit = "NA", description = "Efficiency data"))
-  }
-
-  if (subtype == "Invest_Costs" | subtype == "O&M_Costs") {
-    return(list(x = x_new, weight = x_new, unit = "USD$/KW 2015", description = "Investment costs data"))
   }
 }

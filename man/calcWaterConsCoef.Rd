@@ -7,7 +7,7 @@
 calcWaterConsCoef()
 }
 \value{
-MAgPIE object on water consumption coefficients per elecricity
+MAgPIE object on water consumption coefficients per electricity
 technology
 }
 \description{
@@ -17,10 +17,8 @@ data per electricity technology. The source data provide most required
 information but some assumptions on missing data are also made.
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("WaterConsCoef")
-
 }
 
 }

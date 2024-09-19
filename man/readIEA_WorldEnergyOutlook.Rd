@@ -2,18 +2,12 @@
 % Please edit documentation in R/readIEA_WorldEnergyOutlook.R
 \name{readIEA_WorldEnergyOutlook}
 \alias{readIEA_WorldEnergyOutlook}
-\title{Read in IEA World Energy Outlook Data from 2021 or 2023}
+\title{Read in IEA World Energy Outlook Data from 2023}
 \usage{
-readIEA_WorldEnergyOutlook(subtype = "2021-region")
-}
-\arguments{
-\item{subtype}{"2021-global", "2021-region", "2023-global", or "2023-region".
-- For 2021 we have complete paid data. For 2023 we have only the free dataset.
-- On global level, the source offers more variables than on regional level,
-but the data should not be used on sub-global level due to its coarse disaggregation.}
+readIEA_WorldEnergyOutlook()
 }
 \description{
-Read in IEA World Energy Outlook Data from 2021 or 2023
+Read in IEA World Energy Outlook Data from 2023
 }
 \author{
 Falk Benke

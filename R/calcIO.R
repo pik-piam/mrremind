@@ -97,7 +97,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
-  ieaYear <- if (ieaVersion == "default") 2022 else 2023
+  ieaYear <- if (ieaVersion == "default") 2022 else 2024
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5

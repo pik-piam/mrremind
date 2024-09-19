@@ -23,6 +23,6 @@ calcTrade <- function() {
 
   return(list(
     x = x, weight = NULL, unit = "EJ",
-    description = "IEA Final Energy Data based on 2023 version of IEA Energy Balances"
+    description = "IEA Final Energy Data based on 2024 version of IEA Energy Balances"
   ))
 }
