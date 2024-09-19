@@ -86,66 +86,74 @@ calcProjectPipelines <- function(subtype) {
     x <- readSource("GlobalEnergyMonitor")
     x <- x[, , "Hydro", pmatch = T]
 
-    x <- mbind(x,
-      # ASSUMPTION: min_red = operating
-      setNames(x[, , "operating"],
-               "GlobalEnergyMonitor.Cap|Electricity|Hydro.min_red.GW"),
+    # TODO: add pumped storage so it can be added to max bounds
+    #       -> not comparable to IEA until then
 
-      # ASSUMPTION: min_yel = operating + 0.5*construction + 0.2*pre-construction
-      setNames(x[, , "operating"] +
-                 x[, , "construction"]*0.5 +
-                 x[, , "pre-construction"]*0.2,
-               "GlobalEnergyMonitor.Cap|Electricity|Hydro.min_yel.GW"),
+    # initialize magclass object for thresholds
+    t <- new.magpie(getRegions(x),
+                    c(2020, 2025, 2030),
+                    c("GlobalEnergyMonitor.Cap|Electricity|Hydro.min_red.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.min_yel.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_yel.GW",
+                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_red.GW"),
+                    sets = getSets(x))
 
-      # ASSUMPTION: max_yel = operating + construction + 0.8*pre-construction + 0.3*announced
-      setNames(x[, , "operating"] +
-                 x[, , "construction"] +
-                 x[, , "pre-construction"]*0.8 +
-                 x[, , "announced"]*0.3,
-               "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_yel.GW"),
+    # ASSUMPTION: min_red
+    t[, , "min_red"] <- x[, , "operating"]
 
-      # ASSUMPTION: max_red = operating + construction + pre-construction + announced
-      setNames(x[, , "operating"] +
-                 x[, , "construction"] +
-                 x[, , "pre-construction"] +
-                 x[, , "announced"],
-               "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_red.GW")
-    )
+    # ASSUMPTION: min_yel
+    t[, , "min_yel"] <- x[, , "operating"] +
+                        x[, , "construction"]*0.5 +
+                        x[, , "pre-construction"]*0.2
+
+    # ASSUMPTION: max_yel
+    t[, , "max_yel"] <- x[, , "operating"] +
+                        x[, , "construction"] +
+                        x[, , "pre-construction"]*0.8 +
+                        x[, , "announced"]*0.3
+
+    # ASSUMPTION: max_red
+    t[, , "max_red"] <- x[, , "operating"] +
+                        x[, , "construction"] +
+                        x[, , "pre-construction"] +
+                        x[, , "announced"]
+
+    x <- mbind(x, t)
 
     # Source 2: IEA Hydropower Special Market Report
     # no access to granular data, only scraping online data explorer,
     # only 2030 available: scenarios "expected" and "accelerated case"
-    # "operational" corresponds to existing capacities in 2020
-    # without pumped storage (accelerated case has no differentiation,
+    # pumped storage added to max only (accelerated case has no differentiation,
     # assume pumped storage equally to expected case)
     y <- readSource("IEA_HSMR")
 
-    y <- mbind(y,
-               # ASSUMPTION: min_red = operating in 2020
-               setNames(y[, , "operational"],
-                        "IEA_HSMR.Cap|Electricity|Hydro.min_red.GW"),
+    # initialize magclass object for thresholds
+    t <- new.magpie(getRegions(y),
+                    c(2020, 2030),
+                    c("IEA_HSMR.Cap|Electricity|Hydro.min_red.GW",
+                      "IEA_HSMR.Cap|Electricity|Hydro.min_yel.GW",
+                      "IEA_HSMR.Cap|Electricity|Hydro.max_yel.GW",
+                      "IEA_HSMR.Cap|Electricity|Hydro.max_red.GW"),
+                    sets = getSets(y))
 
-               # ASSUMPTION: min_yel = expected case
-               setNames(y[, , "expected"],
-                        "IEA_HSMR.Cap|Electricity|Hydro.min_yel.GW"),
 
-               # ASSUMPTION: max_yel = accelerated case
-               setNames(y[, , "accelerated"],
-                        "IEA_HSMR.Cap|Electricity|Hydro.max_yel.GW")
+    # ASSUMPTION: min_red
+    t[, , "min_red"] <- y[, , "operational"]
 
-               # ASSUMPTION: max_red = accelerated case + ?
-               # setNames(x[, , "operating"] +
-               #            x[, , "construction"] +
-               #            x[, , "pre-construction"] +
-               #            x[, , "announced"],
-               #          "IEA_HSMR.Cap|Electricity|Hydro.max_red.GW")
-    )
+    # ASSUMPTION: min_yel
+    t[, , "min_yel"] <- y[, , "expected"]
+
+    # ASSUMPTION: max_yel
+    t[, , "max_yel"] <- y[, , "accelerated"] + y[, , "pumped"]
+
+    # ASSUMPTION: max_red
+    t[, , "max_red"] <- y[, , "accelerated"]*1.3 + y[, , "pumped"]
+
+    y <- mbind(y, t)
 
     # add empty 2025 column, so IEA and GEM data can be merged
-    y <- add_columns(y, addnm = "y2025", dim = 2, fill= NA)
-
+    y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
     x <- mbind(x, y)
-
 
     # meta data
     unit <- "GW"
