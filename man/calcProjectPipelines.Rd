@@ -13,7 +13,12 @@ calcProjectPipelines(subtype)
 \description{
 Calculate the expected near-term deployment of technologies based on
 projects that are currently either being built or in a planning stage
-for some technologies multiple sources are available
+for some technologies multiple sources are available. Output object currently
+needs to contain years 2020, 2025 and 2030.
+}
+\details{
+Discussions on sources and assumptions:
+https://github.com/pik-piam/mrremind/discussions
 }
 \author{
 Pascal Weigmann

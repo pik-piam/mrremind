@@ -88,7 +88,7 @@ readGlobalEnergyMonitor <- function() {
   tmp <- do.call(rbind, tmp_list) %>%
     group_by(region, variable, status, period) %>%
     summarise(value = sum(value)) %>%
-    filter(period %in% c(2025, 2030))
+    filter(period %in% c(2020, 2025, 2030))
 
   # convert to magclass object
   x <- as.magpie(tmp, spatial = "region")
