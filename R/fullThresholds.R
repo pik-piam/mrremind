@@ -8,14 +8,14 @@
 #'        validationConfig or "full" to export all pipeline data
 #'
 #' @export
-exportThresholds <- function(type = "config") {
+fullThresholds <- function(type = "config") {
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
   rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
     columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
+      colnames(toolGetMapping(mapping, "regional", where = "mappingfolder")),
       c("X", "CountryCode")
     )
 
@@ -45,8 +45,8 @@ exportThresholds <- function(type = "config") {
                     warnNA = FALSE, try = FALSE, years = years)
 
   hydro <- calcOutput("ProjectPipelines", subtype = "hydro",
-                    aggregate = columnsForAggregation, round = 3,
-                    warnNA = FALSE, try = FALSE, years = years)
+                      aggregate = columnsForAggregation, round = 3,
+                      warnNA = FALSE, try = FALSE, years = years)
 
   nuclear <- calcOutput("ProjectPipelines", subtype = "nuclear",
                         aggregate = columnsForAggregation, round = 3,
@@ -115,10 +115,10 @@ exportThresholds <- function(type = "config") {
     # thresholds attached to "variable"
     outfile <- "pipelines.mif"
     as.quitte(out) %>%
-      mutate(variable = paste(variable, status, sep = "|")) %>%
-      select(-scenario, -status) %>%
+      mutate("variable" = paste(.data$variable, .data$status, sep = "|")) %>%
+      select(-"scenario", -"status") %>%
       as.magpie() %>%
-      write.report(file = paste0(getConfig("outputfolder"), "/", outfile))
+      write.report(file = outfile)
 
   } else if (type == "config") {
     # write report containing only the "min/max" thresholds in extra columns
@@ -133,8 +133,7 @@ exportThresholds <- function(type = "config") {
           & is.na(out$min_yel)
           & is.na(out$max_yel)
           & is.na(out$max_red)), ] %>%
-      write.csv(file = paste0(getConfig("outputfolder"), "/", outfile),
-                row.names = FALSE, quote = FALSE)
+      write.csv(file = outfile, row.names = FALSE, quote = FALSE)
 
   } else {
     warning("`type` must be either `full` or `config`")

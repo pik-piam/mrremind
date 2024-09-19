@@ -222,7 +222,6 @@ calcProjectPipelines <- function(subtype) {
     # ASSUMPTION: min_red
     t[, 2030, "min_red"] <- y[, 2030, "operational"]*0.8
 
-    # TODO min_yel, max_yel
     # ASSUMPTION: min_yel
     t[, 2030, "min_yel"] <- y[, 2030, "operational"]*0.9
 
