@@ -2808,7 +2808,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   return(list(x = x %>%
                 as.magpie(spatial = 2, temporal = 4, data = 5),
               weight = NULL,
-              unit = '$tn/year',
+              unit = 'trillion US$2017/year',
               description = 'chemicals and other industry value added'))
 
 }

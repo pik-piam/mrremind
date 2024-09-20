@@ -29,10 +29,24 @@ calcINNOPATHS <- function() {
     to = "REMIND", partrel = TRUE, verbosity = 2
   )
 
+  # convert currency units from €2015 to $2017
+  tmp <-  x[, , "EUR2015", pmatch = TRUE]
+  x <- x[, , getNames(tmp), invert = TRUE]
+  getNames(tmp) <- gsub("EUR2015", "US$2017", getNames(tmp))
+
+  tmp <- GDPuc::convertGDP(
+    gdp = tmp,
+    unit_in = "constant 2015 €",
+    unit_out = mrdrivers::toolGetUnitDollar(),
+    replace_NAs = "with_USA"
+  )
+
+  x <- mbind(x, tmp)
+
   weights <- x
   weights[, , ] <- NA
-  weights[, , "US$2005", pmatch = TRUE] <- 1
-  weights[, , "GDP|MER (billion US$2005/yr)"] <- NA
+  weights[, , "US$2017", pmatch = TRUE] <- 1
+  weights[, , "GDP|MER (billion US$2017/yr)"] <- NA
 
   return(list(
     x = x,

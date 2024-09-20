@@ -31,7 +31,8 @@ calcTaxLimits <- function(subtype) {
   } else if (subtype == "maxPeSubsidy") {
     # Read max primary energy subsidy levels
     output <- readSource("REMIND_11Regi", subtype = "maxPeSubsidy")
-    description <- "maximum primary energy subsidy levels (in $/Gj) to provide plausible upper bound: 40$/barrel ~ 8 $/GJ"
+    description <- paste0("maximum primary energy subsidy levels (in $/Gj) to ",
+                          "provide plausible upper bound: 40$/barrel ~ 8 $/GJ")
     # using primary energy to weight the max subsidy levels
     weight <- calcOutput("PE", aggregate = FALSE)[, 2005, "PE (EJ/yr)"]
   } else if (subtype == "propFeSubsidy") {
@@ -43,7 +44,14 @@ calcTaxLimits <- function(subtype) {
     weight <- new.magpie(getItems(output, dim = 1), getYears(output), getNames(output), fill = 1)
   }
 
-  # Return tax convergence levels aggregated to selected REMIND regions
-  return(list(x = output, weight = weight, unit = "$/GJ", description = description))
+  # convert data from $2005 to $2017
+  output <- GDPuc::convertGDP(
+    gdp = output,
+    unit_in = "constant 2005 US$MER",
+    unit_out = mrdrivers::toolGetUnitDollar(),
+    replace_NAs = "with_USA"
+  )
 
+  # Return tax convergence levels aggregated to selected REMIND regions
+  return(list(x = output, weight = weight, unit = "US$2017/GJ", description = description))
 }

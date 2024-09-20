@@ -9,7 +9,7 @@ readIIASA_subs_taxes(subtype)
 \arguments{
 \item{subtype}{Type of country level data as compiled by IIASA that should
 be read in. Available types are: \itemize{ \item \code{tax_rate}: tax rate
-pre final energy category \item \code{sub_rate}: subsidy rate per final
+pre final energy category \item \code{subsidies_bulk}: subsidy rate per final
 energy category \item \code{energy}: final energy quantities per category }}
 }
 \value{

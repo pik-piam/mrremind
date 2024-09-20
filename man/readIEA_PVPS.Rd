@@ -4,10 +4,7 @@
 \alias{readIEA_PVPS}
 \title{Reads PV investment cost data for 2020 which are based on 2018 data from IEA PVPS report}
 \usage{
-readIEA_PVPS(subtype)
-}
-\arguments{
-\item{subtype}{type of data read from IEA PVPS}
+readIEA_PVPS()
 }
 \value{
 magpie object with PV investment cost data

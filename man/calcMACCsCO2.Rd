@@ -13,10 +13,8 @@ MAgPIE object
 Rrange of possible abatement between maximum and minimum emission level in a year
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("MACCsCO2")
-
 }
 }
 \author{
