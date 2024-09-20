@@ -46,12 +46,6 @@ readEDGETransport <- function(subtype) {
       'SDP_MC',        'Mix4',                    TRUE,       'default',
       'SDP_RC',        'Mix3',                    TRUE,       'default',
       'SSP2',          'HydrHype4',               TRUE,       'default',
-      'SSP2',          'ECEMF_HighEl_HighEff',    TRUE,       'default',
-      'SSP2',          'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2_demRedStrong',
-      'SSP2',          'ECEMF_HighEl_ModEff',     TRUE,       'default',
-      'SSP2',          'ECEMF_HighH2_HighEff',    TRUE,       'default',
-      'SSP2',          'ECEMF_HighH2_LifestCha',  TRUE,       'SSP2_demRedStrong',
-      'SSP2',          'ECEMF_HighH2_ModEff',     TRUE,       'default',
       'SSP2',          'NAV_act',                 FALSE,      'SSP2_demRedStrong',
       'SSP2',          'NAV_tec',                 FALSE,      'default',
       'SSP2',          'NAV_ele',                 TRUE,       'default',
@@ -98,17 +92,17 @@ readEDGETransport <- function(subtype) {
   #############################################################
   translateEdgeTransportDemScentoREMIND <- function(dt) {
     dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
-    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
-    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
+    dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
+    dt[DEM_scenario == "gdp_SSP2_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
     return(dt)
   }
   EdgeTransportSAdata <- lapply(EdgeTransportSAdata, translateEdgeTransportDemScentoREMIND)
