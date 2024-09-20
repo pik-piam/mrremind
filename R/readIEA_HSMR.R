@@ -15,15 +15,19 @@ readIEA_HSMR <- function() {
     mutate("2020_operational" = capacity_2020,
            "2030_expected" = capacity_2020 + add_expected_2030 - of_that_pumped,
            "2030_accelerated" = capacity_2020 + add_accelerated_2030 - of_that_pumped,
+           "2020_pumped" = cap_2020_pumped,
+           "2030_pumped" = cap_2020_pumped + of_that_pumped,
            variable = "Cap|Electricity|Hydro") %>%
-    pivot_longer(cols = c("2020_operational", "2030_expected", "2030_accelerated"),
+    pivot_longer(cols = c("2020_operational", "2030_expected",
+                          "2030_accelerated", "2020_pumped", "2030_pumped"),
                  names_to = "year_scen") %>%
     select(country, variable, year_scen, unit, value) %>%
     separate(year_scen, c("year", "status")) %>%
     as.magpie(spatial = "country")
 
-  x[, 2020, "accelerated"] <- x[, 2020,"operational"]
-  x[, 2020, "expected"]    <- x[, 2020,"operational"]
+  x[, 2020, "accelerated"] <- x[, 2020, "operational"]
+  x[, 2020, "expected"]    <- x[, 2020, "operational"]
+  x[, 2030, "operational"] <- x[, 2020, "operational"]
 
   x <- add_dimension(x, dim = 3.1, add = "model", nm = "IEA_HSMR")
 
