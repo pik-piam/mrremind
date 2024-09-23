@@ -83,9 +83,10 @@ readAGEB <- function(subtype = "balances") {
       return()
   } else if (subtype == "electricity") {
     read_xlsx(
-      path = "STRERZ_2021Feb22_web.xlsx", sheet = "STRERZ (brutto)", col_names = TRUE,
-      col_types = c("text", rep("numeric", 32)),
-      range = "B3:AH17", .name_repair = "minimal", na = c("k.A.")
+      path = "STRERZ_Abg_02_2024_korr.xlsx",
+      sheet = "STRERZ (brutto)", col_names = TRUE,
+      col_types = c("text", rep("numeric", 34)),
+      range = "B3:AJ17", .name_repair = "minimal", na = c("k.A.")
     ) %>%
       mutate("TWh" = gsub(", darunter:", "", !!sym("TWh"))) %>%
       mutate("TWh" = gsub("- ", "", !!sym("TWh"))) %>%
