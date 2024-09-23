@@ -15,7 +15,7 @@ convertTransportSubsidies <- function(x) {
   # convert data from EUR 2020 to USD 2017
   x <- GDPuc::convertGDP(
     gdp = x,
-    unit_in = "constant 2020 €",
+    unit_in = "constant 2020 EUR",
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )

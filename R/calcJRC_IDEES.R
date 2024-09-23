@@ -73,7 +73,7 @@ calcJRC_IDEES <- function(subtype) {
     toolCountryFill(fill = NA, verbosity = 2) %>%
     toolFillEU34Countries()
 
-  # convert currency units from €2010 to $2017
+  # convert currency units from EUR 2010 to $2017
   if (subtype == "Industry") {
     tmp <-  x[, , "EUR2010", pmatch = TRUE]
     x <- x[, , getNames(tmp), invert = TRUE]
@@ -81,7 +81,7 @@ calcJRC_IDEES <- function(subtype) {
 
     tmp <- GDPuc::convertGDP(
       gdp = tmp,
-      unit_in = "constant 2010 €",
+      unit_in = "constant 2010 EUR",
       unit_out = mrdrivers::toolGetUnitDollar(),
       replace_NAs = "with_USA"
     )

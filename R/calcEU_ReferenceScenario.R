@@ -5,7 +5,7 @@ calcEU_ReferenceScenario <- function() {
   # convert EUR2013 -> US$2017
   tmp <- GDPuc::convertGDP(
     gdp = euRef2016[, , "Price|Secondary Energy|Electricity (EUR2013/GJ)"],
-    unit_in = "constant 2013 €",
+    unit_in = "constant 2013 EUR",
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
@@ -21,7 +21,7 @@ calcEU_ReferenceScenario <- function() {
   # convert EUR2015 -> US$2017
   tmp <- GDPuc::convertGDP(
     gdp = euRef2020[, , "Price|Secondary Energy|Electricity (EUR2015/GJ)"],
-    unit_in = "constant 2015 €",
+    unit_in = "constant 2015 EUR",
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
