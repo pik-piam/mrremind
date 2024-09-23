@@ -29,14 +29,14 @@ calcINNOPATHS <- function() {
     to = "REMIND", partrel = TRUE, verbosity = 2
   )
 
-  # convert currency units from €2015 to $2017
+  # convert currency units from EUR 2015 to $2017
   tmp <-  x[, , "EUR2015", pmatch = TRUE]
   x <- x[, , getNames(tmp), invert = TRUE]
   getNames(tmp) <- gsub("EUR2015", "US$2017", getNames(tmp))
 
   tmp <- GDPuc::convertGDP(
     gdp = tmp,
-    unit_in = "constant 2015 €",
+    unit_in = "constant 2015 EUR",
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
