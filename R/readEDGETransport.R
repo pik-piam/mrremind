@@ -42,7 +42,7 @@ readEDGETransport <- function(subtype) {
       'SSP2',          'Mix3',                    TRUE,       'SSP2_demRedStrong',
       'SSP2',          'Mix4',                    TRUE,       'SSP2_demRedStrong',
       'SSP2',          'Mix4',                    TRUE,       'SSP2_demDiffer',
-      'SSP2',          'Mix1',                    TRUE,       'SSP2_demDiffer',
+      'SSP2',          'Mix1',                    FALSE,      'SSP2_demDiffer',
       'SDP_EI',        'Mix4',                    TRUE,       'default',
       'SDP_MC',        'Mix4',                    TRUE,       'default',
       'SDP_RC',        'Mix3',                    TRUE,       'default',
