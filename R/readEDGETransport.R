@@ -42,6 +42,7 @@ readEDGETransport <- function(subtype) {
       'SSP2',          'Mix3',                    TRUE,       'SSP2_demRedStrong',
       'SSP2',          'Mix4',                    TRUE,       'SSP2_demRedStrong',
       'SSP2',          'Mix4',                    TRUE,       'SSP2_demDiffer',
+      'SSP2',          'Mix1',                    FALSE,      'SSP2_demDiffer',
       'SDP_EI',        'Mix4',                    TRUE,       'default',
       'SDP_MC',        'Mix4',                    TRUE,       'default',
       'SDP_RC',        'Mix3',                    TRUE,       'default',
@@ -92,6 +93,7 @@ readEDGETransport <- function(subtype) {
   #############################################################
   translateEdgeTransportDemScentoREMIND <- function(dt) {
     dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
+    dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
     dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
     dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
