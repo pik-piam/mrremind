@@ -93,7 +93,7 @@ readEDGETransport <- function(subtype) {
   #############################################################
   translateEdgeTransportDemScentoREMIND <- function(dt) {
     dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
-    dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_demDiffer_baseline"]
+    dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
     dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
     dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
