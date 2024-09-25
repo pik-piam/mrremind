@@ -2,7 +2,7 @@
 #'
 #' @return magpie object with historical emissions
 #' @param datasource "CEDS16", "CEDS2REMIND", "CEDS2024", "EDGAR", "EDGAR6",
-#'        "EDGAR8" "LIMITS", "ECLIPSE", "GFED", "CDIAC"
+#'        "EDGARghg" "LIMITS", "ECLIPSE", "GFED", "CDIAC"
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
@@ -856,9 +856,10 @@ calcEmissions <- function(datasource = "CEDS16") {
     tmp <- emi
     description <- "historic emissions from 1970-2018"
 
-    ## ---- EDGAR 8 ----
-  } else if (datasource == "EDGAR8") {
-    emi <- readSource("EDGAR8")
+    ## ---- EDGAR GHG ----
+    # previous version: "EDGAR8"
+  } else if (datasource == "EDGARghg") {
+    emi <- readSource("EDGARghg")
     emi[is.na(emi)] <- 0
 
     # map variables
@@ -934,7 +935,7 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     tmp <- emi
 
-    description <- "historic emissions from 1970-2022"
+    description <- "historic emissions from 1970-2023"
 
     ## ---- LIMITS ----
   } else if (datasource == "LIMITS") {
