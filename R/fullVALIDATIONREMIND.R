@@ -98,12 +98,12 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # write all regions of non-bunker variables to report
   non_bunk <- edgar[, , "International", pmatch = TRUE, invert = TRUE]
   write.report(non_bunk, file = valfile, append = TRUE,
-               scenario = "historical", model = "EDGAR8")
+               scenario = "historical", model = "EDGARghg")
 
   # write only global values of bunker variables
   bunkers <- edgar["GLO", , "International", pmatch = TRUE]
   write.report(bunkers, file = valfile, append = TRUE,
-               scenario = "historical", model = "EDGAR8")
+               scenario = "historical", model = "EDGARghg")
 
   # Ember electricity data ----
 
