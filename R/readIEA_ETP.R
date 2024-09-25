@@ -19,7 +19,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_industry_summary.xlsx",
         prefix = "Industry",
         sheets = list(
-          "OECD", "Non-OECD",
+          "WORLD", "OECD", "Non-OECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -149,7 +149,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_buildings_summary.xlsx",
         prefix = "Buildings",
         sheets = list(
-          "OECD", "NonOECD",
+          "WORLD", "OECD", "NonOECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -278,7 +278,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_scenario_summary.xlsx",
         prefix = "Summary",
         sheets = list(
-          "OECD", "NonOECD",
+          "WORLD", "OECD", "NonOECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -452,7 +452,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_transport_summary.xlsx",
         prefix = "Transport",
         sheets = list(
-          "OECD", "Non-OECD",
+          "WORLD", "OECD", "Non-OECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),

@@ -84,7 +84,7 @@ readAGEB <- function(subtype = "balances") {
   } else if (subtype == "electricity") {
     read_xlsx(
       path = "STRERZ_Abg_02_2024_korr.xlsx",
-      sheet = "STRERZ (brutto)", col_names = TRUE,
+      sheet = "STRERZ (netto)", col_names = TRUE,
       col_types = c("text", rep("numeric", 34)),
       range = "B3:AJ17", .name_repair = "minimal", na = c("k.A.")
     ) %>%
