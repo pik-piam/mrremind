@@ -7,7 +7,7 @@
 calcDiffInvestCosts(subtype)
 }
 \arguments{
-\item{subtype}{"Invest_Costs", or "Efficiency"}
+\item{subtype}{either "Invest_Costs" or "Efficiency"}
 }
 \value{
 Magpie object with aggregated but differentiated investment costs for some technologies.
@@ -16,8 +16,9 @@ Magpie object with aggregated but differentiated investment costs for some techn
 Disaggregated investment cost data is aggregated and technologies renamed to REMIND names
 }
 \details{
-REMIND does not have a classification of coal power plants e.g., sub-critical. Therefore, countries are given coal plant
-costs assuming what type of coal plants are expected to develop there. For other technologies, certain assumptions are taken
+REMIND does not have a classification of coal power plants e.g., sub-critical.
+Therefore, countries are given coal plant costs assuming what type of coal plants are
+expected to develop there. For other technologies, certain assumptions are taken
 to change to REMIND convention.
 }
 \author{

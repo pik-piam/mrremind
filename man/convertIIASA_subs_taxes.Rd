@@ -4,11 +4,16 @@
 \alias{convertIIASA_subs_taxes}
 \title{Convert IIASA_subs_taxes data}
 \usage{
-convertIIASA_subs_taxes(x)
+convertIIASA_subs_taxes(x, subtype)
 }
 \arguments{
 \item{x}{MAgPIE object containing IIASA subsidies and taxes data in country
 resolution}
+
+\item{subtype}{Type of country level data as compiled by IIASA that should
+be read in. Available types are: \itemize{ \item \code{tax_rate}: tax rate
+pre final energy category \item \code{subsidies_bulk}: subsidy rate per final
+energy category \item \code{energy}: final energy quantities per category }}
 }
 \value{
 IIASA_subs_taxes data as MAgPIE object aggregated to country level
@@ -18,8 +23,8 @@ Convert IIASA subsidy and taxes data on ISO country level (removes countries
 not part of 249 oficial ISO countries and fills missing with zeros).
 }
 \examples{
-
-\dontrun{ a <- convertIIASA_subs_taxes(x)
+\dontrun{
+a <- convertIIASA_subs_taxes(x)
 }
 
 }

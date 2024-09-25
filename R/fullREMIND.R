@@ -20,8 +20,8 @@ fullREMIND <- function() {
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f_pop.cs3r")
-  calcOutput("Labour",     years = rem_years,         round = 8,  file = "f_lab.cs3r")
-  calcOutput("GDP",     years = rem_years_hist,       round = 8,  file = "f_gdp.cs3r")
+  calcOutput("Labour",     years = rem_years_hist,    round = 8,  file = "f_lab.cs3r")
+  calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f_gdp.cs3r")
   calcOutput("RatioPPP2MER",                          round = 8,  file = "pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
@@ -79,8 +79,8 @@ fullREMIND <- function() {
   calcOutput("EmiMac",                                                          round = 5, file = "p_macBase2005.cs4r")
   calcOutput("EmiMac1990",                                                      round = 5, file = "p_macBase1990.cs4r")
   calcOutput("MACCbaseN2O",                                                     round = 5, file = "p_macBaseVanv.cs4r")
-  calcOutput("MACCsCH4",                                                        round = 6, file = "p_abatparam_CH4.cs4r")
-  calcOutput("MACCsN2O",                                                        round = 6, file = "p_abatparam_N2O.cs4r")
+  calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
+  calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
   calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
   calcOutput("EmiFossilFuelExtr",                                               round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
@@ -128,7 +128,7 @@ fullREMIND <- function() {
   calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
-  calcOutput("CCScapacity", subtype = "projections",                   round = 8,  file = "p_boundCapCCS.cs4r")
+  calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
   calcOutput('Industry_CCS_limits',

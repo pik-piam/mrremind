@@ -7,12 +7,10 @@
 calcCostsTradePeFinancial()
 }
 \description{
-Provides REMIND data for PE trade cost (energy losses on import, export and
-use).
+Provides REMIND data for PE trade cost (energy losses on import, export and use).
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("CostsTradePeFinancial")
 }
 

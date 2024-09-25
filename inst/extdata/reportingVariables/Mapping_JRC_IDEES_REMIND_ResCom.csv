@@ -1,0 +1,7 @@
+REMIND_variable;JRC_complete;JRC_Excel;JRC_spreadsheet;Weight;Unit_REMIND;Unit_JRC;Factor
+Emi|CO2|Energy|Demand|Buildings;Residential|CO2 emissions;JRC-IDEES-2015_Residential_;RES_hh_emi;1;Mt CO2/yr;kt of CO2;0.001
+Emi|CO2|Energy|Demand|Buildings;Tertiary|CO2 emissions;JRC-IDEES-2015_Tertiary_;SER_hh_emi;1;Mt CO2/yr;kt of CO2;0.001
+FE|Buildings;Residential|Final energy consumption|Thermal uses;JRC-IDEES-2015_Residential_;RES_hh_fec;1;EJ/yr;ktoe;4.19E-05
+FE|Buildings;Tertiary|Final energy consumption|Thermal uses;JRC-IDEES-2015_Tertiary_;SER_hh_fec;1;EJ/yr;ktoe;4.19E-05
+FE|Buildings;Residential|Final energy consumption|Specific electric uses in services;JRC-IDEES-2015_Residential_;RES_se-appl;1;EJ/yr;ktoe;4.19E-05
+FE|Buildings;Tertiary|Final energy consumption|Specific electric uses in services;JRC-IDEES-2015_Tertiary_;SER_se-appl;1;EJ/yr;ktoe;4.19E-05

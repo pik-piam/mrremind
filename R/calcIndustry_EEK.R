@@ -106,13 +106,14 @@ calcIndustry_EEK <- function(kap) {
                               .data$EEK * .data$FE.share)) %>%
     select('iso3c', 'subsector', 'EEK')
 
-  ## deflate 2012 dollars ----
-  # Converting from 2012 to 2005 dollars using GDP deflator from
-  # https://data.worldbank.org/indicator/NY.GDP.DEFL.ZS?locations=US
+  ## Converting from billion 2012 to trillion 2017 dollars
   EEK <- EEK %>%
-    mutate(EEK = .data$EEK * 0.8743,
-           # $bn/yr * 1e-3 $tn/$bn = $tn/yr
-           EEK = .data$EEK * 1e-3)
+    dplyr::rename("value" = "EEK") %>%
+    GDPuc::convertGDP(unit_in = "constant 2012 US$MER",
+                      unit_out = mrdrivers::toolGetUnitDollar(),
+                      replace_NAs = "with_USA") %>%
+    dplyr::mutate(value = .data$value * 1e-3) %>%
+    dplyr::rename("EEK" = "value")
 
   ## temper EEK share in total capital ----
   # Temper industry EEK share in total capital by applying a geometric average
@@ -361,6 +362,6 @@ calcIndustry_EEK <- function(kap) {
   return(list(x = EEK %>%
                 as.magpie(spatial = 1, temporal = 2, data = ncol(.)),
               weight = NULL,
-              unit = 'trillion 2005US$',
-              description = 'industry energy efficiency capital stock'))
+              unit = 'trillion US$2017',
+              description = 'Industry energy efficiency capital stock'))
 }

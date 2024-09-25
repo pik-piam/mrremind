@@ -124,8 +124,8 @@
 "NA";"Final Energy|Transportation|Passenger|LDV|Liquids (PJ/yr)";"NA";
 "FE|Transport|Pass|Train|Electricity (EJ/yr)";"Final Energy|Transportation|Passenger|Train|Electricity (PJ/yr)";0.001;
 "Floorspace demand (million m2)";"Services and Products|Residential and Commercial|Floorspace demand (million m2)";1;
-"GDP|MER (billion US$2005/yr)";"Economy|GDP|MER (billion EUR2015/yr)";0.9259259;
-"GDP|PPP (billion US$2005/yr)";"Economy|GDP|PPP (billion EUR2015/yr)";0.9259259;
+"GDP|MER (billion EUR2015/yr)";"Economy|GDP|MER (billion EUR2015/yr)";1;
+"GDP|PPP (billion EUR2015/yr)";"Economy|GDP|PPP (billion EUR2015/yr)";1;
 "NA";"Capacity Additions|Electricity|Gas|CC (GW/yr)";"NA";
 "NA";"Capacity Additions|Electricity|Gas|OC (GW/yr)";"NA";
 "NA";"Capacity Additions|Electricity|Geothermal (GW/yr)";"NA";
@@ -586,7 +586,7 @@
 "NA";"Capacity Additions|Electricity|Solar|PV (GW/yr)";"NA";"zero values in source"
 "NA";"Capacity Additions|Electricity|Wind (GW/yr)";"NA";"zero values in source"
 "NA";"Capacity Additions|Electricity|Wind|Onshore (GW/yr)";"NA";"zero values in source"
-"OandM costs (billion US$2005/yr)";"Total Energy System Cost|O&M Costs (billion EUR2015/yr)";0.9259259;
+"OandM costs (billion EUR2015/yr)";"Total Energy System Cost|O&M Costs (billion EUR2015/yr)";1;
 "PE (EJ/yr)";"Primary Energy (PJ/yr)";0.001;
 "PE|Biomass (EJ/yr)";"Primary Energy|Biomass (PJ/yr)";0.001;
 "PE|Biomass|Electricity (EJ/yr)";"Primary Energy|Biomass|Electricity (PJ/yr)";0.001;
@@ -638,30 +638,30 @@
 "PE|Solar (EJ/yr)";"Primary Energy|Solar (PJ/yr)";0.001;
 "PE|Wind (EJ/yr)";"Primary Energy|Wind (PJ/yr)";0.001;
 "Population (million)";"Economy|Population (million people)";1;
-"Price|Biomass|World Market (US$2005/GJ)";"Price|Primary Energy|Biomass (EUR2015/GJ)";0.9259259;
-"Price|Carbon (US$2005/t CO2)";"Price|Carbon|Net|Transport (EUR2015/t CO2)";0.9259259;
-"Price|Carbon (US$2005/t CO2)";"Price|Carbon|EU-wide Regulation All Sectors (EUR2015/t CO2)";0.9259259;
-"Price|Primary Energy|Coal (US$2005/GJ)";"Price|Primary Energy|Coal (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Solids|Fossil (US$2005/GJ)";"Price|Secondary Energy|Solids|Coal (EUR2015/GJ)";0.9259259;
-"Price|Primary Energy|Oil (US$2005/GJ)";"Price|Primary Energy|Oil (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Electricity (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Electricity (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Electricity (US$2005/GJ)";"Price|Final Energy|Industry|Electricity (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Gases (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Gases (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Gases (US$2005/GJ)";"Price|Final Energy|Industry|Gases (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Heat (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Heat (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Heat (US$2005/GJ)";"Price|Final Energy|Industry|Heat (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Heating Oil (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Liquids (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Heating Oil (US$2005/GJ)";"Price|Final Energy|Industry|Liquids (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Hydrogen (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Hydrogen (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Hydrogen (US$2005/GJ)";"Price|Final Energy|Industry|Hydrogen (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Buildings|Solids (US$2005/GJ)";"Price|Final Energy|Residential and Commercial|Solids (EUR2015/GJ)";0.9259259;
-"Price|Final Energy|Industry|Solids (US$2005/GJ)";"Price|Final Energy|Industry|Solids (EUR2015/GJ)";0.9259259;
-"Price|Primary Energy|Gas (US$2005/GJ)";"Price|Primary Energy|Gas (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Electricity (US$2005/GJ)";"Price|Secondary Energy|Electricity (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Gases (US$2005/GJ)";"Price|Secondary Energy|Gases (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Hydrogen (US$2005/GJ)";"Price|Secondary Energy|Hydrogen (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Liquids (US$2005/GJ)";"Price|Secondary Energy|Liquids (EUR2015/GJ)";0.9259259;
-"Price|Secondary Energy|Solids|Biomass (US$2005/GJ)";"Price|Secondary Energy|Solids|Biomass (EUR2015/GJ)";0.9259259;
+"Price|Biomass|World Market (EUR2015/GJ)";"Price|Primary Energy|Biomass (EUR2015/GJ)";1;
+"Price|Carbon (EUR2015/t CO2)";"Price|Carbon|Net|Transport (EUR2015/t CO2)";1;
+"Price|Carbon (EUR2015/t CO2)";"Price|Carbon|EU-wide Regulation All Sectors (EUR2015/t CO2)";1;
+"Price|Primary Energy|Coal (EUR2015/GJ)";"Price|Primary Energy|Coal (EUR2015/GJ)";1;
+"Price|Secondary Energy|Solids|Fossil (EUR2015/GJ)";"Price|Secondary Energy|Solids|Coal (EUR2015/GJ)";1;
+"Price|Primary Energy|Oil (EUR2015/GJ)";"Price|Primary Energy|Oil (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Electricity (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Electricity (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Electricity (EUR2015/GJ)";"Price|Final Energy|Industry|Electricity (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Gases (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Gases (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Gases (EUR2015/GJ)";"Price|Final Energy|Industry|Gases (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Heat (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Heat (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Heat (EUR2015/GJ)";"Price|Final Energy|Industry|Heat (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Heating Oil (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Liquids (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Heating Oil (EUR2015/GJ)";"Price|Final Energy|Industry|Liquids (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Hydrogen (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Hydrogen (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Hydrogen (EUR2015/GJ)";"Price|Final Energy|Industry|Hydrogen (EUR2015/GJ)";1;
+"Price|Final Energy|Buildings|Solids (EUR2015/GJ)";"Price|Final Energy|Residential and Commercial|Solids (EUR2015/GJ)";1;
+"Price|Final Energy|Industry|Solids (EUR2015/GJ)";"Price|Final Energy|Industry|Solids (EUR2015/GJ)";1;
+"Price|Primary Energy|Gas (EUR2015/GJ)";"Price|Primary Energy|Gas (EUR2015/GJ)";1;
+"Price|Secondary Energy|Electricity (EUR2015/GJ)";"Price|Secondary Energy|Electricity (EUR2015/GJ)";1;
+"Price|Secondary Energy|Gases (EUR2015/GJ)";"Price|Secondary Energy|Gases (EUR2015/GJ)";1;
+"Price|Secondary Energy|Hydrogen (EUR2015/GJ)";"Price|Secondary Energy|Hydrogen (EUR2015/GJ)";1;
+"Price|Secondary Energy|Liquids (EUR2015/GJ)";"Price|Secondary Energy|Liquids (EUR2015/GJ)";1;
+"Price|Secondary Energy|Solids|Biomass (EUR2015/GJ)";"Price|Secondary Energy|Solids|Biomass (EUR2015/GJ)";1;
 "NA";"Secondary Energy (PJ/yr)";"NA";"zero values in source"
 "SE|Electricity (EJ/yr)";"Secondary Energy|Electricity (PJ/yr)";0.001;
 "SE|Electricity|Biomass (EJ/yr)";"Secondary Energy|Electricity|Biomass (TWh/yr)";0.0036;
@@ -718,8 +718,8 @@
 "SE|Solids (EJ/yr)";"Secondary Energy|Solids (PJ/yr)";0.001;
 "SE|Solids|Biomass (EJ/yr)";"Secondary Energy|Solids|Biomass (PJ/yr)";0.001;
 "SE|Solids|Coal (EJ/yr)";"Secondary Energy|Solids|Coal (PJ/yr)";0.001;
-"Total Energy costs (billion US$2005/yr)";"Total Energy System Cost (billion EUR2015/yr)";0.9259259;
-"Total Energy costs|Electricity (billion US$2005/yr)";"Total Energy System Cost|Power Sector (billion EUR2015/yr)";0.9259259;
+"Total Energy costs (billion EUR2015/yr)";"Total Energy System Cost (billion EUR2015/yr)";1;
+"Total Energy costs|Electricity (billion EUR2015/yr)";"Total Energy System Cost|Power Sector (billion EUR2015/yr)";1;
 "Trade|Biomass (EJ/yr)";"Trade|Primary Energy|Biomass|Volume (PJ/yr)";0.001;
 "Trade|Coal (EJ/yr)";"Trade|Primary Energy|Coal|Volume (PJ/yr)";0.001;
 "Trade|Gas (EJ/yr)";"Trade|Primary Energy|Gas|Volume (PJ/yr)";0.001;
