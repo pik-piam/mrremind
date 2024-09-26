@@ -6,18 +6,17 @@
 #' @author Falk Benke
 #'
 #' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
-#'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
+#'        "electricity" ("Nettostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
-#' @importFrom rlang sym
 #' @importFrom stats aggregate
 #' @export
 calcAGEB <- function(subtype = "balances") {
   ageb <- readSource("AGEB", subtype = subtype)
 
-  mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables", where = "mappingfolder") %>%
-    mutate("conversion" = as.numeric(!!sym("Factor")) * !!sym("Weight")) %>%
+  mapping <- toolGetMapping("Mapping_AGEB_REMIND.csv", type = "reportingVariables", where = "mrremind") %>%
+    mutate("conversion" = as.numeric(.data$Factor)) %>%
     select("variable" = "AGEB_variable", "REMIND_variable", "conversion", "unit" = "Unit_AGEB", "Unit_REMIND") %>%
-    filter(!!sym("REMIND_variable") != "")
+    filter(.data$REMIND_variable != "")
 
   x <- left_join(
     ageb %>%
@@ -32,8 +31,8 @@ calcAGEB <- function(subtype = "balances") {
     by = "variable"
   ) %>%
     mutate(
-      "value" = !!sym("value") * !!sym("conversion"),
-      "REMIND_variable" = paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")
+      "value" = .data$value * .data$conversion,
+      "REMIND_variable" = paste0(.data$REMIND_variable, " (", .data$Unit_REMIND, ")")
     ) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
