@@ -82,21 +82,27 @@ readAGEB <- function(subtype = "balances") {
       as.magpie() %>%
       return()
   } else if (subtype == "electricity") {
-    read_xlsx(
+    data <-read_xlsx(
       path = "STRERZ_Abg_02_2024_korr.xlsx",
       sheet = "STRERZ (brutto)", col_names = TRUE,
       col_types = c("text", rep("numeric", 34)),
-      range = "B3:AJ17", .name_repair = "minimal", na = c("k.A.")
+      range = "B3:AJ23", .name_repair = "minimal", na = c("k.A.")
     ) %>%
       mutate("TWh" = gsub(", darunter:", "", !!sym("TWh"))) %>%
       mutate("TWh" = gsub("- ", "", !!sym("TWh"))) %>%
-      mutate("TWh" = gsub("[0-9])", "", !!sym("TWh"))) %>%
-      mutate("variable" = paste0("9 Bruttostromerzeugung|", !!sym("TWh"))) %>%
+      mutate("TWh" = gsub("[0-9])", "", !!sym("TWh")))
+
+    data[12,"TWh"] <- "Erneuerbare, darunter Hausmüll"
+    data[16,"TWh"] <- "Sonstige, darunter Hausmüll"
+
+    data <- data %>%
+      mutate("variable" = paste0("9 Nettostromerzeugung|", .data$TWh)) %>%
       select(-1) %>%
       reshape2::melt(id.vars = c("variable"), variable.name = "period", value.name = "value") %>%
       mutate("region" = "DEU", "unit" = "TWh") %>%
       select("region", "period", "variable", "unit", "value") %>%
       as.magpie() %>%
       return()
+
   }
 }
