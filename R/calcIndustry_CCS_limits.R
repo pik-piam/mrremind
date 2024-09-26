@@ -268,7 +268,7 @@ calcIndustry_CCS_limits <- function(
     ) %>%
     group_by(.data$region, .data$subsector, .data$period) %>%
     ## convert units ----
-    # MtCO2/yr * 1e-3 Gt/Mt / (44/12 CO2/C) = GtC/yr
+    # Mt CO2/yr * 1e-3 Gt/Mt / (44/12 CO2/C) = GtC/yr
     mutate(value = .data$value
                  * .data$activity / sum(.data$activity)
                  * 12/44 * 1e-3) %>%

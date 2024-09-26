@@ -85,8 +85,8 @@ calcProjectPipelines <- function(subtype) {
 
     # add meta data
     x <- add_dimension(x, dim = 3.1, add = "model", nm = "IEA CCUS")
-    x <- add_dimension(x, dim = 3.4, add = "unit", nm = "MtCO2/yr")
-    unit <- "MtCO2/yr"
+    x <- add_dimension(x, dim = 3.4, add = "unit", nm = "Mt CO2/yr")
+    unit <- "Mt CO2/yr"
     description <- "CCS project pipeline from IEA CCUS project database"
 
     # Hydro ----
