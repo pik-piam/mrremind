@@ -28,7 +28,7 @@ calcAGEB <- function(subtype = "balances") {
         "unit" = "Data2", "value" = "Value"
       ),
     mapping,
-    by = "variable"
+    by = "variable", relationship = "many-to-many"
   ) %>%
     mutate(
       "value" = .data$value * .data$conversion,
