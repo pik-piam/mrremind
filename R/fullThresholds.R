@@ -89,15 +89,15 @@ fullThresholds <- function(type = "config") {
   out["GLO", 2020, "max_yel"] <- out["GLO", 2020, "operational"]*1.05
   out["GLO", 2020, "max_red"] <- out["GLO", 2020, "operational"]*1.1
 
-  # exception for Nuclear: use 10%, 20% for 2020
-  out["GLO", 2020, "Cap|Electricity|Nuclear.min_red"] <-
-    out["GLO", 2020, "Cap|Electricity|Nuclear.operational"]*0.8
-  out["GLO", 2020, "Cap|Electricity|Nuclear.min_yel"] <-
-    out["GLO", 2020, "Cap|Electricity|Nuclear.operational"]*0.9
-  out["GLO", 2020, "Cap|Electricity|Nuclear.max_yel"] <-
-    out["GLO", 2020, "Cap|Electricity|Nuclear.operational"]*1.1
-  out["GLO", 2020, "Cap|Electricity|Nuclear.max_red"] <-
-    out["GLO", 2020, "Cap|Electricity|Nuclear.operational"]*1.2
+  # exception for Nuclear: use 10%, 20%
+  out["GLO", , "Cap|Electricity|Nuclear.min_red"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.8
+  out["GLO", , "Cap|Electricity|Nuclear.min_yel"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.9
+  out["GLO", , "Cap|Electricity|Nuclear.max_yel"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.1
+  out["GLO", , "Cap|Electricity|Nuclear.max_red"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.2
 
   # exception for 2020: use yel and red bounds for regions
   out[regions, 2020, "min_red"] <- out[regions, 2020, "operational"]*0.6
