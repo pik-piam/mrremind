@@ -61,9 +61,11 @@
 #'
 #' @seealso [`readSource()`], [`calcOutput()`]
 #'
-#' @importFrom assertr assert not_na
+#' @importFrom assertr assert not_na verify
 #' @importFrom dplyr anti_join bind_rows filter group_by inner_join left_join
 #'     mutate select summarise
+#' @importFrom GDPuc convertGDP
+#' @importFrom magrittr %>%
 #' @importFrom quitte list_to_data_frame madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom rlang .data is_empty
@@ -193,12 +195,15 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
             ## subsector exclusion ----
             subsector_exclusion <- bind_rows(
                 list_to_data_frame(
-                    list(IRQ = 1994:1998,
-                         MDV = unique(x$year),
-                         BIH = 1990:1991,
-                         HKG = unique(x$year),
-                         MAC = unique(x$year),
-                         CHN = min(x$year):1997),
+                    list(
+                        # unreasonable data
+                        IRQ = 1994:1998,
+                        MDV = unique(x$year),
+                        BIH = 1990:1991,
+                        # unrepresentative data
+                        HKG = unique(x$year),
+                        MAC = unique(x$year),
+                        CHN = min(x$year):1997),
                     'iso3c', 'year') %>%
                     mutate(subsector = 'manufacturing'),
 
@@ -252,21 +257,21 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
 
                     c('iso3c', 'year', 'subsector')
                 ) %>%
+                # GDP conversion is only valid for monetary units
+                verify('$' == .data$unit) %>%
+                convertGDP(unit_in  = 'constant 2005 US$MER',
+                           unit_out = mrdrivers::toolGetUnitDollar(),
+                           replace_NAs = 'with_USA') %>%
                 group_by(.data$iso3c, .data$subsector, .data$year) %>%
                 filter(max(.data$lastupdated) == .data$lastupdated) %>%
                 # for split countries, which lead to duplicates (e.g. CUW), use
                 # the maximum
                 summarise(value = max(.data$value), .groups = 'drop')
 
-            # convert from $2005 to $2017 and return ----
+            # return ----
             x %>%
               as.magpie(spatial = 1, temporal = 3, data = ncol(.)) %>%
               toolCountryFill(verbosity = 2) %>%
-              GDPuc::convertGDP(
-                unit_in = "constant 2005 US$MER",
-                unit_out = mrdrivers::toolGetUnitDollar(),
-                replace_NAs = "with_USA"
-              ) %>%
               return()
         }
     )
