@@ -82,21 +82,42 @@ readAGEB <- function(subtype = "balances") {
       as.magpie() %>%
       return()
   } else if (subtype == "electricity") {
-    read_xlsx(
-      path = "STRERZ_Abg_02_2024_korr.xlsx",
-      sheet = "STRERZ (brutto)", col_names = TRUE,
-      col_types = c("text", rep("numeric", 34)),
-      range = "B3:AJ17", .name_repair = "minimal", na = c("k.A.")
-    ) %>%
-      mutate("TWh" = gsub(", darunter:", "", !!sym("TWh"))) %>%
-      mutate("TWh" = gsub("- ", "", !!sym("TWh"))) %>%
-      mutate("TWh" = gsub("[0-9])", "", !!sym("TWh"))) %>%
-      mutate("variable" = paste0("9 Bruttostromerzeugung|", !!sym("TWh"))) %>%
-      select(-1) %>%
-      reshape2::melt(id.vars = c("variable"), variable.name = "period", value.name = "value") %>%
-      mutate("region" = "DEU", "unit" = "TWh") %>%
-      select("region", "period", "variable", "unit", "value") %>%
-      as.magpie() %>%
-      return()
+
+    sheets <-  tibble(
+      sheet = c("STRERZ (brutto)", "STRERZ (netto)"),
+      prefix = c("9 Bruttostromerzeugung", "10 Nettostromerzeugung")
+    )
+
+    data <- NULL
+
+    for (i in seq(1:nrow(sheets))) {
+      tmp <- read_xlsx(
+        path = "STRERZ_Abg_02_2024_korr.xlsx",
+        sheet = sheets[["sheet"]][[i]],
+        col_names = TRUE,
+        col_types = c("text", rep("numeric", 34)),
+        range = "B3:AJ23", .name_repair = "minimal", na = c("k.A.")
+      ) %>%
+        mutate("TWh" = gsub(", darunter:", "", .data$TWh)) %>%
+        mutate("TWh" = gsub("- ", "", .data$TWh)) %>%
+        mutate("TWh" = gsub("[0-9])", "", .data$TWh)) %>%
+        mutate("TWh" = trimws(.data$TWh))
+
+      tmp[12,"TWh"] <- "Erneuerbare, darunter Hausmüll"
+      tmp[16,"TWh"] <- "Sonstige, darunter Hausmüll"
+
+      tmp <- tmp %>%
+        mutate("variable" = paste0(sheets[["prefix"]][[i]], "|", .data$TWh)) %>%
+        select(-1) %>%
+        reshape2::melt(id.vars = c("variable"), variable.name = "period", value.name = "value") %>%
+        mutate("region" = "DEU", "unit" = "TWh") %>%
+        select("region", "period", "variable", "unit", "value")
+
+      data <- rbind(data, tmp)
+
+    }
+
+    return(as.magpie(data))
+
   }
 }
