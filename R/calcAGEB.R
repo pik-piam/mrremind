@@ -6,7 +6,7 @@
 #' @author Falk Benke
 #'
 #' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
-#'        "electricity" ("Nettostromerzeugung in Deutschland nach Energieträgern")
+#'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
 #' @importFrom stats aggregate
 #' @export
