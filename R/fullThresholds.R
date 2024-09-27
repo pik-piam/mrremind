@@ -8,7 +8,8 @@
 #'        validationConfig or "full" to export all pipeline data
 #'
 #' @export
-fullThresholds <- function(type = "config") {
+fullTHRESHOLDS <- function(type = "config") {
+
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
@@ -53,8 +54,8 @@ fullThresholds <- function(type = "config") {
                         warnNA = FALSE, try = FALSE, years = years)
 
   wind <- calcOutput("ProjectPipelines", subtype = "wind",
-                      aggregate = columnsForAggregation, round = 3,
-                      warnNA = FALSE, try = FALSE, years = years)
+                     aggregate = columnsForAggregation, round = 3,
+                     warnNA = FALSE, try = FALSE, years = years)
 
   solar <- calcOutput("ProjectPipelines", subtype = "solar",
                       aggregate = columnsForAggregation, round = 3,
@@ -137,13 +138,13 @@ fullThresholds <- function(type = "config") {
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       as.quitte() %>%
       pivot_wider(names_from = "status") %>%
-      select(-scenario)
+      select(-"scenario")
     # exclude rows without any threshold
     out[!(is.na(out$min_red)
           & is.na(out$min_yel)
           & is.na(out$max_yel)
           & is.na(out$max_red)), ] %>%
-      write.csv(file = outfile, row.names = FALSE, quote = FALSE)
+      utils::write.csv(file = outfile, row.names = FALSE, quote = FALSE)
 
   } else {
     warning("`type` must be either `full` or `config`")

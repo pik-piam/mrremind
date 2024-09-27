@@ -13,7 +13,7 @@ readGlobalEnergyMonitor <- function() {
   # GEM GIPT 2024
   # file available after filling out questionnaire:
   # https://globalenergymonitor.org/projects/global-integrated-power-tracker/download-data/
-  d <- read_excel("Global-Integrated-Power-June-2024.xlsx",
+  d <- readxl::read_excel("Global-Integrated-Power-June-2024.xlsx",
                   sheet = "Power facilities",
                   trim_ws = TRUE,
                   col_types = "text") %>%
@@ -32,11 +32,13 @@ readGlobalEnergyMonitor <- function() {
     filter(status %in% c("announced", "pre-construction", "construction", "operating")) %>%
     # ASSUMPTION: rows with empty start year are ignored
     # only look at pipeline until 2030
-    filter(!is.na(start), start < 2031) %>%
+    filter(!is.na(.data$start), .data$start < 2031) %>%
     # Oil/Gas needs to be separated by technology or fuel (seems complicated?)
     # remove for now
-    filter(variable != "oil/gas") %>%
-    mutate(start = as.numeric(start), end = as.numeric(end), value = as.numeric(value))
+    filter(.data$variable != "oil/gas") %>%
+    mutate(start = as.numeric(.data$start),
+           end = as.numeric(.data$end),
+           value = as.numeric(.data$value))
 
   # no end year defined:
   # use average lifetime of technology (from generisdata_tech)
@@ -51,10 +53,10 @@ readGlobalEnergyMonitor <- function() {
   # find all of these cases and put them in 2 rows, one per country
   d <- rbind(
     d[is.na(d$c2), ],
-    d[!is.na(d$c2), ] %>% mutate(region = c1, value = as.numeric(v1)),
-    d[!is.na(d$c2), ] %>% mutate(region = c2, value = as.numeric(v2))
+    d[!is.na(d$c2), ] %>% mutate(region = .data$c1, value = as.numeric(.data$v1)),
+    d[!is.na(d$c2), ] %>% mutate(region = .data$c2, value = as.numeric(.data$v2))
     ) %>%
-    select(-c1, -c2, -v1, -v2)
+    select(-"c1", -"c2", -"v1", -"v2")
 
   # use proper variable names
   d[d$variable == "coal", "variable"]       <- "Cap|Electricity|Coal"
@@ -77,7 +79,7 @@ readGlobalEnergyMonitor <- function() {
 
   # transform data from list of capacities with start and end date
   # to sum of active capacities in 2025 and 2030
-  d <- mutate(d, end = pmin(end, 2030))  # improves performance of next step
+  d <- mutate(d, end = pmin(.data$end, 2030))  # improves performance of next step
   tmp_list <- vector("list", nrow(d))
   for (i in seq_len(nrow(d))) {
     tmp_list[[i]] <- data.frame(
@@ -86,9 +88,9 @@ readGlobalEnergyMonitor <- function() {
     )
   }
   tmp <- do.call(rbind, tmp_list) %>%
-    group_by(region, variable, status, period) %>%
-    summarise(value = sum(value)) %>%
-    filter(period %in% c(2020, 2025, 2030))
+    group_by(.data$region, .data$variable, .data$status, .data$period) %>%
+    summarise(value = sum(.data$value)) %>%
+    filter(.data$period %in% c(2020, 2025, 2030))
 
   # convert to magclass object
   x <- as.magpie(tmp, spatial = "region")
@@ -102,9 +104,6 @@ readGlobalEnergyMonitor <- function() {
     dimSums(x[, , c("Cap|Electricity|Wind|Offshore", "Cap|Electricity|Wind|Onshore")], dim = 3.1) %>%
       add_dimension(dim = 3.1, add = "variable", nm = "Cap|Electricity|Wind")
   )
-
-  # collapse variable and status dimension into one
-  # getNames(x) <- gsub(pattern = "\\.", replacement = "|", x = getNames(x))
 
   # convert MW to GW
   x <- x / 1000
