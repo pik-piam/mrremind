@@ -98,9 +98,10 @@ readAGEB <- function(subtype = "balances") {
         col_types = c("text", rep("numeric", 34)),
         range = "B3:AJ23", .name_repair = "minimal", na = c("k.A.")
       ) %>%
-        mutate("TWh" = gsub(", darunter:", "", !!sym("TWh"))) %>%
-        mutate("TWh" = gsub("- ", "", !!sym("TWh"))) %>%
-        mutate("TWh" = gsub("[0-9])", "", !!sym("TWh")))
+        mutate("TWh" = gsub(", darunter:", "", .data$TWh)) %>%
+        mutate("TWh" = gsub("- ", "", .data$TWh)) %>%
+        mutate("TWh" = gsub("[0-9])", "", .data$TWh)) %>%
+        mutate("TWh" = trimws(.data$TWh))
 
       tmp[12,"TWh"] <- "Erneuerbare, darunter Hausmüll"
       tmp[16,"TWh"] <- "Sonstige, darunter Hausmüll"
