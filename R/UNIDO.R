@@ -207,6 +207,11 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                     'iso3c', 'year') %>%
                     mutate(subsector = 'manufacturing'),
 
+                # Data with an obvious mismatch between steel production and
+                # steel value added figures is excluded.
+                # Data for Hong Kong (1973-1979) is excluded since no data for
+                # PR China is available for this period and the data would bias
+                # any regression for the CHA region.
                 list_to_data_frame(
                     list(BGD = 2011,
                          CHE = 1995:1996,
@@ -305,7 +310,6 @@ calcUNIDO <- function(subtype = 'INDSTAT2')
 
             # $/year * 1e-9 $bn/$ = $bn/year
             x <- mbind(x_no_manufacturing, x_otherInd) * 1e-9
-            x[is.na(x)] <- 0
 
             # give proper variable names
             subsector_names <- c('cement', 'chemicals', 'steel', 'otherInd')
