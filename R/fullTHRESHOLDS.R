@@ -8,7 +8,8 @@
 #'        validationConfig or "full" to export all pipeline data
 #'
 #' @export
-fullThresholds <- function(type = "config") {
+fullTHRESHOLDS <- function(type = "config") {
+
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
   # of the `regionmapping` and `extramappings` currently configured.
@@ -53,8 +54,8 @@ fullThresholds <- function(type = "config") {
                         warnNA = FALSE, try = FALSE, years = years)
 
   wind <- calcOutput("ProjectPipelines", subtype = "wind",
-                      aggregate = columnsForAggregation, round = 3,
-                      warnNA = FALSE, try = FALSE, years = years)
+                     aggregate = columnsForAggregation, round = 3,
+                     warnNA = FALSE, try = FALSE, years = years)
 
   solar <- calcOutput("ProjectPipelines", subtype = "solar",
                       aggregate = columnsForAggregation, round = 3,
@@ -88,6 +89,16 @@ fullThresholds <- function(type = "config") {
   out["GLO", 2020, "min_yel"] <- out["GLO", 2020, "operational"]*0.95
   out["GLO", 2020, "max_yel"] <- out["GLO", 2020, "operational"]*1.05
   out["GLO", 2020, "max_red"] <- out["GLO", 2020, "operational"]*1.1
+
+  # exception for Nuclear: use 10%, 20%
+  out["GLO", , "Cap|Electricity|Nuclear.min_red"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.8
+  out["GLO", , "Cap|Electricity|Nuclear.min_yel"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.9
+  out["GLO", , "Cap|Electricity|Nuclear.max_yel"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.1
+  out["GLO", , "Cap|Electricity|Nuclear.max_red"] <-
+    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.2
 
   # exception for 2020: use yel and red bounds for regions
   out[regions, 2020, "min_red"] <- out[regions, 2020, "operational"]*0.6
@@ -127,13 +138,13 @@ fullThresholds <- function(type = "config") {
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       as.quitte() %>%
       pivot_wider(names_from = "status") %>%
-      select(-scenario)
+      select(-"scenario")
     # exclude rows without any threshold
     out[!(is.na(out$min_red)
           & is.na(out$min_yel)
           & is.na(out$max_yel)
           & is.na(out$max_red)), ] %>%
-      write.csv(file = outfile, row.names = FALSE, quote = FALSE)
+      utils::write.csv(file = outfile, row.names = FALSE, quote = FALSE)
 
   } else {
     warning("`type` must be either `full` or `config`")

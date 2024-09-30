@@ -16,7 +16,7 @@ readIEA_CCUS <- function(subtype) {
   # project types filter applied to source
   projectTypes <- c("Full chain", "Storage", "T&S")
 
-  data <- read_excel("IEA CCUS Projects Database 2024.xlsx",
+  data <- readxl::read_excel("IEA CCUS Projects Database 2024.xlsx",
     sheet = "CCUS Projects Database"
   ) %>%
     select(
@@ -49,12 +49,12 @@ readIEA_CCUS <- function(subtype) {
 
   # remove mixed-country data and attach single country data weighted by GDP
   data <- data %>%
-    filter(!country %in% c("Japan-Malaysia", "Australia-Japan")) %>%
+    filter(!.data$country %in% c("Japan-Malaysia", "Australia-Japan")) %>%
     rbind(
-    mutate(JM, country = "Japan",     value = value*gdp_JPN/(gdp_JPN+gdp_MYS)),
-    mutate(JM, country = "Malaysia",  value = value*gdp_MYS/(gdp_JPN+gdp_MYS)),
-    mutate(AJ, country = "Australia", value = value*gdp_AUS/(gdp_JPN+gdp_AUS)),
-    mutate(AJ, country = "Japan",     value = value*gdp_JPN/(gdp_JPN+gdp_AUS))
+    mutate(JM, country = "Japan",     value = .data$value*gdp_JPN/(gdp_JPN + gdp_MYS)),
+    mutate(JM, country = "Malaysia",  value = .data$value*gdp_MYS/(gdp_JPN + gdp_MYS)),
+    mutate(AJ, country = "Australia", value = .data$value*gdp_AUS/(gdp_JPN + gdp_AUS)),
+    mutate(AJ, country = "Japan",     value = .data$value*gdp_JPN/(gdp_JPN + gdp_AUS))
     )
 
   if (subtype == "historical") {

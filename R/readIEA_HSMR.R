@@ -9,20 +9,20 @@
 #' @export
 readIEA_HSMR <- function() {
 
-  x <- read_xlsx("IEA_Hydropower_Special_Market_Report.xlsx") %>%
+  x <- readxl::read_xlsx("IEA_Hydropower_Special_Market_Report.xlsx") %>%
     # get capacities in 2030 by adding 2020 values to additions
     # subtract pumped storage as it is not part of Cap Hydro in REMIND
-    mutate("2020_operational" = capacity_2020,
-           "2030_expected" = capacity_2020 + add_expected_2030 - of_that_pumped,
-           "2030_accelerated" = capacity_2020 + add_accelerated_2030 - of_that_pumped,
-           "2020_pumped" = cap_2020_pumped,
-           "2030_pumped" = cap_2020_pumped + of_that_pumped,
+    mutate("2020_operational" = .data$capacity_2020,
+           "2030_expected"    = .data$capacity_2020 + .data$add_expected_2030 - .data$of_that_pumped,
+           "2030_accelerated" = .data$capacity_2020 + .data$add_accelerated_2030 - .data$of_that_pumped,
+           "2020_pumped" = .data$cap_2020_pumped,
+           "2030_pumped" = .data$cap_2020_pumped + .data$of_that_pumped,
            variable = "Cap|Electricity|Hydro") %>%
     pivot_longer(cols = c("2020_operational", "2030_expected",
                           "2030_accelerated", "2020_pumped", "2030_pumped"),
                  names_to = "year_scen") %>%
-    select(country, variable, year_scen, unit, value) %>%
-    separate(year_scen, c("year", "status")) %>%
+    select("country", "variable", "year_scen", "unit", "value") %>%
+    separate(.data$year_scen, c("year", "status")) %>%
     as.magpie(spatial = "country")
 
   x[, 2020, "accelerated"] <- x[, 2020, "operational"]
