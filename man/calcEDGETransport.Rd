@@ -16,7 +16,8 @@ REMIND/iterative EDGE-T input data for all scenario combinations
 Prepare EDGETransport inputs
 }
 \examples{
-\dontrun{ a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
+\dontrun{
+a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
 }
 }
 \seealso{

@@ -17,7 +17,8 @@ Run EDGE-Transport Standalone in all used scenario combinations to supply input 
 to REMIND and the iterative EDGE-T script
 }
 \examples{
-\dontrun{ a <- readSource(type = "EDGETransport")
+\dontrun{
+a <- readSource(type = "EDGETransport")
 }
 }
 \seealso{

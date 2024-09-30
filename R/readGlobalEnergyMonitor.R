@@ -29,7 +29,7 @@ readGlobalEnergyMonitor <- function() {
            c2 = "Country/area 2 (hydropower only)",
            v1 = "Country/area 1 Capacity (MW) (hydropower only)",
            v2 = "Country/area 2 Capacity (MW) (hydropower only)") %>%
-    filter(status %in% c("announced", "pre-construction", "construction", "operating")) %>%
+    filter(.data$status %in% c("announced", "pre-construction", "construction", "operating")) %>%
     # ASSUMPTION: rows with empty start year are ignored
     # only look at pipeline until 2030
     filter(!is.na(.data$start), .data$start < 2031) %>%
