@@ -29,7 +29,7 @@ calcIEA_ETP <- function() {
 
     data <- data %>%
       filter(!is.na(.data$value),
-             !(.data$variable %in% unique(remove$REMIND))) %>%
+             !(.data$REMIND %in% unique(remove$REMIND))) %>%
       mutate(
         "value" = .data$value * .data$Conversion,
         "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")"),
@@ -53,7 +53,6 @@ calcIEA_ETP <- function() {
       ) %>%
     select("variable", "REMIND", "Conversion", "Unit_REMIND")
 
-
   xReg <- mbind(
     readSource("IEA_ETP", subtype = "industry"),
     readSource("IEA_ETP", subtype = "transport"),
@@ -63,6 +62,9 @@ calcIEA_ETP <- function() {
 
   dataReg <- .map(xReg, mapping) %>%
     toolCountryFill(fill = NA, verbosity = 2)
+
+  # set 0s in other CHA countries than China to approximate CHA as China
+  dataReg[c("HKG", "MAC", "TWN"), , ] <- 0
 
   xGlo <- mbind(
     readSource("IEA_ETP", subtype = "industry", convert = FALSE)["WORLD", , ],
@@ -98,6 +100,9 @@ calcIEA_ETP <- function() {
       return(x)
     }
   }
+
+
+
 
   return(list(
     x = dataReg,
