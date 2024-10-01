@@ -2,7 +2,6 @@
 #'
 #' @author Alois Dirnaicher, Johanna Hoppe
 calcFeDemandTransport <- function() {
-
   # Read in stationary data and map to REMIND variables ----
 
   # REMIND transport items
@@ -74,7 +73,7 @@ calcFeDemandTransport <- function() {
     select("scenario", "region", "year" = "period", "item", "value") %>%
     filter(.data$scenario == "gdp_SSP2") %>%
     mutate("scenario" = "gdp_SDP") %>%
-    as.data.table()
+    data.table::as.data.table()
 
   ## get population
   pop <- data.table::as.data.table(calcOutput("Population"))[

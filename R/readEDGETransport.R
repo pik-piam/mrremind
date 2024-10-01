@@ -9,7 +9,8 @@
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
-#' \dontrun{ a <- readSource(type = "EDGETransport")
+#' \dontrun{
+#' a <- readSource(type = "EDGETransport")
 #' }
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
@@ -17,6 +18,7 @@
 
 readEDGETransport <- function(subtype) {
 
+  EDGE_scenario <- DEM_scenario <- NULL
   #############################################################
   ## Define all scenario combinations for which
   ## input data should be generated
@@ -33,32 +35,32 @@ readEDGETransport <- function(subtype) {
     # Specific project scenarios
     tribble(
       ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
-      'SSP1',          'Mix1',                    FALSE,      'default',
-      'SSP1',          'Mix2',                    FALSE,      'default',
-      'SSP1',          'Mix3',                    TRUE,       'default',
-      'SSP1',          'Mix4',                    TRUE,       'default',
-      'SSP2',          'Mix1',                    FALSE,      'SSP2_demRedStrong',
-      'SSP2',          'Mix2',                    FALSE,      'SSP2_demRedStrong',
-      'SSP2',          'Mix3',                    TRUE,       'SSP2_demRedStrong',
-      'SSP2',          'Mix4',                    TRUE,       'SSP2_demRedStrong',
-      'SSP2',          'Mix4',                    TRUE,       'SSP2_demDiffer',
-      'SSP2',          'Mix1',                    FALSE,      'SSP2_demDiffer',
-      'SDP_EI',        'Mix4',                    TRUE,       'default',
-      'SDP_MC',        'Mix4',                    TRUE,       'default',
-      'SDP_RC',        'Mix3',                    TRUE,       'default',
-      'SSP2',          'HydrHype4',               TRUE,       'default',
-      'SSP2',          'NAV_act',                 FALSE,      'SSP2_demRedStrong',
-      'SSP2',          'NAV_tec',                 FALSE,      'default',
-      'SSP2',          'NAV_ele',                 TRUE,       'default',
-      'SSP2',          'NAV_all',                 TRUE,       'SSP2_demRedStrong',
-      'SSP2',          'NAV_lce',                 FALSE,      'SSP2_demRedStrong',
-      'SSP2',          'CAMP_lscWeak',            TRUE,       'SSP2_demRedWeak',
-      'SSP2',          'CAMP_lscStrong',          TRUE,       'SSP2_demRedStrong'
+      "SSP1",          "Mix1",                    FALSE,      "default",
+      "SSP1",          "Mix2",                    FALSE,      "default",
+      "SSP1",          "Mix3",                    TRUE,       "default",
+      "SSP1",          "Mix4",                    TRUE,       "default",
+      "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix3",                    TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_demDiffer",
+      "SSP2",          "Mix1",                    FALSE,      "SSP2_demDiffer",
+      "SDP_EI",        "Mix4",                    TRUE,       "default",
+      "SDP_MC",        "Mix4",                    TRUE,       "default",
+      "SDP_RC",        "Mix3",                    TRUE,       "default",
+      "SSP2",          "HydrHype4",               TRUE,       "default",
+      "SSP2",          "NAV_act",                 FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "NAV_tec",                 FALSE,      "default",
+      "SSP2",          "NAV_ele",                 TRUE,       "default",
+      "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
     )
   )
 
   # generate list from data frame rows
-  allScens <- split(allScens, seq(nrow(allScens)))
+  allScens <- split(allScens, seq_len(nrow(allScens)))
 
   #############################################################
   ## Run EDGE-Transport SA with all scenario combinations
@@ -82,7 +84,7 @@ readEDGETransport <- function(subtype) {
   # Bind rows of equally named subtypes
   EdgeTransportSAdata <- lapply(types, function(type, outerList) {
     listOfDataTables <- lapply(outerList, function(innerList) innerList[[type]])
-    result <- rbindlist(listOfDataTables)
+    rbindlist(listOfDataTables)
   }, EdgeTransportSAdata)
 
   EdgeTransportSAdata <- setNames(EdgeTransportSAdata, types)
