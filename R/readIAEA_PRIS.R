@@ -1,4 +1,4 @@
-#' read IEA Power Reactor Information System
+#' read IAEA Power Reactor Information System
 #'
 #' read Nuclear capacities and near-term outlook from data scraped from
 #' https://pris.iaea.org/PRIS/CountryStatistics/CountryStatisticsLandingPage.aspx
@@ -7,7 +7,7 @@
 #' @importFrom readxl read_xlsx
 #'
 #' @export
-readIEA_PRIS <- function() {
+readIAEA_PRIS <- function() {
   # only information given is what is currently operating and what is under
   # construction (without start date)
   x <- readxl::read_xlsx("nuclear_capacities_20240716.xlsx") %>%
@@ -19,7 +19,7 @@ readIEA_PRIS <- function() {
                  names_to = "status") %>%
     select("country", "year", "variable", "status", "unit", "value") %>%
     as.magpie(spatial = "country", temporal = "year") %>%
-    add_dimension(dim = 3.1, add = "model", nm = "IEA_PRIS")
+    add_dimension(dim = 3.1, add = "model", nm = "IAEA_PRIS")
 
   # move "construction" values to year 2030
   x <- add_columns(x, addnm = c("y2030"), dim = 2, fill = NA)

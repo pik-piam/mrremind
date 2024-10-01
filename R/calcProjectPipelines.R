@@ -205,18 +205,18 @@ calcProjectPipelines <- function(subtype) {
 
     x <- mbind(x, t)
 
-    # Source 2: IEA PRIS
+    # Source 2: IAEA PRIS
     # doesn't contain dates for expected start of operation
     # -> make assumptions for 2030
-    y <- readSource("IEA_PRIS")
+    y <- readSource("IAEA_PRIS")
 
     # initialize magclass object for thresholds
     t <- new.magpie(getRegions(y),
                     c(2020, 2025, 2030),
-                    c("IEA_PRIS.Cap|Electricity|Nuclear.min_red.GW",
-                      "IEA_PRIS.Cap|Electricity|Nuclear.min_yel.GW",
-                      "IEA_PRIS.Cap|Electricity|Nuclear.max_yel.GW",
-                      "IEA_PRIS.Cap|Electricity|Nuclear.max_red.GW"),
+                    c("IAEA_PRIS.Cap|Electricity|Nuclear.min_red.GW",
+                      "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel.GW",
+                      "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel.GW",
+                      "IAEA_PRIS.Cap|Electricity|Nuclear.max_red.GW"),
                     sets = getSets(y))
 
     # ASSUMPTION: min_red
@@ -231,7 +231,7 @@ calcProjectPipelines <- function(subtype) {
     # ASSUMPTION: max_red
     t[, 2030, "max_red"] <- y[, 2030, "operational"] + y[, 2030, "construction"]
 
-    # add empty 2025 and 2030 column, so IEA and GEM data can be merged
+    # add empty 2025 and 2030 column, so IAEA and GEM data can be merged
     y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
     y <- mbind(y, t)
 
