@@ -25,7 +25,7 @@ calcIEA_ETP <- function() {
 
     # composite REMIND variables that must be removed from the data,
     # because we do not have all the components in the IEA data
-    remove <- data %>% filter(is.na(value))
+    remove <- data %>% filter(is.na(.data$value))
 
     data <- data %>%
       filter(!is.na(.data$value),
@@ -50,7 +50,7 @@ calcIEA_ETP <- function() {
       "Conversion" = as.numeric(.data$Conversion),
       "variable" = trimws(.data$IEA_ETP),
       "REMIND" = trimws(.data$REMIND)
-      ) %>%
+    ) %>%
     select("variable", "REMIND", "Conversion", "Unit_REMIND")
 
   xReg <- mbind(
