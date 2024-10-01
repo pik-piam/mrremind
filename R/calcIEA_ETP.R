@@ -6,73 +6,73 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom rlang sym
-#' @importFrom stats aggregate na.pass
 #' @export
 
 calcIEA_ETP <- function() {
+
+  .map <- function(x, mapping) {
+
+    data <- as.data.frame(x) %>%
+      as_tibble() %>%
+      select(
+        "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
+        "year" = "Year", "value" = "Value"
+      ) %>%
+      filter(!is.na(.data$value))
+
+    data <- full_join(data, mapping, by = "variable", relationship = "many-to-many") %>%
+      filter(.data$REMIND != "")
+
+    # composite REMIND variables that must be removed from the data,
+    # because we do not have all the components in the IEA data
+    remove <- data %>% filter(is.na(value))
+
+    data <- data %>%
+      filter(!is.na(.data$value),
+             !(.data$variable %in% unique(remove$REMIND))) %>%
+      mutate(
+        "value" = .data$value * .data$Conversion,
+        "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")"),
+        "model" = paste0("IEA ETP ", .data$scenario),
+        "year" = as.numeric(as.character(.data$year))
+      ) %>%
+      select("region", "year", "model", "variable" = "REMIND", "value")
+
+    x <- aggregate(value ~ region + year + model + variable, data, sum) %>%
+      as.magpie()
+
+    return(x)
+  }
+
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
-    mutate("Conversion" = as.numeric(.data$Conversion)) %>%
-    select("variable" = "IEA_ETP", "REMIND", "Conversion", "Unit_REMIND")
+    mutate(
+      "Conversion" = as.numeric(.data$Conversion),
+      "variable" = trimws(.data$IEA_ETP),
+      "REMIND" = trimws(.data$REMIND)
+      ) %>%
+    select("variable", "REMIND", "Conversion", "Unit_REMIND")
 
-  mapping$variable <- trimws(mapping$variable)
-  mapping$REMIND <- trimws(mapping$REMIND)
 
-  x1 <- readSource("IEA_ETP", subtype = "industry")
-  x2 <- readSource("IEA_ETP", subtype = "transport")
-  x3 <- readSource("IEA_ETP", subtype = "buildings")
-  x4 <- readSource("IEA_ETP", subtype = "summary")
-
-  x5 <- mbind(
-    readSource("IEA_ETP", subtype = "industry", convert = F)["WORLD", , ],
-    readSource("IEA_ETP", subtype = "transport", convert = F)["WORLD", , ],
-    readSource("IEA_ETP", subtype = "buildings", convert = F)["WORLD", , ],
-    readSource("IEA_ETP", subtype = "summary", convert = F)["WORLD", , ]
+  xReg <- mbind(
+    readSource("IEA_ETP", subtype = "industry"),
+    readSource("IEA_ETP", subtype = "transport"),
+    readSource("IEA_ETP", subtype = "buildings"),
+    readSource("IEA_ETP", subtype = "summary")
   )
 
-
-  data <- as.data.frame(mbind(x1, x2, x3, x4)) %>%
-    as_tibble() %>%
-    select(
-      "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
-      "year" = "Year", "value" = "Value"
-    ) %>%
-    filter(!is.na(.data$value))
-
-  dataGlo <- as.data.frame(x5) %>%
-    as_tibble() %>%
-    select(
-      "region" = "Region", "scenario" = "Data1", "variable" = "Data2",
-      "year" = "Year", "value" = "Value"
-    ) %>%
-    filter(!is.na(.data$value)) %>%
-    mutate(region = "GLO")
-
-
-
-  x <- left_join(
-    rbind(data, dataGlo),
-    mapping,
-    by = "variable",
-    relationship = "many-to-many"
-  ) %>%
-    filter(.data$REMIND != "") %>%
-    mutate(
-      "value" = .data$value * .data$Conversion,
-      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")"),
-      "model" = paste0("IEA ETP ", .data$scenario),
-      "year" = as.numeric(as.character(.data$year))
-    ) %>%
-    select("region", "year", "model", "variable" = "REMIND", "value")
-
-  x <- aggregate(value ~ region + year + model + variable, x, sum) %>%
-    as.magpie()
-
-  dataGlo <- x["GLO", , ]
-  x <- x["GLO", , invert = T] %>%
+  dataReg <- .map(xReg, mapping) %>%
     toolCountryFill(fill = NA, verbosity = 2)
 
+  xGlo <- mbind(
+    readSource("IEA_ETP", subtype = "industry", convert = FALSE)["WORLD", , ],
+    readSource("IEA_ETP", subtype = "transport", convert = FALSE)["WORLD", , ],
+    readSource("IEA_ETP", subtype = "buildings", convert = FALSE)["WORLD", , ],
+    readSource("IEA_ETP", subtype = "summary", convert = FALSE)["WORLD", , ]
+  )
+
+  getItems(xGlo, dim = 1) <- "GLO"
+  dataGlo <- .map(xGlo, mapping)
 
   # includes global values from the original source instead of calculating
   # them as the sum of all countries (as countries are incomplete)
@@ -100,7 +100,7 @@ calcIEA_ETP <- function() {
   }
 
   return(list(
-    x = x,
+    x = dataReg,
     weight = NULL,
     aggregationFunction = .customAggregate,
     aggregationArguments = list(glo = dataGlo),
