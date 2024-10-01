@@ -15,7 +15,7 @@
 #' or "EU27" (latest data from August 23 without GBR)
 #' @importFrom tidyr drop_na extract
 #' @importFrom readxl excel_sheets read_excel
-#' @importFrom stats aggregate
+#' @importFrom stats aggregate na.pass
 #'
 readEuropeanEnergyDatasheets <- function(subtype) {
   if (!subtype %in% c("EU27", "EU28")) {
