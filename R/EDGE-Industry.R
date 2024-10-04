@@ -1334,75 +1334,11 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
   ## UNIDO INSTATA2 data ----
-  INDSTAT <- readSource('UNIDO', 'INDSTAT2', convert = FALSE) %>%
-    madrat_mule()
+  INDSTAT <- readSource('UNIDO', 'INDSTAT2') %>%
+    as_tibble() %>%
+    filter(!is.na(.data$value)) %>%
+    left_join(region_mapping, 'iso3c')
 
-  ### add iso3c codes and regions ----
-  # FIXME We are substituting some historic country codes by 'default' codes of
-  # current countries. Generally, they are situated in the same aggregation
-  # region, so this has no impact on the derivation of regional statistics.
-  # This does not apply to former Yugoslavia however. Since the countries in
-  # question (currently Slovenia and Kroatia, others might join the EU at a
-  # later time and then require reclassification) are small compared to the
-  # respective regions (Europe and Rest-of-World), the impact should be limited.
-  INDSTAT <- INDSTAT %>%
-    # fix some country codes
-    filter(810 != .data$country) %>%   # SUN data synthetic anyhow
-    mutate(
-      country = ifelse(200 == .data$country, 203, .data$country),  # CSE for CSK
-      country = ifelse(530 == .data$country, 531, .data$country),  # CUW for ANT
-      country = ifelse(890 == .data$country, 688, .data$country),  # SRB for YUG
-      country = ifelse(891 == .data$country, 688, .data$country)   # SRB for SCG
-    ) %>%
-    # add iso3c country codes
-    left_join(
-      bind_rows(
-        countrycode::codelist %>%
-          select('iso3c', 'un') %>%
-          filter(!is.na(.data$iso3c), !is.na(.data$un)),
-
-        # country codes missing from package countrycode
-        tribble(
-          ~iso3c,   ~un,
-          'TWN',    158,   # Taiwan
-          'ETH',    230,   # Ethiopia and Eritrea
-          'DEU',    278,   # East Germany
-          'DEU',    280,   # West Germany
-          'PAN',    590,   # Panama
-          'SDN',    736    # Sudan
-        )
-      ),
-
-      c('country' = 'un')
-    ) %>%
-    assert(not_na, everything()) %>%
-    # add regions based on country codes
-    left_join(
-      bind_rows(
-        region_mapping,
-        tibble(iso3c = 'SUN', region = 'SUN')
-      ),
-      'iso3c') %>%
-    assert(not_na, everything())
-
-  ### censor unreasonable data ----
-  INDSTAT_censor <- bind_rows(
-    bind_rows(
-      tibble(iso3c = 'IRQ', year = 1994:1998),
-      tibble(iso3c = 'MDV', year = INDSTAT$year %>% unique()),
-      tibble(iso3c = 'BIH', year = 1990:1991)
-    ) %>%
-      mutate(censor = TRUE,
-             reason = 'unreasonable'),
-
-    bind_rows(
-      tibble(iso3c = 'HKG', year = unique(INDSTAT$year)),
-      tibble(iso3c = 'MAC', year = unique(INDSTAT$year)),
-      tibble(iso3c = 'CHN', year = min(INDSTAT$year):1997)
-    ) %>%
-      mutate(censor = TRUE,
-             reason = 'not representative')
-  )
 
   ## population data ----
   population <- calcOutput('Population', naming = 'scenario',
@@ -1431,19 +1367,16 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
            GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
-  data_cement_production <- calcOutput('Cement', aggregate = FALSE, warnNA = FALSE) %>%
+  data_cement_production <- calcOutput('Cement', aggregate = FALSE,
+                                       warnNA = FALSE) %>%
     magclass_to_tibble() %>%
     select(-'data') %>%
     filter(!is.na(.data$value))
 
   # calc manufacturing share in GDP ----
   manufacturing_share <- INDSTAT %>%
-    filter('D' == .data$isic,
-           between(.data$utable, 17, 20)) %>%
-    group_by(!!!syms(c('iso3c', 'year'))) %>%
-    filter(max(.data$lastupdated) == .data$lastupdated) %>%
-    ungroup() %>%
-    select('region', 'iso3c', 'year', manufacturing = 'value') %>%
+    filter('manufacturing' == .data$subsector) %>%
+    pivot_wider(names_from = 'subsector') %>%
     inner_join(
       GDP %>%
         filter(max(INDSTAT$year) >= .data$year) %>%
@@ -1459,19 +1392,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
         summarise(population = calc_mode(.data$population), .groups = 'drop'),
 
       c('iso3c', 'year')
-    ) %>%
-    # mark unreasonable data for exclusion
-    full_join(
-      INDSTAT_censor %>%
-        select(-.data$reason),
-
-      c('iso3c', 'year')
-    ) %>%
-    mutate(censor = ifelse(is.na(.data$censor), FALSE, TRUE))
+    )
 
   # regress per-capita industry value added ----
   regression_data <- manufacturing_share %>%
-    filter(!.data$censor) %>%
     duplicate(region = 'World') %>%
     pivot_longer(c('population', 'GDP', 'manufacturing')) %>%
     group_by(.data$region, .data$iso3c, .data$year, .data$name) %>%
@@ -1549,13 +1473,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   regression_data_steel <- inner_join(
     INDSTAT %>%
-      filter(20 == .data$ctable,
-             '27' == .data$isic,
-             between(.data$utable, 17, 20),
-             0 < .data$value) %>%
-      group_by(.data$iso3c, .data$year) %>%
-      filter(max(.data$lastupdated) == .data$lastupdated) %>%
-      ungroup() %>%
+      filter('steel' == .data$subsector) %>%
       select('region', 'iso3c', 'year', steel.VA = 'value'),
 
     data_steel_production %>%
@@ -1564,30 +1482,6 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
     c('iso3c', 'year')
   )
-
-  # Data with an obvious mismatch between steel production and steel value added
-  # figures is excluded from the regression.
-  # Data for Hong Kong (1973-1979) is excluded, since no data for China is
-  # available for this period and the data would bias the regression for the CHN
-  # region.
-  steel_censor <- list_to_data_frame(
-    list(BGD = 2011,
-         CHE = 1995:1996,
-         CHL = 2008,
-         HKG = 1973:1979,
-         HRV = 2012,
-         IRL = 1980,
-         LKA = 2006,
-         MAR = 1989:2004,
-         MKD = 1996,
-         PAK = 1981:1982,
-         TUN = 2003:2006),
-    'iso3c', 'year') %>%
-    mutate(censored = TRUE)
-
-  regression_data_steel <- regression_data_steel %>%
-    left_join(steel_censor, c('iso3c', 'year')) %>%
-    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
 
   ## compute regional and World aggregates ----
   regression_data_steel <- regression_data_steel %>%
@@ -1614,13 +1508,12 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     regression_data_steel,
 
     regression_data_steel %>%
-      filter(!.data$censored) %>%
-      group_by(.data$region, .data$year, .data$censored, .data$variable) %>%
+      group_by(.data$region, .data$year, .data$variable) %>%
       summarise(value = sum(.data$value, na.rm = TRUE),
                 iso3c = 'Total',
                 .groups = 'drop')
   ) %>%
-    group_by(!!!syms(c('region', 'iso3c', 'year', 'censored', 'variable'))) %>%
+    group_by(!!!syms(c('region', 'iso3c', 'year', 'variable'))) %>%
     pivot_wider(names_from = 'variable')
 
   ## compute regression parameters ----
@@ -1632,8 +1525,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       nls(formula = steel.VApt ~ a * exp(b / GDPpC),
           data = regression_data_steel %>%
             filter(r == .data$region,
-                   'Total' == .data$iso3c,
-                   !.data$censored) %>%
+                   'Total' == .data$iso3c) %>%
             mutate(steel.VApt = .data$steel.VA / .data$steel.production,
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 500, b = 500),
@@ -1732,8 +1624,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_steel %>%
       ungroup() %>%
-      filter('Total' == .data$iso3c,
-             !.data$censored) %>%
+      filter('Total' == .data$iso3c) %>%
       mutate(GDPpC = .data$GDP / .data$population,
              steel.VA.pt = .data$steel.VA / .data$steel.production) %>%
       # filter outliers
@@ -1827,13 +1718,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ## calculate regression data ----
   regression_data_cement <- full_join(
     INDSTAT %>%
-      filter(20 == .data$ctable,
-             '26' == .data$isic,
-             between(.data$utable, 17, 20),
-             0 < .data$value) %>%
-      group_by(.data$iso3c, .data$year) %>%
-      filter(max(.data$lastupdated) == .data$lastupdated) %>%
-      ungroup() %>%
+      filter('cement' == .data$subsector) %>%
       select('region', 'iso3c', 'year', cement.VA = 'value') %>%
       filter(.data$year >= min(data_cement_production$year)),
 
@@ -1844,23 +1729,6 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     c('region', 'iso3c', 'year')
   ) %>%
     filter(!is.na(.data$cement.production))
-
-  ### censor nonsensical data ----
-  cement_censor <- list_to_data_frame(list(
-    BDI = 1980:2010,   # zero cement production
-    CIV = 1990:1993,   # cement VA 100 times higher than before and after
-    NAM = 2007:2010,   # zero cement production
-    HKG = 1973:1979,   # no data for CHN prior to 1980
-    IRQ = 1992:1997,   # cement VA 100 times higher than before and after
-    RUS = 1970:1990,   # exclude data from Soviet period which biases
-                       # projections up
-    NULL),
-    'iso3c', 'year') %>%
-    mutate(censored = TRUE)
-
-  regression_data_cement <- regression_data_cement %>%
-    left_join(cement_censor, c('iso3c', 'year')) %>%
-    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
 
   ### compute regional and World aggregates ----
   regression_data_cement <- regression_data_cement %>%
@@ -1885,11 +1753,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     regression_data_cement,
 
     regression_data_cement %>%
-      filter(!.data$censored,
-             # exclude CHA from global regression data, because it dominates
+      filter(# exclude CHA from global regression data, because it dominates
              # the global regression
              !('World' == .data$region & 'CHN' == .data$iso3c)) %>%
-      group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>%
+      group_by(!!!syms(c('region', 'year', 'name'))) %>%
       summarise(value = sum(.data$value, na.rm = TRUE),
                 iso3c = 'Total',
                 .groups = 'drop')
@@ -1905,8 +1772,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       nls(formula = cement.PpC ~ a * exp(b / GDPpC),
           data = regression_data_cement %>%
             filter(r == .data$region,
-                   'Total' == .data$iso3c,
-                   !.data$censored) %>%
+                   'Total' == .data$iso3c) %>%
             mutate(cement.PpC = .data$cement.production / .data$population,
                    GDPpC      = .data$GDP / .data$population),
           start = list(a = 1, b = -1000),
@@ -2007,18 +1873,17 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
           data = regression_data_cement %>%
             filter(r == .data$region,
                    'Total' != .data$iso3c,
-                   !is.na(.data$cement.VA),
-                   !.data$censored) %>%
+                   !is.na(.data$cement.VA)) %>%
             pivot_longer(all_of(c('population', 'cement.production', 'GDP',
                                   'cement.VA'))) %>%
-            group_by(.data$region, .data$year, .data$censored, .data$name) %>%
+            group_by(.data$region, .data$year, .data$name) %>%
             summarise(value = sum(.data$value),
                       iso3c = 'Total',
                       .groups = 'drop') %>%
             pivot_wider() %>%
             mutate(cement.VApt = .data$cement.VA / .data$cement.production,
                    GDPpC       = .data$GDP / .data$population),
-          start = list(a = 250, b = -4000),
+          start = list(a = 250, b = 1500),
           trace = FALSE) %>%
         broom::tidy() %>%
         select('term', 'estimate') %>%
@@ -2061,16 +1926,13 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ## plot cement regressions ====
   if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_cement %>%
-      filter(!.data$censored,
-             'Total' == .data$iso3c) %>%
+      filter('Total' == .data$iso3c) %>%
       mutate(GDPpC = .data$GDP / .data$population)
 
     d_plot_countries <- regression_data_cement %>%
-      filter(!.data$censored) %>%
       semi_join(
         regression_data_cement %>%
-          filter(!.data$censored,
-                 'World' != .data$region,
+          filter('World' != .data$region,
                  'Total' != .data$iso3c) %>%
           distinct(.data$region, .data$iso3c) %>%
           group_by(.data$region) %>%
@@ -2230,8 +2092,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_cement %>%
       ungroup() %>%
-      filter('Total' == .data$iso3c,
-             !.data$censored) %>%
+      filter('Total' == .data$iso3c) %>%
       mutate(GDPpC = .data$GDP / .data$population,
              cement.VA.pt = .data$cement.VA / .data$cement.production) %>%
       # filter outliers
@@ -2308,23 +2169,11 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ## compile regression data ----
   regression_data_chemicals <- inner_join(
     INDSTAT %>%
-      filter(20 == .data$ctable,
-             '24' == .data$isic,
-             between(.data$utable, 17, 20),
-             0 < .data$value) %>%
-      group_by(!!!syms(c('region', 'iso3c', 'year'))) %>%
-      filter(max(.data$lastupdated) == .data$lastupdated) %>%
-      ungroup() %>%
+      filter('chemicals' == .data$subsector) %>%
       select('region', 'iso3c', 'year', chemicals.VA = 'value'),
 
     INDSTAT %>%
-      filter(20 == .data$ctable,
-             'D' == .data$isic,
-             between(.data$utable, 17, 20),
-             0 < .data$value) %>%
-      group_by(!!!syms(c('region', 'iso3c', 'year'))) %>%
-      filter(max(.data$lastupdated) == .data$lastupdated) %>%
-      ungroup() %>%
+      filter('manufacturing' == .data$subsector) %>%
       select('region', 'iso3c', 'year', manufacturing.VA = 'value'),
 
     c('region', 'iso3c', 'year')
@@ -2345,28 +2194,14 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     ) %>%
     duplicate(region = 'World')
 
-  ### censor nonsensical data ----
-  chemicals_censor <- list_to_data_frame(list(
-    CIV = 1989,
-    NER = 1999:2002,
-    HKG = c(1973:1979, 2008:2015),
-    MAC = c(1978:1979)),
-    'iso3c', 'year') %>%
-    mutate(censored = TRUE)
-
-  regression_data_chemicals <- regression_data_chemicals %>%
-    left_join(chemicals_censor, c('iso3c', 'year')) %>%
-    mutate(censored = ifelse(is.na(.data$censored), FALSE, TRUE))
-
   ### compute regional and World aggregates ----
   regression_data_chemicals <- bind_rows(
     regression_data_chemicals,
 
     regression_data_chemicals %>%
-      filter(!.data$censored) %>%
       pivot_longer(c('population', 'GDP', 'manufacturing.VA',
                      'chemicals.VA')) %>%
-      group_by(!!!syms(c('region', 'year', 'censored', 'name'))) %>%
+      group_by(!!!syms(c('region', 'year', 'name'))) %>%
       summarise(value = sum(.data$value),
                 iso3c = 'Total',
                 .groups = 'drop') %>%
@@ -2384,8 +2219,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
       nls(formula = chemicals.VA / population ~ a * exp(b / GDPpC),
           data = regression_data_chemicals %>%
             filter(r == .data$region,
-                   'Total' == .data$iso3c,
-                   !.data$censored),
+                   'Total' == .data$iso3c),
           start = list(a = 1000, b = -100),
           trace = FALSE) %>%
         broom::tidy() %>%
@@ -2451,15 +2285,12 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ## plot chemicals regressions ================================================
   if (!is.null(save.plots)) {
     d_plot_region_totals <- regression_data_chemicals %>%
-      filter(!.data$censored,
-             'Total' == .data$iso3c)
+      filter('Total' == .data$iso3c)
 
     d_plot_countries <- regression_data_chemicals %>%
-      filter(!.data$censored) %>%
       semi_join(
         regression_data_chemicals %>%
-          filter(!.data$censored,
-                 'World' != .data$region,
+          filter('World' != .data$region,
                  'Total' != .data$iso3c) %>%
           distinct(.data$region, .data$iso3c) %>%
           group_by(.data$region) %>%
