@@ -219,6 +219,8 @@ calcProjectPipelines <- function(subtype) {
                       "IAEA_PRIS.Cap|Electricity|Nuclear.max_red.GW"),
                     sets = getSets(y))
 
+    # Thresholds basic calculations
+    # -> additional calculations in calcProjectPipelines
     # ASSUMPTION: min_red
     t[, 2030, "min_red"] <- y[, 2030, "operational"]*0.8
 
@@ -226,10 +228,14 @@ calcProjectPipelines <- function(subtype) {
     t[, 2030, "min_yel"] <- y[, 2030, "operational"]*0.9
 
     # ASSUMPTION: max_yel
-    t[, 2030, "max_yel"] <- y[, 2030, "operational"] + y[, 2030, "construction"]*0.75
+    t[, 2030, "max_yel"] <- y[, 2030, "operational"] +
+                            y[, 2030, "construction"]*0.75 +
+                            y[, 2030, "inactive"]
 
     # ASSUMPTION: max_red
-    t[, 2030, "max_red"] <- y[, 2030, "operational"] + y[, 2030, "construction"]
+    t[, 2030, "max_red"] <- y[, 2030, "operational"] +
+                            y[, 2030, "construction"] +
+                            y[, 2030, "inactive"]
 
     # add empty 2025 and 2030 column, so IAEA and GEM data can be merged
     y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
