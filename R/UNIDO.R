@@ -177,7 +177,7 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                        utable    = 17:20),
 
                 tibble(subsector = 'cement',
-                       isic      = '20',
+                       isic      = '26',
                        ctable    = 20,
                        utable    = 17:20),
 
