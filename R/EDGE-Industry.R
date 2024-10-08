@@ -2167,28 +2167,20 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   # project chemicals VA ----
   ## compile regression data ----
-  regression_data_chemicals <- inner_join(
-    INDSTAT %>%
+  regression_data_chemicals <- INDSTAT %>%
       filter('chemicals' == .data$subsector) %>%
-      select('region', 'iso3c', 'year', chemicals.VA = 'value'),
-
-    INDSTAT %>%
-      filter('manufacturing' == .data$subsector) %>%
-      select('region', 'iso3c', 'year', manufacturing.VA = 'value'),
-
-    c('region', 'iso3c', 'year')
-  ) %>%
+      select('region', 'iso3c', 'year', chemicals.VA = 'value') %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
@@ -2199,16 +2191,14 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     regression_data_chemicals,
 
     regression_data_chemicals %>%
-      pivot_longer(c('population', 'GDP', 'manufacturing.VA',
-                     'chemicals.VA')) %>%
+      pivot_longer(c('population', 'GDP', 'chemicals.VA')) %>%
       group_by(!!!syms(c('region', 'year', 'name'))) %>%
       summarise(value = sum(.data$value),
                 iso3c = 'Total',
                 .groups = 'drop') %>%
       pivot_wider()
   ) %>%
-    mutate(chemicals.share = .data$chemicals.VA / .data$manufacturing.VA,
-           GDPpC           = .data$GDP / .data$population)
+    mutate(GDPpC = .data$GDP / .data$population)
 
   ## compute regression parameters ----
   regression_parameters_chemicals <- tibble()
