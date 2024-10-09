@@ -39,7 +39,7 @@
 #'   geom_line geom_path geom_point ggplot ggsave guide_legend labs
 #'   scale_colour_manual scale_fill_discrete scale_fill_manual
 #'   scale_linetype_manual scale_shape_manual theme theme_minimal
-#' @importFrom quitte calc_mode character.data.frame df_populate_range duplicate
+#' @importFrom quitte character.data.frame df_populate_range duplicate
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
@@ -1380,16 +1380,16 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     inner_join(
       GDP %>%
         filter(max(INDSTAT$year) >= .data$year) %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       population %>%
         filter(max(INDSTAT$year) >= .data$year) %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     )
@@ -1487,15 +1487,15 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   regression_data_steel <- regression_data_steel %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
