@@ -1730,19 +1730,35 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ) %>%
     filter(!is.na(.data$cement.production))
 
+  ### censor nonsensical data ----
+  cement_censor <- list_to_data_frame(list(
+    BDI = 1980:2010,   # zero cement production
+    CIV = 1990:1993,   # cement VA 100 times higher than before and after
+    NAM = 2007:2010,   # zero cement production
+    HKG = 1973:1979,   # no data for CHN prior to 1980
+    IRQ = 1992:1997,   # cement VA 100 times higher than before and after
+    RUS = 1970:1990,   # exclude data from Soviet period which biases
+    # projections up
+    NULL),
+    'iso3c', 'year') %>%
+    mutate(censored = TRUE)
+
+  regression_data_cement <- regression_data_cement %>%
+    anti_join(cement_censor, c('iso3c', 'year'))
+
   ### compute regional and World aggregates ----
   regression_data_cement <- regression_data_cement %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
