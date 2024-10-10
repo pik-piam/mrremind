@@ -213,11 +213,13 @@ calcSteel_Projections <- function(subtype = 'production',
   ## historic per-capita GDP ----
   GDPpC_history <- readSource(type = 'James', subtype = 'IHME_USD05_PPP_pc',
                               convert = FALSE) %>%
-    as.data.frame() %>%
     as_tibble() %>%
-    select(iso3c = .data$Region, year = .data$Year, GDPpC = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year))
+    select('iso3c' = 'ISO3', 'year' = 'Year', 'value') %>%
+    convertGDP(unit_in = 'constant 2005 US$MER',
+               unit_out = mrdrivers::toolGetUnitDollar(),
+               replace_NAs = 'with_USA') %>%
+    rename(GDPpC = 'value') %>%
+    character.data.frame()
 
   ## historic population ----
   population_history <- calcOutput(type = 'PopulationPast',
