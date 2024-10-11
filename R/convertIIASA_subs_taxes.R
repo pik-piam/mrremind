@@ -26,7 +26,7 @@ convertIIASA_subs_taxes <- function(x, subtype) {
 
   # convert monetary data from $2005 to $2017
   if (subtype %in% c("subsidies_bulk", "tax_rate")) {
-    x <- GDPuc::convertGDP(
+    x <- GDPuc::toolConvertGDP(
       gdp = x,
       unit_in = "constant 2005 US$MER",
       unit_out = mrdrivers::toolGetUnitDollar(),

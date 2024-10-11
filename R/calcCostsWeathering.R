@@ -13,7 +13,7 @@ calcCostsWeathering <- function() {
 
   # convert from $2005 to $2017
 
-  x <- GDPuc::convertGDP(
+  x <- GDPuc::toolConvertGDP(
     gdp = costs,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

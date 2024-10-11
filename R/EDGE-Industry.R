@@ -215,7 +215,7 @@ calcSteel_Projections <- function(subtype = 'production',
                               convert = FALSE) %>%
     as_tibble() %>%
     select('iso3c' = 'ISO3', 'year' = 'Year', 'value') %>%
-    convertGDP(unit_in = 'constant 2005 US$MER',
+    GDPuc::toolConvertGDP(unit_in = 'constant 2005 US$MER',
                unit_out = mrdrivers::toolGetUnitDollar(),
                replace_NAs = 'with_USA') %>%
     rename(GDPpC = 'value') %>%

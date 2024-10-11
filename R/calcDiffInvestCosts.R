@@ -161,7 +161,7 @@ calcDiffInvestCosts <- function(subtype) {
 
     # convert data from $2015 to $2017
 
-    x_new <- GDPuc::convertGDP(
+    x_new <- GDPuc::toolConvertGDP(
       gdp = x_new,
       unit_in = "constant 2015 US$MER",
       unit_out = mrdrivers::toolGetUnitDollar(),

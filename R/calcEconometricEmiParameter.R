@@ -32,7 +32,7 @@ calcEconometricEmiParameter <- function() {
 
   # convert data from $2005 to $2017
 
-  p4 <- GDPuc::convertGDP(
+  p4 <- GDPuc::toolConvertGDP(
     gdp = p4,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

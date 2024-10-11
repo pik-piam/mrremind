@@ -50,7 +50,7 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
     # (1.58 is lowest price in gas extraction data after 2015)
     DIIS <- data.frame(
       Res = 23000,
-      Price = GDPuc::convertSingle(x = 1.5, iso3c = "AUS",
+      Price = GDPuc::toolConvertSingle(x = 1.5, iso3c = "AUS",
                                    unit_in = "constant 2015 LCU",
                                    unit_out = mrdrivers::toolGetUnitDollar())
     )
