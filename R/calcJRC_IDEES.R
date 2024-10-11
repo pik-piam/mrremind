@@ -79,7 +79,7 @@ calcJRC_IDEES <- function(subtype) {
     x <- x[, , getNames(tmp), invert = TRUE]
     getNames(tmp) <- gsub("EUR2010", "US$2017", getNames(tmp))
 
-    tmp <- GDPuc::convertGDP(
+    tmp <- GDPuc::toolConvertGDP(
       gdp = tmp,
       unit_in = "constant 2010 EUR",
       unit_out = mrdrivers::toolGetUnitDollar(),

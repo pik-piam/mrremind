@@ -33,7 +33,7 @@ calcBiomassPrices <- function() {
 
   # apply conversion from US$2005 to US$2017 to "a" and "b", so that the price
   # calculated with these coefficients will be in US$2017
-  x <- GDPuc::convertGDP(
+  x <- GDPuc::toolConvertGDP(
     gdp = x,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

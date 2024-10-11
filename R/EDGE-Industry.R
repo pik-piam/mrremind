@@ -39,7 +39,7 @@
 #'   geom_line geom_path geom_point ggplot ggsave guide_legend labs
 #'   scale_colour_manual scale_fill_discrete scale_fill_manual
 #'   scale_linetype_manual scale_shape_manual theme theme_minimal
-#' @importFrom quitte calc_mode character.data.frame df_populate_range duplicate
+#' @importFrom quitte character.data.frame df_populate_range duplicate
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
@@ -213,11 +213,13 @@ calcSteel_Projections <- function(subtype = 'production',
   ## historic per-capita GDP ----
   GDPpC_history <- readSource(type = 'James', subtype = 'IHME_USD05_PPP_pc',
                               convert = FALSE) %>%
-    as.data.frame() %>%
     as_tibble() %>%
-    select(iso3c = .data$Region, year = .data$Year, GDPpC = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year))
+    select('iso3c' = 'ISO3', 'year' = 'Year', 'value') %>%
+    GDPuc::toolConvertGDP(unit_in = 'constant 2005 US$MER',
+               unit_out = mrdrivers::toolGetUnitDollar(),
+               replace_NAs = 'with_USA') %>%
+    rename(GDPpC = 'value') %>%
+    character.data.frame()
 
   ## historic population ----
   population_history <- calcOutput(type = 'PopulationPast',
@@ -1380,16 +1382,16 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     inner_join(
       GDP %>%
         filter(max(INDSTAT$year) >= .data$year) %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       population %>%
         filter(max(INDSTAT$year) >= .data$year) %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     )
@@ -1487,15 +1489,15 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   regression_data_steel <- regression_data_steel %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
@@ -1730,19 +1732,35 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   ) %>%
     filter(!is.na(.data$cement.production))
 
+  ### censor nonsensical data ----
+  cement_censor <- list_to_data_frame(list(
+    BDI = 1980:2010,   # zero cement production
+    CIV = 1990:1993,   # cement VA 100 times higher than before and after
+    NAM = 2007:2010,   # zero cement production
+    HKG = 1973:1979,   # no data for CHN prior to 1980
+    IRQ = 1992:1997,   # cement VA 100 times higher than before and after
+    RUS = 1970:1990,   # exclude data from Soviet period which biases
+    # projections up
+    NULL),
+    'iso3c', 'year') %>%
+    mutate(censored = TRUE)
+
+  regression_data_cement <- regression_data_cement %>%
+    anti_join(cement_censor, c('iso3c', 'year'))
+
   ### compute regional and World aggregates ----
   regression_data_cement <- regression_data_cement %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
@@ -2167,28 +2185,20 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   # project chemicals VA ----
   ## compile regression data ----
-  regression_data_chemicals <- inner_join(
-    INDSTAT %>%
+  regression_data_chemicals <- INDSTAT %>%
       filter('chemicals' == .data$subsector) %>%
-      select('region', 'iso3c', 'year', chemicals.VA = 'value'),
-
-    INDSTAT %>%
-      filter('manufacturing' == .data$subsector) %>%
-      select('region', 'iso3c', 'year', manufacturing.VA = 'value'),
-
-    c('region', 'iso3c', 'year')
-  ) %>%
+      select('region', 'iso3c', 'year', chemicals.VA = 'value') %>%
     inner_join(
       population %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(population = calc_mode(.data$population), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
     inner_join(
       GDP %>%
-        group_by(.data$iso3c, .data$year) %>%
-        summarise(GDP = calc_mode(.data$GDP), .groups = 'drop'),
+        filter('SSP2' == .data$scenario) %>% # TODO: define default scenario
+        select(-'scenario'),
 
       c('iso3c', 'year')
     ) %>%
@@ -2199,16 +2209,14 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     regression_data_chemicals,
 
     regression_data_chemicals %>%
-      pivot_longer(c('population', 'GDP', 'manufacturing.VA',
-                     'chemicals.VA')) %>%
+      pivot_longer(c('population', 'GDP', 'chemicals.VA')) %>%
       group_by(!!!syms(c('region', 'year', 'name'))) %>%
       summarise(value = sum(.data$value),
                 iso3c = 'Total',
                 .groups = 'drop') %>%
       pivot_wider()
   ) %>%
-    mutate(chemicals.share = .data$chemicals.VA / .data$manufacturing.VA,
-           GDPpC           = .data$GDP / .data$population)
+    mutate(GDPpC = .data$GDP / .data$population)
 
   ## compute regression parameters ----
   regression_parameters_chemicals <- tibble()

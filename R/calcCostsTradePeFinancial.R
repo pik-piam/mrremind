@@ -12,7 +12,7 @@
 calcCostsTradePeFinancial <- function() {
   data <- readSource("ExpertGuess", subtype = "costsTradePeFinancial")
 
-  data <- GDPuc::convertGDP(
+  data <- GDPuc::toolConvertGDP(
     gdp = data,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

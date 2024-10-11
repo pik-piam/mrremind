@@ -177,7 +177,7 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                        utable    = 17:20),
 
                 tibble(subsector = 'cement',
-                       isic      = '20',
+                       isic      = '26',
                        ctable    = 20,
                        utable    = 17:20),
 
@@ -264,7 +264,7 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                 ) %>%
                 # GDP conversion is only valid for monetary units
                 verify('$' == .data$unit) %>%
-                convertGDP(unit_in  = 'constant 2005 US$MER',
+                GDPuc::toolConvertGDP(unit_in  = 'constant 2005 US$MER',
                            unit_out = mrdrivers::toolGetUnitDollar(),
                            replace_NAs = 'with_USA') %>%
                 group_by(.data$iso3c, .data$subsector, .data$year) %>%

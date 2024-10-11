@@ -7,7 +7,7 @@ calcTaxXport <- function() {
   weight[, , ] <- 1
 
   # convert data from $2005 to $2017
-  x <- GDPuc::convertGDP(
+  x <- GDPuc::toolConvertGDP(
     gdp = x,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

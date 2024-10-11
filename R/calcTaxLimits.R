@@ -45,7 +45,7 @@ calcTaxLimits <- function(subtype) {
   }
 
   # convert data from $2005 to $2017
-  output <- GDPuc::convertGDP(
+  output <- GDPuc::toolConvertGDP(
     gdp = output,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

@@ -5,7 +5,7 @@ calcCO2Prices <- function() {
 
   # convert from $2005 to $2017
 
-  x <- GDPuc::convertGDP(
+  x <- GDPuc::toolConvertGDP(
     gdp = x,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
@@ -17,8 +17,9 @@ calcCO2Prices <- function() {
   # read data used for weight
   ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
   ceds <- ceds[, , "Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)"]
-
-  ceds <- ceds[, getYears(x), ]
+  # for years in the future, use last year available from CEDS
+  ceds <- ceds[, pmin(getYears(x), max(getYears(ceds))), ]
+  getYears(ceds) <- getYears(x)
 
   return(list(
     x = x,

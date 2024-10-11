@@ -64,13 +64,13 @@ fullTHRESHOLDS <- function(type = "config") {
 
   # combine and export data to madrat output folder
   out <- mbind(ccs, hydro, nuclear, wind, solar)
-  # remove ROW region, in case it exists
+  # remove ROW region, in case it exists (from using extra region mappings)
   out <- out["ROW", , invert = TRUE]
 
   # additional calculations ----
   # threshold calculations after regional aggregation
 
-  # harmonize status name first
+  # harmonize status names first
   idx <- which(getNames(out, dim  = 3) == "operating")
   getNames(out, dim = 3)[idx] <- "operational"
 
@@ -84,29 +84,67 @@ fullTHRESHOLDS <- function(type = "config") {
   out[regions, , "min_red"] <- NA
   out[regions, , "max_red"] <- NA
 
-  # ASSUMPTION[2020]: operational +- 5/10% (world) and +- 20/40% (regions)
+
+  ## Historic Data: 2020 ####
+
+  # ASSUMPTION[2020] ALL Variables:
+  # operational +- 5/10% (world) and +- 20/40% (regions)
   out["GLO", 2020, "min_red"] <- out["GLO", 2020, "operational"]*0.9
   out["GLO", 2020, "min_yel"] <- out["GLO", 2020, "operational"]*0.95
   out["GLO", 2020, "max_yel"] <- out["GLO", 2020, "operational"]*1.05
   out["GLO", 2020, "max_red"] <- out["GLO", 2020, "operational"]*1.1
 
-  # exception for Nuclear: use 10%, 20%
-  out["GLO", , "Cap|Electricity|Nuclear.min_red"] <-
-    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.8
-  out["GLO", , "Cap|Electricity|Nuclear.min_yel"] <-
-    out["GLO", , "Cap|Electricity|Nuclear.operational"]*0.9
-  out["GLO", , "Cap|Electricity|Nuclear.max_yel"] <-
-    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.1
-  out["GLO", , "Cap|Electricity|Nuclear.max_red"] <-
-    out["GLO", , "Cap|Electricity|Nuclear.operational"]*1.2
-
-  # exception for 2020: use yel and red bounds for regions
+  # EXCEPTION for 2020: use also red bounds for regions
   out[regions, 2020, "min_red"] <- out[regions, 2020, "operational"]*0.6
   out[regions, 2020, "min_yel"] <- out[regions, 2020, "operational"]*0.8
   out[regions, 2020, "max_yel"] <- out[regions, 2020, "operational"]*1.2
   out[regions, 2020, "max_red"] <- out[regions, 2020, "operational"]*1.4
 
-  # Additional tolerance for ALL Thresholds
+  # EXCEPTION for Nuclear capacities
+  # use min/max(Ember, ProjectPipeline) for min/max 2020 thresholds
+  emb <- calcOutput("Ember", aggregate = columnsForAggregation, round = 3)
+
+  # use average over years 2018 to 2022 as 2020 Ember value
+  emb[, 2020, "Cap|Electricity|Nuclear", pmatch = T] <-
+    dimSums(emb[, 2018:2022, "Cap|Electricity|Nuclear", pmatch = T], dim = 2)/5
+
+  # global thresholds (scale with 10/20% instead of 5/10%)
+  out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
+    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.8
+  out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
+    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.9
+  out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
+    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.1
+  out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
+    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.2
+
+  # regional thresholds (same scaling as other sources: 20/40%)
+  out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
+    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.6
+  out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
+    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.8
+  out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
+    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.2
+  out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
+    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.4
+
+
+  ## Near-Term: 2025, 2030 ####
+
+  # EXCEPTION
+  # IAEA has a global estimate for high cap scenario, use this for max_red
+  # https://www-pub.iaea.org/MTCD/Publications/PDF/RDS-1-44_web.pdf tab.3, p.19
+  out["GLO", 2030, "Cap|Electricity|Nuclear.max_red"] <- 461
+
+  # Additional tolerances for ALL Near-Term Thresholds
   #
   # ASSUMPTION[2025, 2030] red: additional buffer +-10% (world)
   # ASSUMPTION[2025, 2030] yel: additional buffer +- 5% (world)
@@ -119,6 +157,12 @@ fullTHRESHOLDS <- function(type = "config") {
   out[regions, c(2025, 2030), "min_yel"] <- out[regions, c(2025, 2030), "min_yel"]*0.6
   out[regions, c(2025, 2030), "max_yel"] <- out[regions, c(2025, 2030), "max_yel"]*1.4
 
+
+  # rename "GLO" to "World"
+  getItems(out, dim = 1) <- gsub("GLO", "World", getItems(out, dim = 1))
+
+  # remove GEM as it is not up to date and shouldn't be used in this state
+  out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
 
   # export to file ----
   if (type == "full") {
