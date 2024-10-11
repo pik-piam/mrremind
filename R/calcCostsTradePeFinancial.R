@@ -10,6 +10,8 @@
 #' }
 #'
 calcCostsTradePeFinancial <- function() {
+  "!# @monitor GDPuc::convertGDP"
+
   data <- readSource("ExpertGuess", subtype = "costsTradePeFinancial")
 
   data <- GDPuc::convertGDP(

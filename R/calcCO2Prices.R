@@ -1,4 +1,5 @@
 calcCO2Prices <- function() {
+  "!# @monitor GDPuc::convertGDP"
 
   # read data
   x <- readSource("ExpertGuess", subtype = "co2prices")

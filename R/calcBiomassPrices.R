@@ -2,6 +2,7 @@
 #' @return Magpie object with two parameters determining linear biomass supply curve
 
 calcBiomassPrices <- function() {
+  "!# @monitor GDPuc::convertGDP"
 
   x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
 

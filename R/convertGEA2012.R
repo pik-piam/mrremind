@@ -11,6 +11,8 @@
 #' }
 #'
 convertGEA2012 <- function(x, subtype) {
+  "!# @monitor GDPuc::convertGDP"
+
   if (subtype == "coal") {
 
     # Load mapping file for GEA regions to country level

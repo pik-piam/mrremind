@@ -111,6 +111,8 @@ readUNIDO <- function(subtype = 'INDSTAT2')
 #' @export
 convertUNIDO <- function(x, subtype = 'INDSTAT2')
 {
+    "!# @monitor GDPuc::convertGDP"
+
     # define convert functions for all subtypes ----
     switchboard <- list(
         `INDSTAT2` = function(x)

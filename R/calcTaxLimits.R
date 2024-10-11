@@ -17,6 +17,7 @@
 #' }
 #'
 calcTaxLimits <- function(subtype) {
+  "!# @monitor GDPuc::convertGDP"
 
   if (!(subtype %in% c("maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy"))) {
     stop("the argument subtype must be in c('maxFeSubsidy','maxPeSubsidy', 'propFeSubsidy')")

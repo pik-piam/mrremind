@@ -15,6 +15,7 @@
 
 #' @export
 calcIndustry_EEK <- function(kap) {
+  "!# @monitor GDPuc::convertGDP"
   # setup ----
   i <- log(4) / 50    # assuming 50 year lifetime of EEK
   base_year <- 2015

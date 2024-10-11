@@ -16,6 +16,7 @@
 #' @importFrom stats aggregate
 
 calcJRC_IDEES <- function(subtype) {
+  "!# @monitor GDPuc::convertGDP"
 
   subtypes <- c("Industry", "Transport", "ResCom")
   if (!subtype %in% subtypes) {

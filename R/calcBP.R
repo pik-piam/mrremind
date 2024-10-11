@@ -7,6 +7,8 @@
 #' @export
 #'
 calcBP <- function() {
+  "!# @monitor GDPuc::convertGDP"
+
   # read in emissions, capacity, generation, price ----
 
   emissions <- readSource("BP", subtype = "Emission")

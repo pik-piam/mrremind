@@ -9,6 +9,7 @@
 #' }
 #'
 calcTaxConvergence <- function() {
+  "!# @monitor GDPuc::convertGDP"
 
   # Read tax convergence levels at specific year and final energy type
   taxConvergence <- readSource("REMIND_11Regi", subtype = "taxConvergence")

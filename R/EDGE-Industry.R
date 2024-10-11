@@ -56,6 +56,8 @@ calcSteel_Projections <- function(subtype = 'production',
                                   save.plots = NULL,
                                   China_Production = NULL) {
 
+  "!# @monitor GDPuc::convertGDP"
+
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {

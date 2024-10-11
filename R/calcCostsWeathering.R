@@ -8,6 +8,7 @@
 #' }
 #'
 calcCostsWeathering <- function() {
+  "!# @monitor GDPuc::convertGDP"
 
   costs <- readSource("Strefler", subtype = "weathering_costs")
 

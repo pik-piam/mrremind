@@ -14,6 +14,7 @@
 #' }
 
 calcEconometricEmiParameter <- function() {
+  "!# @monitor GDPuc::convertGDP"
 
   # calculate parameter p3
   edgar <- readSource("EDGAR", subtype = "co2") * 12 / 44 * 1e-6
