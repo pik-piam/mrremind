@@ -33,7 +33,7 @@ calcHistorical <- function() {
   pop <- add_dimension(pop, dim = 3.1, add = "model", nm = "WDI")
 
   # GDP in ppp
-  gdp <- calcOutput("GDPPast", GDPPast = "WDI", aggregate = FALSE) / 1000
+  gdp <- calcOutput("GDPPast", pastData = "WDI", aggregate = FALSE) / 1000
   getNames(gdp) <- paste0("GDP|PPP (billion US$2017/yr)")
   gdp <- add_dimension(gdp, dim = 3.1, add = "model", nm = "WDI")
 
