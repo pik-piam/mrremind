@@ -34,7 +34,7 @@ calcINNOPATHS <- function() {
   x <- x[, , getNames(tmp), invert = TRUE]
   getNames(tmp) <- gsub("EUR2015", "US$2017", getNames(tmp))
 
-  tmp <- GDPuc::convertGDP(
+  tmp <- GDPuc::toolConvertGDP(
     gdp = tmp,
     unit_in = "constant 2015 EUR",
     unit_out = mrdrivers::toolGetUnitDollar(),

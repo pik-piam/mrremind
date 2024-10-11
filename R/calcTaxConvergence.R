@@ -18,7 +18,7 @@ calcTaxConvergence <- function() {
   w[, , ] <- 1
 
   # convert data from $2005 to $2017
-  taxConvergence <- GDPuc::convertGDP(
+  taxConvergence <- GDPuc::toolConvertGDP(
     gdp = taxConvergence,
     unit_in = "constant 2005 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),

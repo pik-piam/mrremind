@@ -141,8 +141,8 @@ calcBP <- function() {
 
   # convert price units ----
 
-  # should be from US$2023, but 'convertGDP' currently returns NA
-  poil <- GDPuc::convertGDP(
+  # should be from US$2023, but 'toolConvertGDP' currently returns NA
+  poil <- GDPuc::toolConvertGDP(
     gdp = x[, , "Price|Primary Energy|Oil (US$2023/GJ)"],
     unit_in = "constant 2022 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
@@ -152,7 +152,7 @@ calcBP <- function() {
   getNames(poil) <- gsub("\\$2023", "\\$2017", getNames(poil))
 
   # assume these units are in current MER
-  pcoalgas <- GDPuc::convertGDP(
+  pcoalgas <- GDPuc::toolConvertGDP(
     gdp = x[, , c("Price|Primary Energy|Gas (US$/GJ)", "Price|Primary Energy|Coal (US$/GJ)")],
     unit_in = "current US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
