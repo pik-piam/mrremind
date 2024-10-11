@@ -22,34 +22,27 @@ calcFeDemandBuildings <- function(subtype) {
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)
 
-  # add scenarios to stationary to match buildings scenarios by duplication
-  duplicateScens <- paste0("SSP2EU_", c("NAV_act", "NAV_ele", "NAV_tec", "NAV_lce", "NAV_all", "CAMP_weak", "CAMP_strong"))
-  stationary <- mbind(stationary, do.call(mbind, lapply(duplicateScens, function(to) {
-    setItems(stationary[, , "SSP2EU"], 3.1, to)
-  })))
 
   if (subtype == "FE") {
 
     # drop RCP dimension (use fixed RCP)
-    buildings <- mselect(buildings, rcp = "fixed", collapseNames = TRUE)
+    buildings <- mselect(buildings, rcp = "none", collapseNames = TRUE)
 
   } else {
 
-    # rename RCP scenarios in buildings
-    rcps <- paste0("rcp", gsub("p", "", getItems(buildings, "rcp")))
-    rcps <- gsub("rcpfixed", "none", rcps)
-    getItems(buildings, "rcp") <- rcps
+    scens <- getItems(buildings, dim = "scenario")
 
-    # expand stationary to all RCP scenarios
-    stationary <- toolAddDimensions(x = stationary, dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+    # For each scenario add the rcp scenarios present in buildings to stationary
+    stationary <- do.call(mbind, lapply(scens, function(scen) {
+      rcps <- getItems(mselect(buildings, scenario = scen), dim = "rcp")
+      toolAddDimensions(mselect(stationary, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+    }))
 
   }
 
   # extrapolate years missing in buildings, but existing in stationary
-  misingYearsBuildings <- setdiff(getYears(stationary), getYears(buildings))
   buildings <- time_interpolate(buildings,
-                                interpolated_year = misingYearsBuildings,
-                                integrate_interpolated_years = TRUE,
+                                interpolated_year = getYears(stationary),
                                 extrapolation_type = "constant")
 
   data <- mbind(stationary, buildings)
@@ -103,7 +96,8 @@ calcFeDemandBuildings <- function(subtype) {
       remindVars <- gsub("^fe", "ue", remindVars)
     }
 
-    remindDims <- cartesian(getNames(data, dim = "scenario"), rcps, remindVars)
+    scenarioRcp <- unique(gsub("^(.*\\..*)\\..*$", "\\1", getItems(data, dim = 3)))
+    remindDims <- cartesian(scenarioRcp, remindVars)
   }
 
   # Apply Mapping ----
@@ -129,11 +123,6 @@ calcFeDemandBuildings <- function(subtype) {
   }
 
   # Prepare Output ----
-
-  # remove missing NAVIGATE scenarios
-  if (subtype %in% c("FE_buildings", "UE_buildings")) {
-    remind <- remind[, , grep("SSP2EU_(NAV|CAMP)_[a-z]*\\.rcp", getItems(remind, 3), value = TRUE), invert = TRUE]
-  }
 
   # change the scenario names for consistency with REMIND sets
   getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
