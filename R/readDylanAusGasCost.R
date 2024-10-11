@@ -5,6 +5,8 @@
 #' @seealso \code{\link{readSource}}
 #'
 readDylanAusGasCost <- function() {
+  "!# @monitor GDPuc::convertGDP"
+
   # Dylan's gas extraction cost curve based on GSOO data on reserves and resources in 2015
   # (only for Eastern gas reserves, not Western Australia!!)
 
