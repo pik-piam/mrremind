@@ -177,6 +177,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate and Campaigners scenarios
     wp <- duplScens(wp)
 
+    x <- time_interpolate(x, interpolated_year = rem_years_hist, extrapolation_type = "constant")
     x <- toolAggregate(x[, rem_years_hist, ], mappingfile, weight = wp,
                        from = region_col, to = iso_col)
     result <- x

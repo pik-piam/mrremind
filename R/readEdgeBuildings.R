@@ -14,7 +14,8 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
     SSP2s = paste0("SSP2", c("EU", "_lowEn")),
-    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
+    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC"))
+  )
 
   data <- read.csv(file.path(ver, "EDGE_buildings.csv"))
   data <- as.magpie(data)
@@ -31,10 +32,10 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
       # Extract RCP scenarios from the scenario column if any are present
       if (length(rcpScens) >= 1) {
         dataRcp <- do.call(mbind, lapply(rcpScens, function(rcp) {
-            tmp <- mselect(data, scenario = grep(rcp, getItems(data, dim = "scenario"), value = TRUE))
-            getNames(tmp, dim = "rcp") <- if (grepl("rcp\\d$", rcp)) paste0(rcp, "0") else gsub("_", "", rcp)
-            getNames(tmp, dim = "scenario") <- gsub("_rcp\\d_*\\d*", "", getNames(tmp, dim = "scenario"))
-            return(tmp)
+          tmp <- mselect(data, scenario = grep(rcp, getItems(data, dim = "scenario"), value = TRUE))
+          getNames(tmp, dim = "rcp") <- if (grepl("rcp\\d$", rcp)) paste0(rcp, "0") else gsub("_", "", rcp)
+          getNames(tmp, dim = "scenario") <- gsub("_rcp\\d_*\\d*", "", getNames(tmp, dim = "scenario"))
+          return(tmp)
         }))
         if (!all(grepl("_rcp\\d_*\\d*", getItems(data, dim = "scenario")))) {
           dataNoRcp <- mselect(data, scenario = grep("_rcp\\d_*\\d*", getItems(data, dim = "scenario"),
@@ -44,12 +45,13 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
           data <- dataRcp
         }
       }
-      # getNames(data) <- gsub("NoC", "fixed", getNames(data))
       getSets(data) <- c("region", "year", "scenario", "rcp", "item")
     },
     Floorspace = {
       data <- mselect(data, variable = grep("^floorspace", getItems(data, dim = "variable"), value = TRUE))
       getNames(data, dim = "scenario") <- gsub("_rcp.*$", "", getNames(data, dim = "scenario"))
+      getNames(data, dim = "variable") <- gsub("^floorspace_(\\w+)$", "\\1", getNames(data, dim = "variable"))
+      getNames(data, dim = "variable") <- gsub("^floorspace$", "buildings", getNames(data, dim = "variable"))
       data <- collapseNames(data)
       getSets(data) <- c("region", "year", "scenario", "variable")
     }
