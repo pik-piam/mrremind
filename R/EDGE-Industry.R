@@ -223,7 +223,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
   ## historic population ----
   population_history <- calcOutput(type = 'PopulationPast',
-                                   PopulationPast = 'UN_PopDiv',
+                                   pastData = 'UN_PopDiv',
                                    aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
