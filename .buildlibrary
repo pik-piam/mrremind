@@ -1,15 +1,9 @@
-ValidationKey: '38795512'
+ValidationKey: '386431720'
 AcceptedWarnings:
-- 'Warning: package ''.*'' was built under R version'
-- 'Warning: namespace ''.*'' is not available and has been replaced'
-- 'Warning: multiple methods tables found for ‘direction’'
-- 'Warning: multiple methods tables found for ‘gridDistance’'
-- Imports includes .* non-default packages.
 - Invalid URL: .*
 AcceptedNotes:
-- unable to verify current time
 - Imports includes .* non-default packages.
-- installed size is
+- All declared Imports should be used.
 AutocreateReadme: yes
 allowLinterWarnings: yes
 enforceVersionUpdate: yes

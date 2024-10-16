@@ -1,7 +1,8 @@
 .onLoad <- function(libname, pkgname) {
   madrat::madratAttach(c(pkgname, "edgeTransport", "GDPuc", "mrcommons", "mrdrivers"))
   madrat::setConfig(
-    nolabels = c(madrat::getConfig("nolabels"), "REMIND", "VALIDATIONREMIND")
+    nolabels = c("REMIND", "VALIDATIONREMIND"),
+    .cfgchecks = FALSE, .verbose = FALSE
   )
 }
 
