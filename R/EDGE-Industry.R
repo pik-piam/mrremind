@@ -236,8 +236,12 @@ calcSteel_Projections <- function(subtype = 'production',
 
   ## GDP projections ----
   GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-		    aggregate = FALSE) %>%
-    as.data.frame() %>%
+                    aggregate = FALSE, supplementary = TRUE)
+
+  GDP <- toolConvertGDP(gdp = GDP$x,
+                        unit_in = sub('^mil\\. ', '', GDP$unit),
+                        unit_out = mrdrivers::toolGetUnitDollar(),
+                        replace_NAs = 'with_USA') %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            GDP = .data$Value) %>%
@@ -1357,8 +1361,12 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   ## GDP data ----
   GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
+                    aggregate = FALSE, supplementary = TRUE)
+
+  GDP <- toolConvertGDP(gdp = GDP$x,
+                        unit_in = sub('^mil\\. ', '', GDP$unit),
+                        unit_out = mrdrivers::toolGetUnitDollar(),
+                        replace_NAs = 'with_USA') %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            GDP = .data$Value) %>%
