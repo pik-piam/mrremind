@@ -33,12 +33,13 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom assertr assert not_na verify within_bounds
-#' @importFrom dplyr case_when bind_rows between distinct first last n
+#' @importFrom dplyr case_when bind_rows between distinct first last left_join n
 #'   mutate pull right_join select semi_join vars
 #' @importFrom ggplot2 aes coord_cartesian expand_limits facet_wrap geom_area
 #'   geom_line geom_path geom_point ggplot ggsave guide_legend labs
 #'   scale_colour_manual scale_fill_discrete scale_fill_manual
 #'   scale_linetype_manual scale_shape_manual theme theme_minimal
+#' @importFrom magrittr %>%
 #' @importFrom quitte character.data.frame df_populate_range duplicate
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
@@ -225,10 +226,8 @@ calcSteel_Projections <- function(subtype = 'production',
   population_history <- calcOutput(type = 'PopulationPast',
                                    PopulationPast = 'UN_PopDiv',
                                    aggregate = FALSE) %>%
-    as.data.frame() %>%
     as_tibble() %>%
-    select(iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
+    select('iso3c', 'year', population = 'value') %>%
     character.data.frame() %>%
     mutate(year = as.integer(.data$year),
            # million people * 1e6/million = people
@@ -236,11 +235,9 @@ calcSteel_Projections <- function(subtype = 'production',
 
   ## GDP projections ----
   GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-		    aggregate = FALSE) %>%
-    as.data.frame() %>%
+                    aggregate = FALSE) %>%
     as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
+    select(scenario = 'variable', 'iso3c', 'year', GDP = 'value') %>%
     character.data.frame() %>%
     mutate(scenario = sub('^gdp_', '', .data$scenario),
            year = as.integer(.data$year),
@@ -1347,8 +1344,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                            aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
+    select(scenario = 'Data1', iso3c = 'Region', year = 'Year',
+           population = 'Value') %>%
     character.data.frame() %>%
     mutate(scenario = sub('^pop_', '', .data$scenario),
            year = as.integer(.data$year),
@@ -1357,11 +1354,15 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
   ## GDP data ----
   GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
+                    aggregate = FALSE, supplementary = TRUE)
+
+  GDP <- GDP[['x']] %>%
+    # match previous units
+    toolConvertGDP(unit_in = sub('^mil\\. ', '', GDP[['unit']]),
+                   unit_out = 'constant 2005 Int$PPP',
+                   use_USA_cf_for_all = TRUE) %>%
     as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
+    select(scenario = 'variable', 'iso3c', 'year', GDP = 'value') %>%
     character.data.frame() %>%
     mutate(scenario = sub('^gdp_', '', .data$scenario),
            year = as.integer(.data$year),
@@ -2607,6 +2608,21 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
   # ========================================================================== =
 
   # construct output ----
+  GDP_projection <- calcOutput('GDP', average2020 = FALSE,
+                               aggregate = FALSE) %>%
+    as_tibble() %>%
+    mutate(scenario = sub('^gdp_', '', .data$variable), .keep = 'unused',
+           GDP_projection = .data$value * 1e6)
+
+  projections <- projections %>%
+    pivot_longer(c(-'scenario', -'region', -'iso3c', -'year', -'GDP')) %>%
+    left_join(GDP_projection, c('scenario', 'iso3c', 'year')) %>%
+    mutate(value = ifelse(grepl('\\.VA$', .data$name),
+                          .data$value / .data$GDP * .data$GDP_projection,
+                          .data$value)) %>%
+    select(-'GDP_projection') %>%
+    pivot_wider()
+
   if ('physical' == subtype) {
     x <- projections %>%
       filter(1993 <= .data$year,

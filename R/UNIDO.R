@@ -64,7 +64,7 @@
 #' @importFrom assertr assert not_na verify
 #' @importFrom dplyr anti_join bind_rows filter group_by inner_join left_join
 #'     mutate select summarise
-#' @importFrom GDPuc convertGDP
+#' @importFrom GDPuc toolConvertGDP
 #' @importFrom magrittr %>%
 #' @importFrom quitte list_to_data_frame madrat_mule
 #' @importFrom readr read_csv
@@ -262,11 +262,6 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
 
                     c('iso3c', 'year', 'subsector')
                 ) %>%
-                # GDP conversion is only valid for monetary units
-                verify('$' == .data$unit) %>%
-                GDPuc::toolConvertGDP(unit_in  = 'constant 2005 US$MER',
-                           unit_out = mrdrivers::toolGetUnitDollar(),
-                           replace_NAs = 'with_USA') %>%
                 group_by(.data$iso3c, .data$subsector, .data$year) %>%
                 filter(max(.data$lastupdated) == .data$lastupdated) %>%
                 # for split countries, which lead to duplicates (e.g. CUW), use
@@ -298,7 +293,12 @@ calcUNIDO <- function(subtype = 'INDSTAT2')
     switchboard <- list(
         `INDSTAT2` = function(x)
         {
-            x <- readSource(type = 'UNIDO', subtype = subtype, convert = TRUE)
+            x <- readSource(type = 'UNIDO', subtype = subtype,
+                            convert = TRUE) %>%
+                toolConvertGDP(unit_in  = 'constant 2005 US$MER',
+                           unit_out = mrdrivers::toolGetUnitDollar(),
+                           replace_NAs = 'with_USA')
+
 
             x_manufacturing <- dimSums(x[,,'manufacturing'], dim = 3)
             x_no_manufacturing <- x[,,'manufacturing', invert = TRUE]
