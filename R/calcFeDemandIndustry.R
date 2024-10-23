@@ -7,6 +7,7 @@
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join lag last left_join
 #'   matches mutate n rename right_join select semi_join summarise ungroup
+#' @importFrom magrittr %>%
 #' @importFrom quitte as.quitte cartesian character.data.frame
 #'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule
 #'   magclass_to_tibble overwrite seq_range
@@ -444,82 +445,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
            GDP = "Value") %>%
     character.data.frame() %>%
     mutate(year = as.integer(.data$year))
-
-  ### fix missing GDP numbers ----
-  # (see https://github.com/pik-piam/mrdrivers/issues/40)
-  if (any(0 == GDP$GDP)) {
-    GDP_fuckup_point <- GDP %>%
-      filter(0 == .data$GDP) %>%
-      group_by(!!!syms(c("iso3c", "scenario"))) %>%
-      filter(min(.data$year) == .data$year) %>%
-      ungroup()
-
-    GDP_replacement_scenario <- setdiff(
-      unique(GDP$scenario),
-
-      GDP_fuckup_point %>%
-        pull("scenario") %>%
-        unique()
-    ) %>%
-      first()
-
-    GDP_fuckup_point <- GDP_fuckup_point %>%
-      group_by(!!!syms(c("iso3c", "scenario"))) %>%
-      mutate(base.year = getYears(remind, TRUE) %>%
-               `[`(which(getYears(remind, TRUE) == !!sym("year")) - 1),
-             base.scenario = GDP_replacement_scenario) %>%
-      ungroup() %>%
-      select(-"GDP")
-
-    GDP_replacement <- full_join(
-      GDP %>%
-        semi_join(
-          GDP_fuckup_point,
-          c("iso3c", "scenario")
-        ) %>%
-        left_join(
-          GDP_fuckup_point %>%
-            select("iso3c", "scenario", "base.year"),
-
-          c("iso3c", "scenario")
-        ) %>%
-        filter(.data$year >= .data$base.year) %>%
-        select("iso3c", "year", "scenario", "GDP"),
-
-      GDP %>%
-        semi_join(
-          GDP_fuckup_point,
-
-          c("iso3c", scenario = "base.scenario")
-        ) %>%
-        left_join(
-          GDP_fuckup_point %>%
-            select("iso3c", "base.year", scenario = "base.scenario") %>%
-            distinct(),
-
-          c("iso3c", "scenario")
-        ) %>%
-        filter(.data$year >= .data$base.year) %>%
-        select(-"base.year") %>%
-        group_by(!!!syms(c("iso3c", "scenario"))) %>%
-        mutate(factor = .data$GDP / lag(.data$GDP, default = first(.data$GDP),
-                                        order_by = .data$year)) %>%
-        ungroup() %>%
-        select("iso3c", "year", "factor"),
-
-      c("iso3c", "year")
-    ) %>%
-      group_by(!!!syms(c("iso3c", "scenario"))) %>%
-      mutate(GDP = first(.data$GDP) * .data$factor) %>%
-      ungroup() %>%
-      select(all_of(colnames(GDP)))
-
-    GDP <- bind_rows(
-      anti_join(GDP, GDP_replacement, by = c("iso3c", "scenario", "year")),
-      GDP_replacement
-    ) %>%
-      verify(expr = 0 < .data$GDP, description = "All GDP numbers > 0")
-  }
 
   ### calculate specific material demand factors ----
   foo <- full_join(
