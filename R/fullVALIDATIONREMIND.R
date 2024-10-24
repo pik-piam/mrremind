@@ -192,15 +192,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical")
   )
 
-  # INNOPATHS ----
-
-  calcOutput(
-    type = "INNOPATHS", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "INNOPATHS")
-  )
-
   # JRC IDEES ----
 
   calcOutput(
