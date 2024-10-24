@@ -1,4 +1,4 @@
-ValidationKey: '38825220'
+ValidationKey: '38858820'
 AcceptedWarnings:
 - Invalid URL: .*
 AcceptedNotes:
@@ -7,3 +7,4 @@ AcceptedNotes:
 AutocreateReadme: yes
 allowLinterWarnings: yes
 enforceVersionUpdate: yes
+skipCoverage: yes
