@@ -100,6 +100,15 @@ readindustry_subsectors_specific <- function(subtype = NULL) {
                comment = '#',
                show_col_types = FALSE) %>%
         madrat_mule()
+    },
+
+    'fixing_year' = function()
+    {
+      read_csv(file = file.path(path, 'fixing_year.csv'),
+               col_types = 'cci',
+               comment = '#',
+               show_col_types = FALSE) %>%
+        madrat_mule()
     }
   )
 
@@ -136,9 +145,9 @@ calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
     if (!is.data.frame(direct)) {
       stop('`direct` is not a data frame')
     }
-    if (!all(c('scenario', 'region', 'subsector') %in% colnames(direct))) {
+    if (!all(c('scenario', 'region') %in% colnames(direct))) {
       stop('`direct` is missing columns: ',
-	   paste(setdiff(c('scenario', 'region', 'subsector'),
+	   paste(setdiff(c('scenario', 'region'),
 			 colnames(direct)),
 		 collapse = ', '))
     }
