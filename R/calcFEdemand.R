@@ -3,7 +3,7 @@
 calcFEdemand <- function() {
 
   feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
-  feIndustry <- calcOutput("FeDemandIndustry", fixing_year = 2028, warnNA = FALSE, aggregate = FALSE)
+  feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
   feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
 
   # add up industry and buildings contributions to stationary
