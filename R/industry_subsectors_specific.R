@@ -58,8 +58,8 @@
 #' @rdname industry_subsector_specific
 readindustry_subsectors_specific <- function(subtype = NULL) {
   # file path (for easier debugging)
+  path <- '~/PIK/swap/inputdata/sources/industry_subsectors_specific/'
   path <- './'
-  # path <- '~/PIK/swap/inputdata/sources/industry_subsectors_specific/'
 
   # subtype switchboard ----
   switchboard <- list(
@@ -131,7 +131,8 @@ calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
     x <- readSource(type = 'industry_subsectors_specific', subtype = subtype,
 		    convert = FALSE) %>%
       madrat_mule()
-  } else {
+  }
+  else {
     if (!is.data.frame(direct)) {
       stop('`direct` is not a data frame')
     }
