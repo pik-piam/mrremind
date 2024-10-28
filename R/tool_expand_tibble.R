@@ -10,7 +10,7 @@
 #' @param scenarios A character vector of scenario names.
 #' @param regions A character vector of region names.
 #' @param structure.columns A character vector of column names to be carried
-#'   along.
+#'   along.  Ignored if not a column in `d`.
 #'
 #' @return A `tibble`.
 #'
@@ -82,21 +82,21 @@ tool_expand_tibble <- function(d, scenarios, regions,
     anti_join(
       d.scenario,
 
-      c('scenario', 'region', structure.columns)
+      c('scenario', 'region', intersect(colnames(.), structure.columns))
     ) %>%
     bind_rows(d.scenario) %>%
     # regions overwrite global and scenario data
     anti_join(
       d.region,
 
-      c('scenario', 'region', structure.columns)
+      c('scenario', 'region', intersect(colnames(.), structure.columns))
     ) %>%
     bind_rows(d.region) %>%
     # specific data overwrites everything
     anti_join(
       d.scenario.region,
 
-      c('scenario', 'region', structure.columns)
+      c('scenario', 'region', intersect(colnames(.), structure.columns))
     ) %>%
     bind_rows(d.scenario.region) %>%
     select(all_of(colnames(d))) %>%
