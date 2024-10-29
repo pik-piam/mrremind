@@ -1,9 +1,11 @@
 ValidationKey: '38858820'
 AcceptedWarnings:
 - Invalid URL: .*
+- 'Warning: package ''.*'' was built under R version'
 AcceptedNotes:
 - Imports includes .* non-default packages.
 - All declared Imports should be used.
+- unable to verify current time
 AutocreateReadme: yes
 allowLinterWarnings: yes
 enforceVersionUpdate: yes

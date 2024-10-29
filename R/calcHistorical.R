@@ -1,7 +1,7 @@
 #' Gather reference data from various sources.
 #' @importFrom dplyr filter group_by mutate select ungroup
 #' @importFrom rlang syms
-#' @importFrom tidyr complete nesting
+#' @importFrom tidyr complete nesting pivot_wider
 calcHistorical <- function() {
 
   # Final Energy
