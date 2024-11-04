@@ -21,7 +21,7 @@
 #' a <- calcOutput("IO", subtype = "output")
 #' }
 #'
-#' @importFrom rlang .data
+#' @importFrom rlang .data is_empty
 #' @importFrom dplyr filter mutate
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
