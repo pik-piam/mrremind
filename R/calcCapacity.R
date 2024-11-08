@@ -3,6 +3,7 @@
 #'
 #' @param subtype data subtype. Either "capacityByTech" or "capacityByPE"
 #' @return magpie object of  capacity data
+#' @importFrom dplyr tribble
 #' @author Renato Rodrigues, Stephen Bi
 #' @examples
 #'

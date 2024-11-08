@@ -9,11 +9,12 @@
 #'   `country_groups` with `IEA region`s and corresponding `iso3c` country
 #'   codes.
 #'
-#' @importFrom dplyr anti_join group_by left_join mutate pull select summarise
+#' @importFrom dplyr anti_join group_by left_join mutate pull select summarise n
 #' @importFrom quitte madrat_mule
 #' @importFrom readr read_csv
 #' @importFrom readxl excel_sheets read_excel
 #' @importFrom tidyr nest unnest
+#' @importFrom assertr verify
 #' @export
 readIEA_WEIO_2014 <- function() {
   # define file paths ----
