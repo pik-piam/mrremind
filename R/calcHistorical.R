@@ -110,32 +110,7 @@ calcHistorical <- function() {
   Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE, warnNA = TRUE))
   Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
 
-  # Eurostat emissions
-  EUcountries <- c("ALA", "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST",
-                   "FRO", "FIN", "FRA", "DEU", "GIB", "GRC", "GGY", "HUN", "IRL",
-                   "IMN", "ITA", "JEY", "LVA", "LTU", "LUX", "MLT", "NLD", "POL",
-                   "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "GBR")
-  eurostatEmi <- readSource(type = "Eurostat", subtype = "emissions")
-  eurostatEmi[getItems(eurostatEmi, dim = 1)[-which(getItems(eurostatEmi, dim = 1) %in% EUcountries)], , ] <- NA
-  # set values for EU countries with no values to 0
-  noData <- getItems(eurostatEmi[EUcountries, , ], dim = 1)[dimSums(abs(eurostatEmi[EUcountries, , ]),
-                                                                    dim = c(2, 3), na.rm = TRUE) == 0]
-  eurostatEmi[noData, , ] <- 0
 
-  # conversion factors between CO2eq and N2O / CH4 are derived by Eurostat webtool comparison
-  emiEurostat <- mbind(
-    setNames(eurostatEmi[, , "CH4_native.Total (excluding memo items)"], "Emi|CH4 (Mt CH4/yr)"),
-    setNames(eurostatEmi[, , "N2O_native.Total (excluding memo items)"], "Emi|N2O (kt N2O/yr)") * 1000,
-    setNames(eurostatEmi[, , "GHG.Land use, land use change, and forestry (LULUCF)"],
-             "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"),
-    setNames(eurostatEmi[, , "CO2.Land use, land use change, and forestry (LULUCF)"],
-             "Emi|CO2|Land-Use Change (Mt CO2/yr)"),
-    setNames(eurostatEmi[, , "CH4_native.Land use, land use change, and forestry (LULUCF)"],
-             "Emi|CH4|Land-Use Change (Mt CH4/yr)"),
-    setNames(eurostatEmi[, , "N2O_native.Land use, land use change, and forestry (LULUCF)"],
-             "Emi|N2O|Land-Use Change (kt N2O/yr)") * 1000
-  )
-  emiEurostat <- add_dimension(emiEurostat, dim = 3.1, add = "model", nm = "Eurostat")
 
   # Cement Production ----
   USGS_cement <- readSource(
@@ -229,7 +204,7 @@ calcHistorical <- function() {
   varlist <- list(
     fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
     ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap, emiEurostat,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap,
     EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
     worldsteel, USGS_cement
   )
