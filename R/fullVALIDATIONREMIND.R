@@ -117,7 +117,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Eurostat Emission Data (env_air_gge)
 
   calcOutput(
-    type = "Eurostat", file = valfile,
+    type = "EurostatEmissions", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
     writeArgs = list(scenario = "historical", model = "Eurostat env_air_gge")
