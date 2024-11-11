@@ -8,7 +8,7 @@ convertStationary <- function(x) {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC"))),
                             function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
@@ -67,9 +67,13 @@ convertStationary <- function(x) {
   #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
   wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
   getNames(wg) <- gsub("gdp_", "", getNames(wg))
-  # duplicate SSP2 for SSP2_lowEn
-  wg <- mbind(wg, setItems(wg[, , "SSP2"], 3, "SSP2_lowEn"))
 
+  # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU
+  wg <- mbind(
+    wg,
+    setItems(wg[, , "SSP2"], 3, "SSP2_lowEn"),
+    setItems(wg[, , "SSP2"], 3, "SSP2_highDemDEU")
+  )
 
   #--- Then load the final energy data
   hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
@@ -128,6 +132,7 @@ convertStationary <- function(x) {
   # create lambda vector that gives 0 to the historical data and 1 after 2030
   lambda <-  calcLambda(exceeding_years, 2030, getYears(x)[getYears(x, TRUE) <= maxYear_X_in_FE])
   # Replace
+
   x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) + x[, , stationary_items] * lambda
   x[, , transport_items] <- fe_transport[, getYears(x), transport_items] * (1 - lambda) + x[, , transport_items] * lambda
 
@@ -170,7 +175,7 @@ convertStationary <- function(x) {
   share <- readSource(type = "EDGETransport", subtype = "shares_LDV_transport")
   # for EU regions use JRC data instead
   JRC_reg <- c("MLT", "EST", "CYP", "LVA", "LTU", "LUX", "SVK", "SVN", "HRV", "BGR", "HUN", "ROU", "FIN", "DNK", "IRL", "CZE", "GRC", "AUT", "PRT", "SWE", "BEL", "NLD", "POL", "ESP", "ITA", "GBR", "FRA", "DEU")
-  JRC <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE)
+  JRC <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE, warnNA = FALSE)
   JRC_share <- new.magpie(JRC_reg, getYears(share), getNames(share), fill = 0)
   # for years lower or equal to 2015 assume bunkers equal to JRC historical values
   y1 <- getYears(JRC)[getYears(JRC, as.integer = TRUE) <= 2015]
