@@ -1,23 +1,24 @@
 #' Calculate REMIND emission variables from historical Eurostat (env_air_gge) values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #' @export
 calcEurostatEmissions <- function() {
-
-  eurostatEmi <- readSource(type = "Eurostat", subtype = "latest")
+  data <- readSource(type = "Eurostat", subtype = "latest")
 
   # set values for EU countries with no values to 0
-  eurostatEmi <- toolFillEU34Countries(eurostatEmi)
+  data <- toolFillEU34Countries(data)
+
+  # convert N2O from Mt to kt
+  data[, , "N2O"] <- data[, , "N2O"] * 1000
 
   map <- toolGetMapping(name = "Mapping_EurostatCRF.csv", where = "mrremind", type = "reportingVariables") %>%
     filter(.data$REMIND != "") %>%
-    mutate(from = paste0(.data$emi, ".", .data$sector),
-           to = paste0(.data$REMIND, " (", .data$unit, ")"))
+    mutate(
+      from = paste0(.data$emi, ".", .data$sector),
+      to = paste0(.data$REMIND, " (", .data$unit, ")")
+    )
 
-  x <- toolAggregate(eurostatEmi, rel = map, from = "from", to = "to", dim = 3, partrel = TRUE, verbosity = 2)
+  x <- toolAggregate(data, rel = map, from = "from", to = "to", dim = 3, partrel = TRUE, verbosity = 2)
 
   return(list(
     x = x, weight = NULL,
