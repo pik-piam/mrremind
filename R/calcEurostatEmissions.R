@@ -19,6 +19,7 @@ calcEurostatEmissions <- function() {
     )
 
   x <- toolAggregate(data, rel = map, from = "from", to = "to", dim = 3, partrel = TRUE, verbosity = 2)
+  getSets(x)[3] <- "variable"
 
   return(list(
     x = x, weight = NULL,
