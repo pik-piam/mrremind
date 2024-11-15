@@ -52,8 +52,8 @@ calcDiffInvestCosts <- function(subtype) {
     for (y in years) {
       x[
         getRegions(x)[x[, y, "Coal.Steam Coal - SUBCRITICAL"] != 0 &
-          x[, y, "Coal.Steam Coal - SUPERCRITICAL"] != 0 &
-          x[, y, "Coal.Steam Coal - ULTRASUPERCRITICAL"] != 0], y,
+                        x[, y, "Coal.Steam Coal - SUPERCRITICAL"] != 0 &
+                        x[, y, "Coal.Steam Coal - ULTRASUPERCRITICAL"] != 0], y,
         c(
           "Coal.Steam Coal - SUPERCRITICAL",
           "Coal.Steam Coal - ULTRASUPERCRITICAL"
@@ -124,28 +124,33 @@ calcDiffInvestCosts <- function(subtype) {
     # rooftop is already well-established and has prices around 1.25$/W.
     # Accordingly, we expect that by 2020, the utility-scale solar market will be more
     # in equilibrium and have prices below the current rooftop prices
-    x_adj["CAZ", , ] <- 1200
+    # Also, the 2023 Australia PVPS report states ~1.5AUSD/W for utility-scale for 2018-2022,
+    # equivalent to 1.05USD2020/W, and the Canadian PVPS report has 1.3CanD/W = 1USD/W
+    x_adj["CAZ", , ] <- 1000
+    # The Chinese PVPS report states ~3.5RMB/W, ~0.5$/W for utility-scale, in 2022
+    x_adj["CHA", , ] <- 600
     # IND: Other sources for Indian utility-scale prices (IRENA, WEO, REN21) are more in the range of ~800$/kW.
     # Also, the reports around failed auctions and non-delivery of projects might indicate that
     # the stated prices are below cost.
     x_adj["IND", , ] <- 700
-    # JPN: We assume that Japan prices will be downward-influenced by the low prices realized everywhere else in Asia.
-    x_adj["JPN", , ] <- 1500
+    # JPN: We assume that Japan prices will be downward-influenced by the low prices realized everywhere else in Asia. Also, the 2022 PVPS
+    # report for JPN shows ~120-130 JPY/W, roughly 1.1US$2020/W
+    x_adj["JPN", , ] <- 1100
     # LAM: IRENA states utility-scale prices in the range of ~1400-1500$/kW for LAM.
     # Recent auctions in individual countries indicate lower prices, but it is unlikely that
     # all the countries will immediately achieve the lowest prices realized in some auctions
-    x_adj["LAM", , ] <- 950
+    x_adj["LAM", , ] <- 850
     # MEA: IRENA states utility-scale prices in the range of ~1250$/kW for MEA
     # Recent auctions in individual countries indicate lower prices,
     # but it is unlikely that all the countries will immediately achieve
     # the lowest prices realized in some auctions
-    x_adj["MEA", , ] <- 850
+    x_adj["MEA", , ] <- 800
     # REF: Very different costs in IRENA (2300) and REN21 (1300) -
     # but unlikely to have higher capital costs than severly space-constrained Japan
     x_adj["REF", , ] <- 1400
     # SSA: IRENA states prices of ~1600$/W, but very likely that prices are currently decreasing through learning
     # from the low prices in North African countries.
-    x_adj["SSA", , ] <- 1300
+    x_adj["SSA", , ] <- 1100
 
     # disaggregate adjustments to iso level
     x_adj_iso <- toolAggregate(x_adj, regmapping)
@@ -212,8 +217,8 @@ calcDiffInvestCosts <- function(subtype) {
     for (y in years) {
       x[
         getRegions(x)[x[, y, "Coal.Steam Coal - SUBCRITICAL"] != 0 &
-          x[, y, "Coal.Steam Coal - SUPERCRITICAL"] != 0 &
-          x[, y, "Coal.Steam Coal - ULTRASUPERCRITICAL"] != 0], y,
+                        x[, y, "Coal.Steam Coal - SUPERCRITICAL"] != 0 &
+                        x[, y, "Coal.Steam Coal - ULTRASUPERCRITICAL"] != 0], y,
         c(
           "Coal.Steam Coal - SUPERCRITICAL",
           "Coal.Steam Coal - ULTRASUPERCRITICAL"
