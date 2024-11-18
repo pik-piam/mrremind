@@ -60,7 +60,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   rem_years_hist <- seq(1990, 2150, 5)
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                      returnPathOnly = TRUE, where = "mrcommons")
+                                        returnPathOnly = TRUE, where = "mrcommons")
   struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping
@@ -126,7 +126,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     # Compute lambda
     lambda <- calcLambda(exceeding_years, 2060)
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
-    # until maxYear_X_in_FE this will be exclusively FE, in 2060 (depending on the threshold value above), exclusively GDP
+    # until maxYear_X_in_FE this will be exclusively FE,
+    # in 2060 (depending on the threshold value above), exclusively GDP
 
     wfe <- mbind(wfe,
       lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
