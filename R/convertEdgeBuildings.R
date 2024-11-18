@@ -12,7 +12,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
 
   addSSPnames <- function(x) {
     do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
-                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
+                              paste0("SDP", c("", "_EI", "_RC", "_MC")),
+                              "SSP2EU_NAV_all"),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
   }
@@ -20,6 +21,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   duplScens <- function(x, scens = NULL) {
     if (is.null(scens)) {
       scens <- list(
+        gdp_SSP2EU = "gdp_SSP2EU_NAV_all",
         gdp_SSP2 = "gdp_SSP2_lowEn"
       )
     }

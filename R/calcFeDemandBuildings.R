@@ -22,6 +22,11 @@ calcFeDemandBuildings <- function(subtype) {
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)
 
+  # add scenarios to stationary to match buildings scenarios by duplication
+  duplicateScens <- "SSP2EU_NAV_all"
+  stationary <- mbind(stationary, do.call(mbind, lapply(duplicateScens, function(to) {
+    setItems(stationary[, , "SSP2EU"], 3.1, to)
+  })))
 
   if (subtype == "FE") {
 
