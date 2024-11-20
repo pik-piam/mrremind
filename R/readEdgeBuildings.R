@@ -13,7 +13,7 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
 
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("EU", "_lowEn")),
+    SSP2s = paste0("SSP2", c("EU", "_lowEn", "_highDemDEU")),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC"))
   )
 
