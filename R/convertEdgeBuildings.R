@@ -58,13 +58,16 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   rem_years_hist <- seq(1990, 2150, 5)
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                      returnPathOnly = TRUE, where = "mrcommons")
+                                        returnPathOnly = TRUE, where = "mrcommons")
   struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping
   struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
   struct_mapping <- unique(struct_mapping[c("weight_convertEDGE", "EDGEitems")])
 
+
+  # manually duplicate SSP2 to create SSP2_highDemDEU until it is read in directly in readEdgeBuildings
+  x <- mbind(x, setItems(x[, , "SSP2"], 3.1, "SSP2_highDemDEU"))
 
   if (subtype == "FE") {
     #---- Explanations
