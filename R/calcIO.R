@@ -27,7 +27,7 @@
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors",
-                               "IEA_output", "IEA_input"),
+                               "IEA_input"),
                    ieaVersion = "default") {
   subtype <- match.arg(subtype)
   switch(
@@ -74,14 +74,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
-    IEA_output = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs.csv",
-                                where = "mrcommons",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
-                  "iea_product", "iea_flows")
-    },
     IEA_input = {
       mapping <- toolGetMapping(type = "sectoral",
                                 name = "structuremappingIO_inputs.csv",
@@ -114,7 +106,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  if (subtype %in% c("output", "IEA_output")) {
+  if (subtype == "output") {
     ieamatch <- rbind(ieamatch,
                       ieamatch %>%
                         filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
