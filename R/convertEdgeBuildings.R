@@ -20,8 +20,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   duplScens <- function(x, scens = NULL) {
     if (is.null(scens)) {
       scens <- list(
-        gdp_SSP2 = "gdp_SSP2_lowEn",
-        gdp_SSP2 = "gdp_SSP2_highDemDEU"
+        gdp_SSP2 = c("gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU")
       )
     }
     mbind(x, do.call(mbind, lapply(names(scens), function(from) {
