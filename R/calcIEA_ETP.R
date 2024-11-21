@@ -5,7 +5,9 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr select mutate left_join
+#' @importFrom dplyr select mutate left_join %>% if_any filter all_of
+#' @importFrom madrat toolGetMapping
+#' @importFrom utils read.csv2
 #' @export
 
 calcIEA_ETP <- function() {
@@ -44,6 +46,18 @@ calcIEA_ETP <- function() {
     return(x)
   }
 
+  # keep only countries that were reported individually or are part of given regions
+  .removeRegions <- function(x, keepRegions) {
+    map <- toolGetMapping("regionmappingIEA_ETP.csv",
+                          where = "mrremind", type = "regional",
+                          returnPathOnly = TRUE) %>%
+      read.csv2(check.names = FALSE)
+    keepCountries <- map %>%
+      filter(if_any(all_of(c("individual", keepRegions)))) %>%
+      getElement("CountryCode")
+    x[keepCountries, , ]
+  }
+
   mapping <- toolGetMapping("Mapping_IEA_ETP.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
     mutate(
@@ -59,6 +73,8 @@ calcIEA_ETP <- function() {
     readSource("IEA_ETP", subtype = "buildings"),
     readSource("IEA_ETP", subtype = "summary")
   )
+
+  xReg <- .removeRegions(xReg, keepRegions = c("European Union", "ASEAN"))
 
   dataReg <- .map(xReg, mapping) %>%
     toolCountryFill(fill = NA, verbosity = 2)
