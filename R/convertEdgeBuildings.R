@@ -11,7 +11,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU")),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
@@ -20,6 +20,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   duplScens <- function(x, scens = NULL) {
     if (is.null(scens)) {
       scens <- list(
+        gdp_SSP2EU = "gdp_SSP2EU_NAV_all",
         gdp_SSP2 = c("gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU")
       )
     }
@@ -128,7 +129,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     # Compute lambda
     lambda <- calcLambda(exceeding_years, 2060)
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
-    # until maxYear_X_in_FE this will be exclusively FE, in 2060 (depending on the threshold value above), exclusively GDP
+    # until maxYear_X_in_FE this will be exclusively FE,
+    # in 2060 (depending on the threshold value above), exclusively GDP
 
     wfe <- mbind(wfe,
       lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
