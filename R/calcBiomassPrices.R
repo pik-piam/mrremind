@@ -5,9 +5,9 @@ calcBiomassPrices <- function() {
 
   x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
 
-  # add supply curves for SSP1-PkBudg1000 copying SSP1-PkBudg650
-  tmp <- x[, , "SSP1-SSP1-PkBudg650"]
-  getNames(tmp) <- gsub("SSP1-SSP1-PkBudg650", "SSP1-SSP1-PkBudg1000", getNames(tmp))
+  # add supply curves for SDP-MC-SSP1-PkBudg1000 copying SDP-MC-SSP1-PkBudg650
+  tmp <- x[, , "SDP-MC-SSP1-PkBudg650"] 
+  getNames(tmp) <- gsub("SDP-MC-SSP1-PkBudg650", "SDP-MC-SSP1-PkBudg1000", getNames(tmp))
   x <- mbind(x, tmp)
 
   # create cm_LU_emi_scen names (as used in REMIND) from emulatpr scenario names
@@ -15,7 +15,7 @@ calcBiomassPrices <- function() {
   # - the first SSP-scenario ("SSP2") refers to the MAgPIE scenario selected for the emulator runs
   # - the second SSP-scenario ("SSP2_lowen") refers to the REMIND scenario the GHG prices were taken from
   # They need to be combined into a new scenario name that is used in REMIND's cm_LU_emi_scen
-  getNames(x) <- gsub("SSP1-SSP1-",       "SSP1-",       getNames(x))
+  getNames(x) <- gsub("SDP-MC-SSP1-",     "SSP1-",       getNames(x))
   getNames(x) <- gsub("SSP2-SSP2-",       "SSP2-",       getNames(x))
   getNames(x) <- gsub("SSP2-SSP2_lowEn-", "SSP2_lowEn-", getNames(x))
   getNames(x) <- gsub("SSP3-SSP2-",       "SSP3-",       getNames(x))
