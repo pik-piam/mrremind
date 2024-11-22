@@ -146,8 +146,8 @@ calcDiffInvestCosts <- function(subtype) {
     # the lowest prices realized in some auctions
     x_adj["MEA", , ] <- 800
     # REF: Very different costs in IRENA (2300) and REN21 (1300) -
-    # but unlikely to have higher capital costs than severly space-constrained Japan
-    x_adj["REF", , ] <- 1400
+    # but unlikely to have higher capital costs than severely space-constrained Japan
+    x_adj["REF", , ] <- 1100
     # SSA: IRENA states prices of ~1600$/W, but very likely that prices are currently decreasing through learning
     # from the low prices in North African countries.
     x_adj["SSA", , ] <- 1100
