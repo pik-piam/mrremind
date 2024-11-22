@@ -11,9 +11,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn")),
-                              paste0("SDP", c("", "_EI", "_RC", "_MC")),
-                              "SSP2EU_NAV_all"),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
+                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
   }
@@ -22,7 +21,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     if (is.null(scens)) {
       scens <- list(
         gdp_SSP2EU = "gdp_SSP2EU_NAV_all",
-        gdp_SSP2 = "gdp_SSP2_lowEn"
+        gdp_SSP2 = c("gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU")
       )
     }
     mbind(x, do.call(mbind, lapply(names(scens), function(from) {
@@ -68,6 +67,9 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   struct_mapping <- unique(struct_mapping[c("weight_convertEDGE", "EDGEitems")])
 
 
+  # manually duplicate SSP2 to create SSP2_highDemDEU until it is read in directly in readEdgeBuildings
+  x <- mbind(x, setItems(x[, , "SSP2"], 3.1, "SSP2_highDemDEU"))
+
   if (subtype == "FE") {
     #---- Explanations
     # For the historical data, weights are directly taken from the IEA
@@ -86,7 +88,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     #--- Load the Weights
     #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
     wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
-    # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate and Campaigners scenarios
+
+    # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
     wg <- duplScens(wg)
     getNames(wg) <- gsub("gdp_", "", getNames(wg))
 
@@ -177,7 +180,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     wp <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
     getSets(wp) <- gsub("variable", "scenario", getSets(wp))
     getItems(wp, "scenario") <- gsub("pop_", "gdp_", getItems(wp, "scenario"))
-    # duplicate SSP2 for SSP2_lowEn an SSP2EU for Navigate and Campaigners scenarios
+
+    # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
     wp <- duplScens(wp)
 
     x <- time_interpolate(x, interpolated_year = rem_years_hist, extrapolation_type = "constant")

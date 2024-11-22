@@ -15,5 +15,5 @@ convertIEA_ETP(x, subtype)
 Convert IEA ETP projections
 }
 \author{
-Falk Benke
+Falk Benke, Robin Hasse
 }
