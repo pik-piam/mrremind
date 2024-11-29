@@ -1,10 +1,9 @@
-#' Calculates Final Energy Demand for Industry, Buildings and Transport
+#' Calculates Final Energy Demand for Industry and Buildings
 #' @author Falk Benke
 calcFEdemand <- function() {
 
   feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
   feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
-  feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
 
   # duplicate scenarios ----
 
@@ -20,8 +19,7 @@ calcFEdemand <- function() {
   remind <- mbind(
     feBuildings[, , stationaryItems, invert = TRUE],
     feIndustry[, , stationaryItems, invert = TRUE],
-    feStationary,
-    feTransport
+    feStationary
   )
 
   return(list(
