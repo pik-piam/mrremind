@@ -192,6 +192,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical")
   )
 
+  # IRENA Capacities  ----
+
+  calcOutput(
+    type = "IRENA", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "IRENA")
+  )
+
   # JRC IDEES ----
 
   calcOutput(

@@ -24,7 +24,7 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
     map <- map[map$io %in% getNames(data), ]
     x <- data[, , map$io]
     # aggregate from the IO names to the reporting names.
-    x <- luscale::speed_aggregate(x, map, dim = 3, from = "io", to = "input")
+    x <- madrat::toolAggregate(x, map, dim = 3, from = "io", to = "input")
     # rename entries of data to match the reporting names
     getNames(x) <- paste0(getNames(x), " (EJ/yr)")
 
