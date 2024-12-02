@@ -3,23 +3,20 @@
 calcFEdemand <- function() {
 
   feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
+
+  # extrapolate missing years
+  feBuildings <- time_interpolate(feBuildings, interpolated_year = seq(1995, 2150, 5),
+                                  extrapolation_type = "constant")
+
   feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
 
   # duplicate scenarios ----
 
-  # add Navigate and Campaigners scenarios to industry and transport to match buildings scenarios by duplication
+  # add Navigate and Campaigners scenarios to industry to match buildings scenarios by duplication
   duplicateScens <- "gdp_SSP2EU_NAV_all"
   feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "gdp_SSP2EU"], 3.1, duplicateScens))
 
-  # add up industry and buildings contributions to stationary
-  stationaryItems <- c("fehes", "feh2s")
-  feStationary <- feIndustry[, , stationaryItems] + feBuildings[, , stationaryItems]
-
-  remind <- mbind(
-    feBuildings[, , stationaryItems, invert = TRUE],
-    feIndustry[, , stationaryItems, invert = TRUE],
-    feStationary
-  )
+  remind <- mbind(feBuildings, feIndustry)
 
   return(list(
     x = remind,
