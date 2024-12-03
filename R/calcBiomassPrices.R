@@ -4,22 +4,32 @@
 calcBiomassPrices <- function() {
 
   x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
-  
-  # add supply curves for SSP1-PkBudg1000 copying SSP1-PkBudg650
-  tmp <- x[, , "SSP1-SSP1-PkBudg650"]
-  getNames(tmp) <- gsub("SSP1-SSP1-PkBudg650", "SSP1-SSP1-PkBudg1000", getNames(tmp))
+
+  # add supply curves for SDP-MC-SSP1-PkBudg1000 copying SDP-MC-SSP1-PkBudg650
+  tmp <- x[, , "SDP-MC-SSP1-PkBudg650"] 
+  getNames(tmp) <- gsub("SDP-MC-SSP1-PkBudg650", "SDP-MC-SSP1-PkBudg1000", getNames(tmp))
   x <- mbind(x, tmp)
 
-  # rename the rcp-scenarios to cm_rcp_scen switches used in REMIND
-  # eample: SSP2-SSP2_lowEn-PkBudg1000 -> SSP2-rcp26
-  getNames(x) <- gsub("SSP[1-5](_lowEn|)-PkBudg650",  "rcp20", getNames(x))
-  getNames(x) <- gsub("SSP[1-5](_lowEn|)-PkBudg1000", "rcp26", getNames(x))
-  getNames(x) <- gsub("SSP[1-5](_lowEn|)-NPi",        "rcp45", getNames(x))
+  # create cm_LU_emi_scen names (as used in REMIND) from emulatpr scenario names
+  # in SSP2-SSP2_lowEn-PkBudg650
+  # - the first SSP-scenario ("SSP2") refers to the MAgPIE scenario selected for the emulator runs
+  # - the second SSP-scenario ("SSP2_lowen") refers to the REMIND scenario the GHG prices were taken from
+  # They need to be combined into a new scenario name that is used in REMIND's cm_LU_emi_scen
+  getNames(x) <- gsub("SDP-MC-SSP1-",     "SSP1-",       getNames(x))
+  getNames(x) <- gsub("SSP2-SSP2-",       "SSP2-",       getNames(x))
+  getNames(x) <- gsub("SSP2-SSP2_lowEn-", "SSP2_lowEn-", getNames(x))
+  getNames(x) <- gsub("SSP3-SSP2-",       "SSP3-",       getNames(x))
+  getNames(x) <- gsub("SSP5-SSP5-",       "SSP5-",       getNames(x))
 
-  # Introduce new SSP/SDP dimension by replacing "-" with "."
-  getNames(x) <- gsub("(SSP[0-9]|SDP)-", "\\1.", getNames(x))
-  getSets(x)["d3.1"] <- "scen1"
-  getSets(x)["d3.2"] <- "scen2"
+  # rename the rcp-scenarios to cm_rcp_scen switches used in REMIND
+  getNames(x) <- gsub("PkBudg650",  "rcp20", getNames(x))
+  getNames(x) <- gsub("PkBudg1000", "rcp26", getNames(x))
+  getNames(x) <- gsub("NPi",        "rcp45", getNames(x))
+
+  # Move SSP to new dimension by replacing "-" with "."
+  getNames(x) <- gsub("(SSP[0-9](_lowEn|))-", "\\1.", getNames(x))
+  getSets(x)["d3.1"] <- "ssp"
+  getSets(x)["d3.2"] <- "rcp"
   getSets(x)["d3.3"] <- "char"
 
   # if fit coefficients of a country are NA for all years (there is no supplycurve at all for this country)

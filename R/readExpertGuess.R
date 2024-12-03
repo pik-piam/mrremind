@@ -39,9 +39,9 @@ readExpertGuess <- function(subtype) {
   } else if (subtype == "CCSbounds") {
     a <- read.csv("CCSbounds.csv", sep = ";")
   } else if (subtype == "co2prices") {
-    a <- read.csv("co2prices-2024-10.csv", sep = ";")
+    a <- read.csv("co2prices-2024-11.csv", sep = ";")
   } else if (subtype == "costsTradePeFinancial") {
-    a <- read.csv("pm_costsTradePeFinancial.csv",
+    a <- read.csv("pm_costsTradePeFinancial_v1.1.csv",
       sep = ";",
       skip = 2
     )

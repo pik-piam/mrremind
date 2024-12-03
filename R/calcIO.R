@@ -27,7 +27,7 @@
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors",
-                               "IEA_output", "IEA_input"),
+                               "IEA_input"),
                    ieaVersion = "default") {
   subtype <- match.arg(subtype)
   switch(
@@ -74,14 +74,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
-    IEA_output = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs.csv",
-                                where = "mrcommons",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
-                  "iea_product", "iea_flows")
-    },
     IEA_input = {
       mapping <- toolGetMapping(type = "sectoral",
                                 name = "structuremappingIO_inputs.csv",
@@ -102,19 +94,10 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
-  # Correct transport reporting issue in IEA data for NONBIODIES.MARBUNK in RUS
-  # FE is reported in 1990 and 2010 but not in the years in between. This cause problems in the harmonization of EDGE-Transport
-  # and the IEA data in 2005 as there is no MARBUNK demand at all for REF regions.
-  data["RUS", seq(1990, 2010, 1), "NONBIODIES.MARBUNK"] <-
-    data["RUS", c(1990, 2010),"NONBIODIES.MARBUNK"]|> time_interpolate(seq(1990, 2010, 1))
-  #Adjust totals
-  data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] <-
-    data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] + data["RUS", seq(1991, 2009, 1), "NONBIODIES.MARBUNK"]
-
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  if (subtype %in% c("output", "IEA_output")) {
+  if (subtype == "output") {
     ieamatch <- rbind(ieamatch,
                       ieamatch %>%
                         filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%

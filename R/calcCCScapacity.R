@@ -20,9 +20,9 @@ calcCCScapacity <- function(subtype) {
 
   if (subtype == "historical") {
     # project pipeline snapshot from beginning of 2024
-    x <- x[, 2020, "operational"]
+    x <- x[, , "operational"]
     # remove "status" and "unit" dimension
-    x <- collapseDim(x, keepdim = c("model", "variable"))
+    x <- collapseDim(x, keepdim = c("model", "variable", "period"))
   }
 
   return(list(
