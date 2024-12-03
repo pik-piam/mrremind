@@ -8,7 +8,7 @@ calcEurostatEmissions <- function() {
   # set values for EU countries with no values to 0
   data <- toolFillEU34Countries(data)
 
-  # convert N2O from Mt to kt
+  # convert N2O from Mt to kt (currently not done via the mapping)
   data[, , "N2O_native"] <- data[, , "N2O_native"] * 1000
 
   map <- toolGetMapping(name = "Mapping_EurostatCRF.csv", where = "mrremind", type = "reportingVariables") %>%
