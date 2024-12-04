@@ -16,9 +16,8 @@ magpie object of  capacity data
 provides historical capacity values in TW
 }
 \examples{
-
 \dontrun{
-calcOutput("Capacity",subtype="capacityByTech")
+calcOutput("Capacity", subtype = "capacityByTech")
 }
 }
 \author{
