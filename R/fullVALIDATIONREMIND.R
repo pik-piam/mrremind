@@ -114,13 +114,22 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "Ember")
   )
 
+  # Eurostat Emission Data (env_air_gge)
+
+  calcOutput(
+    type = "EurostatEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "Eurostat env_air_gge")
+  )
+
   # European Eurostat data ----
 
   calcOutput(
     type = "EuropeanEnergyDatasheets",  subtype = "EU27", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Eurostat")
+    writeArgs = list(scenario = "historical", model = "Eurostat energy_sheets")
   )
 
   # EU Reference Scenario ----

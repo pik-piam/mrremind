@@ -11,7 +11,7 @@ calcUNFCCC <- function() {
 
   data <- readSource("UNFCCC")
 
-  mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mappingfolder") %>%
+  mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mrremind") %>%
     mutate("conversion" = as.numeric(.data$Factor) * .data$Weight) %>%
     select("variable" = "UNFCCC", "REMIND", "conversion", "unit" = "Unit_UNFCCC", "Unit_REMIND")
 
