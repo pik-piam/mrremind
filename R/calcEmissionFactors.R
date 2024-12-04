@@ -352,7 +352,45 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   # Low:          2030 CLE20; 2050 Min CLE30; 2100 EUR CLE30             [AFR, IND, OAS]                = [1 4 8]
 
   # ----------------- SSP3 --------------------------------------
-  # TODO
+  # Emission factors
+  # High-Medium income countries with strong pollution policies in place
+  ef[r_HMStrong, 2030, "SSP3"] <- ef_eclipse[r_HMStrong, 2030, "CLE"]                                                # 2030: CLE30
+  ef[r_HMStrong, 2050, "SSP3"] <- pmin(setYears(ef[r_HMStrong,        2030, "SSP3"]),
+                                       setYears(ef_eclipse[r_HMStrong, 2030, "CLE"]))                                # 2050: CLE30
+  ef[r_HMStrong, 2100, "SSP3"] <- pmin(setYears(ef[r_HMStrong,        2050, "SSP3"]),
+                                       setYears(allocate_min2r_ef(ef_eclipse, r_HMStrong, r_oecd, 2030, "CLE")))   # 2100: Lowest CLE30 or lower
+  # High-Medium income countries with lower emissions goals
+  ef[r_HMRest, 2030, "SSP3"]  <- ef_eclipse[r_HMRest, 2030, "CLE"]                                                   # 2030: CLE30
+  ef[r_HMRest, 2050, "SSP3"]  <- pmin(setYears(ef[r_HMRest,       2030, "SSP3"]),
+                                      setYears(allocate_min2r_ef(ef_eclipse, r_HMRest, r_HMRest, 2030, "CLE")))    # 2050: Min CLE30
+  ef[r_HMRest, 2100, "SSP3"]  <- pmin(setYears(ef[r_HMRest, 2050, "SSP3"]),
+                                      setYears(allocate_c2r_ef(ef_eclipse, r_HMRest, select_weu, 2030, "CLE")))    # 2100: CLE30 WEU
+  # low income countries
+  ef[r_L, 2030, "SSP3"]       <- setYears(ef_eclipse[r_L, 2020, "CLE"])                                            # 2030: CLE20
+  ef[r_L, 2050, "SSP3"]       <- pmin(setYears(ef[r_L,       2030, "SSP3"]),
+                                      setYears(allocate_min2r_ef(ef_eclipse, r_L, r_L, 2030, "CLE")))              # 2050: Min CLE30
+  ef[r_L, 2100, "SSP3"]       <- pmin(setYears(ef[r_L, 2050, "SSP3"]),
+                                      setYears(allocate_c2r_ef(ef_eclipse, r_L, select_weu, 2030, "CLE")))         # 2100: CLE30 WEU
+
+  # Emissions
+  # High-Medium income countries with strong pollution policies in place
+  emi[r_HMStrong, 2030, "SSP3"] <- emissions_exogenous[r_HMStrong, 2030, "CLE"]                                               # 2030: CLE30
+  emi[r_HMStrong, 2050, "SSP3"] <- pmin(setYears(emi[r_HMStrong,        2030, "SSP3"]),
+                                        setYears(emissions_exogenous[r_HMStrong, 2030, "CLE"]))                                # 2050: CLE30
+  emi[r_HMStrong, 2100, "SSP3"] <- pmin(setYears(emi[r_HMStrong,        2050, "SSP3"]),
+                                        setYears(emissions_exogenous[r_HMStrong, 2030, "CLE"] ))                           # 2100: Lowest CLE30 or lower -> 0.8*CLE30
+  # High-Medium income countries with lower emissions goals
+  emi[r_HMRest, 2030, "SSP3"]  <- emissions_exogenous[r_HMRest, 2030, "CLE"]                                                  # 2030: CLE30
+  emi[r_HMRest, 2050, "SSP3"]  <- pmin(setYears(emi[r_HMRest,       2030, "SSP3"]),
+                                       setYears(emissions_exogenous[r_HMRest, 2030, "CLE"]))                                  # 2050: Min CLE30 -> CLE30
+  emi[r_HMRest, 2100, "SSP3"]  <- pmin(setYears(emi[r_HMRest, 2050, "SSP3"]),
+                                       setYears(emissions_exogenous[r_HMRest, 2030, "CLE"] ))                              # 2100: CLE30 WEU -> 0.8*CLE30
+  # low income countries
+  emi[r_L, 2030, "SSP3"]       <- setYears(emissions_exogenous[r_L, 2020, "CLE"])                                           # 2030: CLE20
+  emi[r_L, 2050, "SSP3"]       <- pmin(setYears(emi[r_L, 2030, "SSP3"]),
+                                       setYears(emissions_exogenous[r_L, 2030, "CLE"]))                                     # 2050: Min CLE30 -> CLE30
+  emi[r_L, 2100, "SSP3"]       <- pmin(setYears(emi[r_L, 2050, "SSP3"]),
+                                       setYears(emissions_exogenous[r_L, 2030, "CLE"] ))                                # 2100: CLE30 WEU -> 0.95*CLE30
 
   # ----------------- SSP4 --------------------------------------
   # TODO
