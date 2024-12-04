@@ -6,14 +6,11 @@
 
 convertDylanAusGasCost <- function(x) {
 
-  all_c <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
+  x %>%
+    # Converting from constant 2015 Australian dollars to constant 2017 US$MER
+    GDPuc::toolConvertGDP(unit_in = "constant 2015 LCU", unit_out = mrdrivers::toolGetUnitDollar()) %>%
+    add_dimension(dim = 3.4, add = "unit", nm = "Natural Gas Extraction Cost [2017USD/GJ]") %>%
+    toolCountryFill(fill = 0, verbosity = 2) %>%
+    return()
 
-  # converting to 2005USD, conversion factor from 2015AUSD to 2005USD assumed 0.6
-  x_help <- x * 0.6
-  x_help <- add_dimension(x_help, dim = 3.4, add = "unit", nm = "Natural Gas Extraction Cost [2005USD/GJ]")
-
-  x <- new.magpie(all_c$CountryCode, getYears(x_help), getNames(x_help), fill = 0)
-  x["AUS", , ] <- x_help
-
-  return(x)
 }

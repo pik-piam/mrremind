@@ -18,8 +18,7 @@ region. The source data provide most required information but some
 assumptions on missing data are also made.
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 a <- calcOutput("CoolingSharesBase")
 }
 }

@@ -19,10 +19,8 @@ calculate taxes at the final energy delivery level to the end-use sectors
 respective energy quantities as weights.
 }
 \examples{
-
 \dontrun{
 calcOutput("FETaxes")
-
 }
 
 }

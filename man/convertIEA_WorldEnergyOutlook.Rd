@@ -2,20 +2,15 @@
 % Please edit documentation in R/convertIEA_WorldEnergyOutlook.R
 \name{convertIEA_WorldEnergyOutlook}
 \alias{convertIEA_WorldEnergyOutlook}
-\title{Convert IEA WEO 2021 Data}
+\title{Convert IEA World Energy Outlook Data from 2023}
 \usage{
-convertIEA_WorldEnergyOutlook(x, subtype = "2021-global")
+convertIEA_WorldEnergyOutlook(x)
 }
 \arguments{
 \item{x}{magclass object to be converted}
-
-\item{subtype}{"2021-global", "2021-region", "2023-global", or "2023-region".
-- For 2021 we have complete paid data. For 2023 we have only the free dataset.
-- On global level, the source offers more variables than on regional level,
-but the data should not be used on sub-global level due to its coarse disaggregation.}
 }
 \description{
-Convert IEA WEO 2021 Data
+Convert IEA World Energy Outlook Data from 2023
 }
 \author{
 Falk Benke

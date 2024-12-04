@@ -10,8 +10,6 @@
 
 readIEA_ETP <- function(subtype) {
 
-  region <- NULL
-
   # nolint start
   subtypes <- list(
     industry = {
@@ -19,7 +17,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_industry_summary.xlsx",
         prefix = "Industry",
         sheets = list(
-          "OECD", "Non-OECD",
+          "WORLD", "OECD", "Non-OECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -149,7 +147,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_buildings_summary.xlsx",
         prefix = "Buildings",
         sheets = list(
-          "OECD", "NonOECD",
+          "WORLD", "OECD", "NonOECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -278,7 +276,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_scenario_summary.xlsx",
         prefix = "Summary",
         sheets = list(
-          "OECD", "NonOECD",
+          "WORLD", "OECD", "NonOECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -452,7 +450,7 @@ readIEA_ETP <- function(subtype) {
         file = "ETP2017_transport_summary.xlsx",
         prefix = "Transport",
         sheets = list(
-          "OECD", "Non-OECD",
+          "WORLD", "OECD", "Non-OECD",
           "ASEAN", "Brazil", "China", "European Union",
           "India", "Mexico", "Russia", "South Africa", "United States"
         ),
@@ -563,7 +561,7 @@ readIEA_ETP <- function(subtype) {
   # set all 2055 data (for RTS/OECD/Chemicals with feedstocks) to NA due to faulty data in source
   if (subtype == "industry") {
     tmp[, 2055, "RTS.Industry|Chemicals and petrochemicals - final energy consumption and chemical feedstock|",
-      pmatch = TRUE
+        pmatch = TRUE
     ]["OECD", , ] <- NA
   }
 

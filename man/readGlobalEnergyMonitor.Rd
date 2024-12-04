@@ -7,8 +7,8 @@
 readGlobalEnergyMonitor()
 }
 \description{
-Read Global Energy Monitor data
+read GEM data for all available technologies and relevant statuses
 }
 \author{
-Rahel Mandaroux, Falk Benke
+Rahel Mandaroux, Falk Benke, Pascal Weigmann
 }

@@ -4,8 +4,8 @@
 #' (TIC-Absolute), Additional Installed Capacity (AC-Absolute), and Production Absolute targets)
 #' or regional technology costs
 #' @details Country name is ISO coded. Capacity/Additional Capacity targets are in GW. Generation/Production targets are in GWh.
-#' @return  magpie object with Total Installed Capacity targets in GW for different target years
-#' @author  Aman Malik, Lavinia Baumstark
+#' @return magpie object with Total Installed Capacity targets in GW for different target years
+#' @author Aman Malik, Lavinia Baumstark
 #' @param subtype Capacity Generation Emissions Share
 #' @importFrom readxl read_excel
 

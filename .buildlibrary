@@ -1,16 +1,12 @@
-ValidationKey: '36687448'
+ValidationKey: '40400840'
 AcceptedWarnings:
-- 'Warning: package ''.*'' was built under R version'
-- 'Warning: namespace ''.*'' is not available and has been replaced'
-- 'Warning: multiple methods tables found for ‘direction’'
-- 'Warning: multiple methods tables found for ‘gridDistance’'
-- Imports includes .* non-default packages.
 - Invalid URL: .*
+- 'Warning: package ''.*'' was built under R version'
 AcceptedNotes:
-- unable to verify current time
 - Imports includes .* non-default packages.
-- installed size is
-- 'Undefined global functions or variables:'
+- All declared Imports should be used.
+- unable to verify current time
 AutocreateReadme: yes
 allowLinterWarnings: yes
 enforceVersionUpdate: yes
+skipCoverage: yes

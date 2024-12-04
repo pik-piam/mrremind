@@ -9,7 +9,8 @@
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
-#' \dontrun{ a <- readSource(type = "EDGETransport")
+#' \dontrun{
+#' a <- readSource(type = "EDGETransport")
 #' }
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
@@ -17,6 +18,7 @@
 
 readEDGETransport <- function(subtype) {
 
+  EDGE_scenario <- DEM_scenario <- NULL
   #############################################################
   ## Define all scenario combinations for which
   ## input data should be generated
@@ -26,39 +28,42 @@ readEDGETransport <- function(subtype) {
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     expand_grid(
-      SSPscen = c("SSP1", "SSP2", "SSP5", "SSP2EU", "SDP"),
+      SSPscen = c("SSP2", "SSP3", "SSP5", "SDP"),
       transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = c(TRUE, FALSE),
       demScen = c("default")),
     # Specific project scenarios
     tribble(
-     ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
-    'SSP2',          'Mix1',                    FALSE,      'SSP2EU_demRedStrong',
-    'SSP2',          'Mix2',                    FALSE,      'SSP2EU_demRedStrong',
-    'SSP2',          'Mix3',                    TRUE,      'SSP2EU_demRedStrong',
-    'SSP2',          'Mix4',                    TRUE,      'SSP2EU_demRedStrong',
-    'SDP_EI',        'Mix4',                    TRUE,       'default',
-    'SDP_MC',        'Mix4',                    TRUE,       'default',
-    'SDP_RC',        'Mix3',                    TRUE,       'default',
-    'SSP2EU',        'HydrHype4',               TRUE,       'default',
-    'SSP2EU',        'ECEMF_HighEl_HighEff',    TRUE,       'default',
-    'SSP2EU',        'ECEMF_HighEl_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
-    'SSP2EU',        'ECEMF_HighEl_ModEff',     TRUE,       'default',
-    'SSP2EU',        'ECEMF_HighH2_HighEff',    TRUE,       'default',
-    'SSP2EU',        'ECEMF_HighH2_LifestCha',  TRUE,       'SSP2EU_demRedStrong',
-    'SSP2EU',        'ECEMF_HighH2_ModEff',     TRUE,       'default',
-    'SSP2EU',        'NAV_act',                 FALSE,      'SSP2EU_demRedStrong',
-    'SSP2EU',        'NAV_tec',                 FALSE,      'default',
-    'SSP2EU',        'NAV_ele',                 TRUE,       'default',
-    'SSP2EU',        'NAV_all',                 TRUE,       'SSP2EU_demRedStrong',
-    'SSP2EU',        'NAV_lce',                 FALSE,      'SSP2EU_demRedStrong',
-    'SSP2EU',        'CAMP_lscWeak',            TRUE,       'SSP2EU_demRedWeak',
-    'SSP2EU',        'CAMP_lscStrong',          TRUE,       'SSP2EU_demRedStrong'
+      ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
+      "SSP1",          "Mix1",                    FALSE,      "default",
+      "SSP1",          "Mix2",                    FALSE,      "default",
+      "SSP1",          "Mix3",                    TRUE,       "default",
+      "SSP1",          "Mix4",                    TRUE,       "default",
+      "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix3",                    TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_demDiffer",
+      "SSP2",          "Mix1",                    FALSE,      "SSP2_demDiffer",
+      "SSP2",          "Mix2",                    FALSE,      "SSP2_highDemDEU",
+      "SSP2",          "Mix3",                    FALSE,      "SSP2_highDemDEU",
+      "SSP2",          "Mix3",                    TRUE,       "SSP2_highDemDEU",
+      "SDP_EI",        "Mix4",                    TRUE,       "default",
+      "SDP_MC",        "Mix4",                    TRUE,       "default",
+      "SDP_RC",        "Mix3",                    TRUE,       "default",
+      "SSP2",          "HydrHype4",               TRUE,       "default",
+      "SSP2",          "NAV_act",                 FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "NAV_tec",                 FALSE,      "default",
+      "SSP2",          "NAV_ele",                 TRUE,       "default",
+      "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
     )
   )
 
   # generate list from data frame rows
-  allScens <- split(allScens, seq(nrow(allScens)))
+  allScens <- split(allScens, seq_len(nrow(allScens)))
 
   #############################################################
   ## Run EDGE-Transport SA with all scenario combinations
@@ -82,7 +87,7 @@ readEDGETransport <- function(subtype) {
   # Bind rows of equally named subtypes
   EdgeTransportSAdata <- lapply(types, function(type, outerList) {
     listOfDataTables <- lapply(outerList, function(innerList) innerList[[type]])
-    result <- rbindlist(listOfDataTables)
+    rbindlist(listOfDataTables)
   }, EdgeTransportSAdata)
 
   EdgeTransportSAdata <- setNames(EdgeTransportSAdata, types)
@@ -92,17 +97,19 @@ readEDGETransport <- function(subtype) {
   ## that are applied to all sectors simultaneously
   #############################################################
   translateEdgeTransportDemScentoREMIND <- function(dt) {
-    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
-    dt[DEM_scenario == "gdp_SSP2EU" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
-    dt[DEM_scenario == "gdp_SSP2EU_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
+    dt[DEM_scenario == "gdp_SSP2_demDiffer" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_demDiffer_IKEA"]
+    dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_ele", DEM_scenario := "gdp_SSP2EU_NAV_ele"]
+    dt[DEM_scenario == "gdp_SSP2" & EDGE_scenario == "NAV_tec", DEM_scenario := "gdp_SSP2EU_NAV_tec"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "gdp_SSP2EU_NAV_act"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "gdp_SSP2EU_NAV_all"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "gdp_SSP2EU_NAV_lce"]
+    dt[DEM_scenario == "gdp_SSP2_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "gdp_SSP2EU_CAMP_weak"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
     return(dt)
   }
   EdgeTransportSAdata <- lapply(EdgeTransportSAdata, translateEdgeTransportDemScentoREMIND)

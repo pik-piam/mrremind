@@ -87,23 +87,23 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "EDGAR6")
   )
 
-  # EDGAR8 Emissions----
-
-  edg8 <- calcOutput(
-    type = "Emissions", datasource = "EDGAR8",
+  # EDGAR GHG Emissions----
+  # does not contain as many gases as EDGAR6
+  edgar <- calcOutput(
+    type = "Emissions", datasource = "EDGARghg",
     aggregate = columnsForAggregation, warnNA = FALSE,
     try = FALSE, years = years
   )
 
   # write all regions of non-bunker variables to report
-  non_bunk <- edg8[, , "International", pmatch = TRUE, invert = TRUE]
+  non_bunk <- edgar[, , "International", pmatch = TRUE, invert = TRUE]
   write.report(non_bunk, file = valfile, append = TRUE,
-               scenario = "historical", model = "EDGAR8")
+               scenario = "historical", model = "EDGARghg")
 
   # write only global values of bunker variables
-  bunkers <- edg8["GLO", , "International", pmatch = TRUE]
+  bunkers <- edgar["GLO", , "International", pmatch = TRUE]
   write.report(bunkers, file = valfile, append = TRUE,
-               scenario = "historical", model = "EDGAR8")
+               scenario = "historical", model = "EDGARghg")
 
   # Ember electricity data ----
 
@@ -114,13 +114,22 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "Ember")
   )
 
+  # Eurostat Emission Data (env_air_gge)
+
+  calcOutput(
+    type = "EurostatEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "Eurostat env_air_gge")
+  )
+
   # European Eurostat data ----
 
   calcOutput(
     type = "EuropeanEnergyDatasheets",  subtype = "EU27", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Eurostat")
+    writeArgs = list(scenario = "historical", model = "Eurostat energy_sheets")
   )
 
   # EU Reference Scenario ----
@@ -178,13 +187,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # IEA World Energy Outlook  ----
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", version = "default", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years, writeArgs = list(scenario = "historical")
-  )
-
-  calcOutput(
-    type = "IEA_WorldEnergyOutlook", version = "latest", file = valfile,
+    type = "IEA_WorldEnergyOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years, writeArgs = list(scenario = "historical")
   )
@@ -195,16 +198,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "IEA CCUS")
-  )
-
-  # INNOPATHS ----
-
-  calcOutput(
-    type = "INNOPATHS", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "INNOPATHS")
+    writeArgs = list(scenario = "historical")
   )
 
   # JRC IDEES ----
@@ -265,7 +259,4 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, years = years,
     writeArgs = list(scenario = "historical", model = "INDSTAT2")
   )
-
-  # filter variables that are too imprecise on regional level ----
-  filter_historical_mif()
 }

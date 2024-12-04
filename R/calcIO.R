@@ -21,13 +21,13 @@
 #' a <- calcOutput("IO", subtype = "output")
 #' }
 #'
-#' @importFrom rlang .data
+#' @importFrom rlang .data is_empty
 #' @importFrom dplyr filter mutate
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors",
-                               "IEA_output", "IEA_input"),
+                               "IEA_input"),
                    ieaVersion = "default") {
   subtype <- match.arg(subtype)
   switch(
@@ -74,14 +74,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
-    IEA_output = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs.csv",
-                                where = "mrcommons",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
-                  "iea_product", "iea_flows")
-    },
     IEA_input = {
       mapping <- toolGetMapping(type = "sectoral",
                                 name = "structuremappingIO_inputs.csv",
@@ -97,24 +89,15 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
-  ieaYear <- if (ieaVersion == "default") 2022 else 2023
+  ieaYear <- if (ieaVersion == "default") 2022 else 2024
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
-  # Correct transport reporting issue in IEA data for NONBIODIES.MARBUNK in RUS
-  # FE is reported in 1990 and 2010 but not in the years in between. This cause problems in the harmonization of EDGE-Transport
-  # and the IEA data in 2005 as there is no MARBUNK demand at all for REF regions.
-  data["RUS", seq(1990, 2010, 1), "NONBIODIES.MARBUNK"] <-
-    data["RUS", c(1990, 2010),"NONBIODIES.MARBUNK"]|> time_interpolate(seq(1990, 2010, 1))
-  #Adjust totals
-  data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] <-
-    data["RUS", seq(1991, 2009, 1),"TOTAL.MARBUNK"] + data["RUS", seq(1991, 2009, 1), "NONBIODIES.MARBUNK"]
-
   ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  if (subtype %in% c("output", "IEA_output")) {
+  if (subtype == "output") {
     ieamatch <- rbind(ieamatch,
                       ieamatch %>%
                         filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
@@ -124,7 +107,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   if (subtype == "output_Industry_subsectors") {
     # apply corrections to IEA data to cope with fragmentary time series
     names_data_before <- getNames(data)
-    data <- tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
+    data <- mrindustry::tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
                                                       threshold = 1e-2)
     # warn if dimensions not present in the mapping have been added to the data
     new_product_flows <- tibble(
