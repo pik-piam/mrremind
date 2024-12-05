@@ -2,12 +2,12 @@
 % Please edit documentation in R/calcFEdemand.R
 \name{calcFEdemand}
 \alias{calcFEdemand}
-\title{Calculates Final Energy Demand for Industry, Buildings and Transport}
+\title{Calculates Final Energy Demand for Industry and Buildings}
 \usage{
 calcFEdemand()
 }
 \description{
-Calculates Final Energy Demand for Industry, Buildings and Transport
+Calculates Final Energy Demand for Industry and Buildings
 }
 \author{
 Falk Benke
