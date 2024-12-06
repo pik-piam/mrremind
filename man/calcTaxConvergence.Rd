@@ -4,7 +4,10 @@
 \alias{calcTaxConvergence}
 \title{calc Tax Convergence}
 \usage{
-calcTaxConvergence()
+calcTaxConvergence(subtype)
+}
+\arguments{
+\item{subtype}{either taxConvergence or taxConvergenceRollback}
 }
 \value{
 magpie object of the tax convergence levels
