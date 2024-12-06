@@ -26,7 +26,12 @@ fullREMIND <- function() {
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
   calcOutput("FETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_fe_sub.cs4r")
-  calcOutput("TaxConvergence",                        round = 2,  file = "f21_tax_convergence.cs4r")
+
+  calcOutput("TaxConvergence", subtype = "taxConvergence", round = 2,
+             file = "f21_tax_convergence.cs4r")
+  calcOutput("TaxConvergence", subtype = "taxConvergenceRollback", round = 2,
+             file = "f21_tax_convergence_rollback.cs4r")
+
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round = 2,  file = "f21_max_fe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
