@@ -56,8 +56,8 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
     }
 
     x <- toolAggregate(data,
-      dim = 3.2, rel = map, from = "from",
-      to = "to", partrel = TRUE, verbosity = 2
+                       dim = 3.2, rel = map, from = "from",
+                       to = "to", partrel = TRUE, verbosity = 2
     )
 
     return(x)
