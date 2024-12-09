@@ -105,6 +105,10 @@ readExpertGuess <- function(subtype) {
   } else if (subtype == "tradeConstraints") {
     a <- read.csv("tradeConstraints.csv", sep = ";")
     out <- as.magpie(a)
+  } else if (subtype == "taxConvergenceRollback") {
+    out <- read.csv("tax_convergence_rollback.csv", sep = ",",
+             skip = 4, col.names = c("Year", "Region", "FE", "value"),
+             header = FALSE) %>% as.magpie(datacol = 4)
   }
 
   return(out)
