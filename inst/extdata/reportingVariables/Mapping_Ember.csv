@@ -49,7 +49,7 @@ Electricity generation|Fuel|Wind;TWh;SE|Electricity|Wind;EJ/yr;;0.0036
 Electricity generation|Total|Total Generation;TWh;SE|Electricity;EJ/yr;;0.0036
 Electricity imports|Electricity imports|Net Imports;TWh;;;;
 Power sector emissions|Aggregate fuel|Clean;mtCO2;;;actually is CO2eq;
-Power sector emissions|Aggregate fuel|Fossil;mtCO2;;;;
+Power sector emissions|Aggregate fuel|Fossil;mtCO2;Emi|CO2|Energy|Supply|Electricity w/ couple prod;Mt CO2/yr;;1
 Power sector emissions|Aggregate fuel|Gas and Other Fossil;mtCO2;;;;
 Power sector emissions|Aggregate fuel|Hydro, Bioenergy and Other Renewables;mtCO2;;;;
 Power sector emissions|Aggregate fuel|Renewables;mtCO2;;;;
@@ -64,4 +64,4 @@ Power sector emissions|Fuel|Other Fossil;mtCO2;;;;
 Power sector emissions|Fuel|Other Renewables;mtCO2;;;;
 Power sector emissions|Fuel|Solar;mtCO2;;;;
 Power sector emissions|Fuel|Wind;mtCO2;;;;
-Power sector emissions|Total|Total emissions;mtCO2;Emi|CO2|Energy|Supply|Electricity w/ couple prod;Mt CO2eq/yr;;1
+Power sector emissions|Total|Total emissions;mtCO2;;;;
