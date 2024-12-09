@@ -78,7 +78,6 @@ convertStationary <- function(x) {
   #--- Then load the final energy data
   hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
   hist_fe_buildings <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
-  hist_fe_transport <- calcOutput("IO", subtype = "output", aggregate = FALSE)
 
   wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
 
@@ -108,33 +107,21 @@ convertStationary <- function(x) {
                                     extrapolation_type = "constant")
   fe_stationary <- addSSPnames(fe_stationary)
 
-  fe_transport <- time_interpolate(hist_fe_transport[, getYears(hist_fe_transport)[getYears(hist_fe_transport, TRUE) <= maxYear_X_in_FE], ], # The years exceeding maxYear might not be meaningful. Therefore we exclude them
-                                   interpolated_year = c(maxYear_X_in_FE, exceeding_years),
-                                   integrate_interpolated_years = TRUE,
-                                   extrapolation_type = "constant")
-  fe_transport <- addSSPnames(fe_transport)
-  getSets(fe_transport) <- c("region", "period", "scenario", "input", "output", "tech")
-
   # change the regional resolution of fe_stationary to match the EDGE_stationary resolution
   # iso_col and region_col are originally designed for the weights, that is why names are confusing here
   fe_stationary <- toolAggregate(fe_stationary, mappingfile, from = iso_col, to = region_col)
-  fe_transport <- toolAggregate(fe_transport, mappingfile, from = iso_col, to = region_col)
 
   # Item names differ slightly for the input of EDGE_stationary (fe_stationary) and the output
   # The main issue concerns transport. We therefore restrict to the variables of interest in each data set of
   # historical data
   stationary_items <- grep("^(fenon|feagr|feind|feoth)", getNames(x, TRUE)[[2]], value = TRUE) # Stationary, non-buildings names
-  transport_items <- grep("^(fepet|fedie|feelt)", getNames(x, TRUE)[[2]], value = TRUE) # Transport names
 
-  # simplify transport
-  fe_transport <- dimSums(fe_transport, dim = c("input", "tech"))
 
   # create lambda vector that gives 0 to the historical data and 1 after 2030
   lambda <-  calcLambda(exceeding_years, 2030, getYears(x)[getYears(x, TRUE) <= maxYear_X_in_FE])
   # Replace
 
   x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) + x[, , stationary_items] * lambda
-  x[, , transport_items] <- fe_transport[, getYears(x), transport_items] * (1 - lambda) + x[, , transport_items] * lambda
 
   # Scale GDP and FE weights so that they can be added
   wg <- wg / dimSums(wg, dim = 1, na.rm = TRUE)
@@ -170,43 +157,6 @@ convertStationary <- function(x) {
                         from = region_col,
                         to = iso_col)
   result <- toolCountryFill(xadd, 0, verbosity = 2)
-
-  # re-calculating fepet and fedie final energy based on updated EDGE shares
-  share <- readSource(type = "EDGETransport", subtype = "shares_LDV_transport")
-  # for EU regions use JRC data instead
-  JRC_reg <- c("MLT", "EST", "CYP", "LVA", "LTU", "LUX", "SVK", "SVN", "HRV", "BGR", "HUN", "ROU", "FIN", "DNK", "IRL", "CZE", "GRC", "AUT", "PRT", "SWE", "BEL", "NLD", "POL", "ESP", "ITA", "GBR", "FRA", "DEU")
-  JRC <- calcOutput("JRC_IDEES", subtype = "Transport", aggregate = FALSE, warnNA = FALSE)
-  JRC_share <- new.magpie(JRC_reg, getYears(share), getNames(share), fill = 0)
-  # for years lower or equal to 2015 assume bunkers equal to JRC historical values
-  y1 <- getYears(JRC)[getYears(JRC, as.integer = TRUE) <= 2015]
-  JRC_share[JRC_reg, y1, ] <- JRC[JRC_reg, y1, "FE|Transport|LDV|Liquids (EJ/yr)"] / (JRC[JRC_reg, y1, "FE|Transport|non-LDV|Liquids (EJ/yr)"] + JRC[JRC_reg, y1, "FE|Transport|LDV|Liquids (EJ/yr)"])
-  # for years after 2015 assume LDV share constant and eqaul to JRC 2015 values
-  y2 <- getYears(share)[getYears(share, as.integer = TRUE) > 2015]
-  JRC_share[, y2, ] <- JRC_share[, 2015, ]
-  ## setting EU shares equal to JRC values
-  varname_SSP2 <- getNames(share[, , "gdp_SSP2"])[1]
-  share[JRC_reg, getYears(JRC_share), varname_SSP2] <- JRC_share[JRC_reg, getYears(JRC_share), ]
-  # redefining LDV and non-LDV liquids
-  feTotal <- dimSums(result[, , c("fepet", "fedie")], dim = 3.2)
-  feShares <- new.magpie(cells_and_regions = getRegions(share), years = intersect(getYears(share), getYears(result)), names = getNames(result[, , c("fepet", "fedie")]))
-  feShares[, , "fepet"] <- setNames(setNames(share[getRegions(share), getYears(feShares), "share_LDV_totliq"], "fepet"), NULL)
-  feShares[, , "fedie"] <- (1 - setNames(setNames(share[getRegions(share), getYears(feShares), "share_LDV_totliq"], "fepet"), NULL))
-  feTransp <- new.magpie(cells_and_regions = getRegions(share), years = getYears(feShares), names = getNames(result[, , c("fepet", "fedie")]))
-
-  for (i in getNames(result, dim = 1)) {
-    i1 <- paste0(i, ".fepet")
-    i2 <- paste0(i, ".fedie")
-    feTransp[, getYears(feShares), i1] <- feShares[, getYears(feShares), i1] * setNames(feTotal[, getYears(feShares), i], i1)
-    feTransp[, getYears(feShares), i2] <- feShares[, getYears(feShares), i2] * setNames(feTotal[, getYears(feShares), i], i2)
-  }
-
-  # extrapolating missing historical years
-  result[, getYears(feTransp), getNames(feTransp)] <- feTransp[, getYears(feTransp), getNames(feTransp)]
-
-  # fix issue with trains in transport trajectories: they seem to be 0 for t > 2100
-  if (all(mselect(result, year = "y2105", scenario = "SSP2", item = "feelt") == 0)) {
-    result[, seq(2105, 2150, 5), "feelt"] <- time_interpolate(result[, 2100, "feelt"], seq(2105, 2150, 5))
-  }
 
   return(result)
 }
