@@ -76,26 +76,6 @@ calcHistorical <- function() {
   # remove duplicates from LU_FAO_EmisAg
   LU_FAO_EmisAg <- LU_FAO_EmisAg[, , which(!duplicated(getNames(LU_FAO_EmisAg)))]
 
-  # Capacities historical data ====
-
-  # IRENA capacities - technologies: "csp", "geohdr", "hydro", "spv", "wind"
-
-  # Read IRENA renewables capacity data
-  IRENAcap <- readSource(type = "IRENA", subtype = "Capacity")[, , c("Concentrated solar power",
-                                                                     "Geothermal", "Renewable hydropower",
-                                                                     "Solar photovoltaic", "Wind")]
-  IRENAcap <- IRENAcap * 1E-03 # converting MW to GW
-  mapping <- data.frame(
-    IRENA_techs = c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind"),
-    REMIND_var = c("Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)",
-                   "Cap|Electricity|Hydro (GW)", "Cap|Electricity|Solar|PV (GW)",
-                   "Cap|Electricity|Wind (GW)"), stringsAsFactors = FALSE
-  )
-  # renaming technologies to REMIND naming convention
-  IRENAcap <- luscale::rename_dimnames(IRENAcap, dim = 3, query = mapping, from = "IRENA_techs", to = "REMIND_var")
-  IRENAcap <- mbind(IRENAcap, setNames(IRENAcap[, , "Cap|Electricity|Solar|CSP (GW)"] +
-                                         IRENAcap[, , "Cap|Electricity|Solar|PV (GW)"], "Cap|Electricity|Solar (GW)"))
-  IRENAcap <- add_dimension(IRENAcap, dim = 3.1, add = "model", nm = "IRENA")
 
   # Region specific historical data ====
 
@@ -204,7 +184,7 @@ calcHistorical <- function() {
   varlist <- list(
     fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
     ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist, IRENAcap,
+    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist,
     EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
     worldsteel, USGS_cement
   )
