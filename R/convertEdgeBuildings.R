@@ -145,9 +145,17 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
     # Disaggregate and fill the gaps
-    xadd <- toolAggregate(x, mappingfile, weight = wfe,
-                          from = region_col,
-                          to = iso_col)
+
+    weightSum <- toolAggregate(wfe, mappingfile, from = region_col, to = iso_col, dim = 1)
+
+    # only throw the zeroWeight warning in toolAggregate, when any weights are zero,
+    # but the corresponding data in x is not 0, as only in these cases the total sum of
+    # the magpie object is actually changed
+    shouldWarn <- ifelse(any(weightSum[x != 0] == 0), "warn", "allow")
+
+    xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col,
+                          zeroWeight = shouldWarn)
+
     result <- toolCountryFill(xadd, 0, verbosity = 2)
 
     # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
