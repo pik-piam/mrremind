@@ -116,8 +116,6 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
   calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
-  calcOutput("ShareIndFE",                            round = 3,  file = "p37_shIndFE.cs3r")
-  calcOutput("nonEnergyIndFE",                        round = 8,  file = "f37_fedemand_NonEnergyIndst.cs4r")
   calcOutput("Clinker_to_cement_ratio",               round = 2,  file = "p37_clinker-to-cement-ratio.cs3r")
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
@@ -130,7 +128,7 @@ fullREMIND <- function() {
   calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
   calcOutput("FEShares", subtype = "ind_coal",                         round = 5,  file = "p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype = "ind_bio",                          round = 5,  file = "p_share_ind_fesos_bio.cs4r")
-  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
+  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p11_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
