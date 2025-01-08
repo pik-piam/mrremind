@@ -1,6 +1,6 @@
 #' Read PWT
 #'
-#' Read-in PWT data as magclass object
+#' Read-in PWT data (version 8.0) as magclass object
 #'
 #' @order 1
 #' @inherit madrat::readSource return
