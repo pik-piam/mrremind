@@ -3,6 +3,7 @@
 export(calcAGEB)
 export(calcBP)
 export(calcCCScapacity)
+export(calcCapital)
 export(calcEDGAR7Fgases)
 export(calcEEAGHGProjections)
 export(calcEmber)
