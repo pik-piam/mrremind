@@ -340,16 +340,38 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Energy"] <- emi[, , "Energy|Demand"] +
       emi[, , "Energy|Supply"]
 
-    emi <-
-      add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
+    emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
     emi[, , "Energy and Industrial Processes"] <-
       emi[, , "Energy"] +
       emi[, , "Industrial Processes"]
 
+    # variables with bunker emissions
+    emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.1)
+    emi[, , "w/ Bunkers|Energy"] <-
+      emi[, , "Energy"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <-
+      add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.1)
+    emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "Energy and Industrial Processes"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand", dim = 3.1)
+    emi[, , "w/ Bunkers|Energy|Demand"] <-
+      emi[, , "Energy|Demand"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.1)
+    emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
+      emi[, , "Energy|Demand|Transport"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+
     # convert N20 to correct unit Mt to kt
     emi[, , "N2O"] <- emi[, , "N2O"] * 1000
 
-    # change order, add "Emissions|", and reduce to a single dimension by
+    # change order, add "Emi|", and reduce to a single dimension by
     # replacing dots: Waste.SO2.harm -> Emissions|SO2|Waste|harm
     tmp <-
       gsub("^([^\\.]*)\\.(.*$)",
