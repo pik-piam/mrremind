@@ -12,8 +12,7 @@ convertGlobalCCSinstitute(x, subtype = "08-09-2017")
 
 \item{subtype}{Project Database version to read, one of
 - \code{'08-09-2017'}: Data apparently from June 2017.
-- \code{'2023-11'}: Data from the
-\href{zotero://select/items/3_E5GNNPZ8}{Global Status of CCS 2023} report.}
+- \code{'2023-11'}: Data from the Global Status of CCS 2023 report.}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
