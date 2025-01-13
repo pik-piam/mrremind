@@ -34,7 +34,6 @@ readREMIND_11Regi <- function(subtype) {
     "capacityFactorRules"  = read.csv("f_cf-rules_v1.1.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "storageFactor"        = read.csv("storageFactor.csv", sep = ";")            %>% as.magpie(datacol = 2),
     "residuesShare"        = read.csv("residuesShare.csv", row.names = 1)        %>% as.magpie(datacol = 4),
-    "shareIndFE"           = read.csv("shareIndustyFE.csv", sep = ";", skip = 3) %>% as.magpie(datacol = 3),
     "taxConvergence"       = read.csv("tax_convergence.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "maxFeSubsidy"         = read.csv("max_FE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),
     "maxPeSubsidy"         = read.csv("max_PE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),
