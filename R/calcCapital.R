@@ -25,7 +25,7 @@ calcCapital <- function() {
   # that reference, for the different GDP scenarios. The convergence assumptions should follow the SSP narratives.
   # Convergence starts after 2010.
   kIntRef <- kIntPWT["JPN", 2010, ] %>% as.numeric()
-  convTime <- c("SSP1" = 150, "SSP2" = 250, "SSP3" = 500, "SSP4" = 300, "SSP5" = 150,
+  convTime <- c("SSP1" = 150, "SSP2" = 250, "SSP3" = 150, "SSP4" = 300, "SSP5" = 150,
                 "SDP" = 150, "SDP_EI" = 150, "SDP_RC" = 150, "SDP_MC" = 150, "SSP2EU" = 250)
 
   # Create kInt magpie object with the same dimension as gdp, and assign the PWT capital intensities for the
@@ -34,10 +34,23 @@ calcCapital <- function() {
   hy <- c(1995, 2000, 2005, 2010)
   kInt[, hy, ] <- kIntPWT[, hy, ]
   # For future years (after 2010), linearly converge towards kIntRef
+  ## Special convergence for SSP3: use a 25% higher reference value, and let JPN reach this value by 2060.
   fy <- setdiff(getYears(gdp, as.integer = TRUE), hy)
   for (t in fy) {
     for (s in getNames(kInt)) {
-      kInt[, t, s] <-  kInt[, 2010, s] + (kIntRef - kInt[, 2010, s]) * (t - 2010) / convTime[s]
+      # Special case for SSP3
+      if (s == "SSP3") {
+        kInt[, t, s] <-  kInt[, 2010, s] + (kIntRef * 1.25 - kInt[, 2010, s]) * (t - 2010) / convTime[s]
+        if (t <= 2060) {
+          kInt["JPN", t, s] <-  kInt["JPN", 2010, s] + (kIntRef * 1.25 - kInt["JPN", 2010, s]) * (t - 2010) / 50
+        } else {
+          kInt["JPN", t, s] <-  kInt["JPN", 2060, s]
+        }
+      # For all other sceanarios
+      } else {
+        kInt[, t, s] <-  kInt[, 2010, s] + (kIntRef - kInt[, 2010, s]) * (t - 2010) / convTime[s]
+      }
+
     }
   }
 
