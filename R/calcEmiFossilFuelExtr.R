@@ -1,6 +1,6 @@
 #' @param source either "EDGAR" or "CEDS2024" (after REMIND ScenarioMIP release)
 #' @return Magpie object with CH4 emissions from fossil fuel extraction for coal, oil and gas in 2005, in Mt CH4
-#' @author Aman Malik
+#' @author Gabriel Abrahao
 calcEmiFossilFuelExtr <- function(source) {
   if (source == "EDGAR") {
     year <- "y2005"
