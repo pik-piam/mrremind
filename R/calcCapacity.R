@@ -12,75 +12,64 @@
 calcCapacity <- function(subtype) {
 
   if ((subtype == "capacityByTech_windoff") || (subtype == "capacityByTech")) {
+    description <- "Historical capacity by technology." # now always includes offshore wind
+
+    # Use IRENA data for world renewables capacity.
+    # Year: 2000-2017
+    # Technologies: "csp", "geohdr", "hydro", "spv", "windon", "windoff"
+    mapping_IRENA <- tribble(
+      ~IRENA_techs,               ~REMIND_techs,
+      "Concentrated solar power", "csp",
+      "Geothermal",               "geohdr",
+      "Renewable hydropower",     "hydro",
+      "Solar photovoltaic",       "spv",
+      "Onshore wind energy",      "windon",
+      "Offshore wind energy",     "windoff"
+    )
 
     if (subtype == "capacityByTech_windoff") {
       description <- "Historical capacity by technology including offshore wind."
-
-      # Use IRENA data for world renewables capacity.
-      # Year: 2000-2017
-      # Technologies: "csp", "geohdr", "hydro", "spv", "wind", "windoff"
-      IRENAcap <- readSource(type = "IRENA", subtype = "Capacity") # Read IRENA renewables capacity data
-
-      IRENAcap <- IRENAcap[, , c("Concentrated solar power",
-                               "Geothermal", "Renewable hydropower",
-                               "Solar photovoltaic",
-                               "Onshore wind energy",
-                               "Offshore wind energy"
-      )] # selecting data used on REMIND
-
-      mapping <- data.frame(IRENA_techs = c("Concentrated solar power",
-                                          "Geothermal",
-                                          "Renewable hydropower",
-                                          "Solar photovoltaic",
-                                          "Onshore wind energy",
-                                          "Offshore wind energy"),
-                            REMIND_techs = c("csp", "geohdr", "hydro", "spv", "wind", "windoff"),
-                            stringsAsFactors = FALSE)
-    } else if (subtype == "capacityByTech") {
-      description <- "Historical capacity by technology."
-
-      # Use IRENA data for world renewables capacity.
-      # Year: 2000-2017
-      # Technologies: "csp", "geohdr", "hydro", "spv", "wind"
-      IRENAcap <- readSource(type = "IRENA", subtype = "Capacity") # Read IRENA renewables capacity data
-      # selecting data used on REMIND
-      IRENAcap <- IRENAcap[, , c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind")]
-
-      mapping <- data.frame(IRENA_techs = c("Concentrated solar power",
-                                          "Geothermal", "Renewable hydropower",
-                                          "Solar photovoltaic",
-                                          "Wind"),
-                            REMIND_techs = c("csp", "geohdr", "hydro", "spv", "wind"),
-                            stringsAsFactors = FALSE)
+      mapping_IRENA$REMIND_techs[mapping_IRENA$REMIND_techs == "windon"] <- "wind"
     }
 
+    IRENAcap <- readSource(type = "IRENA", subtype = "Capacity") # Read IRENA renewables capacity data
+    IRENAcap <- IRENAcap[, , mapping_IRENA$IRENA_techs] # selecting data used on REMIND
     # renaming technologies to REMIND naming convention
-    IRENAcap <- madrat::toolAggregate(IRENAcap, dim = 3, rel = mapping, from = "IRENA_techs", to = "REMIND_techs")
+    IRENAcap <- madrat::toolAggregate(IRENAcap, dim = 3, rel = mapping_IRENA, from = "IRENA_techs", to = "REMIND_techs")
     IRENAcap <- IRENAcap * 1E-06 # converting MW to TW
 
     # Use Openmod capacity values updated by the LIMES team for the European countries.
     # Year: 2015
     # Technologies: "tnrs","ngcc","ngt","dot"
+    mapping_Openmod <- tribble(
+      ~Openmod_techs, ~REMIND_techs,
+      "tnr",          "tnrs",
+      "ngcc",         "ngcc",
+      "ngt",          "ngt",
+      "oil",          "dot"
+    )
+
     Openmodcap <- readSource(type = "Openmod") # Read Openmod capacities
     # selecting data used on REMIND "BAL"
     Openmodcap <- Openmodcap[c("FIN", "NOR", "SWE", "EST", "LVA", "LTU", "DNK", "GBR", "IRL", "NLD", "POL",
                                "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA",
-                               "HRV", "BGR", "ITA", "ESP", "PRT", "GRC"), , c("tnr", "ngcc", "ngt", "oil")]
-    mapping <- data.frame(Openmod_techs = c("tnr", "ngcc", "ngt", "oil"),
-                           REMIND_techs = c("tnrs", "ngcc", "ngt", "dot"), stringsAsFactors = FALSE)
+                               "HRV", "BGR", "ITA", "ESP", "PRT", "GRC"), , mapping_Openmod$Openmod_techs]
     # renaming technologies to REMIND naming convention
-    Openmodcap <- madrat::toolAggregate(Openmodcap, dim = 3, rel = mapping, from = "Openmod_techs", to = "REMIND_techs")
+    Openmodcap <- madrat::toolAggregate(Openmodcap, dim = 3, rel = mapping_Openmod, from = "Openmod_techs", to = "REMIND_techs")
     Openmodcap <- Openmodcap * 1E-03 # converting GW to TW
 
     # Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
     # Year: 2015
     # Technologies: "tnrs","dot"
+    mapping_WEO <- tribble(
+      ~WEO_techs, ~REMIND_techs,
+      "Nuclear",  "tnrs",
+      "Oil",      "dot"
+    )
     WEOcap <- readSource(type = "IEA_WEO", subtype = "Capacity") # Read IEA WEO capacities
-    WEOcap <- WEOcap[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, c("Nuclear", "Oil")] # selecting data used on REMIND
-    mapping <- data.frame(WEO_techs = c("Nuclear", "Oil"),
-                           REMIND_techs = c("tnrs", "dot"), stringsAsFactors = FALSE)
+    WEOcap <- WEOcap[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mapping_WEO$WEO_techs] # selecting data used on REMIND
     # renaming technologies to REMIND naming convention
-    WEOcap <- madrat::toolAggregate(WEOcap, dim = 3, rel = mapping, from = "WEO_techs", to = "REMIND_techs")
+    WEOcap <- madrat::toolAggregate(WEOcap, dim = 3, rel = mapping_WEO, from = "WEO_techs", to = "REMIND_techs")
     WEOcap <- WEOcap * 1E-03 # converting GW to TW
 
     #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
@@ -112,25 +101,17 @@ calcCapacity <- function(subtype) {
         "USA",     2025,    "spv",      0.265))
 
     # merge IRENA, Openmod and WEO capacities data
-    output <- new.magpie(cells_and_regions = unique(c(getRegions(IRENAcap), getRegions(Openmodcap), getRegions(WEOcap), getRegions(CHA.2020.GasData), getRegions(USA.2025.PVData))),
-                         years = unique(c(getYears(IRENAcap), getYears(Openmodcap), getYears(WEOcap), getYears(CHA.2020.GasData), getYears(USA.2025.PVData))),
-                         names = unique(c(getNames(IRENAcap), getNames(Openmodcap), getNames(WEOcap), getNames(CHA.2020.GasData), getNames(USA.2025.PVData))),
-                         fill = 0)
+    datasets <- list(IRENAcap, Openmodcap, WEOcap, CHA.2020.GasData, USA.2025.PVData)
+    output <- new.magpie(
+      cells_and_regions = unique(unlist(lapply(datasets, getRegions))),
+      years = unique(unlist(lapply(datasets, getYears))),
+      names = unique(unlist(lapply(datasets, getNames))),
+      fill = 0
+    )
 
-    output[getRegions(IRENAcap), getYears(IRENAcap), getNames(IRENAcap)] <- IRENAcap[getRegions(IRENAcap),
-                                                                                   getYears(IRENAcap),
-                                                                                   getNames(IRENAcap)]
-
-    output[getRegions(Openmodcap), getYears(Openmodcap), getNames(Openmodcap)] <- Openmodcap[getRegions(Openmodcap),
-                                                                                           getYears(Openmodcap),
-                                                                                           getNames(Openmodcap)]
-    output[getRegions(WEOcap), getYears(WEOcap), getNames(WEOcap)] <- WEOcap[getRegions(WEOcap),
-                                                                           getYears(WEOcap),
-                                                                           getNames(WEOcap)]
-
-    output[getRegions(CHA.2020.GasData), getYears(CHA.2020.GasData), getNames(CHA.2020.GasData)] <- CHA.2020.GasData
-
-    output[getRegions(USA.2025.PVData), getYears(USA.2025.PVData), getNames(USA.2025.PVData)] <- USA.2025.PVData
+    for (dataset in datasets) {
+      output[getRegions(dataset), getYears(dataset), getNames(dataset)] <- dataset[getRegions(dataset), getYears(dataset), getNames(dataset)]
+    }
 
     output[is.na(output)] <- 0 # set NA to 0
     output  <- toolCountryFill(output, fill = 0, verbosity = 2) # fill missing countries
@@ -149,9 +130,17 @@ calcCapacity <- function(subtype) {
     #                                        "psp", "biolcigcc", "csp", "oil"), #, "waste", "others"
     # REMIND_PE=c("peur", "pecoal", "pecoal", "pegas", "pegas", "pehyd", "pewin", "pewin",
     #             "pesol", "pehyd", "pebiolc", "pesol", "peoil"), stringsAsFactors = FALSE)
-
-    mapping <- data.frame(ember_techs = c("Biomass", "Coal", "Gas", "Oil", "Hydro", "Nuclear", "Solar", "Wind"),
-                          REMIND_PE = c("pebiolc", "pecoal", "pegas", "peoil", "pehyd", "peur", "pesol", "pewin"), stringsAsFactors = FALSE)
+    mapping_ember <- tribble(
+      ~ember_techs, ~REMIND_PE,
+      "Biomass",    "pebiolc",
+      "Coal",       "pecoal",
+      "Gas",        "pegas",
+      "Oil",        "peoil",
+      "Hydro",      "pehyd",
+      "Nuclear",    "peur",
+      "Solar",      "pesol",
+      "Wind",       "pewin"
+    )
 
     embercap <- calcOutput("Ember", subtype = "capacity", aggregate = FALSE)
     embercap <- setNames(embercap,
@@ -160,7 +149,7 @@ calcCapacity <- function(subtype) {
                                         getNames(embercap), fixed = TRUE), fixed = TRUE))
 
     # aggregating primary energies to REMIND naming convention
-    embercap <- toolAggregate(embercap[, , mapping$ember_techs], rel = mapping, from = "ember_techs",
+    embercap <- toolAggregate(embercap[, , mapping_ember$ember_techs], rel = mapping_ember, from = "ember_techs",
                               to = "REMIND_PE", dim = 3.1)
     embercap <- embercap * 1E-03 # converting GW to TW
 
