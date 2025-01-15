@@ -1,8 +1,8 @@
-#' @param subtype either "EDGAR" or "CEDS2024" (after REMIND ScenarioMIP release)
+#' @param source either "EDGAR" or "CEDS2024" (after REMIND ScenarioMIP release)
 #' @return Magpie object with CH4 emissions from fossil fuel extraction for coal, oil and gas in 2005, in Mt CH4
 #' @author Aman Malik
-calcEmiFossilFuelExtr <- function(subtype) {
-  if (subtype == "EDGAR") {
+calcEmiFossilFuelExtr <- function(source) {
+  if (source == "EDGAR") {
     year <- "y2005"
 
     data <- readSource("EDGAR", subtype = "ch4_history")[, year, c("1B1", "1B2")] / 1000
@@ -45,7 +45,7 @@ calcEmiFossilFuelExtr <- function(subtype) {
       unit = "Mt CH4",
       description = "methane emissions in 2005"
     ))
-  } else if (subtype == "CEDS2024") {
+  } else if (source == "CEDS2024") {
     year <- "y2005"
 
     indata <- readSource("CEDS2024", subtype = "ch4_history")[, year, c("1B1_Fugitive-solid-fuels", "1B2_Fugitive-petr", "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod")]
