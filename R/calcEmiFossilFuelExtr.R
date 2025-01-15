@@ -46,7 +46,7 @@ calcEmiFossilFuelExtr <- function(source) {
       description = "methane emissions in 2005"
     ))
   } else if (source == "CEDS2024") {
-    year <- "y2005"
+    year <- "y2020"
 
     indata <- readSource("CEDS2024", subtype = "ch4_history")[, year, c("1B1_Fugitive-solid-fuels", "1B2_Fugitive-petr", "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod")]
     indata <- indata[, , "ch4"]
@@ -64,7 +64,7 @@ calcEmiFossilFuelExtr <- function(source) {
       x = x,
       weight = NULL,
       unit = "Mt CH4",
-      description = "methane emissions in 2005"
+      description = "methane emissions in 2020"
     ))
   }
 }
