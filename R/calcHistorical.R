@@ -41,6 +41,10 @@ calcHistorical <- function() {
   ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
   ceds <- add_dimension(ceds, dim = 3.1, add = "model", nm = "CEDS")
 
+  # Historical emissions from CEDS data base, aggregated to IAMC sectors
+  ceds_IAMC <- calcOutput("Emissions", datasource = "CEDS2024_IAMC", aggregate = FALSE)
+  ceds_IAMC <- add_dimension(ceds_IAMC, dim = 3.1, add = "model", nm = "CEDS IAMC sectors")
+
   # Historical emissions from PRIMAPhist data base
   # select total
   primap <- readSource("PRIMAPhist", "hist")[, , "CAT0"]
@@ -183,7 +187,7 @@ calcHistorical <- function() {
 
   varlist <- list(
     fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
-    ceds, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
+    ceds, ceds_IAMC, primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist,
     EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
     worldsteel, USGS_cement
