@@ -11,7 +11,16 @@ calcFEdemand <- function() {
   duplicateScens <- "gdp_SSP2EU_NAV_all"
   feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "gdp_SSP2EU"], 3.1, duplicateScens))
 
-  remind <- mbind(feBuildings, feIndustry)
+
+  # add up industry and buildings contributions to stationary
+  stationaryItems <- c("fehes", "feh2s")
+  feStationary <- feIndustry[, , stationaryItems] + feBuildings[, , stationaryItems]
+
+  remind <- mbind(
+    feBuildings[, , stationaryItems, invert = TRUE],
+    feIndustry[, , stationaryItems, invert = TRUE],
+    feStationary
+  )
 
   return(list(
     x = remind,
