@@ -73,7 +73,6 @@ fullREMIND <- function() {
   calcOutput("KLWdamage", subtype = "maxGMT",                  round = 8, file = "f50_KLW_df_maxGMT.cs4r", aggregate = FALSE)
 
   #-------------- emission parameter ------------------------------------------------------------------
-  calcOutput("EconometricEmiParameter",                                         round = 5, file = "p_emineg_econometric.cs3r")
   calcOutput("EmissionsTe",                                                     round = 5, file = "p_boundEmi.cs4r")
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")

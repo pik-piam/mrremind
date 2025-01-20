@@ -2,7 +2,7 @@
 #'
 #' Read-in an csv files that contains regional data
 #'
-#' @param subtype Name of the regional data, e.g. "p4", "biomass", "ch4waste",
+#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste",
 #' "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
 #' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
@@ -17,7 +17,6 @@
 readREMIND_11Regi <- function(subtype) {
   switch(
     subtype,
-    "p4"                  = read.csv("EconometricEmissionParameter_p4.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "biomass"             = readxl::read_excel("biomass.xlsx")                  %>% as.magpie(x, datacol = 4),
     "ch4waste"            = read.csv("emimac0_ch4waste.csv", sep = ";", row.names = 1)      %>% as.magpie(),
     "tradecost"           = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),

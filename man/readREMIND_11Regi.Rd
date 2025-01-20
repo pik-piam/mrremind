@@ -7,7 +7,7 @@
 readREMIND_11Regi(subtype)
 }
 \arguments{
-\item{subtype}{Name of the regional data, e.g. "p4", "biomass", "ch4waste",
+\item{subtype}{Name of the regional data, e.g. "biomass", "ch4waste",
 "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
 "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
