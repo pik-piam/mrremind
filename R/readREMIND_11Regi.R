@@ -3,7 +3,7 @@
 #' Read-in an csv files that contains regional data
 #'
 #' @param subtype Name of the regional data, e.g. "biomass", "ch4waste",
-#' "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
+#' "tradecost", "pe2se", "deltacapoffset", "capacityFactorGlobal",
 #' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
 #' "RLDCCoefficientsPeak"
@@ -21,13 +21,6 @@ readREMIND_11Regi <- function(subtype) {
     "ch4waste"            = read.csv("emimac0_ch4waste.csv", sep = ";", row.names = 1)      %>% as.magpie(),
     "tradecost"           = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "pe2se"               = read.csv("tax_pe2se_sub.csv", sep = ";")            %>% as.magpie(datacol = 2),
-    "xpres_tax"           = {
-      x <- read.csv("p21_tau_xpres_tax.csv", sep = ";")
-      x <- as.magpie(x, datacol = 2)
-      getYears(x) <- "y2005"
-      getNames(x) <- "peoil"
-      x
-    },
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset.csv", sep = ";")     %>% as.magpie(datacol = 2),
     "capacityFactorGlobal" = read.csv("f_cf-global_REMIND_3.3.5.csv", sep = ";") %>% as.magpie(datacol = 2),
     "capacityFactorRules"  = read.csv("f_cf-rules_v1.1.csv", sep = ";")          %>% as.magpie(datacol = 4),
