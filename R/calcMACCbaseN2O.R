@@ -1,5 +1,5 @@
 
-calcMACCbaseN2O <- function() {
+calcMACCbaseN2O <- function(source = "PBL_2007") {
   
   # readSource N2O and baseline Emissions
   baseline <- readSource("ImageMacc", "baseline_sources")

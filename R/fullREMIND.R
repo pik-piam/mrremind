@@ -85,7 +85,7 @@ fullREMIND <- function() {
   calcOutput("EmiMac1990",                                                      round = 5, file = "p_macBase1990.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2005,                                     round = 5, file = "p_macBaseCEDS2005.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
-  calcOutput("MACCbaseN2O",                                                     round = 5, file = "p_macBaseVanv.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2007",                              round = 5, file = "p_macBaseVanv.cs4r")
   calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
   calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
   calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
