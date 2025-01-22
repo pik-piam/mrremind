@@ -2,9 +2,9 @@
 #'
 #' Read-in an csv files that contains regional data
 #'
-#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste",
-#' "tradecost", "pe2se", "deltacapoffset", "capacityFactorGlobal",
-#' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
+#' @param subtype Name of the regional data, e.g.
+#' "tradecost", "deltacapoffset", "capacityFactorGlobal",
+#' "capacityFactorRules", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
 #' "RLDCCoefficientsPeak"
 #' @return magpie object of region dependent data
@@ -12,20 +12,16 @@
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
-#' a <- readSource(type = "REMIND_11Regi", subtype = "capacityFactorGlobal")
+#' a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
 #' }
 readREMIND_11Regi <- function(subtype) {
   switch(
     subtype,
-    "biomass"             = readxl::read_excel("biomass.xlsx")                  %>% as.magpie(x, datacol = 4),
-    "ch4waste"            = read.csv("emimac0_ch4waste.csv", sep = ";", row.names = 1)      %>% as.magpie(),
     "tradecost"           = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
-    "pe2se"               = read.csv("tax_pe2se_sub.csv", sep = ";")            %>% as.magpie(datacol = 2),
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset.csv", sep = ";")     %>% as.magpie(datacol = 2),
     "capacityFactorGlobal" = read.csv("f_cf-global_REMIND_3.3.5.csv", sep = ";") %>% as.magpie(datacol = 2),
     "capacityFactorRules"  = read.csv("f_cf-rules_v1.1.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "storageFactor"        = read.csv("storageFactor.csv", sep = ";")            %>% as.magpie(datacol = 2),
-    "residuesShare"        = read.csv("residuesShare.csv", row.names = 1)        %>% as.magpie(datacol = 4),
     "taxConvergence"       = read.csv("tax_convergence.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "maxFeSubsidy"         = read.csv("max_FE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),
     "maxPeSubsidy"         = read.csv("max_PE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),

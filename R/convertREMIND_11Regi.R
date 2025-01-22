@@ -1,7 +1,10 @@
 #' Converts REMIND regional data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste", "tradecost", "pe2se", "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff", "RLDCCoefficientsPeak",
+#' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
+#' "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy",
+#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
+#' "RLDCCoefficientsPeak",
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples
@@ -12,12 +15,10 @@
 
 convertREMIND_11Regi <- function(x,subtype) {
 
-  if(subtype == "biomass" | subtype == "tradecost" |
-     subtype == "pe2se" | subtype == "storageFactor" |
-     subtype == "residuesShare" | subtype=="ffPolyRent" ){
+  if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-  } else if (subtype == "ch4waste" | subtype == "AP_starting_values") {
+  } else if (subtype == "AP_starting_values") {
     pop <- calcOutput("Population",years=2005,aggregate=FALSE)[,,"pop_SSP2"]
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=pop)
   } else if (subtype == "deltacapoffset") {
@@ -26,7 +27,8 @@ convertREMIND_11Regi <- function(x,subtype) {
   } else if (subtype == "nashWeight") {
     gdp <- calcOutput("GDP",years=2005,aggregate=FALSE)[,,"gdp_SSP2"]
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
-  } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" | subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
+  } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" |
+             subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
     mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # Filtering REMIND old region mapping (selecting just regions available on data)
