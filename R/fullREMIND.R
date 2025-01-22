@@ -54,7 +54,7 @@ fullREMIND <- function() {
 
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("Floorspace", onlyTotal = TRUE,                round = 1, file = "p36_floorspace_scen.cs4r")
-  calcOutput("Floorspace",                                  round = 1, file = "f36_floorspace_scen.cs4r")
+  calcOutput("Floorspace",                                  round = 1, file = "f36_floorspace_scen.cs4r") # TODO: delete?
   calcOutput("WeightNash",                                  round = 6, file = "p80_eoWeights_fix.cs4r")
   calcOutput("IntertempElastSubst",                         round = 6, file = "pm_ies.cs4r")
   calcOutput("TimePref",                                    round = 6, file = "p23_prtp.cs4r")
@@ -140,7 +140,7 @@ fullREMIND <- function() {
                               'Advanced development' = 0.5,
                               'Early development'    = 0.2),
              signif = 3, file = 'f37_indCCSlimit_default.cs4r',
-           years = seq(2005, 2050, 5))
+           years = seq(2005, 2050, 5)) # TODO: delete?
   calcOutput('Industry_CCS_limits',
              a1 = 0.5, a2 = 0.25, installation_minimum = 1,
              stage_weight = c('Operational'          = 1,
@@ -148,7 +148,7 @@ fullREMIND <- function() {
                               'Advanced development' = 0.8,
                               'Early development'    = 0.5),
              signif = 3, file = 'f37_indCCSlimit_high.cs4r',
-           years = seq(2005, 2050, 5))
+           years = seq(2005, 2050, 5)) # TODO: delete?
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -160,7 +160,7 @@ fullREMIND <- function() {
   calcOutput("FossilExtraction", subtype = "FossilExtraction",         round = 9,  file = "f31_ffPolyCoeffs.cs3r")
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
   calcOutput("DiffInvestCosts",  subtype = "Invest_Costs",             round = 4,  file = "p_inco0.cs4r")
-  calcOutput("DiffInvestCosts",  subtype = "Efficiency",               round = 4,  file = "pm_eff.cs4r")
+  calcOutput("DiffInvestCosts",  subtype = "Efficiency",               round = 4,  file = "pm_eff.cs4r") # TODO: delete?
   calcOutput("CapacityFactorHist", subtype = "wind",                   round = 4,  file = "p_histCapFac.cs4r")
   calcOutput("CapacityFactorHist", subtype = "windoff",                round = 4,  file = "p_histCapFac_windoff.cs4r")
   calcOutput("GEA2012", subtype = "coal",                              round = 8,  file = "p31_grades_coal.cs4r")
@@ -192,8 +192,8 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "REN21",                                round = 4, file = "f40_REN21.cs4r")
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC",             round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
+  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r") # TODO: delete?
+  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r") # TODO: delete?
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
 
 }
