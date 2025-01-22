@@ -3,8 +3,7 @@
 #' @param x MAgPIE object to be converted
 #' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
 #' "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy",
-#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
-#' "RLDCCoefficientsPeak",
+#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples
@@ -121,14 +120,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     area <- dimSums(area,dim=3)
     getYears(area) <- NULL
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=area)
-  } else if (subtype=="RLDCCoefficientsPeak") {
-    # Converting old Region data to country data
-    # setting country coefficient values equal to region that it belonged
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-    # setting country absciss value equal to original region values weighted by the PE use of the country (should be replaced by extraction quantities data)
-    fe <- calcOutput("FE",aggregate=FALSE)
-    z <- toolAggregate(x, "regionmappingREMIND.csv", weight=fe[,2005,"FE (EJ/yr)"])
-    y[,,c("curt.p00","curtShVRE.p00","peak.p00","shtStor.p00","STScost.p00","STSRes2Cap.p00")] <- z[,,c("curt.p00","curtShVRE.p00","peak.p00","shtStor.p00","STScost.p00","STSRes2Cap.p00")]
   }
 return(y)
 }

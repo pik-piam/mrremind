@@ -159,7 +159,6 @@ fullREMIND <- function() {
   calcOutput("FossilPolyCumEx",                                        round = 8,  file = "f31_ffPolyCumEx.cs4r")
   calcOutput("FossilExtraction", subtype = "FossilExtraction",         round = 9,  file = "f31_ffPolyCoeffs.cs3r")
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
-  calcOutput("RLDCCoefficients",                                       round = 6,  file = "f32_RLDC_Coeff_Peak.cs3r")
   calcOutput("DiffInvestCosts",  subtype = "Invest_Costs",             round = 4,  file = "p_inco0.cs4r")
   calcOutput("DiffInvestCosts",  subtype = "Efficiency",               round = 4,  file = "pm_eff.cs4r")
   calcOutput("CapacityFactorHist", subtype = "wind",                   round = 4,  file = "p_histCapFac.cs4r")
