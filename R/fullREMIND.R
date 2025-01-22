@@ -195,7 +195,6 @@ fullREMIND <- function() {
   calcOutput("EffortSharingTarget",                                         round = 3, file = "p47_ESR_target.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
-  calcOutput("ETSRefEmi", subtype = "EEA_GHG",                              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
 
 }
