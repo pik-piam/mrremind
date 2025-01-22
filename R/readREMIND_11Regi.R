@@ -6,7 +6,7 @@
 #' "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
 #' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
-#' "RLDCCoefficientsLoB", "RLDCCoefficientsPeak"
+#' "RLDCCoefficientsPeak"
 #' @return magpie object of region dependent data
 #' @author original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @seealso \code{\link{readSource}}
@@ -57,8 +57,6 @@ readREMIND_11Regi <- function(subtype) {
       x
     },
     "uraniumExtractionCoeff" = read.csv("uranium_extraction_cost_eq_coefficients.csv", sep = ";") %>%
-      as.magpie(spatial = 1, temporal = 0, datacol = 3),
-    "RLDCCoefficientsLoB"    = read.csv("RLDC_Coefficients_LoB.csv", sep = ";") %>%
       as.magpie(spatial = 1, temporal = 0, datacol = 3),
     "RLDCCoefficientsPeak"   = read.csv("RLDC_Coefficients_Peak.csv", sep = ";") %>%
       as.magpie(spatial = 1, temporal = 0, datacol = 3),

@@ -1,7 +1,7 @@
 #' Converts REMIND regional data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste", "tradecost", "pe2se", "xpres_tax", "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff", "RLDCCoefficientsLoB", "RLDCCoefficientsPeak",
+#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste", "tradecost", "pe2se", "xpres_tax", "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff", "RLDCCoefficientsPeak",
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples
@@ -119,14 +119,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     area <- dimSums(area,dim=3)
     getYears(area) <- NULL
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=area)
-  } else if (subtype=="RLDCCoefficientsLoB") {
-    # Converting old Region data to country data
-    # setting country coefficient values equal to region that it belonged
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-    # setting country absciss value equal to original region values weighted by the PE use of the country (should be replaced by extraction quantities data)
-    fe <- calcOutput("FE",aggregate=FALSE)
-    z <- toolAggregate(x, "regionmappingREMIND.csv", weight=fe[,2005,"FE (EJ/yr)"])
-    y[,,c("1.p00","2.p00","3.p00","4.p00")] <- z[,,c("1.p00","2.p00","3.p00","4.p00")]
   } else if (subtype=="RLDCCoefficientsPeak") {
     # Converting old Region data to country data
     # setting country coefficient values equal to region that it belonged
