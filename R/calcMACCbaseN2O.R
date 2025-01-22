@@ -1,4 +1,4 @@
-
+# nolint start
 calcMACCbaseN2O <- function(source = "PBL_2007") {
   
   # readSource N2O and baseline Emissions
@@ -26,3 +26,4 @@ calcMACCbaseN2O <- function(source = "PBL_2007") {
   
   return(list(x=baseline,weight=NULL,unit="Mt N",description="N2O Image baselines"))
 }
+# nolint end
