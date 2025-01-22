@@ -6,7 +6,7 @@
 #' "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
 #' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
-#' "RLDCCoefficientsLoB", "RLDCCoefficientsPeak", "earlyRetirementAdjFactor"
+#' "RLDCCoefficientsLoB", "RLDCCoefficientsPeak"
 #' @return magpie object of region dependent data
 #' @author original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @seealso \code{\link{readSource}}
@@ -62,12 +62,6 @@ readREMIND_11Regi <- function(subtype) {
       as.magpie(spatial = 1, temporal = 0, datacol = 3),
     "RLDCCoefficientsPeak"   = read.csv("RLDC_Coefficients_Peak.csv", sep = ";") %>%
       as.magpie(spatial = 1, temporal = 0, datacol = 3),
-    "earlyRetirementAdjFactor" = {
-      y <- read.csv("earlyRetirementAdjFactor.csv", sep = ";", skip = 5)
-      x <- as.magpie(y, spatial = 1, temporal = 0, datacol = 2)
-      x <- setNames(x, colnames(y)[-1])
-      x
-    },
     "nashWeight"             =  read.csv("nash_weights.csv", sep = ";")        %>% as.magpie(spatial = 1, datacol = 2),
     stop("Not a valid subtype!")
   )
