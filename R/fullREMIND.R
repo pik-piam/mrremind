@@ -194,8 +194,6 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "REN21",                                round = 4, file = "f40_REN21.cs4r")
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC",             round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r") # TODO: delete?
-  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r") # TODO: delete?
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
 
 }
