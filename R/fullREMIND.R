@@ -42,11 +42,7 @@ fullREMIND <- function() {
   calcOutput(
     type = "Steel_Projections", subtype = "secondary.steel.max.share",
     file = "p37_steel_secondary_max_share.cs4r",
-    match.steel.historic.values = TRUE, match.steel.estimates = "IEA_ETP",
-    China_Production = readSource(type = "ExpertGuess",
-                                  subtype = "Chinese_Steel_Production",
-                                  convert = FALSE) %>%
-      madrat_mule())
+    match.steel.historic.values = TRUE, match.steel.estimates = "IEA_ETP")
 
 
   calcOutput("FEdemand", signif = 4,                                   file = "f_fedemand.cs4r")
