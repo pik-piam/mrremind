@@ -4,10 +4,7 @@
 \alias{calcDiffInvestCosts}
 \title{Aggregated investment cost data for REMIND regions (based on IEA_WEO)}
 \usage{
-calcDiffInvestCosts(subtype)
-}
-\arguments{
-\item{subtype}{either "Invest_Costs" or "Efficiency"}
+calcDiffInvestCosts()
 }
 \value{
 Magpie object with aggregated but differentiated investment costs for some technologies.

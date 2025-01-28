@@ -53,7 +53,7 @@ fullREMIND <- function() {
   calcOutput("FeDemandBuildings", subtype = "UE_buildings", round = 8, file = "f36_uedemand_build.cs4r")
 
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
-  calcOutput("Floorspace", onlyTotal = TRUE,                round = 1, file = "p36_floorspace_scen.cs4r") 
+  calcOutput("Floorspace", onlyTotal = TRUE,                round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace",                                  round = 1, file = "f36_floorspace_scen.cs4r")
   calcOutput("WeightNash",                                  round = 6, file = "p80_eoWeights_fix.cs4r")
   calcOutput("IntertempElastSubst",                         round = 6, file = "pm_ies.cs4r")
@@ -135,7 +135,10 @@ fullREMIND <- function() {
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
-  
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -179,8 +182,10 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC",             round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
-  
+
   #---------------no longer used in REMIND-------------------------------------------------------------
+
+
 
   calcOutput('Industry_CCS_limits',
              a1 = 0.3, a2 = 0.15, installation_minimum = 1,
@@ -190,7 +195,7 @@ fullREMIND <- function() {
                               'Early development'    = 0.2),
              signif = 3, file = 'f37_indCCSlimit_default.cs4r',
              years = seq(2005, 2050, 5))
-  
+
   calcOutput('Industry_CCS_limits',
              a1 = 0.5, a2 = 0.25, installation_minimum = 1,
              stage_weight = c('Operational'          = 1,
@@ -199,6 +204,5 @@ fullREMIND <- function() {
                               'Early development'    = 0.5),
              signif = 3, file = 'f37_indCCSlimit_high.cs4r',
              years = seq(2005, 2050, 5))
-  
 
 }
