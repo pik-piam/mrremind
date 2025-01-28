@@ -80,7 +80,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
-  ieaYear <- if (ieaVersion == "default") 2022 else 2024
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
@@ -236,5 +235,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   return(list(x = reminditems, weight = NULL, unit = "EJ",
-              description = paste0("IEA SE Output Data based on ", ieaYear, " edition of IEA World Energy Balances")))
+              description = paste0("IEA SE Output Data based on ",
+                                   toolGetIEAYear(ieaVersion),
+                                   " edition of IEA World Energy Balances")))
 }
