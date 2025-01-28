@@ -1,3 +1,15 @@
+#' Calculate baseline emissions trajectories 
+#' for transport, adipic acid and nitric acid production
+#' 
+#' If source is PBL_2007, the source of the ultimately the baseline
+#' scenario of Lucas et al 2007 (http://linkinghub.elsevier.com/retrieve/pii/S1462901106001316)
+#' 
+#' If source is PBL_2022, the source of the ultimately the baseline
+#' scenario of Harmsen et al. 2023 (https://doi.org/10.1038/s41467-023-38577-4)
+#' 
+#' @return list of magclass with REMIND input data for
+#' different sectors for timesteps 2000-2100, in Mt N per year
+#' @author Lavinia Baumstark, Gabriel Abrhahao
 # nolint start
 calcMACCbaseN2O <- function(source = "PBL_2007") {
   if (source == "PBL_2007") {
