@@ -2,7 +2,7 @@
 #'
 #' Read-in an csv files that contains regional data
 #'
-#' @param subtype Name of the regional data, e.g. "p4", "biomass", "ch4waste",
+#' @param subtype Name of the regional data, e.g. "biomass", "ch4waste",
 #' "tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
 #' "capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
@@ -17,7 +17,6 @@
 readREMIND_11Regi <- function(subtype) {
   switch(
     subtype,
-    "p4"                  = read.csv("EconometricEmissionParameter_p4.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "biomass"             = readxl::read_excel("biomass.xlsx")                  %>% as.magpie(x, datacol = 4),
     "ch4waste"            = read.csv("emimac0_ch4waste.csv", sep = ";", row.names = 1)      %>% as.magpie(),
     "tradecost"           = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
@@ -34,7 +33,6 @@ readREMIND_11Regi <- function(subtype) {
     "capacityFactorRules"  = read.csv("f_cf-rules_v1.1.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "storageFactor"        = read.csv("storageFactor.csv", sep = ";")            %>% as.magpie(datacol = 2),
     "residuesShare"        = read.csv("residuesShare.csv", row.names = 1)        %>% as.magpie(datacol = 4),
-    "shareIndFE"           = read.csv("shareIndustyFE.csv", sep = ";", skip = 3) %>% as.magpie(datacol = 3),
     "taxConvergence"       = read.csv("tax_convergence.csv", sep = ";")          %>% as.magpie(datacol = 4),
     "maxFeSubsidy"         = read.csv("max_FE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),
     "maxPeSubsidy"         = read.csv("max_PE_subsidy.csv", sep = ";")           %>% as.magpie(datacol = 4),
