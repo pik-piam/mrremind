@@ -15,7 +15,7 @@ This contains data for 184 countries and from 2011 onwards.
 }
 \details{
 Copied from the documentation provided by the authors:
-This sheet contains the original Gini projections for 43 countries from the underlying empirical model (See reference to RSP 2016 in the main paper)	
+This sheet contains the original Gini projections for 43 countries from the underlying empirical model (See reference to RSP 2016 in the main paper)
 and the extrapolations to all countries using the methodology described in the article.	The country codes are the World Bank codes.
 }
 \examples{

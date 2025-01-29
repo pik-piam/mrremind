@@ -12,14 +12,14 @@ regional level depending on the choice of argument "aggregate" or a list of info
 if supplementary is set to TRUE.
 }
 \description{
-Compute macroeconomic capital stock based on capital intensities from PWT and GDP scenarios from [mrdrivers].
+Compute macroeconomic capital stock based on capital intensities from PWT and GDP scenarios from \link{mrdrivers}.
 The PWT capital intensities are used up until 2010. After that, the capital intensities converge towards
 that of Japan in 2010, at speeds that vary across scenarios. The final capital stocks are the product
-of the capital intensities and the gdp scenarios from [mrdrivers].
+of the capital intensities and the gdp scenarios from \link{mrdrivers}.
 }
 \seealso{
 \itemize{
-  \item See the vignette \code{vignette("scenarios", "mrdrivers")} for information on the GDP scenarios.
-  \item [readPWT()] for information on the PWT version used.
+\item See the vignette \code{vignette("scenarios", "mrdrivers")} for information on the GDP scenarios.
+\item \code{\link[=readPWT]{readPWT()}} for information on the PWT version used.
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/readKLWdamage.R
 \name{readKLWdamage}
 \alias{readKLWdamage}
-\title{Reads country-specific damage coefficients for the damage function presented in 
+\title{Reads country-specific damage coefficients for the damage function presented in
 Kotz et al. (2024). Data has been provided by the authors.
 This contains data for all countries and for 1000 boostrapping realizations per country,
 capturing uncertainty from climate and empirical modeling.
@@ -18,7 +18,7 @@ readKLWdamage(subtype)
 KLW damage coefficients
 }
 \description{
-Reads country-specific damage coefficients for the damage function presented in 
+Reads country-specific damage coefficients for the damage function presented in
 Kotz et al. (2024). Data has been provided by the authors.
 This contains data for all countries and for 1000 boostrapping realizations per country,
 capturing uncertainty from climate and empirical modeling.
