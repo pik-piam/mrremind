@@ -1,6 +1,7 @@
 #' Calculate baseline emissions trajectories 
 #' for transport, adipic acid and nitric acid production
 #' 
+#' @param source either "PBL_2007" or "PBL_2022"
 #' If source is PBL_2007, the source of the ultimately the baseline
 #' scenario of Lucas et al 2007 (http://linkinghub.elsevier.com/retrieve/pii/S1462901106001316)
 #' 
