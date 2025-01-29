@@ -6,9 +6,8 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join filter
-#' @importFrom rlang sym
 #' @export
-
+#'
 calcEEAGHGProjections <- function() {
 
   mapping <- toolGetMapping(type = "sectoral",

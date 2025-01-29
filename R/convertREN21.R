@@ -6,7 +6,8 @@
 #' @param subtype Only "Capacity" asof now
 #' @return Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
 #' @author Aman Malik
-
+#' @importFrom utils read.csv
+#'
 convertREN21 <- function(x, subtype) {
   if (subtype == "Capacity") {
     x <- magpiesort(x) # sorting years chronologically and region names alphabetically

@@ -1,7 +1,5 @@
 #' Gather reference data from various sources.
 #' @importFrom dplyr filter group_by mutate select ungroup
-#' @importFrom rlang syms
-#' @importFrom tidyr complete nesting pivot_wider
 calcHistorical <- function() {
 
   # Final Energy
@@ -105,7 +103,7 @@ calcHistorical <- function() {
       variable = "Production|Industry|Cement (Mt/yr)"
     ) %>%
     select("iso3c", "year", "model", "variable", "value") %>%
-    complete(
+    tidyr::complete(
       iso3c = unname(getISOlist()),
       year = unique(.data$year),
       fill = list(
@@ -134,7 +132,7 @@ calcHistorical <- function() {
     ) %>%
     # kt/year * 1e-3 Mt/kt = Mt/year
     mutate(value = .data$value * 1e-3) %>%
-    pivot_wider(values_fill = 0) %>%
+    tidyr::pivot_wider(values_fill = 0) %>%
     mutate(
       `Production|Industry|Steel (Mt/yr)` = .data$`Production in Oxygen-Blown Converters`
       + .data$`Production in Open Hearth Furnaces`
@@ -159,12 +157,12 @@ calcHistorical <- function() {
       "Production|Industry|Steel|Primary (Mt/yr)",
       "Production|Industry|Steel|Secondary (Mt/yr)"
     ) %>%
-    pivot_longer(c(
+    tidyr::pivot_longer(c(
       "Production|Industry|Steel (Mt/yr)",
       "Production|Industry|Steel|Primary (Mt/yr)",
       "Production|Industry|Steel|Secondary (Mt/yr)"
     )) %>%
-    complete(nesting(!!!syms(c("year", "source", "name"))),
+    tidyr::complete(tidyr::nesting(!!!syms(c("year", "source", "name"))),
       iso3c = toolGetMapping(
         name = getConfig("regionmapping"),
         type = "regional", where = "mappingfolder"

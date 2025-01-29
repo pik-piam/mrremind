@@ -2,17 +2,10 @@
 #'
 #' @author Falk Benke, Robin Hasse
 #'
-
 #' @param x IEA ETP projection magpie object derived from readIEA_ETP function
 #' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
-#'
-#' @importFrom magclass mselect time_interpolate collapseDim dimSums getItems
-#'   getItems<- mbind
-#' @importFrom dplyr %>%
-#' @importFrom madrat calcOutput readSource toolGetMapping
-#' @importFrom utils read.csv2
 #' @export
-
+#'
 convertIEA_ETP <- function(x, subtype) { # nolint: object_name_linter.
 
   # FUNCTIONS ------------------------------------------------------------------
@@ -63,7 +56,7 @@ convertIEA_ETP <- function(x, subtype) { # nolint: object_name_linter.
   map <- toolGetMapping("regionmappingIEA_ETP.csv",
                         where = "mrremind", type = "regional",
                         returnPathOnly = TRUE) %>%
-    read.csv2(check.names = FALSE)
+    utils::read.csv2(check.names = FALSE)
 
   fe <- calcOutput("FE", source = "IEA", aggregate = FALSE) %>%
     mselect(d3 = switch(subtype,

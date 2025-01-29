@@ -10,9 +10,8 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows select filter mutate
-#' @importFrom rlang sym
-#'
 #' @export
+#'
 readAGEB <- function(subtype = "balances") {
   if (!subtype %in% c("balances", "electricity")) {
     stop("Invalid subtype. Must be either balances or electricity")
