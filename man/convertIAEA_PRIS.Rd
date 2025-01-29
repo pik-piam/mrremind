@@ -7,7 +7,7 @@
 convertIAEA_PRIS(x)
 }
 \arguments{
-\item{x}{a magclass object returned from `readIAEA_PRIS()`}
+\item{x}{a magclass object returned from \code{readIAEA_PRIS()}}
 }
 \description{
 convert IAEA Power Reactor Information System

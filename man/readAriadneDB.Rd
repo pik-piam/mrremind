@@ -7,7 +7,7 @@
 readAriadneDB()
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Scenario data from the Ariadne modeling intercomparison project for Germany.
