@@ -4,11 +4,9 @@
 #' @param subtype Options are status, historical, future, lifespans, comp_rates and emissions
 #' @author Stephen Bi
 #' @importFrom readxl read_excel
-#' @importFrom dplyr filter select mutate summarize group_by left_join across everything starts_with
-#' @importFrom quitte removeColNa
+#' @importFrom dplyr filter select mutate summarize group_by left_join everything starts_with
 #' @aliases readEndCoal
-
-
+#'
 readGCPT <- function(subtype) {
 
   if (!(subtype %in% c("early_retire", "historical", "status", "future",
@@ -100,8 +98,8 @@ readGCPT <- function(subtype) {
 
   # Filter for all plants that were mothballed during this period
   mothballed <- plant_status %>%
-    filter(rowSums(across(everything(), ~ grepl("Moth", .))) > 0) %>%
-    filter(rowSums(across(everything(), ~ grepl("Oper", .))) > 0)
+    filter(rowSums(dplyr::across(everything(), ~ grepl("Moth", .))) > 0) %>%
+    filter(rowSums(dplyr::across(everything(), ~ grepl("Oper", .))) > 0)
 
   # Calculate capacity that was mothballed or restarted each year since 2014
   # (to be fed into back-calculation of annual capacity below)
@@ -230,7 +228,7 @@ readGCPT <- function(subtype) {
 
   avgRetAge <- retAge %>%
     group_by(Country) %>%
-    summarise(Avg_Ret_Age = weighted.mean(`Plant Age`, `Capacity (MW)`))
+    summarise(Avg_Ret_Age = stats::weighted.mean(`Plant Age`, `Capacity (MW)`))
   retCap <- retAge %>%
     group_by(Country) %>%
     summarise(Retired_Cap = sum(`Capacity (MW)`))
@@ -253,7 +251,7 @@ readGCPT <- function(subtype) {
       filter(Status %in% c("Operating", "operating") & !is.na(`Capacity (MW)`) & !is.na(`Plant Age`))
     meanAge_c <- meanAge %>%
       group_by(Country) %>%
-      summarise(meanAge = weighted.mean(`Plant Age`, `Capacity (MW)`))
+      summarise(meanAge = stats::weighted.mean(`Plant Age`, `Capacity (MW)`))
     meanAge_c <- toolCountryFill(as.magpie(meanAge_c, spatial = 1), fill = 0, verbosity = 2)
     capWeight <- meanAge %>%
       group_by(Country) %>%
@@ -507,7 +505,7 @@ readGCPT <- function(subtype) {
       she_rate[, , phase] <- mtran[, , "she2she"] / mtran[, , "shelved"]
       can_rate[nonzero_countries, , phase] <- mtran[nonzero_countries, , "she2can"] / mtran[nonzero_countries, , "shelved"]
       # Calculate global mean rates
-      glo_can_rate <- weighted.mean(can_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
+      glo_can_rate <- stats::weighted.mean(can_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
       # Calculate regional rates
       tmp <- toolAggregate(can_rate[nonzero_countries, , phase], rel = map[which(map$CountryCode %in% nonzero_countries), ], mtran[nonzero_countries, , phase])
       # For regions which had zero projects in a certain phase, assign the global weighted mean
@@ -520,8 +518,8 @@ readGCPT <- function(subtype) {
       she_rate[, , phase] <- mtran[, , paste0(phase, "2she")] / mtran[, , phase]
     }
     # Calculate global mean rates
-    glo_can_she_rate <- weighted.mean(can_she_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
-    glo_she_rate <- weighted.mean(she_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
+    glo_can_she_rate <- stats::weighted.mean(can_she_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
+    glo_she_rate <- stats::weighted.mean(she_rate[nonzero_countries, , phase], mtran[nonzero_countries, , phase])
 
     # Calculate regional rates
     tmp_can_she <- toolAggregate(can_she_rate[nonzero_countries, , phase], rel = map[which(map$CountryCode %in% nonzero_countries), ], mtran[nonzero_countries, , phase])
@@ -565,8 +563,9 @@ readGCPT <- function(subtype) {
       comp_rate[, , status] <- 1 - can_she_rate[, , status]
       comp_rate_brown[, , status] <- 1 - 0.5 * can_she_rate[, , status]
     }
-    glo_comp_rate[, , status] <- weighted.mean(comp_rate[nonzero_countries, , status], mtran[nonzero_countries, , status])
-    glo_comp_rate_brown[, , status] <- weighted.mean(comp_rate_brown[nonzero_countries, , status], mtran[nonzero_countries, , status])
+    glo_comp_rate[, , status] <- stats::weighted.mean(comp_rate[nonzero_countries, , status],
+                                                      mtran[nonzero_countries, , status])
+    glo_comp_rate_brown[, , status] <- stats::weighted.mean(comp_rate_brown[nonzero_countries, , status], mtran[nonzero_countries, , status])
 
     if (length(nonzero_countries)) {
       # Calculate regional rates
@@ -990,7 +989,7 @@ readGCPT <- function(subtype) {
   }
   # Read in national average capacity factor assumption for each 5-year time-step
   capFac <- calcOutput("CapacityFactor", aggregate = FALSE)[, seq(2020, 2100, 5), "pc"]
-  capFac <- removeColNa(as.data.frame(capFac))[, -3]
+  capFac <- quitte::removeColNa(as.data.frame(capFac))[, -3]
   colnames(capFac) <- c("Country", "Period", "Cap_Factor")
   capFac$Period <- as.numeric(as.character(capFac$Period))
 

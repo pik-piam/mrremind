@@ -7,17 +7,9 @@
 #' @seealso [`readSource()`]
 #'
 #' @importFrom dplyr bind_rows bind_cols mutate select
-#'
 #' @importFrom tibble tibble
-#' @importFrom tidyr drop_na
-#' @importFrom readxl read_xlsx
 #' @importFrom rlang sym
-#'
-#'
-#'
 #' @export
-#'
-#'
 #'
 readUNFCCC <- function() {
 
@@ -457,7 +449,7 @@ readUNFCCC <- function() {
       for (i in intersect(names(sheets), availableSheets)) {
 
         s <- suppressMessages(
-          read_xlsx(
+          readxl::read_xlsx(
             path = file.path("2023", dir, file), sheet = i,
             range = sheets[[i]][["range"]],
             col_names = c("variable", sheets[[i]][["colnames"]])
@@ -466,7 +458,7 @@ readUNFCCC <- function() {
 
         if (!is.null(sheets[[i]][["extraVariables"]])) {
           extra <- suppressMessages(
-            read_xlsx(path = file.path("2023", dir, file), sheet = i) %>%
+            readxl::read_xlsx(path = file.path("2023", dir, file), sheet = i) %>%
               select(seq(1:4))
           )
           colnames(extra) <- c("variable", sheets[[i]][["colnames"]])

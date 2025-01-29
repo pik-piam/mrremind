@@ -39,10 +39,10 @@ readIEA_CCUS <- function(subtype) {
   data[data$country == "Lybia", "country"] <- "Libya"
 
   # share capacities of projects by multiple countries according to their GDP
-  gdp <- calcOutput("GDP", aggregate = FALSE)
-  gdp_JPN <- as.numeric(gdp["JPN", 2020, "gdp_SSP2EU"])
-  gdp_AUS <- as.numeric(gdp["AUS", 2020, "gdp_SSP2EU"])
-  gdp_MYS <- as.numeric(gdp["MYS", 2020, "gdp_SSP2EU"])
+  gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
+  gdp_JPN <- as.numeric(gdp["JPN", 2020, ])
+  gdp_AUS <- as.numeric(gdp["AUS", 2020, ])
+  gdp_MYS <- as.numeric(gdp["MYS", 2020, ])
 
   JM <- data[data$country == "Japan-Malaysia", ]
   AJ <- data[data$country == "Australia-Japan", ]

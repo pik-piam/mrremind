@@ -12,7 +12,6 @@
 #' @importFrom dplyr filter pull select
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
-#' @importFrom quitte calc_addVariable
 #'
 #' @export
 #'
@@ -43,7 +42,7 @@ calcPlasticsEoL <- function() {
     # we could have switches to include a circular scenario but it would probably
     # require a different scenario to calibrate
     filter(!!sym("scenario") %in% c("SSP2")) %>%
-    calc_addVariable(
+    quitte::calc_addVariable(
       "Plastics|Waste|Total" = "
                         `Plastics|Waste|Buildings & Construction` +
                         `Plastics|Waste|Consumer Products` +
@@ -59,7 +58,7 @@ calcPlasticsEoL <- function() {
 
   # calculate share (0 to 1) of waste that gets incinerated
   incinerationShares <- plasticsEoL %>%
-    calc_addVariable(
+    quitte::calc_addVariable(
       "Plastics|End of Life|Incineration share" = "
                         `Plastics|End of Life|Waste to Energy`/
                         `Plastics|Waste|Total`
@@ -68,7 +67,7 @@ calcPlasticsEoL <- function() {
     ) %>%
     # remove unused dimensions
     select(-"model", -"scenario", -"variable", -"unit") %>%
-    interpolate_missing_periods(seq(2050, 2060, 5), method = "linear") %>%
+    quitte::interpolate_missing_periods(seq(2050, 2060, 5), method = "linear") %>%
     suppressWarnings()
 
   # as magpie

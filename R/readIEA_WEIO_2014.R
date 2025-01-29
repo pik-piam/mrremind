@@ -3,17 +3,14 @@
 #' Read projected 2014-20 investments into industry energy efficiency from the
 #' [IEA World Energy Investment Outlook (2014)](http://www.iea.org/publications/freepublications/publication/weo-2014-special-report---investment.html)
 #'
-#' @return A [madrat_mule()] with a list containing the [tibble] `data` with
+#' @return A [quitte::madrat_mule()] with a list containing the [tibble] `data` with
 #'   2014–20 average annual investments into `Energy intensive` and
 #'   `Non-energy intensive` industry, in $bn 2012, and the [tibble]
 #'   `country_groups` with `IEA region`s and corresponding `iso3c` country
 #'   codes.
 #'
 #' @importFrom dplyr anti_join group_by left_join mutate pull select summarise n
-#' @importFrom quitte madrat_mule
-#' @importFrom readr read_csv
 #' @importFrom readxl excel_sheets read_excel
-#' @importFrom tidyr nest unnest
 #' @importFrom assertr verify
 #' @export
 readIEA_WEIO_2014 <- function() {
@@ -26,14 +23,14 @@ readIEA_WEIO_2014 <- function() {
   file_data <- file.path(path, 'WEIO2014AnnexA.xls')
 
   # read country groups ----
-  country_groups <- read_csv(file = file_country_groups,
-                             show_col_types = FALSE) %>%
-    nest(data = .data$Countries) %>%
+  country_groups <- readr::read_csv(file = file_country_groups,
+                                    show_col_types = FALSE) %>%
+    tidyr::nest(data = .data$Countries) %>%
     mutate(result = purrr::map(.data$data, function(x) {
       tibble(iso3c = unlist(strsplit(x$Countries, ', ', fixed = TRUE)))
     })) %>%
     select(-'data') %>%
-    unnest(.data$result)
+    tidyr::unnest(.data$result)
 
   # read data ----
   d <- tibble()
@@ -69,12 +66,12 @@ readIEA_WEIO_2014 <- function() {
     'Latin America',       'Brazil'
   ) %>%
     mutate(`IEA region` = paste(.data$superset, 'w/o', .data$subsets)) %>%
-    nest(data = .data$subsets) %>%
+    tidyr::nest(data = .data$subsets) %>%
     mutate(result = purrr::map(.data$data, function(x) {
       tibble(subsets = unlist(strsplit(x$subsets, ', ', fixed = TRUE)))
     })) %>%
     select(-'data') %>%
-    unnest(.data$result) %>%
+    tidyr::unnest(.data$result) %>%
     select('IEA region', 'superset', 'subsets')
 
   ## calculate region mappings ----
@@ -123,8 +120,6 @@ readIEA_WEIO_2014 <- function() {
   )
 
   # return data and country groups ----
-  list(data = d,
-       country_groups = country_groups) %>%
-    madrat_mule() %>%
-    return()
+  list(data = d, country_groups = country_groups) %>%
+    quitte::madrat_mule()
 }

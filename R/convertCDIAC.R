@@ -11,7 +11,7 @@ convertCDIAC <- function(x) {
   # CDIAC(XIT) -> ISO(ITA + SMR)
   # CDIAC(XFR) -> ISO(FRA + MCO)
   m <- matrix(c(c("XIT", "XIT", "XFR", "XFR"), c("ITA", "SMR", "FRA", "MCO")), 4)
-  w <- calcOutput("Population", years = 2005, aggregate = FALSE)[c("ITA", "SMR", "FRA", "MCO"), , "pop_SSP2"]
+  w <- calcOutput("Population", scenario = "SSP2", years = 2005, aggregate = FALSE)[c("ITA", "SMR", "FRA", "MCO"), , ]
   x_split <- toolAggregate(x[c("XIT", "XFR"), , ], m, weight = w)
 
   # delete XIT and XFR from x

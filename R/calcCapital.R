@@ -19,7 +19,11 @@ calcCapital <- function() {
   kIntPWT <- kPWT / setNames(gdpPWT, NULL)
 
   # Get GDP from mrdrivers (which differs from GDP in PWT)
-  gdp <- calcOutput("GDP", naming = "scenario", aggregate = FALSE, years = seq(1995, 2150, 5))
+  gdp <- calcOutput("GDP",
+                    scenario = c("SSPs", "SDPs"),
+                    naming = "scenario",
+                    aggregate = FALSE,
+                    years = seq(1995, 2150, 5))
 
   # Define reference capital intensity, and the convergence time in years, of the countries capital intensities towards
   # that reference, for the different GDP scenarios. The convergence assumptions should follow the SSP narratives.
@@ -79,6 +83,6 @@ calcCapital <- function() {
 
   list(x = x,
        weight = NULL,
-       unit = "trillion US$2017",
+       unit = glue::glue("trillion US${mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE)}"),
        description = "Capital stock computed using the capital/GDP ratio from PWT, and GDP scenarios from mrdrivers.")
 }

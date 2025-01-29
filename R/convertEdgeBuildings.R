@@ -5,7 +5,6 @@
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque, Robin Hasse
 #'
-
 convertEdgeBuildings <- function(x, subtype = "FE") {
   #---- Functions -------------
   noYearDim <- function(x) setYears(x, NULL)
@@ -20,8 +19,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   duplScens <- function(x, scens = NULL) {
     if (is.null(scens)) {
       scens <- list(
-        gdp_SSP2EU = "gdp_SSP2EU_NAV_all",
-        gdp_SSP2 = c("gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU")
+        SSP2EU = "SSP2EU_NAV_all",
+        SSP2 = c("SSP2_lowEn", "SSP2_highDemDEU")
       )
     }
     mbind(x, do.call(mbind, lapply(names(scens), function(from) {
@@ -48,7 +47,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     exceeding_years_before <- exceeding_years_vec[exceeding_years_vec <= threshold]
     exceeding_years_after  <- exceeding_years_vec[exceeding_years_vec > threshold]
     lambda <- c(rep(0, length(previous_years)),
-                tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
+                utils::tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
                 rep(1, length(exceeding_years_after)))
     names(lambda) <- as.character(c(previous_years, exceeding_years_vec))
     return(as.magpie(lambda))
@@ -87,11 +86,10 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
 
     #--- Load the Weights
     #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
-    wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
+    wg <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", average2020 = FALSE, aggregate = FALSE)
 
     # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
     wg <- duplScens(wg)
-    getNames(wg) <- gsub("gdp_", "", getNames(wg))
 
     #--- Then load the final energy data
     hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
@@ -110,7 +108,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     }
 
     # Select last year of X available in the historical data set
-    maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in% getYears(wfe, as.integer = TRUE)])
+    maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in%
+                                                            getYears(wfe, as.integer = TRUE)])
     # Deduce the scenario periods
     exceeding_years <- getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) > maxYear_X_in_FE]
 
@@ -169,13 +168,16 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     end_of_history <- 2015
     scenario_time <- getYears(result, TRUE)[getYears(result, TRUE) > end_of_history]
 
-    WH_growth <- result[regs_OCD, scenario_time, names_2_change] -  dimReduce(result[regs_OCD, end_of_history, names_2_change])
+    WH_growth <- result[regs_OCD, scenario_time, names_2_change] -
+      dimReduce(result[regs_OCD, end_of_history, names_2_change])
     WH_growth[, , names_2_change_elec] <- WH_growth[, , names_2_change_elec] * 0.5
     WH_growth[WH_growth < 0] <- 0
     WH_growth_agg <- dimSums(WH_growth, dim = 1)
 
-    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <- result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
-    result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <- result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
+    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <-
+      result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
+    result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <-
+      result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
 
   } else if (subtype == "Floorspace") {
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
@@ -184,10 +186,8 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 
-    getNames(x) <- paste0("gdp_", getNames(x))
-    wp <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
+    wp <- calcOutput("Population", naming = "scenario", years = rem_years_hist, aggregate = FALSE)
     getSets(wp) <- gsub("variable", "scenario", getSets(wp))
-    getItems(wp, "scenario") <- gsub("pop_", "gdp_", getItems(wp, "scenario"))
 
     # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
     wp <- duplScens(wp)
@@ -197,5 +197,6 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
                        from = region_col, to = iso_col)
     result <- x
   }
-  return(result)
+
+  result
 }

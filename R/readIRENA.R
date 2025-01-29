@@ -13,7 +13,6 @@
 #' }
 #'
 #' @importFrom dplyr mutate rename
-#' @importFrom readr read_csv
 
 readIRENA <- function(subtype) {
   if (subtype == "Capacity") {

@@ -7,7 +7,7 @@
 readIEA_WEIO_2014()
 }
 \value{
-A \code{\link[=madrat_mule]{madrat_mule()}} with a list containing the \link{tibble} \code{data} with
+A \code{\link[quitte:madrat_mule]{quitte::madrat_mule()}} with a list containing the \link{tibble} \code{data} with
 2014–20 average annual investments into \verb{Energy intensive} and
 \verb{Non-energy intensive} industry, in $bn 2012, and the \link{tibble}
 \code{country_groups} with \verb{IEA region}s and corresponding \code{iso3c} country

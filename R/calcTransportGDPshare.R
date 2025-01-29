@@ -51,12 +51,12 @@ calcTransportGDPshare <- function() {
 
   share <- collapseDim(share)
 
-  weight <- calcOutput("GDP", aggregate = FALSE, years = getYears(share, as.integer = TRUE))[, , "gdp_SSP2"]
+  weight <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE, years = getYears(share, as.integer = TRUE))
   weight <- collapseDim(weight)
 
-  #Returning capacity values
-  return(list(x = share, weight = weight,
-              unit = "percentage",
-              description = "transport share in GDP"
-  ))
+  # Returning capacity values
+  list(x = share,
+       weight = weight,
+       unit = "percentage",
+       description = "transport share in GDP")
 }

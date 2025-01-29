@@ -34,10 +34,28 @@ calcTheil <- function() {
   # later, as it is used in the calculations of the Theil contribution and weights.
   s <- getNames(Gini)
   y <- getYears(Gini)
-  gdp      <- calcOutput("GDP",   naming = "scenario", extension2150 = "constant", years = y, aggregate = FALSE)[, , s]
-  gdpReg   <- calcOutput("GDP",   naming = "scenario", extension2150 = "constant", years = y)[, , s]
-  gdppc    <- calcOutput("GDPpc", naming = "scenario", extension2150 = "constant", years = y, aggregate = FALSE)[, , s]
-  gdppcReg <- calcOutput("GDPpc", naming = "scenario", extension2150 = "constant", years = y)[, , s]
+  gdp      <- calcOutput("GDP",
+                         scenario = c("SSPs", "SDPs"),
+                         naming = "scenario",
+                         extension2150 = "constant",
+                         years = y,
+                         aggregate = FALSE)[, , s]
+  gdpReg   <- calcOutput("GDP",
+                         scenario = c("SSPs", "SDPs"),
+                         naming = "scenario",
+                         extension2150 = "constant",
+                         years = y)[, , s]
+  gdppc    <- calcOutput("GDPpc",
+                         scenario = c("SSPs", "SDPs"),
+                         naming = "scenario",
+                         extension2150 = "constant",
+                         years = y,
+                         aggregate = FALSE)[, , s]
+  gdppcReg <- calcOutput("GDPpc",
+                         scenario = c("SSPs", "SDPs"),
+                         naming = "scenario",
+                         extension2150 = "constant",
+                         years = y)[, , s]
 
   # Allocate empty objects for storing Theil contribution and weights
   contribTheilT <- TheilT
@@ -56,11 +74,6 @@ calcTheil <- function() {
     # Sanity check: ensure that weights for a region sum to one (within floating point precision)
     stopifnot(max(abs(dimSums(weight[rrCountries, , ], dim = 1) - 1)) < 1e-10)
   }
-
-  # For easier REMIND integration use same names as GDP scenarios for Theil
-  # Change this if we later want to test effect of per capita income growth vs. inequality
-  getNames(contribTheilT) <- paste0("gdp_", getNames(contribTheilT))
-  getNames(weight)        <- paste0("gdp_", getNames(weight))
 
   list(x = contribTheilT,
        weight = weight,

@@ -5,11 +5,9 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr select mutate left_join %>% if_any filter all_of
-#' @importFrom madrat toolGetMapping
-#' @importFrom utils read.csv2
+#' @importFrom dplyr select mutate left_join if_any filter
 #' @export
-
+#'
 calcIEA_ETP <- function() {
 
   .map <- function(x, mapping) {
@@ -51,7 +49,7 @@ calcIEA_ETP <- function() {
     map <- toolGetMapping("regionmappingIEA_ETP.csv",
                           where = "mrremind", type = "regional",
                           returnPathOnly = TRUE) %>%
-      read.csv2(check.names = FALSE)
+      utils::read.csv2(check.names = FALSE)
     keepCountries <- map %>%
       filter(if_any(all_of(c("individual", keepRegions)))) %>%
       getElement("CountryCode")
@@ -117,15 +115,10 @@ calcIEA_ETP <- function() {
     }
   }
 
-
-
-
-  return(list(
-    x = dataReg,
-    weight = NULL,
-    aggregationFunction = .customAggregate,
-    aggregationArguments = list(glo = dataGlo),
-    unit = c("EJ/yr", "Mt CO2/yr", "Mt/yr", "bn pkm/yr", "bn tkm/yr"),
-    description = "IEA ETP projections as REMIND variables"
-  ))
+  list(x = dataReg,
+       weight = NULL,
+       aggregationFunction = .customAggregate,
+       aggregationArguments = list(glo = dataGlo),
+       unit = c("EJ/yr", "Mt CO2/yr", "Mt/yr", "bn pkm/yr", "bn tkm/yr"),
+       description = "IEA ETP projections as REMIND variables")
 }

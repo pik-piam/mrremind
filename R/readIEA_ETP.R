@@ -5,7 +5,7 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows bind_cols select mutate
 #' @importFrom readxl read_xlsx
-#' @importFrom tidyr drop_na pivot_longer extract
+#' @importFrom tidyr pivot_longer
 #' @importFrom rlang sym
 
 readIEA_ETP <- function(subtype) {
@@ -139,7 +139,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     buildings = {
@@ -268,7 +268,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     summary = {
@@ -442,7 +442,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     transport = {
@@ -511,7 +511,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     }
   )
@@ -540,7 +540,7 @@ readIEA_ETP <- function(subtype) {
           # add variable and unit columns
           bind_cols(subtypes[[subtype]]$rows) %>%
           # drop unneeded rows
-          drop_na("variable", "unit") %>%
+          tidyr::drop_na("variable", "unit") %>%
           # drop rownames from worksheet
           select(-1) %>%
           # add variable prefix

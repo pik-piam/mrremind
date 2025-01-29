@@ -11,14 +11,12 @@
 #'
 #' @param subtype Either 'Waste' or 'AviationShipping'
 #'
-#' @importFrom readxl read_excel
 #' @importFrom dplyr recode
-#' @importFrom stats complete.cases
 
 readRCP <- function(subtype) {
 
 
-  dat <- as.data.frame(do.call(rbind, lapply(list.files(pattern = ".xls$"), read_excel)))
+  dat <- as.data.frame(do.call(rbind, lapply(list.files(pattern = ".xls$"), readxl::read_excel)))
 
   if (subtype == "Waste") {
     dat <- dat %>%
@@ -45,27 +43,27 @@ readRCP <- function(subtype) {
     stop("Invalid subtype. Must be 'Waste' or 'AviationShipping'")
   }
 
-  dat$scenario <- recode(dat$scenario,
-                         `IMAGE - RCP3-PD (2.6)`="rcp26",
-                         `MiniCAM - RCP 4.5` = "rcp45",
-                         `AIM - RCP 6.0` = "rcp60",
-                         `MESSAGE - RCP 8.5` = "rcp85")
+  dat$scenario <- dplyr::recode(dat$scenario,
+                                `IMAGE - RCP3-PD (2.6)`="rcp26",
+                                `MiniCAM - RCP 4.5` = "rcp45",
+                                `AIM - RCP 6.0` = "rcp60",
+                                `MESSAGE - RCP 8.5` = "rcp85")
 
-  dat$source <- recode(dat$source,
-                        `Waste (landfills, wastewater, non-energy incineration)`="Waste",
-                        `International Shipping`="InternationalShipping")
+  dat$source <- dplyr::recode(dat$source,
+                              `Waste (landfills, wastewater, non-energy incineration)`="Waste",
+                              `International Shipping`="InternationalShipping")
 
-  dat$type <- recode(dat$type,
-                      `CH4 emissions`="ch4",
-                      `Sulfur emissions`="so2",
-                      `Black Carbon emissions`="bc",
-                      `Organic Carbon Emissions`="oc",
-                      `CO emissions`="CO",
-                      `NOx emissions`="NOx",
-                      `VOC emissions`="VOC",
-                      `NH3 emissions`="nh3")
+  dat$type <- dplyr::recode(dat$type,
+                            `CH4 emissions`="ch4",
+                            `Sulfur emissions`="so2",
+                            `Black Carbon emissions`="bc",
+                            `Organic Carbon Emissions`="oc",
+                            `CO emissions`="CO",
+                            `NOx emissions`="NOx",
+                            `VOC emissions`="VOC",
+                            `NH3 emissions`="nh3")
 
-  dat <- dat[complete.cases(dat),]
+  dat <- dat[stats::complete.cases(dat),]
 
   out <- as.magpie(dat, spatial=1 ,datacol=6)
 

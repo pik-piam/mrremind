@@ -12,13 +12,9 @@
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
 #' @export
 #' @importFrom dplyr mutate select rename filter left_join group_by ungroup arrange summarise desc
-#' lag full_join
-#' @importFrom tidyr spread gather complete
+#'  full_join
+#' @importFrom tidyr spread gather
 #' @importFrom quitte as.quitte
-#' @importFrom stats weighted.mean
-#' @importFrom utils packageVersion
-
-
 toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", aggregate = FALSE)[,"y2015","FE|Electricity (EJ/yr)"]){
 
   # old part by Julian Oeser
@@ -38,7 +34,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   area.csp <- dimSums(x[,,"area"][,,"CSP"][,,c("0-50", "50-100")], dim=c(3.4, 3.3))
 
   # share of area if PV installed only where no csp can be installed
-  if(packageVersion("magclass") < 6) {
+  if(utils::packageVersion("magclass") < 6) {
     area.only.pv.share <- ((area.pv+1)-(area.csp+1)) / (area.pv+1)
     x <- add_columns(x, c("PVcomp", "PVonly"), 3.2)
     x[,,"PVonly"] <- x[,,"PV"]*area.only.pv.share[,,"PV"]
@@ -65,11 +61,11 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   offset.pv <- 4
   offset.csp <- 2
 
-  bins.pv.d2 <- c(rep(head(bins.pv, 1), offset.pv), bins.pv[1:(length(bins.pv)-offset.pv)])
+  bins.pv.d2 <- c(rep(utils::head(bins.pv, 1), offset.pv), bins.pv[1:(length(bins.pv)-offset.pv)])
   bins.pv.agg <- cbind(bins.pv, bins.pv.d2)
   colnames(bins.pv.agg) <- c("d1", "d2")
 
-  bins.csp.d2 <- c(rep(head(bins.csp, 1), offset.csp), bins.csp[1:(length(bins.csp)-offset.csp)])
+  bins.csp.d2 <- c(rep(utils::head(bins.csp, 1), offset.csp), bins.csp[1:(length(bins.csp)-offset.csp)])
   bins.csp.agg <- cbind(bins.csp, bins.csp.d2)
   colnames(bins.csp.agg) <- c("d1", "d2")
 
@@ -232,10 +228,10 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     # order by descending FLH
     arrange(desc(FLH)) %>%
     # recompute potential as difference between normalized potential of neighboring FLH bins
-    mutate( diff = maxprod.norm - lag(maxprod.norm)) %>%
+    mutate( diff = maxprod.norm - dplyr::lag(maxprod.norm)) %>%
     mutate( diff = ifelse(is.na(diff), maxprod.norm, diff)) %>%
     # expand by n.intp equally spaced values between the given maxprod.norm values
-    complete(maxprod.norm = seq.between(maxprod.norm, diff, n.intp)) %>%
+    tidyr::complete(maxprod.norm = seq.between(maxprod.norm, diff, n.intp)) %>%
     # interpolate maxprod, area, capacity linearly at new data points between given data points
     mutate(FLH =  zoo::na.approx(FLH, na.rm = F), maxprod = zoo::na.approx(maxprod, na.rm = F),
            area = zoo::na.approx(area, na.rm = F), capacity = zoo::na.approx(capacity, na.rm = F)) %>%
@@ -250,7 +246,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     group_by(region, Type, Technology, Distance) %>%
     arrange(desc(FLH)) %>%
     # calculate value per fine grade by gradient of cumulative value
-    mutate( diff = value - lag(value)) %>%
+    mutate( diff = value - dplyr::lag(value)) %>%
     # highest FLH has no predecessor, so take diff to 0, i.e. value itself
     mutate( diff = ifelse(is.na(diff), value, diff)) %>%
     ungroup() %>%
@@ -359,7 +355,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     group_by(region, Type, Technology, Distance, grade) %>%
     # aggregate fine grade to REMIND grades: FLH <- FLHs weighted by maxprod of fine grade
     # potential, area, capacity <- sum over all values potential/area/capacity REMIND grade
-    summarise( FLH = weighted.mean(FLH, maxprod.weight), value = sum(value)) %>%
+    summarise( FLH = stats::weighted.mean(FLH, maxprod.weight), value = sum(value)) %>%
     ungroup() %>%
     # add FLH to Type column to make it another dimension like maxprod, area etc.
     spread(Type, value) %>%

@@ -117,7 +117,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
     )) %>%
     mutate(CountryCode = factor(.data$CountryCode))
 
-  gdp_cap <- calcOutput("GDPpc", aggregate = FALSE)[, 2005, "gdppc_SSP2"]
+  gdp_cap <- calcOutput("GDPpc", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
   #-- PROCESS DATA ------------------
   vcat(2, ">> Process data... \n")

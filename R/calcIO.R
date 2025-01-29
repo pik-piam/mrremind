@@ -21,9 +21,7 @@
 #' a <- calcOutput("IO", subtype = "output")
 #' }
 #'
-#' @importFrom rlang .data is_empty
 #' @importFrom dplyr filter mutate
-#' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors"),
@@ -112,10 +110,10 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
         c("product", "flow")
       ) %>%
-      unite("text", c("product", "flow"), sep = ".") %>%
+      tidyr::unite("text", c("product", "flow"), sep = ".") %>%
       pull("text")
 
-    if (!is_empty(new_product_flows)) {
+    if (!rlang::is_empty(new_product_flows)) {
       warning("Product/flow combinations not present in mapping added by ",
         "fix_IEA_data_for_Industry_subsectors():\n",
         paste(new_product_flows, collapse = "\n")
@@ -134,9 +132,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   ieamatch <- ieamatch %>%
     as_tibble() %>%
     select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
-    na.omit() %>%
-    unite("target", all_of(target), sep = ".", remove = FALSE) %>%
-    unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
+    stats::na.omit() %>%
+    tidyr::unite("target", all_of(target), sep = ".", remove = FALSE) %>%
+    tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
     filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 

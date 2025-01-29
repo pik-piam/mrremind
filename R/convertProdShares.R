@@ -10,13 +10,13 @@ convertProdShares <- function(x) {
   mapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
 
   # weight needed for disaggregation
-  wt <- calcOutput(type = "GDP", aggregate = F)
+  wt <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
 
   # Disaggregating "Europe" in spv
   mapping_eur <- mapping[mapping$RegionCode == "EUR", ]
   mapping_eur$RegionCode <- "Europe"
 
-  wt_eur <- wt[mapping_eur$CountryCode, 2020, "gdp_SSP2"]
+  wt_eur <- wt[mapping_eur$CountryCode, 2020, ]
   x2 <- toolAggregate(x = x["Europe", "y2018", "spv"], rel = mapping_eur, weight = wt_eur, from = "CountryCode", to = "RegionCode")
 
   # Disaggregating "Other" in spv
@@ -24,7 +24,7 @@ convertProdShares <- function(x) {
   other_cont <- data.frame(setdiff(mapping[mapping$RegionCode != "EUR", ]$CountryCode, toolCountry2isocode(getRegions(spv[which(spv > 0)]))))
   other_cont$Region <- "Other"
   colnames(other_cont)[1] <- "Country"
-  wt_other <- wt[other_cont$Country, "y2020", "gdp_SSP2"]
+  wt_other <- wt[other_cont$Country, "y2020", ]
   x3 <- toolAggregate(x = spv["Other", , ], rel = other_cont, from = "Country", to = "Region", weight = wt_other)
 
   # Disaggregating "Other" in wind
@@ -35,7 +35,7 @@ convertProdShares <- function(x) {
   other_cont <- data.frame(setdiff(mapping$CountryCode, toolCountry2isocode(getRegions(wind[which(wind > 0)]))))
   other_cont$Region <- "Other"
   colnames(other_cont)[1] <- "Country"
-  wt_other <- wt[other_cont$Country, "y2020", "gdp_SSP2"]
+  wt_other <- wt[other_cont$Country, "y2020", ]
   x4 <- toolAggregate(x = wind["Other", , ], rel = other_cont, from = "Country", to = "Region", weight = wt_other)
 
   # creating copy of x without aggregated regions and countries as ISO and not NA

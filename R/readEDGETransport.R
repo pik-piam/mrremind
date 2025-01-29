@@ -12,9 +12,8 @@
 #' \dontrun{
 #' a <- readSource(type = "EDGETransport")
 #' }
-#' @importFrom tidyr expand_grid
 #' @importFrom dplyr bind_rows
-#' @importFrom data.table data.table rbindlist := setnames setkeyv
+#' @importFrom data.table :=
 
 readEDGETransport <- function(subtype) {
 
@@ -27,7 +26,7 @@ readEDGETransport <- function(subtype) {
   allScens <- bind_rows(
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
-    expand_grid(
+    tidyr::expand_grid(
       SSPscen = c("SSP1", "SSP2", "SSP3", "SSP5", "SDP"),
       transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = c(TRUE, FALSE),
@@ -83,7 +82,7 @@ readEDGETransport <- function(subtype) {
   # Bind rows of equally named subtypes
   EdgeTransportSAdata <- lapply(types, function(type, outerList) {
     listOfDataTables <- lapply(outerList, function(innerList) innerList[[type]])
-    rbindlist(listOfDataTables)
+    data.table::rbindlist(listOfDataTables)
   }, EdgeTransportSAdata)
 
   EdgeTransportSAdata <- setNames(EdgeTransportSAdata, types)

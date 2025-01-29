@@ -8,8 +8,6 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @importFrom dplyr mutate select
-#' @importFrom quitte madrat_mule
-#' @importFrom readr read_csv
 #' @importFrom readxl read_excel
 #'
 #' @export
@@ -29,10 +27,10 @@ readGlobalCCSinstitute <- function(subtype = '08-09-2017') {
          return()
    }
    else if ('2023-11' == subtype) { # 2023-11 ----
-      read_csv(file = 'Global_Status_of_CCS_2023-11.csv', col_types = 'cccicnc',
-               na = 'Under Evaluation', comment = '#', trim_ws = TRUE) %>%
-         madrat_mule() %>%
-         return()
+     readr::read_csv(file = 'Global_Status_of_CCS_2023-11.csv', col_types = 'cccicnc',
+                     na = 'Under Evaluation', comment = '#', trim_ws = TRUE) %>%
+       quitte::madrat_mule() %>%
+       return()
    }
    else {
       stop('Unsupported version argument.')

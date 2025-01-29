@@ -3,19 +3,17 @@
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #' @param x MAgPIE object containing EDGE-T values in 21 region resolution
 #' @return REMIND/iterative EDGE-T input data as MAgPIE object disaggregated to ISO level
-#' @importFrom data.table setDT
-#' @importFrom madrat toolAggregate
 #' @author Johanna Hoppe
 
 convertEDGETransport <- function(x, subtype) {
 
   RegionCode <- CountryCode <- . <- NULL
 
-  mappingfile <- setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
-                                      where = "mappingfolder"))[, .(iso = CountryCode, region = RegionCode)]
+  mappingfile <- data.table::setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
+                                                  where = "mappingfolder"))[, .(iso = CountryCode, region = RegionCode)]
   if (subtype %in% c("f35_demByTech", "f29_trpdemand", "weightESdemand")) {
-    gdp <- calcOutput("GDP", aggregate = FALSE) |> time_interpolate(getYears(x), extrapolation_type = "constant")
-    gdp <- gdp[, , "gdp_SSP2"]
+    gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE) |>
+      time_interpolate(getYears(x), extrapolation_type = "constant")
     result <- toolAggregate(x = x, weight = gdp, rel = mappingfile, from = "region", to = "iso")
   } else if (!subtype == "shares_LDV_transport") {
     result <- toolAggregate(x = x, rel = mappingfile, weight = NULL, from = "region", to = "iso")

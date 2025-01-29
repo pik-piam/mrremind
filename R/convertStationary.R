@@ -31,7 +31,7 @@ convertStationary <- function(x) {
     exceeding_years_before <- exceeding_years_vec[exceeding_years_vec <= threshold]
     exceeding_years_after  <- exceeding_years_vec[exceeding_years_vec > threshold]
     lambda <- c(rep(0, length(previous_years)),
-                tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
+                utils::tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
                 rep(1, length(exceeding_years_after)))
     names(lambda) <- as.character(c(previous_years, exceeding_years_vec))
     return(as.magpie(lambda))
@@ -65,8 +65,7 @@ convertStationary <- function(x) {
 
   #--- Load the Weights
   #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
-  wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
-  getNames(wg) <- gsub("gdp_", "", getNames(wg))
+  wg <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", average2020 = FALSE, aggregate = FALSE)
 
   # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU
   wg <- mbind(

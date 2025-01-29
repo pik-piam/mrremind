@@ -1,8 +1,6 @@
 #' Calculate REMIND variables from historical BP values
 #'
 #' @author Falk Benke
-#' @importFrom magclass matchDim
-#' @importFrom quitte interpolate_missing_periods
 #'
 #' @export
 #'
@@ -36,7 +34,7 @@ calcBP <- function() {
     data.frame(period = 2050, value = 0.45)
   )
 
-  efficiencyFactors <- interpolate_missing_periods(efficiencyFactors, method = "linear") %>%
+  efficiencyFactors <- quitte::interpolate_missing_periods(efficiencyFactors, method = "linear") %>%
     as.magpie() %>%
     dimReduce()
 

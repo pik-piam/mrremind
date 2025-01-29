@@ -65,7 +65,7 @@ calcFeDemandBuildings <- function(subtype) {
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-    na.omit() %>%
+    stats::na.omit() %>%
     filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
     distinct()
 
@@ -80,7 +80,7 @@ calcFeDemandBuildings <- function(subtype) {
       filter(grepl("b$", .data$REMINDitems_out) |
                (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
     remindVars <- unique(mapping$REMINDitems_out)
-    remindDims <- cartesian(getNames(data, dim = "scenario"), remindVars)
+    remindDims <- quitte::cartesian(getNames(data, dim = "scenario"), remindVars)
 
   } else {
 
@@ -99,7 +99,7 @@ calcFeDemandBuildings <- function(subtype) {
     }
 
     scenarioRcp <- unique(gsub("^(.*\\..*)\\..*$", "\\1", getItems(data, dim = 3)))
-    remindDims <- cartesian(scenarioRcp, remindVars)
+    remindDims <- quitte::cartesian(scenarioRcp, remindVars)
   }
 
   # Apply Mapping ----

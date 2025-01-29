@@ -181,7 +181,7 @@ fullTHRESHOLDS <- function(type = "config") {
     outfile <- "thresholds.mif"
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       as.quitte() %>%
-      pivot_wider(names_from = "status") %>%
+      tidyr::pivot_wider(names_from = "status") %>%
       select(-"scenario")
     # exclude rows without any threshold
     out[!(is.na(out$min_red)
