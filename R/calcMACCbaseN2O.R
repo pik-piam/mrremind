@@ -36,7 +36,8 @@ calcMACCbaseN2O <- function(source = "PBL_2007") {
     }
     baseline[is.na(baseline)] <- 0
   } else if (source == "PBL_2022") {
-    baseline = readSource("PBL_MACC_2022", subtype = "IMAGEBaselineEmissions")[,,c("n2otrans","n2oadac","n2onitac")]
+    baseline <- readSource("PBL_MACC_2022", subtype = "IMAGEBaselineEmissions")[,,c("n2otrans","n2oadac","n2onitac")]
+    baseline <- mbind(setYears(baseline[,2010,], 2000),setYears(baseline[,2010,], 2005),baseline)
   }
 
 
