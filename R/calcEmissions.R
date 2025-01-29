@@ -231,7 +231,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     description <- "historic emissions from 1970-2015"
 
     ## ---- CEDS 2024 ----
-  } else if (datasource == "CEDS2024") {
+  } else if (datasource %in% c("CEDS2024", "CEDS2024_IAMC")) {
     # read CEDS emissions data from source (in Mt)
     # opposed to older version, doesn't contain Land-Use Change and thus no
     # aggregation to highest level is performed
@@ -240,10 +240,17 @@ calcEmissions <- function(datasource = "CEDS16") {
     # remove 6B_Other-not-in-total (no data in there anyway)
     emi <- emi[, , "6B_Other-not-in-total", invert = TRUE]
 
-    # aggregate and rename CEDS sectors to REMIND sectors
+    # load mapping file
     map <- toolGetMapping(type = "sectoral",
                           name = "mappingCEDS2024toREMIND.csv",
                           where = "mrremind")
+
+    # load sectoral mapping, depending on the selected output sectoral
+    # resolution
+    if (datasource == "CEDS2024") map_to <- "REMIND"
+    else if (datasource == "CEDS2024_IAMC") map_to <- "IAMC"
+
+    # aggregate and rename CEDS sectors to REMIND or IAMC sectors
     emi <-
       toolAggregate(
         x = emi,
@@ -251,8 +258,22 @@ calcEmissions <- function(datasource = "CEDS16") {
         dim = 3.1,
         rel = map,
         from = "CEDS2024",
-        to = "REMIND"
+        to = map_to
       )
+
+    # check that `6A_Other-in-total` is zero for all gases (should be) and
+    # remove from the mapping accordingly. If non-zero values are found, keep
+    # it under Category "Other", which should actually not exist, and throw a
+    # warning. This check is only needed if emissions are mapped to IAMC
+    # sectors. If mapped to RMEIND sectors this category is added to industrial
+    # process emissions.
+    if (datasource == "CEDS2024_IAMC") {
+      if (! any(emi[, , "Other"] != 0)) {
+        emi <- emi[, , "Other", invert = TRUE]
+      } else {
+        warning("Unexpectedly, `6B_Other-not-in-total` contains non-zero values. Please check CEDS and mapping file.")
+      }
+    }
 
     # undo unnecessary conversion from convertCEDS2024
     emi[, , "n2o_n"] <- emi[, , "n2o_n"] * 44 / 28
@@ -274,98 +295,102 @@ calcEmissions <- function(datasource = "CEDS16") {
         so2 = "SO2")
     getNames(emi, dim = 2) <- emi_map[getNames(emi, dim = 2)]
 
-    # sectoral sums
-    emi <-
-      add_columns(emi,
-                  "Energy|Demand|Transport|International Bunkers",
-                  dim = 3.1)
-    emi[, , "Energy|Demand|Transport|International Bunkers"] <-
-      emi[, , "Transport|Freight|International Shipping|Demand"] +
-      emi[, , "Transport|Pass|Aviation|International|Demand"]
+    # sectoral sums, only needed if mapped to REMIND sectors
+    if (datasource == "CEDS2024") {
+      emi <-
+        add_columns(emi,
+          "Energy|Demand|Transport|International Bunkers",
+          dim = 3.1
+        )
+      emi[, , "Energy|Demand|Transport|International Bunkers"] <-
+        emi[, , "Transport|Freight|International Shipping|Demand"] +
+        emi[, , "Transport|Pass|Aviation|International|Demand"]
 
-    emi <- add_columns(emi, "Energy|Supply", dim = 3.1)
-    emi[, , "Energy|Supply"] <-
-      emi[, , "Energy|Supply|Electricity"] +
-      emi[, , "Energy|Supply|Heat"] +
-      emi[, , "Energy|Supply|Fuel Production"]
+      emi <- add_columns(emi, "Energy|Supply", dim = 3.1)
+      emi[, , "Energy|Supply"] <-
+        emi[, , "Energy|Supply|Electricity"] +
+        emi[, , "Energy|Supply|Heat"] +
+        emi[, , "Energy|Supply|Fuel Production"]
 
-    # Addition of new items for industry subsectors
-    emi <- add_columns(emi, "Energy|Demand|Industry", dim = 3.1)
-    emi[, , "Energy|Demand|Industry"] <-
-      emi[, , "Energy|Demand|Industry|Chemicals"] +
-      emi[, , "Energy|Demand|Industry|Steel"] +
-      emi[, , "Energy|Demand|Industry|Non-Metallic Minerals"] +
-      emi[, , "Energy|Demand|Industry|Other"]
+      # Addition of new items for industry subsectors
+      emi <- add_columns(emi, "Energy|Demand|Industry", dim = 3.1)
+      emi[, , "Energy|Demand|Industry"] <-
+        emi[, , "Energy|Demand|Industry|Chemicals"] +
+        emi[, , "Energy|Demand|Industry|Steel"] +
+        emi[, , "Energy|Demand|Industry|Non-Metallic Minerals"] +
+        emi[, , "Energy|Demand|Industry|Other"]
 
-    emi <- add_columns(emi, "Industrial Processes", dim = 3.1)
-    emi[, , "Industrial Processes"] <-
-      emi[, , "Industrial Processes|Chemicals"] +
-      emi[, , "Industrial Processes|Steel"] +
-      emi[, , "Industrial Processes|Non-Metallic Minerals"] +
-      emi[, , "Industrial Processes|Other"]
+      emi <- add_columns(emi, "Industrial Processes", dim = 3.1)
+      emi[, , "Industrial Processes"] <-
+        emi[, , "Industrial Processes|Chemicals"] +
+        emi[, , "Industrial Processes|Steel"] +
+        emi[, , "Industrial Processes|Non-Metallic Minerals"] +
+        emi[, , "Industrial Processes|Other"]
 
-    emi <-
-      add_columns(emi, "Industry and Industrial Processes|Chemicals", dim = 3.1)
-    emi[, , "Industry and Industrial Processes|Chemicals"] <-
-      emi[, , "Energy|Demand|Industry|Chemicals"] +
-      emi[, , "Industrial Processes|Chemicals"]
+      emi <-
+        add_columns(emi, "Industry and Industrial Processes|Chemicals", dim = 3.1)
+      emi[, , "Industry and Industrial Processes|Chemicals"] <-
+        emi[, , "Energy|Demand|Industry|Chemicals"] +
+        emi[, , "Industrial Processes|Chemicals"]
 
-    emi <-
-      add_columns(emi, "Industry and Industrial Processes|Steel", dim = 3.1)
-    emi[, , "Industry and Industrial Processes|Steel"] <-
-      emi[, , "Energy|Demand|Industry|Steel"] +
-      emi[, , "Industrial Processes|Steel"]
+      emi <-
+        add_columns(emi, "Industry and Industrial Processes|Steel", dim = 3.1)
+      emi[, , "Industry and Industrial Processes|Steel"] <-
+        emi[, , "Energy|Demand|Industry|Steel"] +
+        emi[, , "Industrial Processes|Steel"]
 
-    emi <-
-      add_columns(emi,
-                  "Industry and Industrial Processes|Non-Metallic Minerals",
-                  dim = 3.1)
-    emi[, , "Industry and Industrial Processes|Non-Metallic Minerals"] <-
-      emi[, , "Energy|Demand|Industry|Non-Metallic Minerals"] +
-      emi[, , "Industrial Processes|Non-Metallic Minerals"]
+      emi <-
+        add_columns(emi,
+          "Industry and Industrial Processes|Non-Metallic Minerals",
+          dim = 3.1
+        )
+      emi[, , "Industry and Industrial Processes|Non-Metallic Minerals"] <-
+        emi[, , "Energy|Demand|Industry|Non-Metallic Minerals"] +
+        emi[, , "Industrial Processes|Non-Metallic Minerals"]
 
-    emi <-
-      add_columns(emi, "Industry and Industrial Processes|Other", dim = 3.1)
-    emi[, , "Industry and Industrial Processes|Other"] <-
-      emi[, , "Energy|Demand|Industry|Other"] +
-      emi[, , "Industrial Processes|Other"]
+      emi <-
+        add_columns(emi, "Industry and Industrial Processes|Other", dim = 3.1)
+      emi[, , "Industry and Industrial Processes|Other"] <-
+        emi[, , "Energy|Demand|Industry|Other"] +
+        emi[, , "Industrial Processes|Other"]
 
-    emi <- add_columns(emi, "Energy|Demand", dim = 3.1)
-    emi[, , "Energy|Demand"] <-
-      emi[, , "Energy|Demand|Transport"] +
-      emi[, , "Energy|Demand|Buildings"] +
-      emi[, , "Energy|Demand|Industry"]
+      emi <- add_columns(emi, "Energy|Demand", dim = 3.1)
+      emi[, , "Energy|Demand"] <-
+        emi[, , "Energy|Demand|Transport"] +
+        emi[, , "Energy|Demand|Buildings"] +
+        emi[, , "Energy|Demand|Industry"]
 
-    emi <- add_columns(emi, "Energy", dim = 3.1)
-    emi[, , "Energy"] <- emi[, , "Energy|Demand"] +
-      emi[, , "Energy|Supply"]
+      emi <- add_columns(emi, "Energy", dim = 3.1)
+      emi[, , "Energy"] <- emi[, , "Energy|Demand"] +
+        emi[, , "Energy|Supply"]
 
-    emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
-    emi[, , "Energy and Industrial Processes"] <-
-      emi[, , "Energy"] +
-      emi[, , "Industrial Processes"]
+      emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
+      emi[, , "Energy and Industrial Processes"] <-
+        emi[, , "Energy"] +
+        emi[, , "Industrial Processes"]
 
-    # variables with bunker emissions
-    emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.1)
-    emi[, , "w/ Bunkers|Energy"] <-
-      emi[, , "Energy"] +
-      emi[, , "Energy|Demand|Transport|International Bunkers"]
+      # variables with bunker emissions
+      emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.1)
+      emi[, , "w/ Bunkers|Energy"] <-
+        emi[, , "Energy"] +
+        emi[, , "Energy|Demand|Transport|International Bunkers"]
 
-    emi <-
-      add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.1)
-    emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
-      emi[, , "Energy and Industrial Processes"] +
-      emi[, , "Energy|Demand|Transport|International Bunkers"]
+      emi <-
+        add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.1)
+      emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
+        emi[, , "Energy and Industrial Processes"] +
+        emi[, , "Energy|Demand|Transport|International Bunkers"]
 
-    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand", dim = 3.1)
-    emi[, , "w/ Bunkers|Energy|Demand"] <-
-      emi[, , "Energy|Demand"] +
-      emi[, , "Energy|Demand|Transport|International Bunkers"]
+      emi <- add_columns(emi, "w/ Bunkers|Energy|Demand", dim = 3.1)
+      emi[, , "w/ Bunkers|Energy|Demand"] <-
+        emi[, , "Energy|Demand"] +
+        emi[, , "Energy|Demand|Transport|International Bunkers"]
 
-    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.1)
-    emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
-      emi[, , "Energy|Demand|Transport"] +
-      emi[, , "Energy|Demand|Transport|International Bunkers"]
+      emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.1)
+      emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
+        emi[, , "Energy|Demand|Transport"] +
+        emi[, , "Energy|Demand|Transport|International Bunkers"]
+    }
 
 
     # convert N20 to correct unit Mt to kt
@@ -384,59 +409,64 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     # Add full scenario name
     getNames(emi) <- tmp
-    getSets(emi)  <- c("region", "year", "variable")
+    getSets(emi) <- c("region", "year", "variable")
     tmp <- emi
 
-    # Add total GHG as CO2 equivalents for sectors
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Energy (Mt CO2eq/yr)", dim = 3.1)
-    tmp[, , "Emi|GHG|Energy (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|CO2|Energy (Mt CO2/yr)"] +
-      tmp[, , "Emi|CH4|Energy (Mt CH4/yr)"] * 28 +
-      tmp[, , "Emi|N2O|Energy (kt N2O/yr)"] / 1000 * 265
+    # Add total GHG as CO2 equivalents for sectors, only fits REMIND sectors
+    if (datasource == "CEDS2024") {
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Energy (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|Energy (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|Energy (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|Energy (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|Energy (kt N2O/yr)"] / 1000 * 265
 
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Industrial Processes (Mt CO2eq/yr)", dim = 3.1)
-    tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
-      tmp[, , "Emi|CH4|Industrial Processes (Mt CH4/yr)"] * 28 +
-      tmp[, , "Emi|N2O|Industrial Processes (kt N2O/yr)"] / 1000 * 265
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Industrial Processes (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|Industrial Processes (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|Industrial Processes (kt N2O/yr)"] / 1000 * 265
 
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Agriculture (Mt CO2eq/yr)", dim = 3.1)
-    tmp[, , "Emi|GHG|Agriculture (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
-      tmp[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] * 28 +
-      tmp[, , "Emi|N2O|Agriculture (kt N2O/yr)"] / 1000 * 265
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Agriculture (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|Agriculture (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|Agriculture (kt N2O/yr)"] / 1000 * 265
 
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)",
-                  dim = 3.1)
-    tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
-      tmp[, , "Emi|CH4|Energy|Demand|Industry (Mt CH4/yr)"] * 28 +
-      tmp[, , "Emi|N2O|Energy|Demand|Industry (kt N2O/yr)"] / 1000 * 265
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)",
+          dim = 3.1
+        )
+      tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|Energy|Demand|Industry (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|Energy|Demand|Industry (kt N2O/yr)"] / 1000 * 265
 
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Waste (Mt CO2eq/yr)", dim = 3.1)
-    tmp[, , "Emi|GHG|Waste (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|CO2|Waste (Mt CO2/yr)"] +
-      tmp[, , "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
-      tmp[, , "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Waste (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|Waste (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|Waste (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
 
-    tmp <-
-      add_columns(tmp, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
-    tmp[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
-      tmp[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
-      tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
+      tmp <-
+        add_columns(tmp, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
+      tmp[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
+        tmp[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
+        tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
 
-    tmp <-
-      add_columns(tmp, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
-    tmp[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
-      tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
-      tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
+      tmp <-
+        add_columns(tmp, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
+        tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
 
-    description <- "historic emissions from 1750-2022"
+      description <- "historic emissions from 1750-2022"
+    } else if (datasource == "CEDS2024_IAMC") {
+      description <- "historic emissions from 1750-2022, IAMC sectors"
+    }
 
     ## ---- EDGAR ----
   } else if (datasource == "EDGAR") {

@@ -7,7 +7,7 @@
 convertIEA_HSMR(x)
 }
 \arguments{
-\item{x}{a magclass object returned from `readIEA_HSMR()`}
+\item{x}{a magclass object returned from \code{readIEA_HSMR()}}
 }
 \description{
 convert IEA Hydro Special Market Report
