@@ -240,15 +240,17 @@ calcEmissions <- function(datasource = "CEDS16") {
     # remove 6B_Other-not-in-total (no data in there anyway)
     emi <- emi[, , "6B_Other-not-in-total", invert = TRUE]
 
-    # aggregate and rename CEDS sectors to REMIND sectors
+    # load mapping file
     map <- toolGetMapping(type = "sectoral",
                           name = "mappingCEDS2024toREMIND.csv",
                           where = "mrremind")
 
-    # Load sectoral mapping, depending on the selected output sectoral
+    # load sectoral mapping, depending on the selected output sectoral
     # resolution
     if (datasource == "CEDS2024") map_to <- "REMIND"
     else if (datasource == "CEDS2024_IAMC") map_to <- "IAMC"
+
+    # aggregate and rename CEDS sectors to REMIND or IAMC sectors
     emi <-
       toolAggregate(
         x = emi,
@@ -258,6 +260,20 @@ calcEmissions <- function(datasource = "CEDS16") {
         from = "CEDS2024",
         to = map_to
       )
+
+    # check that `6A_Other-in-total` is zero for all gases (should be) and
+    # remove from the mapping accordingly. If non-zero values are found, keep
+    # it under Category "Other", which should actually not exist, and throw a
+    # warning. This check is only needed if emissions are mapped to IAMC
+    # sectors. If mapped to RMEIND sectors this category is added to industrial
+    # process emissions.
+    if (datasource == "CEDS2024_IAMC") {
+      if (! any(emi[, , "Other"] != 0)) {
+        emi <- emi[, , "Other", invert = TRUE]
+      } else {
+        warning("Unexpectedly, `6B_Other-not-in-total` contains non-zero values. Please check CEDS and mapping file.")
+      }
+    }
 
     # undo unnecessary conversion from convertCEDS2024
     emi[, , "n2o_n"] <- emi[, , "n2o_n"] * 44 / 28
