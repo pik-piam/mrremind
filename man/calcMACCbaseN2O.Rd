@@ -7,17 +7,21 @@ for transport, adipic acid and nitric acid production}
 \usage{
 calcMACCbaseN2O(source = "PBL_2007")
 }
+\arguments{
+\item{source}{either "PBL_2007" or "PBL_2022"
+If source is PBL_2007, the source of the ultimately the baseline
+scenario of Lucas et al 2007 (http://linkinghub.elsevier.com/retrieve/pii/S1462901106001316)
+
+If source is PBL_2022, the source of the ultimately the baseline
+scenario of Harmsen et al. 2023 (https://doi.org/10.1038/s41467-023-38577-4)}
+}
 \value{
 list of magclass with REMIND input data for
 different sectors for timesteps 2000-2100, in Mt N per year
 }
 \description{
-If source is PBL_2007, the source of the ultimately the baseline
-scenario of Lucas et al 2007 (http://linkinghub.elsevier.com/retrieve/pii/S1462901106001316)
-}
-\details{
-If source is PBL_2022, the source of the ultimately the baseline
-scenario of Harmsen et al. 2023 (https://doi.org/10.1038/s41467-023-38577-4)
+Calculate baseline emissions trajectories
+for transport, adipic acid and nitric acid production
 }
 \author{
 Lavinia Baumstark, Gabriel Abrhahao
