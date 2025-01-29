@@ -27,5 +27,5 @@ readSource("PWT")
 }
 }
 \seealso{
-[madrat::readSource()]
+\code{\link[madrat:readSource]{madrat::readSource()}}
 }

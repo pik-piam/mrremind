@@ -7,11 +7,10 @@
 readREMIND_11Regi(subtype)
 }
 \arguments{
-\item{subtype}{Name of the regional data, e.g. "p4", "biomass", "ch4waste",
-"tradecost", "pe2se", "xpres_tax", "deltacapoffset", "capacityFactorGlobal",
-"capacityFactorRules", "residuesShare", "taxConvergence", "maxFeSubsidy",
-"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff",
-"RLDCCoefficientsLoB", "RLDCCoefficientsPeak", "earlyRetirementAdjFactor"}
+\item{subtype}{Name of the regional data, e.g.
+"tradecost", "deltacapoffset", "capacityFactorGlobal",
+"capacityFactorRules", "taxConvergence", "maxFeSubsidy",
+"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{
 magpie object of region dependent data
@@ -21,7 +20,7 @@ Read-in an csv files that contains regional data
 }
 \examples{
 \dontrun{
-a <- readSource(type = "REMIND_11Regi", subtype = "capacityFactorGlobal")
+a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
 }
 }
 \seealso{

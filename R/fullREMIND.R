@@ -36,7 +36,6 @@ fullREMIND <- function() {
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital", signif = 4,                               file = "f29_capitalQuantity.cs4r")
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
@@ -73,7 +72,6 @@ fullREMIND <- function() {
   calcOutput("KLWdamage", subtype = "maxGMT",                  round = 8, file = "f50_KLW_df_maxGMT.cs4r", aggregate = FALSE)
 
   #-------------- emission parameter ------------------------------------------------------------------
-  calcOutput("EconometricEmiParameter",                                         round = 5, file = "p_emineg_econometric.cs3r")
   calcOutput("EmissionsTe",                                                     round = 5, file = "p_boundEmi.cs4r")
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")
@@ -120,8 +118,6 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
   calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
-  calcOutput("ShareIndFE",                            round = 3,  file = "p37_shIndFE.cs3r")
-  calcOutput("nonEnergyIndFE",                        round = 8,  file = "f37_fedemand_NonEnergyIndst.cs4r")
   calcOutput("Clinker_to_cement_ratio",               round = 2,  file = "p37_clinker-to-cement-ratio.cs3r")
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
@@ -134,28 +130,12 @@ fullREMIND <- function() {
   calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
   calcOutput("FEShares", subtype = "ind_coal",                         round = 5,  file = "p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype = "ind_bio",                          round = 5,  file = "p_share_ind_fesos_bio.cs4r")
-  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
+  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p11_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
-  calcOutput('Industry_CCS_limits',
-             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
-             stage_weight = c('Operational'          = 1,
-                              'In construction'      = 1,
-                              'Advanced development' = 0.5,
-                              'Early development'    = 0.2),
-             signif = 3, file = 'f37_indCCSlimit_default.cs4r',
-           years = seq(2005, 2050, 5))
-  calcOutput('Industry_CCS_limits',
-             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
-             stage_weight = c('Operational'          = 1,
-                              'In construction'      = 1,
-                              'Advanced development' = 0.8,
-                              'Early development'    = 0.5),
-             signif = 3, file = 'f37_indCCSlimit_high.cs4r',
-           years = seq(2005, 2050, 5))
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -166,11 +146,7 @@ fullREMIND <- function() {
   calcOutput("FossilPolyCumEx",                                        round = 8,  file = "f31_ffPolyCumEx.cs4r")
   calcOutput("FossilExtraction", subtype = "FossilExtraction",         round = 9,  file = "f31_ffPolyCoeffs.cs3r")
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
-  calcOutput("RLDCCoefficients", subtype = "LoB",                      round = 6,  file = "f32_RLDC_Coeff_LoB.cs3r")
-  calcOutput("RLDCCoefficients", subtype = "Peak",                     round = 6,  file = "f32_RLDC_Coeff_Peak.cs3r")
-  calcOutput("EarlyRetirementAdjFactor",                                           file = "p_earlyRetirementAdjFactor.cs3r")
-  calcOutput("DiffInvestCosts",  subtype = "Invest_Costs",             round = 4,  file = "p_inco0.cs4r")
-  calcOutput("DiffInvestCosts",  subtype = "Efficiency",               round = 4,  file = "pm_eff.cs4r")
+  calcOutput("DiffInvestCosts",                                        round = 4,  file = "p_inco0.cs4r")
   calcOutput("CapacityFactorHist", subtype = "wind",                   round = 4,  file = "p_histCapFac.cs4r")
   calcOutput("CapacityFactorHist", subtype = "windoff",                round = 4,  file = "p_histCapFac_windoff.cs4r")
   calcOutput("GEA2012", subtype = "coal",                              round = 8,  file = "p31_grades_coal.cs4r")
@@ -202,10 +178,33 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "REN21",                                round = 4, file = "f40_REN21.cs4r")
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC",             round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
+  calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
+
+  #---------------no longer used in REMIND-------------------------------------------------------------
+
   calcOutput("EffortSharingTarget",                                         round = 3, file = "p47_ESR_target.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
   calcOutput("ETSRefEmi", subtype = "EEA_GHG",                              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-  calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
+
+
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.5,
+                              'Early development'    = 0.2),
+             signif = 3, file = 'f37_indCCSlimit_default.cs4r',
+             years = seq(2005, 2050, 5))
+
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.8,
+                              'Early development'    = 0.5),
+             signif = 3, file = 'f37_indCCSlimit_high.cs4r',
+             years = seq(2005, 2050, 5))
+
 
 }

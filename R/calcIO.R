@@ -26,8 +26,7 @@
 #' @importFrom tidyr unite
 #' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
-                               "input_Industry_subsectors", "output_Industry_subsectors",
-                               "IEA_input"),
+                               "input_Industry_subsectors", "output_Industry_subsectors"),
                    ieaVersion = "default") {
   subtype <- match.arg(subtype)
   switch(
@@ -73,14 +72,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                 where = "mrremind",
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    IEA_input = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_inputs.csv",
-                                where = "mrremind",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech",
-                  "iea_product", "iea_flows")
     }
   )
 
