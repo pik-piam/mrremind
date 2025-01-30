@@ -6,7 +6,6 @@
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
-#' @importFrom utils read.csv2
 calcEmissions <- function(datasource = "CEDS16") {
   ## ---- CEDS 16 ----
   if (datasource == "CEDS16") {
@@ -1002,7 +1001,7 @@ calcEmissions <- function(datasource = "CEDS16") {
       "NOx"
 
     map <-
-      read.csv2(
+     utils::read.csv2(
         toolGetMapping(
           type = "sectoral",
           name = "mappingLIMITSsectorstoREMINDsectors.csv",
@@ -1041,7 +1040,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     em_eclipse <- collapseNames(em_eclipse[, , "CLE"])
 
     map <-
-      read.csv2(
+     utils::read.csv2(
         toolGetMapping(
           type = "sectoral",
           name = "mappingECLIPSEsectorstoREMINDsectors.csv",

@@ -83,7 +83,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
-  ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+  ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
   if (subtype == "output") {

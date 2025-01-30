@@ -6,11 +6,11 @@
 readIEA_WorldEnergyOutlook <- function() { # nolint
 
   data <- rbind(
-    read.csv2(
+   utils::read.csv2(
       file = "2023/complete/WEO2023_Extended_Data_Regions.csv",
       sep = ","
     ) %>% rename_all(tolower),
-    read.csv2(
+   utils::read.csv2(
       file = "2023/complete/WEO2023_Extended_Data_Supply_Refining_H2_Trade_Prices.csv",
       sep = ","
     ) %>% rename_all(tolower),

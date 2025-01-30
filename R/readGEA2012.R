@@ -34,7 +34,7 @@ readGEA2012 <- function(subtype) {
   #             'TAO-rv','SHO-rv','EHO-rv','COO-rv','TAO-rs','SHO-rs','EHO-rs','COO-rs','HAC','LIC')
 
   if ("coal" %in% subtype) {
-    rawData <- read.csv2("Scenario Data HAC_LIC.csv", header = TRUE, as.is = T)
+    rawData <-utils::read.csv2("Scenario Data HAC_LIC.csv", header = TRUE, as.is = T)
     rawData$grade <- as.factor(rawData$grade)
     rawData$value <- as.numeric(rawData$value)
     rawData <- rawData %>%

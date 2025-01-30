@@ -101,7 +101,7 @@ convertECLIPSE <- function(x, subtype) {
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
-      map <- read.csv2(m)
+      map <- utils::read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map <- map %>%
         mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))
@@ -128,7 +128,7 @@ convertECLIPSE <- function(x, subtype) {
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
-      map <- read.csv2(m)
+      map <- utils::read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map  <- map %>%
         mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))

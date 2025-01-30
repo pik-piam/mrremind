@@ -54,7 +54,7 @@ readGCPT <- function(subtype) {
   sep <- ";"
   latest_col <- 3
 
-  plant_status <- read.csv2(status_changes, sep = sep, stringsAsFactors = FALSE, fileEncoding = "ISO-8859-13")
+  plant_status <- utils::read.csv2(status_changes, sep = sep, stringsAsFactors = FALSE, fileEncoding = "ISO-8859-13")
 
   plant_status <- plant_status %>%
     select(Country, MW, starts_with("H2")) %>%

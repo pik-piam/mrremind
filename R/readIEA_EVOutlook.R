@@ -2,7 +2,7 @@
 #'
 #' @author Falk Benke
 readIEA_EVOutlook <- function() {
-  data <- read.csv2(file.path("data", "2024", "IEA Global EV Data 2024.csv"), sep = ",")
+  data <- utils::read.csv2(file.path("data", "2024", "IEA Global EV Data 2024.csv"), sep = ",")
 
   data <- data %>%
     mutate(
@@ -12,7 +12,5 @@ readIEA_EVOutlook <- function() {
     ) %>%
     select("region", "year", "scenario" = "category", "variable", "unit", "value")
 
-  x <- as.magpie(data, spatial = 1)
-
-  return(x)
+  as.magpie(data, spatial = 1)
 }

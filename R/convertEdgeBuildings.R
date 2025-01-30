@@ -58,7 +58,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
                                         returnPathOnly = TRUE, where = "mrcommons")
-  struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
+  struct_mapping <- utils::read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping
   struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
@@ -79,7 +79,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
 
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
                                   returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
+    mapping <- utils::read.csv2(mappingfile)
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 
@@ -181,7 +181,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   } else if (subtype == "Floorspace") {
     mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
                                   returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
+    mapping <- utils::read.csv2(mappingfile)
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 

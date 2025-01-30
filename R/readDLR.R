@@ -248,7 +248,7 @@ readDLR <- function() {
 
     bin <- bins[, technology]
 
-    out <- read.csv2(x, header = FALSE, colClasses = colClasses.df[, technology])
+    out <- utils::read.csv2(x, header = FALSE, colClasses = colClasses.df[, technology])
     colnames(out) <- iso.countries
     out$type <- type
     out$technology <- technology

@@ -1,5 +1,5 @@
 #' @importFrom dplyr ungroup
-#' @importFrom utils read.csv read.csv2
+#' @importFrom utils read.csv
 #' @importFrom quitte as.quitte
 
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
@@ -100,7 +100,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
 
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
 
-  map_regions <- read.csv2(
+  map_regions <-utils::read.csv2(
     toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where = "mrremind"),
     stringsAsFactors = TRUE
   )[, c(2, 3)]

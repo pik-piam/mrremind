@@ -16,7 +16,7 @@
 #' a <- readSource(type="Gini")
 #' }
 readGini <- function(){
-  readxl::read_excel("Gini_projections_SSPs.xlsx", sheet = 2)
+  as.magpie(readxl::read_excel("Gini_projections_SSPs.xlsx", sheet = 2))
 }
 
 #' Convert Gini

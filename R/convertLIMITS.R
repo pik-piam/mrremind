@@ -7,7 +7,7 @@ convertLIMITS <- function(x, subtype) {
   m <- toolGetMapping(type = "regional", name = "regionmappingTIMER.csv", returnPathOnly = TRUE, where = "mappingfolder")
 
   # Get TIMER regional mapping
-  map <- read.csv2(m)
+  map <- utils::read.csv2(m)
   map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
   map$CountryCode <- factor(map$CountryCode)
   map$RegionCode  <- factor(map$RegionCode)

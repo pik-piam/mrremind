@@ -16,7 +16,7 @@ calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default
                               name = "structuremappingIO_reporting.csv",
                               where = "mrremind", returnPathOnly = TRUE)
     target <- c("output")
-    map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+    map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
     map <- map[c("io", target)] %>% stats::na.omit()
 

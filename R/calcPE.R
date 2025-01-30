@@ -16,7 +16,7 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
     target <- c("input")
 
     ### calculate data
-    map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+    map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
     map <- map[c("io", target)] %>% stats::na.omit()
 

@@ -17,10 +17,10 @@
 readIRENA <- function(subtype) {
   if (subtype == "Capacity") {
     # Reading renewables electricity capacity values in MW from csv
-    data <- read.csv2("2022/Capacity.csv", sep = ";", skip = 2)
+    data <- utils::read.csv2("2022/Capacity.csv", sep = ";", skip = 2)
   } else if (subtype == "Generation") {
     # Reading renewables electricity generation values in GWh from csv
-    data <- read.csv2("2022/Generation.csv", sep = ";", skip = 2)
+    data <- utils::read.csv2("2022/Generation.csv", sep = ";", skip = 2)
   } else {
     stop("Not a valid subtype!")
   }
