@@ -13,8 +13,7 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
 
   scenarios <- list(
     SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("EU", "_lowEn",
-                             "EU_NAV_all")),
+    SSP2s = paste0("SSP2", c("_lowEn", "EU_NAV_all")),
     SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC"))
   )
   data <- read.csv(file.path(ver, "EDGE_buildings.csv"))

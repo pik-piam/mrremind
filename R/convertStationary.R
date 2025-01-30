@@ -91,7 +91,8 @@ convertStationary <- function(x) {
   }
 
   # Select last year of X available in the historical data set
-  maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in% getYears(wfe, as.integer = TRUE)])
+  maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in%
+                                                          getYears(wfe, as.integer = TRUE)])
   # Deduce the scenario periods
   exceeding_years <- getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) > maxYear_X_in_FE]
 
@@ -100,7 +101,9 @@ convertStationary <- function(x) {
   # For historical years, the data is substituted. For projections years, there is first a transition period,
   # before the FE_stationary projections are fully taken up
 
-  fe_stationary <- time_interpolate(hist_fe_stationary[, getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE], ], # The years exceeding maxYear might not be meaningful. Therefore we exclude them
+  # The years exceeding maxYear might not be meaningful. Therefore we exclude them
+  helper <- getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE]
+  fe_stationary <- time_interpolate(hist_fe_stationary[, helper, ],
                                     interpolated_year = c(maxYear_X_in_FE, exceeding_years),
                                     integrate_interpolated_years = TRUE,
                                     extrapolation_type = "constant")
@@ -113,14 +116,16 @@ convertStationary <- function(x) {
   # Item names differ slightly for the input of EDGE_stationary (fe_stationary) and the output
   # The main issue concerns transport. We therefore restrict to the variables of interest in each data set of
   # historical data
-  stationary_items <- grep("^(fenon|feagr|feind|feoth)", getNames(x, TRUE)[[2]], value = TRUE) # Stationary, non-buildings names
+  # Stationary, non-buildings names
+  stationary_items <- grep("^(fenon|feagr|feind|feoth)", getNames(x, TRUE)[[2]], value = TRUE)
 
 
   # create lambda vector that gives 0 to the historical data and 1 after 2030
   lambda <-  calcLambda(exceeding_years, 2030, getYears(x)[getYears(x, TRUE) <= maxYear_X_in_FE])
   # Replace
 
-  x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) + x[, , stationary_items] * lambda
+  x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) +
+                             x[, , stationary_items] * lambda
 
   # Scale GDP and FE weights so that they can be added
   wg <- wg / dimSums(wg, dim = 1, na.rm = TRUE)
@@ -152,9 +157,7 @@ convertStationary <- function(x) {
   wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
   # Disaggregate and fill the gaps
-  xadd <- toolAggregate(x, mappingfile, weight = wfe,
-                        from = region_col,
-                        to = iso_col)
+  xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col)
   result <- toolCountryFill(xadd, 0, verbosity = 2)
 
   return(result)
