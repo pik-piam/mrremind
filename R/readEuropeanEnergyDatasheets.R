@@ -13,7 +13,6 @@
 #' @importFrom readxl excel_sheets read_excel
 #' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
 #' or "EU27" (latest data from August 23 without GBR)
-#' @importFrom stats aggregate
 #'
 readEuropeanEnergyDatasheets <- function(subtype) {
   if (!subtype %in% c("EU27", "EU28")) {
@@ -647,7 +646,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       tmp <- rbind(
         tmp,
         suppressMessages(read_xlsx(path = file, sheet = sheet, range = "C8:AI543", )) %>%
-          bind_cols(rows) %>%
+          dplyr::bind_cols(rows) %>%
           tidyr::drop_na("variable", "unit") %>%
           select(-1) %>%
           reshape2::melt(id.vars = c("variable", "unit"), variable.name = "year") %>%

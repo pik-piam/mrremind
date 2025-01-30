@@ -8,7 +8,6 @@
 #'
 #' @param subtype decides whether emissions or emission factors are returned
 #' @param sectoral_resolution aggreaged or extenden (uses different GAINS input data)
-#' @importFrom dplyr ungroup
 calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "extended") {
 
   if (!(subtype %in% c("emission_factors", "emissions"))) {
@@ -30,7 +29,7 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
       summarise(value = ifelse(all(.data$value == 0), 0,
                                min(.data$value[.data$value > 0], na.rm = TRUE))
                 ) %>%  # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
-      ungroup() %>%
+      dplyr::ungroup() %>%
       as.data.frame() %>%
       quitte::as.quitte() %>%
       as.magpie()

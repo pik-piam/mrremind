@@ -32,7 +32,7 @@ readEDGETransport <- function(subtype) {
       isICEban = c(TRUE, FALSE),
       demScen = c("default")),
     # Specific project scenarios
-    tribble(
+    tibble::tribble(
       ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
       "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
       "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",

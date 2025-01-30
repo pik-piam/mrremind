@@ -10,7 +10,8 @@ The slope parameter (b) is multiplied by a weight. The weight is the inverse of 
 toolBiomassSupplyAggregate(
   x,
   rel = NULL,
-  weight = calcOutput("FAOLand", aggregate = F)[, , "6610", pmatch = TRUE][, "y2010", ]
+  weight = calcOutput("FAOLand", aggregate = FALSE)[, , "6610", pmatch = TRUE][, "y2010",
+    ]
 )
 }
 \arguments{

@@ -9,9 +9,8 @@
 #'   `country_groups` with `IEA region`s and corresponding `iso3c` country
 #'   codes.
 #'
-#' @importFrom dplyr anti_join group_by left_join mutate pull select summarise n
+#' @importFrom dplyr anti_join group_by left_join mutate pull select summarise
 #' @importFrom readxl excel_sheets read_excel
-#' @importFrom assertr verify
 #' @export
 readIEA_WEIO_2014 <- function() {
   # define file paths ----
@@ -56,7 +55,7 @@ readIEA_WEIO_2014 <- function() {
   # For regions which have sub-regions, calculate a separate region without the
   # sub-regions.  For example, split 'OECD Americas' into "United States' and
   # 'OECD Americas w/o United States'.
-  region_modifications <- tribble(
+  region_modifications <- tibble::tribble(
     ~superset,             ~subsets,
     'OECD Americas',       'United States',
     'OECD Europe',         'European Union',
@@ -94,10 +93,10 @@ readIEA_WEIO_2014 <- function() {
       )
   ) %>%
     group_by(.data$iso3c) %>%
-    mutate(count = n()) %>%
+    mutate(count = dplyr::n()) %>%
     ungroup() %>%
-    verify(expr = 1 == .data$count,
-           description = 'duplicate countries in country groups') %>%
+    assertr::verify(expr = 1 == .data$count,
+                    description = 'duplicate countries in country groups') %>%
     select(-'count')
 
   ## calculate region data ----

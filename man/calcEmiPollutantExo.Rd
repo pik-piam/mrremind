@@ -20,10 +20,8 @@ calcEmiPollutantExo
 calculate EmiPollutantExo based on RCP data
 }
 \examples{
-
 \dontrun{ a <- calcOutput(type="EmiPollutantExo")
 }
-
 
 }
 \seealso{

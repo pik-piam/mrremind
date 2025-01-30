@@ -1,7 +1,7 @@
 #' Read in IEA World Energy Outlook Data from 2023
 #'
 #' @author Falk Benke
-#' @importFrom dplyr filter distinct group_by ungroup rename_all
+#' @importFrom dplyr filter distinct group_by ungroup
 #'
 readIEA_WorldEnergyOutlook <- function() { # nolint
 
@@ -9,19 +9,19 @@ readIEA_WorldEnergyOutlook <- function() { # nolint
    utils::read.csv2(
       file = "2023/complete/WEO2023_Extended_Data_Regions.csv",
       sep = ","
-    ) %>% rename_all(tolower),
+    ) %>% dplyr::rename_all(tolower),
    utils::read.csv2(
       file = "2023/complete/WEO2023_Extended_Data_Supply_Refining_H2_Trade_Prices.csv",
       sep = ","
-    ) %>% rename_all(tolower),
+    ) %>% dplyr::rename_all(tolower),
     read.csv(
       file = "2023/complete/WEO2023_Extended_Data_World.csv",
       sep = ","
-    ) %>% rename_all(tolower),
+    ) %>% dplyr::rename_all(tolower),
     read.csv(
       file = "2023/complete/WEO2023_Extended_Data_Investment.csv",
       sep = ","
-    ) %>% rename_all(tolower)
+    ) %>% dplyr::rename_all(tolower)
   ) %>%
     mutate(
       "value" = ifelse(.data$unit == "PJ", as.numeric(.data$value) / 1000, as.numeric(.data$value)),

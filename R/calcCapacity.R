@@ -3,7 +3,6 @@
 #'
 #' @param subtype data subtype. Either "capacityByTech" or "capacityByPE"
 #' @return magpie object of  capacity data
-#' @importFrom dplyr tribble
 #' @author Renato Rodrigues, Stephen Bi
 #' @examples
 #' \dontrun{
@@ -90,7 +89,7 @@ calcCapacity <- function(subtype) {
     #    *** for 2018-2022, take 90GW, 90GW*0.5=50GW ngt, the rest is split between ngcc and gaschp 70:30 (from IEA EB energy output)
 
     CHA.2020.GasData <- as.magpie(
-      tribble(
+      tibble::tribble(
         ~region,   ~year,   ~data,      ~value,
         "CHN",     2010,    "gaschp",   0.004,
         "CHN",     2015,    "gaschp",   0.011,
@@ -107,7 +106,7 @@ calcCapacity <- function(subtype) {
     # so it should be roughly ok as upper bound. (don't use as lower bound!)
 
     USA.2025.PVData <- as.magpie(
-      tribble(
+      tibble::tribble(
         ~region,   ~year,   ~data,      ~value,
         "USA",     2025,    "spv",      0.265))
 

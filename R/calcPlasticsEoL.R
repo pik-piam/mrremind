@@ -10,9 +10,7 @@
 #' @seealso [`calcOutput()`]
 #'
 #' @importFrom dplyr filter pull select
-#' @importFrom rlang .data
 #' @importFrom tibble as_tibble
-#'
 #' @export
 #'
 calcPlasticsEoL <- function() {
@@ -36,7 +34,7 @@ calcPlasticsEoL <- function() {
 
   x <- x[, , selection, pmatch = TRUE]
 
-  y <- as.quitte(x)
+  y <- quitte::as.quitte(x)
   # calculate total plastic waste
   plasticsEoL <- y %>%
     # we could have switches to include a circular scenario but it would probably

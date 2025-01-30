@@ -5,7 +5,7 @@
 #'
 #' @author Falk Benke
 #'
-#' @importFrom dplyr select mutate left_join if_any filter
+#' @importFrom dplyr select mutate left_join filter
 #' @export
 #'
 calcIEA_ETP <- function() {
@@ -38,7 +38,7 @@ calcIEA_ETP <- function() {
       ) %>%
       select("region", "year", "model", "variable" = "REMIND", "value")
 
-    x <- aggregate(value ~ region + year + model + variable, data, sum) %>%
+    x <- stats::aggregate(value ~ region + year + model + variable, data, sum) %>%
       as.magpie()
 
     return(x)
@@ -51,7 +51,7 @@ calcIEA_ETP <- function() {
                           returnPathOnly = TRUE) %>%
       utils::read.csv2(check.names = FALSE)
     keepCountries <- map %>%
-      filter(if_any(all_of(c("individual", keepRegions)))) %>%
+      filter(dplyr::if_any(tidyselect::all_of(c("individual", keepRegions)))) %>%
       getElement("CountryCode")
     x[keepCountries, , ]
   }

@@ -13,8 +13,6 @@
 #' @export
 #' @importFrom dplyr mutate select rename filter left_join group_by ungroup arrange summarise desc
 #'  full_join
-#' @importFrom tidyr spread gather
-#' @importFrom quitte as.quitte
 toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", aggregate = FALSE)[,"y2015","FE|Electricity (EJ/yr)"]){
 
   # old part by Julian Oeser
@@ -152,7 +150,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   MaxProd.Norm[MaxProd.Norm == 0] <- 0.01
 
   # convert data to quitte format because more convenient for the following operations
-  df.x <- as.quitte(x[,,techs][,,dist]) %>%
+  df.x <- quitte::as.quitte(x[,,techs][,,dist]) %>%
     # drop 0 and NA potentials
     #filter(value > 0 , !is.na(value)) %>%
     # rename Bin to Full load hours, convert to numerical
@@ -162,11 +160,11 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
 
   # calculate maxprod (potential/maximum possible production in grade) in GWh by: capacity * FLH (Full Load Hours) / 1000
   df.pot  <- df.x %>%
-    spread(Type, value) %>%
+    tidyr::pivot_wider(names_from = "Type") %>%
     mutate( maxprod = capacity * FLH / 1000) %>%
     # remove those locations with NA or 0 area or potential
     filter( maxprod > 0, area > 0) %>%
-    gather(Type, value, capacity, area, maxprod)
+    tidyr::gather(Type, value, capacity, area, maxprod)
 
   # calculate cumulated capacity, maxprod (potential) and area in descending grade order
   # to obtain how much can be produced in total at this FLH or higher FLH
@@ -177,7 +175,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     ungroup()
 
   # process 2015 IEA electricity production
-  df.prod.2015 <- as.quitte(MaxProd.Norm) %>%
+  df.prod.2015 <- quitte::as.quitte(MaxProd.Norm) %>%
     # FE 2015 in GWh/yr
     mutate( production = value / 3.6 * 1e6) %>%
     select(region, production)
@@ -194,7 +192,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   ## join normalized cumulative maxprod agin to df with cumulative maxprod, area, capacity
   #to be able to interplolate all three measures
   df.cuml <- df.cuml %>%
-    spread(Type, value) %>%
+    tidyr::pivot_wider(names_from = "Type") %>%
     left_join(df.maxprod.norm)
 
   # get total potential per region, technology, distance,
@@ -242,7 +240,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   # by performing gradient operation
   df.fine.grades <- df.interpolate %>%
     select(region, Technology, Distance, FLH, maxprod.norm, maxprod, capacity, area) %>%
-    gather(Type, value, maxprod, capacity, area) %>%
+    tidyr::gather(Type, value, maxprod, capacity, area) %>%
     group_by(region, Type, Technology, Distance) %>%
     arrange(desc(FLH)) %>%
     # calculate value per fine grade by gradient of cumulative value
@@ -343,9 +341,9 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
 
   # spread maxprod column to have weight for FLH aggregation in next step
   df.map.REMIND <- df.map.REMIND %>%
-    spread(Type, value) %>%
+    tidyr::pivot_wider(names_from = "Type") %>%
     mutate(maxprod.weight  = maxprod) %>%
-    gather(Type, value, maxprod, capacity, area)
+    tidyr::gather(Type, value, maxprod, capacity, area)
 
 
 
@@ -358,8 +356,8 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     summarise( FLH = stats::weighted.mean(FLH, maxprod.weight), value = sum(value)) %>%
     ungroup() %>%
     # add FLH to Type column to make it another dimension like maxprod, area etc.
-    spread(Type, value) %>%
-    gather(Type, value, capacity, area, maxprod, FLH) %>%
+    tidyr::pivot_wider(names_from = "Type") %>%
+    tidyr::gather(Type, value, capacity, area, maxprod, FLH) %>%
     select(region, Type, Technology, Distance, grade, value)
 
   # get overlap of first data point in last grade with second last grade
@@ -374,7 +372,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     ungroup() %>%
     filter( maxprod.norm == Max) %>%
     select(-Max) %>%
-    gather(Type, Seclast, maxprod, area, capacity) %>%
+    tidyr::gather(Type, Seclast, maxprod, area, capacity) %>%
     select(region, Technology, Distance, Type, Seclast)
 
   # calculate maxprod, area, capacity difference between last data point before last grade
@@ -382,7 +380,7 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
   df.lastgrade.overlap <- df.interpolate %>%
     # filter for  maxprod, area, capacity at lower bound of last grade (threshold)
     filter(maxprod.norm < grade.breaks[length(grade.breaks)]) %>%
-    gather(Type, value, maxprod, area, capacity) %>%
+    tidyr::gather(Type, value, maxprod, area, capacity) %>%
     group_by(region, Technology, Distance) %>%
     mutate( Max = max(maxprod.norm)) %>%
     ungroup() %>%
@@ -408,8 +406,8 @@ toolSolarFunctionAggregate <- function(x, rel=NULL, weight = calcOutput("FE", ag
     summarise( value = sum(value), FLH = mean(FLH)) %>%
     ungroup() %>%
     mutate( grade = length(grade.breaks)+1) %>%
-    spread(Type, value) %>%
-    gather(Type, value, capacity, area, maxprod, FLH) %>%
+    tidyr::pivot_wider(names_from = "Type") %>%
+    tidyr::gather(Type, value, capacity, area, maxprod, FLH) %>%
     # join overlap of first data point in last grade with second last grade from last grade
     left_join(df.lastgrade.overlap) %>%
     # subtract overlap from maxprod, area, capacity of last grade

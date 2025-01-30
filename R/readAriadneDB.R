@@ -4,14 +4,12 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
-#' @importFrom tidyr gather
 #' @importFrom dplyr filter mutate
-#' @importFrom readxl read_excel
-
+#'
 readAriadneDB <- function() {
 
   # read in file
-  data <- read_excel(
+  data <- readxl::read_excel(
     "IIASA_DB_Complete_06_03_2024.xlsx",
     sheet = "data",
     col_types = c(
@@ -22,7 +20,7 @@ readAriadneDB <- function() {
 
   # rearrange and convert to magclass object
   out <- data %>%
-    gather("period", "value", -"model", -"scenario", -"region", -"variable", -"unit") %>%
+    tidyr::gather("period", "value", -"model", -"scenario", -"region", -"variable", -"unit") %>%
     filter(!is.na(.data$value)) %>%
     as.magpie(temporal = 6, spatial = 3, datacol = 7)
 

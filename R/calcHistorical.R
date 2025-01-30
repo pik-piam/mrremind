@@ -1,6 +1,5 @@
 #' Gather reference data from various sources.
 #' @importFrom dplyr filter group_by mutate select ungroup
-#' @importFrom rlang syms
 calcHistorical <- function() {
 
   # Final Energy
@@ -158,7 +157,7 @@ calcHistorical <- function() {
       "Production|Industry|Steel|Primary (Mt/yr)",
       "Production|Industry|Steel|Secondary (Mt/yr)"
     ) %>%
-    pivot_longer(c(
+    tidyr::pivot_longer(c(
       "Production|Industry|Steel (Mt/yr)",
       "Production|Industry|Steel|Primary (Mt/yr)",
       "Production|Industry|Steel|Secondary (Mt/yr)"

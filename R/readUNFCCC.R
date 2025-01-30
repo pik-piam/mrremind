@@ -6,9 +6,8 @@
 #'
 #' @seealso [`readSource()`]
 #'
-#' @importFrom dplyr bind_rows bind_cols mutate select
+#' @importFrom dplyr bind_rows mutate select
 #' @importFrom tibble tibble
-#' @importFrom rlang sym
 #' @export
 #'
 readUNFCCC <- function() {
@@ -472,7 +471,7 @@ readUNFCCC <- function() {
           suppressMessages(
             suppressWarnings(
               s %>%
-                bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
+                dplyr::bind_cols(sheets[[i]]$rows, year = year, region = region) %>%
                 select(-1) %>%
                 select(-which(is.na(sheets[[i]][["colnames"]]))) %>%
                 filter(!is.na(!!sym("name"))) %>%

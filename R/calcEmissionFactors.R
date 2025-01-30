@@ -1,7 +1,3 @@
-#' @importFrom dplyr ungroup
-#' @importFrom utils read.csv
-#' @importFrom quitte as.quitte
-
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
   if (!(subtype %in% c("emission_factors", "activities", "emissions"))) {
     stop('subtype must be in c("emission_factors", "activities", "emissions")')
@@ -22,14 +18,14 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
     dummy <- id_ef[ip_region, ip_year, ip_scenario]
 
     # Get minimum values across country group
-    tmp <- as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
+    tmp <- quitte::as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
       group_by(!!!syms(c("data1", "data2"))) %>%
       summarise(value = ifelse(all(.data$value == 0), 0,
         min(.data$value[.data$value > 0], na.rm = TRUE)
       )) %>% # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
-      ungroup() %>%
+      dplyr::ungroup() %>%
       as.data.frame() %>%
-      as.quitte() %>%
+      quitte::as.quitte() %>%
       as.magpie()
 
     # Allocate minimum values to region

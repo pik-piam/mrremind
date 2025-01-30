@@ -22,7 +22,6 @@
 #' }
 #'
 #' @importFrom dplyr filter mutate
-#' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors"),
                    ieaVersion = "default") {
@@ -102,8 +101,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     new_product_flows <- tibble(
       text = setdiff(getNames(data), names_data_before)
     ) %>%
-      separate("text", c("product", "flow"), sep = "\\.") %>%
-      anti_join(
+      tidyr::separate("text", c("product", "flow"), sep = "\\.") %>%
+      dplyr::anti_join(
         ieamatch %>%
           as_tibble() %>%
           select(product = "iea_product", flow = "iea_flows"),
@@ -131,9 +130,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # delete NAs rows
   ieamatch <- ieamatch %>%
     as_tibble() %>%
-    select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
+    select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     stats::na.omit() %>%
-    tidyr::unite("target", all_of(target), sep = ".", remove = FALSE) %>%
+    tidyr::unite("target", tidyselect::all_of(target), sep = ".", remove = FALSE) %>%
     tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
     filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()

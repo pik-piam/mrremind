@@ -1,44 +1,37 @@
 #' Read RCP
 #' Read in RCP data
 #'
+#' @param subtype Either 'Waste' or 'AviationShipping'
 #' @return magpie object of the RCP data
 #' @author Julian Oeser
 #' @seealso \code{\link{readSource}}
 #' @examples
-#'
 #' \dontrun{ a <- readSource(type="RCP", subtype="Waste")
 #' }
 #'
-#' @param subtype Either 'Waste' or 'AviationShipping'
-#'
-#' @importFrom dplyr recode
-
 readRCP <- function(subtype) {
-
 
   dat <- as.data.frame(do.call(rbind, lapply(list.files(pattern = ".xls$"), readxl::read_excel)))
 
   if (subtype == "Waste") {
     dat <- dat %>%
-      filter(.data$Region %in% c("R5ASIA", "R5LAM", "R5MAF", "R5OECD", "R5REF"),
-             grepl("Waste", .data$Variable)) %>%
-      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                   names_transform = list(year = as.numeric)) %>%
-      separate("Variable", c("type", "source"), sep = " - ") %>%
-      select(region = 'Region', 'year', scenario = 'Scenario', 'type', 'source',
-             'value') %>%
+      filter(.data$Region %in% c("R5ASIA", "R5LAM", "R5MAF", "R5OECD", "R5REF"), grepl("Waste", .data$Variable)) %>%
+      tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                          names_to = 'year',
+                          names_transform = list(year = as.numeric)) %>%
+      tidyr::separate("Variable", c("type", "source"), sep = " - ") %>%
+      select(region = 'Region', 'year', scenario = 'Scenario', 'type', 'source', 'value') %>%
       mutate(region = sub('^R5', '', .data$region))
 
   } else if (subtype == "AviationShipping") {
     dat <- dat %>%
-      filter(.data$Region == "World",
-             grepl("Aviation|Shipping", .data$Variable)) %>%
-      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                   names_transform = list(year = as.numeric)) %>%
+      filter(.data$Region == "World", grepl("Aviation|Shipping", .data$Variable)) %>%
+      tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                          names_to = 'year',
+                          names_transform = list(year = as.numeric)) %>%
       mutate(Region = "GLO") %>%
-      separate("Variable", c("type", "source"), sep = " - ") %>%
-      select(region = 'Region', 'year', scenario = 'Scenario', 'type', 'source',
-             'value')
+      tidyr::separate("Variable", c("type", "source"), sep = " - ") %>%
+      select(region = 'Region', 'year', scenario = 'Scenario', 'type', 'source', 'value')
   } else {
     stop("Invalid subtype. Must be 'Waste' or 'AviationShipping'")
   }
@@ -65,8 +58,5 @@ readRCP <- function(subtype) {
 
   dat <- dat[stats::complete.cases(dat),]
 
-  out <- as.magpie(dat, spatial=1 ,datacol=6)
-
-  return(out)
-
+  as.magpie(dat, spatial = 1 , datacol = 6)
 }
