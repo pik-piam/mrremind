@@ -9,7 +9,7 @@ calcFEdemand <- function() {
 
   # add Navigate and Campaigners scenarios to industry and transport to match buildings scenarios by duplication
   duplicateScens <- "gdp_SSP2EU_NAV_all"
-  feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "gdp_SSP2EU"], 3.1, duplicateScens))
+  feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "gdp_SSP2"], 3.1, duplicateScens))
 
 
   # add up industry and buildings contributions to stationary

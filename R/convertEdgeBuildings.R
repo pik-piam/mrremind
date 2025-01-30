@@ -10,7 +10,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
@@ -19,8 +19,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   duplScens <- function(x, scens = NULL) {
     if (is.null(scens)) {
       scens <- list(
-        SSP2EU = "SSP2EU_NAV_all",
-        SSP2 = c("SSP2_lowEn", "SSP2_highDemDEU")
+        SSP2 = c("SSP2_lowEn", "SSP2_highDemDEU", "SSP2EU_NAV_all")
       )
     }
     mbind(x, do.call(mbind, lapply(names(scens), function(from) {
@@ -160,7 +159,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
     # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL
     # For SSP1, SSP2 and SDP
-    names_2_change <- grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC|SSP2EU).*water_heating", getNames(result), value = TRUE)
+    names_2_change <- grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC).*water_heating", getNames(result), value = TRUE)
     names_2_change_elec <- grep("elec", names_2_change, value = TRUE)
 
     regs_OCD <- c("AUS", "CAN", "CHE", "NOR", "NZL")

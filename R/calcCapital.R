@@ -30,7 +30,7 @@ calcCapital <- function() {
   # Convergence starts after 2010.
   kIntRef <- kIntPWT["JPN", 2010, ] %>% as.numeric()
   convTime <- c("SSP1" = 150, "SSP2" = 250, "SSP3" = 150, "SSP4" = 300, "SSP5" = 150,
-                "SDP" = 150, "SDP_EI" = 150, "SDP_RC" = 150, "SDP_MC" = 150, "SSP2EU" = 250)
+                "SDP" = 150, "SDP_EI" = 150, "SDP_RC" = 150, "SDP_MC" = 150)
 
   # Create kInt magpie object with the same dimension as gdp, and assign the PWT capital intensities for the
   # historic years until 2010.
