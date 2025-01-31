@@ -11,13 +11,13 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
   # input data version
   ver <- "2.2"
 
-  scenarios <- list(
-    SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("_lowEn", "_NAV_all")),
-    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC"))
-  )
+  scenarios <- list(SSPs  = paste0("SSP", 1:5),
+                    SSP2s = paste0("SSP2", c("_lowEn", "_NAV_all")),
+                    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
   data <- read.csv(file.path(ver, "EDGE_buildings.csv"))
   data <- as.magpie(data)
+  #TMP: rename SSP2EU_NAV_all to SSP2_NAV_all
+  getNames(data) <- sub("SSP2EU_NAV_all", "SSP2_NAV_all", getNames(data))
 
   switch(subtype,
     FE = {
@@ -60,5 +60,5 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
     data <- mselect(data, scenario = Reduce(c, scenarios))
   }
 
-  return(data)
+  data
 }

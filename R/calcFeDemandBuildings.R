@@ -50,9 +50,7 @@ calcFeDemandBuildings <- function(subtype) {
   data <- mbind(stationary, buildings)
 
   # Prepare Mapping ----
-
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mrcommons")
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
 
   # TODO: remove once this is in the mapping
   # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
