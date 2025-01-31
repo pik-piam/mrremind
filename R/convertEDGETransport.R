@@ -7,7 +7,7 @@
 #'
 convertEDGETransport <- function(x, subtype) {
 
-  # TMP: cache was not invalidated...
+  # TMP: changes in edgeTransport required.
   getNames(x) <- gsub("gdp_", "", getNames(x))
 
   RegionCode <- CountryCode <- . <- NULL

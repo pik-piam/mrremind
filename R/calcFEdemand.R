@@ -5,9 +5,6 @@ calcFEdemand <- function() {
   feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
   feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
 
-  # TMP:
-  getNames(feIndustry) <- gsub("^gdp_", "", getNames(feIndustry))
-
   # duplicate scenarios ----
   # add Navigate and Campaigners scenarios to industry and transport to match buildings scenarios by duplication
   duplicateScens <- "SSP2_NAV_all"
