@@ -16,8 +16,8 @@ readIAEA_PRIS <- function() {
            "inactive"     = .data$inactive,  # only relevant for Japan
            variable = "Cap|Electricity|Nuclear") %>%
     mutate(year = "y2020") %>%  # technically, its 2024
-    pivot_longer(cols = c("operational", "construction", "inactive"),
-                 names_to = "status") %>%
+    tidyr::pivot_longer(cols = c("operational", "construction", "inactive"),
+                        names_to = "status") %>%
     select("country", "year", "variable", "status", "unit", "value") %>%
     as.magpie(spatial = "country", temporal = "year") %>%
     add_dimension(dim = 3.1, add = "model", nm = "IAEA_PRIS")

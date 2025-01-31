@@ -5,7 +5,6 @@
 #'
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
-#' @importFrom stats aggregate
 #' @export
 calcUNFCCC <- function() {
 
@@ -38,7 +37,7 @@ calcUNFCCC <- function() {
     ) %>%
     select("variable" = "REMIND", "region", "year", "value")
 
-  x <- aggregate(value ~ variable + region + year, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 

@@ -18,11 +18,11 @@ readIEA_HSMR <- function() {
            "2020_pumped" = .data$cap_2020_pumped,
            "2030_pumped" = .data$cap_2020_pumped + .data$of_that_pumped,
            variable = "Cap|Electricity|Hydro") %>%
-    pivot_longer(cols = c("2020_operational", "2030_expected",
-                          "2030_accelerated", "2020_pumped", "2030_pumped"),
-                 names_to = "year_scen") %>%
+    tidyr::pivot_longer(cols = c("2020_operational", "2030_expected",
+                                 "2030_accelerated", "2020_pumped", "2030_pumped"),
+                        names_to = "year_scen") %>%
     select("country", "variable", "year_scen", "unit", "value") %>%
-    separate(.data$year_scen, c("year", "status")) %>%
+    tidyr::separate(.data$year_scen, c("year", "status")) %>%
     as.magpie(spatial = "country")
 
   x[, 2020, "accelerated"] <- x[, 2020, "operational"]

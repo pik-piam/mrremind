@@ -9,8 +9,8 @@ calcRiskPremium <- function() {
   getNames(x) <- NULL
   getYears(x) <- NULL
 
-  # Use GDP as weight
-  w <- calcOutput("GDP", aggregate = FALSE)[, 2005, "gdp_SSP2"]
+  # Use GDP in 2005 as weight
+  w <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
   list(x           = x,
        weight      = w,

@@ -1,5 +1,3 @@
-#' @importFrom utils read.table
-
 readDLR <- function() {
   countries <- c(
     "Afghanistan",
@@ -222,7 +220,7 @@ readDLR <- function() {
   year <- "y2010"
 
   ### quality bin
-  bins <- read.table("FLh_bins_TriebFormula_2013_11_26.txt", col.names = c("PV", "CSP"))
+  bins <- utils::read.table("FLh_bins_TriebFormula_2013_11_26.txt", col.names = c("PV", "CSP"))
 
   ### define which columns to read, psv: odd columns, csp: even columns (exclude first two and last two)
   colClasses.df <- data.frame(PV = character(428), CSP = character(428))
@@ -250,7 +248,7 @@ readDLR <- function() {
 
     bin <- bins[, technology]
 
-    out <- read.csv2(x, header = FALSE, colClasses = colClasses.df[, technology])
+    out <- utils::read.csv2(x, header = FALSE, colClasses = colClasses.df[, technology])
     colnames(out) <- iso.countries
     out$type <- type
     out$technology <- technology

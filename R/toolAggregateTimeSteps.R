@@ -16,8 +16,8 @@ toolAggregateTimeSteps <- function(x, nYears = 5) {
   periodsMissing <- setdiff(periodsTarget, periods)
 
   # periods with difference smaller or greater to next period
-  periodsSubN <- sort(union(head(periods, -1)[diff(periods) != nYears],
-                            tail(periods, -1)[diff(periods) != nYears]))
+  periodsSubN <- sort(union(utils::head(periods, -1)[diff(periods) != nYears],
+                            utils::tail(periods, -1)[diff(periods) != nYears]))
 
   # periods that need to be aggregated
   periodsFill <- intersect(periodsTarget, union(periodsSubN, periodsMissing))

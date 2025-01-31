@@ -1,14 +1,9 @@
 #' Convert Global CCS Institute Project Database
 #'
 #' @md
-#' @param x A [`magpie`][magclass::magclass] object returned by
-#'     [readGlobalCCSinstitute()].
+#' @param x A [`magpie`][magclass::magclass] object returned by [readGlobalCCSinstitute()].
 #' @inherit readGlobalCCSinstitute
-#'
 #' @return A [`magpie`][magclass::magclass] object.
-#'
-#' @importFrom quitte add_countrycode_ madrat_mule
-#'
 #' @export
 convertGlobalCCSinstitute <- function(x, subtype = '08-09-2017') {
   if ('08-09-2017' == subtype) { # 08-09-2017 ----

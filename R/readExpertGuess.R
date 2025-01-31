@@ -27,10 +27,7 @@
 #' }
 #'
 #' @importFrom dplyr bind_rows filter pull select
-#' @importFrom quitte madrat_mule
-#' @importFrom readr read_csv
-#' @importFrom tidyr expand_grid
-
+#'
 readExpertGuess <- function(subtype) {
   if (subtype == "ies") {
     a <- read.csv("ies.csv", sep = ";")
@@ -65,21 +62,21 @@ readExpertGuess <- function(subtype) {
   }
 
   if ("Chinese_Steel_Production" == subtype) {
-    out <- read_csv(
+    out <- readr::read_csv(
       file = "Chinese_Steel_Production.csv",
       comment = "#",
       show_col_types = FALSE
     ) %>%
-      madrat_mule()
+      quitte::madrat_mule()
   } else if ("industry_max_secondary_steel_share" == subtype) {
-    out <- read_csv(
+    out <- readr::read_csv(
       file = "industry_max_secondary_steel_share.csv",
       comment = "#",
       show_col_types = FALSE
     ) %>%
-      madrat_mule()
+      quitte::madrat_mule()
   } else if ("cement_production_convergence_parameters" == subtype) {
-    out <- read_csv(
+    out <- readr::read_csv(
       file = "cement_production_convergence_parameters.csv",
       col_types = "cdi",
       comment = "#"
@@ -89,10 +86,10 @@ readExpertGuess <- function(subtype) {
       out %>%
         filter(!is.na(.data$region)),
       out %>%
-        head(n = 1) %>%
+        utils::head(n = 1) %>%
         filter(is.na(.data$region)) %>%
         select(-"region") %>%
-        expand_grid(region = toolGetMapping(
+        tidyr::expand_grid(region = toolGetMapping(
           name = "regionmapping_21_EU11.csv",
           type = "regional", where = "mappingfolder"
         ) %>%
@@ -101,7 +98,7 @@ readExpertGuess <- function(subtype) {
           sort() %>%
           setdiff(out$region))
     ) %>%
-      madrat_mule()
+      quitte::madrat_mule()
   } else if (subtype == "tradeConstraints") {
     a <- read.csv("tradeConstraints.csv", sep = ";")
     out <- as.magpie(a)

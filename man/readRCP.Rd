@@ -18,7 +18,6 @@ Read RCP
 Read in RCP data
 }
 \examples{
-
 \dontrun{ a <- readSource(type="RCP", subtype="Waste")
 }
 

@@ -12,19 +12,15 @@
 calcCostsTradePeFinancial <- function() {
   data <- readSource("ExpertGuess", subtype = "costsTradePeFinancial")
 
-  data <- GDPuc::toolConvertGDP(
-    gdp = data,
-    unit_in = "constant 2005 US$MER",
-    unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = "with_USA"
-  )
+  data <- GDPuc::toolConvertGDP(gdp = data,
+                                unit_in = "constant 2005 US$MER",
+                                unit_out = mrdrivers::toolGetUnitDollar(),
+                                replace_NAs = "with_USA")
 
-  w <- calcOutput("GDP", aggregate = FALSE)[, 2005, "gdp_SSP2"]
+  w <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
-  return(list(
-    x = data,
-    weight = w,
-    unit = "trillion US$2017/TWa",
-    description = "PE tradecosts (financial costs on import, export and use)"
-  ))
+  list(x = data,
+       weight = w,
+       unit = glue::glue("trillion US${mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE)}/TWa"),
+       description = "PE tradecosts (financial costs on import, export and use)")
 }
