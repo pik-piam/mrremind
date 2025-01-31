@@ -29,7 +29,7 @@ calcEmiTarget <- function(sources, subtype) {
   ghg <- toolCountryFill(ghg, fill = 0, verbosity = 2)
 
   # Future GDP values
-  gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), aggregate = FALSE)
+  gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
 
   convertNAto0 <- function(x) {
     x[is.na(x)] <- 0
