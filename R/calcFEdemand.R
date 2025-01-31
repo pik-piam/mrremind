@@ -10,7 +10,7 @@ calcFEdemand <- function() {
 
   # duplicate scenarios ----
   # add Navigate and Campaigners scenarios to industry and transport to match buildings scenarios by duplication
-  duplicateScens <- "SSP2EU_NAV_all"
+  duplicateScens <- "SSP2_NAV_all"
   feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "SSP2"], 3.1, duplicateScens))
 
 

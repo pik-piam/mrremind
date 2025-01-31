@@ -101,10 +101,8 @@ calcEDGETransport <- function(subtype) {
     }
   )
 
-  return(list(
-    x = x,
-    weight = weight,
-    unit = unit,
-    description = description
-  ))
+  list(x = x,
+       weight = weight,
+       unit = unit,
+       description = description)
 }
