@@ -2,7 +2,7 @@
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #' @param sources currently only UNFCCC_NDC
 #' @param subtype "Ghgshare2005", "Ghgfactor", "Ghghistshare"
-
+#'
 calcEmiTarget <- function(sources, subtype) {
 
   ### Import historical data (gdp and emi) needed for the calculations
