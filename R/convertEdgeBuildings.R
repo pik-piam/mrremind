@@ -10,7 +10,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU", "2_NAV_all")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC"))),
       function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
