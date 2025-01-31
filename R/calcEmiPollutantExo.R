@@ -68,15 +68,16 @@ calcEmiPollutantExo <- function(subtype, aviationshippingsource = "RCP") {
 
   if (subtype == "Waste") {
     scale_data <- dimSums(scale_data, dim = 3.2)
+    getSets(scale_data)  <- c("region","year","type")
   }
   if (subtype == "AviationShipping") {
     scale_data <- dimSums(scale_data, dim = 1)
+    getSets(scale_data) <- c("region", "year", "type", "source")
     getNames(scale_data) <- gsub("1C1", "Aviation", getNames(scale_data))
     getNames(scale_data) <- gsub("1C2", "InternationalShipping", getNames(scale_data))
   }
 
   getYears(scale_data) <- NULL
-  getSets(scale_data) <- c("region", "year", "type", "source")
   x <- complete_magpie(x, fill = 0)
   scale_x <- x[, 2005, ]
   getYears(scale_x) <- NULL

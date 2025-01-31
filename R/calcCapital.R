@@ -75,9 +75,8 @@ calcCapital <- function() {
   kap <- k[, 2015, "SSP2"] %>% tibble::as_tibble() %>% dplyr::select("iso3c", "kap" = "value")
   EEK <- calcOutput("Industry_EEK", kap = kap, aggregate = FALSE, years = getYears(k))
 
-  # Modify names to match "all_demScen" in remind ("gdp_" prefix), and differentiate the macroeconomic capital "kap"
-  # from EEK capital stocks.
-  getNames(k) <- paste0("gdp_", getNames(k), ".kap")
+  # Modify names to differentiate the macroeconomic capital "kap" from EEK capital stocks.
+  getNames(k) <- paste0(getNames(k), ".kap")
   getSets(k) <- c("iso3c", "year", "ssp", "variable")
   x <- mbind(k, EEK)
 

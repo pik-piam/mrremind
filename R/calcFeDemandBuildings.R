@@ -125,11 +125,6 @@ calcFeDemandBuildings <- function(subtype) {
   }
 
   # Prepare Output ----
-
-  # change the scenario names for consistency with REMIND sets
-  getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
-  getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
-
   # change item names back from UE to FE
   if (subtype == "UE_buildings") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
@@ -142,9 +137,9 @@ calcFeDemandBuildings <- function(subtype) {
   )
 
   outputStructure <- switch(subtype,
-    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
+    FE = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)",
+    FE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+    UE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )
 
   return(list(x = remind,
