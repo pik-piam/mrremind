@@ -185,7 +185,11 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 
-    wp <- calcOutput("Population", naming = "scenario", years = rem_years_hist, aggregate = FALSE)
+    wp <- calcOutput("Population",
+                     scenario = c("SSPs", "SDPs"),
+                     naming = "scenario",
+                     years = rem_years_hist,
+                     aggregate = FALSE)
     getSets(wp) <- gsub("variable", "scenario", getSets(wp))
 
     # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
