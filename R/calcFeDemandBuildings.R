@@ -140,10 +140,9 @@ calcFeDemandBuildings <- function(subtype) {
     UE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )
 
-  return(list(x = remind,
-              weight = NULL,
-              unit = "EJ",
-              description = description,
-              structure.data = outputStructure))
-
+  list(x = remind,
+       weight = NULL,
+       unit = "EJ",
+       description = description,
+       structure.data = outputStructure)
 }
