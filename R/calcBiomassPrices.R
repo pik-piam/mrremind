@@ -6,7 +6,7 @@ calcBiomassPrices <- function() {
   x <- readSource("MAgPIE", subtype = "supplyCurve_magpie_40")
 
   # add supply curves for SDP-MC-SSP1-PkBudg1000 copying SDP-MC-SSP1-PkBudg650
-  tmp <- x[, , "SDP-MC-SSP1-PkBudg650"] 
+  tmp <- x[, , "SDP-MC-SSP1-PkBudg650"]
   getNames(tmp) <- gsub("SDP-MC-SSP1-PkBudg650", "SDP-MC-SSP1-PkBudg1000", getNames(tmp))
   x <- mbind(x, tmp)
 
@@ -37,9 +37,9 @@ calcBiomassPrices <- function() {
   x[, , "a"][is.na(x[, , "a"])] <- 1
   x[, , "b"][is.na(x[, , "b"])] <- 0.1
 
-  return(list(x           = x,
-              weight      = calcOutput("FAOLand", aggregate = FALSE)[, , "6610", pmatch = TRUE][, "y2010", ],
-              unit        = "none",
-              description = "coefficients for the bioenergy supplycurve",
-              aggregationFunction = toolBiomassSupplyAggregate))
+  list(x           = x,
+       weight      = calcOutput("FAOLand", aggregate = FALSE)[, , "6610", pmatch = TRUE][, "y2010", ],
+       unit        = "none",
+       description = "coefficients for the bioenergy supplycurve",
+       aggregationFunction = toolBiomassSupplyAggregate)
 }

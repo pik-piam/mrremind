@@ -226,7 +226,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
     #  # Making sure that targets in subsequent years are always same or greater than the proceeding year
     for (r in getItems(x_mod5, dim = "region")) {
       for (t in techList) {
-        for (i in head(targetYears, -1)) {
+        for (i in utils::head(targetYears, -1)) {
           if (x_capacity[r, i + 5, t] < setYears(x_capacity[r, i, t])) {
             x_capacity[r, i + 5, t] <- setYears(x_capacity[r, i, t])
           } else {
@@ -273,7 +273,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
                                                "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
 
     # Future GDP values
-    gdp <- calcOutput("GDP", aggregate = FALSE)
+    gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
 
     # Define EU countries + croatia for special treatment because of joint NDC
     EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",

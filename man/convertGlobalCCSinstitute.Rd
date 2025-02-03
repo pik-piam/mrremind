@@ -7,8 +7,7 @@
 convertGlobalCCSinstitute(x, subtype = "08-09-2017")
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned by
-\code{\link[=readGlobalCCSinstitute]{readGlobalCCSinstitute()}}.}
+\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned by \code{\link[=readGlobalCCSinstitute]{readGlobalCCSinstitute()}}.}
 
 \item{subtype}{Project Database version to read, one of
 - \code{'08-09-2017'}: Data apparently from June 2017.

@@ -18,13 +18,13 @@ convertREMIND_11Regi <- function(x,subtype) {
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
   } else if (subtype == "AP_starting_values") {
-    pop <- calcOutput("Population",years=2005,aggregate=FALSE)[,,"pop_SSP2"]
+    pop <- calcOutput("Population", scenario = "SSP2", years = 2005, aggregate = FALSE)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=pop)
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
   } else if (subtype == "nashWeight") {
-    gdp <- calcOutput("GDP",years=2005,aggregate=FALSE)[,,"gdp_SSP2"]
+    gdp <- calcOutput("GDP", scenario = "SSP2", years = 2005, aggregate = FALSE)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
   } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" |
              subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {

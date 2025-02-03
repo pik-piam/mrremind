@@ -1,14 +1,7 @@
-#' @importFrom dplyr min_rank
-#' @importFrom quitte as.quitte
-
 convertECLIPSE <- function(x, subtype) {
 
   # Parameter definitions
   downscaling <- TRUE
-
-  # TODO: Switch to EDGAR data
-  p_dagg_year <- 2005
-  p_dagg_pop  <- "pop_SSP2"
 
   # Initialisation
   # Local functions
@@ -57,19 +50,19 @@ convertECLIPSE <- function(x, subtype) {
     keepNames <- getSets(mdata)[3:length(getSets(mdata))]
 
     tmp <- mdata %>%
-      as.quitte()
+      quitte::as.quitte()
 
 
     tmp <- tmp[, colSums(is.na(tmp)) < nrow(tmp)]
     grp_cols <- setdiff(colnames(tmp), c("value", "period"))
 
     output <- tmp  %>%
-      as.quitte() %>%
+      quitte::as.quitte() %>%
       # mutate(period = as.integer(format(period,"%Y"))) %>%
       mutate(value = ifelse(.data$value == 0, NA, .data$value)) %>%
       # group_by(region, sector,variable,scenario) %>%
       group_by(!!!syms(grp_cols)) %>%
-      mutate(rank = min_rank(.data$period),
+      mutate(rank = dplyr::min_rank(.data$period),
              value = ifelse(  all(is.na(.data$value))
                             | !any(is.na(.data$value))
                             | !is.na(.data$value),
@@ -84,7 +77,7 @@ convertECLIPSE <- function(x, subtype) {
       ungroup() %>%
       select(-'rank') %>%
       as.data.frame() %>%
-      as.quitte()
+      quitte::as.quitte()
 
     output <- output[c(setdiff(colnames(output), c(keepNames, "value")), keepNames, "value")] # ensure that the order of the names is the same as in mdata
 
@@ -108,7 +101,7 @@ convertECLIPSE <- function(x, subtype) {
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
-      map <- read.csv2(m)
+      map <- utils::read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map <- map %>%
         mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))
@@ -116,7 +109,7 @@ convertECLIPSE <- function(x, subtype) {
       map$RegionCode  <- factor(map$RegionCode)
 
       # TODO: Use EDGAR data as weight
-      w <- calcOutput("Population", aggregate = FALSE)[levels(map$CountryCode), p_dagg_year, p_dagg_pop]
+      w <- calcOutput("Population", scenario = "SSP2", aggregate = FALSE)[levels(map$CountryCode), 2005, ]
       x <- toolAggregate(x[, , ], map, weight = w)
 
       # fill all missing countries with 0 (add Antarctica)
@@ -135,7 +128,7 @@ convertECLIPSE <- function(x, subtype) {
                           returnPathOnly = TRUE, where = "mappingfolder")
 
       # Get GAINS regional mapping
-      map <- read.csv2(m)
+      map <- utils::read.csv2(m)
       map <- map[!(map$RegionCode == "" | map$CountryCode == "ANT"), c(2, 3)]
       map  <- map %>%
         mutate(RegionCode = gsub("\\ \\+", "\\+", gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$RegionCode))))
@@ -143,7 +136,7 @@ convertECLIPSE <- function(x, subtype) {
       map$RegionCode  <- factor(map$RegionCode)
 
       # TODO: Use EDGAR data as weight
-      w <- calcOutput("Population", aggregate = FALSE)[levels(map$CountryCode), p_dagg_year, p_dagg_pop]
+      w <- calcOutput("Population", scenario = "SSP2", aggregate = FALSE)[levels(map$CountryCode), 2005, ]
       x <- toolAggregate(x[, , ], map, weight = w)
 
       # fill all missing countries with 0 (add Antarctica)

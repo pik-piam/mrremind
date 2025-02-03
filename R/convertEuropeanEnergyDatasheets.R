@@ -13,7 +13,7 @@
 #' }
 #'
 convertEuropeanEnergyDatasheets <- function(x, subtype) {
-  iso3 <- read.csv2("isotwo2iso3Mapping.csv", stringsAsFactors = FALSE)
+  iso3 <-utils::read.csv2("isotwo2iso3Mapping.csv", stringsAsFactors = FALSE)
   getItems(x, dim = 1) <- sapply(getRegions(x), function(y) iso3[which(iso3[, 1] == y), 2])
 
   # fill up zero countries

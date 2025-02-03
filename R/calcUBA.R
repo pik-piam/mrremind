@@ -6,8 +6,6 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join filter
-#' @importFrom rlang sym
-#' @importFrom stats aggregate
 #' @export
 calcUBA <- function() {
   uba <- readSource("UBA")
@@ -31,7 +29,7 @@ calcUBA <- function() {
     mutate("REMIND_variable" = paste0(!!sym("REMIND_variable"), " (", !!sym("Unit_REMIND"), ")")) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
-  x <- aggregate(value ~ variable + region + year, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie()  %>%
     toolCountryFill(fill = NA, verbosity = 2)
 

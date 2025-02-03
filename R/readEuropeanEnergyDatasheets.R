@@ -13,9 +13,6 @@
 #' @importFrom readxl excel_sheets read_excel
 #' @param subtype data subtype. Either "EU28" (data from June 20 including GBR)
 #' or "EU27" (latest data from August 23 without GBR)
-#' @importFrom tidyr drop_na extract
-#' @importFrom readxl excel_sheets read_excel
-#' @importFrom stats aggregate na.pass
 #'
 readEuropeanEnergyDatasheets <- function(subtype) {
   if (!subtype %in% c("EU27", "EU28")) {
@@ -56,7 +53,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       countrySheet_1[, -c(1, 2, 3)] <- countrySheet_1[, -c(1, 2, 3)] * countrySheet_1[, c("factor")]
       countrySheet_1 <- countrySheet_1[, -c(2, 3)] # removing extra columns
       countrySheet_1 <- cbind(region, countrySheet_1) # adding region column
-      countrySheet_1 <- aggregate(. ~ REMIND + region, data = countrySheet_1, FUN = sum, na.action = na.pass)
+      countrySheet_1 <- stats::aggregate(. ~ REMIND + region, data = countrySheet_1, FUN = sum, na.action = stats::na.pass)
       colnames(countrySheet_1) <- c("variable", "region", 1990:(1990 + ncol(countrySheet_1) - 3))
       # replace with remind_2 mapping
       countrySheet_2 <- countrySheet[indices_2, nameColumn:ncol(countrySheet)]
@@ -68,7 +65,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       countrySheet_2 <- countrySheet_2[, -c(2, 3)] # removing extra columns
       countrySheet_2 <- cbind(region, countrySheet_2) # adding region column
       # merge repeated items
-      countrySheet_2 <- aggregate(. ~ REMIND_2 + region, data = countrySheet_2, FUN = sum, na.action = na.pass)
+      countrySheet_2 <- stats::aggregate(. ~ REMIND_2 + region, data = countrySheet_2, FUN = sum, na.action = stats::na.pass)
       colnames(countrySheet_2) <- c("variable", "region", 1990:(1990 + ncol(countrySheet_2) - 3))
       # replace with remind_3 mapping
       countrySheet_3 <- countrySheet[indices_3, nameColumn:ncol(countrySheet)]
@@ -80,7 +77,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       countrySheet_3 <- countrySheet_3[, -c(2, 3)] # removing extra columns
       countrySheet_3 <- cbind(region, countrySheet_3) # adding region column
       # merge repeated items
-      countrySheet_3 <- aggregate(. ~ REMIND_3 + region, data = countrySheet_3, FUN = sum, na.action = na.pass)
+      countrySheet_3 <- stats::aggregate(. ~ REMIND_3 + region, data = countrySheet_3, FUN = sum, na.action = stats::na.pass)
       colnames(countrySheet_3) <- c("variable", "region", 1990:(1990 + ncol(countrySheet_3) - 3))
       # merge both REMIND mappings
       countrySheet <- rbind(countrySheet_1, countrySheet_2, countrySheet_3)
@@ -637,7 +634,7 @@ readEuropeanEnergyDatasheets <- function(subtype) {
         )
       }
     ) %>%
-      extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+      tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
     # nolint end
 
     file <- "energy_statistical_countrydatasheets_aug23.xlsx"
@@ -649,8 +646,8 @@ readEuropeanEnergyDatasheets <- function(subtype) {
       tmp <- rbind(
         tmp,
         suppressMessages(read_xlsx(path = file, sheet = sheet, range = "C8:AI543", )) %>%
-          bind_cols(rows) %>%
-          drop_na("variable", "unit") %>%
+          dplyr::bind_cols(rows) %>%
+          tidyr::drop_na("variable", "unit") %>%
           select(-1) %>%
           reshape2::melt(id.vars = c("variable", "unit"), variable.name = "year") %>%
           mutate(

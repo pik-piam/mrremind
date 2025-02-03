@@ -8,37 +8,34 @@
 #'
 #' @param subtype decides whether emissions or emission factors are returned
 #' @param sectoral_resolution aggreaged or extenden (uses different GAINS input data)
-#' @importFrom dplyr ungroup
-#' @importFrom utils read.csv read.csv2
-#' @importFrom quitte as.quitte
 calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "extended") {
 
-  if (!(subtype %in% c("emission_factors", "emissions"))) stop('subtype must be in c("emission_factors", "emissions")')
-
-  # local functions
-
-  # country to region
-  allocate_c2r_ef <- function(id_ef, ip_region, ip_country, ip_year, ip_scenario) {
-    dummy                   <- id_ef[ip_region, ip_year, ip_scenario]
-    dummy[, , ]               <- setCells(id_ef[ip_country, ip_year, ip_scenario], "GLO")
-    return(dummy)
+  if (!(subtype %in% c("emission_factors", "emissions"))) {
+    stop('subtype must be in c("emission_factors", "emissions")')
   }
 
+  # local functions
+  ## country to region
+  allocate_c2r_ef <- function(id_ef, ip_region, ip_country, ip_year, ip_scenario) {
+    dummy <- id_ef[ip_region, ip_year, ip_scenario]
+    dummy[, , ] <- setCells(id_ef[ip_country, ip_year, ip_scenario], "GLO")
+    dummy
+  }
   allocate_min2r_ef <- function(id_ef, ip_region, ip_countryGroup, ip_year, ip_scenario) {
     dummy <- id_ef[ip_region, ip_year, ip_scenario]
     # Get minimum values across country group
-    tmp <- as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
+    tmp <- quitte::as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
       group_by(!!!syms(c("data1", "data2"))) %>%
       summarise(value = ifelse(all(.data$value == 0), 0,
                                min(.data$value[.data$value > 0], na.rm = TRUE))
                 ) %>%  # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
-      ungroup() %>%
+      dplyr::ungroup() %>%
       as.data.frame() %>%
-      as.quitte() %>%
+      quitte::as.quitte() %>%
       as.magpie()
     # Allocate minimum values to region
     dummy[ip_region, ip_year, ip_scenario] <- setYears(tmp)
-    return(dummy)
+    dummy
   }
 
   # conversion factors
@@ -46,27 +43,28 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
 
   # user-defined parameters
   time     <- c(seq(2005, 2055, 5), seq(2060, 2110, 10), 2130, 2150)
-  scenario <- c("SSP1", "SSP2", "SSP5", "FLE", "MFR", "CLE") # ,"SSP3","SSP4", "MFR_Transports", "GlobalEURO6", "FLE_building_transport", "SLCF_building_transport")
+  # ,"SSP3","SSP4", "MFR_Transports", "GlobalEURO6", "FLE_building_transport", "SLCF_building_transport")
+  scenario <- c("SSP1", "SSP2", "SSP5", "FLE", "MFR", "CLE")
 
-  p_dagg_year <- 2005
-  p_dagg_pop  <- "pop_SSP2"
-  p_dagg_gdp  <- "gdp_SSP2"
-
-  p_countryCategories <- "useGAINSregions" # "perCountry"
+  # "perCountry"
+  p_countryCategories <- "useGAINSregions"
 
   # list of OECD countries
-  r_oecd <- c("AUS", "AUT", "BEL", "CAN", "CHL", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "ISL", "IRL", "ISR", "ITA",
-              "JPN", "KOR", "LUX", "MEX", "NLD", "NZL", "NOR", "POL", "PRT", "SVK", "SVN", "ESP", "SWE", "CHE", "TUR", "GBR", "USA")
+  r_oecd <- c("AUS", "AUT", "BEL", "CAN", "CHL", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "ISL", "IRL",
+              "ISR", "ITA", "JPN", "KOR", "LUX", "MEX", "NLD", "NZL", "NOR", "POL", "PRT", "SVK", "SVN", "ESP", "SWE",
+              "CHE", "TUR", "GBR", "USA")
 
-  # set of sectors for which no emission factor will be computed (because there is no activity reported, or not in terms of energy)
+  # set of sectors for which no emission factor will be computed (because there is no activity reported, or not in
+  # terms of energy)
   dimSector_skipEF <- c("AACID", "CEMENT", "CHEM", "CHEMBULK", "CUSM", "NACID", "PAPER", "STEEL",
-                       "Losses_Coal", "Losses_Distribution_Use",
-                       "Transformations_Coal", "Transformations_HLF", "Transformations_HLF_Refinery", "Transformations_NatGas")
+                       "Losses_Coal", "Losses_Distribution_Use", "Transformations_Coal", "Transformations_HLF",
+                       "Transformations_HLF_Refinery", "Transformations_NatGas")
 
-  dimSector_skipEF_edge <- c("End_Use_Industry_Bio_Trad", "End_Use_Industry_Coal", "End_Use_Industry_HLF", "End_Use_Industry_LLF",
-                            "End_Use_Industry_NatGas", "End_Use_Residential_Bio_Mod", "End_Use_Residential_Bio_Trad", "End_Use_Residential_Coal",
-                            "End_Use_Residential_HLF", "End_Use_Residential_LLF", "End_Use_Residential_NatGas", "End_Use_Services_Bio_Trad",
-                            "End_Use_Services_Coal")
+  dimSector_skipEF_edge <- c("End_Use_Industry_Bio_Trad", "End_Use_Industry_Coal", "End_Use_Industry_HLF",
+                             "End_Use_Industry_LLF", "End_Use_Industry_NatGas", "End_Use_Residential_Bio_Mod",
+                             "End_Use_Residential_Bio_Trad", "End_Use_Residential_Coal", "End_Use_Residential_HLF",
+                             "End_Use_Residential_LLF", "End_Use_Residential_NatGas", "End_Use_Services_Bio_Trad",
+                             "End_Use_Services_Coal")
 
   dimSector_skipEF_edge <- c("")
   dimSector_skipEF <- c("")
@@ -79,9 +77,9 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
   emissions <- emissions[, c(2005, 2010, 2020, 2030, 2050), ]
 
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
-  map_regions  <- read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv",
-                            returnPathOnly = TRUE, where = "mappingfolder"),
-                            stringsAsFactors = TRUE)[, c(2, 3)]
+  map_regions  <- utils::read.csv2(toolGetMapping(type = "regional", name = "regionmappingGAINS.csv",
+                                                  returnPathOnly = TRUE, where = "mappingfolder"),
+                                   stringsAsFactors = TRUE)[, c(2, 3)]
   map_regions  <- map_regions %>%
     filter(.data$CountryCode != "ANT") %>% # Remove Netherland Antilles (not in REMIND regional mapping)
     filter(.data$RegionCode != "") %>%
@@ -90,18 +88,12 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
                                   gsub("[0-9]", "", .data$RegionCode)))) %>%
     mutate(CountryCode = factor(.data$CountryCode))
 
-  # read in population and GDP data. required to compute gdp per cap
-  pop <- calcOutput("Population", aggregate = FALSE)[, p_dagg_year, p_dagg_pop]
-  gdp <- calcOutput("GDP",    aggregate = FALSE)[, p_dagg_year, p_dagg_gdp]
-
-
   #-- PROCESS DATA ------------------
   # set of sectors for which emission factors are computed
   dimSector_EF <- getNames(activities)[!getNames(activities) %in% c(dimSector_skipEF, dimSector_skipEF_edge)]
 
-  # calculate gdp per capita
-  gdp_cap <- gdp / pop
-  gdp_cap[is.na(gdp_cap)]   <- 0       # set NA to 0
+  # Get gdp per capita
+  gdp_cap <- calcOutput("GDPpc", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
   # Regional selections
   # select one country pertaining to WEU (all WEU countries should have the same EF). Used for SSP scenario rules
@@ -109,7 +101,8 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
 
   # Retrieve Transport names
 
-  # define missing SLE scenario (assumed to be 3/4 of the distance between CLE and MFR, according to discussion with Zig Klimont on 18th Feb 2016)
+  # define missing SLE scenario (assumed to be 3/4 of the distance between CLE and MFR, according to discussion with
+  # Zig Klimont on 18th Feb 2016)
   cle <- emissions[, , "CLE"]
   getNames(cle) <- gsub("CLE", "MFR", getNames(cle))
   sle <- cle - (cle - emissions[, , "MFR"]) * 0.75
@@ -117,44 +110,54 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
   emissions <- mbind(emissions, sle)
   rm(cle, sle)
 
-  # calculate emission factors (only for power and end-use sectors, and not empty activities) and convert from kt/PJ to Tg/Twa
+  # calculate emission factors (only for power and end-use sectors, and not empty activities) and convert from kt/PJ
+  # to Tg/Twa
   ef_eclipse  <- emissions[, , dimSector_EF] / activities[, , dimSector_EF] * conv_kt_per_PJ_to_Tg_per_TWa
 
   getSets(ef_eclipse) <- c("region", "year", "data1", "data2", "data3")
 
 
   # DK: NAs in ef_eclipse: There are two potential reasons for NAs in ef_eclipse:
-  # 1) ef = emi / activitiy => if the activity is zero the ef gets NA. The activity is disaggregated from 24 GAINS regions to the 249 ISO
-  # countries using population as weight. If there is no population data for a country the activity (and also the emissions) of this country
-  # are zero. In this case ef for this country is NA for ALL sectors and species => Jerome's command below that collects regions in NAregions
-  # which have only NAs works! The NAs are replaced with ef from countries that belong to the same GAINS region and thus have identical ef.
-  # After replacing these kind of NAs there may remain NAs for another reason:
-  # 2) There is no activity data for a particular sector and GAINS region in the source data => activity will be zero for this sector and all
-  # ISO countries belonging to this GAINS region => ef will be NA for those sectors and countries. Set those NAs to zero. When ef is reaggregated
-  # to REMIND regions this is done using the activites as weight. And the activity is zero for the countries and sectors that have zeros due to zero
-  # activity and thus have no effect on the result.
+  # 1) ef = emi / activitiy => if the activity is zero the ef gets NA. The activity is disaggregated from 24 GAINS
+  # regions to the 249 ISO countries using population as weight. If there is no population data for a country the
+  # activity (and also the emissions) of this country are zero. In this case ef for this country is NA for ALL sectors
+  # and species => Jerome's command below that collects regions in NAregions which have only NAs works! The NAs are
+  # replaced with ef from countries that belong to the same GAINS region and thus have identical ef. After replacing
+  # these kind of NAs there may remain NAs for another reason: 2) There is no activity data for a particular sector and
+  # GAINS region in the source data => activity will be zero for this sector and all ISO countries belonging to this
+  # GAINS region => ef will be NA for those sectors and countries. Set those NAs to zero. When ef is reaggregated to
+  # REMIND regions this is done using the activites as weight. And the activity is zero for the countries and sectors
+  # that have zeros due to zero activity and thus have no effect on the result.
 
-  # some regions/countries have NA values everywhere (pop data is zero). Allocate EF of another country that belongs to the same GAINS region (except for Antartica)
+  # some regions/countries have NA values everywhere (pop data is zero). Allocate EF of another country that belongs to
+  # the same GAINS region (except for Antartica)
   # Find countries that have NA for all sectors and species (then probably due to missing population data, see above)
-  ef_eclipse["ATA", , ] <- 0    # Antartica -> 0
-  NAregions <- c("AIA", "ALA", "ATF", "BES", "BLM", "BVT", "CCK", "COK", "CXR", "ESH", "FLK", "GGY", "GIB", "GLP", "GUF", "HMD", "IOT", "JEY", "MSR", "MTQ", "MYT", "NFK",
-                 "NIU", "NRU", "PCN", "REU", "SGS", "SHN", "SJM", "SPM", "TKL", "TWN", "UMI", "VAT", "VGB", "WLF")
+  # Antartica -> 0
+  ef_eclipse["ATA", , ] <- 0
+  NAregions <- c("AIA", "ALA", "ATF", "BES", "BLM", "BVT", "CCK", "COK", "CXR", "ESH", "FLK", "GGY", "GIB", "GLP",
+                 "GUF", "HMD", "IOT", "JEY", "MSR", "MTQ", "MYT", "NFK", "NIU", "NRU", "PCN", "REU", "SGS", "SHN",
+                 "SJM", "SPM", "TKL", "TWN", "UMI", "VAT", "VGB", "WLF")
 
   MissingRegions <- c("ALA", "BES", "BLM", "CUW", "GGY", "IMN", "JEY", "MAF", "PSE", "SSD", "SXM")
 
-  # for countries that have NAs everywhere (missing population, see reason 1 above) replace NA with ef of country that belongs to same GAINS region
+  # for countries that have NAs everywhere (missing population, see reason 1 above) replace NA with ef of country
+  # that belongs to same GAINS region
   for (kregi in NAregions) {
-    # suche die countrycodes aller countries, die zu der region gehören, zu der auch kregi gehört, lasse die Regionen aus NAregions und missingRegions weg
-    # take the value of the first country since all countries that belong to the same GAINS region have the same ef
-    subsitute_region <- map_regions$CountryCode[map_regions$RegionCode == map_regions$RegionCode[map_regions$CountryCode == kregi] &
-                                              !map_regions$CountryCode %in% c(NAregions, MissingRegions)][1]
+    # suche die countrycodes aller countries, die zu der region gehören, zu der auch kregi gehört, lasse die Regionen
+    # aus NAregions und missingRegions weg take the value of the first country since all countries that belong to the
+    # same GAINS region have the same ef
+    subsitute_region <- map_regions$CountryCode[
+      map_regions$RegionCode == map_regions$RegionCode[map_regions$CountryCode == kregi] &
+        !map_regions$CountryCode %in% c(NAregions, MissingRegions)
+    ][1]
 
     tmp <- ef_eclipse[subsitute_region, , ]
     getItems(tmp, dim = 1) <- kregi
     ef_eclipse[kregi, , ] <- tmp
   }
 
-  # for the remaining NAs (0/0 = NaN) and Infs (1/0 = Inf ) just set EF to 0 (activity levels are 0, although in some cases emissions exist)
+  # for the remaining NAs (0/0 = NaN) and Infs (1/0 = Inf ) just set EF to 0 (activity levels are 0, although in
+  # some cases emissions exist)
   ef_eclipse[is.na(ef_eclipse)]   <- 0
   ef_eclipse[is.infinite(ef_eclipse)]   <- 0
   rm(NAregions, MissingRegions)
@@ -208,11 +211,14 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
     })
 
     # low income countries (using World Bank definition < 2750 US$(2010)/Cap)
-    r_L        <- levels(map_regions$CountryCode[map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])])
+    r_L        <- levels(map_regions$CountryCode[
+      map_regions$RegionCode %in% names(regionMean_gdppcap[regionMean_gdppcap <= 2750])
+    ])
     # high and medium income countries
     r_HM       <- setdiff(getRegions(ef), r_L)
     # High-Medium income countries with strong pollution policies in place
-    r_HMStrong <- map_regions$CountryCode[map_regions$RegionCode %in% c("Western Europe", "Japan")]   # FIXME definition taken from JeS matlab script
+    # FIXME definition taken from JeS matlab script
+    r_HMStrong <- map_regions$CountryCode[map_regions$RegionCode %in% c("Western Europe", "Japan")]
     # High-Medium income countries with lower emissions goals
     r_HMRest   <- setdiff(r_HM, r_HMStrong)
   } else {

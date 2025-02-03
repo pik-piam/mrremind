@@ -19,14 +19,18 @@ calcCapital <- function() {
   kIntPWT <- kPWT / setNames(gdpPWT, NULL)
 
   # Get GDP from mrdrivers (which differs from GDP in PWT)
-  gdp <- calcOutput("GDP", naming = "scenario", aggregate = FALSE, years = seq(1995, 2150, 5))
+  gdp <- calcOutput("GDP",
+                    scenario = c("SSPs", "SDPs"),
+                    naming = "scenario",
+                    aggregate = FALSE,
+                    years = seq(1995, 2150, 5))
 
   # Define reference capital intensity, and the convergence time in years, of the countries capital intensities towards
   # that reference, for the different GDP scenarios. The convergence assumptions should follow the SSP narratives.
   # Convergence starts after 2010.
   kIntRef <- kIntPWT["JPN", 2010, ] %>% as.numeric()
   convTime <- c("SSP1" = 150, "SSP2" = 250, "SSP3" = 150, "SSP4" = 300, "SSP5" = 150,
-                "SDP" = 150, "SDP_EI" = 150, "SDP_RC" = 150, "SDP_MC" = 150, "SSP2EU" = 250)
+                "SDP" = 150, "SDP_EI" = 150, "SDP_RC" = 150, "SDP_MC" = 150)
 
   # Create kInt magpie object with the same dimension as gdp, and assign the PWT capital intensities for the
   # historic years until 2010.
@@ -71,14 +75,13 @@ calcCapital <- function() {
   kap <- k[, 2015, "SSP2"] %>% tibble::as_tibble() %>% dplyr::select("iso3c", "kap" = "value")
   EEK <- calcOutput("Industry_EEK", kap = kap, aggregate = FALSE, years = getYears(k))
 
-  # Modify names to match "all_demScen" in remind ("gdp_" prefix), and differentiate the macroeconomic capital "kap"
-  # from EEK capital stocks.
-  getNames(k) <- paste0("gdp_", getNames(k), ".kap")
+  # Modify names to differentiate the macroeconomic capital "kap" from EEK capital stocks.
+  getNames(k) <- paste0(getNames(k), ".kap")
   getSets(k) <- c("iso3c", "year", "ssp", "variable")
   x <- mbind(k, EEK)
 
   list(x = x,
        weight = NULL,
-       unit = "trillion US$2017",
+       unit = glue::glue("trillion US${mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE)}"),
        description = "Capital stock computed using the capital/GDP ratio from PWT, and GDP scenarios from mrdrivers.")
 }
