@@ -11,7 +11,7 @@ readBP(subtype)
 "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"}
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 BP Capacity and Generation Data

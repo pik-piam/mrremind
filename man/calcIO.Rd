@@ -6,7 +6,7 @@
 \usage{
 calcIO(
   subtype = c("input", "output", "output_biomass", "trade", "input_Industry_subsectors",
-    "output_Industry_subsectors", "IEA_input"),
+    "output_Industry_subsectors"),
   ieaVersion = "default"
 )
 }

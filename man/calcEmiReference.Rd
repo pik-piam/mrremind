@@ -7,7 +7,7 @@
 calcEmiReference()
 }
 \value{
-2030 emission reductions tragets for 40%, 55% and 64% reductions in relation to 2005 values
+2030 emission reductions tragets for 40\%, 55\% and 64\% reductions in relation to 2005 values
 }
 \description{
 provides European 2030 emission targets in relation to 1990 and 2005 emissions

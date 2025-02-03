@@ -10,7 +10,7 @@ calcEmber(subtype = "all")
 \item{subtype}{data subtype. Either "capacity", "generation" or "all"}
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 prepare the yearly Ember electricity data set
@@ -18,7 +18,7 @@ To use only a part of the Ember data, call calcOutput("Ember", subtype = "...")
 and convert to TW if you want to use capacities as input data to REMIND.
 }
 \seealso{
-[`calcOutput()`]
+\code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
 Pascal Weigmann
