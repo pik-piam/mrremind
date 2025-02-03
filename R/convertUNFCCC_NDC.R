@@ -273,7 +273,7 @@ convertUNFCCC_NDC <- function(x, subtype) {                                # nol
                                                "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
 
     # Future GDP values
-    gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), aggregate = FALSE)
+    gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
 
     # Define EU countries + croatia for special treatment because of joint NDC
     EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
