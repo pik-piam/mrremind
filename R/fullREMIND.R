@@ -15,7 +15,7 @@ fullREMIND <- function() {
 
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
-  gdpPopScen <- c("SSPs", "SDPs", "SSP2IndiaDEAs")
+  gdpPopScen <- c("SSPs", "SSP2IndiaDEAs")
 
   #-------------- macro-economic parameters -----------------------------------------------------------
   calcOutput("Population",
