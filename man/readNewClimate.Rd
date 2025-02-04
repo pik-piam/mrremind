@@ -8,14 +8,15 @@ by PBL that translate the high impact policies of https://climatepolicydatabase.
 readNewClimate(subtype)
 }
 \arguments{
-\item{subtype}{Capacity_2024_cond (or uncond) for capacity target,}
+\item{subtype}{Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond)}
 }
 \value{
 magpie object
 }
 \description{
 Reads excel sheet with NPi (National Policies Implemented)
-data on different policy targets (capacity) with different variations: unconditional for minimal and conditionnal for maximum targets.
+data on different policy targets (capacity) with different variations:
+unconditional for minimal and conditionnal for maximum targets.
 NPI targets only include targets that are based on implemented policy instruments.
 }
 \details{
