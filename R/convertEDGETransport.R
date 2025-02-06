@@ -7,9 +7,6 @@
 #'
 convertEDGETransport <- function(x, subtype) {
 
-  # TMP: changes in edgeTransport required.
-  getNames(x) <- gsub("gdp_", "", getNames(x))
-
   RegionCode <- CountryCode <- . <- NULL
 
   mappingfile <- data.table::setDT(toolGetMapping("regionmapping_21_EU11.csv", type = "regional",
