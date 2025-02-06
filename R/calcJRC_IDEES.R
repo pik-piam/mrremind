@@ -10,11 +10,8 @@
 #'
 #' @author Falk Benke
 #'
-#'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom rlang sym
-#' @importFrom stats aggregate
-
+#'
 calcJRC_IDEES <- function(subtype) {
 
   subtypes <- c("Industry", "Transport", "ResCom")
@@ -68,7 +65,7 @@ calcJRC_IDEES <- function(subtype) {
            "REMIND_variable" = paste0(!!sym("REMIND_variable"),  " (", !!sym("Unit_REMIND"), ")")) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
-  x <- aggregate(value ~ variable + region + year, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2) %>%
     toolFillEU34Countries()

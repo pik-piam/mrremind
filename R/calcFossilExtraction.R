@@ -9,7 +9,6 @@
 #' calcOutput(type = "FossilExtraction", subtype = "FossilExtraction")
 #' }
 #' @importFrom dplyr mutate select rename arrange
-#' @importFrom stats lm coef
 
 calcFossilExtraction <- function(subtype = "FossilExtraction") {
   if (!((subtype == "FossilExtraction") || (subtype == "UraniumExtraction"))) {
@@ -74,11 +73,11 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
       filter(CumRes < 6)
 
     # linear fit to extraction cost data
-    linfit <- lm(Price ~ poly(CumRes, 1, raw = TRUE), data = RegrData)
+    linfit <- stats::lm(Price ~ poly(CumRes, 1, raw = TRUE), data = RegrData)
 
     # substitute Australia gas extraction polcy coef for medium Scenario with linear fit to Dylan's data
-    output["AUS", , "medGas.0"] <- coef(linfit)[1]
-    output["AUS", , "medGas.1"] <- coef(linfit)[2]
+    output["AUS", , "medGas.0"] <- stats::coef(linfit)[1]
+    output["AUS", , "medGas.1"] <- stats::coef(linfit)[2]
     output["AUS", , "medGas.2"] <- 0
     output["AUS", , "medGas.3"] <- 0
 
