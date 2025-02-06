@@ -22,6 +22,9 @@ calcTransportGDPshare <- function() {
     }
   }
 
+  share <- ggdc10[, , "VA_Q05.Transport, storage and communication"] /
+    ggdc10[, , "VA_Q05.Summation of sector GDP"]
+
   # Fill missing data with regional, and then global averages
   mapH12 <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
   mapGLO <- mapH12
