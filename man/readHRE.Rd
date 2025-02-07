@@ -10,13 +10,13 @@ https://heatroadmap.eu/roadmaps/
 readHRE()
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read Heat Roadmap Europe data
 }
 \seealso{
-[`readSource()`]
+\code{\link[=readSource]{readSource()}}
 }
 \author{
 Pascal Weigmann

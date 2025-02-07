@@ -19,7 +19,7 @@ calcFeDemandBuildings <- function(subtype) {
   stationary <- toolAggregateTimeSteps(stationary)
 
   # add scenarios to stationary to match buildings scenarios by duplication
-  stationary <- mbind(stationary, setItems(stationary[, , "SSP2EU"], 3.1, "SSP2EU_NAV_all"))
+  stationary <- mbind(stationary, setItems(stationary[, , "SSP2"], 3.1, "SSP2_NAV_all"))
 
   if (subtype == "FE") {
 
@@ -46,9 +46,7 @@ calcFeDemandBuildings <- function(subtype) {
   data <- mbind(stationary, buildings)
 
   # Prepare Mapping ----
-
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mrcommons")
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
 
   # TODO: remove once this is in the mapping
   # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
@@ -61,7 +59,7 @@ calcFeDemandBuildings <- function(subtype) {
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-    na.omit() %>%
+    stats::na.omit() %>%
     filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
     distinct()
 
@@ -76,7 +74,7 @@ calcFeDemandBuildings <- function(subtype) {
       filter(grepl("b$", .data$REMINDitems_out) |
                (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
     remindVars <- unique(mapping$REMINDitems_out)
-    remindDims <- cartesian(getNames(data, dim = "scenario"), remindVars)
+    remindDims <- quitte::cartesian(getNames(data, dim = "scenario"), remindVars)
 
   } else {
 
@@ -95,7 +93,7 @@ calcFeDemandBuildings <- function(subtype) {
     }
 
     scenarioRcp <- unique(gsub("^(.*\\..*)\\..*$", "\\1", getItems(data, dim = 3)))
-    remindDims <- cartesian(scenarioRcp, remindVars)
+    remindDims <- quitte::cartesian(scenarioRcp, remindVars)
   }
 
   # Apply Mapping ----
@@ -121,11 +119,6 @@ calcFeDemandBuildings <- function(subtype) {
   }
 
   # Prepare Output ----
-
-  # change the scenario names for consistency with REMIND sets
-  getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
-  getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
-
   # change item names back from UE to FE
   if (subtype == "UE_buildings") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
@@ -138,15 +131,14 @@ calcFeDemandBuildings <- function(subtype) {
   )
 
   outputStructure <- switch(subtype,
-    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
+    FE = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)",
+    FE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+    UE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )
 
-  return(list(x = remind,
-              weight = NULL,
-              unit = "EJ",
-              description = description,
-              structure.data = outputStructure))
-
+  list(x = remind,
+       weight = NULL,
+       unit = "EJ",
+       description = description,
+       structure.data = outputStructure)
 }

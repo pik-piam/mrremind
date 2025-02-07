@@ -7,9 +7,9 @@
 readIEA_CCUS(subtype)
 }
 \arguments{
-\item{subtype}{either `historical` for data until 2023,
-`projections` for "high" and "low" projections up to 2030 used as input-data
- or `pipeline` separated by status for use in formulating near-term bounds}
+\item{subtype}{either \code{historical} for data until 2023,
+\code{projections} for "high" and "low" projections up to 2030 used as input-data
+or \code{pipeline} separated by status for use in formulating near-term bounds}
 }
 \description{
 Reads in capacities from projects in IEA CCUS database

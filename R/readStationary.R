@@ -5,10 +5,9 @@
 #' @author Antoine Levesque, Robin Hasse
 readStationary <- function() {
 
-  scenarios <- list(
-    SSPs  = paste0("SSP", 1:5),
-    SSP2s = paste0("SSP2", c("EU", "_lowEn", "_highDemDEU")),
-    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
+  scenarios <- list(SSPs  = paste0("SSP", 1:5),
+                    SSP2s = paste0("SSP2", c("_lowEn", "_highDemDEU")),
+                    SDPs  = paste0("SDP", c("", "_EI", "_MC", "_RC")))
 
   data <- read.magpie("EDGE_TradMod.cs4r")
   data[is.na(data)] <- 0
@@ -34,5 +33,5 @@ readStationary <- function() {
     data <- mselect(data, scenario = Reduce(c, scenarios))
   }
 
-  return(data)
+  data
 }
