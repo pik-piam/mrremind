@@ -215,7 +215,7 @@ fullREMIND <- function() {
   #---------------files used in reporting-------------------------------------------------------------
 
   calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r")
-  calcOutput("WasteEnergyUseShares", round = 6, "emi_waste_shares.cs4r")
+  calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
   calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
 
   #---------------no longer used in REMIND-------------------------------------------------------------
