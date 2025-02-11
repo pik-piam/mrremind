@@ -281,9 +281,9 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # UNIDO ----
 
   calcOutput(
-    type = "UNIDO", subtype = "INDSTAT2", file = valfile,
+    type = "UNIDO", subtype = "INDSTAT3", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "INDSTAT2")
+    writeArgs = list(scenario = "historical", model = "INDSTAT3")
   )
 }
