@@ -10,8 +10,11 @@ calcEEZdistribution <- function() {
   # calculate the share of each country in the total area
   x <- x / sum(x)
 
+  getNames(x) <- NULL
+
   return(list(
     x = x,
+    weight=NULL,
     unit = "fraction",
     description = "Share in global EEZ area. Source: marineregions.org"
   ))
