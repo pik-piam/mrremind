@@ -37,6 +37,7 @@ readEDGETransport <- function(subtype) {
       ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
       "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
       "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    TRUE,      "SSP2_demRedStrong",
       "SSP2",          "Mix3",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demDiffer",
@@ -104,6 +105,7 @@ readEDGETransport <- function(subtype) {
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "gdp_SSP2EU_CAMP_strong"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "gdp_SSP2_lowEn"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "gdp_SSP2_lowEn"]
+    dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix2ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
     dt[DEM_scenario == "gdp_SSP2_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "gdp_SSP2_lowEn"]
     return(dt)
