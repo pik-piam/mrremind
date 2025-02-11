@@ -53,7 +53,7 @@ Imports:
     mrcommons (>= 1.44.12),
     mrdrivers (>= 6.0.0),
     mrfaocore,
-    mrindustry (>= 0.13.0),
+    mrindustry (>= 0.14.0),
     nnls,
     purrr,
     quitte (>= 0.3105.0),
