@@ -10,7 +10,8 @@
 
 #' @return  magpie object
 #' @author  Rahel Mandaroux, Léa Hayez, Falk Benke
-#' @param subtype Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond)
+#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
+#' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 
 readNewClimate <- function(subtype) {
 

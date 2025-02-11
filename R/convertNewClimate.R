@@ -20,18 +20,20 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
 
-    if (FALSE %in% (getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)) {
+    if (!all(getNames(x, dim = 2) %in% targetTypes)) {
       cat(
         "Table read from NewClimate contains unknown target types: ",
-        getNames(x[, , ], fulldim = TRUE)$`Type of target`[!(getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)]
+        targetTypes[which(!(getNames(x, dim = 2) %in% targetTypes))]
       )
     }
+
     techList <- c(
       "Wind", "Onshore wind energy", "Offshore wind energy", "Solar", "Biomass",
       "Nuclear", "Hydro", "Geothermal", "Coal", "H2-Electrolysers"
     )
-    listAllCombinations <- do.call(paste, c(expand.grid(getNames(x[, , ], fulldim = TRUE)$Conditionality, targetTypes, techList), sep = "."))
-    missingCombinations <- listAllCombinations[!listAllCombinations %in% getNames(x[, , ])]
+
+    listAllCombinations <- do.call(paste, c(expand.grid(getNames(x, fulldim = TRUE)$Conditionality, targetTypes, techList), sep = "."))
+    missingCombinations <- listAllCombinations[!listAllCombinations %in% getNames(x)]
     x <- add_columns(x, addnm = missingCombinations, dim = 3, fill = NA)
 
     if (grepl("uncond", subtype, fixed = TRUE)) { # unconditional policies
@@ -41,17 +43,13 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
       for (r in getItems(x, dim = "ISO")) {
         for (t in getItems(x, dim = "Target Year")) {
           for (tech in getNames(x[, , "conditional", drop = TRUE])) {
-            if (is.na(x[r, t, paste0("conditional", ".", tech)])) {
-              x[r, t, paste0("conditional", ".", tech)] <- x[r, t, paste0("unconditional", ".", tech)]
+            if (is.na(x[r, t, "conditional"][, , tech])) {
+              x[r, t, "conditional"][, , tech] <- x[r, t, "unconditional"][, , tech]
             }
           }
         }
       }
       x <- x[, , "unconditional", invert = TRUE, drop = TRUE] # keep only conditional policies
-    }
-
-    if ("FE-Production-Share" %in% getNames(x[, , ], fulldim = TRUE)$`Type of target`) {
-      cat("FE-Production-Share currently not implemented.")
     }
 
     x[is.na(x)] <- 0 # Converting all NAs to zero
@@ -68,38 +66,26 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
       if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
     ) # own NDC in 2022
 
+    # split EUR targets equally across EUR countries
     rel <- data.frame(from = "EUR", to = EUR_NPi_countries)
-
-    weight <- new.magpie(
-      cells_and_regions = EUR_NPi_countries, fill = 1
-    )
-    euTargets <- toolAggregate(x["EUR", , ], rel = rel, weight = weight) # still needs to be split equally
-
+    weight <- new.magpie(cells_and_regions = EUR_NPi_countries, fill = 1)
+    euTargets <- toolAggregate(x["EUR", , ], rel = rel, weight = weight)
     x <- x["EUR", , , invert = TRUE]
     x <- mbind(x, euTargets)
 
-
     # generate new object x_mod5 that has values only for targetYears and transfer those from x
     x_mod5 <- new.magpie(getItems(x, dim = "ISO"), targetYears, getNames(x), fill = 0)
-    for (i in getYears(x, as.integer = TRUE)) {
-      if (i %% 5 == 0) {
-        x_mod5[, i, ] <- x[, i, ]
-      }
-    }
+    commonYears <- intersect(getYears(x, as.integer = TRUE), targetYears)
+    x_mod5[, commonYears, ] <- x[, commonYears, ]
 
     # for non-fiver years, transfer them to following fiver year, increasing every year by 5 percentage points
     # if 2032 and 2035 data are given for the same country, use the higher value (apply max row-wise).
-    for (i in getYears(x, as.integer = TRUE)) {
-      if (i %% 5 != 0) {
-        x_mod5[, i - (i %% 5) + 5, ] <- apply(matrix(c(as.vector(x_mod5[, i - (i %% 5) + 5, ]), as.vector(x[, i, ]) * (1 + (5 - (i %% 5)) * 0.05)), ncol = 2), 1, max)
-      }
+    for (i in setdiff(getYears(x, as.integer = TRUE), targetYears)) {
+      x_mod5[, i - (i %% 5) + 5, ] <- apply(matrix(c(as.vector(x_mod5[, i - (i %% 5) + 5, ]), as.vector(x[, i, ]) * (1 + (5 - (i %% 5)) * 0.05)), ncol = 2), 1, max)
     }
 
-
-
     # Creating magpie object which at the end will only contain capacity targets
-    x_capacity <- new.magpie(getItems(x_mod5, dim = "region"), targetYears, techList)
-    x_capacity[is.na(x_capacity)] <- 0
+    x_capacity <- new.magpie(getItems(x_mod5, dim = "region"), targetYears, techList, fill = 0)
 
     # reading historical data
     hist_cap <- readSource("IRENA", subtype = "Capacity") / 1000 # converting from MW to GW
@@ -116,17 +102,19 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     cf_coal <- 0.8
     cf_hydro <- max(cf_hydro_realworld) + 0 * cf_hydro_realworld
 
-    # using cf_hydro_realworld directly causes converges errors because some are very small. Second term needed such that cf_hydro has right structure
-    # Initialising all capacities for all model years to current capacities and converting generation to capacity
+    # using 'cf_hydro_realworld' directly causes converge errors because some are very small.
+    # Second term needed such that cf_hydro has right structure
+    # Initializing all capacities for all model years to current capacities and converting generation to capacity
     # EU target
     IrenaTech <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar", "Geothermal")
     x_capacity[, , IrenaTech] <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, IrenaTech])
     x_capacity[, , "Biomass"] <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, "Bioenergy"])
 
-    # special case for hydro.
+    # Special case for hydro
     x_capacity[, , "Hydro"] <- setYears(hist_gen[getItems(x_capacity, dim = "region"), 2015, "Renewable hydropower"])
+
     # Special case for nuclear
-    # To do: nuclear is total generation check if fits with electricity targets!
+    # TODO: nuclear is total generation check if fits with electricity targets!
     hist_gen_fossil <- readSource("BP", subtype = "Generation") * 1000 # TWh to GWh
     for (i in targetYears) {
       for (j in getNames(x_mod5[, , c("Nuclear", "Coal")])) {
@@ -149,12 +137,13 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     usedTech <- c(IrenaTech, BPtech, "Biomass")
     absUsedTech <- paste("AC-Absolute.", usedTech, sep = "")
 
-    x_capacity_abs[, , usedTech] <- x_current[, , usedTech] +
-      x_mod5[, , absUsedTech, drop = TRUE]
+    x_capacity_abs[, , usedTech] <- x_current[, , usedTech] + x_mod5[, , absUsedTech, drop = TRUE]
+
     # to do @Falk relative calculation is not correct
     # currently it (adds additional capacity to historical of 2015), not to base
 
-    x_capacity_abs[, , "Hydro"] <- x_current[, , "Hydro"] + x_mod5[, , "AC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ] * 8760)
+    x_capacity_abs[, , "Hydro"] <- x_current[, , "Hydro"] + x_mod5[, , "AC-Absolute.Hydro", drop = TRUE] *
+      setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ] * 8760)
 
     # Converting Production targets (GWh) to Capacity targets (TIC-Absolute) (GW) for nuclear and biomass
     # pmax used to always take the higher value from existing capacity and new capacity (from production)
@@ -170,13 +159,16 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     # Converting Production targets to capacity targets for solar (pv and csp), hydro, and wind
     # Obtaining the capacity factors (nur) values and associated maxproduction (maxprod) for Hydro, Wind, and Solar
     data_wind <- calcOutput("PotentialWindOn", aggregate = FALSE)
+
     # Reordering dim=3 for data_wind so that 1st position corresponds to maxprod.nur.1 and not maxprod.nur.9
     data_wind_sorted <- mbind(
       data_wind[, , "1"], data_wind[, , "2"], data_wind[, , "3"], data_wind[, , "4"],
       data_wind[, , "5"], data_wind[, , "6"], data_wind[, , "7"], data_wind[, , "8"], data_wind[, , "9"]
     )
+
     data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
     data_solar <- calcOutput("Solar", regionmapping = "regionmappingTCD.csv")
+
     names_solar <- paste0("Solar.", getNames(collapseNames((mselect(data_solar, type = c("nur", "maxprod"), technology = "spv")), collapsedim = 2)))
     names_hydro <- paste0("Hydro.", getNames(data_hydro))
     names_wind <- paste0("Wind.", getNames(data_wind_sorted))
@@ -206,7 +198,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     #  Even if there is one +ve production absolute value for Hydro but all maxprod are zero
     for (r in names(final)) {
       if (any(x_mod5[r, , "Production-Absolute.Hydro"] != 0) &&
-        all(data_combined[r, , "Hydro.maxprod"] == 0) || any(data_combined[r, , "Hydro.maxprod"] < 0)) {
+          all(data_combined[r, , "Hydro.maxprod"] == 0) || any(data_combined[r, , "Hydro.maxprod"] < 0)) {
         x_mod5[r, , "Production-Absolute.Hydro"] <- 0
       }
     }
@@ -221,7 +213,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
           name <- paste0(t, ".maxprod")
           name2 <- paste0("Production-Absolute.", t)
           if (!R.utils::isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &&
-            dimSums(data_combined[r, , name], na.rm = TRUE) > max(x_mod5[r, , name2])) {
+              dimSums(data_combined[r, , name], na.rm = TRUE) > max(x_mod5[r, , name2])) {
             # extracting the first non-zero location of maxprod
             name <- paste0(t, ".maxprod")
             loc <- min(which(!R.utils::isZero(data_combined[r, , name, pmatch = TRUE])))
@@ -236,24 +228,24 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
                 tmp_target[3] <- tmp_target[2] - data_sel[r, , "maxprod"][, , loc + 1]
                 if (data_sel[r, , "maxprod"][, , loc + 2] > tmp_target[3]) {
                   final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1]
-                    + tmp_target[2] / data_sel[r, , "nur"][, , loc + 2])
+                                            + tmp_target[2] / data_sel[r, , "nur"][, , loc + 2])
                 } else {
                   tmp_target[4] <- tmp_target[3] - data_sel[r, , "maxprod"][, , loc + 2]
                   if (data_sel[r, , "maxprod"][, , loc + 3] > tmp_target[4]) {
                     final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                      tmp_target[3] / data_sel[r, , "nur"][, , loc + 3])
+                                                tmp_target[3] / data_sel[r, , "nur"][, , loc + 3])
                     final[r] <- tmp_target[1]
                   } else {
                     tmp_target[5] <- tmp_target[4] - data_sel[r, , "maxprod"][, , loc + 3]
                     if (data_sel[r, , "maxprod"][loc + 4] > tmp_target[5]) {
                       final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                        data_in_use[r, , ][, , loc + 3] + tmp_target[4] / data_sel[r, , "nur"][, , loc + 4])
+                                                  data_in_use[r, , ][, , loc + 3] + tmp_target[4] / data_sel[r, , "nur"][, , loc + 4])
                     } else {
                       tmp_target[6] <- tmp_target[5] - data_sel[r, , "maxprod"][, , loc + 4]
                       if (data_sel[r, , "maxprod"][loc + 5] > tmp_target[6]) {
                         final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                          data_in_use[r, , ][, , loc + 3] + data_in_use[r, , ][, , loc + 4] +
-                          tmp_target[5] / data_sel[r, , "nur"][, , loc + 5])
+                                                    data_in_use[r, , ][, , loc + 3] + data_in_use[r, , ][, , loc + 4] +
+                                                    tmp_target[5] / data_sel[r, , "nur"][, , loc + 5])
                       }
                     }
                   }
@@ -308,7 +300,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
     getNames(x) <- c("wind", "windon", "windoff", "spv", "bioigcc", "tnrs", "hydro", "geohdr", "coalchp", "seh2")
 
-    # end subtype contains Capacity
+  # end subtype contains Capacity
   } else if (grepl("Emissions", subtype, fixed = TRUE)) { # calculate emissions in target year relative to 2005 emissions
 
     reductionData <- x
@@ -336,21 +328,20 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
       )], dim = 3)
 
     # Future GDP values
-    gdp <- calcOutput("GDP", aggregate = FALSE)
+    gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
 
     # Define EU countries + croatia for special treatment because of joint NDC
     EUR_NDC_countries <- c(
       "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
       "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
       "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-      "FRO", "GIB", "GGY", "IMN", "HRV", # included: HRV/croatia
-      if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
+      "FRO", "GIB", "GGY", "IMN", "HRV" # included: HRV/croatia
     ) # own NDC in 2022
-
 
     # NDC Types, order must be exactly the same as in readUNFCCC_NDC.R!
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
     # define function that calculates ghgfactor compared to 2005 for each regi and year, taken into account different Types
+
     calcGhgfactor <- function(data) {
       if (nregions(data) != 1 || nyears(data) != 1) {
         warning("function calcGhgfactor(data) should be called with one single region and year as data only")
@@ -395,9 +386,11 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
       getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"],
       EUR_NDC_countries
     )), getYears(reductionData), ]
+
     ghgfactor[, , ] <- NA
     # define string that can be used to assess magpie variables
     uncond_or_cond <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
+
     # loop through regions and years
     for (regi in getItems(reductionData, dim = "ISO_Code")) {
       for (year in getYears(reductionData)) {
