@@ -17,7 +17,7 @@ readEurostat_EffortSharing <- function(subtype) {
     data <- read.csv("effort_sharing_targets.csv", sep = ";", skip = 5)
     colnames(data) <- c("iso2", "country.name", "iso3", "2020", "2030",
                         "flexibility_from_ETS_in_2030", "flexibility_from_land_use_in_2030")
-    data <- na.omit(data[, c("iso3", "2020", "2030")])
+    data <- stats::na.omit(data[, c("iso3", "2020", "2030")])
   } else if (subtype == "emissions") {
     # Reading EU Effort Sharing country historical emissions
     data <- read.csv("t2020_35.csv", sep = ";")
@@ -32,8 +32,8 @@ readEurostat_EffortSharing <- function(subtype) {
       "LV" = "LVA", "RO" = "ROU", "BG" = "BGR"
     )
     data$iso3 <- iso2toiso3[as.character(data$iso2)]
-    data <- na.omit(data[, c("iso3", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012",
-                             "2013", "2014", "2015", "2016")])
+    data <- stats::na.omit(data[, c("iso3", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012",
+                                    "2013", "2014", "2015", "2016")])
   } else {
     stop("Not a valid subtype!")
   }
