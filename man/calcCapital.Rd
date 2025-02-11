@@ -4,7 +4,10 @@
 \alias{calcCapital}
 \title{Calculate macroeconomic capital stock}
 \usage{
-calcCapital()
+calcCapital(scenario)
+}
+\arguments{
+\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
 }
 \value{
 magpie object with the requested output data either on country or on

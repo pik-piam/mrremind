@@ -4,14 +4,14 @@
 \alias{calcFEShares}
 \title{FE Share parameters used in REMIND}
 \usage{
-calcFEShares(subtype)
+calcFEShares(subtype, scenario)
 }
 \arguments{
 \item{subtype}{'ind_coal' for the share of coal used in industry. 'ind_bio' for the share of biomass used in industry}
+
+\item{scenario}{Vector of strings. Used here only to optimize madrat cache usage, as in the end only the 2005 FEdemand
+value is actually used - which is equal across scenarios.}
 }
 \description{
 FE Share parameters used in REMIND
-}
-\author{
-Antoine Levesque
 }

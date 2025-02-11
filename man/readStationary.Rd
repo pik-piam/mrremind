@@ -2,16 +2,23 @@
 % Please edit documentation in R/readStationary.R
 \name{readStationary}
 \alias{readStationary}
+\alias{convertStationary}
 \title{Load Stationary File as magclass object}
 \usage{
 readStationary()
+
+convertStationary(x, subset)
+}
+\arguments{
+\item{x}{MAgPIE object returned from readStationary}
+
+\item{subset}{A string, or vector of string designating the entries for the scenario dimension. If possible,
+passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}. Unspecified scenarios receive SSP2 data.}
 }
 \value{
 magclass object
 }
 \description{
-Load Stationary File as magclass object
-}
-\author{
-Antoine Levesque, Robin Hasse
+Reads in EDGE_TradMod.cs4r, which hast data for the SSP scenarios. In the convert function, the subset argument
+is used to specify the desired scenarios. Unspecified scenarios are copies of the SSP2 scenario.
 }

@@ -15,13 +15,15 @@ calcSolar <- function() {
   # calculate area values for CSP technology using formula: CSP capacity / (176.19 MW therm / km?)
   x[, , "CSP"][, , "area"] <- (x[, , "capacity"][, , "CSP"] / 176.19)
 
-  # adjust CSP capacities using two correction factors: csp capacity * 0.37 (efficiency thermal -> electric) * 0.33 (scale down for solar multiple 3)
-
+  # adjust CSP capacities using two correction factors: csp capacity * 0.37 (efficiency thermal -> electric)
+  # * 0.33 (scale down for solar multiple 3)
   x[, , "capacity"][, , "CSP"] <- (x[, , "capacity"][, , "CSP"] * 0.37 * 0.33)
 
   # Add rooftop potential for regions with limited PV potential - at the moment JPN and IND.
   # Data comes from Joshi et al, 2021:
-  # Joshi, S., Mittal, S., Holloway, P., Shukla, P.R., Ó Gallachóir, B., Glynn, J., 2021. High resolution global spatiotemporal assessment of rooftop solar photovoltaics potential for renewable electricity generation. Nat Commun 12, 5738. https://doi.org/10.1038/s41467-021-25720-2
+  # Joshi, S., Mittal, S., Holloway, P., Shukla, P.R., Ó Gallachóir, B., Glynn, J., 2021. High resolution global
+  #  spatiotemporal assessment of rooftop solar photovoltaics potential for renewable electricity generation.
+  #  Nat Commun 12, 5738. https://doi.org/10.1038/s41467-021-25720-2
   # Capacities are derived in the regional .xlsx files in the DLR source folder by
   # 1) converting from area to capacity with the region-specific luse value;
   # 2) taking 50% of the total determined rooftop area as technically usable for PV plants
@@ -40,7 +42,7 @@ calcSolar <- function() {
   x["JPN", , "capacity.PV"][, , "937"] <- (x["JPN", , "capacity.PV"][, , "937"] + 1000 * 87)
   x["JPN", , "capacity.PV"][, , "979"] <- (x["JPN", , "capacity.PV"][, , "979"] + 1000 * 14)
 
-  # adding respective area increases for rooftop PV in Japan in the respective bins,  using the luse value for Japan of 92
+  # adding respective area increases for rooftop PV in Japan in the respective bins, using the luse value for Japan: 92
   x["JPN", , "area.PV"][, , "729"] <- (x["JPN", , "area.PV"][, , "729"] + 1000 / 92 * 29)
   x["JPN", , "area.PV"][, , "771"] <- (x["JPN", , "area.PV"][, , "771"] + 1000 / 92 * 53)
   x["JPN", , "area.PV"][, , "812"] <- (x["JPN", , "area.PV"][, , "812"] + 1000 / 92 * 79)
@@ -84,17 +86,19 @@ calcSolar <- function() {
 
   y  <- dimSums(x.neg[, , "50-100"], dim=3.4) / dimSums(x.pos[, , c("50-100",  "0-50")], dim=c(3.4, 3.3))
   countries.neg <- where(y< -0.01)$true$regions
-  vcat(2, paste0("In the following countries negative values made up more than 1% in newly created distance bin 50-100: ", countries.neg))
+  vcat(2,
+       paste0("In the following countries negative values made up more than 1% in newly created distance bin 50-100: ",
+              countries.neg))
 
   # set negative values to 0
   x[, , "50-100"][x[, , "50-100"]<0] <- 0
   x[, , "100-inf"][x[, , "100-inf"]<0] <- 0
 
-  return(list(x=x,
-              weight = calcOutput("FE", aggregate = FALSE)[, "y2015", "FE|Electricity (EJ/yr)"],
-              unit = "Area in km2; Capacity factor in share of year; Energy in EJ",
-              description = "Area (limitGeopot), Capacity factor (nur) and Energy (maxprod) for photovoltaics (spv) and contentrated solar power (csp)",
-              aggregationFunction = toolSolarFunctionAggregate
-  ))
+  list(x = x,
+       weight = calcOutput("FE", aggregate = FALSE)[, "y2015", "FE|Electricity (EJ/yr)"],
+       unit = "Area in km2; Capacity factor in share of year; Energy in EJ",
+       description = glue::glue("Area (limitGeopot), Capacity factor (nur) and Energy (maxprod) for photovoltaics \\
+                                       (spv) and contentrated solar power (csp)"),
+       aggregationFunction = toolSolarFunctionAggregate)
 
 }

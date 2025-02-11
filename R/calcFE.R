@@ -2,15 +2,13 @@
 #' values from IEA WEO 2019
 #' @author Lavinia Baumstark, Aman Malik
 #' @param source "IEA" or "IEA_WEO"
-#' @param scenario_proj "SSP2" by default unless overwritten
 #' @param ieaVersion Release version of IEA data, either 'default' (vetted and used in REMIND)
 #' or 'latest'.
 
-calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default") {
+calcFE <- function(source = "IEA", ieaVersion = "default") {
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA") {
-    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion,
-                       aggregate = FALSE)
+    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion, aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
