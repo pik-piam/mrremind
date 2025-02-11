@@ -7,9 +7,7 @@
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join
-#' @importFrom rlang sym
-#' @importFrom stats aggregate na.exclude
-
+#'
 calcEuropeanEnergyDatasheets <- function(subtype) {
   if (!subtype %in% c("EU27", "EU28")) {
     stop("Invalid subtype. Must be either EU27 or EU28")
@@ -39,7 +37,7 @@ calcEuropeanEnergyDatasheets <- function(subtype) {
       mutate("value" = .data$value * .data$Conversion) %>%
       select("region", "year", "variable" = "REMIND", "value")
 
-    x <- aggregate(value ~ region + year + variable, x, sum, na.action = na.exclude) %>%
+    x <- stats::aggregate(value ~ region + year + variable, x, sum, na.action = stats::na.exclude) %>%
       as.magpie() %>%
       toolCountryFill(fill = NA, verbosity = 2)
 

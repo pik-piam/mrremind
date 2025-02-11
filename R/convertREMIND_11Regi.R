@@ -1,7 +1,9 @@
 #' Converts REMIND regional data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. "p4", "biomass", "ch4waste", "tradecost", "pe2se", "xpres_tax", "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff", "RLDCCoefficientsLoB", "RLDCCoefficientsPeak", "earlyRetirementAdjFactor"
+#' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
+#' "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy",
+#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples
@@ -12,21 +14,20 @@
 
 convertREMIND_11Regi <- function(x,subtype) {
 
-  if(subtype == "p4" | subtype == "biomass" | subtype == "tradecost" |
-     subtype == "pe2se" | subtype == "xpres_tax" | subtype == "storageFactor" | subtype == "shareIndFE"  |
-     subtype == "residuesShare" | subtype=="ffPolyRent" | subtype == "earlyRetirementAdjFactor" ){
+  if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-  } else if (subtype == "ch4waste" | subtype == "AP_starting_values") {
-    pop <- calcOutput("Population",years=2005,aggregate=FALSE)[,,"pop_SSP2"]
+  } else if (subtype == "AP_starting_values") {
+    pop <- calcOutput("Population", scenario = "SSP2", years = 2005, aggregate = FALSE)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=pop)
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
   } else if (subtype == "nashWeight") {
-    gdp <- calcOutput("GDP",years=2005,aggregate=FALSE)[,,"gdp_SSP2"]
+    gdp <- calcOutput("GDP", scenario = "SSP2", years = 2005, aggregate = FALSE)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
-  } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" | subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
+  } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" |
+             subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
     mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # Filtering REMIND old region mapping (selecting just regions available on data)
@@ -119,22 +120,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     area <- dimSums(area,dim=3)
     getYears(area) <- NULL
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=area)
-  } else if (subtype=="RLDCCoefficientsLoB") {
-    # Converting old Region data to country data
-    # setting country coefficient values equal to region that it belonged
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-    # setting country absciss value equal to original region values weighted by the PE use of the country (should be replaced by extraction quantities data)
-    fe <- calcOutput("FE",aggregate=FALSE)
-    z <- toolAggregate(x, "regionmappingREMIND.csv", weight=fe[,2005,"FE (EJ/yr)"])
-    y[,,c("1.p00","2.p00","3.p00","4.p00")] <- z[,,c("1.p00","2.p00","3.p00","4.p00")]
-  } else if (subtype=="RLDCCoefficientsPeak") {
-    # Converting old Region data to country data
-    # setting country coefficient values equal to region that it belonged
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-    # setting country absciss value equal to original region values weighted by the PE use of the country (should be replaced by extraction quantities data)
-    fe <- calcOutput("FE",aggregate=FALSE)
-    z <- toolAggregate(x, "regionmappingREMIND.csv", weight=fe[,2005,"FE (EJ/yr)"])
-    y[,,c("curt.p00","curtShVRE.p00","peak.p00","shtStor.p00","STScost.p00","STSRes2Cap.p00")] <- z[,,c("curt.p00","curtShVRE.p00","peak.p00","shtStor.p00","STScost.p00","STSRes2Cap.p00")]
   }
 return(y)
 }

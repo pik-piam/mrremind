@@ -2,7 +2,7 @@
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #' @param sources currently only UNFCCC_NDC
 #' @param subtype "Ghgshare2005", "Ghgfactor", "Ghghistshare"
-
+#'
 calcEmiTarget <- function(sources, subtype) {
 
   ### Import historical data (gdp and emi) needed for the calculations
@@ -29,7 +29,7 @@ calcEmiTarget <- function(sources, subtype) {
   ghg <- toolCountryFill(ghg, fill = 0, verbosity = 2)
 
   # Future GDP values
-  gdp <- calcOutput("GDP", aggregate = FALSE)
+  gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
 
   convertNAto0 <- function(x) {
     x[is.na(x)] <- 0
@@ -67,7 +67,7 @@ calcEmiTarget <- function(sources, subtype) {
 
     # create 1/0 dummy for calculation of regional share covered by quantitative target, per TarYear.
     # Note that 0 implies no goal, net zero targets have ghgfactor of 0 but dummy of 1
-    dummy1 <- 1 * (!is.na(ghgfactor[, , "gdp_SSP2", drop = TRUE]))
+    dummy1 <- 1 * (!is.na(ghgfactor[, , "SSP2", drop = TRUE]))
 
     if (grepl("Ghgfactor", subtype, fixed = TRUE)) { # p45_factor_targetyear.cs3r
       # in order to calculate the share of regional emissions coming from countries with quantitative target

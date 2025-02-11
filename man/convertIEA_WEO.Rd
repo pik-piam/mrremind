@@ -10,7 +10,7 @@ convertIEA_WEO(x, subtype)
 \item{x}{MAgPIE object to be converted}
 
 \item{subtype}{data subtype. Either "Capacity", "Generation", "Emissions",
-"Investment Costs", "O&M Costs" or "Efficiency"}
+"Investment Costs", or "O&M Costs"}
 }
 \value{
 magpie object of the WEO data on generation (TWh), capacities (GW),

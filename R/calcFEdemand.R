@@ -1,17 +1,15 @@
-#' Calculates Final Energy Demand for Industry, Buildings and Transport
+#' Calculates Final Energy Demand for Industry and Buildings
 #' @author Falk Benke
 calcFEdemand <- function() {
 
   feBuildings <- calcOutput("FeDemandBuildings", subtype = "FE", warnNA = FALSE, aggregate = FALSE)
   feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = FALSE)
-  feTransport <- calcOutput("FeDemandTransport", warnNA = FALSE, aggregate = FALSE)
 
   # duplicate scenarios ----
-
   # add Navigate and Campaigners scenarios to industry and transport to match buildings scenarios by duplication
-  duplicateScens <- "gdp_SSP2EU_NAV_all"
-  feTransport <- mbind(feTransport, setItems(feTransport[, , "gdp_SSP2EU"], 3.1, duplicateScens))
-  feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "gdp_SSP2EU"], 3.1, duplicateScens))
+  duplicateScens <- "SSP2_NAV_all"
+  feIndustry <- mbind(feIndustry, setItems(feIndustry[, , "SSP2"], 3.1, duplicateScens))
+
 
   # add up industry and buildings contributions to stationary
   stationaryItems <- c("fehes", "feh2s")
@@ -20,8 +18,7 @@ calcFEdemand <- function() {
   remind <- mbind(
     feBuildings[, , stationaryItems, invert = TRUE],
     feIndustry[, , stationaryItems, invert = TRUE],
-    feStationary,
-    feTransport
+    feStationary
   )
 
   return(list(
@@ -33,6 +30,6 @@ calcFEdemand <- function() {
       "ue_otherInd ($tn)"
     ),
     description = "demand pathways for final energy in buildings and industry",
-    structure.data = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)"
+    structure.data = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)"
   ))
 }

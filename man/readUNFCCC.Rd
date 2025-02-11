@@ -7,13 +7,13 @@
 readUNFCCC()
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read UNFCCC data
 }
 \seealso{
-[`readSource()`]
+\code{\link[=readSource]{readSource()}}
 }
 \author{
 Falk Benke

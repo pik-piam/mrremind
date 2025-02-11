@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcTransportGDPshare.R
 \name{calcTransportGDPshare}
 \alias{calcTransportGDPshare}
-\title{calc transport share in GDP}
+\title{Get transport share in GDP}
 \usage{
 calcTransportGDPshare()
 }
@@ -17,7 +17,6 @@ provides transport share in GDP to resize edge-t transportation purchase costs
 \dontrun{
 calcOutput("TransportGDPshare")
 }
-
 
 }
 \author{

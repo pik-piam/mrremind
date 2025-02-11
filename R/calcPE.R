@@ -16,15 +16,15 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
     target <- c("input")
 
     ### calculate data
-    map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+    map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
-    map <- map[c("io", target)] %>% na.omit()
+    map <- map[c("io", target)] %>% stats::na.omit()
 
     # select data that have names
     map <- map[map$io %in% getNames(data), ]
     x <- data[, , map$io]
     # aggregate from the IO names to the reporting names.
-    x <- luscale::speed_aggregate(x, map, dim = 3, from = "io", to = "input")
+    x <- madrat::toolAggregate(x, map, dim = 3, from = "io", to = "input")
     # rename entries of data to match the reporting names
     getNames(x) <- paste0(getNames(x), " (EJ/yr)")
 

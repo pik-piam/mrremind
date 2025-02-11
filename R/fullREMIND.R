@@ -1,13 +1,11 @@
 #' fullREMIND
 #'
-#' Function that produces the complete regional data set required for the
-#' REMIND model.
-#' @importFrom madrat madratAttach
-#' @importFrom magrittr %>%
-#' @importFrom quitte cartesian madrat_mule
+#' Function that produces the complete regional data set required for the REMIND model.
+#'
 #' @author Lavinia Baumstark
 #' @seealso
-#' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
+#' \code{\link{readSource}}, \code{\link{getCalculations}}, \code{\link{calcOutput}}
+#' @export
 #' @examples
 #' \dontrun{
 #' fullREMIND()
@@ -17,27 +15,61 @@ fullREMIND <- function() {
 
   rem_years <- seq(2005, 2150, 5)
   rem_years_hist <- seq(1990, 2150, 5)
+  gdpPopScen <- c("SSPs", "SSP2IndiaDEAs")
 
   #-------------- macro-economic parameters -----------------------------------------------------------
-  calcOutput("Population", years = rem_years_hist,    round = 8,  file = "f_pop.cs3r")
-  calcOutput("Labour",     years = rem_years_hist,    round = 8,  file = "f_lab.cs3r")
-  calcOutput("GDP",        years = rem_years_hist,    round = 8,  file = "f_gdp.cs3r")
+  calcOutput("Population",
+             scenario = gdpPopScen,
+             naming = "scenario",
+             years = rem_years_hist,
+             round = 8,
+             file = "f_pop.cs3r")
+
+  calcOutput("Population",
+             scenario = gdpPopScen,
+             naming = "scenario",
+             aggregate = FALSE,
+             years = rem_years_hist,
+             round = 8,
+             file = "f50_pop.cs3r")
+
+  calcOutput("Labour",
+             scenario = gdpPopScen,
+             naming = "scenario",
+             years = rem_years_hist,
+             round = 8,
+             file = "f_lab.cs3r")
+
+  calcOutput("GDP",
+             scenario = gdpPopScen,
+             naming = "scenario",
+             years = rem_years_hist,
+             round = 8,
+             file = "f_gdp.cs3r")
+
+  calcOutput("GDP",
+             scenario = gdpPopScen,
+             naming = "scenario",
+             aggregate = FALSE,
+             years = rem_years_hist,
+             round = 8,
+             file = "f50_gdp.cs3r")
+
   calcOutput("RatioPPP2MER",                          round = 8,  file = "pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
   calcOutput("FETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_fe_sub.cs4r")
-
-  calcOutput("TaxConvergence", subtype = "taxConvergence", round = 2,
-             file = "f21_tax_convergence.cs4r")
-  calcOutput("TaxConvergence", subtype = "taxConvergenceRollback", round = 2,
+  calcOutput("TaxConvergence", subtype = "taxConvergence", round = 2, file = "f21_tax_convergence.cs4r")
+  calcOutput("TaxConvergence",
+             subtype = "taxConvergenceRollback",
+             round = 2,
              file = "f21_tax_convergence_rollback.cs4r")
-
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round = 2,  file = "f21_max_fe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("TaxXport",                              round = 2,  file = "p21_tau_xpres_tax.cs4r")   # not default, overwritten with 0
   calcOutput("Capital", signif = 4,                               file = "f29_capitalQuantity.cs4r")
+
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r") # exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput(
     type = "Steel_Projections", subtype = "secondary.steel.max.share",
@@ -46,7 +78,7 @@ fullREMIND <- function() {
     China_Production = readSource(type = "ExpertGuess",
                                   subtype = "Chinese_Steel_Production",
                                   convert = FALSE) %>%
-      madrat_mule())
+      quitte::madrat_mule())
 
 
   calcOutput("FEdemand", signif = 4,                                   file = "f_fedemand.cs4r")
@@ -64,8 +96,6 @@ fullREMIND <- function() {
   calcOutput("NetForeignAsset",                             round = 6, file = "pm_nfa_start.cs4r")
   calcOutput("Theil",                                       round = 8, file = "f_ineqTheil.cs4r")
   calcOutput("DevelopmentState",                            round = 4, file = "f_developmentState.cs3r")
-  calcOutput("Population", years = rem_years_hist,          round = 8, file = "f50_pop.cs3r", aggregate = FALSE)
-  calcOutput("GDP", years = rem_years_hist,                 round = 8, file = "f50_gdp.cs3r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "const",                 round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "tasK",                  round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
   calcOutput("KLWdamage", subtype = "beta1",                 round = 8, file = "f50_KLW_df_beta1.cs4r", aggregate = FALSE)
@@ -73,7 +103,6 @@ fullREMIND <- function() {
   calcOutput("KLWdamage", subtype = "maxGMT",                  round = 8, file = "f50_KLW_df_maxGMT.cs4r", aggregate = FALSE)
 
   #-------------- emission parameter ------------------------------------------------------------------
-  calcOutput("EconometricEmiParameter",                                         round = 5, file = "p_emineg_econometric.cs3r")
   calcOutput("EmissionsTe",                                                     round = 5, file = "p_boundEmi.cs4r")
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")
@@ -83,11 +112,17 @@ fullREMIND <- function() {
   calcOutput("MACCsCO2",                                                        round = 5, file = "p_abatparam_CO2.cs4r", aggregate = FALSE)
   calcOutput("EmiMac",                                                          round = 5, file = "p_macBase2005.cs4r")
   calcOutput("EmiMac1990",                                                      round = 5, file = "p_macBase1990.cs4r")
-  calcOutput("MACCbaseN2O",                                                     round = 5, file = "p_macBaseVanv.cs4r")
+  calcOutput("EmiMacCEDS", baseyear = 2005,                                     round = 5, file = "p_macBaseCEDS2005.cs4r")
+  calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2007",                              round = 5, file = "p_macBaseVanv.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2022",                              round = 5, file = "p_macBaseHarmsen2022.cs4r")
   calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
   calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
+  calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs4r")
+  calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs4r")
   calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
-  calcOutput("EmiFossilFuelExtr",                                               round = 6, file = "p_emiFossilFuelExtr.cs4r")
+  calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
+  calcOutput("EmiFossilFuelExtr", source = "CEDS2024",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmiPollutantExo", subtype = "AviationShipping",                   round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
@@ -116,8 +151,6 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
   calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
-  calcOutput("ShareIndFE",                            round = 3,  file = "p37_shIndFE.cs3r")
-  calcOutput("nonEnergyIndFE",                        round = 8,  file = "f37_fedemand_NonEnergyIndst.cs4r")
   calcOutput("Clinker_to_cement_ratio",               round = 2,  file = "p37_clinker-to-cement-ratio.cs3r")
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
@@ -130,28 +163,12 @@ fullREMIND <- function() {
   calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
   calcOutput("FEShares", subtype = "ind_coal",                         round = 5,  file = "p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype = "ind_bio",                          round = 5,  file = "p_share_ind_fesos_bio.cs4r")
-  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p_share_ind_fehos.cs4r")
+  calcOutput("FEShares", subtype = "ind_liq",                          round = 5,  file = "p11_share_ind_fehos.cs4r")
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
-  calcOutput('Industry_CCS_limits',
-             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
-             stage_weight = c('Operational'          = 1,
-                              'In construction'      = 1,
-                              'Advanced development' = 0.5,
-                              'Early development'    = 0.2),
-             signif = 3, file = 'f37_indCCSlimit_default.cs4r',
-           years = seq(2005, 2050, 5))
-  calcOutput('Industry_CCS_limits',
-             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
-             stage_weight = c('Operational'          = 1,
-                              'In construction'      = 1,
-                              'Advanced development' = 0.8,
-                              'Early development'    = 0.5),
-             signif = 3, file = 'f37_indCCSlimit_high.cs4r',
-           years = seq(2005, 2050, 5))
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -162,11 +179,7 @@ fullREMIND <- function() {
   calcOutput("FossilPolyCumEx",                                        round = 8,  file = "f31_ffPolyCumEx.cs4r")
   calcOutput("FossilExtraction", subtype = "FossilExtraction",         round = 9,  file = "f31_ffPolyCoeffs.cs3r")
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
-  calcOutput("RLDCCoefficients", subtype = "LoB",                      round = 6,  file = "f32_RLDC_Coeff_LoB.cs3r")
-  calcOutput("RLDCCoefficients", subtype = "Peak",                     round = 6,  file = "f32_RLDC_Coeff_Peak.cs3r")
-  calcOutput("EarlyRetirementAdjFactor",                                           file = "p_earlyRetirementAdjFactor.cs3r")
-  calcOutput("DiffInvestCosts",  subtype = "Invest_Costs",             round = 4,  file = "p_inco0.cs4r")
-  calcOutput("DiffInvestCosts",  subtype = "Efficiency",               round = 4,  file = "pm_eff.cs4r")
+  calcOutput("DiffInvestCosts",                                        round = 4,  file = "p_inco0.cs4r")
   calcOutput("CapacityFactorHist", subtype = "wind",                   round = 4,  file = "p_histCapFac.cs4r")
   calcOutput("CapacityFactorHist", subtype = "windoff",                round = 4,  file = "p_histCapFac_windoff.cs4r")
   calcOutput("GEA2012", subtype = "coal",                              round = 8,  file = "p31_grades_coal.cs4r")
@@ -198,10 +211,33 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "REN21",                                round = 4, file = "f40_REN21.cs4r")
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC",             round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
+  calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
+
+  #---------------no longer used in REMIND-------------------------------------------------------------
+
   calcOutput("EffortSharingTarget",                                         round = 3, file = "p47_ESR_target.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",                    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
   calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2",                 round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
   calcOutput("ETSRefEmi", subtype = "EEA_GHG",                              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-  calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
+
+
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.5,
+                              'Early development'    = 0.2),
+             signif = 3, file = 'f37_indCCSlimit_default.cs4r',
+             years = seq(2005, 2050, 5))
+
+  calcOutput('Industry_CCS_limits',
+             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
+             stage_weight = c('Operational'          = 1,
+                              'In construction'      = 1,
+                              'Advanced development' = 0.8,
+                              'Early development'    = 0.5),
+             signif = 3, file = 'f37_indCCSlimit_high.cs4r',
+             years = seq(2005, 2050, 5))
+
 
 }
