@@ -1,19 +1,25 @@
 #' Policy targets for NDCs from UNFCCC_NDC
+
 #' @description Converts conditional and unconditional capacity targets into total capacity (GW) in target year
 #' the Generation targets are similar to the capacity targets but include the capacity factors,
 #' the Emissions targets are the total (except land CO2) emissions in the target year
+
 #' @param x MAgPIE object to be converted
+
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
+
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
+
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
 
-
 convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
+
   if (grepl("Capacity", subtype, fixed = TRUE)) {
 
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
+
     if (FALSE %in% (getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)) {
       cat(
         "Table read from NewClimate contains unknown target types: ",
@@ -278,7 +284,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     # Making sure that targets in subsequent years are always same or greater than the proceeding year
     for (r in getItems(x_mod5, dim = "region")) {
       for (t in techList) {
-        for (i in head(targetYears, -1)) {
+        for (i in utils::head(targetYears, -1)) {
           if (x_capacity[r, i + 5, t] < setYears(x_capacity[r, i, t])) {
             x_capacity[r, i + 5, t] <- setYears(x_capacity[r, i, t])
           } else {

@@ -1,20 +1,21 @@
 #' Reads NPI policy database with technology capacity target from the Policy data base (v4 August 2024)
 #' by PBL that translate the high impact policies of https://climatepolicydatabase.org/.
+
 #' @description Reads excel sheet with NPi (National Policies Implemented)
 #' data on different policy targets (capacity) with different variations:
-#' unconditional for minimal and conditionnal for maximum targets.
+#' unconditional for minimal and conditional for maximum targets.
 #' NPI targets only include targets that are based on implemented policy instruments.
+
 #' @details Country name is ISO coded. Capacity/Additional Capacity targets are in GW.
+
 #' @return  magpie object
 #' @author  Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond)
-#' @importFrom readxl read_xlsx
-#' @importFrom dplyr select
 
 readNewClimate <- function(subtype) {
 
-
-  if (grepl("2025", subtype, fixed = TRUE)) { # keep structure to compare when new versions (NPi target updates)
+  # keep structure to compare when new versions (NPi target updates)
+  if (grepl("2025", subtype, fixed = TRUE)) {
     NPIfile <- "NPi_2025-02-03.xlsx"
   } else {
     NPIfile <- "NPi_2025-02-03.xlsx"
@@ -31,12 +32,16 @@ readNewClimate <- function(subtype) {
                                     "numeric", "numeric", "numeric", "skip", "skip", "skip"))
     x <- as.magpie(NPI, spatial = 1, temporal = 2, datacol = 3)
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
-    input <- read_xlsx(NPIfile, sheet = "EmissionTargets", skip = 3, na = c("?", ""))
+    input <- suppressMessages(readxl::read_xlsx(
+      NPIfile, sheet = "EmissionTargets", skip = 3, na = c("?", "")))
+
     # select the relevant columns to work upon
-    input2 <- select(input, 2, 7:14)
+    input2 <- dplyr::select(input, 2, 7:14)
+
     # rename columns
     colnames(input2) <- c("ISO_Code", "Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e", "Target_Year",
                           "Type", "Unconditional", "Conditional", "Uncond2", "Cond2")
+
     # if no entry in first two quantitative columns, use data from 3rd and 4th
     bothcolumns <- input2$ISO_Code[(!is.na(input2$Unconditional) & !is.na(input2$Uncond2)) |
                                      (!is.na(input2$Conditional) & !is.na(input2$Cond2))]
@@ -44,8 +49,10 @@ readNewClimate <- function(subtype) {
       warning("readNewClimate with subtype=", subtype, " has values in more than one Uncond/Cond column in: ",
               paste(bothcolumns, collapse = ", "))
     }
-    # check consistency of Type. Note: this has to be identical to the definition in calcEmiTarget.R
+
+    # check consistency of Type. Note: this has to be identical to the definition in 'calcEmiTarget.R'
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
+
     if (!all(input2$Type %in% allowedType)) {
       warning("Unknown data type used in ", NPIfile, ": ",
               paste(unique(input2$Type)[!unique(input2$Type) %in% allowedType], collapse = ", "),
@@ -82,8 +89,9 @@ readNewClimate <- function(subtype) {
               paste(ref4change, collapse = ", "))
     }
     # as magclass can only cover numerical values well, transform: in column 2 BAU into -1, and Type into number based on allowedType
-    input2[2] <- as.numeric(unlist(rapply(input2[2], function(x)
-      ifelse(x == "BAU", -1, ifelse(x == "no", -2, x)), how = "replace")))
+    input2[2] <- as.numeric(unlist(rapply(input2[2], function(x) {
+      ifelse(x == "BAU", -1, ifelse(x == "no", -2, x))
+    }, how = "replace")))
     input2[5] <- as.numeric(unlist(rapply(input2[5], function(x) match(x, allowedType), how = "replace")))
     # sort with c(1,4,2,3,5,6,7) to get region into first and years into second column
     x <- as.magpie(input2[c(1, 4, 2, 3, 5, 6, 7)], spatial = 1, temporal = 2, datacol = 3)
