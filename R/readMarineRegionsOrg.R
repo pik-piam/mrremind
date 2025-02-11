@@ -26,7 +26,7 @@ readMarineRegionsOrg <- function() {
     mutate(AREA_KM2_adj = .data$AREA_KM2 * (1 / .data$claims)) %>%
     # convert wide to long format
     tidyr::pivot_longer(
-      cols = c(ISO_SOV1, ISO_SOV2, ISO_SOV3),
+      cols = c("ISO_SOV1", "ISO_SOV2", "ISO_SOV3"),
       names_to = "ISO_SOV_original",
       values_to = "ISO_SOV"
     ) %>%
