@@ -356,8 +356,14 @@ convertNewClimate <- function(x, subtype) {                                # nol
           ghgtarget <- setYears(ghg[regi, min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL) * (1 + data[regi, year, uncond_or_cond])
         }
       } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # OR: Why no distinction?
+        if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) { # ignore if no BAU emissions given
+          ghgtarget <- data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"] + data[regi, year, uncond_or_cond]
+        
+      } else{
+          
         ghgtarget <- (1 + data[regi, year, uncond_or_cond]) * gdp[regi, year, ] / setYears(gdp[regi, round(as.numeric(data[regi, year, "Reference_Year"]) / 5) * 5, ], NULL) * setYears(ghg[regi, as.numeric(data[regi, year, "Reference_Year"]), ], NULL)
-      } else if (allowedType[data[regi, year, "Type"]] == "GHG-fixed-total") {
+      }
+        }else if (allowedType[data[regi, year, "Type"]] == "GHG-fixed-total") {
         ghgtarget <- data[regi, year, uncond_or_cond]
       } else {
         warning("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ", allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
@@ -370,7 +376,7 @@ convertNewClimate <- function(x, subtype) {                                # nol
     knownhigh <- list("IND" = c("y2030"))
     knownlow <- list("GAB" = c("y2050"))
     
-    browser()
+  
     # ghgfactor compared to 2005, first set to NA
     # this copy of the gdp structure is needed because of the different SSP
     ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"], 
