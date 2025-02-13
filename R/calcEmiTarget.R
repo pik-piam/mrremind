@@ -72,7 +72,7 @@ calcEmiTarget <- function(sources, subtype) {
     return(y)
   }
 
-  lapply(listGhgfactors, expandMagpieYears) %>% mbind() -> ghgfactor
+  ghgfactor <- lapply(listGhgfactors, expandMagpieYears) %>% mbind()
 
 
   # create 1/0 dummy for calculation of regional share covered by quantitative target, per TarYear.

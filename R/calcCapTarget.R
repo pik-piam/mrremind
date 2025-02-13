@@ -17,20 +17,26 @@ calcCapTarget <- function(sources) {
   REN21data <- readSource("REN21", subtype = "Capacity")
 
   if (sources == "REN21") { # only REN21
-    description <- "Capacity targets from REN 21(2017) database"
-    return(list(x = REN21data, weight = NULL, unit = "GW", description = description))
-    # end REN21
+
+
+    return(list(x = REN21data,
+                weight = NULL,
+                unit = "GW",
+                description = "Capacity targets from REN 21(2017) database")
+    )
 
   } else if (sources == "NewClimate") {
 
     capCond <- readSource("NewClimate", subtype = "Capacity_2025_cond")
     capUncond <- readSource("NewClimate", subtype = "Capacity_2025_uncond")
 
-    return(list(x = mbind(capCond, capUncond),
+    x <- mbind(capCond, capUncond)
+
+    return(list(x = x,
                 weight = NULL,
                 unit = "GW",
                 description = "Capacity targets combined from NewClimate Database for Current Policy Scenarios")
-           )
+    )
 
 
   } else { # import NDC capacity target
@@ -145,11 +151,11 @@ calcCapTarget <- function(sources) {
     # regionmapping without countries that already have a country target
     CountryCode <- NULL
     reg.map.reduced <- reg.map %>%
-                        filter(!CountryCode %in% country.target.regs)
+      filter(!CountryCode %in% country.target.regs)
     # disaggregate EU target to iso-countries
     H2Target.disagg <- toolAggregate(H2Target, reg.map.reduced,
-                                  from = "RegionCode", to = "CountryCode", dim = 1,
-                                  weight = GDP2015[country.target.regs, , , invert = TRUE])
+                                     from = "RegionCode", to = "CountryCode", dim = 1,
+                                     weight = GDP2015[country.target.regs, , , invert = TRUE])
     # bind country target together with disaggregation of EU targets to other countries
     H2Target.out <- magpiesort(mbind(H2Target.country[country.target.regs, , ], H2Target.disagg))
     x <- mbind(x, extend2Dim(H2Target.out, names(listCapacitiesNDC)))
