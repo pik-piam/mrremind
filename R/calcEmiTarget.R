@@ -51,29 +51,30 @@ calcEmiTarget <- function(sources, subtype) {
       "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond")
     )
 
-    listYears   <- lapply(listGhgfactors, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
-    listRegions <- lapply(listGhgfactors, getItems, dim = "iso3c") %>% unlist() %>% unique() %>% sort()
-
-    # expand all magpies to listYears
-    expandMagpieYears <- function(x) {
-      y <- new.magpie(cells_and_regions = listRegions, years = listYears, names = getNames(x))
-      for (year in getItems(x, dim = "year")) {
-        y[, year, ] <- x[, year, ]
-      }
-      return(y)
-    }
-
-    lapply(listGhgfactors, expandMagpieYears) %>% mbind() -> ghgfactor
-
-  } else if (sources == "NewClimate") {
-    emiCond <- readSource("NewClimate", subtype = "Emissions_2025_cond")
-    emiUncond <- readSource("NewClimate", subtype = "Emissions_2025_uncond")
-    ghgfactor <- mbind(emiCond, emiUncond)
-    listRegions <- getItems(ghgfactor, dim = 1)
-    listGhgfactors <- getNames(ghgfactor)
+  }else if (sources == "NewClimate") {
+    listGhgfactors <- list(
+      "2025_cond"   = readSource("NewClimate", subtype = "Emissions_2025_cond"),
+      "2025_uncond" = readSource("NewClimate", subtype = "Emissions_2025_uncond")
+    )
   } else {
     stop("Unknown source ", sources, " for calcEmiTarget.")
   }
+
+  listYears   <- lapply(listGhgfactors, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
+  listRegions <- lapply(listGhgfactors, getItems, dim = "iso3c") %>% unlist() %>% unique() %>% sort()
+
+  # expand all magpies to listYears
+  expandMagpieYears <- function(x) {
+    y <- new.magpie(cells_and_regions = listRegions, years = listYears, names = getNames(x))
+    for (year in getItems(x, dim = "year")) {
+      y[, year, ] <- x[, year, ]
+    }
+    return(y)
+  }
+
+  lapply(listGhgfactors, expandMagpieYears) %>% mbind() -> ghgfactor
+
+
   # create 1/0 dummy for calculation of regional share covered by quantitative target, per TarYear.
   # Note that 0 implies no goal, net zero targets have ghgfactor of 0 but dummy of 1
   dummy1 <- 1 * (!is.na(ghgfactor[, , "SSP2", drop = TRUE]))
@@ -90,7 +91,7 @@ calcEmiTarget <- function(sources, subtype) {
   } else if (grepl("Ghgshare2005", subtype, fixed = TRUE)) { # p45_2005share_target.cs3r
     # calculate growth for GDP weight for GHG emission share
     # assuming constant relative emission intensities across countries of one region
-    gdpWeight <- new.magpie(getItems(dummy1, dim = "region"), getItems(dummy1, dim = "year"), getNames(ghgfactor))
+    gdpWeight <- new.magpie(getItems(dummy1, dim = 1), getItems(dummy1, dim = 2), getNames(ghgfactor))
     for (t in getItems(dummy1, dim = "year")) {
       gdpWeight[, t, ] <- setYears(ghg[, 2005, ] / gdp[, 2005, ], NULL) * gdp[, t, ]
     }

@@ -205,11 +205,10 @@ fullREMIND <- function() {
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", round = 4, file = "fm_2005shareTarget.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor",    round = 4, file = "fm_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", round = 4, file = "fm_histShare.cs3r")
-
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", round = 4, file = "fm_NC_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor",    round = 4, file = "fm_factorTargetyear.cs3r")
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor",    round = 4, file = "fm_NC_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", round = 4, file = "fm_histShare.cs3r")
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghghistshare", round = 4, file = "fm_NC_histShare.cs3r")
 
   calcOutput("CapTarget", sources = "UNFCCC_NDC",                           round = 4, file = "f40_NDC.cs3r")
