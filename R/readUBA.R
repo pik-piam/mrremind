@@ -8,7 +8,6 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom tibble tibble
 #' @importFrom dplyr select mutate
-#' @importFrom rlang sym
 #'
 #' @export
 readUBA <- function() {

@@ -21,6 +21,18 @@ calcCapTarget <- function(sources) {
     return(list(x = REN21data, weight = NULL, unit = "GW", description = description))
     # end REN21
 
+  } else if (sources == "NewClimate") {
+
+    capCond <- readSource("NewClimate", subtype = "Capacity_2025_cond")
+    capUncond <- readSource("NewClimate", subtype = "Capacity_2025_uncond")
+
+    return(list(x = mbind(capCond, capUncond),
+                weight = NULL,
+                unit = "GW",
+                description = "Capacity targets combined from NewClimate Database for Current Policy Scenarios")
+           )
+
+
   } else { # import NDC capacity target
     listCapacitiesNDC <- list(
       "2018_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2018_cond"),

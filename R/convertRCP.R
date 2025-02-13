@@ -34,7 +34,7 @@ convertRCP <- function(x, subtype) {
       returnPathOnly = TRUE, where = "mappingfolder"
     )
 
-    mapping <- read.csv2(mappingfile, stringsAsFactors = FALSE)
+    mapping <- utils::read.csv2(mappingfile, stringsAsFactors = FALSE)
     countries <- mapping$CountryCode
 
     weights <- weights[countries, , ]

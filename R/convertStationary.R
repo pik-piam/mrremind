@@ -8,7 +8,7 @@ convertStationary <- function(x) {
   noYearDim <- function(x) setYears(x, NULL)
 
   addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU")),
+    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU")),
                               paste0("SDP", c("", "_EI", "_RC", "_MC"))),
                             function(s) setNames(x, paste(s, getNames(x), sep = "."))
     ))
@@ -31,7 +31,7 @@ convertStationary <- function(x) {
     exceeding_years_before <- exceeding_years_vec[exceeding_years_vec <= threshold]
     exceeding_years_after  <- exceeding_years_vec[exceeding_years_vec > threshold]
     lambda <- c(rep(0, length(previous_years)),
-                tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
+                utils::tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
                 rep(1, length(exceeding_years_after)))
     names(lambda) <- as.character(c(previous_years, exceeding_years_vec))
     return(as.magpie(lambda))
@@ -42,7 +42,7 @@ convertStationary <- function(x) {
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
                                         returnPathOnly = TRUE, where = "mrcommons")
-  struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
+  struct_mapping <- utils::read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping
   struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
@@ -59,14 +59,13 @@ convertStationary <- function(x) {
 
   mappingfile <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv",
                                 returnPathOnly = TRUE, where = "mappingfolder")
-  mapping <- read.csv2(mappingfile)
+  mapping <- utils::read.csv2(mappingfile)
   region_col <- which(names(mapping) == "RegionCode")
   iso_col <- which(names(mapping) == "CountryCode")
 
   #--- Load the Weights
   #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
-  wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
-  getNames(wg) <- gsub("gdp_", "", getNames(wg))
+  wg <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", average2020 = FALSE, aggregate = FALSE)
 
   # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU
   wg <- mbind(
@@ -92,7 +91,8 @@ convertStationary <- function(x) {
   }
 
   # Select last year of X available in the historical data set
-  maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in% getYears(wfe, as.integer = TRUE)])
+  maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in%
+                                                          getYears(wfe, as.integer = TRUE)])
   # Deduce the scenario periods
   exceeding_years <- getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) > maxYear_X_in_FE]
 
@@ -101,7 +101,9 @@ convertStationary <- function(x) {
   # For historical years, the data is substituted. For projections years, there is first a transition period,
   # before the FE_stationary projections are fully taken up
 
-  fe_stationary <- time_interpolate(hist_fe_stationary[, getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE], ], # The years exceeding maxYear might not be meaningful. Therefore we exclude them
+  # The years exceeding maxYear might not be meaningful. Therefore we exclude them
+  helper <- getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE]
+  fe_stationary <- time_interpolate(hist_fe_stationary[, helper, ],
                                     interpolated_year = c(maxYear_X_in_FE, exceeding_years),
                                     integrate_interpolated_years = TRUE,
                                     extrapolation_type = "constant")
@@ -114,14 +116,16 @@ convertStationary <- function(x) {
   # Item names differ slightly for the input of EDGE_stationary (fe_stationary) and the output
   # The main issue concerns transport. We therefore restrict to the variables of interest in each data set of
   # historical data
-  stationary_items <- grep("^(fenon|feagr|feind|feoth)", getNames(x, TRUE)[[2]], value = TRUE) # Stationary, non-buildings names
+  # Stationary, non-buildings names
+  stationary_items <- grep("^(fenon|feagr|feind|feoth)", getNames(x, TRUE)[[2]], value = TRUE)
 
 
   # create lambda vector that gives 0 to the historical data and 1 after 2030
   lambda <-  calcLambda(exceeding_years, 2030, getYears(x)[getYears(x, TRUE) <= maxYear_X_in_FE])
   # Replace
 
-  x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) + x[, , stationary_items] * lambda
+  x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) +
+                             x[, , stationary_items] * lambda
 
   # Scale GDP and FE weights so that they can be added
   wg <- wg / dimSums(wg, dim = 1, na.rm = TRUE)
@@ -153,9 +157,7 @@ convertStationary <- function(x) {
   wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
   # Disaggregate and fill the gaps
-  xadd <- toolAggregate(x, mappingfile, weight = wfe,
-                        from = region_col,
-                        to = iso_col)
+  xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col)
   result <- toolCountryFill(xadd, 0, verbosity = 2)
 
   return(result)
