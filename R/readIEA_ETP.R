@@ -3,11 +3,9 @@
 #' @author Falk Benke
 #' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
 #' @importFrom tibble tibble
-#' @importFrom dplyr bind_rows bind_cols select mutate
+#' @importFrom dplyr bind_rows select mutate
 #' @importFrom readxl read_xlsx
-#' @importFrom tidyr drop_na pivot_longer extract
-#' @importFrom rlang sym
-
+#'
 readIEA_ETP <- function(subtype) {
 
   # nolint start
@@ -139,7 +137,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     buildings = {
@@ -268,7 +266,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     summary = {
@@ -442,7 +440,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     },
     transport = {
@@ -511,7 +509,7 @@ readIEA_ETP <- function(subtype) {
             )
           }
         ) %>%
-          extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
+          tidyr::extract("name", c("variable", "unit"), "^(.*) \\((.*)\\)$")
       )
     }
   )
@@ -538,14 +536,14 @@ readIEA_ETP <- function(subtype) {
           col_types = col_types, range = subtypes[[subtype]]$scenarios[[scenario]]
         ) %>%
           # add variable and unit columns
-          bind_cols(subtypes[[subtype]]$rows) %>%
+          dplyr::bind_cols(subtypes[[subtype]]$rows) %>%
           # drop unneeded rows
-          drop_na("variable", "unit") %>%
+          tidyr::drop_na("variable", "unit") %>%
           # drop rownames from worksheet
           select(-1) %>%
           # add variable prefix
           mutate("variable" = paste0(subtypes[[subtype]]$prefix, "|", !!sym("variable"))) %>%
-          pivot_longer(
+          tidyr::pivot_longer(
             cols = c(-"variable", -"unit"), names_to = "year",
             names_transform = list("year" = as.integer)
           ) %>%

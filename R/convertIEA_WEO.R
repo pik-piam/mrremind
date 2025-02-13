@@ -12,7 +12,6 @@
 #' a <- convertWEO(x, subtype = "Capacity")
 #' }
 #'
-#' @importFrom tidyr gather
 #' @importFrom readxl read_excel
 convertIEA_WEO <- function(x, subtype) {
 

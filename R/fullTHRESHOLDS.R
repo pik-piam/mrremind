@@ -169,7 +169,7 @@ fullTHRESHOLDS <- function(type = "config") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"
     outfile <- "pipelines.mif"
-    as.quitte(out) %>%
+    quitte::as.quitte(out) %>%
       mutate("variable" = paste(.data$variable, .data$status, sep = "|")) %>%
       select(-"scenario", -"status") %>%
       as.magpie() %>%
@@ -180,8 +180,8 @@ fullTHRESHOLDS <- function(type = "config") {
     # (as used in a validationConfig)
     outfile <- "thresholds.mif"
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
-      as.quitte() %>%
-      pivot_wider(names_from = "status") %>%
+      quitte::as.quitte() %>%
+      tidyr::pivot_wider(names_from = "status") %>%
       select(-"scenario")
     # exclude rows without any threshold
     out[!(is.na(out$min_red)

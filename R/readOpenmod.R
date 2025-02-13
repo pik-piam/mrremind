@@ -11,7 +11,7 @@
 #'
 readOpenmod <- function() {
   # Read 2010 capacity data
-  data2010 <- read.csv2("LIMES_gencap_2010.csv", stringsAsFactors = FALSE)
+  data2010 <- utils::read.csv2("LIMES_gencap_2010.csv", stringsAsFactors = FALSE)
   data2010$period <- 2010
   data2010 <- reshape2::melt(data2010, id.vars = c("dummy", "period"), variable.name = "tech", value.name = "value")
   data2010$value <- as.numeric(data2010$value)
