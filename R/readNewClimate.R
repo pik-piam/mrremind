@@ -28,7 +28,7 @@ readNewClimate <- function(subtype) {
     NPI <- read_excel(NPIfile, sheet = "Capacity_target_PBL_2025",
                       col_types = c("text", "skip", "numeric", "text", "text", "numeric",
                                     "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-                                    "numeric", "numeric", "numeric", "skip", "skip", "skip"))
+                                    "numeric", "numeric", "numeric", "numeric", "skip", "skip", "skip"))
     x <- as.magpie(NPI, spatial = 1, temporal = 2, datacol = 3)
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
     input <- read_xlsx(NPIfile, sheet = "EmissionTargets", skip = 3, na = c("?", ""))

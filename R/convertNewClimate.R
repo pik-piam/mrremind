@@ -20,7 +20,7 @@ convertNewClimate <- function(x, subtype) {                                # nol
       cat("Table read from NewClimate contains unknown target types: ",
           getNames(x[, , ], fulldim = TRUE)$`Type of target`[!(getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)])
     }
-    techList <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar", "Biomass", 
+    techList <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar photovoltaic", "Concentrated solar power", "Biomass", 
                   "Nuclear", "Hydro", "Geothermal", "Coal", "H2-Electrolysers")
     listAllCombinations <- do.call(paste, c(expand.grid(getNames(x[, , ], fulldim = TRUE)$Conditionality, targetTypes, techList), sep = "."))
     missingCombinations <- listAllCombinations[!listAllCombinations %in% getNames(x[, , ])]
@@ -111,7 +111,7 @@ convertNewClimate <- function(x, subtype) {                                # nol
     # using cf_hydro_realworld directly causes converges errors because some are very small. Second term needed such that cf_hydro has right structure
     # Initialising all capacities for all model years to current capacities and converting generation to capacity
     #EU target
-    IrenaTech <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar", "Geothermal")
+    IrenaTech <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar photovoltaic", "Concentrated solar power", "Geothermal")
     x_capacity[, , IrenaTech]  <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, IrenaTech])
     x_capacity[, , "Biomass"]  <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, "Bioenergy"])
     
@@ -202,7 +202,9 @@ convertNewClimate <- function(x, subtype) {                                # nol
         x_mod5[r, , "Production-Absolute.Hydro"] <- 0
     }
     
-    for (t in c("Solar", "Wind", "Hydro")) {
+    for (t in c("Solar photovoltaic", "Wind", "Hydro")) {
+      #no pure Solar in REMIND technology
+      getNames(data_combined, dim=1) <- c("Solar photovoltaic",  "Hydro",  "Wind" )
       data_sel <- data_combined[, , t]
       data_in_use <-  data_sel[, , "maxprod"] / data_sel[, , "nur"]
       for (y in targetYears) {
@@ -257,7 +259,7 @@ convertNewClimate <- function(x, subtype) {                                # nol
       }
     }
     
-    x_capacity_gen <- mbind(x_capacity_prod_swh[, , c("Solar", "Wind", "Hydro",
+    x_capacity_gen <- mbind(x_capacity_prod_swh[, , c("Solar photovoltaic","Concentrated solar power", "Wind", "Hydro",
                                                       "Onshore wind energy", "Offshore wind energy", "Geothermal"  )], 
                             x_capacity_prod_nb[, , c("Biomass", "Nuclear", "Coal")])
     x_capacity[, , usedTech] <- pmax(x_capacity_abs[, , usedTech],
@@ -291,7 +293,7 @@ convertNewClimate <- function(x, subtype) {                                # nol
     x_final <- magpiesort(mbind(x_capacity, x_other))
     x_final[is.na(x_final)] <- 0
     x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
-    getNames(x) <- c("wind","windon", "windoff",  "spv", "bioigcc", "tnrs", "hydro", "geohdr","coalchp", "seh2") 
+    getNames(x) <- c("wind","windon", "windoff",  "spv", "csp", "bioigcc", "tnrs", "hydro", "geohdr","coalchp", "seh2") 
     
     # end subtype contains Capacity
     
