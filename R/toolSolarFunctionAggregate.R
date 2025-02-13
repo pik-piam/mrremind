@@ -109,8 +109,6 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
   Max <- NULL
   Min <- NULL
 
-
-
   ### FS: map and aggregate FLH bins from DLR data to REMIND grades
 
   # method:
@@ -279,7 +277,7 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     # sry: a bit messay the following case distinction...if there is ever time, could be structured better
     # 1. for regions/technologies where highest FLH data point (DLR) is outisde first grade (s.t. first grade would be NA)
     # create equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins
-    if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] >= grade.breaks[8]) {
+    if (df.OutsideBreaks$Min[i] > grade.breaks[1] && df.OutsideBreaks$Max[i] >= grade.breaks[8]) {
       # if lowest DRL FLH grade is below maximum of grade breaks, distribute grades equally from minimum to maximum DLR data point
       if (df.OutsideBreaks$Min[i] > grade.breaks[8]) {
         new.grade.breaks <- seq(df.OutsideBreaks$Min[i] - 1e-5, df.OutsideBreaks$Max[i] + 1e-5, length.out = length(grade.breaks))
@@ -292,7 +290,7 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
       # total potential below lower bound of last grade ->
       # equally spaced grades up to the first element of grade.breaks that is within the original FLH data bins and (!)
       # split last grade into multiple equally spaced grades
-    } else if (df.OutsideBreaks$Min[i] > grade.breaks[1] & df.OutsideBreaks$Max[i] < grade.breaks[8] & nrow(df.map.temp) > 0) {
+    } else if (df.OutsideBreaks$Min[i] > grade.breaks[1] && df.OutsideBreaks$Max[i] < grade.breaks[8] && nrow(df.map.temp) > 0) {
       grades.to.shift <- grade.breaks[grade.breaks > df.OutsideBreaks$Min[i]]
       new.grade.breaks <- seq(df.OutsideBreaks$Min[i] - 1e-5, min(grades.to.shift), length.out = (9 - length(grades.to.shift) + 1))
       new.grade.breaks <- c(new.grade.breaks, grades.to.shift[-1])
@@ -306,11 +304,11 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
                                 length.out = (length(grade.breaks) + 2)))
       # 4. if total potential is above current generation but below lower bound of last grade
       # -> split last grade into multiple equally spaced grades
-    } else if (df.OutsideBreaks$Max[i] > 1 &  df.OutsideBreaks$Max[i] < grade.breaks[8]) {
+    } else if (df.OutsideBreaks$Max[i] > 1 &&  df.OutsideBreaks$Max[i] < grade.breaks[8]) {
       grades.to.keep <- grade.breaks[grade.breaks < df.OutsideBreaks$Max[i]]
       new.grade.breaks <- c(0, grades.to.keep[-length(grades.to.keep)], seq(grades.to.keep[length(grades.to.keep)],
-                                                                           df.OutsideBreaks$Max[i] + 1e-2,
-                                                                           length.out = (9 - length(grades.to.keep) + 1)))
+                                                                            df.OutsideBreaks$Max[i] + 1e-2,
+                                                                            length.out = (9 - length(grades.to.keep) + 1)))
     }
 
     df.map.temp <- df.map.temp %>%
@@ -422,9 +420,6 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     # convert maxprod from GWh to EJ
     mutate(value = ifelse(Type == "maxprod", value * 3.6 * 1e-6, value)) %>%
     arrange(region, Technology, Distance, Type, grade, value)
-
-
-
 
   ### create output magpie object
 
