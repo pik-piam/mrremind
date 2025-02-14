@@ -27,7 +27,7 @@ readEDGETransport <- function(subtype) {
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     tidyr::expand_grid(
-      SSPscen = c("SSP1", "SSP2", "SSP3", "SSP5", "SDP"),
+      SSPscen = c("SSP1", "SSP2", "SSP3", "SSP5", "SDP", "SSP2IndiaMedium", "SSP2IndiaHigh"),
       transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = c(TRUE, FALSE),
       demScen = c("default")),
@@ -54,7 +54,7 @@ readEDGETransport <- function(subtype) {
       "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
       "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
       "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
-      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong" 
     )
   )
 
