@@ -5,6 +5,7 @@
 #' @author Robert Pietzcker, Falk Benke
 #'
 calcWasteEnergyUseShares <- function() {
+
   x <- readSource("IEA", subtype = "EnergyBalances")
   x <- dimSums(x[, , c("INDWASTE", "MUNWASTEN")], dim = 3.1, na.rm = TRUE)
 
@@ -85,7 +86,6 @@ calcWasteEnergyUseShares <- function() {
     unit = "%",
     aggregationFunction = .calcShares,
     aggregationArguments = list(denominator = denominator),
-    min = 0, max = 1,
     description = "Waste Energy Use Shares based on IEA World Energy Balances"
   ))
 }
