@@ -39,15 +39,15 @@ In case of questions / problems please contact Lavinia Baumstark <lavinia@pik-po
 
 To cite package **mrremind** in publications use:
 
-Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R, Fuchs S, Mandaroux R, Koch J (2025). "mrremind: MadRat REMIND Input Data Package." Version: 0.216.2, <https://github.com/pik-piam/mrremind>.
+Baumstark L, Rodrigues R, Levesque A, Oeser J, Bertram C, Mouratiadou I, Malik A, Schreyer F, Soergel B, Rottoli M, Mishra A, Dirnaichner A, Pehl M, Giannousakis A, Klein D, Strefler J, Feldhaus L, Brecha R, Rauner S, Dietrich J, Bi S, Benke F, Weigmann P, Richters O, Hasse R, Fuchs S, Mandaroux R, Koch J (2025). "mrremind: MadRat REMIND Input Data Package - Version 0.216.2."
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Misc{,
-  title = {mrremind: MadRat REMIND Input Data Package},
+  title = {mrremind: MadRat REMIND Input Data Package - Version 0.216.2},
   author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich and Stephen Bi and Falk Benke and Pascal Weigmann and Oliver Richters and Robin Hasse and Sophie Fuchs and Rahel Mandaroux and Johannes Koch},
-  date = {2025-02-13},
+  date = {2025-02-14},
   year = {2025},
   url = {https://github.com/pik-piam/mrremind},
   note = {Version: 0.216.2},
