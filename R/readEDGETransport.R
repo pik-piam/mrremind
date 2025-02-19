@@ -27,7 +27,7 @@ readEDGETransport <- function(subtype) {
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     tidyr::expand_grid(
-      SSPscen = c("SSP1", "SSP2", "SSP3", "SSP5", "SDP"),
+      SSPscen = c("SSP1", "SSP2", "SSP3", "SSP5", "SDP", "SSP2IndiaMedium", "SSP2IndiaHigh"),
       transportPolScen = c("Mix1", "Mix2", "Mix3", "Mix4"),
       isICEban = c(TRUE, FALSE),
       demScen = c("default")),
@@ -36,6 +36,7 @@ readEDGETransport <- function(subtype) {
       ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
       "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
       "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    TRUE,      "SSP2_demRedStrong",
       "SSP2",          "Mix3",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demDiffer",
@@ -53,7 +54,7 @@ readEDGETransport <- function(subtype) {
       "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
       "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
       "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
-      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong" 
     )
   )
 
@@ -103,6 +104,7 @@ readEDGETransport <- function(subtype) {
     dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "SSP2_CAMP_strong"]
     dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "SSP2_lowEn"]
     dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "SSP2_lowEn"]
+    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix2ICEban", DEM_scenario := "SSP2_lowEn"]
     dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "SSP2_lowEn"]
     dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "SSP2_lowEn"]
     return(dt)

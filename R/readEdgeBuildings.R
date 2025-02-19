@@ -9,7 +9,7 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "2.2"
+  ver <- "2.3"
 
   scenarios <- list(SSPs  = paste0("SSP", 1:5),
                     SSP2s = paste0("SSP2", c("_lowEn", "_NAV_all")),
