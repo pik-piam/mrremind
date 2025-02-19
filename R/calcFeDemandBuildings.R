@@ -14,10 +14,6 @@ calcFeDemandBuildings <- function(subtype) {
   stationary <- readSource("Stationary")
   buildings  <- readSource("EdgeBuildings", subtype = "FE")
 
-  # all 2016 values are zero
-  # TODO: remove filtering, as 2016 values are available now
-  buildings <- buildings[, 2016, invert = TRUE]
-
   # aggregate to 5-year averages to suppress volatility
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)

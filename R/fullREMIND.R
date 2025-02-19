@@ -124,7 +124,6 @@ fullREMIND <- function() {
   calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("EmiFossilFuelExtr", source = "CEDS2024",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
-  calcOutput("EmiPollutantExo", subtype = "AviationShipping",                   round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
@@ -218,6 +217,12 @@ fullREMIND <- function() {
 
   calcOutput("SharedTarget", subtype = "FErenewablesShare",                 round = 3, file = "f40_FE_RenShare.cs4r")
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE,           file = "p24_trade_constraints.cs4r")
+
+  #---------------files used in reporting-------------------------------------------------------------
+
+  calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r")
+  calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
+  calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
 
   #---------------no longer used in REMIND-------------------------------------------------------------
 
