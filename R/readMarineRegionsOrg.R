@@ -2,6 +2,11 @@
 #' Areas with overlapping claims or jointly governed areas are split equally
 #' between the respective countries.
 #'
+#' Source:
+#' Flanders Marine Institute (2023). Maritime Boundaries Geodatabase:
+#' Maritime Boundaries and Exclusive Economic' Zones (200NM), version 12.
+#' Available online at https://www.marineregions.org/. https://doi.org/10.14284/632
+#'
 #' @author Tabea Dorndorf
 #'
 readMarineRegionsOrg <- function() {
