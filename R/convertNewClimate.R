@@ -27,7 +27,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     }
 
     techList <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar photovoltaic", "Concentrated solar power", "Biomass",
-                  "Nuclear", "Hydro", "Geothermal", "Coal", "H2-Electrolysers")
+                  "Nuclear", "Hydro", "Geothermal", "Coal")
 
     listAllCombinations <- do.call(paste, c(expand.grid(getNames(x, fulldim = TRUE)$Conditionality, targetTypes, techList), sep = "."))
     missingCombinations <- listAllCombinations[!listAllCombinations %in% getNames(x)]
@@ -293,7 +293,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
     x_final <- magpiesort(mbind(x_capacity, x_other))
     x_final[is.na(x_final)] <- 0
     x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
-    getNames(x) <- c("wind", "windon", "windoff",  "spv", "csp", "bioigcc", "tnrs", "hydro", "geohdr", "coalchp", "seh2")
+    getNames(x) <- c("wind", "windon", "windoff",  "spv", "csp", "bioigcc", "tnrs", "hydro", "geohdr", "coalchp")
 
     # end subtype contains Capacity
 
