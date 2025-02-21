@@ -49,6 +49,7 @@ fullREMIND <- function() {
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
   calcOutput(
     type = "Steel_Projections",
+    scenarios = mrdrivers::toolReplaceShortcuts(gdpPopScen),
     subtype = "secondary.steel.max.share",
     file = "p37_steel_secondary_max_share.cs4r",
     match.steel.historic.values = TRUE,
@@ -204,13 +205,13 @@ fullREMIND <- function() {
   calcOutput("EmiTarget",
              sources = "UNFCCC_NDC",
              subtype = "Ghgfactor",
-             scenario = gdpPopScen,   
+             scenario = gdpPopScen,
              round = 4,
              file = "fm_factorTargetyear.cs3r")
   calcOutput("EmiTarget",
              sources = "NewClimate",
              subtype = "Ghgfactor",
-             scenario = gdpPopScen,   
+             scenario = gdpPopScen,
              round = 4,
              file = "fm_NC_factorTargetyear.cs3r")
   calcOutput("EmiTarget",

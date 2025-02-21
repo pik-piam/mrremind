@@ -59,8 +59,8 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
   if (sources == "NewClimate") {
     listGhgfactors <- list(
-      "2025_cond"   = readSource("NewClimate", subtype = "Emissions_2025_cond"),
-      "2025_uncond" = readSource("NewClimate", subtype = "Emissions_2025_uncond")
+      "2025_cond"   = readSource("NewClimate", subtype = "Emissions_2025_cond", subset = subsetScen),
+      "2025_uncond" = readSource("NewClimate", subtype = "Emissions_2025_uncond", subset = subsetScen)
     )
   }
 

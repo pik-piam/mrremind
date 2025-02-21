@@ -13,7 +13,7 @@
 
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
 
-convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
+convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
@@ -321,7 +321,7 @@ convertNewClimate <- function(x, subtype) { # nolint: object_name_linter.
                                                      "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
 
     # Future GDP values
-    gdp <- calcOutput("GDP", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE)
+    gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
 
     # Define EU countries + croatia for special treatment because of joint NDC
     EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",

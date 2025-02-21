@@ -8,7 +8,7 @@
 #'
 calcCapTarget <- function(sources) {
 
-  if (! sources %in% c("REN21", "UNFCCC_NDC", "UNFCCC_NDC+REN21+CHN_NUC")) {
+  if (! sources %in% c("REN21", "UNFCCC_NDC", "UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
     stop("Unknown 'sources' argument.")
   }
 

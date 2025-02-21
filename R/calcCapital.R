@@ -77,7 +77,7 @@ calcCapital <- function(scenario) {
 
   # Add industry energy efficiency capital stocks (passing 2015 SSP2 capital stock as "kap")
   kap <- k[, 2015, "SSP2"] %>% tibble::as_tibble() %>% dplyr::select("iso3c", "kap" = "value")
-  EEK <- calcOutput("Industry_EEK", kap = kap, scenario = scenario, aggregate = FALSE, years = getYears(k))
+  EEK <- calcOutput("Industry_EEK", kap = kap, scenarios = scenario, aggregate = FALSE, years = getYears(k))
 
   # Modify names to differentiate the macroeconomic capital "kap" from EEK capital stocks.
   getNames(k) <- paste0(getNames(k), ".kap")
