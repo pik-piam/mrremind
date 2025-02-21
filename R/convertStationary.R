@@ -91,8 +91,8 @@ convertStationary <- function(x) {
   }
 
   # Select last year of X available in the historical data set
-  maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in%
-                                                          getYears(wfe, as.integer = TRUE)])
+  maxYear_X_in_FE <- max(intersect(getYears(x, as.integer = TRUE),
+                                   getYears(wfe, as.integer = TRUE)))
   # Deduce the scenario periods
   exceeding_years <- getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) > maxYear_X_in_FE]
 
@@ -102,11 +102,19 @@ convertStationary <- function(x) {
   # before the FE_stationary projections are fully taken up
 
   # The years exceeding maxYear might not be meaningful. Therefore we exclude them
-  helper <- getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE]
-  fe_stationary <- time_interpolate(hist_fe_stationary[, helper, ],
+  yearsWithData <- getYears(hist_fe_stationary)[getYears(hist_fe_stationary, TRUE) <= maxYear_X_in_FE]
+  fe_stationary <- time_interpolate(hist_fe_stationary[, yearsWithData, ],
                                     interpolated_year = c(maxYear_X_in_FE, exceeding_years),
                                     integrate_interpolated_years = TRUE,
                                     extrapolation_type = "constant")
+
+  # TODO: remove this hot fix
+  # We add 2 EJ/yr of unspecified electric demand allocated to buildings
+  # to future years to lift up the final 2025 point by this amount.
+  iFix <- "feothelec"
+  fe_stationary["CHN", exceeding_years, iFix] <- fe_stationary["CHN", exceeding_years, iFix] + 2
+  xFix <- x["CHN", , iFix]
+
   fe_stationary <- addSSPnames(fe_stationary)
 
   # change the regional resolution of fe_stationary to match the EDGE_stationary resolution
@@ -126,6 +134,15 @@ convertStationary <- function(x) {
 
   x[, , stationary_items] <- fe_stationary[, getYears(x), stationary_items] * (1 - lambda) +
                              x[, , stationary_items] * lambda
+
+  # TODO: remove this hot fix
+  # shift transition by one time step to maintain the +2EJ we added and stretch
+  # it to smooth the peak a bit
+  lambdaFix <-  calcLambda(setdiff(exceeding_years, 2025), 2055,
+                           getYears(x)[getYears(x, TRUE) <= 2025])
+  x["CHN", , iFix] <- fe_stationary["CHN", getYears(x), iFix] * (1 - lambdaFix) +
+    xFix * lambdaFix
+
 
   # Scale GDP and FE weights so that they can be added
   wg <- wg / dimSums(wg, dim = 1, na.rm = TRUE)
