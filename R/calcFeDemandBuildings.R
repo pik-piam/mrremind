@@ -1,55 +1,50 @@
 #' Returns the EDGE-Buildings data as REMIND variables
 #'
 #' @param subtype either "FE", "FE_buildings", or "UE_buildings"
+#' @param scenario A string (or vector of strings) designating the scenario(s) to be returned.
 #'
 #' @author Robin Hasse
-calcFeDemandBuildings <- function(subtype) {
+calcFeDemandBuildings <- function(subtype, scenario) {
 
   if (!subtype %in% c("FE", "FE_buildings", "UE_buildings")) {
     stop(paste0("Unsupported subtype: ", subtype))
   }
 
+  ## Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
+  scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
+
   # Data Processing ----
+  stationary <- readSource("Stationary", subset = scenario)
+  buildings  <- readSource("EdgeBuildings", subtype = "FE", subset = scenario)
 
-  stationary <- readSource("Stationary")
-  buildings  <- readSource("EdgeBuildings", subtype = "FE")
-
-  # aggregate to 5-year averages to suppress volatility
+  # Aggregate to 5-year averages to suppress volatility
   buildings <- toolAggregateTimeSteps(buildings)
   stationary <- toolAggregateTimeSteps(stationary)
 
-  # add scenarios to stationary to match buildings scenarios by duplication
-  stationary <- mbind(stationary, setItems(stationary[, , "SSP2"], 3.1, "SSP2_NAV_all"))
-
   if (subtype == "FE") {
-
-    # drop RCP dimension (use fixed RCP)
-    buildings <- mselect(buildings, rcp = "none", collapseNames = TRUE)
+    # Drop RCP dimension (use fixed RCP)
+    buildings <- mselect(buildings, rcp = "none") %>% collapseDim(dim = "rcp")
 
   } else {
-
-    scens <- getItems(buildings, dim = "scenario")
-
     # For each scenario add the rcp scenarios present in buildings to stationary
-    stationary <- do.call(mbind, lapply(scens, function(scen) {
+    stationary <- do.call(mbind, lapply(scenario, function(scen) {
       rcps <- getItems(mselect(buildings, scenario = scen), dim = "rcp")
       toolAddDimensions(mselect(stationary, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
     }))
-
   }
 
-  # extrapolate years missing in buildings, but existing in stationary
+  # Extrapolate years missing in buildings, but existing in stationary
   buildings <- time_interpolate(buildings,
                                 interpolated_year = getYears(stationary),
                                 extrapolation_type = "constant")
 
   data <- mbind(stationary, buildings)
 
-  # Prepare Mapping ----
+  # Prepare Mapping
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
 
   # TODO: remove once this is in the mapping
-  # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+  ## Add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
   mapping <- rbind(
     mapping,
     mapping %>%
@@ -81,9 +76,7 @@ calcFeDemandBuildings <- function(subtype) {
     remindVars <- filter(mapping, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
     remindVars <- unique(remindVars$REMINDitems_out)
 
-
-    # extend mapping for Useful Energy
-
+    # Extend mapping for Useful Energy
     if (subtype == "UE_buildings") {
       mapping <- mapping %>%
         mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
@@ -96,15 +89,13 @@ calcFeDemandBuildings <- function(subtype) {
     remindDims <- quitte::cartesian(scenarioRcp, remindVars)
   }
 
-  # Apply Mapping ----
-
+  # Apply Mapping
   remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
                        years = getYears(data),
                        names = remindDims,
                        sets = getSets(data))
 
   for (v in remindVars) {
-
     w <- mapping %>%
       filter(.data$REMINDitems_out == v) %>%
       select(-"REMINDitems_out") %>%
@@ -118,8 +109,8 @@ calcFeDemandBuildings <- function(subtype) {
     remind[, , getNames(tmp)] <- tmp
   }
 
-  # Prepare Output ----
-  # change item names back from UE to FE
+  # Prepare Output
+  ## Change item names back from UE to FE
   if (subtype == "UE_buildings") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
   }

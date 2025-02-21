@@ -4,9 +4,11 @@
 \alias{calcFloorspace}
 \title{Floor space in buildings}
 \usage{
-calcFloorspace(onlyTotal = FALSE)
+calcFloorspace(scenario, onlyTotal = FALSE)
 }
 \arguments{
+\item{scenario}{A string (or vector of strings) designating the scenario(s) to be returned.}
+
 \item{onlyTotal}{boolean, only give total instead of sub-sectoral floor space}
 }
 \value{

@@ -5,13 +5,17 @@
 #' @author Antoine Levesque, Robin Hasse
 #'
 #' @param onlyTotal boolean, only give total instead of sub-sectoral floor space
+#' @param scenario A string (or vector of strings) designating the scenario(s) to be returned.
 #' @return MAgPIE object with buildings floor space
 #'
 #' @export
 #'
-calcFloorspace <- function(onlyTotal = FALSE) {
+calcFloorspace <- function(scenario, onlyTotal = FALSE) {
 
-  data <- readSource("EdgeBuildings", subtype = "Floorspace")
+  ## Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
+  scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
+
+  data <- readSource("EdgeBuildings", subtype = "Floorspace", subset = scenario)
 
   if (onlyTotal) {
     data <- collapseNames(data[, , "buildings"])

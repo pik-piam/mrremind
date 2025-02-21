@@ -2,9 +2,15 @@
 % Please edit documentation in R/readGini.R
 \name{readGini}
 \alias{readGini}
+\alias{convertGini}
 \title{Read Gini}
 \usage{
 readGini()
+
+convertGini(x)
+}
+\arguments{
+\item{x}{MAgPIE object returned from readGini}
 }
 \value{
 magpie object of the Gini data
@@ -25,8 +31,5 @@ a <- readSource(type="Gini")
 }
 }
 \seealso{
-\code{\link{readSource}} \code{\link{convertGini}}
-}
-\author{
-Bjoern Soergel
+\code{\link{readSource}}
 }
