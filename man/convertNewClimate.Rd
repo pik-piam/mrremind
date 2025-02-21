@@ -4,7 +4,7 @@
 \alias{convertNewClimate}
 \title{Policy targets for NDCs from UNFCCC_NDC}
 \usage{
-convertNewClimate(x, subtype)
+convertNewClimate(x, subtype, subset)
 }
 \arguments{
 \item{x}{MAgPIE object to be converted}

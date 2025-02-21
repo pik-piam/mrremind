@@ -9,7 +9,7 @@ readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
   subtype <- match.arg(subtype)
 
   # input data version
-  ver <- "2.3"
+  ver <- "2.4"
   data <- read.csv(file.path(ver, "EDGE_buildings.csv"))
   data <- as.magpie(data)
 
