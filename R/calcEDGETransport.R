@@ -22,7 +22,7 @@ calcEDGETransport <- function(subtype) {
       # if so, the values should just be aggregated equally in order to prevent zeros in the results
       weight <- rmndt::magpie2dt(weight)
       regMap <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
-      setnames(regMap, "CountryCode", "all_regi")
+      data.table::setnames(regMap, "CountryCode", "all_regi")
       weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
       weight[, weightSum := sum(value), by = c("RegionCode", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_teEs", "tall")]
       weight[weightSum == 0, value := 1]
@@ -38,7 +38,7 @@ calcEDGETransport <- function(subtype) {
       # if so, the values should just be aggregated equally in order to prevent zeros in the results
       weight <- rmndt::magpie2dt(weight)
       regMap <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
-      setnames(regMap, "CountryCode", "all_regi")
+      data.table::setnames(regMap, "CountryCode", "all_regi")
       weight <- merge(weight, regMap[, c("all_regi", "RegionCode")], by = "all_regi")
       weight[, weightSum := sum(value), by = c("RegionCode", "GDP_scenario", "DEM_scenario", "EDGE_scenario", "all_enty", "all_in", "all_teEs", "tall")]
       weight[weightSum == 0, value := 1]
@@ -58,53 +58,51 @@ calcEDGETransport <- function(subtype) {
       description <- "Energy service demand on CES level."
     },
     "CAPEXandNonFuelOPEX" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "2017US$/(p|t)km"
       description <- "Capital cost (purchase) and non-fuel operational costs on technology level."
     },
     "scenSpecPrefTrends" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "-"
       description <- "Scenario specific preference trends on technology level."
     },
     "scenSpecLoadFactor" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "-"
       description <- "Scenario specific load factor on technology level."
     },
     "scenSpecEnIntensity" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "MJ/vehkm"
       description <- "Scenario specific energy intensity on technology level."
     },
     "initialIncoCosts" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "2017US$/(p|t)km"
       description <- "Initial inconvenience cost values."
     },
     "annualMileage" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "vehkm/yr"
       description <- "Annual vehicle km traveled."
     },
     "timeValueCosts" = {
-      gdp <- calcOutput("GDP", aggregate = FALSE)[, , "gdp_SSP2"]
+      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
       weight <- gdp |> time_interpolate(getYears(x))
       unit <- "2017US$/(p|t)km"
       description <- "Value of time cost equivalent."
     }
   )
 
-  return(list(
-    x = x,
-    weight = weight,
-    unit = unit,
-    description = description
-  ))
+  list(x = x,
+       weight = weight,
+       unit = unit,
+       description = description)
 }

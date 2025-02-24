@@ -16,9 +16,9 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
     target <- c("input")
 
     ### calculate data
-    map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+    map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
-    map <- map[c("io", target)] %>% na.omit()
+    map <- map[c("io", target)] %>% stats::na.omit()
 
     # select data that have names
     map <- map[map$io %in% getNames(data), ]
@@ -45,10 +45,8 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
     x <- mbind(x, setNames(dimSums(x[, , "PE|Gas", pmatch = TRUE], dim = 3), "PE|Gas (EJ/yr)"))
     x <- mbind(x, setNames(dimSums(x[, , "PE|Biomass", pmatch = TRUE], dim = 3), "PE|Biomass (EJ/yr)"))
 
-    ieaYear <- if (ieaVersion == "default") 2022 else 2024
-
     return(list(x = x, weight = NULL, unit = "EJ",
-                description = paste0("IEA Primary Energy Data based on ", ieaYear,
+                description = paste0("IEA Primary Energy Data based on ", toolGetIEAYear(ieaVersion),
                                      " version of IEA Energy Balances")))
 
   }  else if (subtype == "IEA_WEO") {

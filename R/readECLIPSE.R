@@ -17,8 +17,9 @@ readECLIPSE <- function(subtype) {
     ap  <- ap[!is.na(ap[[1]]),]
 
     ap <- ap %>%
-      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                   names_transform = list(year = as.numeric)) %>%
+      tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                          names_to = 'year',
+                          names_transform = list(year = as.numeric)) %>%
       rename(region = 'Region', sector = 'Sector', unit = 'Unit') %>%
       mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
       filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
@@ -39,8 +40,9 @@ readECLIPSE <- function(subtype) {
     ap  <- ap[!is.na(ap[[1]]),]
 
     ap <- ap %>%
-      pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                   names_transform = list(year = as.numeric)) %>%
+      tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                          names_to = 'year',
+                          names_transform = list(year = as.numeric)) %>%
       rename(region = 'Region', sector = 'Sector', unit = 'Unit') %>%
       mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
       filter(!.data$sector %in% c(rm_sectors, rm_unwanted),
@@ -63,8 +65,9 @@ readECLIPSE <- function(subtype) {
                             sheet = s)
                out  <- out[!is.na(out[[1]]), ]
                out <- out %>%
-                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                              names_transform = list(year = as.numeric)) %>%
+                 tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                                     names_to = 'year',
+                                     names_transform = list(year = as.numeric)) %>%
                  rename(region = 'Region', sector = 'Sector') %>%
                  mutate(region = gsub("^\\s+|\\s+$", "",
                                       gsub("[0-9]", "", .data$region))) %>%
@@ -83,8 +86,9 @@ readECLIPSE <- function(subtype) {
                out <- read_excel("EMISSIONS_EMF30_aggregated_Ev5a_MFR_Nov2015.xlsx", sheet=s)
                out  <- out[!is.na(out[[1]]),]
                out <- out %>%
-                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year',
-                              names_transform = list(year = as.numeric)) %>%
+                 tidyr::pivot_longer(cols = matches('^[0-9]*$'),
+                                     names_to = 'year',
+                                     names_transform = list(year = as.numeric)) %>%
                  rename(region = 'Region', sector = 'Sector') %>%
                  mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
                  mutate(variable = s) %>%
@@ -117,7 +121,7 @@ readECLIPSE <- function(subtype) {
                out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_CLE_Nov2015.xlsx", sheet=s)
                out  <- out[!is.na(out[[1]]),]
                out <- out %>%
-                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
+                 tidyr::pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
                  rename(region = 'Region', sector = 'Sector') %>%
                  mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
                  mutate(variable = s) %>%
@@ -133,7 +137,7 @@ readECLIPSE <- function(subtype) {
                out <- read_excel("EMISSIONS_EMF30_extended_Ev5a_MFR_Nov2015.xlsx", sheet=s)
                out  <- out[!is.na(out[[1]]),]
                out <- out %>%
-                 pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
+                 tidyr::pivot_longer(cols = matches('^[0-9]*$'), names_to = 'year') %>%
                  rename(region = 'Region', sector = 'Sector') %>%
                  mutate(region = gsub("^\\s+|\\s+$", "", gsub("[0-9]", "", .data$region))) %>%
                  mutate(variable = s) %>%

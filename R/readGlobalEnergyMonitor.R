@@ -6,17 +6,16 @@
 #'
 #' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
-#' @importFrom rlang sym
-#'
 #' @export
+#'
 readGlobalEnergyMonitor <- function() {
   # GEM GIPT 2024
   # file available after filling out questionnaire:
   # https://globalenergymonitor.org/projects/global-integrated-power-tracker/download-data/
   d <- readxl::read_excel("Global-Integrated-Power-June-2024.xlsx",
-                  sheet = "Power facilities",
-                  trim_ws = TRUE,
-                  col_types = "text") %>%
+                          sheet = "Power facilities",
+                          trim_ws = TRUE,
+                          col_types = "text") %>%
     select(variable = "Type",
            tech = "Technology",
            region = "Country/area",

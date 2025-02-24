@@ -2,9 +2,13 @@
 % Please edit documentation in R/calcTheil.R
 \name{calcTheil}
 \alias{calcTheil}
-\title{Calculate regional Theil-T index}
+\title{Get regional Theil-T index projections}
 \usage{
-calcTheil()
+calcTheil(scenario)
+}
+\arguments{
+\item{scenario}{A string (or vector of strings) designating the scenario(s) to be returned. Passed as is
+to the scenario argument of \link[mrdrivers:calcGDP]{mrdrivers::calcGDP}.}
 }
 \value{
 magpie objects of unweighted contribution to Theil, weights (= country shares of regional GDP)
@@ -16,21 +20,14 @@ includes both between-countries and within-country inequality (see e.g. https://
 The latter can then be aggregated with calcOutput().
 }
 \details{
-NB 1: the aggregation depends on the region mapping. It is implemented such
-that the regionmapping specified in getConfig()$regionmapping is used.
+The projections are SSP specific and use SSP GINI projections. For non-SSP scenarios, the projections are equal
+to the SSP2 projection.
 
-NB 2: the result of calcOutput('Theil', aggregate = FALSE), is NOT the country
+The aggregation depends on the region mapping. It is implemented such
+that the regionmapping specified in getConfig()$regionmapping is used.
+The result of calcOutput('Theil', aggregate = FALSE), is NOT the country
 Theil-T, but the unweighted contribution from a given country to the regional value.
 }
-\examples{
-\dontrun{
-  calcOutput("Theil")
-}
-
-}
 \seealso{
-\code{\link{calcOutput}} \code{\link{convertGini},\link{readGini}}
-}
-\author{
-Bjoern Soergel
+\code{\link{calcOutput}}, \code{\link{readGini}}
 }
