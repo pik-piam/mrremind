@@ -4,6 +4,7 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Gabriel Abrahao
+#' @importFrom utils read.table
 readGlobalMethanePledge <- function() {
     dfgmp <- read.table("global_methane_pledge_members.csv", sep = ";", header = TRUE)
     colnames(dfgmp) <- c("iso2", "country", "data")
