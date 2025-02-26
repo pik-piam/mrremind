@@ -4,8 +4,7 @@
 #'
 #' @md
 #' @param subtype Type of data that should be read.  One of
-#'   - `Chinese_Steel_Production`: "Smooth" production estimates by Robert
-#'     Pietzcker (2022).
+#'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
 #'     production in total steel production and years between which a linear
 #'     convergence from historic to target shares is to be applied.
@@ -55,9 +54,9 @@ readExpertGuess <- function(subtype) {
     out <- collapseNames(out)
   }
 
-  if (subtype == "Chinese_Steel_Production") {
+  if (subtype == "Steel_Production") {
     out <- readr::read_csv(
-      file = "Chinese_Steel_Production.csv",
+      file = "Steel_Production.csv",
       comment = "#",
       show_col_types = FALSE
     ) %>%
