@@ -1,7 +1,7 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.220.0
+Version: 0.220.1
 Date: 2025-02-26
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
@@ -53,7 +53,7 @@ Imports:
     mrcommons (>= 1.44.12),
     mrdrivers (>= 6.0.0),
     mrfaocore,
-    mrindustry (>= 0.14.0),
+    mrindustry (>= 0.17.0),
     nnls,
     purrr,
     quitte (>= 0.3105.0),
@@ -67,12 +67,12 @@ Imports:
     tidyr,
     tidyselect,
     zoo
-Suggests: 
+Suggests:
     covr,
     knitr,
     rmarkdown,
     testthat
-VignetteBuilder: 
+VignetteBuilder:
     knitr
 Encoding: UTF-8
 LazyData: no
