@@ -2,6 +2,7 @@
 #' @param subtype A string, one of: "Ghgshare2005", "Ghgfactor", "Ghghistshare"
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' @param sources Database source
+#' @author Aman Malik, Christoph Bertram, Oliver Richters
 #'
 calcEmiTarget <- function(sources, subtype, scenario) {
   if (!sources %in% c("UNFCCC_NDC", "NewClimate")) {

@@ -15,3 +15,6 @@ value is actually used - which is equal across scenarios.}
 \description{
 FE Share parameters used in REMIND
 }
+\author{
+Antoine Levesque
+}

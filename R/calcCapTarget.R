@@ -5,6 +5,7 @@
 #' report. The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
 #'
 #' @param sources Database source
+#' @author Aman Malik, Oliver Richters
 #'
 calcCapTarget <- function(sources) {
 

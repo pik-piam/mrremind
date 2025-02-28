@@ -23,8 +23,10 @@ from IIASA from .csv file as magclass object
 \dontrun{
 a <- readSource(type = "IIASA_subs_taxes", "tax_rate")
 }
-
 }
 \seealso{
 \code{\link{readSource}}
+}
+\author{
+Christoph Bertram
 }

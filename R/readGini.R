@@ -15,6 +15,8 @@
 #' \dontrun{
 #' a <- readSource(type="Gini")
 #' }
+#' @author Bjoern Soergel
+#'
 readGini <- function() {
   as.magpie(readxl::read_excel("Gini_projections_SSPs.xlsx", sheet = 2))
 }

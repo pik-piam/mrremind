@@ -16,3 +16,6 @@ calcEmiTarget(sources, subtype, scenario)
 \description{
 Output for 2 policy cases
 }
+\author{
+Aman Malik, Christoph Bertram, Oliver Richters
+}

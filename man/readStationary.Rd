@@ -22,3 +22,6 @@ magclass object
 Reads in EDGE_TradMod.cs4r, which hast data for the SSP scenarios. In the convert function, the subset argument
 is used to specify the desired scenarios. Unspecified scenarios are copies of the SSP2 scenario.
 }
+\author{
+Antoine Levesque, Robin Hasse
+}

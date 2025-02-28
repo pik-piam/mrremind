@@ -33,3 +33,6 @@ a <- readSource(type="Gini")
 \seealso{
 \code{\link{readSource}}
 }
+\author{
+Bjoern Soergel
+}

@@ -3,6 +3,8 @@
 #' @param subtype 'ind_coal' for the share of coal used in industry. 'ind_bio' for the share of biomass used in industry
 #' @param scenario Vector of strings. Used here only to optimize madrat cache usage, as in the end only the 2005 FEdemand
 #' value is actually used - which is equal across scenarios.
+#' @author Antoine Levesque
+#'
 calcFEShares <- function(subtype, scenario) {
   if (! subtype %in% c("ind_coal", "ind_bio", "ind_liq")) {
     stop("Unknown subtype.")
