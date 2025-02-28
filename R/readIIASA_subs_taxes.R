@@ -14,6 +14,7 @@
 #' \dontrun{
 #' a <- readSource(type = "IIASA_subs_taxes", "tax_rate")
 #' }
+#' @author Christoph Bertram
 #'
 readIIASA_subs_taxes <- function(subtype) {
 

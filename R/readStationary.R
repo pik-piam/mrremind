@@ -5,6 +5,8 @@
 #'
 #' @return magclass object
 #' @order 1
+#' @author Antoine Levesque, Robin Hasse
+#'
 readStationary <- function() {
   read.magpie("EDGE_TradMod.cs4r")
 }
