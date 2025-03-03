@@ -12,11 +12,6 @@ calcRatioPPP2MER(
 \item{year}{An integer specifying the base year of conversion factor. Defaults to the base year of
 \code{\link[mrdrivers:toolGetUnitDollar]{mrdrivers::toolGetUnitDollar()}}, currently: 2017.}
 }
-\value{
-magpie object with the requested output data either on country or on
-regional level depending on the choice of argument "aggregate" or a list of information
-if supplementary is set to TRUE.
-}
 \description{
 calcRatioPPP2MER returns conversion factors from the World Bank's WDI to convert monetary values (in constant units
 with base year equal to the \code{year} argument) from PPP to MER. So for example from 'constant 2017 Int$PPP' to
