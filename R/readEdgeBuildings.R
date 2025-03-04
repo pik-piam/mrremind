@@ -1,10 +1,12 @@
 #' Load an EDGE Buildings file as magclass object.
 #'
 #' @param subtype One of the possible subtypes, see default argument.
+#' @param subset A string (or vector of strings) designating the scenario(s)
+#' to be returned (needed in 'convertEdgeBuildings').
 #' @return magclass object
 #'
 #' @author Antoine Levesque, Robin Hasse
-readEdgeBuildings <- function(subtype = c("FE", "Floorspace")) {
+readEdgeBuildings <- function(subtype = c("FE", "Floorspace"), subset) {
 
   subtype <- match.arg(subtype)
 

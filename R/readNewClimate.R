@@ -12,8 +12,10 @@
 #' @author  Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
+#' @param subset A string (or vector of strings) designating the scenario(s) to be
+#' returned (needed in 'convertNewClimate').
 
-readNewClimate <- function(subtype) {
+readNewClimate <- function(subtype, subset) {
 
   # keep structure to compare when new versions (NPi target updates)
   if (grepl("2025", subtype, fixed = TRUE)) {

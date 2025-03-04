@@ -5,15 +5,15 @@
 \alias{convertStationary}
 \title{Load Stationary File as magclass object}
 \usage{
-readStationary()
+readStationary(subset)
 
 convertStationary(x, subset)
 }
 \arguments{
-\item{x}{MAgPIE object returned from readStationary}
-
 \item{subset}{A string, or vector of string designating the entries for the scenario dimension. If possible,
 passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}. Unspecified scenarios receive SSP2 data.}
+
+\item{x}{MAgPIE object returned from readStationary}
 }
 \value{
 magclass object

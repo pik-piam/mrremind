@@ -9,6 +9,11 @@ calcCapital(scenario)
 \arguments{
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
 }
+\value{
+magpie object with the requested output data either on country or on
+regional level depending on the choice of argument "aggregate" or a list of information
+if supplementary is set to TRUE.
+}
 \description{
 Compute macroeconomic capital stock based on capital intensities from PWT and GDP scenarios from \link{mrdrivers}.
 The PWT capital intensities are used up until 2010. After that, the capital intensities converge towards

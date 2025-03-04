@@ -4,10 +4,13 @@
 \alias{readEdgeBuildings}
 \title{Load an EDGE Buildings file as magclass object.}
 \usage{
-readEdgeBuildings(subtype = c("FE", "Floorspace"))
+readEdgeBuildings(subtype = c("FE", "Floorspace"), subset)
 }
 \arguments{
 \item{subtype}{One of the possible subtypes, see default argument.}
+
+\item{subset}{A string (or vector of strings) designating the scenario(s)
+to be returned (needed in 'convertEdgeBuildings').}
 }
 \value{
 magclass object

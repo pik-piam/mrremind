@@ -8,7 +8,7 @@
 
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
-
+#' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
 #' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
 
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke

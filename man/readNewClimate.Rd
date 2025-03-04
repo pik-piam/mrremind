@@ -5,11 +5,14 @@
 \title{Reads NPI policy database with technology capacity target from the Policy data base (v4 August 2024)
 by PBL that translate the high impact policies of https://climatepolicydatabase.org/.}
 \usage{
-readNewClimate(subtype)
+readNewClimate(subtype, subset)
 }
 \arguments{
 \item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
+
+\item{subset}{A string (or vector of strings) designating the scenario(s) to be
+returned (needed in 'convertNewClimate').}
 }
 \value{
 magpie object

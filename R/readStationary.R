@@ -7,7 +7,7 @@
 #' @order 1
 #' @author Antoine Levesque, Robin Hasse
 #'
-readStationary <- function() {
+readStationary <- function(subset) {
   read.magpie("EDGE_TradMod.cs4r")
 }
 
