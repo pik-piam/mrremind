@@ -6,7 +6,8 @@
 #' @param subtype Only "Capacity" as of now
 #' @return Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
 #' @author Aman Malik
-
+#' @importFrom utils read.csv
+#'
 convertREN21 <- function(targets, subtype) {
   if (subtype == "Capacity") {
     hPerYear <- 365 * 24 # 8760

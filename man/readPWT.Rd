@@ -19,7 +19,7 @@ should match the source data. The spatial dimension should either match the sour
 if the convert argument is set to TRUE, should be on ISO code country level.
 }
 \description{
-Read-in PWT data as magclass object
+Read-in PWT data (version 8.0) as magclass object
 }
 \examples{
 \dontrun{
@@ -27,5 +27,5 @@ readSource("PWT")
 }
 }
 \seealso{
-[madrat::readSource()]
+\code{\link[madrat:readSource]{madrat::readSource()}}
 }

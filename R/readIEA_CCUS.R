@@ -39,10 +39,10 @@ readIEA_CCUS <- function(subtype) {
   data[data$country == "Lybia", "country"] <- "Libya"
 
   # share capacities of projects by multiple countries according to their GDP
-  gdp <- calcOutput("GDP", aggregate = FALSE)
-  gdp_JPN <- as.numeric(gdp["JPN", 2020, "gdp_SSP2EU"])
-  gdp_AUS <- as.numeric(gdp["AUS", 2020, "gdp_SSP2EU"])
-  gdp_MYS <- as.numeric(gdp["MYS", 2020, "gdp_SSP2EU"])
+  gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
+  gdp_JPN <- as.numeric(gdp["JPN", 2020, ])
+  gdp_AUS <- as.numeric(gdp["AUS", 2020, ])
+  gdp_MYS <- as.numeric(gdp["MYS", 2020, ])
 
   JM <- data[data$country == "Japan-Malaysia", ]
   AJ <- data[data$country == "Australia-Japan", ]
@@ -76,7 +76,7 @@ readIEA_CCUS <- function(subtype) {
       )
     }
 
-    cap <- aggregate(value ~ country + period, data = tmp, FUN = sum) %>%
+    cap <- stats::aggregate(value ~ country + period, data = tmp, FUN = sum) %>%
       filter(.data$period <= 2023) %>%
       mutate(variable = "Carbon Management|Storage")
 
@@ -114,13 +114,13 @@ readIEA_CCUS <- function(subtype) {
       )
     }
 
-    capLow <- aggregate(value ~ country + period,
+    capLow <- stats::aggregate(value ~ country + period,
       data = filter(tmp, .data$status %in% statusLow),
       FUN = sum
     ) %>%
       mutate(variable = "low")
 
-    capHigh <- aggregate(value ~ country + period,
+    capHigh <- stats::aggregate(value ~ country + period,
       data = filter(tmp, .data$status %in% statusHigh),
       FUN = sum
     ) %>%
@@ -156,19 +156,19 @@ readIEA_CCUS <- function(subtype) {
     }
 
     # aggregate by country and period, new variables depending on status
-    capOp <- aggregate(value ~ country + period,
+    capOp <- stats::aggregate(value ~ country + period,
                        data = filter(tmp, .data$status %in% "Operational"),
                        FUN = sum
     ) %>%
       mutate(status = "operational")
 
-    capCon <- aggregate(value ~ country + period,
+    capCon <- stats::aggregate(value ~ country + period,
                         data = filter(tmp, .data$status %in% "Under construction"),
                         FUN = sum
     ) %>%
       mutate(status = "construction")
 
-    capPlan <- aggregate(value ~ country + period,
+    capPlan <- stats::aggregate(value ~ country + period,
                          data = filter(tmp, .data$status %in% "Planned"),
                          FUN = sum
     ) %>%

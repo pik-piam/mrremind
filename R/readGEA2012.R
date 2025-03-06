@@ -9,9 +9,6 @@
 #' a <- readSource("GEA2012", "coal")
 #' }
 #'
-#' @importFrom readxl read_excel
-#' @importFrom dplyr relocate mutate
-
 readGEA2012 <- function(subtype) {
   EJ_2_TWyr <- 1 / 31.536
   ts1 <- 5
@@ -37,12 +34,12 @@ readGEA2012 <- function(subtype) {
   #             'TAO-rv','SHO-rv','EHO-rv','COO-rv','TAO-rs','SHO-rs','EHO-rs','COO-rs','HAC','LIC')
 
   if ("coal" %in% subtype) {
-    rawData <- read.csv2("Scenario Data HAC_LIC.csv", header = TRUE, as.is = T)
+    rawData <-utils::read.csv2("Scenario Data HAC_LIC.csv", header = TRUE, as.is = T)
     rawData$grade <- as.factor(rawData$grade)
     rawData$value <- as.numeric(rawData$value)
     rawData <- rawData %>%
-      mutate(enty = "pecoal") %>%
-      relocate(enty, .before = scenario)
+      dplyr::mutate(enty = "pecoal") %>%
+      dplyr::relocate(enty, .before = scenario)
     out <- setYears(as.magpie(rawData), ttot[1])
     tmp <- out
     for (rlf in 2:length(unique(rawData$grade))) {

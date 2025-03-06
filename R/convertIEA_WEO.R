@@ -2,7 +2,7 @@
 #'
 #' @param x MAgPIE object to be converted
 #' @param subtype data subtype. Either "Capacity", "Generation", "Emissions",
-#' "Investment Costs", "O&M Costs" or "Efficiency"
+#' "Investment Costs", or "O&M Costs"
 #' @return magpie object of the WEO data on generation (TWh), capacities (GW),
 #' emissions (Mt CO2) or disaggregated investment cost as magpie object
 #' @author Renato Rodrigues and Aman Malik
@@ -12,11 +12,10 @@
 #' a <- convertWEO(x, subtype = "Capacity")
 #' }
 #'
-#' @importFrom tidyr gather
 #' @importFrom readxl read_excel
 convertIEA_WEO <- function(x, subtype) {
 
-  if ((subtype == "Invest_Costs") || (subtype == "O&M_Costs") || (subtype == "Efficiency")) {
+  if (subtype == "Invest_Costs" || subtype == "O&M_Costs") {
 
     # mapping of all countries and their respective regions
     all_c <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")

@@ -4,8 +4,7 @@
 #'
 #' @md
 #' @param subtype Type of data that should be read.  One of
-#'   - `Chinese_Steel_Production`: "Smooth" production estimates by Robert
-#'     Pietzcker (2022).
+#'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
 #'     production in total steel production and years between which a linear
 #'     convergence from historic to target shares is to be applied.
@@ -27,59 +26,54 @@
 #' }
 #'
 #' @importFrom dplyr bind_rows filter pull select
-#' @importFrom quitte madrat_mule
-#' @importFrom readr read_csv
-#' @importFrom tidyr expand_grid
-
+#'
 readExpertGuess <- function(subtype) {
-  if (subtype == "ies") {
-    a <- read.csv("ies.csv", sep = ";")
-  } else if (subtype == "prtp") {
-    a <- read.csv("prtp.csv", sep = ";")
-  } else if (subtype == "CCSbounds") {
-    a <- read.csv("CCSbounds.csv", sep = ";")
-  } else if (subtype == "co2prices") {
-    a <- read.csv("co2prices-2024-11.csv", sep = ";")
-  } else if (subtype == "costsTradePeFinancial") {
-    a <- read.csv("pm_costsTradePeFinancial_v1.1.csv",
-      sep = ";",
-      skip = 2
-    )
-  }
+  a <- switch (
+    subtype,
+    "ies"                   = read.csv("ies.csv", sep = ";"),
+    "prtp"                  = read.csv("prtp.csv", sep = ";"),
+    "CCSbounds"             = read.csv("CCSbounds.csv", sep = ";"),
+    "co2prices"             = read.csv("co2prices-2024-11.csv", sep = ";"),
+    "costsTradePeFinancial" = read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2),
+    "tradeConstraints"      = read.csv("tradeConstraints.csv", sep = ";")
+  )
 
-  if (subtype == "ies" || subtype == "prtp" || subtype == "CCSbounds" || subtype == "co2prices") {
+  if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
     a$RegionCode <- NULL
     a$Country <- NULL
     out <- as.magpie(a)
-  } else if (subtype == "costsTradePeFinancial") {
-    out <- as.magpie(a,
-      spatial = 1,
-      temporal = 0,
-      datacol = 3
-    )
-    out <- collapseNames(out)
-  }
+    out[is.na(out)] <- 0
+   }
 
-  if (subtype == "ies" || subtype == "prtp") {
+  if (subtype %in% c("ies", "prtp")) {
     getYears(out) <- "2005"
   }
 
-  if ("Chinese_Steel_Production" == subtype) {
-    out <- read_csv(
-      file = "Chinese_Steel_Production.csv",
+  if (subtype == "costsTradePeFinancial") {
+    out <- as.magpie(a, spatial = 1, temporal = 0, datacol = 3)
+    out <- collapseNames(out)
+  }
+
+  if (subtype == "Steel_Production") {
+    out <- readr::read_csv(
+      file = "Steel_Production.csv",
       comment = "#",
       show_col_types = FALSE
     ) %>%
-      madrat_mule()
-  } else if ("industry_max_secondary_steel_share" == subtype) {
-    out <- read_csv(
+      quitte::madrat_mule()
+  }
+
+  if (subtype == "industry_max_secondary_steel_share") {
+    out <- readr::read_csv(
       file = "industry_max_secondary_steel_share.csv",
       comment = "#",
       show_col_types = FALSE
     ) %>%
-      madrat_mule()
-  } else if ("cement_production_convergence_parameters" == subtype) {
-    out <- read_csv(
+      quitte::madrat_mule()
+  }
+
+  if (subtype == "cement_production_convergence_parameters") {
+    out <- readr::read_csv(
       file = "cement_production_convergence_parameters.csv",
       col_types = "cdi",
       comment = "#"
@@ -89,10 +83,10 @@ readExpertGuess <- function(subtype) {
       out %>%
         filter(!is.na(.data$region)),
       out %>%
-        head(n = 1) %>%
+        utils::head(n = 1) %>%
         filter(is.na(.data$region)) %>%
         select(-"region") %>%
-        expand_grid(region = toolGetMapping(
+        tidyr::expand_grid(region = toolGetMapping(
           name = "regionmapping_21_EU11.csv",
           type = "regional", where = "mappingfolder"
         ) %>%
@@ -101,15 +95,21 @@ readExpertGuess <- function(subtype) {
           sort() %>%
           setdiff(out$region))
     ) %>%
-      madrat_mule()
-  } else if (subtype == "tradeConstraints") {
-    a <- read.csv("tradeConstraints.csv", sep = ";")
-    out <- as.magpie(a)
-  } else if (subtype == "taxConvergenceRollback") {
-    out <- read.csv("tax_convergence_rollback.csv", sep = ",",
-             skip = 4, col.names = c("Year", "Region", "FE", "value"),
-             header = FALSE) %>% as.magpie(datacol = 4)
+      quitte::madrat_mule()
   }
 
-  return(out)
+  if (subtype == "tradeConstraints") {
+    out <- as.magpie(a)
+  }
+
+  if (subtype == "taxConvergenceRollback") {
+    out <- read.csv("tax_convergence_rollback.csv",
+                    sep = ",",
+                    skip = 4,
+                    col.names = c("Year", "Region", "FE", "value"),
+                    header = FALSE) %>%
+      as.magpie(datacol = 4)
+  }
+
+  out
 }

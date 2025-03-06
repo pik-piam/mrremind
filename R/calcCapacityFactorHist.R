@@ -5,9 +5,8 @@
 #'
 #' @return magpie object of the capacity factor data
 #' @author Renato Rodrigues, Stephen Bi
-#' @importFrom rlang .data
 #' @examples
-#' \dontrun{ 
+#' \dontrun{
 #' calcOutput("CapacityFactor")
 #' }
 #' 

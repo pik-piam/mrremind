@@ -128,5 +128,5 @@ calcFETaxes <- function(subtype = "taxes") {
   # for cooling and low for cooking
   # So, we can assume that countries are app. similar in a given region
 
-  return(list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc))
+  list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc)
 }

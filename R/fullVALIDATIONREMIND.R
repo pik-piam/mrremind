@@ -77,6 +77,24 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     writeArgs = list(scenario = "historical", model = "BP")
   )
 
+  # CEDS Emissions ----
+
+  # Historical emissions from CEDS data base
+  calcOutput(
+    "Emissions", datasource = "CEDS2024", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "CEDS")
+  )
+
+  # Historical emissions from CEDS data base, aggregated to IAMC sectors
+  calcOutput(
+    "Emissions", datasource = "CEDS2024_IAMC", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, years = years,
+    writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
+  )
+
   # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
@@ -263,9 +281,9 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # UNIDO ----
 
   calcOutput(
-    type = "UNIDO", subtype = "INDSTAT2", file = valfile,
+    type = "UNIDO", subtype = "INDSTAT3", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "INDSTAT2")
+    writeArgs = list(scenario = "historical", model = "INDSTAT3")
   )
 }

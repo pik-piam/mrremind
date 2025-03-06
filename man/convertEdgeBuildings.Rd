@@ -4,12 +4,14 @@
 \alias{convertEdgeBuildings}
 \title{Convert EDGE Buildings data to data on ISO country level.}
 \usage{
-convertEdgeBuildings(x, subtype = "FE")
+convertEdgeBuildings(x, subtype, subset)
 }
 \arguments{
 \item{x}{MAgPIE object containing EDGE values at ISO country resolution}
 
 \item{subtype}{either FE or Floorspace}
+
+\item{subset}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
 \value{
 EDGE data as MAgPIE object aggregated to country level
