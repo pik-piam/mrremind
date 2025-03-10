@@ -24,7 +24,7 @@ calcRatioPPP2MER <- function(year = as.numeric(mrdrivers::toolGetUnitDollar(retu
   getNames(data) <- NULL
   getYears(data) <- NULL
 
-  weight <- calcOutput("GDPPast", pastData = "WDI-MI-James", extenstion1960 = "none", aggregate = FALSE, years = year)
+  weight <- calcOutput("GDPPast", pastData = "WDI-MI-James", extension1960 = "none", aggregate = FALSE, years = year)
 
   list(x = data,
        weight = weight,
