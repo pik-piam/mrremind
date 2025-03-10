@@ -3,22 +3,20 @@
 #' @author Falk Benke
 calcFEdemand <- function(scenario) {
   feBuildings <- calcOutput("FeDemandBuildings",
-    subtype = "FE",
-    scenario = scenario,
-    warnNA = FALSE,
-    aggregate = FALSE
-  )
-  feIndustry <- calcOutput("FeDemandIndustry", scenarios = scenario, warnNA = FALSE, aggregate = FALSE)
+                            subtype = "FE",
+                            scenario = scenario,
+                            warnNA = FALSE,
+                            aggregate = FALSE)
+  feIndustry <- calcOutput("FeDemandIndustry",
+                           scenarios = scenario,
+                           warnNA = FALSE,
+                           aggregate = FALSE)
 
-  # Add up industry and buildings contributions to stationary
+  t <- intersect(getYears(feBuildings), getYears(feIndustry))
   stationaryItems <- c("fehes", "feh2s")
-  feStationary <- feIndustry[, , stationaryItems] + feBuildings[, , stationaryItems]
 
-  remind <- mbind(
-    feBuildings[, , stationaryItems, invert = TRUE],
-    feIndustry[, , stationaryItems, invert = TRUE],
-    feStationary
-  )
+  remind <- mbind(feBuildings[, t, ], feIndustry[, t, ])
+  remind <- remind[, , stationaryItems, invert = TRUE]
 
   list(
     x = remind,

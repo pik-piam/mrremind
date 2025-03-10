@@ -4,7 +4,13 @@
 #' @param scenario A string (or vector of strings) designating the scenario(s) to be returned.
 #'
 #' @author Robin Hasse
+#'
+#' @importFrom dplyr filter mutate distinct select
+
 calcFeDemandBuildings <- function(subtype, scenario) {
+
+  # end of history
+  eoh <- 2025
 
   if (!subtype %in% c("FE", "FE_buildings", "UE_buildings")) {
     stop(paste0("Unsupported subtype: ", subtype))
@@ -14,12 +20,13 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
 
   # Data Processing ----
-  stationary <- readSource("Stationary", subset = scenario)
+  ononspec <- calcOutput("FeDemandONONSPEC", scenario = scenario, eoh = eoh,
+                         aggregate = FALSE)
   buildings  <- readSource("EdgeBuildings", subtype = "FE", subset = scenario)
 
   # Aggregate to 5-year averages to suppress volatility
   buildings <- toolAggregateTimeSteps(buildings)
-  stationary <- toolAggregateTimeSteps(stationary)
+  ononspec <- toolAggregateTimeSteps(ononspec)
 
   if (subtype == "FE") {
     # Drop RCP dimension (use fixed RCP)
@@ -27,18 +34,18 @@ calcFeDemandBuildings <- function(subtype, scenario) {
 
   } else {
     # For each scenario add the rcp scenarios present in buildings to stationary
-    stationary <- do.call(mbind, lapply(scenario, function(scen) {
+    ononspec <- do.call(mbind, lapply(scenario, function(scen) {
       rcps <- getItems(mselect(buildings, scenario = scen), dim = "rcp")
-      toolAddDimensions(mselect(stationary, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+      toolAddDimensions(mselect(ononspec, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
     }))
   }
 
   # Extrapolate years missing in buildings, but existing in stationary
   buildings <- time_interpolate(buildings,
-                                interpolated_year = getYears(stationary),
+                                interpolated_year = getYears(ononspec),
                                 extrapolation_type = "constant")
 
-  data <- mbind(stationary, buildings)
+  data <- mbind(ononspec, buildings)
 
   # Prepare Mapping
   mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
