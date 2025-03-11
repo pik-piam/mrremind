@@ -32,7 +32,7 @@ calcFEShares <- function(subtype, scenario) {
   }
 
   if (subtype == "ind_liq") {
-    fehoi <- dimSums(mselect(fe_demand, year = "y2005",
+    fehoi <- dimSums(mselect(fe_demand, period = "y2005",
                              item = c("feli_cement", "feli_chemicals", "feli_steel", "feli_otherInd")),
                      dim = 3)
     share <- fehoi / (fehoi + fe_demand[, 2005, c("fehob")])
