@@ -56,48 +56,6 @@ calcEDGETransport <- function(subtype) {
       weight <- NULL
       unit <- "trillion pkm/trillion tkm"
       description <- "Energy service demand on CES level."
-    },
-    "CAPEXandNonFuelOPEX" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "2017US$/(p|t)km"
-      description <- "Capital cost (purchase) and non-fuel operational costs on technology level."
-    },
-    "scenSpecPrefTrends" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "-"
-      description <- "Scenario specific preference trends on technology level."
-    },
-    "scenSpecLoadFactor" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "-"
-      description <- "Scenario specific load factor on technology level."
-    },
-    "scenSpecEnIntensity" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "MJ/vehkm"
-      description <- "Scenario specific energy intensity on technology level."
-    },
-    "initialIncoCosts" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "2017US$/(p|t)km"
-      description <- "Initial inconvenience cost values."
-    },
-    "annualMileage" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "vehkm/yr"
-      description <- "Annual vehicle km traveled."
-    },
-    "timeValueCosts" = {
-      gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-      weight <- gdp |> time_interpolate(getYears(x))
-      unit <- "2017US$/(p|t)km"
-      description <- "Value of time cost equivalent."
     }
   )
 
