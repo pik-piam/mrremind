@@ -7,8 +7,8 @@
 calcProjectPipelines(subtype)
 }
 \arguments{
-\item{subtype}{choose technology `biomass`, `coal`, `geothermal`, `hydro`,
-`nuclear`, `solar`, `wind` or `CCS`}
+\item{subtype}{choose technology \code{biomass}, \code{coal}, \code{geothermal}, \code{hydro},
+\code{nuclear}, \code{solar}, \code{wind} or \code{CCS}}
 }
 \description{
 Calculate the expected near-term deployment of technologies based on

@@ -12,7 +12,7 @@ convertEurostat_EffortSharing(x, subtype)
 \item{subtype}{data subtype. Either "target" or "emissions"}
 }
 \value{
-A MAgPIE object containing the EU Effort Sharing targets (%) or Effort Sharing historical emissions (MtCO2)
+A MAgPIE object containing the EU Effort Sharing targets (\%) or Effort Sharing historical emissions (MtCO2)
 }
 \description{
 Converts EU Effort Sharing targets and historical emissions

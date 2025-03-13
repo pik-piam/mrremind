@@ -1,61 +1,57 @@
 #' Returns the EDGE-Buildings data as REMIND variables
 #'
 #' @param subtype either "FE", "FE_buildings", or "UE_buildings"
+#' @param scenario A string (or vector of strings) designating the scenario(s) to be returned.
 #'
 #' @author Robin Hasse
-calcFeDemandBuildings <- function(subtype) {
+#'
+#' @importFrom dplyr filter mutate distinct select
+
+calcFeDemandBuildings <- function(subtype, scenario) {
+
+  # end of history
+  eoh <- 2025
 
   if (!subtype %in% c("FE", "FE_buildings", "UE_buildings")) {
     stop(paste0("Unsupported subtype: ", subtype))
   }
 
+  ## Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
+  scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
+
   # Data Processing ----
+  ononspec <- calcOutput("FeDemandONONSPEC", scenario = scenario, eoh = eoh,
+                         aggregate = FALSE)
+  buildings  <- readSource("EdgeBuildings", subtype = "FE", subset = scenario)
 
-  stationary <- readSource("Stationary")
-  buildings  <- readSource("EdgeBuildings", subtype = "FE")
-
-  # all 2016 values are zero
-  # TODO: remove filtering, as 2016 values are available now
-  buildings <- buildings[, 2016, invert = TRUE]
-
-  # aggregate to 5-year averages to suppress volatility
+  # Aggregate to 5-year averages to suppress volatility
   buildings <- toolAggregateTimeSteps(buildings)
-  stationary <- toolAggregateTimeSteps(stationary)
-
-  # add scenarios to stationary to match buildings scenarios by duplication
-  stationary <- mbind(stationary, setItems(stationary[, , "SSP2EU"], 3.1, "SSP2EU_NAV_all"))
+  ononspec <- toolAggregateTimeSteps(ononspec)
 
   if (subtype == "FE") {
-
-    # drop RCP dimension (use fixed RCP)
-    buildings <- mselect(buildings, rcp = "none", collapseNames = TRUE)
+    # Drop RCP dimension (use fixed RCP)
+    buildings <- mselect(buildings, rcp = "none") %>% collapseDim(dim = "rcp")
 
   } else {
-
-    scens <- getItems(buildings, dim = "scenario")
-
     # For each scenario add the rcp scenarios present in buildings to stationary
-    stationary <- do.call(mbind, lapply(scens, function(scen) {
+    ononspec <- do.call(mbind, lapply(scenario, function(scen) {
       rcps <- getItems(mselect(buildings, scenario = scen), dim = "rcp")
-      toolAddDimensions(mselect(stationary, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
+      toolAddDimensions(mselect(ononspec, scenario = scen), dimVals = rcps, dimName = "rcp", dimCode = 3.2)
     }))
-
   }
 
-  # extrapolate years missing in buildings, but existing in stationary
+  # Extrapolate years missing in buildings, but existing in stationary
   buildings <- time_interpolate(buildings,
-                                interpolated_year = getYears(stationary),
+                                interpolated_year = getYears(ononspec),
                                 extrapolation_type = "constant")
 
-  data <- mbind(stationary, buildings)
+  data <- mbind(ononspec, buildings)
 
-  # Prepare Mapping ----
-
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                            where = "mrcommons")
+  # Prepare Mapping
+  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
 
   # TODO: remove once this is in the mapping
-  # add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
+  ## Add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
   mapping <- rbind(
     mapping,
     mapping %>%
@@ -65,7 +61,7 @@ calcFeDemandBuildings <- function(subtype) {
 
   mapping <- mapping %>%
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-    na.omit() %>%
+    stats::na.omit() %>%
     filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
     distinct()
 
@@ -80,16 +76,14 @@ calcFeDemandBuildings <- function(subtype) {
       filter(grepl("b$", .data$REMINDitems_out) |
                (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
     remindVars <- unique(mapping$REMINDitems_out)
-    remindDims <- cartesian(getNames(data, dim = "scenario"), remindVars)
+    remindDims <- quitte::cartesian(getNames(data, dim = "scenario"), remindVars)
 
   } else {
 
     remindVars <- filter(mapping, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
     remindVars <- unique(remindVars$REMINDitems_out)
 
-
-    # extend mapping for Useful Energy
-
+    # Extend mapping for Useful Energy
     if (subtype == "UE_buildings") {
       mapping <- mapping %>%
         mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
@@ -99,18 +93,16 @@ calcFeDemandBuildings <- function(subtype) {
     }
 
     scenarioRcp <- unique(gsub("^(.*\\..*)\\..*$", "\\1", getItems(data, dim = 3)))
-    remindDims <- cartesian(scenarioRcp, remindVars)
+    remindDims <- quitte::cartesian(scenarioRcp, remindVars)
   }
 
-  # Apply Mapping ----
-
+  # Apply Mapping
   remind <- new.magpie(cells_and_regions = getItems(data, dim = 1),
                        years = getYears(data),
                        names = remindDims,
                        sets = getSets(data))
 
   for (v in remindVars) {
-
     w <- mapping %>%
       filter(.data$REMINDitems_out == v) %>%
       select(-"REMINDitems_out") %>%
@@ -124,13 +116,8 @@ calcFeDemandBuildings <- function(subtype) {
     remind[, , getNames(tmp)] <- tmp
   }
 
-  # Prepare Output ----
-
-  # change the scenario names for consistency with REMIND sets
-  getNames(remind) <- gsub("^SSP", "gdp_SSP", getNames(remind))
-  getNames(remind) <- gsub("SDP", "gdp_SDP", getNames(remind))
-
-  # change item names back from UE to FE
+  # Prepare Output
+  ## Change item names back from UE to FE
   if (subtype == "UE_buildings") {
     getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
   }
@@ -142,15 +129,14 @@ calcFeDemandBuildings <- function(subtype) {
   )
 
   outputStructure <- switch(subtype,
-    FE = "^gdp_(SSP[1-5].*|SDP.*)\\.(fe|ue)",
-    FE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE_buildings = "^gdp_(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
+    FE = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)",
+    FE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
+    UE_buildings = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
   )
 
-  return(list(x = remind,
-              weight = NULL,
-              unit = "EJ",
-              description = description,
-              structure.data = outputStructure))
-
+  list(x = remind,
+       weight = NULL,
+       unit = "EJ",
+       description = description,
+       structure.data = outputStructure)
 }

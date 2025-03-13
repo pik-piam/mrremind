@@ -7,11 +7,11 @@
 convertAriadneDB(x)
 }
 \arguments{
-\item{x}{A [`magpie`][magclass::magclass] object returned from
-[`readAriadneDB()`].}
+\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
+\code{\link[=readAriadneDB]{readAriadneDB()}}.}
 }
 \value{
-A [`magpie`][magclass::magclass] object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 convert Ariadne database data

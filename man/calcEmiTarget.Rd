@@ -4,12 +4,14 @@
 \alias{calcEmiTarget}
 \title{Output for 2 policy cases}
 \usage{
-calcEmiTarget(sources, subtype)
+calcEmiTarget(sources, subtype, scenario)
 }
 \arguments{
-\item{sources}{currently only UNFCCC_NDC}
+\item{sources}{Database source}
 
-\item{subtype}{"Ghgshare2005", "Ghgfactor", "Ghghistshare"}
+\item{subtype}{A string, one of: "Ghgshare2005", "Ghgfactor", "Ghghistshare"}
+
+\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
 }
 \description{
 Output for 2 policy cases

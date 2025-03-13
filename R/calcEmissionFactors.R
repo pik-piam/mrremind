@@ -1,7 +1,3 @@
-#' @importFrom dplyr ungroup
-#' @importFrom utils read.csv read.csv2
-#' @importFrom quitte as.quitte
-
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
   if (!(subtype %in% c("emission_factors", "activities", "emissions"))) {
     stop('subtype must be in c("emission_factors", "activities", "emissions")')
@@ -22,14 +18,14 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
     dummy <- id_ef[ip_region, ip_year, ip_scenario]
 
     # Get minimum values across country group
-    tmp <- as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
+    tmp <- quitte::as.quitte(id_ef[ip_countryGroup, ip_year, ip_scenario]) %>%
       group_by(!!!syms(c("data1", "data2"))) %>%
       summarise(value = ifelse(all(.data$value == 0), 0,
         min(.data$value[.data$value > 0], na.rm = TRUE)
       )) %>% # a value 0 is often a sign for a NA that has been replaced with 0 for small countries
-      ungroup() %>%
+      dplyr::ungroup() %>%
       as.data.frame() %>%
-      as.quitte() %>%
+      quitte::as.quitte() %>%
       as.magpie()
 
     # Allocate minimum values to region
@@ -100,7 +96,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
 
   # read in regional map (select ISO and GAINS codes only). This is required for the construction of the SSPs
 
-  map_regions <- read.csv2(
+  map_regions <-utils::read.csv2(
     toolGetMapping(type = "regional", name = "regionmappingGAINS.csv", returnPathOnly = TRUE, where = "mrremind"),
     stringsAsFactors = TRUE
   )[, c(2, 3)]
@@ -117,7 +113,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
     )) %>%
     mutate(CountryCode = factor(.data$CountryCode))
 
-  gdp_cap <- calcOutput("GDPpc", aggregate = FALSE)[, 2005, "gdppc_SSP2"]
+  gdp_cap <- calcOutput("GDPpc", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
   #-- PROCESS DATA ------------------
   vcat(2, ">> Process data... \n")

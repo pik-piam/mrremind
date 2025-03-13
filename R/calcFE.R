@@ -1,33 +1,30 @@
 #' Calculates FE historical from IEA energy balances, projections from EDGE, and historical
 #' values from IEA WEO 2019
 #' @author Lavinia Baumstark, Aman Malik
-#' @importFrom quitte inline.data.frame
-#' @importFrom stats na.omit
 #' @param source "IEA" or "IEA_WEO"
-#' @param scenario_proj "SSP2" by default unless overwritten
 #' @param ieaVersion Release version of IEA data, either 'default' (vetted and used in REMIND)
 #' or 'latest'.
 
-calcFE <- function(source = "IEA", scenario_proj = "SSP2", ieaVersion = "default") {
+calcFE <- function(source = "IEA", ieaVersion = "default") {
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA") {
-    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion,
-                       aggregate = FALSE)
+    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion, aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
                               where = "mrremind", returnPathOnly = TRUE)
     target <- c("output")
-    map <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+    map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
-    map <- map[c("io", target)] %>% na.omit()
+    map <- map[c("io", target)] %>% stats::na.omit()
 
     # Change the column name of the mapping
     colnames(map) <- gsub("io", "names_in", colnames(map))
 
     # Give description
-    ieaYear <- if (ieaVersion == "default") 2022 else 2024
-    descript <- paste0("IEA Final Energy Data based on ", ieaYear, " version of IEA Energy Balances")
+    descript <- paste0("IEA Final Energy Data based on ",
+                       toolGetIEAYear(ieaVersion),
+                       " version of IEA Energy Balances")
 
     #------ PROCESS DATA ------------------------------------------
     # select data that have names

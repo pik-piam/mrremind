@@ -11,9 +11,11 @@
 #' @author Felix Schreyer
 #' @export
 #' @importFrom dplyr mutate select rename left_join
-#' @importFrom quitte as.quitte
-
-toolBiomassSupplyAggregate <- function(x, rel=NULL, weight = calcOutput("FAOLand", aggregate = F)[,,"6610",pmatch=TRUE][,"y2010",]){
+#'
+toolBiomassSupplyAggregate <- function(x,
+                                       rel = NULL,
+                                       weight = calcOutput("FAOLand",
+                                                           aggregate = FALSE)[, , "6610", pmatch = TRUE][, "y2010", ]){
 
   # variable definitions needed for data.frame operations below
   region <- NULL
@@ -34,11 +36,11 @@ toolBiomassSupplyAggregate <- function(x, rel=NULL, weight = calcOutput("FAOLand
   AgrLandReg <- toolAggregate(AgrLandIso, rel)
 
   # calculate share of agricultural land area for each iso-country relative to the MAgPIE region it is in
-  AgrLandShare <- as.quitte(AgrLandIso) %>%
+  AgrLandShare <- quitte::as.quitte(AgrLandIso) %>%
     select(region, value) %>%
     rename(country = region) %>%
     left_join(rel) %>%
-    left_join((as.quitte(AgrLandReg) %>%
+    left_join((quitte::as.quitte(AgrLandReg) %>%
                  select(region, value) %>%
                  rename(Total = value))) %>%
     mutate(value = value / Total) %>%
