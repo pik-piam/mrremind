@@ -52,6 +52,12 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     append = FALSE, warnNA = FALSE, try = FALSE, years = years
   )
 
+  # IEA EB direct sums ----
+  calcOutput('IEA_EB_directSum', file = valfile,
+             aggregate = columnsForAggregation, append = TRUE, years = years,
+             writeArgs = list(scenario = "historical",
+                              model = "IEA-EB-directSum"))
+
   # AGEB ----
 
   calcOutput(
