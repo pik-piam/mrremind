@@ -1,0 +1,24 @@
+IEA,variable,unit
+"Total|Total Billion USD (2023, MER)",,
+Total|of which: Clean energy,,
+Fuels|Fuels,,
+Fuels|Fossil fuels,,
+Fuels|Oil,,
+Fuels|Gas,,
+Fuels|Coal,,
+Fuels|Clean Fuels,,
+Electricity|Power,Energy Investments|Electricity,billion US$2017/yr
+Electricity|Generation,Energy Investments|Electricity Generation,billion US$2017/yr
+Electricity|Coal,Energy Investments|Electricity|Coal,billion US$2017/yr
+Electricity|Oil and natural gas,Energy Investments|Electricity|Gas,billion US$2017/yr
+Electricity|Nuclear,Energy Investments|Electricity|Nuclear,billion US$2017/yr
+Electricity|Renewables,Energy Investments|Electricity|Renwables,billion US$2017/yr
+Electricity|Fossil fuels: with CCUS,Energy Investments|Electricity|Fossil|w/o CCS,billion US$2017/yr
+Electricity|Storage,Energy Investments|Electricity|Storage,billion US$2017/yr
+Electricity|Electricity networks,Energy Investments|Electricity|Grid,billion US$2017/yr
+End-Use|End-use,,
+End-Use|Energy efficiency,,
+End-Use|Other end-use,,
+End-Use|Other end-use renewables,,
+Other|Memo: Oil & gas upstream,,
+Other|Memo: Transitional fossil fuels,,
