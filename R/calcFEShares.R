@@ -1,8 +1,8 @@
 #' FE Share parameters used in REMIND
 #'
 #' @param subtype 'ind_coal' for the share of coal used in industry. 'ind_bio' for the share of biomass used in industry
-#' @param scenario Vector of strings. Used here only to optimize madrat cache usage, as in the end only the 2005 FEdemand
-#' value is actually used - which is equal across scenarios.
+#' @param scenario Vector of strings. Used here only to optimize madrat cache usage,
+#' as in the end only the 2005 FEdemand value is actually used - which is equal across scenarios.
 #' @author Antoine Levesque
 #'
 calcFEShares <- function(subtype, scenario) {
@@ -32,9 +32,7 @@ calcFEShares <- function(subtype, scenario) {
   }
 
   if (subtype == "ind_liq") {
-    fehoi <- dimSums(mselect(fe_demand, year = "y2005",
-                             item = c("feli_cement", "feli_chemicals", "feli_steel", "feli_otherInd")),
-                     dim = 3)
+    fehoi <- dimSums(fe_demand[, 2005, c("feli_cement", "feli_chemicals", "feli_steel", "feli_otherInd")])
     share <- fehoi / (fehoi + fe_demand[, 2005, c("fehob")])
     weight <- (fehoi + fe_demand[, 2005, c("fehob")])
     descr <- "share of stationary heating oil used in industry"

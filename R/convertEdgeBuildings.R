@@ -7,6 +7,30 @@
 #' @author Antoine Levesque, Robin Hasse
 #'
 convertEdgeBuildings <- function(x, subtype, subset) {
+
+  .renameExtraWeights <- function(magObj, magWeight, mapping) {
+    do.call("mbind", lapply(mapping[["EDGEitems"]], function(itemIN) {
+      if (itemIN %in% getNames(magObj, dim = "item")) {
+        item_weight <- mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
+        subMagpie <- magWeight[, , item_weight]
+        res <- setNames(subMagpie, gsub(item_weight, itemIN, getNames(subMagpie)))
+      } else {
+        res <- NULL
+      }
+      return(res)
+    }))
+  }
+
+  .calcLambda <- function(exceedingYearsVec, threshold, previousYears = NULL) {
+    exceedingYearsBefore <- exceedingYearsVec[exceedingYearsVec <= threshold]
+    exceedingYearsAfter  <- exceedingYearsVec[exceedingYearsVec > threshold]
+    lambda <- c(rep(0, length(previousYears)),
+                utils::tail(seq(0, 1, length.out = length(exceedingYearsBefore) + 1), -1),
+                rep(1, length(exceedingYearsAfter)))
+    names(lambda) <- as.character(c(previousYears, exceedingYearsVec))
+    return(as.magpie(lambda))
+  }
+
   #---- Parameters and Mappings ------
   rem_years_hist <- seq(1990, 2150, 5)
 
@@ -81,7 +105,7 @@ convertEdgeBuildings <- function(x, subtype, subset) {
       mbind()
 
     # Compute lambda
-    lambda <- toolCalcLambda(exceeding_years, 2060)
+    lambda <- .calcLambda(exceeding_years, 2060)
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
     # until maxYear_X_in_FE this will be exclusively FE,
     # in 2060 (depending on the threshold value above), exclusively GDP
@@ -93,7 +117,7 @@ convertEdgeBuildings <- function(x, subtype, subset) {
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
     # e.g. when EDGE produces further disaggregations, or when it gives REMIND items without computing them
-    wfe <- mbind(wfe, toolRenameExtraWeights(x, wfe, struct_mapping))
+    wfe <- mbind(wfe, .renameExtraWeights(x, wfe, struct_mapping))
 
     # Reduce the dimensions of the weights
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]

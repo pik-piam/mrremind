@@ -52,7 +52,9 @@ calcEmiFossilFuelExtr <- function(source) {
   } else if (source == "CEDS2024") {
     year <- "y2020"
 
-    indata <- readSource("CEDS2024", subtype = "ch4_history")[, year, c("1B1_Fugitive-solid-fuels", "1B2_Fugitive-petr", "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod")]
+    categories <- c("1B1_Fugitive-solid-fuels", "1B2_Fugitive-petr",
+                    "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod")
+    indata <- readSource("CEDS2024")[, year, categories]
     indata <- indata[, , "ch4"]
     getNames(indata) <- c("pecoal", "peoil", "pegas_distr", "pegas_prod")
 
