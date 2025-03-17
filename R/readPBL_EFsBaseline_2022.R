@@ -52,5 +52,9 @@ readPBL_EFsBaseline_2022 <- function(subtype) {
 
     x <- as.magpie(tidyr::pivot_longer(intable, cols = -year, names_to = "region", values_to = "value"), spatial = "region")
 
+    # Add the subtype in the third, singleton dimension
+    names(dimnames(x))[3] <- "SRC"
+    getItems(x, dim = 3) <- subtype
+
     return(x)
 }
