@@ -16,6 +16,8 @@
 readPBL_EFsBaseline_2022 <- function(subtype) {
 
     # IMAGE regions in the order they appear in the Excel file
+    # For some reason, the mapping in regionmapping_IMAGE_PBL_Stegmann2022.csv has
+    # "Ukraine region" instead of "Ukraine", so we use the same here
     IMAGE_regions <- c(
         "Canada",
         "USA",
@@ -30,7 +32,7 @@ readPBL_EFsBaseline_2022 <- function(subtype) {
         "West Europe",
         "Central Europe",
         "Turkey",
-        "Ukraine",
+        "Ukraine region",
         "Kazachstan",
         "Russia",
         "Middle East",
