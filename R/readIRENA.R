@@ -38,31 +38,31 @@ readIRENA <- function(subtype) {
   # calculate sums where necessary
   data <-
     rbind(data %>%
-            filter(`RE or Non-RE` == "Total Renewable",
+            filter(.data$`RE or Non-RE` == "Total Renewable",
                    !is.na(.data$value)) %>%
             mutate(Technology = "Total renewable energy"),
           data %>%
-            filter(`Group Technology` %in%
+            filter(.data$`Group Technology` %in%
                      c("Hydropower (excl. Pumped Storage)",
                        "Wind energy", "Bioenergy", "Solar energy",
                        "Geothermal energy", "Marine energy"),
                    !is.na(.data$value)) %>%
-            mutate(Technology = `Group Technology`),
+            mutate(Technology = .data$`Group Technology`),
           data %>%
-            filter(`Technology` %in%
+            filter(.data$`Technology` %in%
                      c("Onshore wind energy", "Offshore wind energy",
                        "Solar photovoltaic", "Liquid biofuels", "Solid biofuels",
                        "Renewable hydropower", "Biogas", "Pumped storage",
                        "Renewable municipal waste"),
                    !is.na(.data$value)) %>%
-            mutate(Technology = `Technology`),
+            mutate(Technology = .data$`Technology`),
           data %>%
-            filter(`Sub-Technology` %in%
+            filter(.data$`Sub-Technology` %in%
                      c("Concentrated solar power",
                        "Other primary solid biofuels n.e.s.",
                        "Bagasse"),
                    !is.na(.data$value)) %>%
-            mutate(Technology = `Sub-Technology`)
+            mutate(Technology = .data$`Sub-Technology`)
           )  %>%
     group_by(.data$`ISO3 code`, .data$Year, .data$Technology) %>%
     summarise(value = sum(.data$value), .groups = "drop")
