@@ -1,10 +1,8 @@
 #' @title calc Capacity Factor
 #' @description provides capacity factor values
 #'
-#' @param subtype data subtype. Either "windoff" or none
-#'
 #' @return magpie object of the capacity factor data
-#' @author Renato Rodrigues, Stephen Bi
+#' @author Renato Rodrigues, Stephen Bi, Fabrice Lécuyer
 #' @examples
 #' \dontrun{
 #' calcOutput("CapacityFactor")
@@ -12,10 +10,12 @@
 #' 
 
 
-calcCapacityFactorHist <- function(subtype = "none"){
+calcCapacityFactorHist <- function(){
+  refYear <- 2015
+  description <- paste("Installed capacity availability in", refYear, ", or capacity factor (fraction of the year that a plant is running)")
 
   #mapping of remind technology names to IRENA categories
-  mapping_Irena <- tribble(
+  mappingIRENA <- tibble::tribble(
     ~irena,                      ~remind,
     "Renewable hydropower",      "hydro",
     "Onshore wind energy",       "windon",
@@ -26,95 +26,82 @@ calcCapacityFactorHist <- function(subtype = "none"){
     "Geothermal",                "geohdr"
   )
   
-  if (subtype == "windoff") {
-    mapping_Irena$remind[mapping_Irena$remind == "windon"] <- "wind"
-  }
-
   # Read capacity factor inputs
-  hist_cap <- readSource(type = "IRENA", subtype = "Capacity") / 1000 # converting from MW to GW
-  hist_gen <- readSource(type = "IRENA", subtype = "Generation") # Units are GWh
+  histCapacity <- readSource(type = "IRENA", subtype = "Capacity") / 1000 # converting from MW to GW
+  histCapacity <- histCapacity[,, mappingIRENA$irena]
+  getNames(histCapacity) <- mappingIRENA$remind
+  
+  histGeneration <- readSource(type = "IRENA", subtype = "Generation") # Units are GWh
+  histGeneration <- histGeneration[,, mappingIRENA$irena]
+  getNames(histGeneration) <- mappingIRENA$remind
 
-  # Calculate 2015 capacity factor for relevant technologies, using 2*generation(t) / (cap(t) + cap(t-1) )
-  # then average over 5 years for 2015
+  # Calculate average capacity factor over 5 years around reference year
+  # Capacity factor of year t is 2*generation(t) / (cap(t) + cap(t-1))
   
   # load 5 years of generation
-  hist_gen2 = hist_gen[,seq(2013,2017,1), mapping_Irena$irena]%>% 
-    as.data.frame() 
+  histGeneration = histGeneration[,seq(refYear-2,refYear+2,1),] %>% as.data.frame() %>% 
+    select(Year, Region, 'Technology' = 'Data1', 'generation' = 'Value')
   
-  # load 5 years of capacity
-  hist_cap2a = hist_cap[,seq(2012,2016,1), mapping_Irena$irena] %>% 
-    as.data.frame() %>% 
-    mutate(Year = as.factor(as.integer(as.character(.data$Year)) + 1)) %>% 
-    select(.data$Year, .data$Region, .data$Data1, 'cap1' ='Value')
+  # load 5 years of capacity at time t-1
+  histCapacityBefore = histCapacity[,seq(refYear-3,refYear+1,1),] %>% as.data.frame() %>% 
+    mutate(Year = as.factor(as.integer(as.character(Year)) + 1)) %>% 
+    select(Year, Region, 'Technology' = 'Data1', 'capacityBefore' = 'Value')
   
-  # load 5 years of capacity
-  hist_cap2b = hist_cap[,seq(2013,2017,1), mapping_Irena$irena]%>% 
-    as.data.frame() %>% 
-    select(.data$Year, .data$Region, .data$Data1, 'cap2' ='Value')
+  # load 5 years of capacity at time t
+  histCapacityAfter = histCapacity[,seq(refYear-2,refYear+2,1),] %>% as.data.frame() %>% 
+    select(Year, Region, 'Technology' = 'Data1', 'capacityAfter' = 'Value')
   
-  hist_cap2 <- full_join(hist_cap2b, hist_cap2a) %>% 
-    mutate(cap = (.data$cap1 + .data$cap2) / 2) %>%
-    select(.data$Year, .data$Region, .data$Data1, .data$cap)
+  histCapacity <- full_join(histCapacityBefore, histCapacityAfter) %>% 
+    mutate(capacity = (capacityBefore + capacityAfter) / 2) %>%
+    select(Year, Region, Technology, capacity)
   
-  cf_year <- full_join(hist_gen2, hist_cap2) %>% 
-    mutate(Value = .data$Value / (8760 * .data$cap))
-    
-  cf_year$Value[cf_year$cap < 0.2] <- 0 # remove those CFs if the installed capacity are too tiny
+  hoursPerYear <- 8760
+  cf_year <- full_join(histGeneration, histCapacity) %>% 
+    mutate(Value = generation / (hoursPerYear * capacity))
+
+  cf_year$Value[cf_year$capacity < 0.2] <- 0 # remove CFs if installed capacity is under 200MW
+  cf_year$Value[cf_year$Value > 1] <- 0.8 # correct infinite values
+  cf_year$Value[is.na(cf_year$Value)] <- 0 # correct NA values
   
-  cf_year <- cf_year %>% 
-    select(.data$Year,.data$Region,.data$Data1,.data$Value) %>% 
-    as.magpie()
-  
-  #rename
-  getNames(cf_year) <- mapping_Irena$remind    
-  #correct SPM infinite value
-  cf_year[is.infinite(cf_year)] <- 0.8
-  #correct AZE,CHL,JPN,POL >1 value
-  cf_year[cf_year > 1] <- 0.8
-  #get rid of NAs
-  cf_year[is.na(cf_year)] <- 0      
+  cf_year <- cf_year %>% select(Year, Region, Technology, Value)
     
   # averaging over 5 years for non-0 CFs
-  cf_realworld_n0 <- cf_year %>%
-    as.data.frame() %>% 
-    filter(.data$Value != 0) %>% 
-    group_by(.data$Region, .data$Data1) %>%
-    summarise(Value=mean(.data$Value)) %>%
-    mutate(Year="2015") %>%
-    select(.data$Year,.data$Region,.data$Data1,.data$Value) %>%
+  cf_realworld_n0 <- cf_year %>% 
+    filter(Value != 0) %>% 
+    group_by(Region, Technology) %>%
+    summarise(Value = mean(Value)) %>%
+    mutate(Year = toString(refYear)) %>%
+    select(Year, Region, Technology, Value) %>%
     ungroup()
   
   # for regions and techs with 0 CFs for all 5 years
   cf_realworld_0 <- cf_year %>%
-    as.data.frame() %>% 
-    group_by(.data$Region, .data$Data1) %>%
-    summarise(Value=sum(.data$Value)) %>%
-    filter(.data$Value == 0) %>% 
-    mutate(Year="2015") %>%
-    select(.data$Year,.data$Region,.data$Data1,.data$Value) %>%
+    group_by(Region, Technology) %>%
+    summarise(Value = sum(Value)) %>%
+    filter(Value == 0) %>% 
+    mutate(Year = toString(refYear)) %>%
+    select(Year, Region, Technology, Value) %>%
     ungroup()
   
-  cf_realworld <- full_join(cf_realworld_n0, cf_realworld_0) %>% 
-    group_by(.data$Region, .data$Year) %>%
-    mutate(Data1 = factor(.data$Data1, levels=mapping_Irena$irena) ) %>% 
-    ungroup() %>% 
+  cf_realworld <- full_join(cf_realworld_n0, cf_realworld_0) %>%
+    mutate(Technology = factor(Technology, levels = mappingIRENA$remind)) %>%
+    arrange(Year, Region, Technology) %>% 
     as.magpie()
   
   #weight: historic generation
-  hist_gen <- hist_gen2 %>%
-    select(.data$Year,.data$Region,.data$Data1,.data$Value) %>% 
-    group_by(.data$Region, .data$Data1) %>%
-    summarise(Value=sum(.data$Value)) %>% 
-    mutate(Year="2015") %>% 
+  histGeneration <- histGeneration %>%
+    select(Year, Region, Technology, generation) %>% 
+    group_by(Region, Technology) %>%
+    summarise(Value = sum(generation)) %>% 
+    mutate(Year = toString(refYear)) %>% 
     ungroup() %>% 
     as.magpie()
+
+  histGeneration[is.na(cf_realworld)] <- 0
   
-  # hist_gen <- as.data.frame(hist_gen)
-  getNames(hist_gen) <- mapping_Irena$remind
-  hist_gen[is.na(cf_realworld)] <- 0
-  
-  return(list(x=cf_realworld, weight=hist_gen,
-              unit="% of capacity", 
-              description="Installed capacity availability in 2015 - capacity factor (fraction of the year that a plant is running)"              
+  return(list(x = cf_realworld,
+              weight = histGeneration,
+              unit = "% of capacity",
+              description = description
   ))
 }
