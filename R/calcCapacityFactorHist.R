@@ -40,59 +40,59 @@ calcCapacityFactorHist <- function(){
   
   # load 5 years of generation
   histGeneration = histGeneration[,seq(refYear-2,refYear+2,1),] %>% as.data.frame() %>% 
-    select(Year, Region, 'Technology' = 'Data1', 'generation' = 'Value')
+    select("Year", "Region", "Technology" = "Data1", "generation" = "Value")
   
   # load 5 years of capacity at time t-1
   histCapacityBefore = histCapacity[,seq(refYear-3,refYear+1,1),] %>% as.data.frame() %>% 
-    mutate(Year = as.factor(as.integer(as.character(Year)) + 1)) %>% 
-    select(Year, Region, 'Technology' = 'Data1', 'capacityBefore' = 'Value')
+    mutate(Year = as.factor(as.integer(as.character(.data$Year)) + 1)) %>% 
+    select("Year", "Region", "Technology" = "Data1", "capacityBefore" = "Value")
   
   # load 5 years of capacity at time t
   histCapacityAfter = histCapacity[,seq(refYear-2,refYear+2,1),] %>% as.data.frame() %>% 
-    select(Year, Region, 'Technology' = 'Data1', 'capacityAfter' = 'Value')
+    select("Year", "Region", "Technology" = "Data1", "capacityAfter" = "Value")
   
   histCapacity <- full_join(histCapacityBefore, histCapacityAfter) %>% 
-    mutate(capacity = (capacityBefore + capacityAfter) / 2) %>%
-    select(Year, Region, Technology, capacity)
+    mutate(capacity = (.data$capacityBefore + .data$capacityAfter) / 2) %>%
+    select("Year", "Region", "Technology", "capacity")
   
   hoursPerYear <- 8760
   cf_year <- full_join(histGeneration, histCapacity) %>% 
-    mutate(Value = generation / (hoursPerYear * capacity))
+    mutate(Value = .data$generation / (hoursPerYear * .data$capacity))
 
   cf_year$Value[cf_year$capacity < 0.2] <- 0 # remove CFs if installed capacity is under 200MW
   cf_year$Value[cf_year$Value > 1] <- 0.8 # correct infinite values
   cf_year$Value[is.na(cf_year$Value)] <- 0 # correct NA values
   
-  cf_year <- cf_year %>% select(Year, Region, Technology, Value)
+  cf_year <- cf_year %>% select("Year", "Region", "Technology", "Value")
     
   # averaging over 5 years for non-0 CFs
   cf_realworld_n0 <- cf_year %>% 
-    filter(Value != 0) %>% 
-    group_by(Region, Technology) %>%
-    summarise(Value = mean(Value)) %>%
+    filter(.data$Value != 0) %>% 
+    group_by(.data$Region, .data$Technology) %>%
+    summarise(Value = mean(.data$Value)) %>%
     mutate(Year = toString(refYear)) %>%
-    select(Year, Region, Technology, Value) %>%
+    select("Year", "Region", "Technology", "Value") %>%
     ungroup()
   
   # for regions and techs with 0 CFs for all 5 years
   cf_realworld_0 <- cf_year %>%
-    group_by(Region, Technology) %>%
-    summarise(Value = sum(Value)) %>%
-    filter(Value == 0) %>% 
+    group_by(.data$Region, .data$Technology) %>%
+    summarise(Value = sum(.data$Value)) %>%
+    filter(.data$Value == 0) %>% 
     mutate(Year = toString(refYear)) %>%
-    select(Year, Region, Technology, Value) %>%
+    select("Year", "Region", "Technology", "Value") %>%
     ungroup()
   
   cf_realworld <- full_join(cf_realworld_n0, cf_realworld_0) %>%
-    mutate(Technology = factor(Technology, levels = mappingIRENA$remind)) %>%
-    arrange(Year, Region, Technology) %>% 
+    mutate(Technology = factor(.data$Technology, levels = mappingIRENA$remind)) %>%
+    arrange(.data$Year, .data$Region, .data$Technology) %>% 
     as.magpie()
   
   #weight: historic generation
   histGeneration <- histGeneration %>%
-    select(Year, Region, Technology, generation) %>% 
-    group_by(Region, Technology) %>%
-    summarise(Value = sum(generation)) %>% 
+    select("Year", "Region", "Technology", "generation") %>% 
+    group_by(.data$Region, .data$Technology) %>%
+    summarise(Value = sum(.data$generation)) %>% 
     mutate(Year = toString(refYear)) %>% 
     ungroup() %>% 
     as.magpie()
