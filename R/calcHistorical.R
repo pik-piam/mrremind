@@ -2,46 +2,15 @@
 #' @importFrom dplyr filter group_by mutate select ungroup
 calcHistorical <- function() {
 
-  # Final Energy
-  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
-  fe_iea <- add_dimension(fe_iea, dim = 3.1, add = "model", nm = "IEA")
-
-  fe_weo <- calcOutput("FE", source = "IEA_WEO", aggregate = FALSE)
-  fe_weo <- fe_weo[, , "Current Policies Scenario", pmatch = TRUE]
-  fe_weo <- collapseNames(fe_weo)
-  fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
-
-  # Primary Energy
-  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
-  pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
-
-  pe_weo <- calcOutput("PE", subtype = "IEA_WEO", aggregate = FALSE)
-  pe_weo <- pe_weo[, , "Current Policies Scenario", pmatch = TRUE]
-  pe_weo <- collapseNames(pe_weo)
-  pe_weo <- add_dimension(pe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
-
-  # fossil trade
-  trade <- calcOutput("Trade", aggregate = FALSE)
-  trade <- add_dimension(trade, dim = 3.1, add = "model", nm = "IEA")
-
-  # Population
-  pop <- calcOutput("PopulationPast", aggregate = FALSE)
-  unit <- strsplit(grep("unit", attributes(pop)$comment, value = TRUE), split = ": ")[[1]][[2]]
-  getNames(pop) <- paste0("Population (", unit, ")")
-  pop <- add_dimension(pop, dim = 3.1, add = "model", nm = "WDI")
-
-  # GDP in ppp
-  gdp <- calcOutput("GDPPast", pastData = "WDI", aggregate = FALSE) / 1000
-  getNames(gdp) <- paste0("GDP|PPP (billion US$2017/yr)")
-  gdp <- add_dimension(gdp, dim = 3.1, add = "model", nm = "WDI")
-
   # Historical emissions from PRIMAPhist data base
   # select total
   primap <- readSource("PRIMAPhist", "hist")[, , "CAT0"]
   # select CO2 and total GHG and convert into Co2
   primap <- primap[, , c("co2_c", "kyotoghgar4_co2eq_c")] / 12 * 44
+  primap <- collapseNames(primap)
   getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)", "Emi|GHG (Mt CO2eq/yr)")
   primap <- add_dimension(primap, dim = 3.1, add = "model", nm = "PRIMAPhist")
+
 
   # Historical emissions from CDIAC data base
   cdiac <- calcOutput("Emissions", datasource = "CDIAC", aggregate = FALSE)
@@ -176,7 +145,6 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n)
 
   varlist <- list(
-    fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
     primap, cdiac, LU_EDGAR_LU, LU_CEDS,
     LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist,
     EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
