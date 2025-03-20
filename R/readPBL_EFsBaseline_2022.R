@@ -50,7 +50,7 @@ readPBL_EFsBaseline_2022 <- function(subtype) {
     intable <- read_excel("NonCO2_Emission_Factors_&_SSP2-dependent_Pessimistic_MAC_IMAGE.xlsx", sheet = paste0("EF_",subtype), skip = 2)
     colnames(intable) <- c("year", IMAGE_regions)
 
-    x <- as.magpie(tidyr::pivot_longer(intable, cols = -year, names_to = "region", values_to = "value"), spatial = "region")
+    x <- as.magpie(tidyr::pivot_longer(intable, cols = -1, names_to = "region", values_to = "value"), spatial = "region")
 
     # Add the subtype in the third, singleton dimension
     names(dimnames(x))[3] <- "SRC"
