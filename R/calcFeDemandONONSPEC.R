@@ -75,12 +75,12 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
   }
 
 
-  .getEODcoefs <- function(x, key) {
-    m <- stats::lm(value~period, x)
+  .getEODcoefs <- function(x, key, model = "linear") {
+    m <- stats::smooth.spline(x$period, x$value, spar = 0.7)
     eod <- max(x$period)
-    coefs <- data.frame(eod = eod,
-                        slopeEOD = stats::coef(m)[["period"]],
-                        valueEOD = stats::predict(m, list(period = eod)))
+    data.frame(eod = eod,
+               valueEOD = stats::predict(m, eod)$y,
+               slopeEOD = stats::predict(m, eod, deriv = 1)$y)
   }
 
 
