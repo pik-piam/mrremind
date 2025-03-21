@@ -204,13 +204,30 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical")
   )
 
-  # EU National GHG Projections ----
+  # European Environment Agency Historical GHG Emissions ----
+
+  calcOutput(
+    type = "EEAGHGEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EEA_historical")
+  )
+
+  # European Environment Agency GHG Projections ----
 
   calcOutput(
     type = "EEAGHGProjections", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical")
   )
+
+  # European Environment Agency Emission Reference Values ----
+
+  calcOutput(
+    type = "EmiReference", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EEA")
+  )
+
 
   # Global Energy Monitor ----
 
@@ -319,4 +336,5 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "INDSTAT3")
   )
+
 }
