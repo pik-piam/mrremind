@@ -205,7 +205,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # IEA World Energy Investment Outlook 2024
   calcOutput(
     type = "InvestmentHistorical", file = valfile,
-    aggregate = FALSE, append = TRUE, warnNa = FALSE,
+    aggregate = FALSE, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA WEIO 2024")
   )
 
