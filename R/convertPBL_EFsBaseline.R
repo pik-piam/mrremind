@@ -8,7 +8,7 @@
 #' @importFrom dplyr mutate select
 #'
 #' @export
-convertPBL_EFsBaseline_2022 <- function(x) {
+convertPBL_EFsBaseline <- function(x) {
     imagemapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv", type = "regional", where = "mrremind")
     remindmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
 

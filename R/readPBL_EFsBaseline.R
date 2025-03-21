@@ -13,7 +13,7 @@
 #' @importFrom readxl read_excel
 #'
 #' @export
-readPBL_EFsBaseline_2022 <- function(subtype) {
+readPBL_EFsBaseline <- function(subtype) {
 
     # IMAGE regions in the order they appear in the Excel file
     # For some reason, the mapping in regionmapping_IMAGE_PBL_Stegmann2022.csv has
