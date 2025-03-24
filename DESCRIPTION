@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.220.8
-Date: 2025-03-13
+Version: 0.222.1
+Date: 2025-03-21
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -38,7 +38,7 @@ Description: The mrremind packages contains data preprocessing for the
 License: LGPL-3 | file LICENSE
 URL: https://github.com/pik-piam/mrremind
 Depends:
-    R (>= 2.10.0)
+    R (>= 4.0)
 Imports:
     countrycode,
     data.table,
@@ -53,7 +53,7 @@ Imports:
     mrcommons (>= 1.44.12),
     mrdrivers (>= 6.0.0),
     mrfaocore,
-    mrindustry (>= 0.17.0),
+    mrindustry (>= 0.18.5),
     nnls,
     purrr,
     quitte (>= 0.3105.0),

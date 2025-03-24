@@ -1,22 +1,22 @@
 #' Calculates Final Energy Demand for Industry and Buildings
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
-#' @author Falk Benke
+#' @author Falk Benke, Robin Hasse
 calcFEdemand <- function(scenario) {
+
   feBuildings <- calcOutput("FeDemandBuildings",
                             subtype = "FE",
                             scenario = scenario,
                             warnNA = FALSE,
                             aggregate = FALSE)
+
   feIndustry <- calcOutput("FeDemandIndustry",
                            scenarios = scenario,
                            warnNA = FALSE,
                            aggregate = FALSE)
 
   t <- intersect(getYears(feBuildings), getYears(feIndustry))
-  stationaryItems <- c("fehes", "feh2s")
 
   remind <- mbind(feBuildings[, t, ], feIndustry[, t, ])
-  remind <- remind[, , stationaryItems, invert = TRUE]
 
   list(
     x = remind,
