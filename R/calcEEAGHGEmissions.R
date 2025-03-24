@@ -16,6 +16,6 @@ calcEEAGHGEmissions <- function() {
     x = x,
     weight = NULL,
     unit = "Mt CO2-equiv/yr",
-    description = "historical GHG emissions from European Environment Agency"
+    description = "Historical GHG emissions from European Environment Agency"
   ))
 }

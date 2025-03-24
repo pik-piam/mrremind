@@ -26,7 +26,6 @@ calcHistorical <- function() {
   luFAOEmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, warnNA = FALSE)
   luPRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, warnNA = FALSE)
 
-
   # Cement Production ----
   USGS_cement <- readSource(
     type = "USGS", subtype = "cement",

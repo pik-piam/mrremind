@@ -74,7 +74,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   pe <- calcOutput(type = "PE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
   pe <- collapseNames(pe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019 CurPol")
+  write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
 
 
   # IEA Final Energy ----
@@ -89,7 +89,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   fe <- calcOutput(type = "FE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
   fe <- collapseNames(fe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(fe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019 CurPol")
+  write.report(fe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
 
   # IEA Fossil Trade ----
 
@@ -159,7 +159,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   edgar <- calcOutput(
     type = "Emissions", datasource = "EDGARghg",
     aggregate = columnsForAggregation, warnNA = FALSE,
-    try = FALSE, years = years
+    try = FALSE
   )
 
   # write all regions of non-bunker variables to report

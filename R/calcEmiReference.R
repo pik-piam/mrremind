@@ -61,5 +61,5 @@ calcEmiReference <- function() {
   out <- toolFillEU34Countries(out)
 
   return(list(x = out, weight = NULL, unit = "Mt CO2eq/yr",
-              description = "Emission reduction targets"))
+              description = "European 2030 emission targets in relation to 1990 and 2005 emissions"))
 }
