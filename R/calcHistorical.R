@@ -2,89 +2,29 @@
 #' @importFrom dplyr filter group_by mutate select ungroup
 calcHistorical <- function() {
 
-  # Final Energy
-  fe_iea <- calcOutput("FE", source = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
-  fe_iea <- add_dimension(fe_iea, dim = 3.1, add = "model", nm = "IEA")
-
-  fe_weo <- calcOutput("FE", source = "IEA_WEO", aggregate = FALSE)
-  fe_weo <- fe_weo[, , "Current Policies Scenario", pmatch = TRUE]
-  fe_weo <- collapseNames(fe_weo)
-  fe_weo <- add_dimension(fe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
-
-  # Primary Energy
-  pe_iea <- calcOutput("PE", subtype = "IEA", ieaVersion = "latest", aggregate = FALSE, warnNA = FALSE)
-  pe_iea <- add_dimension(pe_iea, dim = 3.1, add = "model", nm = "IEA")
-
-  pe_weo <- calcOutput("PE", subtype = "IEA_WEO", aggregate = FALSE)
-  pe_weo <- pe_weo[, , "Current Policies Scenario", pmatch = TRUE]
-  pe_weo <- collapseNames(pe_weo)
-  pe_weo <- add_dimension(pe_weo, dim = 3.1, add = "model", nm = "IEA_WEO")
-
-  # fossil trade
-  trade <- calcOutput("Trade", aggregate = FALSE)
-  trade <- add_dimension(trade, dim = 3.1, add = "model", nm = "IEA")
-
-  # Population
-  pop <- calcOutput("PopulationPast", aggregate = FALSE)
-  unit <- strsplit(grep("unit", attributes(pop)$comment, value = TRUE), split = ": ")[[1]][[2]]
-  getNames(pop) <- paste0("Population (", unit, ")")
-  pop <- add_dimension(pop, dim = 3.1, add = "model", nm = "WDI")
-
-  # GDP in ppp
-  gdp <- calcOutput("GDPPast", pastData = "WDI", aggregate = FALSE) / 1000
-  getNames(gdp) <- paste0("GDP|PPP (billion US$2017/yr)")
-  gdp <- add_dimension(gdp, dim = 3.1, add = "model", nm = "WDI")
-
-  # Historical emissions from PRIMAPhist data base
-  # select total
+  # Historical Emissions from PRIMAPhist data base ----
   primap <- readSource("PRIMAPhist", "hist")[, , "CAT0"]
-  # select CO2 and total GHG and convert into Co2
   primap <- primap[, , c("co2_c", "kyotoghgar4_co2eq_c")] / 12 * 44
+  primap <- collapseNames(primap)
   getNames(primap) <- c("Emi|CO2 (Mt CO2/yr)", "Emi|GHG (Mt CO2eq/yr)")
   primap <- add_dimension(primap, dim = 3.1, add = "model", nm = "PRIMAPhist")
 
-  # Historical emissions from CDIAC data base
-  cdiac <- calcOutput("Emissions", datasource = "CDIAC", aggregate = FALSE)
+  # Historical Emissions from CDIAC data base ----
+  cdiac <- calcOutput("Emissions", datasource = "CDIAC", aggregate = FALSE, warnNA = FALSE)
   getNames(cdiac) <- gsub("Emissions", "Emi", getNames(cdiac))
   getNames(cdiac) <- gsub("Mt/yr", "Mt CO2/yr", getNames(cdiac))
   cdiac <- add_dimension(cdiac, dim = 3.1, add = "model", nm = "CDIAC")
 
-  # Historical land use emissions (taken from "mrvalidation/R/fullVALIDATION.R")
-  LU_EDGAR_LU <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, try = TRUE, warnNA = FALSE)
-  LU_CEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, try = TRUE, warnNA = FALSE)
-  LU_FAO_EmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, try = TRUE, warnNA = FALSE)
-  LU_FAO_EmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, try = TRUE, warnNA = FALSE)
-  LU_PRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, try = TRUE, warnNA = FALSE)
+  # Historical Land Use Emissions (taken from "mrvalidation/R/fullVALIDATION.R") ----
+  luEDGAR <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, warnNA = FALSE)
+  luCEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, warnNA = FALSE)
+  # give CEDS emissions from calcValidEmissions (magpie) a name that is different
+  # from CEDS emissions from calcEmissions (remind)
+  getNames(luCEDS, dim = 2) <- "CEDS Landuse"
 
-  # remove scenario dimension (will be added below as also for remind variables)
-  LU_EDGAR_LU <- collapseNames(LU_EDGAR_LU, collapsedim = 1)
-  LU_CEDS <- collapseNames(LU_CEDS, collapsedim = 1)
-  LU_FAO_EmisLUC <- collapseNames(LU_FAO_EmisLUC, collapsedim = 1)
-  LU_FAO_EmisAg <- collapseNames(LU_FAO_EmisAg, collapsedim = 1)
-  LU_PRIMAPhist <- collapseNames(LU_PRIMAPhist, collapsedim = 1)
-
-  # give ceds emissions from calcValidEmissions (magpie) a name that
-  # is different from ceds emissions from calcEmissions (remind)
-  getNames(LU_CEDS, dim = 1) <- "ceds_lu"
-
-  # remove duplicates from LU_FAO_EmisAg
-  LU_FAO_EmisAg <- LU_FAO_EmisAg[, , which(!duplicated(getNames(LU_FAO_EmisAg)))]
-
-
-  # Region specific historical data ====
-
-  # EEA GHG Sectoral Historical Data
-  EEA_GHGSectoral <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "sectoral"))
-  EEA_GHGSectoral <- add_dimension(EEA_GHGSectoral, dim = 3.1, add = "model", nm = "EEA_historical")
-
-  EEA_GHGTotal <- toolFillEU34Countries(readSource("EEA_EuropeanEnvironmentAgency", subtype = "total"))
-  EEA_GHGTotal <- add_dimension(EEA_GHGTotal, dim = 3.1, add = "model", nm = "EEA_historical")
-
-  # Calculate Emission Reference Values
-  Emi_Reference <- toolFillEU34Countries(calcOutput("EmiReference", aggregate = FALSE, warnNA = TRUE))
-  Emi_Reference <- add_dimension(Emi_Reference, dim = 3.1, add = "model", nm = "EEA")
-
-
+  luFAOEmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, warnNA = FALSE)
+  luFAOEmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, warnNA = FALSE)
+  luPRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, warnNA = FALSE)
 
   # Cement Production ----
   USGS_cement <- readSource(
@@ -176,10 +116,8 @@ calcHistorical <- function() {
   # find all existing years (y) and variable names (n)
 
   varlist <- list(
-    fe_iea, fe_weo, pe_iea, pe_weo, trade, pop, gdp,
-    primap, cdiac, LU_EDGAR_LU, LU_CEDS,
-    LU_FAO_EmisLUC, LU_FAO_EmisAg, LU_PRIMAPhist,
-    EEA_GHGSectoral, EEA_GHGTotal, Emi_Reference,
+    primap, cdiac, luEDGAR, luCEDS,
+    luFAOEmisLUC, luFAOEmisAg, luPRIMAPhist,
     worldsteel, USGS_cement
   )
 

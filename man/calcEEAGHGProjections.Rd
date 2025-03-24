@@ -2,16 +2,13 @@
 % Please edit documentation in R/calcEEAGHGProjections.R
 \name{calcEEAGHGProjections}
 \alias{calcEEAGHGProjections}
-\title{Calculate EEA emission projections from the two projections sources provided by EEA}
+\title{Calculate EEA emission projections from the two projections sources provided by European Environment Agency}
 \usage{
 calcEEAGHGProjections()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
-Calculate EEA emission projections from the two projections sources provided by EEA
+Calculate EEA emission projections from the two projections sources provided by European Environment Agency
 }
 \author{
-Falk Benke
+Falk Benke, Renato Rodrigues
 }
