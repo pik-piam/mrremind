@@ -75,12 +75,12 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
   }
 
 
-  .getEODcoefs <- function(x, key) {
-    m <- stats::lm(value~period, x)
+  .getEODcoefs <- function(x, key, model = "linear") {
+    m <- stats::smooth.spline(x$period, x$value, spar = 0.7)
     eod <- max(x$period)
-    coefs <- data.frame(eod = eod,
-                        slopeEOD = stats::coef(m)[["period"]],
-                        valueEOD = stats::predict(m, list(period = eod)))
+    data.frame(eod = eod,
+               valueEOD = stats::predict(m, eod)$y,
+               slopeEOD = stats::predict(m, eod, deriv = 1)$y)
   }
 
 
@@ -110,20 +110,51 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
   }
 
 
+  .manipulateCHN <- function(x, how) {
+    mask <- x$region == "CHN" & x$item == "feothelec"
+    if ("eod" %in% colnames(x) && max(x$eod[mask]) >= 2025) {
+      stop("This manipulation was a temporary fix and should be removed ",
+           "now that data is available until 2025!")
+    }
+    switch(how,
+      dropOutlier = {
+        x <- x[!(mask & x$period == 2017), ]
+      },
+      boostSlope = {
+        x$slopeEOD <- x$slopeEOD * ifelse(mask, 5.2, 1)
+      },
+      fasterToConst = {
+        x$dt <- x$dt - ifelse(mask, 7, 0)
+      },
+      lowerTail = {
+        t <- x$period - (x$eod + x$dt * 0.7)
+        factor <- 0.7
+        factor <- (1 - factor) / (1 + exp(0.2 * t)) + factor
+        x$value <- x$value * ifelse(mask & x$period > eoh, factor, 1)
+      },
+      stop("Unknown manipulation.")
+    )
+    x
+  }
+
+
   .projectFlows <- function(flowsData) {
     flowsData %>%
       filter(!is.na(.data$value)) %>%
       group_by(dplyr::across(tidyselect::all_of(c("region", "item")))) %>%
       arrange(.data$period) %>%
+      .manipulateCHN("dropOutlier") %>%
       slice_tail(n = nTimeStepsEOD) %>%
       group_modify(.getEODcoefs) %>%
       group_modify(.expandPeriods) %>%
+      .manipulateCHN("boostSlope") %>%
       mutate(valueHist = .calcAsymptotic(xStart = .data$valueEOD,
                                          xDotStart = .data$slopeEOD,
                                          dt = yearsUntilConst[2],
                                          t = .data$period,
                                          tStart = .data$eod)) %>%
       group_modify(.expandScenarios, yearsUntilConst) %>%
+      .manipulateCHN("fasterToConst") %>%
       mutate(valueFuture = .calcAsymptotic(xStart = .data$valueHist[.data$period == eoh],
                                            xDotStart = .data$slopeEOD * constTolerance^((eoh - .data$eod) / yearsUntilConst[2]),
                                            dt = .data$dt - (eoh - .data$eod),
@@ -132,6 +163,7 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
                                            epsCorrection = -(eoh - .data$eod) / yearsUntilConst[2]),
              value = ifelse(.data$period > eoh, .data$valueFuture, .data$valueHist)) %>%
       ungroup() %>%
+      .manipulateCHN("lowerTail") %>%
       select("region", "period", "levelScen", "item", "value")
   }
 
