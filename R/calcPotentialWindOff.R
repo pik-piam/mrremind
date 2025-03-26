@@ -31,7 +31,6 @@ calcPotentialWindOff <- function() {
   }
 
   # add "nur" data representing the capacity factor of each grade
-  # (CG: this is just taken to be the same as onshore for now, later can be raised when wind_off is endogenous)
   capacityFactor <- new.magpie(getRegions(technicalPotential), getYears(technicalPotential), getNames(technicalPotential))
   capacityFactor[, , "9"] <- 0.09
   capacityFactor[, , "8"] <- 0.20
@@ -42,6 +41,9 @@ calcPotentialWindOff <- function() {
   capacityFactor[, , "3"] <- 0.40
   capacityFactor[, , "2"] <- 0.44
   capacityFactor[, , "1"] <- 0.48
+  # CG: increase wind offshore capacity factors by 25% to account for very different real-world values
+  # NREL values seem underestimated, potentially partially due to assuming low turbines
+  capacityFactor <- capacityFactor * 1.25
 
   # put technicalPotential (maxprod) and capacityFactor (nur) together
   technicalPotential <- add_dimension(technicalPotential, dim = 3.1, add = "char", nm = "maxprod")

@@ -16,7 +16,7 @@
 readREMIND_11Regi <- function(subtype) {
   switch(
     subtype,
-    "tradecost"           = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
+    "tradecost"            = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset.csv", sep = ";")       %>% as.magpie(datacol = 2),
     "capacityFactorGlobal" = read.csv("f_cf-global_REMIND_3.4.0.csv", sep = ";")   %>% as.magpie(datacol = 2),
     "capacityFactorRules"  = read.csv("f_cf-rules_v1.1.csv", sep = ";")            %>% as.magpie(datacol = 4),
