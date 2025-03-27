@@ -5,11 +5,14 @@
 \title{Calculates historical emissions needed for estimating emission factors
 in extra emissions reporting}
 \usage{
-calcEmissions4ReportExtra()
+calcEmissions4ReportExtra(sectors = "CEDS")
+}
+\arguments{
+\item{sectors:}{"CEDS" or "IAMC" to select the sectoral aggregation of the output}
 }
 \value{
 list of magclass with CEDS CH4 and N2O emissionsdata for
-CEDS sectors for timesteps 2000-2100, in Mt N or Mt CH4 per year
+CEDS sectors for 2020, in Mt N or Mt CH4 per year
 }
 \description{
 Calculates historical emissions needed for estimating emission factors
