@@ -29,7 +29,7 @@ readIRENA <- function(subtype) {
   data <- reshape2::melt(data,
     id.vars = c(1, 2),
     variable.name = "years", value.name = "value"
-  ) %>%
+          )  %>%
     mutate("value" = as.numeric(!!sym("value"))) %>%
     suppressWarnings()
 
@@ -45,6 +45,5 @@ readIRENA <- function(subtype) {
 
   # creating capacity or generation magpie object
   x <- as.magpie(data, temporal = 1, spatial = 2, datacol = 4)
-
   return(x)
 }
