@@ -233,6 +233,7 @@ fullREMIND <- function() {
   calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r")
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
   calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
+  calcOutput("Emissions4ReportExtra", round = 6, file = "p_emissions4ReportExtra.cs4r")
 
   #---------------no longer used in REMIND-------------------------------------------------------------
 
