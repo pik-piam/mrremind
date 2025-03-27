@@ -7,12 +7,9 @@ in extra emissions reporting}
 \usage{
 calcEmissions4ReportExtra()
 }
-\arguments{
-\item{source}{either "PBL_2007" or "PBL_2022"}
-}
 \value{
-list of magclass with REMIND input data for
-different sectors for timesteps 2000-2100, in Mt N per year
+list of magclass with CEDS CH4 and N2O emissionsdata for
+CEDS sectors for timesteps 2000-2100, in Mt N or Mt CH4 per year
 }
 \description{
 Calculates historical emissions needed for estimating emission factors
