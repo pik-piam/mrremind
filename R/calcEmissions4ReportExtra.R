@@ -1,11 +1,11 @@
 #' Calculates historical emissions needed for estimating emission factors
 #' in extra emissions reporting
 #
-#' @param sectors: "CEDS" or "IAMC" to select the sectoral aggregation of the output
+#' @param sectors "CEDS" or "IAMC" to select the sectoral aggregation of the output
 #'
 #' @return list of magclass with CEDS CH4 and N2O emissionsdata for
 #' CEDS sectors for 2020, in Mt N or Mt CH4 per year
-#' @author Gabriel Abrhahao
+#' @author Gabriel Abrahao
 calcEmissions4ReportExtra <- function(sectors = "CEDS") {
   incedsall <- readSource("CEDS2024")
   # Keep just the gases we're currently interested in, but also keep all sectors

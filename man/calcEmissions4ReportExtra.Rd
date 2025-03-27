@@ -8,7 +8,7 @@ in extra emissions reporting}
 calcEmissions4ReportExtra(sectors = "CEDS")
 }
 \arguments{
-\item{sectors:}{"CEDS" or "IAMC" to select the sectoral aggregation of the output}
+\item{sectors}{"CEDS" or "IAMC" to select the sectoral aggregation of the output}
 }
 \value{
 list of magclass with CEDS CH4 and N2O emissionsdata for
@@ -19,5 +19,5 @@ Calculates historical emissions needed for estimating emission factors
 in extra emissions reporting
 }
 \author{
-Gabriel Abrhahao
+Gabriel Abrahao
 }
