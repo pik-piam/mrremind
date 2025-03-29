@@ -6,15 +6,15 @@
 calcIEA_WorldEnergyOutlook <- function() { # nolint
 
   dataGlo <- readSource("IEA_WorldEnergyOutlook", convert = FALSE)["World", , ]
-  magclass::getItems(dataGlo, dim = 1) <- "GLO"
+  getItems(dataGlo, dim = 1) <- "GLO"
   dataReg <- readSource("IEA_WorldEnergyOutlook", convert = TRUE)
 
   .mapToRemind <- function(data) {
 
     # copy over Stated Policies Scenario for 2010 - 2022 to other scenarios
-    for (s in magclass::getNames(data, dim = 1)) {
+    for (s in getNames(data, dim = 1)) {
       data[, c("y2010", "y2015", "y2021", "y2022"), s] <-
-        data[, c("y2010", "y2015", "y2021", "y2022"), "Stated Policies Scenario"][, , magclass::getNames(data[, , s], dim = 2)]
+        data[, c("y2010", "y2015", "y2021", "y2022"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
     }
 
     # rename scenarios
@@ -25,42 +25,57 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
       "Net Zero Emissions by 2050 Scenario" = "Net2050"
     )
 
-    magclass::getNames(data, dim = 1) <- paste0("IEA WEO 2023 ", scens[magclass::getNames(data, dim = 1)])
-    magclass::getSets(data)[3] <- "model"
+    getNames(data, dim = 1) <- paste0("IEA WEO 2023 ", scens[getNames(data, dim = 1)])
+    getSets(data)[3] <- "model"
 
     map <- toolGetMapping("Mapping_IEA_WEO_complete.csv", type = "reportingVariables", where = "mrremind") %>%
-      dplyr::filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
-      dplyr::mutate("conversion" = as.numeric(.data$Conversion)) %>%
-      dplyr::select("from" = "Variable", "to" = "REMIND", "conversion")
+      filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
+      mutate("conversion" = as.numeric(.data$Conversion)) %>%
+      select("from" = "Variable", "to" = "REMIND", "conversion")
 
-    for (var in intersect(getNames(data, dim = 2), unique(map$from))) {
-      conv <- map[map$from == var, "conversion"]
+    out <- NULL
 
-      # if there is more than one conversion factor, it means that one source variable
-      # is converted two more than one target variable using a different conversion factor
-      if (length(unique(conv)) > 1) {
+    # iterate over scenarios for variable mapping to avoid introducing empty entries via toolAggregate
+    for (scen in getNames(data, dim = 1)) {
 
-        # create unique "from" variables for each mapping entry by appending numbers
-        map[map$from == var, "from"] <- paste0(map[map$from == var, "from"], " ", seq(1, nrow(map[map$from == var, ])))
+      tmp <- data[, , scen]
+      tmp <- collapseDim(tmp, dim = 3.1)
 
-        # duplicate "from" data with for each mapping entry
-        for (i in seq(1, length(unique(conv)))) {
-          dup <- data[, , var]
-          getNames(dup, dim = 2) <- paste0(getNames(dup, dim = 2), " ", i)
-          data <- mbind(data, dup)
-        }
-        data <- data[, , var, invert = TRUE]
-      } else {
-        data[, , var] <- data[, , var] * unique(conv)
+
+      if (!any(unique(map$from) %in% getNames(tmp))){
+        next
       }
+
+      for (var in intersect(getNames(tmp), unique(map$from))) {
+        conv <- map[map$from == var, "conversion"]
+
+        # if there is more than one conversion factor, it means that one source variable
+        # is converted two more than one target variable using a different conversion factor
+        if (length(unique(conv)) > 1) {
+
+          # create unique "from" variables for each mapping entry by appending numbers
+          map[map$from == var, "from"] <- paste0(map[map$from == var, "from"], " ",
+                                                 seq(1, nrow(map[map$from == var, ])))
+
+          # duplicate "from" data for each mapping entry
+          for (i in seq(1, length(unique(conv)))) {
+            dup <- tmp[, , var]
+            getNames(dup) <- paste0(getNames(dup), " ", i)
+            tmp <- mbind(tmp, dup)
+          }
+          tmp <- tmp[, , var, invert = TRUE]
+        } else {
+          tmp[, , var] <- tmp[, , var] * unique(conv)
+        }
+      }
+
+      tmp <- toolAggregate(tmp, dim = 3, rel = map, from = "from", to = "to",
+                           partrel = TRUE, verbosity = 2)
+      tmp <- add_dimension(tmp, dim = 3.1, add = "model", nm = scen)
+      out <- mbind(out, tmp)
     }
 
-    x <- toolAggregate(data,
-                       dim = 3.2, rel = map, from = "from",
-                       to = "to", partrel = TRUE, verbosity = 2
-    )
-
-    return(x)
+    return(out)
   }
 
   dataGlo <- .mapToRemind(dataGlo)
@@ -80,27 +95,27 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   dataGlo <- .calcAdditionalVars(dataGlo)
   dataReg <- .calcAdditionalVars(dataReg)
 
-  dataGlo <- magclass::add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
     dataGlo[, , "Cap|Electricity|Biomass (GW)"] - dataGlo[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
 
-  dataGlo <- magclass::add_columns(dataGlo, "Cap|Electricity|Coal (GW)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Coal (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Coal (GW)"] <-
     dataGlo[, , "Cap|Electricity|Coal|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Coal|w/ CC (GW)"]
 
-  dataGlo <- magclass::add_columns(dataGlo, "Cap|Electricity|Solar (GW)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Solar (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Solar (GW)"] <-
     dataGlo[, , "Cap|Electricity|Solar|CSP (GW)"] + dataGlo[, , "Cap|Electricity|Solar|PV (GW)"]
 
-  dataGlo <- magclass::add_columns(dataGlo, "Cap|Electricity|Fossil (GW)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Fossil (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Fossil (GW)"] <-
     dataGlo[, , "Cap|Electricity|Fossil|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Fossil|w/ CC (GW)"]
 
-  dataGlo <- magclass::add_columns(dataGlo, "Cap|Electricity|Gas (GW)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Gas (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Gas (GW)"] <-
     dataGlo[, , "Cap|Electricity|Gas|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Gas|w/ CC (GW)"]
 
-  dataGlo <- magclass::add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
   dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
     dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
 
@@ -109,19 +124,19 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   .customAggregate <- function(x, rel, to = NULL, glo) {
     x <- toolAggregate(x, rel = rel, to = to)
 
-    if ("GLO" %in% magclass::getItems(x, dim = 1)) {
+    if ("GLO" %in% getItems(x, dim = 1)) {
       x <- x["GLO", , , invert = TRUE]
 
-      out <- magclass::new.magpie(
-        cells_and_regions = union(magclass::getItems(x, dim = 1), "GLO"),
-        years = union(magclass::getYears(x), magclass::getYears(glo)),
-        names = union(magclass::getNames(x), magclass::getNames(glo)),
+      out <- new.magpie(
+        cells_and_regions = union(getItems(x, dim = 1), "GLO"),
+        years = union(getYears(x), getYears(glo)),
+        names = union(getNames(x), getNames(glo)),
         fill = NA,
         sets = names(dimnames(x))
       )
 
-      out[magclass::getItems(x, dim = 1), magclass::getYears(x), magclass::getNames(x)] <- x
-      out["GLO", magclass::getYears(glo), magclass::getNames(glo)] <- glo
+      out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
+      out["GLO", getYears(glo), getNames(glo)] <- glo
 
       return(out)
     } else {

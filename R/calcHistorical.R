@@ -170,7 +170,7 @@ calcHistorical <- function() {
         pull("CountryCode"),
       fill = list(value = 0)
     ) %>%
-    as.magpie(spatial = 4, temporal = 1, data = ncol(.data))
+    as.magpie(spatial = 4, temporal = 1, datacol = ncol(.data))
 
   # blow up to union of years ====
   # find all existing years (y) and variable names (n)
