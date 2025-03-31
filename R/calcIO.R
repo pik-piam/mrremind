@@ -200,7 +200,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   if (subtype %in% c("input", "output")) {
     # re-calculating fepet and fedie final energy based on updated EDGE shares
-    share <- readSource(type = "EDGETransport", subtype = "shares_LDV_transport")
+    share <- calcOutput("LDVShares", warnNA = FALSE, aggregate = FALSE)
     regions <- getItems(share, dim = 1.1)
     feShares <- new.magpie(cells_and_regions = regions, years = intersect(getYears(share), getYears(reminditems)),
                            names = c("seliqfos.fepet.tdfospet", "seliqbio.fepet.tdbiopet", "seliqfos.fedie.tdfosdie",
