@@ -61,6 +61,6 @@ calcIEA_EB_directSum <- function()
     }) |>
         mbind()
 
-    return(list(x = x, weight = NULL, unit = 'EJ',
+    return(list(x = x, weight = NULL, unit = 'EJ/yr',
                 description = 'Simple sums of IEA Energy Balances'))
 }

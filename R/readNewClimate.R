@@ -19,9 +19,9 @@ readNewClimate <- function(subtype, subset) {
 
   # keep structure to compare when new versions (NPi target updates)
   if (grepl("2025", subtype, fixed = TRUE)) {
-    NPIfile <- "NPi_2025-02-03.xlsx"
+    NPIfile <- "NPi_2025-03-25.xlsx"
   } else {
-    NPIfile <- "NPi_2025-02-03.xlsx"
+    NPIfile <- "NPi_2025-03-25.xlsx"
     if (!grepl("2025", subtype, fixed = TRUE)) {
       warning("\nNo data for year in ", subtype, " available. Choose default: ", NPIfile)
     }
