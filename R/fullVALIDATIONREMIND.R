@@ -45,9 +45,12 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # historical data ----
   valfile <- "historical.mif"
 
-  calcOutput("Historical",
-    round = 5, file = valfile, aggregate = columnsForAggregation,
-    append = FALSE, warnNA = FALSE, try = FALSE
+  # Landuse Emissions ----
+
+  calcOutput(
+    type = "HistoricalLUEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = FALSE,
+    warnNA = FALSE, round = 5, try = FALSE
   )
 
   # Population data from WDI ----
@@ -315,10 +318,28 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Mueller Steel Stock ----
 
   calcOutput(
-    type = "SteelStock", file = valfile,
+    type = "HistoricalSteelStock", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "Mueller")
   )
+
+  # Steel Production ----
+
+  calcOutput(
+    type = "HistoricalProduction", subtype = "steel", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+
+  # USGS Cement Production ----
+
+  calcOutput(
+    type = "HistoricalProduction", subtype = "cement", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
 
   # UBA Emission data ----
 
