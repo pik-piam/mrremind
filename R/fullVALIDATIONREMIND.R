@@ -75,7 +75,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # World Energy Outlook 2019 Primary Energy ----
 
-  pe <- calcOutput(type = "PE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
+  pe <- calcOutput(type = "PE", subtype = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
   pe <- collapseNames(pe[, , "Current Policies Scenario", pmatch = TRUE])
   write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
 

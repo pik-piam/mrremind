@@ -1,6 +1,6 @@
 #' Calculate historical landuse emissions
 #'
-#' @author Falk Benke
+#' @author David Klein, Falk Benke
 calcHistoricalLUEmissions <- function() {
 
   # Historical Emissions from PRIMAPhist data base ----
