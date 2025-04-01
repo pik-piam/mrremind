@@ -50,7 +50,8 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "HistoricalLUEmissions", file = valfile,
     aggregate = columnsForAggregation, append = FALSE,
-    warnNA = FALSE, round = 5, try = FALSE
+    warnNA = FALSE, round = 5, try = FALSE,
+    writeArgs = list(scenario = "historical")
   )
 
   # Population data from WDI ----
