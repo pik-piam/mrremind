@@ -27,6 +27,8 @@ calcHistoricalLUEmissions <- function() {
 
   luFAOEmisLUC <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisLUC", aggregate = FALSE, warnNA = FALSE)
   luFAOEmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, warnNA = FALSE)
+  getNames(luFAOEmisAg) <- gsub("projection", "historical", getNames(luFAOEmisAg), fixed = TRUE)
+
   luPRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, warnNA = FALSE)
 
   # find all existing years (y) and variable names (n)
