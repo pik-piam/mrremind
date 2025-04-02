@@ -7,4 +7,4 @@ fe_variables.csv
 figures
 /TODO.txt
 output
-mrremind.Rproj
+*.Rproj
