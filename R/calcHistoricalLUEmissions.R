@@ -20,6 +20,7 @@ calcHistoricalLUEmissions <- function() {
   luEDGAR <- calcOutput(type = "LandEmissions", datasource = "EDGAR_LU", aggregate = FALSE, warnNA = FALSE)
 
   luCEDS <- calcOutput(type = "LandEmissions", datasource = "CEDS", aggregate = FALSE, warnNA = FALSE)
+
   # give CEDS emissions from calcValidEmissions (magpie) a name that is different
   # from CEDS emissions from calcEmissions (remind)
   getNames(luCEDS, dim = 2) <- "CEDS Landuse"
@@ -29,8 +30,8 @@ calcHistoricalLUEmissions <- function() {
   luFAOEmisAg <- calcOutput(type = "LandEmissions", datasource = "FAO_EmisAg", aggregate = FALSE, warnNA = FALSE)
 
   # copy projections to historical
-  luFAOEmisAg[,c(2030,2050), "historical"] <- luFAOEmisAg[,c(2030,2050), "projection"]
-  luFAOEmisAg <- luFAOEmisAg[,,"projection", invert = T]
+  luFAOEmisAg[, c(2030, 2050), "historical"] <- luFAOEmisAg[, c(2030, 2050), "projection"]
+  luFAOEmisAg <- luFAOEmisAg[, , "projection", invert = TRUE]
 
   luPRIMAPhist <- calcOutput(type = "LandEmissions", datasource = "PRIMAPhist", aggregate = FALSE, warnNA = FALSE)
 
@@ -71,6 +72,8 @@ calcHistoricalLUEmissions <- function() {
   data[, , vars_with_unit_Mt] <- data[, , vars_with_unit_Mt] * 1000
   getNames(data) <- gsub("(Mt N2O/yr)", "(kt N2O/yr)", getNames(data), fixed = TRUE)
 
-  return(list(x = data, weight = NULL, unit = "various",
-              description = "historical landuse emissions"))
+  return(list(
+    x = data, weight = NULL, unit = "various",
+    description = "historical landuse emissions"
+  ))
 }

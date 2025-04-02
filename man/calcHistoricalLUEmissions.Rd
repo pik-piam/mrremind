@@ -10,5 +10,5 @@ calcHistoricalLUEmissions()
 Calculate historical landuse emissions
 }
 \author{
-Falk Benke
+David Klein, Falk Benke
 }
