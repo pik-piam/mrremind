@@ -15,7 +15,7 @@ Provides wind offshore potential data
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialWindOff")
 
 }

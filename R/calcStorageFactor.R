@@ -16,20 +16,28 @@ calcStorageFactor <- function() {
 
   # read in weight data
   # for solar
-  w1_tmp <- calcOutput("Solar", aggregate = FALSE)
-  w1 <- dimSums(w1_tmp[, , "area"][, , "PV"][, , c("0-50", "50-100")], dim = c(3.4, 3.3))
-  w1 <- collapseNames(w1)
-  getNames(w1) <- c("spv")
-  w1 <- mbind(w1, setNames(w1, "csp"))
-  # for wind
-  w2 <- calcOutput("PotentialWindOn", aggregate = FALSE)
-  w2 <- collapseNames(dimSums(w2, dim = 3))
-  getSets(w2)[1] <- getSets(w1)[1]
-  getSets(w2)[2] <- getSets(w1)[2]
-  getNames(w2) <- "wind"
-  getYears(w2) <- getYears(w1)
+  tmp <- calcOutput("Solar", aggregate = FALSE)
+  weightSolar <- dimSums(tmp[, , "area"][, , "PV"][, , c("0-50", "50-100")], dim = c(3.4, 3.3))
+  weightSolar <- collapseNames(weightSolar)
+  getNames(weightSolar) <- c("spv")
+  weightSolar <- mbind(weightSolar, setNames(weightSolar, "csp"))
+  # for wind onshore
+  weightOnshore <- calcOutput("PotentialWindOn", aggregate = FALSE)
+  weightOnshore <- collapseNames(dimSums(weightOnshore, dim = 3))
+  getSets(weightOnshore)[1] <- getSets(weightSolar)[1]
+  getSets(weightOnshore)[2] <- getSets(weightSolar)[2]
+  getNames(weightOnshore) <- "windon"
+  getYears(weightOnshore) <- getYears(weightSolar)
+  # for wind onshore
+  weightOffshore <- calcOutput("PotentialWindOff", aggregate = FALSE)
+  weightOffshore <- collapseNames(dimSums(weightOffshore, dim = 3))
+  getSets(weightOffshore)[1] <- getSets(weightSolar)[1]
+  getSets(weightOffshore)[2] <- getSets(weightSolar)[2]
+  getNames(weightOffshore) <- "windoff"
+  getYears(weightOffshore) <- getYears(weightSolar)
   # combile all weights
-  w <- mbind(w1, w2)
+  w <- mbind(weightSolar, weightOnshore, weightOffshore)
+  getSets(w)[3] <- "all_te"
 
   return(list(
     x = x,
