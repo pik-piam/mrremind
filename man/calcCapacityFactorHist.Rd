@@ -4,10 +4,7 @@
 \alias{calcCapacityFactorHist}
 \title{calc Capacity Factor}
 \usage{
-calcCapacityFactorHist(subtype)
-}
-\arguments{
-\item{subtype}{data subtype. Either "wind" or "windoff"}
+calcCapacityFactorHist()
 }
 \value{
 magpie object of the capacity factor data
@@ -22,5 +19,5 @@ calcOutput("CapacityFactor")
 
 }
 \author{
-Renato Rodrigues, Stephen Bi
+Renato Rodrigues, Stephen Bi, Fabrice Lécuyer
 }
