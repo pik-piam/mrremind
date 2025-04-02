@@ -1127,8 +1127,8 @@ calcEmissions <- function(datasource = "CEDS16") {
     }
 
     tmp <- tmp * 44 / 12 / 1000 # from ktC -> MtCO2
-
-    description <- "historic emissions in 1970-2014"
+    tmp <- tmp[, seq(1970, 2013), ]
+    description <- "historic emissions in 1970-2013"
   }
 
   return(list(
