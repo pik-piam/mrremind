@@ -327,7 +327,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # Steel Production ----
 
   calcOutput(
-    type = "HistoricalProduction", subtype = "steel", file = valfile,
+    type = "HistoricalBasicMaterialProduction", subtype = "steel", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical")
   )
@@ -336,7 +336,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # USGS Cement Production ----
 
   calcOutput(
-    type = "HistoricalProduction", subtype = "cement", file = valfile,
+    type = "HistoricalBasicMaterialProduction", subtype = "cement", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical")
   )

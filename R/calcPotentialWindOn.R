@@ -1,8 +1,8 @@
 #' Calculate wind onshore potential
-#' 
+#'
 #' Provides wind onshore potential data
-#' 
-#' 
+#'
+#'
 #' @return wind onshore potential data and corresonding weights as a list of
 #' two MAgPIE objects
 #' @author Lavinia Baumstark
@@ -10,59 +10,50 @@
 #' \code{\link{convertNREL}}, \code{\link{readSource}}
 #' @examples
 #' 
-#' \dontrun{ 
+#' \dontrun{
 #' calcOutput("PotentialWindOn")
 #' 
 #' }
 calcPotentialWindOn <- function() {
-  
-  # read wind onshore data 
-  nrel <- readSource("NREL",subtype="onshore")
+  # read wind onshore data
+  technicalPotential <- readSource("NREL", subtype = "onshore")
 
-  # we use only "near" in REMIND
-  techPot <- collapseNames(nrel[,,"near"])
-  
-  # delete total
-  techPot <- techPot[,,"total",invert=TRUE]
+  # distance to load should be "near: 0-50 miles"
+  technicalPotential <- collapseNames(technicalPotential[, , "near"])
+
+  # delete total and convert from PWh to EJ
+  technicalPotential <- technicalPotential[, , "total", invert = TRUE]  * 3.6
   # allocate c1-c9 to the right grades
-  getNames(techPot) <- gsub("c1","9",getNames(techPot))                 
-  getNames(techPot) <-gsub("c2","8",getNames(techPot))
-  getNames(techPot) <-gsub("c3","7",getNames(techPot))
-  getNames(techPot) <-gsub("c4","6",getNames(techPot))
-  getNames(techPot) <-gsub("c5","5",getNames(techPot))
-  getNames(techPot) <-gsub("c6","4",getNames(techPot))
-  getNames(techPot) <-gsub("c7","3",getNames(techPot))
-  getNames(techPot) <-gsub("c8","2",getNames(techPot))
-  getNames(techPot) <-gsub("c9","1",getNames(techPot))
-  
-  # convert into EJ/a
-  maxprod <- techPot * 1000 * 0.0036
+  for (i in 1:9) {
+    getNames(technicalPotential) <- gsub(paste0("c", i), 10 - i, getNames(technicalPotential))
+  }
 
-  # add "nur" data
-  nur <- new.magpie(getRegions(maxprod),getYears(maxprod),getNames(maxprod))
-  nur[,,"9"] <- 0.09
-  nur[,,"8"] <- 0.20
-  nur[,,"7"] <- 0.24
-  nur[,,"6"] <- 0.28
-  nur[,,"5"] <- 0.32
-  nur[,,"4"] <- 0.36
-  nur[,,"3"] <- 0.40
-  nur[,,"2"] <- 0.44
-  nur[,,"1"] <- 0.48
-  
-  # put maxprod and nur together
-  maxprod <- add_dimension(maxprod,dim=3.1,add="char",nm="maxprod")
-  nur     <- add_dimension(nur,dim=3.1,add="char",nm="nur")
-  data <- mbind(maxprod,nur)
-  
-  # dreate weight-matrix
-  w <- new.magpie(getRegions(data),getYears(data),getNames(data),fill=1)
-  w[,,"maxprod"] <- NA
-    
-  return(list(x=data,
-              weight=w,
-              unit="EJ/a",
-              description="wind potential",
-              mixed_aggregation=TRUE
-               ))
+  # add "nur" data representing the capacity factor of each grade
+  capacityFactor <- new.magpie(getRegions(technicalPotential), getYears(technicalPotential), getNames(technicalPotential))
+  capacityFactor[, , "9"] <- 0.09
+  capacityFactor[, , "8"] <- 0.20
+  capacityFactor[, , "7"] <- 0.24
+  capacityFactor[, , "6"] <- 0.28
+  capacityFactor[, , "5"] <- 0.32
+  capacityFactor[, , "4"] <- 0.36
+  capacityFactor[, , "3"] <- 0.40
+  capacityFactor[, , "2"] <- 0.44
+  capacityFactor[, , "1"] <- 0.48
+
+  # put technicalPotential (maxprod) and capacityFactor (nur) together
+  technicalPotential <- add_dimension(technicalPotential, dim = 3.1, add = "char", nm = "maxprod")
+  capacityFactor <- add_dimension(capacityFactor, dim = 3.1, add = "char", nm = "nur")
+  data <- mbind(technicalPotential, capacityFactor)
+
+  # create weight-matrix
+  w <- new.magpie(getRegions(data), getYears(data), getNames(data), fill = 1)
+  w[, , "maxprod"] <- NA
+
+  return(list(
+    x = data,
+    weight = w,
+    unit = "EJ/a",
+    description = "wind onshore potential",
+    mixed_aggregation = TRUE
+  ))
 }
