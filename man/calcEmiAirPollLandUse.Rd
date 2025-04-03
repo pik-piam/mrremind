@@ -15,8 +15,8 @@ calcEmiAirPoll
 calculate Air Pollution Emissions
 }
 \examples{
-
-\dontrun{ a <- calcOutput(type="EmiAirPollLandUse")
+\dontrun{
+a <- calcOutput(type = "EmiAirPollLandUse")
 }
 
 }
