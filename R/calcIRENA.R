@@ -3,40 +3,29 @@
 #' @author Falk Benke
 #' @export
 calcIRENA <- function() {
+  mapping <- tibble::tribble(
+    ~irena,                     ~mif,
+    "Geothermal",               "Cap|Electricity|Geothermal (GW)",
+    "Renewable hydropower",     "Cap|Electricity|Hydro (GW)",
+    "Wind",                     "Cap|Electricity|Wind (GW)",
+    "Onshore wind energy",      "Cap|Electricity|Wind|Onshore (GW)",
+    "Offshore wind energy",     "Cap|Electricity|Wind|Offshore (GW)",
+    "Solar",                    "Cap|Electricity|Solar (GW)",
+    "Solar photovoltaic",       "Cap|Electricity|Solar|PV (GW)",
+    "Concentrated solar power", "Cap|Electricity|Solar|CSP (GW)"
+  )
 
-  data <- readSource(type = "IRENA", subtype = "Capacity")[, , c(
-    "Concentrated solar power",
-    "Geothermal", "Renewable hydropower",
-    "Solar photovoltaic", "Wind"
-  )]
+  data <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena]
 
   # converting MW to GW
   data <- data * 1E-03
 
-  mapping <- data.frame(
-    IRENA_techs =
-      c("Concentrated solar power", "Geothermal", "Renewable hydropower", "Solar photovoltaic", "Wind"),
-    REMIND_var =
-      c(
-        "Cap|Electricity|Solar|CSP (GW)", "Cap|Electricity|Geothermal (GW)", "Cap|Electricity|Hydro (GW)",
-        "Cap|Electricity|Solar|PV (GW)", "Cap|Electricity|Wind (GW)"
-      ), stringsAsFactors = FALSE
-  )
-
-  data <- madrat::toolAggregate(data, mapping, dim = 3, from = "IRENA_techs", to = "REMIND_var")
-
-  data <- mbind(
-    data,
-    setNames(
-      data[, , "Cap|Electricity|Solar|CSP (GW)"] + data[, , "Cap|Electricity|Solar|PV (GW)"],
-      "Cap|Electricity|Solar (GW)"
-    )
-  )
+  data <- toolAggregate(data, mapping, dim = 3, from = "irena", to = "mif")
 
   return(list(
     x = data,
     weight = NULL,
     unit = "GW",
-    description = "IRENA capacities for technologies csp, geohdr, hydro, spv, wind"
+    description = "IRENA capacities for technologies geohdr, hydro, wind/on/off, solar/pv/csp"
   ))
 }
