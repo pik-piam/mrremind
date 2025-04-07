@@ -3,7 +3,7 @@
 #'
 #' @param subtype data subtype. Either "capacityByTech" or "capacityByPE"
 #' @return magpie object of  capacity data
-#' @author Renato Rodrigues, Stephen Bi
+#' @author Renato Rodrigues, Stephen Bi, Fabrice Lécuyer
 #' @examples
 #' \dontrun{
 #' calcOutput("Capacity", subtype = "capacityByTech")
@@ -11,30 +11,29 @@
 calcCapacity <- function(subtype) {
 
   if (subtype == "capacityByTech") {
-    description <- "Historical capacity by technology." # now always includes offshore wind
+    description <- "Historical capacity by technology."
 
-    # Use IRENA data for world renewables capacity.
-    # Year: 2000-2017
-    # Technologies: "csp", "geohdr", "hydro", "spv", "windon", "windoff"
+
+    ###### Use IRENA data for world renewables capacity.
+    # Year: 2000-2023
     mappingIRENA <- tibble::tribble(
       ~irena,                     ~remind,
-      "Concentrated solar power", "csp",
       "Geothermal",               "geohdr",
       "Renewable hydropower",     "hydro",
-      "Solar photovoltaic",       "spv",
       "Onshore wind energy",      "windon",
-      "Offshore wind energy",     "windoff"
+      "Offshore wind energy",     "windoff",
+      "Solar photovoltaic",       "spv",
+      "Concentrated solar power", "csp"
     )
 
-    capIRENA <- readSource(type = "IRENA", subtype = "Capacity") # Read IRENA renewables capacity data
-    capIRENA <- capIRENA[, , mappingIRENA$irena] # selecting data used on REMIND
-    # renaming technologies to REMIND naming convention
-    capIRENA <- toolAggregate(capIRENA, dim = 3, rel = mappingIRENA, from = "irena", to = "remind")
-    capIRENA <- capIRENA * 1E-06 # converting MW to TW
+    capIRENA <- readSource(type = "IRENA", subtype = "Capacity") %>%
+      .[, , mappingIRENA$irena] %>% # selecting relevant variables
+      toolAggregate(dim = 3, rel = mappingIRENA, from = "irena", to = "remind") %>% # renaming to remind names
+      {. * 1e-6} # converting MW to TW
 
-    # Use Openmod capacity values updated by the LIMES team for the European countries.
+
+    ###### Use Openmod capacity values updated by the LIMES team for the European countries.
     # Year: 2015
-    # Technologies: "tnrs","ngcc","ngt","dot"
     mappingOpenmod <- tibble::tribble(
       ~openmod, ~remind,
       "tnr",    "tnrs",
@@ -43,36 +42,72 @@ calcCapacity <- function(subtype) {
       "oil",    "dot"
     )
 
-    capOpenmod <- readSource(type = "Openmod") # Read Openmod capacities
-    # selecting data used on REMIND "BAL"
-    capOpenmod <- capOpenmod[c("FIN", "NOR", "SWE", "EST", "LVA", "LTU", "DNK", "GBR", "IRL", "NLD", "POL",
-                               "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA",
-                               "HRV", "BGR", "ITA", "ESP", "PRT", "GRC"), , mappingOpenmod$openmod]
-    # renaming technologies to REMIND naming convention
-    capOpenmod <- toolAggregate(capOpenmod, dim = 3, rel = mappingOpenmod, from = "openmod", to = "remind")
-    capOpenmod <- capOpenmod * 1E-03 # converting GW to TW
+    capOpenmod <- readSource(type = "Openmod") %>%
+      .[c("FIN", "NOR", "SWE", "EST", "LVA", "LTU", "DNK", "GBR", "IRL", "NLD", "POL",
+          "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA",
+          "HRV", "BGR", "ITA", "ESP", "PRT", "GRC"), ,] %>% # selecting countries used on REMIND "BAL"
+      .[, , mappingOpenmod$openmod] %>% # selecting relevant variables
+      toolAggregate(dim = 3, rel = mappingOpenmod, from = "openmod", to = "remind") %>% # renaming to remind names
+      {. * 1e-3} # converting GW to TW
 
-    # Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
+
+    ###### Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
     # Year: 2015
-    # Technologies: "tnrs","dot"
     mappingWEO <- tibble::tribble(
       ~weo,      ~remind,
       "Nuclear", "tnrs",
       "Oil",     "dot"
     )
 
-    capWEO <- readSource(type = "IEA_WEO", subtype = "Capacity") # Read IEA WEO capacities
-    capWEO <- capWEO[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] # selecting data used on REMIND
-    # renaming technologies to REMIND naming convention
-    capWEO <- toolAggregate(capWEO, dim = 3, rel = mappingWEO, from = "weo", to = "remind")
-    capWEO <- capWEO * 1E-03 # converting GW to TW
+    capWEO <- readSource(type = "IEA_WEO", subtype = "Capacity") %>%
+      .[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] %>% # selecting relevant data
+      toolAggregate(dim = 3, rel = mappingWEO, from = "weo", to = "remind") %>% # renaming to remind names
+      {. * 1e-3} # converting GW to TW
 
-    #    ***CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
-    #    Natural gas in China’s power sector: Challenges and the road ahead
-    #    (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
-    #    ~50% is peaking (= ngt), the other 50 is called cogeneration but contains ngcc and gaschp
-    #    *** for 2018-2022, take 90GW, 90GW*0.5=50GW ngt, the rest is split between ngcc and gaschp 70:30 (from IEA EB energy output)
-    CHA.2020.GasData <- as.magpie(tibble::tribble(
+
+    ###### Use GlobalEnergyMonitor to obtain fixed values in 2025 for renewables
+    # Year: 2025
+    mappingGEM <- tibble::tribble(
+      ~gem,                            ~remind,
+      "Cap|Electricity|Geothermal",    "geohdr",
+      "Cap|Electricity|Hydro",         "hydro",
+      "Cap|Electricity|Wind|Onshore",  "windon",
+      "Cap|Electricity|Wind|Offshore", "windoff",
+      "Cap|Electricity|Solar|PV",      "spv",
+      "Cap|Electricity|Solar|CSP",     "csp"
+    )
+
+    capGEM <- readSource("GlobalEnergyMonitor") %>%
+      .[, , mappingGEM$gem] %>% # selecting relevant variables
+      toolAggregate(dim = 3.2, rel = mappingGEM, from = "gem", to = "remind") %>% # renaming to remind names
+      collapseDim(keepdim = "status") %>% # removing useless dimensions
+      {. * 1e-3} # converting GW to TW
+
+    # as GEM only includes big plants, rescale to IRENA values
+    scalingFactor <- collapseDim(capIRENA[, 2020,] / capGEM[, 2020, "operating"], dim = "status")
+    scalingFactor[is.na(scalingFactor) | scalingFactor > 10] <- 1 # set errors to 1
+    capGEM[, 2025,] <- capGEM[, 2025,] * scalingFactor
+    capGEM <- capGEM[, 2025, , drop = FALSE]
+
+    # estimate probability of success depending on project status
+    capGEM[, , "operating"] <-  capGEM[, , "operating"] +
+                         0.75 * capGEM[, , "construction"] +
+                         0.5  * capGEM[, , "pre-construction"] +
+                         0.15 * capGEM[, , "announced"]
+
+    capGEM <- capGEM[, , "operating", drop = FALSE] # remove status
+    capGEM <- dimSums(capGEM, dim = "status", na.rm = TRUE)  # remove NAs
+    #capGEM[capGEM < 20e-6] <- 0  # remove values < 20MW as this is the GEM threshold
+
+
+    ###### Use manual data with expert judgement
+
+    # CG: fix CHA gas power capacities: 97 GW by September 2020 (Oxford Institute for Energy Studies:
+    # Natural gas in China’s power sector: Challenges and the road ahead
+    # (https://www.oxfordenergy.org/wpcms/wp-content/uploads/2020/12/Insight-80-Natural-gas-in-Chinas-power-sector.pdf)
+    # ~50% is peaking (= ngt), the other 50 is called cogeneration but contains ngcc and gaschp
+    # for 2018-2022, take 90GW, 90GW*0.5=50GW ngt, the rest is split between ngcc and gaschp 70:30 (from IEA EB energy output)
+    capManual <- as.magpie(tibble::tribble(
       ~region,   ~year,   ~data,      ~value,
       "CHN",     2010,    "gaschp",   0.004,
       "CHN",     2015,    "gaschp",   0.011,
@@ -85,19 +120,13 @@ calcCapacity <- function(subtype) {
       "CHN",     2020,    "ngt",      0.045
     ))
 
-    # RP: add upper bound for USA PV in 2025, as current forecast by Wood Mackenzie Solar Market Insight Report 2022 sees ~ 265 GW DC in 2025 in
-    # bullish scenario. So it would be less in GW_AC, but REMIND corrects for lower model CF than real world (in USA) by upscaling capacity
-    # so it should be roughly ok as upper bound. (don't use as lower bound!)
-    USA.2025.PVData <- as.magpie(tibble::tribble(
-      ~region, ~year, ~data, ~value,
-      "USA",   2025,  "spv", 0.265
-    ))
 
-    # merge IRENA, Openmod and WEO capacities data
-    datasets <- list(capIRENA, capOpenmod, capWEO, CHA.2020.GasData, USA.2025.PVData)
+    ###### merge capacity data from different sources
+    # the order matters as latter will overwrite former
+    datasets <- list(capIRENA, capOpenmod, capWEO, capGEM, capManual)
     output <- new.magpie(
       cells_and_regions = unique(unlist(lapply(datasets, getRegions))),
-      years = unique(unlist(lapply(datasets, getYears))),
+      years = sort(unique(unlist(lapply(datasets, getYears)))),
       names = unique(unlist(lapply(datasets, getNames))),
       fill = 0
     )
@@ -203,8 +232,10 @@ calcCapacity <- function(subtype) {
   }
 
   # Returning capacity values
-  return(list(x = output, weight = NULL,
-              unit = "TW",
-              description = description
+  return(list(
+    x = output,
+    weight = NULL,
+    unit = "TW",
+    description = description
   ))
 }
