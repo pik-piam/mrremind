@@ -15,15 +15,12 @@ calcIRENA <- function() {
     "Concentrated solar power", "Cap|Electricity|Solar|CSP (GW)"
   )
 
-  data <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena]
-
-  # converting MW to GW
-  data <- data * 1E-03
-
-  data <- toolAggregate(data, mapping, dim = 3, from = "irena", to = "mif")
+  capacity <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena] %>%
+    toolAggregate(rel = mapping, dim = 3, from = "irena", to = "mif") * # renaming to remind names
+    1e-3 # converting MW to GW
 
   return(list(
-    x = data,
+    x = capacity,
     weight = NULL,
     unit = "GW",
     description = "IRENA capacities for technologies geohdr, hydro, wind/on/off, solar/pv/csp"

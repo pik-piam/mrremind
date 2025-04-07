@@ -146,29 +146,20 @@ calcCapacity <- function(subtype) {
 
     ## Primary Energies
     mappingEmber <- tibble::tribble(
-      ~ember,       ~remind,
-      "Biomass",    "pebiolc",
-      "Coal",       "pecoal",
-      "Gas",        "pegas",
-      "Oil",        "peoil",
-      "Hydro",      "pehyd",
-      "Nuclear",    "peur",
-      "Solar",      "pesol",
-      "Wind",       "pewin"
+      ~ember,                            ~remind,
+      "Cap|Electricity|Biomass (GW)",    "pebiolc",
+      "Cap|Electricity|Gas (GW)",        "pegas",
+      "Cap|Electricity|Nuclear (GW)",    "peur",
+      # "Cap|Electricity|Coal (GW)",       "pecoal",
+      # "Cap|Electricity|Oil (GW)",        "peoil",
+      # "Cap|Electricity|Hydro (GW)",      "pehyd",
+      # "Cap|Electricity|Solar (GW)",      "pesol",
+      # "Cap|Electricity|Wind (GW)",       "pewin"
     )
 
-    capEmber <- calcOutput("Ember", subtype = "capacity", aggregate = FALSE)
-    capEmber <- setNames(capEmber,
-                         nm = gsub("Cap|Electricity|", "",
-                                   gsub(" (GW)", "",
-                                        getNames(capEmber), fixed = TRUE), fixed = TRUE))
-
-    # aggregating primary energies to REMIND naming convention
-    capEmber <- toolAggregate(capEmber[, , mappingEmber$ember], rel = mappingEmber, from = "ember",
-                              to = "remind", dim = 3.1)
-    capEmber <- capEmber * 1E-03 # converting GW to TW
-
-    capEmber <- capEmber[, , c("peur", "pegas", "pebiolc")] # pegas, pehyd are handled at technology level
+    capEmber <- calcOutput("Ember", subtype = "capacity", aggregate = FALSE)[, , mappingEmber$ember] %>%
+      toolAggregate(rel = mappingEmber, dim = 3.1, from = "ember", to = "remind") * # renaming to remind names
+      1e-3 # converting GW to TW
 
     # estimating lower bound coal capacity to remaining countries assuming
     # (1) capacity factors are given by REMIND pc capacity factor in 2015,
@@ -184,7 +175,7 @@ calcCapacity <- function(subtype) {
       output <- new.magpie(cells_and_regions = c(getRegions(capEmber)),
                            years = c(min(c(getYears(capEmber, as.integer = TRUE), getYears(coalHist, as.integer = TRUE)))
                                      :max(c(getYears(capEmber, as.integer = TRUE), getYears(coalHist, as.integer = TRUE)))),
-                           names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"),
+                           names = c("pecoal", "pegas", "pebiolc", "peur"),
                            fill = 0)
 
       output[, intersect(getYears(coalHist), getYears(output)), "pecoal"] <- coalHist[, intersect(getYears(coalHist), getYears(output)), ]
@@ -197,7 +188,7 @@ calcCapacity <- function(subtype) {
       coalHist <- setNames(coalHist[, getYears(coalHist) >= "y2007", ], nm = "pecoal")
 
       output <- new.magpie(cells_and_regions = c(getRegions(capEmber)), years = seq(2010, yearLast, 5),
-                           names = c("pecoal", "pegas", "pebiolc", "pehyd", "peur"), fill = 0)
+                           names = c("pecoal", "pegas", "pebiolc", "peur"), fill = 0)
 
       # Fill in output with GCPT and Ember data, averaging across each 5 (or 3 or 4) year period
       yearsCoal <- getYears(coalHist, as.integer = TRUE)
