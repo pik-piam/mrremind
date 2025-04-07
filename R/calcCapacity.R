@@ -168,7 +168,7 @@ calcCapacity <- function(subtype) {
                               to = "remind", dim = 3.1)
     capEmber <- capEmber * 1E-03 # converting GW to TW
 
-    capEmber <- capEmber[, , c("peur", "pegas", "pebiolc", "pehyd")] # pegas is handled at technology level
+    capEmber <- capEmber[, , c("peur", "pegas", "pebiolc")] # pegas, pehyd are handled at technology level
 
     # estimating lower bound coal capacity to remaining countries assuming
     # (1) capacity factors are given by REMIND pc capacity factor in 2015,
