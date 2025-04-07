@@ -14,7 +14,7 @@ calcCapacity <- function(subtype) {
     description <- "Historical capacity by technology."
 
 
-    ###### Use IRENA data for world renewables capacity.
+    ###### Use IRENA data for world renewables capacity
     # Year: 2000-2023
     mappingIRENA <- tibble::tribble(
       ~irena,                     ~remind,
@@ -26,13 +26,12 @@ calcCapacity <- function(subtype) {
       "Concentrated solar power", "csp"
     )
 
-    capIRENA <- readSource(type = "IRENA", subtype = "Capacity") %>%
-      .[, , mappingIRENA$irena] %>% # selecting relevant variables
-      toolAggregate(dim = 3, rel = mappingIRENA, from = "irena", to = "remind") %>% # renaming to remind names
-      {. * 1e-6} # converting MW to TW
+    capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mappingIRENA$irena] %>% # selecting relevant variables
+      toolAggregate(dim = 3, rel = mappingIRENA, from = "irena", to = "remind") * # renaming to remind names
+      1e-6 # converting MW to TW
 
 
-    ###### Use Openmod capacity values updated by the LIMES team for the European countries.
+    ###### Use Openmod capacity values updated by the LIMES team for the European countries
     # Year: 2015
     mappingOpenmod <- tibble::tribble(
       ~openmod, ~remind,
@@ -42,16 +41,15 @@ calcCapacity <- function(subtype) {
       "oil",    "dot"
     )
 
-    capOpenmod <- readSource(type = "Openmod") %>%
-      .[c("FIN", "NOR", "SWE", "EST", "LVA", "LTU", "DNK", "GBR", "IRL", "NLD", "POL",
-          "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA",
-          "HRV", "BGR", "ITA", "ESP", "PRT", "GRC"), ,] %>% # selecting countries used on REMIND "BAL"
-      .[, , mappingOpenmod$openmod] %>% # selecting relevant variables
-      toolAggregate(dim = 3, rel = mappingOpenmod, from = "openmod", to = "remind") %>% # renaming to remind names
-      {. * 1e-3} # converting GW to TW
+    capOpenmod <- readSource(type = "Openmod")
+    capOpenmod <- capOpenmod[c("FIN", "NOR", "SWE", "EST", "LVA", "LTU", "DNK", "GBR", "IRL", "NLD", "POL",
+          "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA", "HRV", "BGR", "ITA",
+          "ESP", "PRT", "GRC"), , mappingOpenmod$openmod] %>% # selecting countries and variables
+      toolAggregate(dim = 3, rel = mappingOpenmod, from = "openmod", to = "remind") * # renaming to remind names
+      1e-3 # converting GW to TW
 
 
-    ###### Use WEO 2017 data to additional countries: "USA","BRA","RUS","CHN","IND","JPN"
+    ###### Use WEO 2017 data for countries: "USA","BRA","RUS","CHN","IND","JPN"
     # Year: 2015
     mappingWEO <- tibble::tribble(
       ~weo,      ~remind,
@@ -59,13 +57,14 @@ calcCapacity <- function(subtype) {
       "Oil",     "dot"
     )
 
-    capWEO <- readSource(type = "IEA_WEO", subtype = "Capacity") %>%
-      .[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] %>% # selecting relevant data
-      toolAggregate(dim = 3, rel = mappingWEO, from = "weo", to = "remind") %>% # renaming to remind names
-      {. * 1e-3} # converting GW to TW
+    capWEO <- readSource(type = "IEA_WEO", subtype = "Capacity")
+    capWEO <- capWEO[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] %>% # selecting relevant data
+      toolAggregate(dim = 3, rel = mappingWEO, from = "weo", to = "remind") * # renaming to remind names
+      1e-3 # converting GW to TW
 
 
-    ###### Use GlobalEnergyMonitor to obtain fixed values in 2025 for renewables
+    ###### Use GlobalEnergyMonitor to project renewable capacities into 2025
+    # Note: replace with consolidated data when available
     # Year: 2025
     mappingGEM <- tibble::tribble(
       ~gem,                            ~remind,
@@ -77,11 +76,10 @@ calcCapacity <- function(subtype) {
       "Cap|Electricity|Solar|CSP",     "csp"
     )
 
-    capGEM <- readSource("GlobalEnergyMonitor") %>%
-      .[, , mappingGEM$gem] %>% # selecting relevant variables
+    capGEM <- readSource("GlobalEnergyMonitor")[, , mappingGEM$gem] %>% # selecting relevant variables
       toolAggregate(dim = 3.2, rel = mappingGEM, from = "gem", to = "remind") %>% # renaming to remind names
-      collapseDim(keepdim = "status") %>% # removing useless dimensions
-      {. * 1e-3} # converting GW to TW
+      collapseDim(keepdim = "status") * # removing useless dimensions
+      1e-3 # converting GW to TW
 
     # as GEM only includes big plants, rescale to IRENA values
     scalingFactor <- collapseDim(capIRENA[, 2020,] / capGEM[, 2020, "operating"], dim = "status")
