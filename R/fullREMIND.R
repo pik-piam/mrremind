@@ -136,8 +136,8 @@ fullREMIND <- function() {
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
 
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r")
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap_windoff.cs3r")  # to remove after updating remind
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
+    temporalmapping = quitte::remind_timesteps %>% .[(.$period <= 2020) | .$period == .$year,,]) # average over 5y before 2023
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
