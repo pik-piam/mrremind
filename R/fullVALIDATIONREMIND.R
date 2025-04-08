@@ -146,6 +146,8 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # (see mrcommons::convertCEDS2024)
   vars_glo_only <- getNames(ceds)[grepl("w/ Bunkers", getNames(ceds))]
   vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(ceds)[grepl("International", getNames(ceds))])
 
   # write all regions of w/o-bunker variables to report
   non_bunk <- ceds[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
@@ -187,6 +189,8 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # (see mrcommons::convertEDGARghg)
   vars_glo_only <- getNames(edgar)[grepl("w/ Bunkers", getNames(edgar))]
   vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(edgar)[grepl("International", getNames(edgar))])
 
   # write all regions of non-bunker variables to report
   non_bunk <- edgar[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
