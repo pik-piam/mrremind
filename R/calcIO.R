@@ -96,6 +96,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     names_data_before <- getNames(data)
     data <- mrindustry::tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
                                                       threshold = 1e-2)
+
     # warn if dimensions not present in the mapping have been added to the data
     new_product_flows <- tibble(
       text = setdiff(getNames(data), names_data_before)
@@ -112,7 +113,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
       pull("text")
 
     if (!rlang::is_empty(new_product_flows)) {
-      warning("Product/flow combinations not present in mapping added by ",
+      message("Product/flow combinations not present in mapping added by ",
         "fix_IEA_data_for_Industry_subsectors():\n",
         paste(new_product_flows, collapse = "\n")
       )
