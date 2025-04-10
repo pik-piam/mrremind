@@ -16,19 +16,43 @@ calcCapacity <- function(subtype) {
 
     ###### Use IRENA data for world renewables capacity
     # Year: 2000-2023
-    mappingIRENA <- tibble::tribble(
-      ~irena,                     ~remind,
-      "Geothermal",               "geohdr",
-      "Renewable hydropower",     "hydro",
-      "Onshore wind energy",      "windon",
-      "Offshore wind energy",     "windoff",
-      "Solar photovoltaic",       "spv",
-      "Concentrated solar power", "csp"
+    mapping <- tibble::tribble(
+      ~remind,   ~irena,                     ~gem,
+      "geohdr",  "Geothermal",               "Cap|Electricity|Geothermal",
+      "hydro",   "Renewable hydropower",     "Cap|Electricity|Hydro",
+      "windon",  "Onshore wind energy",      "Cap|Electricity|Wind|Onshore",
+      "windoff", "Offshore wind energy",     "Cap|Electricity|Wind|Offshore",
+      "spv",     "Solar photovoltaic",       "Cap|Electricity|Solar|PV",
+      "csp",     "Concentrated solar power", "Cap|Electricity|Solar|CSP"
     )
 
-    capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mappingIRENA$irena] %>% # selecting relevant variables
-      toolAggregate(dim = 3, rel = mappingIRENA, from = "irena", to = "remind") * # renaming to remind names
+    capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena] %>% # selecting relevant variables
+      toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
       1e-6 # converting MW to TW
+
+
+    ###### Use GlobalEnergyMonitor to project renewable capacities into 2025
+    # Note: replace with consolidated data when available
+    # Year: 2025
+    capGEM <- readSource("GlobalEnergyMonitor")[, , mapping$gem] %>% # selecting relevant variables
+      toolAggregate(dim = 3.2, rel = mapping, from = "gem", to = "remind") %>% # renaming to remind names
+      collapseDim(keepdim = "status") * # removing useless dimensions
+      1e-3 # converting GW to TW
+
+    # as GEM only includes big plants, rescale to IRENA values
+    scalingFactor <- collapseDim(capIRENA[, 2020,] / capGEM[, 2020, "operating"], dim = "status")
+    scalingFactor[is.na(scalingFactor) | scalingFactor > 10] <- 1 # set errors to 1
+    capGEM[, 2025,] <- capGEM[, 2025,] * scalingFactor
+    capGEM <- capGEM[, 2025, , drop = FALSE]
+
+    # estimate probability of success depending on project status
+    capGEM[, , "operating"] <-  capGEM[, , "operating"] +
+                         0.75 * capGEM[, , "construction"] +
+                         0.5  * capGEM[, , "pre-construction"] +
+                         0.15 * capGEM[, , "announced"]
+
+    capGEM <- capGEM[, , "operating", drop = FALSE] # remove status
+    capGEM <- dimSums(capGEM, dim = "status", na.rm = TRUE)  # remove NAs
 
 
     ###### Use Openmod capacity values updated by the LIMES team for the European countries
@@ -61,41 +85,6 @@ calcCapacity <- function(subtype) {
     capWEO <- capWEO[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] %>% # selecting relevant data
       toolAggregate(dim = 3, rel = mappingWEO, from = "weo", to = "remind") * # renaming to remind names
       1e-3 # converting GW to TW
-
-
-    ###### Use GlobalEnergyMonitor to project renewable capacities into 2025
-    # Note: replace with consolidated data when available
-    # Year: 2025
-    mappingGEM <- tibble::tribble(
-      ~gem,                            ~remind,
-      "Cap|Electricity|Geothermal",    "geohdr",
-      "Cap|Electricity|Hydro",         "hydro",
-      "Cap|Electricity|Wind|Onshore",  "windon",
-      "Cap|Electricity|Wind|Offshore", "windoff",
-      "Cap|Electricity|Solar|PV",      "spv",
-      "Cap|Electricity|Solar|CSP",     "csp"
-    )
-
-    capGEM <- readSource("GlobalEnergyMonitor")[, , mappingGEM$gem] %>% # selecting relevant variables
-      toolAggregate(dim = 3.2, rel = mappingGEM, from = "gem", to = "remind") %>% # renaming to remind names
-      collapseDim(keepdim = "status") * # removing useless dimensions
-      1e-3 # converting GW to TW
-
-    # as GEM only includes big plants, rescale to IRENA values
-    scalingFactor <- collapseDim(capIRENA[, 2020,] / capGEM[, 2020, "operating"], dim = "status")
-    scalingFactor[is.na(scalingFactor) | scalingFactor > 10] <- 1 # set errors to 1
-    capGEM[, 2025,] <- capGEM[, 2025,] * scalingFactor
-    capGEM <- capGEM[, 2025, , drop = FALSE]
-
-    # estimate probability of success depending on project status
-    capGEM[, , "operating"] <-  capGEM[, , "operating"] +
-                         0.75 * capGEM[, , "construction"] +
-                         0.5  * capGEM[, , "pre-construction"] +
-                         0.15 * capGEM[, , "announced"]
-
-    capGEM <- capGEM[, , "operating", drop = FALSE] # remove status
-    capGEM <- dimSums(capGEM, dim = "status", na.rm = TRUE)  # remove NAs
-    #capGEM[capGEM < 20e-6] <- 0  # remove values < 20MW as this is the GEM threshold
 
 
     ###### Use manual data with expert judgement
