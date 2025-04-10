@@ -353,42 +353,61 @@ calcEmissions <- function(datasource = "CEDS16") {
         emi[, , "Energy|Demand|Industry|Other"] +
         emi[, , "Industrial Processes|Other"]
 
-      emi <- add_columns(emi, "Energy|Demand", dim = 3.1)
-      emi[, , "Energy|Demand"] <-
-        emi[, , "Energy|Demand|Transport"] +
+      emi <- add_columns(emi, "w/o Bunkers|Energy|Demand", dim = 3.1)
+      emi[, , "w/o Bunkers|Energy|Demand"] <-
+        emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
         emi[, , "Energy|Demand|Buildings"] +
         emi[, , "Energy|Demand|Industry"]
 
-      emi <- add_columns(emi, "Energy", dim = 3.1)
-      emi[, , "Energy"] <- emi[, , "Energy|Demand"] +
+      emi <- add_columns(emi, "w/o Bunkers|Energy", dim = 3.1)
+      emi[, , "w/o Bunkers|Energy"] <-
+        emi[, , "w/o Bunkers|Energy|Demand"] +
         emi[, , "Energy|Supply"]
 
-      emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
-      emi[, , "Energy and Industrial Processes"] <-
-        emi[, , "Energy"] +
+      emi <- add_columns(emi, "w/o Bunkers|Energy and Industrial Processes", dim = 3.1)
+      emi[, , "w/o Bunkers|Energy and Industrial Processes"] <-
+        emi[, , "w/o Bunkers|Energy"] +
         emi[, , "Industrial Processes"]
 
       # variables with bunker emissions
       emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.1)
       emi[, , "w/ Bunkers|Energy"] <-
-        emi[, , "Energy"] +
+        emi[, , "w/o Bunkers|Energy"] +
         emi[, , "Energy|Demand|Transport|International Bunkers"]
 
       emi <-
         add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.1)
       emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
-        emi[, , "Energy and Industrial Processes"] +
+        emi[, , "w/o Bunkers|Energy and Industrial Processes"] +
         emi[, , "Energy|Demand|Transport|International Bunkers"]
 
       emi <- add_columns(emi, "w/ Bunkers|Energy|Demand", dim = 3.1)
       emi[, , "w/ Bunkers|Energy|Demand"] <-
-        emi[, , "Energy|Demand"] +
+        emi[, , "w/o Bunkers|Energy|Demand"] +
         emi[, , "Energy|Demand|Transport|International Bunkers"]
 
       emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.1)
       emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
-        emi[, , "Energy|Demand|Transport"] +
+        emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
         emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+      # add default variables corresponding to w/ bunkers
+      emi <- add_columns(emi, "Energy", dim = 3.1)
+      emi[, , "Energy"] <-
+        emi[, , "w/ Bunkers|Energy"]
+
+      emi <-
+        add_columns(emi, "Energy and Industrial Processes", dim = 3.1)
+      emi[, , "Energy and Industrial Processes"] <-
+        emi[, , "w/ Bunkers|Energy and Industrial Processes"]
+
+      emi <- add_columns(emi, "Energy|Demand", dim = 3.1)
+      emi[, , "Energy|Demand"] <-
+        emi[, , "w/ Bunkers|Energy|Demand"]
+
+      emi <- add_columns(emi, "Energy|Demand|Transport", dim = 3.1)
+      emi[, , "Energy|Demand|Transport"] <-
+        emi[, , "w/ Bunkers|Energy|Demand|Transport"]
     }
 
 
@@ -396,7 +415,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "N2O"] <- emi[, , "N2O"] * 1000
 
     # change order, add "Emi|", and reduce to a single dimension by
-    # replacing dots: Waste.SO2.harm -> Emissions|SO2|Waste|harm
+    # replacing dots: Waste.SO2.harm -> Emi|SO2|Waste|harm
     tmp <-
       gsub("^([^\\.]*)\\.(.*$)",
            "Emi|\\2|\\1 (Mt \\2/yr)",
@@ -421,6 +440,20 @@ calcEmissions <- function(datasource = "CEDS16") {
         tmp[, , "Emi|N2O|Energy (kt N2O/yr)"] / 1000 * 265
 
       tmp <-
+        add_columns(tmp, "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|w/ Bunkers|Energy (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|w/ Bunkers|Energy (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|w/ Bunkers|Energy (kt N2O/yr)"] / 1000 * 265
+
+      tmp <-
+        add_columns(tmp, "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)", dim = 3.1)
+      tmp[, , "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)"] <-
+        tmp[, , "Emi|CO2|w/o Bunkers|Energy (Mt CO2/yr)"] +
+        tmp[, , "Emi|CH4|w/o Bunkers|Energy (Mt CH4/yr)"] * 28 +
+        tmp[, , "Emi|N2O|w/o Bunkers|Energy (kt N2O/yr)"] / 1000 * 265
+
+      tmp <-
         add_columns(tmp, "Emi|GHG|Industrial Processes (Mt CO2eq/yr)", dim = 3.1)
       tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] <-
         tmp[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
@@ -436,8 +469,7 @@ calcEmissions <- function(datasource = "CEDS16") {
 
       tmp <-
         add_columns(tmp, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)",
-          dim = 3.1
-        )
+          dim = 3.1)
       tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] <-
         tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
         tmp[, , "Emi|CH4|Energy|Demand|Industry (Mt CH4/yr)"] * 28 +
@@ -450,6 +482,7 @@ calcEmissions <- function(datasource = "CEDS16") {
         tmp[, , "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
         tmp[, , "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
 
+      # industry including process emissions
       tmp <-
         add_columns(tmp, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
       tmp[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
@@ -959,19 +992,71 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Energy|Supply|Electricity and Heat"] +
       emi[, , "Energy|Supply|Fuel Production"]
 
-    emi <- add_columns(emi, "Energy|Demand", dim = 3.2)
-    emi[, , "Energy|Demand"] <- emi[, , "Energy|Demand|Transport"] +
+    emi <- add_columns(emi, "w/o Bunkers|Energy|Demand", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy|Demand"] <-
+      emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
       emi[, , "Energy|Demand|Buildings"] +
       emi[, , "Energy|Demand|Industry"]
 
-    emi <- add_columns(emi, "Energy", dim = 3.2)
-    emi[, , "Energy"] <- emi[, , "Energy|Demand"] +
+    emi <- add_columns(emi, "w/o Bunkers|Energy", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy"] <-
+      emi[, , "w/o Bunkers|Energy|Demand"] +
       emi[, , "Energy|Supply"]
 
     emi <-
-      add_columns(emi, "Energy and Industrial Processes", dim = 3.2)
-    emi[, , "Energy and Industrial Processes"] <- emi[, , "Energy"] +
+      add_columns(emi, "w/o Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "w/o Bunkers|Energy"] +
       emi[, , "Industrial Processes"]
+
+    # bunkers
+    emi <-
+      add_columns(emi, "Energy|Demand|Transport|International Bunkers", dim = 3.2)
+    emi[, , "Energy|Demand|Transport|International Bunkers"] <-
+      emi[, , "Transport|Freight|International Shipping|Demand"] +
+      emi[, , "Transport|Pass|Aviation|International|Demand"]
+
+
+    # variables with bunker emissions
+    emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy"] <-
+      emi[, , "w/o Bunkers|Energy"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <-
+      add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "w/o Bunkers|Energy and Industrial Processes"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy|Demand"] <-
+      emi[, , "w/o Bunkers|Energy|Demand"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
+      emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    # add default variables corresponding to w/ bunkers
+    emi <- add_columns(emi, "Energy", dim = 3.2)
+    emi[, , "Energy"] <-
+      emi[, , "w/ Bunkers|Energy"]
+
+    emi <-
+      add_columns(emi, "Energy and Industrial Processes", dim = 3.2)
+    emi[, , "Energy and Industrial Processes"] <-
+      emi[, , "w/ Bunkers|Energy and Industrial Processes"]
+
+    emi <- add_columns(emi, "Energy|Demand", dim = 3.2)
+    emi[, , "Energy|Demand"] <-
+      emi[, , "w/ Bunkers|Energy|Demand"]
+
+    emi <- add_columns(emi, "Energy|Demand|Transport", dim = 3.2)
+    emi[, , "Energy|Demand|Transport"] <-
+      emi[, , "w/ Bunkers|Energy|Demand|Transport"]
+
 
     # Add "Emi" and replace "." by "|" hereby reducing name dimension, add units
     getNames(emi) <-
