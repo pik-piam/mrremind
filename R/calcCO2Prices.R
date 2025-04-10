@@ -13,7 +13,7 @@ calcCO2Prices <- function() {
 
   # Read data used for weight
   ceds <- calcOutput("Emissions", datasource = "CEDS2024", aggregate = FALSE)
-  ceds <- ceds[, , "Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)"]
+  ceds <- ceds[, , "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)"]
   # For years in the future, use last year available from CEDS
   ceds <- ceds[, pmin(getYears(x), max(getYears(ceds))), ]
   getYears(ceds) <- getYears(x)
