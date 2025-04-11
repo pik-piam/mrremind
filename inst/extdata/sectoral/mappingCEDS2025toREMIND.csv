@@ -57,6 +57,6 @@ CEDS2025;REMIND;IAMC;CommentREMIND;CommentIAMC
 5C_Waste-combustion;Waste;Waste;;
 5D_Wastewater-handling;Waste;Waste;;
 5E_Other-waste-handling;Waste;Waste;;
-6A_Other-in-total;Industrial Processes|Other;Other;"Not sure what this is, put it to ""industrial processes"" category for now";Will be explicitly set to zero so do not map to any sector (see here: https://github.com/iiasa/emissions_harmonization_historical/issues/32)
+6A_Other-in-total;Industrial Processes|Other;Industrial Sector;"Not sure what this is, put it to ""industrial processes"" category for now";
 7A_Fossil-fuel-fires;Energy|Supply|Fuel Production;Energy Sector;;
 7BC_Indirect-N2O-non-agricultural-N;Agriculture;Agriculture;;
