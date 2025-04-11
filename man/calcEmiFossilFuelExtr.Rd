@@ -7,7 +7,7 @@
 calcEmiFossilFuelExtr(source)
 }
 \arguments{
-\item{source}{either "EDGAR" or "CEDS2024" (after REMIND ScenarioMIP release)}
+\item{source}{either "EDGAR" or "CEDS2025" (after REMIND ScenarioMIP release)}
 }
 \value{
 Magpie object with CH4 emissions from fossil fuel extraction for coal, oil and gas in 2005, in Mt CH4
@@ -17,7 +17,7 @@ Fugitive methane emissions from fossil fuel extraction
 }
 \details{
 REMIND uses historical data on fugitive methane emissions from fossil fuel extraction for coal, oil and gas
-to derive emission factors. The data is available from two sources: EDGAR (for base year 2005) and CEDS2024 (2020).
+to derive emission factors. The data is available from two sources: EDGAR (for base year 2005) and CEDS2025 (2020).
 }
 \author{
 Gabriel Abrahao
