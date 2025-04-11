@@ -91,45 +91,45 @@ calcProjectPipelines <- function(subtype) {
 
     # Hydro ----
   } else if (subtype == "hydro") {
-    # Source 1: GEM
+    # Source 1: GEM -> currently too incomplete to be useful!
     # -> does not include units < 75MW
     # without pumped storage
-    x <- readSource("GlobalEnergyMonitor")
-    x <- x[, , "Hydro", pmatch = T]
-
-    # TODO: add pumped storage so it can be added to max bounds
-    #       -> not comparable to IEA until then
-
-    # initialize magclass object for thresholds
-    t <- new.magpie(getRegions(x),
-                    c(2020, 2025, 2030),
-                    c("GlobalEnergyMonitor.Cap|Electricity|Hydro.min_red.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.min_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_red.GW"),
-                    sets = getSets(x))
-
-    # ASSUMPTION: min_red
-    t[, , "min_red"] <- x[, , "operating"]
-
-    # ASSUMPTION: min_yel
-    t[, , "min_yel"] <- x[, , "operating"] +
-                        x[, , "construction"]*0.5 +
-                        x[, , "pre-construction"]*0.2
-
-    # ASSUMPTION: max_yel
-    t[, , "max_yel"] <- x[, , "operating"] +
-                        x[, , "construction"] +
-                        x[, , "pre-construction"]*0.8 +
-                        x[, , "announced"]*0.3
-
-    # ASSUMPTION: max_red
-    t[, , "max_red"] <- x[, , "operating"] +
-                        x[, , "construction"] +
-                        x[, , "pre-construction"] +
-                        x[, , "announced"]
-
-    x <- mbind(x, t)
+    # x <- readSource("GlobalEnergyMonitor")
+    # x <- x[, , "Hydro", pmatch = T]
+    #
+    # # TODO: add pumped storage so it can be added to max bounds
+    # #       -> not comparable to IEA until then
+    #
+    # # initialize magclass object for thresholds
+    # t <- new.magpie(getRegions(x),
+    #                 c(2020, 2025, 2030),
+    #                 c("GlobalEnergyMonitor.Cap|Electricity|Hydro.min_red.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Hydro.min_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Hydro.max_red.GW"),
+    #                 sets = getSets(x))
+    #
+    # # ASSUMPTION: min_red
+    # t[, , "min_red"] <- x[, , "operating"]
+    #
+    # # ASSUMPTION: min_yel
+    # t[, , "min_yel"] <- x[, , "operating"] +
+    #                     x[, , "construction"]*0.5 +
+    #                     x[, , "pre-construction"]*0.2
+    #
+    # # ASSUMPTION: max_yel
+    # t[, , "max_yel"] <- x[, , "operating"] +
+    #                     x[, , "construction"] +
+    #                     x[, , "pre-construction"]*0.8 +
+    #                     x[, , "announced"]*0.3
+    #
+    # # ASSUMPTION: max_red
+    # t[, , "max_red"] <- x[, , "operating"] +
+    #                     x[, , "construction"] +
+    #                     x[, , "pre-construction"] +
+    #                     x[, , "announced"]
+    #
+    # x <- mbind(x, t)
 
     # Source 2: IEA Hydropower Special Market Report
     # no access to granular data, only scraping online data explorer,
@@ -137,6 +137,12 @@ calcProjectPipelines <- function(subtype) {
     # pumped storage added to max only (accelerated case has no differentiation,
     # assume pumped storage equally to expected case)
     y <- readSource("IEA_HSMR")
+
+    # import "other" values that are missing towards global total separately
+    # z <- readSource("IEA_HSMR", convert = FALSE)
+    # z <- z["World", ,]
+    # getItems(z, dim = 1) <- "GLO"
+    # y <- mbind(y, z)
 
     # initialize magclass object for thresholds
     t <- new.magpie(getRegions(y),
@@ -164,7 +170,8 @@ calcProjectPipelines <- function(subtype) {
 
     # add empty 2025 column, so IEA and GEM data can be merged
     y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
-    x <- mbind(x, y)
+    #x <- mbind(x, y)
+    x <- y
 
     # meta data
     unit <- "GW"
@@ -272,76 +279,76 @@ calcProjectPipelines <- function(subtype) {
   # Solar ----
   } else if (subtype == "solar") {
     # GEM probably not the best source for solar as smaller units are missing
-    x <- readSource("GlobalEnergyMonitor")
-    x <- x[, , "Solar", pmatch = T]
-
-    # lower bounds only, as solar can be built quickly
-    # TODO: PV/CSP differentiation
-    x <- x[, , "Cap|Electricity|Solar"]  # remove PV/CSP for now
-
-    # initialize magclass object for thresholds
-    t <- new.magpie(getRegions(x),
-                    c(2020, 2025, 2030),
-                    c("GlobalEnergyMonitor.Cap|Electricity|Solar.min_red.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Solar.min_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Solar.max_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Solar.max_red.GW"),
-                    sets = getSets(x))
-
-    # ASSUMPTION: min_red = operating
-    t[, , "min_red"] <- x[, , "operating"]
-    # ASSUMPTION: min_yel = operating + 0.5*construction + 0.2*pre-construction
-    t[, , "min_yel"] <- x[, , "operating"] +
-                        x[, , "construction"]*0.5 +
-                        x[, , "pre-construction"]*0.2
-
-    x <- mbind(x, t)
-
-    # meta data
-    unit <- "GW"
-    description <- "Solar project pipeline from GEM"
+    # x <- readSource("GlobalEnergyMonitor")
+    # x <- x[, , "Solar", pmatch = T]
+    #
+    # # lower bounds only, as solar can be built quickly
+    # # TODO: PV/CSP differentiation
+    # x <- x[, , "Cap|Electricity|Solar"]  # remove PV/CSP for now
+    #
+    # # initialize magclass object for thresholds
+    # t <- new.magpie(getRegions(x),
+    #                 c(2020, 2025, 2030),
+    #                 c("GlobalEnergyMonitor.Cap|Electricity|Solar.min_red.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Solar.min_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Solar.max_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Solar.max_red.GW"),
+    #                 sets = getSets(x))
+    #
+    # # ASSUMPTION: min_red = operating
+    # t[, , "min_red"] <- x[, , "operating"]
+    # # ASSUMPTION: min_yel = operating + 0.5*construction + 0.2*pre-construction
+    # t[, , "min_yel"] <- x[, , "operating"] +
+    #                     x[, , "construction"]*0.5 +
+    #                     x[, , "pre-construction"]*0.2
+    #
+    # x <- mbind(x, t)
+    #
+    # # meta data
+    # unit <- "GW"
+    # description <- "Solar project pipeline from GEM"
 
     # Wind ----
   } else if (subtype == "wind") {
     # GEM probably not the best source for Wind as smaller units are missing
-    x <- readSource("GlobalEnergyMonitor")
-    x <- x[, , "Wind", pmatch = T]
-
-    # TODO: On/Offshore differentiation
-    x <- x[, , "Cap|Electricity|Wind"]  # remove on/offshore for now
-
-
-    # initialize magclass object
-    t <- new.magpie(getRegions(x),
-                    c(2020, 2025, 2030),
-                    c("GlobalEnergyMonitor.Cap|Electricity|Wind.min_red.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Wind.min_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Wind.max_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Wind.max_red.GW"),
-                    sets = getSets(x))
-
-    # ASSUMPTION: min_red
-    t[, , "min_red"] <- x[, , "operating"]
-    # ASSUMPTION: min_yel
-    t[, , "min_yel"] <- x[, , "operating"] +
-                        x[, , "construction"]*0.5 +
-                        x[, , "pre-construction"]*0.2
-    # ASSUMPTION: max_yel
-    t[, , "max_yel"] <- x[, , "operating"] +
-                        x[, , "construction"] +
-                        x[, , "pre-construction"]*0.8 +
-                        x[, , "announced"]*0.3
-    # ASSUMPTION: max_red
-    t[, , "max_red"] <- x[, , "operating"] +
-                        x[, , "construction"] +
-                        x[, , "pre-construction"] +
-                        x[, , "announced"]
-
-    x <- mbind(x, t)
-
-    # meta data
-    unit <- "GW"
-    description <- "Wind project pipeline from GEM"
+    # x <- readSource("GlobalEnergyMonitor")
+    # x <- x[, , "Wind", pmatch = T]
+    #
+    # # TODO: On/Offshore differentiation
+    # x <- x[, , "Cap|Electricity|Wind"]  # remove on/offshore for now
+    #
+    #
+    # # initialize magclass object
+    # t <- new.magpie(getRegions(x),
+    #                 c(2020, 2025, 2030),
+    #                 c("GlobalEnergyMonitor.Cap|Electricity|Wind.min_red.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Wind.min_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Wind.max_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Wind.max_red.GW"),
+    #                 sets = getSets(x))
+    #
+    # # ASSUMPTION: min_red
+    # t[, , "min_red"] <- x[, , "operating"]
+    # # ASSUMPTION: min_yel
+    # t[, , "min_yel"] <- x[, , "operating"] +
+    #                     x[, , "construction"]*0.5 +
+    #                     x[, , "pre-construction"]*0.2
+    # # ASSUMPTION: max_yel
+    # t[, , "max_yel"] <- x[, , "operating"] +
+    #                     x[, , "construction"] +
+    #                     x[, , "pre-construction"]*0.8 +
+    #                     x[, , "announced"]*0.3
+    # # ASSUMPTION: max_red
+    # t[, , "max_red"] <- x[, , "operating"] +
+    #                     x[, , "construction"] +
+    #                     x[, , "pre-construction"] +
+    #                     x[, , "announced"]
+    #
+    # x <- mbind(x, t)
+    #
+    # # meta data
+    # unit <- "GW"
+    # description <- "Wind project pipeline from GEM"
 
   }
 
