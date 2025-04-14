@@ -1,7 +1,7 @@
 #' Calculate 2005 macroeconomic capital investments
 #'
 #' Compute macroeconomic capital investments based on investments shares from the PWT and GDP scenarios from
-#' [mrdrivers]. The final investments are the product of the two.
+#' mrdrivers. The final investments are the product of the two.
 #'
 #' @export
 #' @seealso \itemize{

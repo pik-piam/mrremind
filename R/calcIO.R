@@ -7,7 +7,7 @@
 #' coaltr for generating sesofos from pecoal (REMIND names)
 #'
 #' When using subtype `output_Industry_subsectors`, additional corrections are
-#' applied to the IEA data in [`tool_fix_IEA_data_for_Industry_subsectors`].
+#' applied to the IEA data in [`mrindustry::tool_fix_IEA_data_for_Industry_subsectors`].
 #'
 #' @md
 #' @param subtype Data subtype. See default argument for possible values.
