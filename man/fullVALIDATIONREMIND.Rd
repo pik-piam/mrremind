@@ -19,8 +19,7 @@ fullVALIDATIONREMIND()
 }
 }
 \seealso{
-\code{\link[=fullREMIND]{fullREMIND()}}, \code{\link[=readSource]{readSource()}}, \code{\link[=getCalculations]{getCalculations()}},
-\code{\link[=calcOutput]{calcOutput()}}
+\code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 }
 \author{
 David Klein, Falk Benke

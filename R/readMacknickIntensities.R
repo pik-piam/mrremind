@@ -9,7 +9,6 @@
 #' \code{missingAssumed}: Additional data to fill gaps }
 #' @return MAgPIE object of the Macknick (2011) data
 #' @author Ioanna Mouratiadou
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "MacknickIntensities", convert = FALSE)

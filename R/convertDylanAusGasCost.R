@@ -2,7 +2,6 @@
 #' @param x MAgPIE object to be converted
 #' @return magpie object of the CEMO data
 #' @author Felix Schreyer
-#' @seealso \code{\link{readSource}}
 
 convertDylanAusGasCost <- function(x) {
 

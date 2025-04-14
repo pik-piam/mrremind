@@ -30,9 +30,6 @@ described in the article. The country codes are the World Bank codes.
 a <- readSource(type="Gini")
 }
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Bjoern Soergel
 }

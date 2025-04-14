@@ -6,7 +6,7 @@
 #' @return magpie object of the WEO data on generation (TWh), capacities (GW),
 #' emissions (Mt CO2) or disaggregated investment cost as magpie object
 #' @author Renato Rodrigues and Aman Malik
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- convertWEO(x, subtype = "Capacity")

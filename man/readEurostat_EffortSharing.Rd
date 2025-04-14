@@ -21,9 +21,6 @@ a <- readSource(type = "Eurostat_EffortSharing", subtype = "target")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Renato Rodrigues
 }

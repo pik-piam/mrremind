@@ -5,7 +5,6 @@
 #' @param subtype type either "onshore" or "offshore"
 #' @return magpie object of NREL
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "NREL", subtype = "onshore")

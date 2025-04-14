@@ -8,7 +8,6 @@
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return magpie object of region dependent data
 #' @author original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")

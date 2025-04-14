@@ -3,7 +3,6 @@
 #' @param subtype Type of fossil fuel and type of data (oil, coal, or gas + costs, qtys, or dec)
 #' @return MAgPIE object of the GEA data
 #' @author Stephen Bi
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource("GEA2012", "coal")

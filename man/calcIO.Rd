@@ -36,9 +36,6 @@ a <- calcOutput("IO", subtype = "output")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Anastasis Giannousakis
 }

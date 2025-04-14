@@ -17,11 +17,8 @@ Provides input data for exoGAINSAirpollutants.R
 }
 \examples{
 \dontrun{
-calcOutput("calcGAINSEmi")
+calcOutput("GAINSEmi")
 }
-}
-\seealso{
-\code{\link{calcOutput}}
 }
 \author{
 Sebastian Rauner

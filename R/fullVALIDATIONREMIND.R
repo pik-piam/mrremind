@@ -6,8 +6,8 @@
 #' @md
 #' @param rev Unused parameter here for the pleasure of [`madrat`].
 #' @author David Klein, Falk Benke
-#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
-#'     [`calcOutput()`]
+#' @seealso
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()

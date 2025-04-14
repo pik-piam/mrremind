@@ -15,7 +15,7 @@
 #' (vetted and used in REMIND) or 'latest'.
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- calcOutput("IO", subtype = "output")

@@ -22,9 +22,6 @@ Read in RCP data
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Julian Oeser
 }

@@ -9,7 +9,6 @@
 #' pre final energy category \item \code{subsidies_bulk}: subsidy rate per final
 #' energy category \item \code{energy}: final energy quantities per category }
 #' @return magpie object of the IIASA_subs_taxes data
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "IIASA_subs_taxes", "tax_rate")

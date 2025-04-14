@@ -18,9 +18,6 @@ a <- readSource(type = "WGBU")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Lavinia Baumstark
 }

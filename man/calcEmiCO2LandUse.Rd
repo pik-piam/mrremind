@@ -20,9 +20,6 @@ calculate co2 emissions from land use change
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Julian Oeser
 }
