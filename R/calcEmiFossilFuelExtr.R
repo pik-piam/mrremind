@@ -72,5 +72,7 @@ calcEmiFossilFuelExtr <- function(source) {
       unit = "Mt CH4",
       description = "methane emissions in 2020"
     ))
+  } else {
+    stop("Invalid source. Must be either 'EDGAR' or 'CEDS2025'.")
   }
 }

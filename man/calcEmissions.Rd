@@ -7,7 +7,7 @@
 calcEmissions(datasource = "CEDS16")
 }
 \arguments{
-\item{datasource}{"CEDS2REMIND", "CEDS2024", "CEDS2025", "EDGAR6",
+\item{datasource}{"CEDS2REMIND", "CEDS2025", "EDGAR6",
 "EDGARghg", "CDIAC"}
 }
 \value{

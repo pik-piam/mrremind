@@ -1,7 +1,7 @@
 #' @title calcEmissions
 #'
 #' @return magpie object with historical emissions
-#' @param datasource "CEDS2REMIND", "CEDS2024", "CEDS2025", "EDGAR6",
+#' @param datasource "CEDS2REMIND", "CEDS2025", "EDGAR6",
 #'                   "EDGARghg", "CDIAC"
 #'
 #' @author Steve Smith, Pascal Weigmann
@@ -184,7 +184,7 @@ calcEmissions <- function(datasource = "CEDS16") {
         to = map_to
       )
 
-    # undo unnecessary conversion from convertCEDS2024
+    # undo unnecessary conversion from convertCEDS2025
     emi[, , "n2o_n"] <- emi[, , "n2o_n"] * 44 / 28
     emi[, , "nh3_n"] <- emi[, , "nh3_n"] * 17 / 14
     emi[, , "no2_n"] <- emi[, , "no2_n"] * 46 / 14

@@ -103,7 +103,7 @@ fullREMIND <- function() {
   calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs4r")
   calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
   calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
-  calcOutput("EmiFossilFuelExtr", source = "CEDS2024",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
+  calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
@@ -230,7 +230,7 @@ fullREMIND <- function() {
 
   #---------------files used in reporting-------------------------------------------------------------
 
-  calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r")
+  calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r", aggregate = "reg+glo")
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
   calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
   calcOutput("Emissions4ReportExtra", sectors = "CEDS", round = 9, file = "p_emissions4ReportExtraCEDS.cs4r")
