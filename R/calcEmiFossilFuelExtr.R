@@ -1,8 +1,8 @@
 #' Fugitive methane emissions from fossil fuel extraction
 #' @description Fugitive methane emissions from fossil fuel extraction
 #' @details REMIND uses historical data on fugitive methane emissions from fossil fuel extraction for coal, oil and gas
-#' to derive emission factors. The data is available from two sources: EDGAR (for base year 2005) and CEDS2024 (2020). 
-#' @param source either "EDGAR" or "CEDS2024" (after REMIND ScenarioMIP release)
+#' to derive emission factors. The data is available from two sources: EDGAR (for base year 2005) and CEDS2025 (2020).
+#' @param source either "EDGAR" or "CEDS2025" (after REMIND ScenarioMIP release)
 #' @return Magpie object with CH4 emissions from fossil fuel extraction for coal, oil and gas in 2005, in Mt CH4
 #' @author Gabriel Abrahao
 calcEmiFossilFuelExtr <- function(source) {
@@ -49,12 +49,12 @@ calcEmiFossilFuelExtr <- function(source) {
       unit = "Mt CH4",
       description = "methane emissions in 2005"
     ))
-  } else if (source == "CEDS2024") {
+  } else if (source == "CEDS2025") {
     year <- "y2020"
 
     categories <- c("1B1_Fugitive-solid-fuels", "1B2_Fugitive-petr",
                     "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod")
-    indata <- readSource("CEDS2024")[, year, categories]
+    indata <- readSource("CEDS2025")[, year, categories]
     indata <- indata[, , "ch4"]
     getNames(indata) <- c("pecoal", "peoil", "pegas_distr", "pegas_prod")
 
