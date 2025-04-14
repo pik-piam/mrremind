@@ -18,6 +18,3 @@ calcOutput("CostsWeathering")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}

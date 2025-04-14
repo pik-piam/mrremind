@@ -15,15 +15,13 @@ Provides hydro potential data
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialHydro")
-
 }
 
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readWGBU}},
-\code{\link{convertWGBU}}, \code{\link{readSource}}
+\code{\link{readWGBU}}, \code{\link{convertWGBU}}
 }
 \author{
 Lavinia Baumstark

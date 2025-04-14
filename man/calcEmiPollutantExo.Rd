@@ -24,9 +24,6 @@ calculate EmiPollutantExo based on RCP data
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Julian Oeser
 }

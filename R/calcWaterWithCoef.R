@@ -9,7 +9,7 @@
 #' @return MAgPIE object on water withdrawal coefficients per elecricity
 #' technology
 #' @author Ioanna Mouratiadou
-#' @seealso \code{\link{calcOutput}}, \code{\link{readMacknickIntensities}},
+#' @seealso \code{\link{readMacknickIntensities}},
 #' \code{\link{calcWaterConsCoef}}
 #' @examples
 #' \dontrun{

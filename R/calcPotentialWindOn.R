@@ -6,13 +6,11 @@
 #' @return wind onshore potential data and corresonding weights as a list of
 #' two MAgPIE objects
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}, \code{\link{readNREL}},
-#' \code{\link{convertNREL}}, \code{\link{readSource}}
+#' @seealso \code{\link{readNREL}}, \code{\link{convertNREL}}
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' calcOutput("PotentialWindOn")
-#' 
 #' }
 calcPotentialWindOn <- function() {
   # read wind onshore data

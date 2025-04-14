@@ -1,7 +1,6 @@
 #' Calculate costs of transport of enhanced weathering
 #'
 #' @return transport costs of spreading rock on the fields
-#' @seealso \code{\link{calcOutput}}
 #' @examples
 #' \dontrun{
 #' calcOutput("CostsWeathering")

@@ -3,7 +3,7 @@
 #'
 #' @return magpie object
 #' @author Julian Oeser
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- calcOutput(type = "EmiAirPollLandUse")

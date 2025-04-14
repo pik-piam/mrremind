@@ -25,9 +25,6 @@ a <- convertWEO(x, subtype = "Capacity")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Renato Rodrigues and Aman Malik
 }

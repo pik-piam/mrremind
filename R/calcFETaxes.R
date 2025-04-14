@@ -9,8 +9,7 @@
 #'
 #' @return MAgPIE object
 #' @author Christoph Bertram and Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
-#' \code{\link{convertIIASA_subs_taxes}}
+#' @seealso \code{\link{readIIASA_subs_taxes}}, \code{\link{convertIIASA_subs_taxes}}
 #' @examples
 #' \dontrun{
 #' calcOutput("FETaxes")

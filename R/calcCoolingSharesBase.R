@@ -10,7 +10,7 @@
 #' @return MAgPIE object on cooling type shares per elecricity technology and
 #' REMIND region
 #' @author Lavinia Baumstark, Ioanna Mouratiadou
-#' @seealso \code{\link{calcOutput}}, \code{\link{readDaviesCooling}},
+#' @seealso \code{\link{readDaviesCooling}},
 #' \code{\link{convertDaviesCooling}},
 #' \code{\link{calcCoolingSharesAll}},\code{\link{calcCoolingSharesFuture}}
 #' @examples

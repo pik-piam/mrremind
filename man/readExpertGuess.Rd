@@ -36,9 +36,6 @@ a <- readSource(type = "ExpertGuess", subtype = "ies")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Lavinia Baumstark
 }

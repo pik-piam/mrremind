@@ -9,7 +9,7 @@
 #' @return MAgPIE object on water consumption coefficients per electricity
 #' technology
 #' @author Ioanna Mouratiadou
-#' @seealso \code{\link{calcOutput}}, \code{\link{readMacknickIntensities}},
+#' @seealso \code{\link{readMacknickIntensities}},
 #' \code{\link{calcWaterWithCoef}}
 #' @examples
 #' \dontrun{

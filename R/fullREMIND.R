@@ -4,7 +4,7 @@
 #'
 #' @author Lavinia Baumstark
 #' @seealso
-#' \code{\link{readSource}}, \code{\link{getCalculations}}, \code{\link{calcOutput}}
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @export
 #' @examples
 #' \dontrun{

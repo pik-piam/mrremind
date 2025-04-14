@@ -7,7 +7,7 @@
 fullVALIDATIONREMIND(rev = 0)
 }
 \arguments{
-\item{rev}{Unused parameter here for the pleasure of \code{\link{madrat}}.}
+\item{rev}{Unused parameter, but required by \code{madrat}.}
 }
 \description{
 Function that generates the historical regional dataset against which the
@@ -19,8 +19,7 @@ fullVALIDATIONREMIND()
 }
 }
 \seealso{
-\code{\link[=fullREMIND]{fullREMIND()}}, \code{\link[=readSource]{readSource()}}, \code{\link[=getCalculations]{getCalculations()}},
-\code{\link[=calcOutput]{calcOutput()}}
+\code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 }
 \author{
 David Klein, Falk Benke

@@ -4,10 +4,10 @@
 #' REMIND model results can be compared.
 #'
 #' @md
-#' @param rev Unused parameter here for the pleasure of [`madrat`].
+#' @param rev Unused parameter, but required by `madrat`.
 #' @author David Klein, Falk Benke
-#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
-#'     [`calcOutput()`]
+#' @seealso
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()
