@@ -29,7 +29,6 @@ calcCapacity <- function(subtype) {
     capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena] %>% # selecting relevant variables
       toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
       1e-6 # converting MW to TW
-    lastYearIRENA <- max(getYears(capIRENA)) # find the latest year of IRENA source
 
 
     ###### Use GlobalEnergyMonitor to project renewable capacities into 2025
@@ -41,11 +40,10 @@ calcCapacity <- function(subtype) {
       1e-3 # converting GW to TW
 
     # as GEM only includes big plants, rescale to IRENA values
-    scalingFactor <- collapseDim(capIRENA[, 2020,] / capGEM[, 2020, "operating"], dim = "status")
+    rescaleYear <- 2023
+    scalingFactor <- collapseDim(capIRENA[, rescaleYear,] / capGEM[, rescaleYear, "operating"], dim = "status")
     scalingFactor[is.na(scalingFactor) | scalingFactor > 10] <- 1 # set errors to 1
     capGEM[, 2025,] <- capGEM[, 2025,] * scalingFactor
-    # if capGEM in 2025 is smaller than the last available year of capIRENA, use the latter
-    capGEM[, 2025,] <- ifelse(capGEM[, 2025,] < capIRENA[, lastYearIRENA,], capIRENA[, lastYearIRENA,], capGEM[, 2025,])
 
     capGEM <- capGEM[, 2025, , drop = FALSE]
 
