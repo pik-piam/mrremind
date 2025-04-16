@@ -30,31 +30,8 @@ calcCapacity <- function(subtype) {
       toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
       1e-6 # converting MW to TW
 
-
-    ###### Use GlobalEnergyMonitor to project renewable capacities into 2025
-    # TODO: replace with consolidated data when available
-    # Year: 2025
-    capGEM <- readSource("GlobalEnergyMonitor")[, , mapping$gem] %>% # selecting relevant variables
-      toolAggregate(dim = 3.2, rel = mapping, from = "gem", to = "remind") %>% # renaming to remind names
-      collapseDim(keepdim = "status") * # removing useless dimensions
-      1e-3 # converting GW to TW
-
-    # as GEM only includes big plants, rescale to IRENA values
-    rescaleYear <- 2023
-    scalingFactor <- collapseDim(capIRENA[, rescaleYear,] / capGEM[, rescaleYear, "operating"], dim = "status")
-    scalingFactor[is.na(scalingFactor) | scalingFactor > 10] <- 1 # set errors to 1
-    capGEM[, 2025,] <- capGEM[, 2025,] * scalingFactor
-
-    capGEM <- capGEM[, 2025, , drop = FALSE]
-
-    # estimate probability of success depending on project status
-    capGEM[, , "operating"] <-  capGEM[, , "operating"] +
-                         0.75 * capGEM[, , "construction"] +
-                         0.5  * capGEM[, , "pre-construction"] +
-                         0.15 * capGEM[, , "announced"]
-
-    capGEM <- capGEM[, , "operating", drop = FALSE] # remove status
-    capGEM <- dimSums(capGEM, dim = "status", na.rm = TRUE)  # remove NAs
+    # Year 2025: use 2023 as a lower-bound
+    getYears(capIRENA) <- gsub("2023", "2025", getYears(capIRENA))
 
 
     ###### Use Openmod capacity values updated by the LIMES team for the European countries
@@ -112,7 +89,7 @@ calcCapacity <- function(subtype) {
 
     ###### merge capacity data from different sources
     # the order matters as latter will overwrite former
-    datasets <- list(capIRENA, capOpenmod, capWEO, capGEM, capManual)
+    datasets <- list(capIRENA, capOpenmod, capWEO, capManual)
     output <- new.magpie(
       cells_and_regions = unique(unlist(lapply(datasets, getRegions))),
       years = sort(unique(unlist(lapply(datasets, getYears)))),
