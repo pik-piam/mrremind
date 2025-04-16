@@ -2,14 +2,13 @@
 #'
 #' Provides input data for exoGAINSAirpollutants.R
 #'
-#'
 #' @return Emissions and emission factors
 #' @author Sebastian Rauner
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{
-#' calcOutput("calcGAINSEmi")
+#' calcOutput("GAINSEmi")
 #' }
 calcGAINSEmi <- function(subtype = "emissions") {
 

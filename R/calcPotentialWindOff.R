@@ -6,13 +6,11 @@
 #' @return wind offshore potential data and corresonding weights as a list of
 #' two MAgPIE objects
 #' @author Chen Chris Gong
-#' @seealso \code{\link{calcOutput}}, \code{\link{readNREL}},
-#' \code{\link{convertNREL}}, \code{\link{readSource}}
+#' @seealso \code{\link{readNREL}}, \code{\link{convertNREL}}
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' calcOutput("PotentialWindOff")
-#' 
 #' }
 calcPotentialWindOff <- function() {
   # read wind offshore data

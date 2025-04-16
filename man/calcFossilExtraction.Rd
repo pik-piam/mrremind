@@ -20,9 +20,6 @@ provides coefficients for fossil fuels (oil, gas and coal) and uranium extractio
 calcOutput(type = "FossilExtraction", subtype = "FossilExtraction")
 }
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Renato Rodrigues, Felix Schreyer
 }

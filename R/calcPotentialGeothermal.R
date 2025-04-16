@@ -1,18 +1,16 @@
 #' Calculate Geothermal potential
-#' 
+#'
 #' Provides geothermal potential data
-#' 
-#' 
+#'
+#'
 #' @return geothermal potential data MAgPIE object
 #' @author Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}
 #' @examples
-#' 
-#' \dontrun{ 
+#'
+#' \dontrun{
 #' calcOutput("PotentialGeothermal")
-#' 
 #' }
-#' 
+#'
 
 calcPotentialGeothermal <- function() {
   GWh_2_EJ <- 3.6e-6
@@ -26,7 +24,7 @@ calcPotentialGeothermal <- function() {
   
   maxprod <- setNames(maxprod, "maxprod")
   getYears(maxprod) <- NULL
-  
+
   return(list(x                 = maxprod,
               weight            = NULL,
               unit              = "EJ/a",

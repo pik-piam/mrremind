@@ -15,9 +15,6 @@ calcOutput("CostsTradePeFinancial")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readSource}}
-}
 \author{
 Regina Brecha, Lavinia Baumstark
 }

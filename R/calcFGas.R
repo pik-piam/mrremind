@@ -5,7 +5,6 @@
 #'
 #' @return magpie object with F-gases information
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' x <- calcOutput("FGas")

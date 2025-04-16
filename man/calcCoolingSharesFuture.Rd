@@ -23,11 +23,7 @@ a <- calcOutput("CoolingSharesFuture")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readDaviesCooling}},
-\code{\link{convertDaviesCooling}},
-\code{\link{calcCoolingSharesAll}},\code{\link{calcCoolingSharesBase}}
-}
 \author{
 Ioanna Mouratiadou
+\code{\link{calcCoolingSharesAll}},\code{\link{calcCoolingSharesBase}}
 }

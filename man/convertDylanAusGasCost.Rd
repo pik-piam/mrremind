@@ -15,9 +15,6 @@ magpie object of the CEMO data
 \description{
 Converts Dylan's Australian gas cost to magpie
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Felix Schreyer
 }

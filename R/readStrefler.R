@@ -2,7 +2,7 @@
 #'
 #' @param subtype type of data, one of "weathering_graderegi", "weathering_costs"
 #' @return magpie object of region dependent data
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #'
 #' \dontrun{

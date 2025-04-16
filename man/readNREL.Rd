@@ -21,9 +21,6 @@ a <- readSource(type = "NREL", subtype = "onshore")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Lavinia Baumstark
 }

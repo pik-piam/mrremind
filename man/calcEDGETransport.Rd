@@ -20,9 +20,6 @@ Prepare EDGETransport inputs
 a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
 }
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Johanna Hoppe
 }

@@ -25,8 +25,7 @@ calcOutput("FETaxes")
 
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
-\code{\link{convertIIASA_subs_taxes}}
+\code{\link{readIIASA_subs_taxes}}, \code{\link{convertIIASA_subs_taxes}}
 }
 \author{
 Christoph Bertram and Renato Rodrigues

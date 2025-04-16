@@ -21,14 +21,12 @@ also made.
 }
 \examples{
 \dontrun{
-
 a <- calcOutput("CoolingSharesAll")
 }
 
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readDaviesCooling}},
-\code{\link{convertDaviesCooling}},
+\code{\link{readDaviesCooling}}, \code{\link{convertDaviesCooling}},
 \code{\link{calcCoolingSharesBase}},\code{\link{calcCoolingSharesFuture}}
 }
 \author{

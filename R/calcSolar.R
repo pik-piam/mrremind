@@ -4,7 +4,7 @@
 #' @return magpie object
 #'
 #' @author Julian Oeser, modified by Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{ a <- calcOutput(type="Solar")
 #' }

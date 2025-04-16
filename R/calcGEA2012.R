@@ -4,7 +4,6 @@
 #' @param datatype extraseed, exportbound, or decoffset for bounds subtype
 #' @return MAgPIE object containing regionally aggregated GEA 2012 data
 #' @author Stephen Bi
-#' @seealso \code{\link{calcOutput}}
 #' @examples
 #' \dontrun{
 #' a <- calcOutput("GEA2012")

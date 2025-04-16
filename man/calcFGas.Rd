@@ -21,9 +21,6 @@ generate F-Gases based on IMAGE data
 x <- calcOutput("FGas")
 }
 }
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readSource}}
-}
 \author{
 Lavinia Baumstark
 }
