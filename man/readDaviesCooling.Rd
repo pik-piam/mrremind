@@ -24,9 +24,6 @@ a <- readSource(type = "DaviesCooling")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Lavinia Baumstark, Ioanna Mouratiadou
 }

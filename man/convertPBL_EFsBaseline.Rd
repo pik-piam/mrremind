@@ -9,6 +9,9 @@ per unit of activity.}
 \usage{
 convertPBL_EFsBaseline(x)
 }
+\arguments{
+\item{x}{a magpie object}
+}
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
 }

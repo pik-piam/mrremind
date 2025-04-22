@@ -3,7 +3,6 @@
 #'
 #' @return magpie object of the capacity factor data
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}
 #' @examples
 #' \dontrun{
 #' calcOutput("StorageFactor")

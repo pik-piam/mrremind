@@ -15,12 +15,9 @@ Provides REMIND data for PE tradecosts (energy losses on import).
 }
 \examples{
 \dontrun{
-calcOutput("calcCostsTrade")
+calcOutput("CostsTrade")
 }
 
-}
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readSource}}
 }
 \author{
 Lavinia Baumstark

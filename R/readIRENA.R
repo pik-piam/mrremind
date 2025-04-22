@@ -6,14 +6,13 @@
 #' @return magpie object of the IRENA data with historical electricity renewable
 #' capacities (MW) or generation levels (GWh)
 #' @author Renato Rodrigues, Pascal Weigmann
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "IRENA", subtype = "Capacity")
 #' }
 #'
 #' @importFrom dplyr mutate rename select
-
 readIRENA <- function(subtype) {
 
   # Reading renewables electricity capacity or generation values from xlsx

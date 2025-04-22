@@ -2,7 +2,6 @@
 #' Australian contact: Dylan McConnell, dylan.mcconnell(at)unimelb.edu.au
 #' @return magpie object of the cemo database data
 #' @author Felix Schreyer
-#' @seealso \code{\link{readSource}}
 #'
 readDylanAusGasCost <- function() {
   # Dylan's gas extraction cost curve based on GSOO data on reserves and resources in 2015

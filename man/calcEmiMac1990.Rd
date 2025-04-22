@@ -14,13 +14,9 @@ corresonding weights (NULL) as a list of two MAgPIE objects
 Provides REMIND data for baseline emissions for maccs for 1990.
 }
 \examples{
-
-\dontrun{ 
-calcOutput("calcEmiMac1990")
+\dontrun{
+calcOutput("EmiMac1990")
 }
-}
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readSource}}
 }
 \author{
 Lavinia Baumstark

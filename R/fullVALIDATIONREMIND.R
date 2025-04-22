@@ -4,10 +4,10 @@
 #' REMIND model results can be compared.
 #'
 #' @md
-#' @param rev Unused parameter here for the pleasure of [`madrat`].
+#' @param rev Unused parameter, but required by `madrat`.
 #' @author David Klein, Falk Benke
-#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
-#'     [`calcOutput()`]
+#' @seealso
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()
@@ -137,13 +137,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base
   ceds <- calcOutput(
-    "Emissions", datasource = "CEDS2024",
+    "Emissions", datasource = "CEDS2025",
     aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
 
   # the following variables only have meaningful data on global level
   # as bunkers exist in source only on the global level and were only added to
   # regions because madrat doesn't allow global data before this point
-  # (see mrcommons::convertCEDS2024)
+  # (see mrcommons::convertCEDS2025)
   vars_glo_only <- getNames(ceds)[grepl("w/ Bunkers", getNames(ceds))]
   vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
   vars_glo_only <- c(vars_glo_only,
@@ -161,7 +161,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base, aggregated to IAMC sectors
   calcOutput(
-    "Emissions", datasource = "CEDS2024_IAMC", file = valfile,
+    "Emissions", datasource = "CEDS2025_IAMC", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )

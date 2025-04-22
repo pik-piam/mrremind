@@ -4,8 +4,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @seealso [`readSource()`]
-#'
 #' @importFrom dplyr bind_rows mutate select
 #' @importFrom tibble tibble
 #' @export

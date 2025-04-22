@@ -1,93 +1,15 @@
 #' @title calcEmissions
 #'
 #' @return magpie object with historical emissions
-#' @param datasource "CEDS16", "CEDS2REMIND", "CEDS2024", "EDGAR", "EDGAR6",
-#'        "EDGARghg" "LIMITS", "ECLIPSE", "GFED", "CDIAC"
+#' @param datasource "CEDS2REMIND", "CEDS2025", "EDGAR6",
+#'                   "EDGARghg", "CDIAC"
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
 calcEmissions <- function(datasource = "CEDS16") {
-  ## ---- CEDS 16 ----
-  if (datasource == "CEDS16") {
-    # read CEDS emissions data from sources
-    bc    <- readSource("CEDS", subtype = "BC")
-    ch4   <- readSource("CEDS", subtype = "CH4")
-    co    <- readSource("CEDS", subtype = "CO")
-    co2   <- readSource("CEDS", subtype = "CO2")
-    n2o   <- readSource("CEDS", subtype = "N2O")
-    nh3   <- readSource("CEDS", subtype = "NH3")
-    nox   <- readSource("CEDS", subtype = "NOx")
-    nmvoc <- readSource("CEDS", subtype = "NMVOC")
-    oc    <- readSource("CEDS", subtype = "OC")
-    so2   <- readSource("CEDS", subtype = "SO2")
 
-    y <- Reduce(
-      intersect,
-      list(
-        getYears(bc),
-        getYears(ch4),
-        getYears(co),
-        getYears(co2),
-        getYears(n2o),
-        getYears(nh3),
-        getYears(nox),
-        getYears(nmvoc),
-        getYears(oc),
-        getYears(so2)
-      )
-    )
-
-    emi <-
-      mbind(bc[, y, ], ch4[, y, ], co[, y, ], co2[, y, ],
-            n2o[, y, ], nh3[, y, ], nox[, y, ], nmvoc[, y, ],
-            oc[, y, ], so2[, y, ]) / 1000 # kt to Mt
-    rm(bc, ch4, co, co2, n2o, nh3, nox, nmvoc, oc, so2)
-
-    if (any(!emi[, , "6B_Other-not-in-total"] == 0))
-      cat(
-        "CEDS59 sector 6B_Other-not-in-total was removed
-        although it contains data! Please check CEDS source files.\n"
-      )
-
-    emi <- emi[, , "6B_Other-not-in-total", invert = TRUE]
-
-    # aggregate and rename CEDS59 sectors to CEDS16 sectors
-    map_CEDS59_to_CEDS16  <-
-      toolGetMapping(type = "sectoral",
-                     name = "mappingCEDS59toCEDS16.csv",
-                     where = "mappingfolder")
-    tmp <-
-      toolAggregate(
-        x = emi,
-        weight = NULL,
-        dim = 3.1,
-        rel = map_CEDS59_to_CEDS16,
-        from = "CEDS59",
-        to = "CEDS16"
-      )
-
-    # rename emissions according to map (currently only relevant for VOC)
-    map <-
-      c(
-        BC = "BC",
-        CH4 = "CH4",
-        CO = "CO",
-        CO2 = "CO2",
-        N2O = "N2O",
-        NH3 = "NH3",
-        NOx = "NOx",
-        NMVOC = "VOC",
-        OC = "OC",
-        SO2 = "SO2"
-      )
-    getNames(tmp, dim = 2) <- map[getNames(tmp, dim = 2)]
-
-    # remove third entry "kt" in data dimension
-    tmp <- collapseNames(tmp, collapsedim = 3)
-
-    description <- "historic emissions in 1970-2014"
-    ## ---- CEDS ----
-  } else if (datasource == "CEDS2REMIND") {
+    ## ---- CEDS2REMIND ----
+  if (datasource == "CEDS2REMIND") {
     # read CEDS emissions data from sources (in kt)
     bc    <- readSource("CEDS", subtype = "BC")
     ch4   <- readSource("CEDS", subtype = "CH4")
@@ -229,26 +151,28 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     description <- "historic emissions from 1970-2015"
 
-    ## ---- CEDS 2024 ----
-  } else if (datasource %in% c("CEDS2024", "CEDS2024_IAMC")) {
+    ## ---- CEDS 2025 ----
+  } else if (datasource %in% c("CEDS2025", "CEDS2025_IAMC")) {
     # read CEDS emissions data from source (in Mt)
     # opposed to older version, doesn't contain Land-Use Change and thus no
     # aggregation to highest level is performed
-    emi <- readSource("CEDS2024")
+    emi <- readSource("CEDS2025")
 
     # remove 6B_Other-not-in-total (no data in there anyway)
     emi <- emi[, , "6B_Other-not-in-total", invert = TRUE]
 
     # load mapping file
     map <- toolGetMapping(type = "sectoral",
-                          name = "mappingCEDS2024toREMIND.csv",
+                          name = "mappingCEDS2025toREMIND.csv",
                           where = "mrremind")
 
     # load sectoral mapping, depending on the selected output sectoral
     # resolution
-    if (datasource == "CEDS2024") map_to <- "REMIND"
-    else if (datasource == "CEDS2024_IAMC") map_to <- "IAMC"
-
+    if (datasource == "CEDS2025") {
+      map_to <- "REMIND"
+    } else if (datasource == "CEDS2025_IAMC") {
+      map_to <- "IAMC"
+    }
     # aggregate and rename CEDS sectors to REMIND or IAMC sectors
     emi <-
       toolAggregate(
@@ -256,25 +180,11 @@ calcEmissions <- function(datasource = "CEDS16") {
         weight = NULL,
         dim = 3.1,
         rel = map,
-        from = "CEDS2024",
+        from = "CEDS2025",
         to = map_to
       )
 
-    # check that `6A_Other-in-total` is zero for all gases (should be) and
-    # remove from the mapping accordingly. If non-zero values are found, keep
-    # it under Category "Other", which should actually not exist, and throw a
-    # warning. This check is only needed if emissions are mapped to IAMC
-    # sectors. If mapped to RMEIND sectors this category is added to industrial
-    # process emissions.
-    if (datasource == "CEDS2024_IAMC") {
-      if (! any(emi[, , "Other"] != 0)) {
-        emi <- emi[, , "Other", invert = TRUE]
-      } else {
-        warning("Unexpectedly, `6B_Other-not-in-total` contains non-zero values. Please check CEDS and mapping file.")
-      }
-    }
-
-    # undo unnecessary conversion from convertCEDS2024
+    # undo unnecessary conversion from convertCEDS2025
     emi[, , "n2o_n"] <- emi[, , "n2o_n"] * 44 / 28
     emi[, , "nh3_n"] <- emi[, , "nh3_n"] * 17 / 14
     emi[, , "no2_n"] <- emi[, , "no2_n"] * 46 / 14
@@ -295,11 +205,11 @@ calcEmissions <- function(datasource = "CEDS16") {
     getNames(emi, dim = 2) <- emi_map[getNames(emi, dim = 2)]
 
     # sectoral sums, only needed if mapped to REMIND sectors
-    if (datasource == "CEDS2024") {
+    if (datasource == "CEDS2025") {
       emi <-
         add_columns(emi,
-          "Energy|Demand|Transport|International Bunkers",
-          dim = 3.1
+                    "Energy|Demand|Transport|International Bunkers",
+                    dim = 3.1
         )
       emi[, , "Energy|Demand|Transport|International Bunkers"] <-
         emi[, , "Transport|Freight|International Shipping|Demand"] +
@@ -340,8 +250,8 @@ calcEmissions <- function(datasource = "CEDS16") {
 
       emi <-
         add_columns(emi,
-          "Industry and Industrial Processes|Non-Metallic Minerals",
-          dim = 3.1
+                    "Industry and Industrial Processes|Non-Metallic Minerals",
+                    dim = 3.1
         )
       emi[, , "Industry and Industrial Processes|Non-Metallic Minerals"] <-
         emi[, , "Energy|Demand|Industry|Non-Metallic Minerals"] +
@@ -431,7 +341,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     tmp <- emi
 
     # Add total GHG as CO2 equivalents for sectors, only fits REMIND sectors
-    if (datasource == "CEDS2024") {
+    if (datasource == "CEDS2025") {
       tmp <-
         add_columns(tmp, "Emi|GHG|Energy (Mt CO2eq/yr)", dim = 3.1)
       tmp[, , "Emi|GHG|Energy (Mt CO2eq/yr)"] <-
@@ -469,7 +379,7 @@ calcEmissions <- function(datasource = "CEDS16") {
 
       tmp <-
         add_columns(tmp, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)",
-          dim = 3.1)
+                    dim = 3.1)
       tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] <-
         tmp[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
         tmp[, , "Emi|CH4|Energy|Demand|Industry (Mt CH4/yr)"] * 28 +
@@ -495,295 +405,10 @@ calcEmissions <- function(datasource = "CEDS16") {
         tmp[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
         tmp[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
 
-      description <- "historic emissions from 1750-2022"
-    } else if (datasource == "CEDS2024_IAMC") {
-      description <- "historic emissions from 1750-2022, IAMC sectors"
+      description <- "historic emissions from 1750-2023"
+    } else if (datasource == "CEDS2025_IAMC") {
+      description <- "historic emissions from 1750-2023, IAMC sectors"
     }
-
-    ## ---- EDGAR ----
-  } else if (datasource == "EDGAR") {
-    # read EDGAR emissions from sources
-    co    <- readSource("EDGAR", subtype = "CO")
-    co    <- add_dimension(co,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "CO")
-    voc   <- readSource("EDGAR", subtype = "VOC")
-    voc   <- add_dimension(voc,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "VOC")
-    nox   <- readSource("EDGAR", subtype = "NOx")
-    nox   <- add_dimension(nox,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "NOx")
-    nh3   <- readSource("EDGAR", subtype = "NH3")
-    nh3   <- add_dimension(nh3,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "NH3")
-    so2   <- readSource("EDGAR", subtype = "SO2")
-    so2   <- add_dimension(so2,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "SO2")
-    pm10  <- readSource("EDGAR", subtype = "PM10")
-    pm10  <- add_dimension(pm10,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "PM10")
-    co2   <- readSource("EDGAR", subtype = "co2")
-    co2   <- add_dimension(co2,
-                           dim = 3.2,
-                           add = "em",
-                           nm = "CO2")
-
-    edgar <-
-      mbind(co, nox, so2, voc, nh3, pm10, co2) / 1000 # kt to Mt
-
-    # Allocation of pollutants to sectors: special treatment for solvents
-    map <-
-      c(
-        CO = "CO",
-        NOx = "NOx",
-        SO2 = "Sulfur",
-        VOC = "VOC",
-        NH3 = "NH3",
-        PM10 = "PM10"
-      )
-    tmp <- NULL
-    for (i in names(map)) {
-      vars <- c("1A4")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy Demand|Residential and Commercial (Mt/yr)"
-          )
-        ))
-
-      vars <- c("1C1")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy Demand|Transportation|Aviation (Mt/yr)"
-          )
-        ))
-      vars <- c("1A3a", "1A3b", "1A3c", "1A3d", "1A3e")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy Demand|Transportation|Ground Transportation (Mt/yr)"
-          )
-        ))
-      vars <- c("1C2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy Demand|Transportation|International Shipping (Mt/yr)"
-          )
-        ))
-      vars <- c("1A1a", "1A1bc", "1B1", "1B2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Energy Supply (Mt/yr)")
-        ))
-      vars <- c("4F")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Land Use|Agricultural Waste Burning (Mt/yr)"
-          )
-        ))
-      vars <- c("4A", "4B", "4C", "4D1", "4D2", "4D3", "4D4")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Land Use|Agriculture (Mt/yr)")
-        ))
-      vars <- c("5A", "5D", "5F", "5F2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Land Use|Forest Burning (Mt/yr)")
-        ))
-      vars <- c("6A", "6B", "6C", "6D")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Waste (Mt/yr)")
-        ))
-    }
-    # CO2 doesn't contain a lot of information about land use.
-    map <- c(CO2 = "CO2")
-    tmp <- NULL
-    for (i in names(map)) {
-      vars <- c("1A4")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Energy|Demand|Buildlings (Mt/yr)")
-        ))
-      vars <- c("1C1")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy|Demand|Transport|Aviation (Mt/yr)"
-          )
-        ))
-      vars <- c("1A3a", "1A3b", "1A3c", "1A3d", "1A3e")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy|Demand|Transport|Ground Transportation (Mt/yr)"
-          )
-        ))
-      vars <- c("1C2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0(
-            "Emissions|",
-            map[i],
-            "|Energy|Demand|Transport|International Shipping (Mt/yr)"
-          )
-        ))
-      vars <- c("1A1a", "1A1bc", "1B1", "1B2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Energy|Supply (Mt/yr)")
-        ))
-      vars <- c("4D4")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Agriculture (Mt/yr)")
-        ))
-      vars <- c("5A", "5D", "5F2")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Land-Use Change (Mt/yr)")
-        ))
-      vars <- c("6C", "6D")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Waste (Mt/yr)")
-        ))
-      vars <- c("7A")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Other (Mt/yr)")
-        ))
-    }
-
-    # no extrawurst for voc
-    map <- c(VOC = "VOC")
-    for (i in names(map)) {
-      vars <-
-        c(
-          "1A2",
-          "2A1",
-          "2A2",
-          "2A7",
-          "2B",
-          "2C",
-          "2D",
-          "2E",
-          "2F1",
-          "2F2",
-          "2F3",
-          "2F4",
-          "2F5",
-          "2F7",
-          "2F8",
-          "2F9",
-          "2G"
-        )
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Energy Demand|Industry (Mt/yr)")
-        ))
-      vars <- c("3A", "3B", "3C", "3D")
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Solvents (Mt/yr)")
-        ))
-    }
-    # extrawurst for everything but voc: industry = industry + solvents
-    map <- c(
-      CO = "CO",
-      NOx = "NOx",
-      SO2 = "Sulfur",
-      NH3 = "NH3",
-      PM10 = "PM10"
-    )
-    for (i in names(map)) {
-      vars <-
-        c(
-          "1A2",
-          "2A1",
-          "2A2",
-          "2A7",
-          "2B",
-          "2C",
-          "2D",
-          "2E",
-          "2F1",
-          "2F2",
-          "2F3",
-          "2F4",
-          "2F5",
-          "2F7",
-          "2F8",
-          "2F9",
-          "2G",
-          "3A",
-          "3B",
-          "3C",
-          "3D"
-        )
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1),
-          paste0("Emissions|", map[i], "|Energy Demand|Industry (Mt/yr)")
-        ))
-      # add zero dummy or Solvents
-      tmp <-
-        mbind(tmp, setNames(
-          dimSums(edgar[, , i][, , vars], dim = 3.1) * 0,
-          paste0("Emissions|", map[i], "|Solvents (Mt/yr)")
-        ))
-    }
-
-    description <- "historic emissions in 1970-2014"
 
 
     ## ---- EDGAR 6 ----
@@ -1072,120 +697,6 @@ calcEmissions <- function(datasource = "CEDS16") {
     tmp <- emi
 
     description <- "historic emissions from 1970-2023"
-
-    ## ---- LIMITS ----
-  } else if (datasource == "LIMITS") {
-    # read LIMITS emissions from sources
-    em_limits <- readSource("LIMITS", subtype = "emissions")
-
-    em_limits <-
-      collapseNames(em_limits[, , "kt"][, , "CLE"][, , "Unattributed", invert =
-                                                     TRUE])
-
-    getNames(em_limits, dim = 2)[which(getNames(em_limits, dim = 2) == "NOX")] <-
-      "NOx"
-
-    map <-
-     utils::read.csv2(
-        toolGetMapping(
-          type = "sectoral",
-          name = "mappingLIMITSsectorstoREMINDsectors.csv",
-          returnPathOnly = TRUE,
-          where = "mappingfolder"
-        ),
-        stringsAsFactors = TRUE
-      )
-
-    em_limits[is.na(em_limits)] <- 0.0
-
-    tmp <- NULL
-    for (kap in getNames(em_limits, dim = 2)) {
-      tmp_limits <- collapseNames(em_limits[, , kap])
-
-      tmp_map <- map %>%
-        filter(.data$limits_sector %in% getNames(tmp_limits, dim = 1)) %>%
-        mutate(remind_sector = paste(sub(
-          "POLLUTANT", kap, .data$remind_sector
-        ),
-        "(Mt/yr)"))
-
-      tmp <- mbind(tmp, toolAggregate(tmp_limits, tmp_map, dim = 3.1))
-
-    }
-
-    tmp <- tmp / 1000 # kt to Mt
-
-    description <- "historic emissions in 1970-2014"
-
-  } else if (datasource == "ECLIPSE") {
-    # read ECLIPSE emissions from sources
-    em_eclipse <-
-      readSource("ECLIPSE", subtype = "emissions.aggregated")
-
-    em_eclipse <- collapseNames(em_eclipse[, , "CLE"])
-
-    map <-
-     utils::read.csv2(
-        toolGetMapping(
-          type = "sectoral",
-          name = "mappingECLIPSEsectorstoREMINDsectors.csv",
-          returnPathOnly = TRUE,
-          where = "mappingfolder"
-        ),
-        stringsAsFactors = TRUE
-      )
-
-    em_eclipse[is.na(em_eclipse)] <- 0.0
-
-    tmp <- NULL
-    for (kap in getNames(em_eclipse, dim = 2)) {
-      tmp_eclipse <- collapseNames(em_eclipse[, , kap])
-
-      tmp_map <- map %>%
-        filter(.data$eclipse_sector %in% getNames(tmp_eclipse, dim = 1)) %>%
-        mutate(remind_sector = paste(sub(
-          "POLLUTANT", kap, .data$remind_sector
-        ),
-        "(Mt/yr)"))
-
-      tmp <-
-        mbind(tmp, toolAggregate(tmp_eclipse, tmp_map, dim = 3.1))
-
-    }
-
-    tmp <- tmp / 1000  # kt to Mt
-
-    description <- "historic emissions in 1970-2014"
-
-    ## ---- GFED ----
-  } else if (datasource == "GFED") {
-    data <- readSource("GFED")
-    # aggregate gfed sectors to sectors of all other data
-    emi_subset <-  c("SO2", "OC", "NOx", "NH3", "CO", "BC")
-    tmp <-
-      new.magpie(getItems(data, dim = 1.1),
-                 getYears(data),
-                 c("agriwaste", "forest", "savannah"))
-    tmp <- add_dimension(tmp,
-                         add = "emi",
-                         dim = 3.1,
-                         nm = emi_subset)
-    tmp[, , "savannah"]  <- data[, , "savanna"][, , emi_subset]
-    tmp[, , "agriwaste"] <-
-      data[, , "agricultural_waste"][, , emi_subset]
-    tmp[, , "forest"]    <-
-      (data[, , "boreal"] + data[, , "temperate"] + data[, , "peat"] +
-       data[, , "deforestation"])[, , emi_subset]
-    tmp[, , "CO"] <- tmp[, , "CO"] / 10 # 1E11g -> Mt
-    tmp[, , c("NH3", "SO2", "BC")] <-
-      tmp[, , c("NH3", "SO2", "BC")] / 1000 # 1E9g -> Mt
-    tmp[, , c("NOx", "OC")] <-
-      tmp[, , c("NOx", "OC")] / 100 # 1E10g -> Mt
-
-    getNames(tmp, dim = 2) <-
-      gsub("SO2", "Sulfur", getNames(tmp, dim = 2)) # rename SO2 -> Sulfur
-
-    description <- "historic emissions in 1970-2014"
 
     ## ---- CDIAC ----
   } else if (datasource == "CDIAC") {

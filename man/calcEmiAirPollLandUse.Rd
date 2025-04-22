@@ -20,9 +20,6 @@ a <- calcOutput(type = "EmiAirPollLandUse")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Julian Oeser
 }

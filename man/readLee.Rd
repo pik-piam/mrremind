@@ -19,11 +19,8 @@ Read in Aviation emission data from Lee
 }
 \examples{
 \dontrun{
-a <- readSource(type = "", subtype = "Waste")
+a <- readSource(type = "Lee", subtype = "Waste")
 }
-}
-\seealso{
-\code{\link{readSource}}
 }
 \author{
 Julian Oeser

@@ -3,7 +3,7 @@
 #' Provides REMIND data for PE trade cost (energy losses on import, export and use).
 #'
 #' @author Regina Brecha, Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
 #' calcOutput("CostsTradePeFinancial")

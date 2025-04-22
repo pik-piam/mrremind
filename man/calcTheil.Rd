@@ -29,5 +29,5 @@ The result of calcOutput('Theil', aggregate = FALSE), is NOT the country
 Theil-T, but the unweighted contribution from a given country to the regional value.
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readGini}}
+\code{\link{readGini}}
 }

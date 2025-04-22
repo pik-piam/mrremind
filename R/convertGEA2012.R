@@ -4,7 +4,6 @@
 #' @param subtype Type of fossil fuel (oil, coal or gas)
 #' @return MAgPIE object containing country-level disaggregation of GEA 2012 data
 #' @author Stephen Bi
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource("GEA2012")

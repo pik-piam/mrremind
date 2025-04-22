@@ -1,7 +1,7 @@
 #' Calculate 2005 macroeconomic capital investments
 #'
 #' Compute macroeconomic capital investments based on investments shares from the PWT and GDP scenarios from
-#' [mrdrivers]. The final investments are the product of the two.
+#' mrdrivers. The final investments are the product of the two.
 #'
 #' @export
 #' @seealso \itemize{
@@ -15,7 +15,8 @@ calcMacroInvestments <- function() {
   shInv <- readSource("PWT")[, 2005, "csh_i"]
   gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
 
-  shInv_new <- toolFillWithRegionAvg(shInv, valueToReplace = 0, weight = gdp)
+  shInv_new <- toolFillWithRegionAvg(shInv, valueToReplace = 0, weight = gdp,
+                                     verbose = FALSE, warningThreshold = 1)
 
   # Calculate macro investments
   data <- shInv_new * gdp

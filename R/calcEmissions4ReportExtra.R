@@ -7,16 +7,16 @@
 #' CEDS sectors for 2020, in Mt N or Mt CH4 per year
 #' @author Gabriel Abrahao
 calcEmissions4ReportExtra <- function(sectors = "CEDS") {
-  incedsall <- readSource("CEDS2024")
+  incedsall <- readSource("CEDS2025")
   # Keep just the gases we're currently interested in, but also keep all sectors
   out <- incedsall[, 2020, c("ch4", "n2o_n")]
 
   if (sectors == "IAMC") {
     # Mapping between CEDS sectors and some IAMC sectors we want to estimate emission factors for
-    iamcsectormap <- toolGetMapping("mappingCEDS2024toREMIND.csv", type = "sectoral", where = "mrremind")
+    iamcsectormap <- toolGetMapping("mappingCEDS2025toREMIND.csv", type = "sectoral", where = "mrremind")
     # Discard nonmapped sectors and aggregate them
-    out <- out[, , intersect(getItems(out, dim = 3.1), iamcsectormap$CEDS2024)]
-    out <- toolAggregate(out, rel = iamcsectormap, dim = 3.1, from = "CEDS2024", to = "IAMC")
+    out <- out[, , intersect(getItems(out, dim = 3.1), iamcsectormap$CEDS2025)]
+    out <- toolAggregate(out, rel = iamcsectormap, dim = 3.1, from = "CEDS2025", to = "IAMC")
   }
 
   return(list(

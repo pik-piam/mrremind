@@ -18,9 +18,6 @@ calculate Area, Capacity and Energy for photovoltaics (PV) and contentrated sola
 \dontrun{ a <- calcOutput(type="Solar")
 }
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Julian Oeser, modified by Renato Rodrigues
 }

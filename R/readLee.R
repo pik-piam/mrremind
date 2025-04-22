@@ -4,10 +4,10 @@
 #' @return magpie object of Aviation emission / emission factors data
 #' @author Julian Oeser
 #' @param subtype Either 'emi' or 'ef'
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
-#' a <- readSource(type = "", subtype = "Waste")
+#' a <- readSource(type = "Lee", subtype = "Waste")
 #' }
 readLee <- function(subtype) {
   # Data only contains BC and NOx emissions from aircraft

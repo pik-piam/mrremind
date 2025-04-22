@@ -23,7 +23,7 @@ a <- calcOutput("CoolingSharesBase")
 }
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readDaviesCooling}},
+\code{\link{readDaviesCooling}},
 \code{\link{convertDaviesCooling}},
 \code{\link{calcCoolingSharesAll}},\code{\link{calcCoolingSharesFuture}}
 }
