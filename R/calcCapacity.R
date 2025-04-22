@@ -17,13 +17,13 @@ calcCapacity <- function(subtype) {
     ###### Use IRENA data for world renewables capacity
     # Year: 2000-2023
     mapping <- tibble::tribble(
-      ~remind,   ~irena,                     ~gem,
-      "geohdr",  "Geothermal",               "Cap|Electricity|Geothermal",
-      "hydro",   "Renewable hydropower",     "Cap|Electricity|Hydro",
-      "windon",  "Onshore wind energy",      "Cap|Electricity|Wind|Onshore",
-      "windoff", "Offshore wind energy",     "Cap|Electricity|Wind|Offshore",
-      "spv",     "Solar photovoltaic",       "Cap|Electricity|Solar|PV",
-      "csp",     "Concentrated solar power", "Cap|Electricity|Solar|CSP"
+      ~remind,   ~irena,
+      "geohdr",  "Geothermal",
+      "hydro",   "Renewable hydropower",
+      "windon",  "Onshore wind energy",
+      "windoff", "Offshore wind energy",
+      "spv",     "Solar photovoltaic",
+      "csp",     "Concentrated solar power"
     )
 
     capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena] %>% # selecting relevant variables
