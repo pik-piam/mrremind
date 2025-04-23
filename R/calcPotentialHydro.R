@@ -194,10 +194,10 @@ calcPotentialHydro <- function() {
   # delete temporal dimension for GAMS
   getYears(data) <- NULL
 
-  ### specific countries
-  data[c("BEL","LUX","NLD"),,"maxprod"] <- data[c("BEL","LUX","NLD"),,"maxprod"]*1.3
-  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.05
-  data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*1.625
+  ### specific countries: increase potential beyond NDC targets
+  data[c("BEL","LUX","NLD","AUT"),,"maxprod"] <- data[c("BEL","LUX","NLD","AUT"),,"maxprod"]*1.3 # EWN
+  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.365 #ECE
+  data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*2.1 # UKI
 
   # FS: Australia reached full hydro potential today at about 0.07 EJ/yr
   # e.g. DII Australia 2015: http://www.eria.org/RPR_FY2014_No.33_Chapter_2.pdf
@@ -214,14 +214,6 @@ calcPotentialHydro <- function() {
   data["DNK",,"maxprod"] <- data["DNK",,"maxprod"]*1.05
   data["SWE",,"maxprod"] <- data["SWE",,"maxprod"]*1.05
   data["DEU",,"maxprod"] <- data["DEU",,"maxprod"]*1.05
-
-  # AO: Increase hydro potential in ECE region to avoid infeasibilities
-  data["CZE",,"maxprod"] <- data["CZE",,"maxprod"]*1.3
-  data["EST",,"maxprod"] <- data["EST",,"maxprod"]*1.3
-  data["LVA",,"maxprod"] <- data["LVA",,"maxprod"]*1.3
-  data["LTU",,"maxprod"] <- data["LTU",,"maxprod"]*1.3
-  data["POL",,"maxprod"] <- data["POL",,"maxprod"]*1.3
-  data["SVK",,"maxprod"] <- data["SVK",,"maxprod"]*1.3
 
   return(list(x                 = data,
               weight            = w,
