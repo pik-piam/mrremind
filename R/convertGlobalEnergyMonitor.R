@@ -6,7 +6,12 @@
 #'
 #' @export
 convertGlobalEnergyMonitor <- function(x) {
-  getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))
-  x <- toolCountryFill(x, no_remove_warning = "KOS", verbosity = 2, fill = 0)
+  getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1),
+    ignoreCountries = c("Bonaire, Sint Eustatius, and Saba")
+  )
+  x <- toolCountryFill(x,
+    no_remove_warning = "KOS",
+    verbosity = 2, fill = 0
+  )
   return(x)
 }

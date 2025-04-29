@@ -504,6 +504,8 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
       filter(.data$eclipse %in% getNames(w, dim = 1)) %>%
       select(c(1, 3))
     w <- toolAggregate(w, mapsec, dim = 3.1)
+    # avoid zero weights, as they cause a warning in aggregation
+    w[w == 0] <- 1e-10
   } else {
     stop("do not know which weight to use for activities")
   }

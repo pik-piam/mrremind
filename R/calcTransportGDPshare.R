@@ -31,8 +31,8 @@ calcTransportGDPshare <- function() {
   mapGLO$RegionCode <- "GLO"
   w <- ggdc10[, , "VA_Q05.Summation of sector GDP"]
   share <- share %>%
-    toolFillWithRegionAvg(valueToReplace = 0, weight = w, regionmapping = mapH12) %>%
-    toolFillWithRegionAvg(weight = w, regionmapping = mapGLO)
+    toolFillWithRegionAvg(valueToReplace = 0, weight = w, regionmapping = mapH12, warningThreshold = 1) %>%
+    toolFillWithRegionAvg(weight = w, regionmapping = mapGLO, warningThreshold = 1)
 
   share <- collapseDim(share)
   weight <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE, years = years)

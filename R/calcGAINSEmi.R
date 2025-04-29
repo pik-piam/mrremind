@@ -39,9 +39,7 @@ calcGAINSEmi <- function(subtype = "emissions") {
     description <- "Emissions from GAINS for all CEDS setors execpt aviation and shipping"
     weight <- NULL
 
-  }
-
-  if (subtype == "emission_factors") {
+  } else if (subtype == "emission_factors") {
     ef_gains_ext_in  <- calcOutput("GAINS", subtype = "emission_factors", sectoral_resolution = "extended", aggregate = FALSE) # in Tg/TWa
     ef_gains_agg_in  <- calcOutput("GAINS", subtype = "emission_factors", sectoral_resolution = "aggregated", aggregate = FALSE) # in Tg/TWa
     emi_gains_ext_in <- calcOutput("GAINS", subtype = "emissions", sectoral_resolution = "extended", aggregate = FALSE) # in Mt
@@ -64,14 +62,16 @@ calcGAINSEmi <- function(subtype = "emissions") {
     ef_gains[, 2005, ]  <- setYears(ef_gains[, 2010, ])
     emi_gains[, 2005, ] <- setYears(emi_gains[, 2010, ])
 
-    w <- emi_gains
     x <- ef_gains
+
     unit <- "Mt/TWa"
     description <- "Emission factors from GAINS for all CEDS setors execpt aviation and shipping"
-    weight <- w
-  }
 
-  if (subtype == "emissions_starting_values") {
+    weight <- emi_gains
+    # avoid zero weights, as they cause a warning in aggregation
+    weight[weight == 0] <- 1e-10
+
+  } else if (subtype == "emissions_starting_values") {
 
     start_value_REMIND_regions <- readSource(type = "REMIND_11Regi", subtype = "AP_starting_values", convert = TRUE)
 

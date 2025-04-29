@@ -120,6 +120,9 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
+  # avoid zero weights, as they cause a warning in aggregation
+  Renergy[Renergy == 0] <- 1e-10
+
   # Weights do not take into account the differentiation by services. So if
   # the tax in a Cooling country is very high and the tax in a country in the
   # same region using a lot of electricity for cooking is low, the tax for

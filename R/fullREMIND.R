@@ -133,12 +133,8 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
   calcOutput("Clinker_to_cement_ratio",               round = 2,  file = "p37_clinker-to-cement-ratio.cs3r")
-  # delete the 'dummy' line
-  system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
 
-  avg5years <- quitte::remind_timesteps # average over 5y before 2023
-  avg5years <- avg5years[(avg5years$period <= 2020) | avg5years$period == avg5years$year,,]
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = avg5years)
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = quitte::remind_timesteps)
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
