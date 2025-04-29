@@ -83,7 +83,6 @@ calcEmiTarget <- function(sources, subtype, scenario) {
                                all countries with NDC target in each region per target year")
     x <- ghgfactor
     x[is.na(x)] <- 0
-    browser()
     # Min max are not necessary fixed values defined until eternity, but rather plausibility checks
     return(list(x = x, weight = ghgTarget, unit = "1", description = description, min = -5, max = 4))
   }
