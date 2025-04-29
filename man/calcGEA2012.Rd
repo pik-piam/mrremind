@@ -23,9 +23,6 @@ a <- calcOutput("GEA2012")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Stephen Bi
 }

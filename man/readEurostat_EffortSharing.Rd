@@ -10,7 +10,7 @@ readEurostat_EffortSharing(subtype)
 \item{subtype}{data subtype. Either "target" or "emissions"}
 }
 \value{
-magpie object of the EU Effort Sharing targets (%) or Effort Sharing historical historical emissions (MtCO2)
+magpie object of the EU Effort Sharing targets (\%) or Effort Sharing historical historical emissions (MtCO2)
 }
 \description{
 Read-in EU Effort Sharing targets and historical emissions csv files as magclass object
@@ -20,9 +20,6 @@ Read-in EU Effort Sharing targets and historical emissions csv files as magclass
 a <- readSource(type = "Eurostat_EffortSharing", subtype = "target")
 }
 
-}
-\seealso{
-\code{\link{readSource}}
 }
 \author{
 Renato Rodrigues

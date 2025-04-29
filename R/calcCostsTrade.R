@@ -2,14 +2,13 @@
 #'
 #' Provides REMIND data for PE tradecosts (energy losses on import).
 #'
-#'
 #' @return REMIND data forPE tradecosts (energy losses on import) and
 #' corresonding weights (1) as a list of two MAgPIE objects
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}, \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
-#' calcOutput("calcCostsTrade")
+#' calcOutput("CostsTrade")
 #' }
 #'
 calcCostsTrade <- function() {

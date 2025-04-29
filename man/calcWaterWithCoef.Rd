@@ -23,7 +23,7 @@ calcOutput("WaterWithCoeff")
 
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readMacknickIntensities}},
+\code{\link{readMacknickIntensities}},
 \code{\link{calcWaterConsCoef}}
 }
 \author{

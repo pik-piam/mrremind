@@ -4,13 +4,15 @@
 \alias{convertUNFCCC_NDC}
 \title{Policy targets for NDCs from UNFCCC_NDC}
 \usage{
-convertUNFCCC_NDC(x, subtype)
+convertUNFCCC_NDC(x, subtype, subset = NULL)
 }
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
 \item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
+
+\item{subset}{String, designating the GDP scenarios to use. Only important when subtype = Emissions_x.}
 }
 \value{
 Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
@@ -19,7 +21,4 @@ Magpie object with Total Installed Capacity (GW) targets, target years differ de
 Converts conditional and unconditional capacity targets into total capacity (GW) in target year
 the Generation targets are similar to the capacity targets but include the capacity factors,
 the Emissions targets are the total (except land CO2) emissions in the target year
-}
-\author{
-Aman Malik, Christoph Bertram, Oliver Richters
 }

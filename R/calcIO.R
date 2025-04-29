@@ -7,7 +7,7 @@
 #' coaltr for generating sesofos from pecoal (REMIND names)
 #'
 #' When using subtype `output_Industry_subsectors`, additional corrections are
-#' applied to the IEA data in [`tool_fix_IEA_data_for_Industry_subsectors`].
+#' applied to the IEA data in [`mrindustry::tool_fix_IEA_data_for_Industry_subsectors`].
 #'
 #' @md
 #' @param subtype Data subtype. See default argument for possible values.
@@ -15,16 +15,13 @@
 #' (vetted and used in REMIND) or 'latest'.
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- calcOutput("IO", subtype = "output")
 #' }
 #'
-#' @importFrom rlang .data is_empty
 #' @importFrom dplyr filter mutate
-#' @importFrom tidyr unite
-#' @importFrom tidyselect all_of
 calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                "input_Industry_subsectors", "output_Industry_subsectors"),
                    ieaVersion = "default") {
@@ -80,12 +77,11 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
-  ieaYear <- if (ieaVersion == "default") 2022 else 2024
 
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
-  ieamatch <- read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
+  ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
   if (subtype == "output") {
@@ -100,23 +96,24 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     names_data_before <- getNames(data)
     data <- mrindustry::tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
                                                       threshold = 1e-2)
+
     # warn if dimensions not present in the mapping have been added to the data
     new_product_flows <- tibble(
       text = setdiff(getNames(data), names_data_before)
     ) %>%
-      separate("text", c("product", "flow"), sep = "\\.") %>%
-      anti_join(
+      tidyr::separate("text", c("product", "flow"), sep = "\\.") %>%
+      dplyr::anti_join(
         ieamatch %>%
           as_tibble() %>%
           select(product = "iea_product", flow = "iea_flows"),
 
         c("product", "flow")
       ) %>%
-      unite("text", c("product", "flow"), sep = ".") %>%
+      tidyr::unite("text", c("product", "flow"), sep = ".") %>%
       pull("text")
 
-    if (!is_empty(new_product_flows)) {
-      warning("Product/flow combinations not present in mapping added by ",
+    if (!rlang::is_empty(new_product_flows)) {
+      message("Product/flow combinations not present in mapping added by ",
         "fix_IEA_data_for_Industry_subsectors():\n",
         paste(new_product_flows, collapse = "\n")
       )
@@ -133,10 +130,10 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   # delete NAs rows
   ieamatch <- ieamatch %>%
     as_tibble() %>%
-    select(all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
-    na.omit() %>%
-    unite("target", all_of(target), sep = ".", remove = FALSE) %>%
-    unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
+    select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
+    stats::na.omit() %>%
+    tidyr::unite("target", tidyselect::all_of(target), sep = ".", remove = FALSE) %>%
+    tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
     filter(!!sym("product.flow") %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 
@@ -204,7 +201,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
 
   if (subtype %in% c("input", "output")) {
     # re-calculating fepet and fedie final energy based on updated EDGE shares
-    share <- readSource(type = "EDGETransport", subtype = "shares_LDV_transport")
+    share <- calcOutput("LDVShares", warnNA = FALSE, aggregate = FALSE)
     regions <- getItems(share, dim = 1.1)
     feShares <- new.magpie(cells_and_regions = regions, years = intersect(getYears(share), getYears(reminditems)),
                            names = c("seliqfos.fepet.tdfospet", "seliqbio.fepet.tdbiopet", "seliqfos.fedie.tdfosdie",
@@ -236,5 +233,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   return(list(x = reminditems, weight = NULL, unit = "EJ",
-              description = paste0("IEA SE Output Data based on ", ieaYear, " edition of IEA World Energy Balances")))
+              description = paste0("IEA SE Output Data based on ",
+                                   toolGetIEAYear(ieaVersion),
+                                   " edition of IEA World Energy Balances")))
 }

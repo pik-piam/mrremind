@@ -1,14 +1,7 @@
-#' Calculate EEA emission projections from the two projections sources provided by EEA
+#' Calculate EEA emission projections from the two projections sources provided by European Environment Agency
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
+#' @author Falk Benke, Renato Rodrigues
 #'
-#' @author Falk Benke
-#'
-#' @importFrom dplyr select mutate left_join filter
-#' @importFrom rlang sym
-#' @export
-
 calcEEAGHGProjections <- function() {
 
   mapping <- toolGetMapping(type = "sectoral",
@@ -79,6 +72,6 @@ calcEEAGHGProjections <- function() {
     x = x,
     weight = NULL,
     unit = c("Mt CO2/yr", "Mt CO2eq/yr"),
-    description = "EEA emission projections"
+    description = "Emission projections by European Environment Agency"
   ))
 }

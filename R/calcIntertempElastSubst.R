@@ -1,22 +1,16 @@
-
-
-
 calcIntertempElastSubst <- function() {
-  
-  # read data
-  x <- readSource("ExpertGuess",subtype="ies")
+
+  x <- readSource("ExpertGuess", subtype = "ies")
   getNames(x) <- NULL
   getYears(x) <- NULL
-  
-  # read data used for weight
-  pop <- calcOutput("Population",aggregate=FALSE)[,2005,"pop_SSP2"]
-  gdp <- calcOutput("GDP",aggregate=FALSE)[,2005,"gdp_SSP2"]
-  # use half pop and half gdp 
-  w <- (pop / dimSums(pop,dim=1)) + setNames(gdp / dimSums(gdp,dim=1),NULL)
- 
-  
-  return(list(x           = x,
-              weight      = w,
-              unit        = "dimensionless",
-              description = "intertemporal elasticity of substitution"))
+
+  # Use half pop and half gdp for weight
+  pop <- calcOutput("Population", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
+  gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)[, 2005, ]
+  w <- pop / dimSums(pop, dim = 1) + gdp / dimSums(gdp, dim = 1)
+
+  list(x = x,
+       weight = w,
+       unit = "dimensionless",
+       description = "Expert guesses for the intertemporal elasticity of substitution")
 }

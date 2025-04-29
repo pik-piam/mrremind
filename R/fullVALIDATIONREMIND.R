@@ -4,18 +4,16 @@
 #' REMIND model results can be compared.
 #'
 #' @md
-#' @param rev Unused parameter here for the pleasure of [`madrat`].
+#' @param rev Unused parameter, but required by `madrat`.
 #' @author David Klein, Falk Benke
-#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
-#'     [`calcOutput()`]
+#' @seealso
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()
 #' }
 
 fullVALIDATIONREMIND <- function(rev = 0) {
-
-  years <- NULL
 
   # get region mappings for aggregation ----
   # Determines all regions data should be aggregated to by examining the columns
@@ -47,9 +45,70 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # historical data ----
   valfile <- "historical.mif"
 
-  calcOutput("Historical",
-    round = 5, file = valfile, aggregate = columnsForAggregation,
-    append = FALSE, warnNA = FALSE, try = FALSE, years = years
+  # Landuse Emissions ----
+
+  calcOutput(
+    type = "HistoricalLUEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = FALSE,
+    warnNA = FALSE, round = 5, try = FALSE,
+    writeArgs = list(scenario = "historical")
+  )
+
+  # Population data from WDI ----
+
+  pop <- calcOutput("PopulationPast", aggregate = columnsForAggregation, try = FALSE)
+  getNames(pop) <- paste0("Population (million)")
+  write.report(pop, file = valfile, append = TRUE, scenario = "historical", model = "WDI")
+
+  # GDP in ppp from WDI ----
+
+  gdp <- calcOutput("GDPPast", pastData = "WDI", aggregate = columnsForAggregation, try = FALSE) / 1000
+  getNames(gdp) <- paste0("GDP|PPP (billion US$2017/yr)")
+  write.report(gdp, file = valfile, append = TRUE, scenario = "historical", model = "WDI")
+
+  # IEA Primary Energy ----
+
+  calcOutput(
+    type = "PE", subtype = "IEA", ieaVersion = "latest", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
+  )
+
+  # World Energy Outlook 2019 Primary Energy ----
+
+  pe <- calcOutput(type = "PE", subtype = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
+  pe <- collapseNames(pe[, , "Current Policies Scenario", pmatch = TRUE])
+  write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
+
+
+  # IEA Final Energy ----
+
+  calcOutput(
+    type = "FE", source = "IEA", ieaVersion = "latest", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
+  )
+
+  # World Energy Outlook 2019 Final Energy ----
+
+  fe <- calcOutput(type = "FE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
+  fe <- collapseNames(fe[, , "Current Policies Scenario", pmatch = TRUE])
+  write.report(fe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
+
+  # IEA Fossil Trade ----
+
+  calcOutput(
+    type = "Trade", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
+  )
+
+  # IEA EB direct sums ----
+
+  calcOutput(
+    type = "IEA_EB_directSum", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA-EB-directSum")
   )
 
   # AGEB ----
@@ -57,15 +116,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "AGEB", subtype = "balances", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "AGEB")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
   )
 
   calcOutput(
     type = "AGEB", subtype = "electricity", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "AGEB")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "AGEB")
   )
 
   # BP ----
@@ -73,53 +130,75 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "BP", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "BP")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "BP")
   )
 
   # CEDS Emissions ----
 
   # Historical emissions from CEDS data base
-  calcOutput(
-    "Emissions", datasource = "CEDS2024", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "CEDS")
-  )
+  ceds <- calcOutput(
+    "Emissions", datasource = "CEDS2025",
+    aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
+
+  # the following variables only have meaningful data on global level
+  # as bunkers exist in source only on the global level and were only added to
+  # regions because madrat doesn't allow global data before this point
+  # (see mrcommons::convertCEDS2025)
+  vars_glo_only <- getNames(ceds)[grepl("w/ Bunkers", getNames(ceds))]
+  vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(ceds)[grepl("International", getNames(ceds))])
+
+  # write all regions of w/o-bunker variables to report
+  non_bunk <- ceds[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
+  write.report(non_bunk, file = valfile, append = TRUE,
+               scenario = "historical", model = "CEDS")
+
+  # write only global values of w/ bunker variables
+  bunkers <- ceds["GLO", , vars_glo_only, pmatch = TRUE]
+  write.report(bunkers, file = valfile, append = TRUE,
+               scenario = "historical", model = "CEDS")
 
   # Historical emissions from CEDS data base, aggregated to IAMC sectors
   calcOutput(
-    "Emissions", datasource = "CEDS2024_IAMC", file = valfile,
+    "Emissions", datasource = "CEDS2025_IAMC", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
 
   # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
+  # remains only for additional gases that newer EDGAR releases lack
   calcOutput(
     type = "Emissions", datasource = "EDGAR6", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "EDGAR6")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EDGAR6")
   )
 
   # EDGAR GHG Emissions----
   # does not contain as many gases as EDGAR6
   edgar <- calcOutput(
     type = "Emissions", datasource = "EDGARghg",
-    aggregate = columnsForAggregation, warnNA = FALSE,
-    try = FALSE, years = years
+    aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE
   )
 
+  # the following variables only have meaningful data on global level
+  # as bunkers exist in source only on the global level and were only added to
+  # regions because madrat doesn't allow global data before this point
+  # (see mrcommons::convertEDGARghg)
+  vars_glo_only <- getNames(edgar)[grepl("w/ Bunkers", getNames(edgar))]
+  vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(edgar)[grepl("International", getNames(edgar))])
+
   # write all regions of non-bunker variables to report
-  non_bunk <- edgar[, , "International", pmatch = TRUE, invert = TRUE]
+  non_bunk <- edgar[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
   write.report(non_bunk, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
 
   # write only global values of bunker variables
-  bunkers <- edgar["GLO", , "International", pmatch = TRUE]
+  bunkers <- edgar["GLO", , vars_glo_only, pmatch = TRUE]
   write.report(bunkers, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
 
@@ -128,8 +207,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "Ember", subtype = "all", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Ember")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Ember")
   )
 
   # Eurostat Emission Data (env_air_gge)
@@ -137,8 +215,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "EurostatEmissions", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Eurostat env_air_gge")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Eurostat env_air_gge")
   )
 
   # European Eurostat data ----
@@ -146,8 +223,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "EuropeanEnergyDatasheets",  subtype = "EU27", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Eurostat energy_sheets")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Eurostat energy_sheets")
   )
 
   # EU Reference Scenario ----
@@ -155,26 +231,40 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "EU_ReferenceScenario", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
-  # EU National GHG Projections ----
+  # European Environment Agency Historical GHG Emissions ----
+
+  calcOutput(
+    type = "EEAGHGEmissions", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EEA_historical")
+  )
+
+  # European Environment Agency GHG Projections ----
 
   calcOutput(
     type = "EEAGHGProjections", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
+
+  # European Environment Agency Emission Reference Values ----
+
+  calcOutput(
+    type = "EmiReference", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "EEA")
+  )
+
 
   # Global Energy Monitor ----
 
   calcOutput(
     type = "GlobalEnergyMonitor", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
   # HRE Heat Roadmap Europe (Final Energy) ----
@@ -182,15 +272,14 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "HRE", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
   # IEA ETP ----
 
   calcOutput(
     type = "IEA_ETP", aggregate = columnsForAggregation, file = valfile,
-    append = TRUE, warnNA = FALSE, try = FALSE, years = years,
+    append = TRUE, warnNA = FALSE, try = FALSE,
     writeArgs = list(scenario = "historical")
   )
 
@@ -199,15 +288,22 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "IEA_EVOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+  # IEA World Energy Investment Outlook 2024
+  calcOutput(
+    type = "InvestmentHistorical", file = valfile,
+    aggregate = FALSE, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA WEIO 2024")
   )
 
 
-  # IEA World Energy Outlook  ----
+  # IEA World Energy Outlook 2023 ----
   calcOutput(
     type = "IEA_WorldEnergyOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
   # IEA CCUS  ----
@@ -215,8 +311,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
   # IRENA Capacities  ----
@@ -224,8 +319,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "IRENA", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "IRENA")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IRENA")
   )
 
   # JRC IDEES ----
@@ -233,40 +327,53 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "JRC_IDEES", subtype = "Industry", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "JRC")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
   )
 
   calcOutput(
     type = "JRC_IDEES", subtype = "Transport", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "JRC")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
   )
 
   calcOutput(
     type = "JRC_IDEES", subtype = "ResCom", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "JRC")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "JRC")
   )
 
   # Mueller Steel Stock ----
 
   calcOutput(
-    type = "SteelStock", file = valfile,
+    type = "HistoricalSteelStock", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "Mueller")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "Mueller")
   )
+
+  # Steel Production ----
+
+  calcOutput(
+    type = "HistoricalBasicMaterialProduction", subtype = "steel", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
+
+  # USGS Cement Production ----
+
+  calcOutput(
+    type = "HistoricalBasicMaterialProduction", subtype = "cement", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical")
+  )
+
 
   # UBA Emission data ----
 
   calcOutput(
     type = "UBA", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "UBA")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "UBA")
   )
 
   # UNFCCC ----
@@ -274,16 +381,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "UNFCCC", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical")
   )
 
   # UNIDO ----
 
   calcOutput(
-    type = "UNIDO", subtype = "INDSTAT2", file = valfile,
+    type = "UNIDO", subtype = "INDSTAT3", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, years = years,
-    writeArgs = list(scenario = "historical", model = "INDSTAT2")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "INDSTAT3")
   )
+
 }

@@ -14,14 +14,10 @@ Provides geothermal potential data
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialGeothermal")
-
 }
 
-}
-\seealso{
-\code{\link{calcOutput}}
 }
 \author{
 Renato Rodrigues

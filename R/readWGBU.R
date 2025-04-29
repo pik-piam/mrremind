@@ -5,7 +5,6 @@
 #'
 #' @return magpie object of WGBU
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "WGBU")

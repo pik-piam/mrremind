@@ -1,4 +1,4 @@
-CEDS2024;REMIND;IAMC;CommentREMIND;CommentIAMC
+CEDS2025;REMIND;IAMC;CommentREMIND;CommentIAMC
 1A1a_Electricity-autoproducer;Energy|Supply|Electricity;Energy Sector;;
 1A1a_Electricity-public;Energy|Supply|Electricity;Energy Sector;;
 1A1a_Heat-production;Energy|Supply|Heat;Energy Sector;;
@@ -17,13 +17,13 @@ CEDS2024;REMIND;IAMC;CommentREMIND;CommentIAMC
 1A2g_Ind-Comb-transpequip;Energy|Demand|Industry|Other;Industrial Sector;;
 1A2g_Ind-Comb-wood-products;Energy|Demand|Industry|Other;Industrial Sector;;
 1A3ai_International-aviation;Transport|Pass|Aviation|International|Demand;Aircraft;Transport emissions variables from EDGE-T reporting do not comply with emissions reporting structure so far, once REMIND names adapted -> adapt here as well;
-1A3aii_Domestic-aviation;Energy|Demand|Transport;Aircraft;;
-1A3b_Road;Energy|Demand|Transport;Transportation Sector;;
-1A3c_Rail;Energy|Demand|Transport;Transportation Sector;;
+1A3aii_Domestic-aviation;w/o Bunkers|Energy|Demand|Transport;Aircraft;;
+1A3b_Road;w/o Bunkers|Energy|Demand|Transport;Transportation Sector;;
+1A3c_Rail;w/o Bunkers|Energy|Demand|Transport;Transportation Sector;;
 1A3di_International-shipping;Transport|Freight|International Shipping|Demand;International Shipping;Transport emissions variables from EDGE-T reporting do not comply with emissions reporting structure so far, once REMIND names adapted -> adapt here as well;
-1A3di_Oil_Tanker_Loading;Energy|Demand|Transport;International Shipping;;
-1A3dii_Domestic-navigation;Energy|Demand|Transport;Transportation Sector;;
-1A3eii_Other-transp;Energy|Demand|Transport;Transportation Sector;;
+1A3di_Oil_Tanker_Loading;Transport|Freight|International Shipping|Demand;International Shipping;;
+1A3dii_Domestic-navigation;w/o Bunkers|Energy|Demand|Transport;Transportation Sector;;
+1A3eii_Other-transp;w/o Bunkers|Energy|Demand|Transport;Transportation Sector;;
 1A4a_Commercial-institutional;Energy|Demand|Buildings;Residential Commercial Other;;
 1A4b_Residential;Energy|Demand|Buildings;Residential Commercial Other;;
 1A4c_Agriculture-forestry-fishing;Energy|Demand|Industry|Other;Residential Commercial Other;AFOFI energy use is accounted in industry in REMIND as it relies on IEA energy balances;
@@ -47,6 +47,7 @@ CEDS2024;REMIND;IAMC;CommentREMIND;CommentIAMC
 2D_Other-product-use;Industrial Processes|Other;Solvents Production and Application;;
 2D_Paint-application;Industrial Processes|Other;Solvents Production and Application;;
 2H_Pulp-and-paper-food-beverage-wood;Industrial Processes|Other;Industrial Sector;;
+2L_Other-process-emissions;Industrial Processes|Other;Industrial Sector;;
 3B_Manure-management;Agriculture;Agriculture;;
 3D_Rice-Cultivation;Agriculture;Agriculture;;
 3D_Soil-emissions;Agriculture;Agriculture;;
@@ -56,6 +57,6 @@ CEDS2024;REMIND;IAMC;CommentREMIND;CommentIAMC
 5C_Waste-combustion;Waste;Waste;;
 5D_Wastewater-handling;Waste;Waste;;
 5E_Other-waste-handling;Waste;Waste;;
-6A_Other-in-total;Industrial Processes|Other;;Not sure what this is, put it to "industrial processes" category for now;Will be explicitly set to zero so do not map to any sector (see here: https://github.com/iiasa/emissions_harmonization_historical/issues/32)
+6A_Other-in-total;Industrial Processes|Other;Industrial Sector;"Not sure what this is, put it to ""industrial processes"" category for now";
 7A_Fossil-fuel-fires;Energy|Supply|Fuel Production;Energy Sector;;
 7BC_Indirect-N2O-non-agricultural-N;Agriculture;Agriculture;;

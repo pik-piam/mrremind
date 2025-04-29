@@ -1,42 +1,19 @@
 #' Convert EDGE Buildings data to data on ISO country level.
 #'
 #' @param subtype either FE or Floorspace
+#' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
 #' @param x MAgPIE object containing EDGE values at ISO country resolution
 #' @return EDGE data as MAgPIE object aggregated to country level
 #' @author Antoine Levesque, Robin Hasse
 #'
+convertEdgeBuildings <- function(x, subtype, subset) {
 
-convertEdgeBuildings <- function(x, subtype = "FE") {
-  #---- Functions -------------
-  noYearDim <- function(x) setYears(x, NULL)
-
-  addSSPnames <- function(x) {
-    do.call("mbind", lapply(c(paste0("SSP", c(1:5, "2EU", "2_lowEn", "2_highDemDEU", "2EU_NAV_all")),
-                              paste0("SDP", c("", "_EI", "_RC", "_MC"))),
-      function(s) setNames(x, paste(s, getNames(x), sep = "."))
-    ))
-  }
-
-  duplScens <- function(x, scens = NULL) {
-    if (is.null(scens)) {
-      scens <- list(
-        gdp_SSP2EU = "gdp_SSP2EU_NAV_all",
-        gdp_SSP2 = c("gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU")
-      )
-    }
-    mbind(x, do.call(mbind, lapply(names(scens), function(from) {
-      do.call(mbind, lapply(scens[[from]], function(to) {
-        setItems(x[, , from], 3, to)
-      }))
-    })))
-  }
-
-  renameExtraWeights <- function(magObj, magWeight, mapping) {
+  .renameExtraWeights <- function(magObj, magWeight, mapping) {
     do.call("mbind", lapply(mapping[["EDGEitems"]], function(itemIN) {
       if (itemIN %in% getNames(magObj, dim = "item")) {
         item_weight <- mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
-        sub_magpie <- magWeight[, , item_weight]
-        res <- setNames(sub_magpie, gsub(item_weight, itemIN, getNames(sub_magpie)))
+        subMagpie <- magWeight[, , item_weight]
+        res <- setNames(subMagpie, gsub(item_weight, itemIN, getNames(subMagpie)))
       } else {
         res <- NULL
       }
@@ -44,31 +21,35 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     }))
   }
 
-  calcLambda <- function(exceeding_years_vec, threshold, previous_years = NULL) {
-    exceeding_years_before <- exceeding_years_vec[exceeding_years_vec <= threshold]
-    exceeding_years_after  <- exceeding_years_vec[exceeding_years_vec > threshold]
-    lambda <- c(rep(0, length(previous_years)),
-                tail(seq(0, 1, length.out = length(exceeding_years_before) + 1), -1),
-                rep(1, length(exceeding_years_after)))
-    names(lambda) <- as.character(c(previous_years, exceeding_years_vec))
+  .calcLambda <- function(exceedingYearsVec, threshold, previousYears = NULL) {
+    exceedingYearsBefore <- exceedingYearsVec[exceedingYearsVec <= threshold]
+    exceedingYearsAfter  <- exceedingYearsVec[exceedingYearsVec > threshold]
+    lambda <- c(rep(0, length(previousYears)),
+                utils::tail(seq(0, 1, length.out = length(exceedingYearsBefore) + 1), -1),
+                rep(1, length(exceedingYearsAfter)))
+    names(lambda) <- as.character(c(previousYears, exceedingYearsVec))
     return(as.magpie(lambda))
   }
-
 
   #---- Parameters and Mappings ------
   rem_years_hist <- seq(1990, 2150, 5)
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
                                         returnPathOnly = TRUE, where = "mrcommons")
-  struct_mapping <- read.csv2(struct_mapping_path, na.strings = "")
+  struct_mapping <- utils::read.csv2(struct_mapping_path, na.strings = "")
 
   # Select the relevant part of the mapping
   struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
   struct_mapping <- unique(struct_mapping[c("weight_convertEDGE", "EDGEitems")])
 
-
-  # manually duplicate SSP2 to create SSP2_highDemDEU until it is read in directly in readEdgeBuildings
-  x <- mbind(x, setItems(x[, , "SSP2"], 3.1, "SSP2_highDemDEU"))
+  # Create data for any missing scenarios (i.e. not in x) by duplication of the SSP2 data.
+  xAdd <- purrr::map(subset[!subset %in% getNames(x, dim = "scenario")], function(scen) {
+    message(glue::glue("Adding {scen} stationary data as copy of SSP2."))
+    setItems(x[, , "SSP2"], 3.1, scen)
+  }) %>%
+    mbind()
+  # Select scenarios
+  x <- mbind(x, xAdd) %>% mselect(scenario = subset)
 
   if (subtype == "FE") {
     #---- Explanations
@@ -79,38 +60,39 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
 
     # Load the regional mapping which depends upon the model used
 
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
-                                  returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
+    mappingfile <- toolGetMapping(type = "regional",
+                                  name = "regionmappingEDGE.csv",
+                                  returnPathOnly = TRUE,
+                                  where = "mappingfolder")
+    mapping <- utils::read.csv2(mappingfile)
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 
     #--- Load the Weights
-    #--- First load the GDP data. Set average2020 to False to get yearly data as far as possible.
-    wg <- calcOutput("GDP", average2020 = FALSE, aggregate = FALSE)
-
-    # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
-    wg <- duplScens(wg)
-    getNames(wg) <- gsub("gdp_", "", getNames(wg))
+    ## First load the GDP data for scenarios for which there exist GDP data.
+    ## Set average2020 to False to get yearly data as far as possible.
+    gdpScen <- subset[subset %in% mrdrivers::toolGetScenarioDefinition(driver = "GDP", aslist = TRUE)$scenario]
+    wg <- calcOutput("GDP", scenario = unique(c("SSP2", gdpScen)), average2020 = FALSE, aggregate = FALSE)
+    ## For scenarios for which no specific GDP data exists, use SSP2 data.
+    wgAdd <- purrr::map(subset[!subset %in% gdpScen], ~setItems(wg[, , "SSP2"], 3, .x)) %>% mbind()
+    wg <- mbind(wg, wgAdd) %>% mselect(variable = subset)
 
     #--- Then load the final energy data
     hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
     hist_fe_buildings <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
-
     wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
-
-    #---- Process Data -----------------
-
-    # Replace NAs
-    x[is.na(x)] <- 0
-
     if (any(wfe < 0)) {
-      warning("calcOutput('IOEdgeBuildings', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0")
+      warning("calcOutput('IOEdgeBuildings', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0") # nolint
       wfe[wfe < 0] <- 0
     }
 
+    #---- Process Data -----------------
+    # Replace NAs
+    x[is.na(x)] <- 0
+
     # Select last year of X available in the historical data set
-    maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in% getYears(wfe, as.integer = TRUE)])
+    maxYear_X_in_FE <- max(getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) %in%
+                                                            getYears(wfe, as.integer = TRUE)])
     # Deduce the scenario periods
     exceeding_years <- getYears(x, as.integer = TRUE)[getYears(x, as.integer = TRUE) > maxYear_X_in_FE]
 
@@ -118,34 +100,29 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     wg <- wg / dimSums(wg, dim = 1, na.rm = TRUE)
     wfe <- wfe / dimSums(wfe, dim = 1, na.rm = TRUE)
 
-    # Add some corrections
-    wg[is.na(wg)] <- 0
-    wg[wg == "Inf"] <- 0
-
-    # Add some corrections to the FE data set + add the scenario dimension
-    wfe[is.na(wfe)] <- 0
-    wfe <- addSSPnames(wfe)
+    # Add the scenario dimension
+    wfe <- purrr::map(getNames(x, dim = "scenario"), ~setNames(wfe, paste(.x, getNames(wfe), sep = "."))) %>%
+      mbind()
 
     # Compute lambda
-    lambda <- calcLambda(exceeding_years, 2060)
+    lambda <- .calcLambda(exceeding_years, 2060)
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
     # until maxYear_X_in_FE this will be exclusively FE,
     # in 2060 (depending on the threshold value above), exclusively GDP
 
     wfe <- mbind(wfe,
       lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
-        (1 - lambda[, exceeding_years, ]) * (noYearDim(wfe[, maxYear_X_in_FE, ]))
+        (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
     )
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
     # e.g. when EDGE produces further disaggregations, or when it gives REMIND items without computing them
-    wfe <- mbind(wfe, renameExtraWeights(x, wfe, struct_mapping))
+    wfe <- mbind(wfe, .renameExtraWeights(x, wfe, struct_mapping))
 
     # Reduce the dimensions of the weights
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
     # Disaggregate and fill the gaps
-
     weightSum <- toolAggregate(wfe, mappingfile, from = region_col, to = iso_col, dim = 1)
 
     # only throw the zeroWeight warning in toolAggregate, when any weights are zero,
@@ -161,7 +138,7 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     # Attribute the growth in water heating demand of the EDGE Region OCD to TUR,
     # and retrieve it from AUS, CAN, CHE (Swiss), NOR, NZL
     # For SSP1, SSP2 and SDP
-    names_2_change <- grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC|SSP2EU).*water_heating", getNames(result), value = TRUE)
+    names_2_change <- grep("(SSP1|SSP2|SDP|SDP_EI|SDP_RC|SDP_MC).*water_heating", getNames(result), value = TRUE)
     names_2_change_elec <- grep("elec", names_2_change, value = TRUE)
 
     regs_OCD <- c("AUS", "CAN", "CHE", "NOR", "NZL")
@@ -169,33 +146,43 @@ convertEdgeBuildings <- function(x, subtype = "FE") {
     end_of_history <- 2015
     scenario_time <- getYears(result, TRUE)[getYears(result, TRUE) > end_of_history]
 
-    WH_growth <- result[regs_OCD, scenario_time, names_2_change] -  dimReduce(result[regs_OCD, end_of_history, names_2_change])
+    WH_growth <- result[regs_OCD, scenario_time, names_2_change] -
+      dimReduce(result[regs_OCD, end_of_history, names_2_change])
     WH_growth[, , names_2_change_elec] <- WH_growth[, , names_2_change_elec] * 0.5
     WH_growth[WH_growth < 0] <- 0
     WH_growth_agg <- dimSums(WH_growth, dim = 1)
 
-    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <- result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
-    result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <- result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
+    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <-
+      result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
+    result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <-
+      result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
 
-  } else if (subtype == "Floorspace") {
-    mappingfile <- toolGetMapping(type = "regional", name = "regionmappingEDGE.csv",
-                                  returnPathOnly = TRUE, where = "mappingfolder")
-    mapping <- read.csv2(mappingfile)
+  }
+
+  if (subtype == "Floorspace") {
+    mappingfile <- toolGetMapping(type = "regional",
+                                  name = "regionmappingEDGE.csv",
+                                  returnPathOnly = TRUE,
+                                  where = "mappingfolder")
+    mapping <- utils::read.csv2(mappingfile)
     region_col <- which(names(mapping) == "RegionCodeEUR_ETP")
     iso_col <- which(names(mapping) == "CountryCode")
 
-    getNames(x) <- paste0("gdp_", getNames(x))
-    wp <- calcOutput("Population", years = rem_years_hist, aggregate = FALSE)
+    popScen <- subset[subset %in% mrdrivers::toolGetScenarioDefinition(driver = "Population", aslist = TRUE)$scenario]
+    wp <- calcOutput("Population",
+                     scenario = unique(c("SSP2", popScen)),
+                     years = rem_years_hist,
+                     aggregate = FALSE)
+    ## For scenarios for which no specific Population data exists, use SSP2 data.
+    wpAdd <- purrr::map(subset[!subset %in% popScen], ~setItems(wp[, , "SSP2"], 3, .x)) %>% mbind()
+    wp <- mbind(wp, wpAdd) %>% mselect(variable = subset)
     getSets(wp) <- gsub("variable", "scenario", getSets(wp))
-    getItems(wp, "scenario") <- gsub("pop_", "gdp_", getItems(wp, "scenario"))
-
-    # duplicate SSP2 for SSP2_lowEn and SSP2_highDemDEU for Navigate and Campaigners scenarios
-    wp <- duplScens(wp)
 
     x <- time_interpolate(x, interpolated_year = rem_years_hist, extrapolation_type = "constant")
     x <- toolAggregate(x[, rem_years_hist, ], mappingfile, weight = wp,
                        from = region_col, to = iso_col)
     result <- x
   }
-  return(result)
+
+  result
 }

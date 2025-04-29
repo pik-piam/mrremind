@@ -4,10 +4,12 @@
 \alias{calcFeDemandBuildings}
 \title{Returns the EDGE-Buildings data as REMIND variables}
 \usage{
-calcFeDemandBuildings(subtype)
+calcFeDemandBuildings(subtype, scenario)
 }
 \arguments{
 \item{subtype}{either "FE", "FE_buildings", or "UE_buildings"}
+
+\item{scenario}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
 \description{
 Returns the EDGE-Buildings data as REMIND variables

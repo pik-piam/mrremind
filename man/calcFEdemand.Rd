@@ -4,11 +4,14 @@
 \alias{calcFEdemand}
 \title{Calculates Final Energy Demand for Industry and Buildings}
 \usage{
-calcFEdemand()
+calcFEdemand(scenario)
+}
+\arguments{
+\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
 }
 \description{
 Calculates Final Energy Demand for Industry and Buildings
 }
 \author{
-Falk Benke
+Falk Benke, Robin Hasse
 }

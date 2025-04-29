@@ -27,5 +27,5 @@ readSource("OECD")
 }
 }
 \seealso{
-[madrat::readSource()]
+\code{\link[madrat:readSource]{madrat::readSource()}}
 }

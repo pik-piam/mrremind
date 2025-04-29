@@ -8,7 +8,6 @@
 #' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
 #'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
-#' @importFrom stats aggregate
 #' @export
 calcAGEB <- function(subtype = "balances") {
   ageb <- readSource("AGEB", subtype = subtype)
@@ -36,7 +35,7 @@ calcAGEB <- function(subtype = "balances") {
     ) %>%
     select("variable" = "REMIND_variable", "region", "year", "value")
 
-  x <- aggregate(value ~ variable + region + year, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 

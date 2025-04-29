@@ -26,9 +26,6 @@ a <- readSource(type = "WEO", subtype = "Capacity")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Renato Rodrigues, Aman Malik, and Jerome Hilaire
 }

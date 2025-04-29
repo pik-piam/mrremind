@@ -23,9 +23,6 @@ Read-in an csv files that contains regional data
 a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
 }
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
 }

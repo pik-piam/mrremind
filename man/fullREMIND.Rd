@@ -7,8 +7,7 @@
 fullREMIND()
 }
 \description{
-Function that produces the complete regional data set required for the
-REMIND model.
+Function that produces the complete regional data set required for the REMIND model.
 }
 \examples{
 \dontrun{
@@ -17,7 +16,7 @@ fullREMIND()
 
 }
 \seealso{
-\code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}}
+\code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 }
 \author{
 Lavinia Baumstark

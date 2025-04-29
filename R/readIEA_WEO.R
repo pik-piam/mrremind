@@ -9,13 +9,11 @@
 #' @return magpie object of the WEO data on generation (TWh), capacities (GW),
 #' emissions (Mt CO2) or disaggregated investment cost as magpie object
 #' @author Renato Rodrigues, Aman Malik, and Jerome Hilaire
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "WEO", subtype = "Capacity")
 #' }
 #'
-#' @importFrom tidyr gather
 #' @importFrom readxl read_excel
 
 readIEA_WEO <- function(subtype) {
@@ -62,14 +60,14 @@ readIEA_WEO <- function(subtype) {
       input <- input_all[, c(15, 1:6)]
       colnames(input)[4:7] <- c(2015, 2020, 2030, 2040)
       input <- input %>%
-        gather(4:7, key = "Year", value = "costs")
+        tidyr::gather(4:7, key = "Year", value = "costs")
 
       x <- as.magpie(input, spatial = 3, temporal = 4, datacol = 5)
     } else if (subtype == "O&M_Costs") {
       input <- input_all[, c(15, 1:2, 7:10)]
       colnames(input)[4:7] <- c(2015, 2020, 2030, 2040)
       input <- input %>%
-        gather(4:7, key = "Year", value = "costs")
+        tidyr::gather(4:7, key = "Year", value = "costs")
 
       x <- as.magpie(input, spatial = 3, temporal = 4, datacol = 5)
     }
@@ -110,7 +108,7 @@ readIEA_WEO <- function(subtype) {
 
       # Primary energy demand
       tmp1 <- tmp_sps[which(tmp_sps[, 1] == "Total primary demand"):(which(tmp_sps[, 1] == "Power sector") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -129,7 +127,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Total primary demand"):(which(tmp_sps[, 1] == "Power sector") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -145,7 +143,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Total primary demand"):(which(tmp_sps[, 1] == "Power sector") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -159,7 +157,7 @@ readIEA_WEO <- function(subtype) {
 
       # Power sector
       tmp2 <- tmp_sps[which(tmp_sps[, 1] == "Power sector"):(which(tmp_sps[, 1] == "Other energy sector") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -177,7 +175,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Power sector"):(which(tmp_sps[, 1] == "Other energy sector") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -193,7 +191,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Power sector"):(which(tmp_sps[, 1] == "Other energy sector") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -208,7 +206,7 @@ readIEA_WEO <- function(subtype) {
 
       # Final energy consumption
       tmp3 <- tmp_sps[which(tmp_sps[, 1] == "Total final consumption"):(which(tmp_sps[, 1] == "Industry") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -226,7 +224,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Total final consumption"):(which(tmp_sps[, 1] == "Industry") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -242,7 +240,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Total final consumption"):(which(tmp_sps[, 1] == "Industry") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -256,7 +254,7 @@ readIEA_WEO <- function(subtype) {
 
       # Final energy consumption (Industry)
       tmp4 <- tmp_sps[which(tmp_sps[, 1] == "Industry"):(which(tmp_sps[, 1] == "Transport") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -274,7 +272,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Industry"):(which(tmp_sps[, 1] == "Transport") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -290,7 +288,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Industry"):(which(tmp_sps[, 1] == "Transport") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -304,7 +302,7 @@ readIEA_WEO <- function(subtype) {
 
       # Final energy consumption (Transport)
       tmp5 <- tmp_sps[which(tmp_sps[, 1] == "Transport"):(which(tmp_sps[, 1] == "Buildings") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -322,7 +320,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Transport"):(which(tmp_sps[, 1] == "Buildings") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -337,7 +335,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Transport"):(which(tmp_sps[, 1] == "Buildings") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -351,7 +349,7 @@ readIEA_WEO <- function(subtype) {
 
       # Final energy consumption (Buildings)
       tmp6 <- tmp_sps[which(tmp_sps[, 1] == "Buildings"):(which(tmp_sps[, 1] == "Other") - 1), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -369,7 +367,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Buildings"):(which(tmp_sps[, 1] == "Other") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -384,7 +382,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Sustainable Development Scenario"),
           tmp_sds[which(tmp_sps[, 1] == "Buildings"):(which(tmp_sps[, 1] == "Other") - 1), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Sustainable Development Scenario") %>%
@@ -397,7 +395,7 @@ readIEA_WEO <- function(subtype) {
 
       # Final energy consumption (Other)
       tmp7 <- tmp_sps[which(tmp_sps[, 1] == "Other"):which(tmp_sps[, 1] == "Petrochem. feedstock"), ] %>%
-        gather(period, value, -variable) %>%
+        tidyr::gather(period, value, -variable) %>%
         mutate(period = as.numeric(period)) %>%
         mutate(model = "IEA-WEM2019") %>%
         mutate(scenario = "Stated Policies Scenario") %>%
@@ -413,7 +411,7 @@ readIEA_WEO <- function(subtype) {
             filter(period < 2025) %>%
             mutate(scenario = "Current Policies Scenario"),
           tmp_cps[which(tmp_sps[, 1] == "Other"):which(tmp_sps[, 1] == "Petrochem. feedstock"), ] %>%
-            gather(period, value, -variable) %>%
+            tidyr::gather(period, value, -variable) %>%
             mutate(period = as.numeric(period)) %>%
             mutate(model = "IEA-WEM2019") %>%
             mutate(scenario = "Current Policies Scenario") %>%
@@ -427,7 +425,7 @@ readIEA_WEO <- function(subtype) {
               filter(period < 2025) %>%
               mutate(scenario = "Sustainable Development Scenario"),
             tmp_sds[which(tmp_sps[, 1] == "Other"):which(tmp_sps[, 1] == "Petrochem. feedstock"), ] %>%
-              gather(period, value, -variable) %>%
+              tidyr::gather(period, value, -variable) %>%
               mutate(period = as.numeric(period)) %>%
               mutate(model = "IEA-WEM2019") %>%
               mutate(scenario = "Sustainable Development Scenario") %>%

@@ -9,8 +9,7 @@
 #'
 #' @return MAgPIE object
 #' @author Christoph Bertram and Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
-#' \code{\link{convertIIASA_subs_taxes}}
+#' @seealso \code{\link{readIIASA_subs_taxes}}, \code{\link{convertIIASA_subs_taxes}}
 #' @examples
 #' \dontrun{
 #' calcOutput("FETaxes")
@@ -128,5 +127,5 @@ calcFETaxes <- function(subtype = "taxes") {
   # for cooling and low for cooking
   # So, we can assume that countries are app. similar in a given region
 
-  return(list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc))
+  list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc)
 }

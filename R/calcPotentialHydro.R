@@ -1,39 +1,36 @@
 #' Calculate hydro potential
-#' 
+#'
 #' Provides hydro potential data
-#' 
-#' 
+#'
+#'
 #' @return hydro potential data and corresonding weights as a list of two
 #' MAgPIE objects
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{calcOutput}}, \code{\link{readWGBU}},
-#' \code{\link{convertWGBU}}, \code{\link{readSource}}
+#' @seealso \code{\link{readWGBU}}, \code{\link{convertWGBU}}
 #' @examples
-#' 
-#' \dontrun{ 
+#'
+#' \dontrun{
 #' calcOutput("PotentialHydro")
-#' 
 #' }
-#' 
-
+#'
 calcPotentialHydro <- function() {
-  
-  # read hydro data 
+
+  # read hydro data
   wgbu <- readSource("WGBU")
-  
+
   # technical potential
   techPot  <- wgbu[,,"Technisches Potenzial (TWh/a)"]
   # economic potential
   ecoPot  <- wgbu[,,"Wirtschaftlich es Potenzial (TWh/a)"]
   # produced electricity
-  # 
+  #
   # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
   prodElec <- readSource("IRENA","Generation")
   prodElec <- prodElec[,2015,"Renewable hydropower"] / 1000
-  
+
   IRENA_hydro_cap <- readSource("IRENA","Capacity") # in MW
   IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Renewable hydropower"]
-  
+
   # ensure that overall potential can produce the generation of 2015, if not set potential to IRENA 2015 generation
   checkDiff <- new.magpie(getRegions(techPot),NULL,fill = 0)
   for(r in getRegions(techPot)){
@@ -45,18 +42,18 @@ calcPotentialHydro <- function() {
   for(r in regions){
 	techPot[r,,"Technisches Potenzial (TWh/a)"] <- prodElec[r,,]
   }
-  
+
   # calculate rest of technical potential (minus installed capacity)
   restPot <- setNames(techPot - prodElec, "restPotential")
-  
+
   restPot[restPot<0] <- 0 #making sure that we do not have negative potentials
-  
+
   # calculate capacity factors for each country
   # capFac <- setNames(prodElec / wgbu[,,"Derzeit installierte Leistung (MW)"] / 8760 * 1000000, "capacityFactor")
   capFac <- setNames((prodElec / IRENA_hydro_cap) / 8760 * 1000000, "capacityFactor")
   # set capacity factor of regions with no installed capacity to 0
   capFac[is.na(capFac)] <- 0
-  
+
   # produced electricity data with grade dimension
   prodElecGrade <- new.magpie(getRegions(prodElec),getYears(prodElec),c("1","2","3","4","5"),fill=0)
   for(r in getRegions(prodElec)){
@@ -72,15 +69,15 @@ calcPotentialHydro <- function() {
       prodElecGrade[r,,"5"] <- prodElec[r,,]
     }
   }
-  
+
   for (r in getRegions(restPot)){
     if (any(prodElecGrade[r,,]!=0) & techPot[r,,]==0)
       techPot[r,,] <- 0.1
   }
-  
+
   # rest of technical potential data with grade dimension
   restPotGrade  <- new.magpie(getRegions(restPot),getYears(restPot),c("1","2","3","4","5"),fill=0)
-  # allocate rest potential 
+  # allocate rest potential
   # (number of grades that can be filled depends on the grade of the installed capacity)
   # (3 categories depending on the share of installed capcity to the technical potential)
   for(r in getRegions(restPot)){
@@ -112,7 +109,7 @@ calcPotentialHydro <- function() {
           restPotGrade[r,,"3"] <- 0.25 * restPot[r,,]
           restPotGrade[r,,"4"] <- 0.15 * restPot[r,,]
           restPotGrade[r,,"5"] <- 0.10 * restPot[r,,]
-        }  
+        }
       } else if (which(prodElecGrade[r,,]!=0) == 2) { # installed capacity in the 2nd grade
         cat("second grade","\n")
         if(ecoPot[r,,]/techPot[r,,] <= 0.5){                                               # category 1
@@ -130,7 +127,7 @@ calcPotentialHydro <- function() {
           restPotGrade[r,,"3"] <- 0.25 * restPot[r,,]
           restPotGrade[r,,"4"] <- 0.25 * restPot[r,,]
           restPotGrade[r,,"5"] <- 0.20 * restPot[r,,]
-        }  
+        }
       } else if (which(prodElecGrade[r,,]!=0) == 3) { # installed capacity in the 3rd grade
         cat("third grade","\n")
         if(ecoPot[r,,]/techPot[r,,] <= 0.5){                                               # category 1
@@ -157,7 +154,7 @@ calcPotentialHydro <- function() {
         } else if (ecoPot[r,,]/techPot[r,,] > 0.75){                                       # category 3
           restPotGrade[r,,"4"] <- 0.55 * restPot[r,,]
           restPotGrade[r,,"5"] <- 0.45 * restPot[r,,]
-        }  
+        }
       } else if (which(prodElecGrade[r,,]!=0) == 5) { # installed capacity in the 5th grade
         cat("fifth grade","\n")
         if(ecoPot[r,,]/techPot[r,,] <= 0.5){                                               # category 1
@@ -166,17 +163,17 @@ calcPotentialHydro <- function() {
           restPotGrade[r,,"5"] <- 1/1 * restPot[r,,]
         } else if (ecoPot[r,,]/techPot[r,,] > 0.75){                                       # category 3
           restPotGrade[r,,"5"] <- 1.00 * restPot[r,,]
-        }  
+        }
       } # grade of installed capacity
-    } # instaed capacity yes/no 
+    } # instaed capacity yes/no
   } # r - countries
-  
-  
+
+
   maxprod <- restPotGrade + prodElecGrade
-  
+
   # convert into EJ/a
   maxprod <- maxprod * 0.0036
-  
+
   # add "nur" data, use categories from prodElecGrade
   nur <- new.magpie(getRegions(maxprod),getYears(maxprod),getNames(maxprod))
   nur[,,"5"] <- 0.15
@@ -184,47 +181,39 @@ calcPotentialHydro <- function() {
   nur[,,"3"] <- 0.35
   nur[,,"2"] <- 0.45
   nur[,,"1"] <- 0.55
-  
+
   # put maxprod and nur together
   maxprod <- add_dimension(maxprod,dim=3.1,add="char",nm="maxprod")
   nur     <- add_dimension(nur,dim=3.1,add="char",nm="nur")
   data <- mbind(maxprod,nur)
-  
+
   # create weight-matrix
   w <- new.magpie(getRegions(data),getYears(data),getNames(data),fill=1)
   w[,,"maxprod"] <- NA
-  
+
   # delete temporal dimension for GAMS
   getYears(data) <- NULL
-  
-  ### specific countries
-  data[c("BEL","LUX","NLD"),,"maxprod"] <- data[c("BEL","LUX","NLD"),,"maxprod"]*1.3
-  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.05
-  data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*1.625
-  
+
+  ### specific countries: increase potential beyond NDC targets
+  data[c("BEL","LUX","NLD","AUT"),,"maxprod"] <- data[c("BEL","LUX","NLD","AUT"),,"maxprod"]*1.3 # EWN
+  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.365 #ECE
+  data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*2.1 # UKI
+
   # FS: Australia reached full hydro potential today at about 0.07 EJ/yr
   # e.g. DII Australia 2015: http://www.eria.org/RPR_FY2014_No.33_Chapter_2.pdf
   # assignning all potential to fourth grade since this is the last grade used by REMIND
   data["AUS",,"maxprod"] <- 0
   data["AUS",,"maxprod.4"] <- 0.07
-  
+
   # AM: slightly increase hydro potential for VTM to allow REN21 targets
   data["VNM",,"maxprod"] <- data["VNM",,"maxprod"]*1.05
-  
+
   # FS: in Northern Central Europe region (ENC) potential is slightly below current capacity
   # increase potentials by 5% to avoid infeasibility with capacity targets in NDC2018 realization
   data["FIN",,"maxprod"] <- data["FIN",,"maxprod"]*1.05
   data["DNK",,"maxprod"] <- data["DNK",,"maxprod"]*1.05
   data["SWE",,"maxprod"] <- data["SWE",,"maxprod"]*1.05
   data["DEU",,"maxprod"] <- data["DEU",,"maxprod"]*1.05
-  
-  # AO: Increase hydro potential in ECE region to avoid infeasibilities
-  data["CZE",,"maxprod"] <- data["CZE",,"maxprod"]*1.3
-  data["EST",,"maxprod"] <- data["EST",,"maxprod"]*1.3
-  data["LVA",,"maxprod"] <- data["LVA",,"maxprod"]*1.3
-  data["LTU",,"maxprod"] <- data["LTU",,"maxprod"]*1.3
-  data["POL",,"maxprod"] <- data["POL",,"maxprod"]*1.3
-  data["SVK",,"maxprod"] <- data["SVK",,"maxprod"]*1.3
 
   return(list(x                 = data,
               weight            = w,

@@ -9,8 +9,7 @@ readExpertGuess(subtype)
 \arguments{
 \item{subtype}{Type of data that should be read.  One of
 \itemize{
-\item \code{Chinese_Steel_Production}: "Smooth" production estimates by Robert
-Pietzcker (2022).
+\item \code{Steel_Production}: Steel production estimates
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel
 production in total steel production and years between which a linear
 convergence from historic to target shares is to be applied.
@@ -36,9 +35,6 @@ Read-in data that are based on expert guess
 a <- readSource(type = "ExpertGuess", subtype = "ies")
 }
 
-}
-\seealso{
-\code{\link{readSource}}
 }
 \author{
 Lavinia Baumstark
