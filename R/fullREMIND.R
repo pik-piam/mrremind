@@ -152,6 +152,7 @@ fullREMIND <- function() {
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
+
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -237,12 +238,6 @@ fullREMIND <- function() {
   calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
-
-  calcOutput("EffortSharingTarget",                         round = 3, file = "p47_ESR_target.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2", round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
-  calcOutput("ETSRefEmi", subtype = "EEA_GHG",              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-
 
   calcOutput("Industry_CCS_limits",
              scenarios = feDemScen,
