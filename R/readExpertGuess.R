@@ -110,6 +110,14 @@ readExpertGuess <- function(subtype) {
                     header = FALSE) %>%
       as.magpie(datacol = 4)
   }
+  if (subtype == "subConvergenceRollback") {
+    out <- read.csv("sub_convergence_rollback.csv",
+                    sep = ",",
+                    skip = 4,
+                    col.names = c("Year", "Region", "sector", "FE", "value"),
+                    header = FALSE) %>%
+      as.magpie(datacol = 5)
+  }
 
   out
 }
