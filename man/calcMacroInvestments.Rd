@@ -13,7 +13,7 @@ if supplementary is set to TRUE.
 }
 \description{
 Compute macroeconomic capital investments based on investments shares from the PWT and GDP scenarios from
-\link{mrdrivers}. The final investments are the product of the two.
+mrdrivers. The final investments are the product of the two.
 }
 \seealso{
 \itemize{

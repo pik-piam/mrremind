@@ -14,7 +14,7 @@ magpie object of the IRENA data with historical electricity renewable
 capacities (MW) or generation levels (GWh)
 }
 \description{
-Read-in an IRENA csv file as magclass object
+Read-in an IRENA xlsx file as magclass object
 }
 \examples{
 \dontrun{
@@ -22,9 +22,6 @@ a <- readSource(type = "IRENA", subtype = "Capacity")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
-Renato Rodrigues
+Renato Rodrigues, Pascal Weigmann
 }

@@ -21,6 +21,3 @@ Get data on enhanced weathering
 a <- readSource(type="Strefler", subtype="weathering_graderegi")
 }
 }
-\seealso{
-\code{\link{readSource}}
-}

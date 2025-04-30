@@ -9,7 +9,6 @@
 #' \item \code{dataFuture}: The Daves source data for the future }
 #' @return MAgPIE object of the Davies (2013) data
 #' @author Lavinia Baumstark, Ioanna Mouratiadou
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "DaviesCooling")

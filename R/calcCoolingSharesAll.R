@@ -12,12 +12,10 @@
 #' @return MAgPIE object on cooling type shares per elecricity technology and
 #' REMIND region
 #' @author Ioanna Mouratiadou
-#' @seealso \code{\link{calcOutput}}, \code{\link{readDaviesCooling}},
-#' \code{\link{convertDaviesCooling}},
+#' @seealso \code{\link{readDaviesCooling}}, \code{\link{convertDaviesCooling}},
 #' \code{\link{calcCoolingSharesBase}},\code{\link{calcCoolingSharesFuture}}
 #' @examples
 #' \dontrun{
-#'
 #' a <- calcOutput("CoolingSharesAll")
 #' }
 #'

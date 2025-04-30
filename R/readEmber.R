@@ -4,7 +4,6 @@
 #'
 #' @author Pascal Weigmann
 #'
-#' @seealso [`readSource()`]
 #' @source https://ember-climate.org/data-catalogue/yearly-electricity-data/
 #'
 #' @importFrom dplyr select

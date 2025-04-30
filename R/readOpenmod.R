@@ -3,7 +3,7 @@
 #' Read-in an modified openmod capacities data file as magclass object
 #'
 #' @return magpie object of the LIMES team updated Openmod data on capacities (GW)
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "Openmod")

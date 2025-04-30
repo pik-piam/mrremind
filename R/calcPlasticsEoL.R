@@ -7,8 +7,6 @@
 #'
 #' @author Falk Benke, Simón Moreno Leiva
 #'
-#' @seealso [`calcOutput()`]
-#'
 #' @importFrom dplyr filter pull select
 #' @importFrom tibble as_tibble
 #' @export

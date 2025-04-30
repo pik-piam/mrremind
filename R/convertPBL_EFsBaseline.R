@@ -4,6 +4,7 @@
 #' per unit of activity.
 #'
 #' @return A [`magpie`][magclass::magclass] object.
+#' @param x a magpie object
 #'
 #' @importFrom dplyr mutate select
 #'

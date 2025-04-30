@@ -25,5 +25,5 @@ a <- convertIRENA(x, subtype = "Capacity")
 
 }
 \author{
-Renato Rodrigues
+Renato Rodrigues, Pascal Weigmann
 }

@@ -44,6 +44,6 @@ calcFEShares <- function(subtype, scenario) {
 
   list(x = share,
        weight = weight,
-       unit = "dimensionless",
+       unit = "fraction",
        description = descr)
 }

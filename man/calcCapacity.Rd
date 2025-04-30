@@ -21,5 +21,5 @@ calcOutput("Capacity", subtype = "capacityByTech")
 }
 }
 \author{
-Renato Rodrigues, Stephen Bi
+Renato Rodrigues, Stephen Bi, Fabrice Lécuyer
 }

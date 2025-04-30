@@ -10,7 +10,7 @@
 #' calcOutput("EmiReference")
 #' }
 #'
-calcEmiReference <-  function() {
+calcEmiReference <- function() {
 
   # eea.emi.ets <- readSource("EEA_EuropeanEnvironmentAgency", subtype="sectoral")[,,"Emi|GHG|ETS (Mt CO2-equiv/yr)"]
   eea.emi.ets <- setNames(dimSums(readSource("EEA_EuropeanEnvironmentAgency", subtype = "ETS")[, , c("2_ Verified emissions.20-99 All stationary installations", "3_ Estimate to reflect current ETS scope for allowances and emissions.20-99 All stationary installations")]), "Emi|GHG|ETS (Mt CO2-equiv/yr)")
@@ -33,28 +33,33 @@ calcEmiReference <-  function() {
 
   # ETS + ESR emission target reduction in relation to 1990 = 40% reduction by 2030
 
-
   out <- NULL
-  out <- mbind(out,
-               setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.40), 2030), "Emi|GHG|target|40% (Mt CO2eq/yr)"), # target without lulucf
-               setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.55), 2030), "Emi|GHG|target|55% (Mt CO2eq/yr)"), # target without lulucf
-               setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.65), 2030), "Emi|GHG|target|65% (Mt CO2eq/yr)")  # target without lulucf
-               )
+  out <- mbind(
+    out,
+    setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.40), 2030), "Emi|GHG|target|40% (Mt CO2eq/yr)"), # target without lulucf
+    setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.55), 2030), "Emi|GHG|target|55% (Mt CO2eq/yr)"), # target without lulucf
+    setNames(setYears(eea.emi.total_EEA[, 1990, "Emi|GHG (Mt CO2eq/yr)"] * (1 - 0.65), 2030), "Emi|GHG|target|65% (Mt CO2eq/yr)") # target without lulucf
+  )
 
   # ESR emission target - per country ESR reduction target for 2030 = reduction of 40% by 2030 compared to 2005
   esr_target_perc <- readSource("Eurostat_EffortSharing", subtype = "target")
   esr_target <- setYears(eea.emi.esr[, 2005, ], NULL) * (1 + esr_target_perc)
   esr_target[esr_target == 0] <- NA
-  out <- mbind(out,
-               setNames(esr_target[, 2030, ], "Emi|GHG|ESR|target|40% (Mt CO2eq/yr)")
+  out <- mbind(
+    out,
+    setNames(esr_target[, 2030, ], "Emi|GHG|ESR|target|40% (Mt CO2eq/yr)")
   )
 
   # ETS emission target (reduction of 2030 emissions by 61% compared to 2005)
   ets_target <- setYears(eea.emi.ets[, 2005, ] * (1 - 0.61), 2030)
   ets_target[ets_target == 0] <- NA
-  out <- mbind(out,
-               setNames(ets_target, "Emi|GHG|ETS|target|61% (Mt CO2eq/yr)")
+  out <- mbind(
+    out,
+    setNames(ets_target, "Emi|GHG|ETS|target|61% (Mt CO2eq/yr)")
   )
 
-  return(list(x = out, weight = NULL, unit = "Mt CO2eq/yr", description = "Emission reduction targets"))
+  out <- toolFillEU34Countries(out)
+
+  return(list(x = out, weight = NULL, unit = "Mt CO2eq/yr",
+              description = "European 2030 emission targets in relation to 1990 and 2005 emissions"))
 }

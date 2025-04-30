@@ -14,9 +14,6 @@ magpie object of the cemo database data
 read-in power Australian gas extraction cost curve based on Dylan's data
 Australian contact: Dylan McConnell, dylan.mcconnell(at)unimelb.edu.au
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Felix Schreyer
 }

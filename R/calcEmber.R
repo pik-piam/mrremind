@@ -7,8 +7,6 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' @seealso [`calcOutput()`]
-#'
 #' @author Pascal Weigmann
 #'
 #'

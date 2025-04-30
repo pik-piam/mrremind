@@ -1,7 +1,7 @@
 #' @title Prepare EDGETransport inputs
 #'
 #' @author Johanna Hoppe
-#' @seealso \code{\link{readSource}}
+#'
 #' @param subtype  REMIND/iterative EDGE-T input data subtypes
 #' @return REMIND/iterative EDGE-T input data for all scenario combinations
 #' @examples

@@ -15,11 +15,8 @@
 #'
 #' @author Robert Pietzcker, Falk Benke
 #'
-#' @seealso [`calcOutput()`]
-#'
 #' @export
 #'
-
 calcOtherFossilInElectricity <- function() {
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5

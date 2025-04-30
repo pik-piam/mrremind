@@ -23,9 +23,6 @@ coefficients per electricity technology
 a <- readSource(type = "MacknickIntensities", convert = FALSE)
 }
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Ioanna Mouratiadou
 }
