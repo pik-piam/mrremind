@@ -51,7 +51,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
 
     # TODO: is this still needed?
     if ("FE-Production-Share" %in% getNames(x[, , ], fulldim = TRUE)$`Type of target`) {
-      warning("FE-Production-Share currently not implemented.")
+      message("FE-Production-Share currently not implemented.")
     }
 
     x[is.na(x)] <- 0 # Converting all NAs to zero

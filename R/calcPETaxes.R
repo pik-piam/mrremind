@@ -45,6 +45,9 @@ calcPETaxes <- function(subtype = "subsidies") {
   Rtax <- Rtax / Renergy * 1e9 # converting from billion$/GJ to $/GJ
   Rtax[is.na(Rtax)] <- 0
 
+  # avoid zero weights, as they cause a warning in aggregation
+  Renergy[Renergy == 0] <- 1e-10
+
   # set base year
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"

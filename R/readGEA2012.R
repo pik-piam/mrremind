@@ -177,7 +177,7 @@ readGEA2012 <- function(subtype) {
     # Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
     w <- dimSums(w, dim = 3)
     sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingREM11, weight = NULL)
-    sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingGEA, weight = w)
+    sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingGEA, weight = w, zeroWeight = "allow")
 
     ordered_names <- list(list())
 
