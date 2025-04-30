@@ -38,6 +38,7 @@ calcGAINSEmi <- function(subtype = "emissions") {
     unit <- "Mt"
     description <- "Emissions from GAINS for all CEDS setors execpt aviation and shipping"
     weight <- NULL
+    aggregationArguments <- NULL
 
   } else if (subtype == "emission_factors") {
     ef_gains_ext_in  <- calcOutput("GAINS", subtype = "emission_factors", sectoral_resolution = "extended", aggregate = FALSE) # in Tg/TWa
@@ -68,9 +69,9 @@ calcGAINSEmi <- function(subtype = "emissions") {
     description <- "Emission factors from GAINS for all CEDS setors execpt aviation and shipping"
 
     weight <- emi_gains
-    # avoid zero weights, as they cause a warning in aggregation
-    weight[weight == 0] <- 1e-10
 
+    # do not throw a warning for zero weights, as they seem to be intended
+    aggregationArguments <- list(zeroWeight = "allow")
   } else if (subtype == "emissions_starting_values") {
 
     start_value_REMIND_regions <- readSource(type = "REMIND_11Regi", subtype = "AP_starting_values", convert = TRUE)
@@ -79,12 +80,13 @@ calcGAINSEmi <- function(subtype = "emissions") {
     unit <- "Mt"
     description <- "AP starting values for the first iteration of REMIND"
     weight <- NULL
-
+    aggregationArguments <- NULL
   }
 
   return(list(x = x,
               weight = weight,
               unit = unit,
-              description = description))
+              description = description,
+              aggregationArguments = aggregationArguments))
 
 }
