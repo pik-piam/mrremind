@@ -22,9 +22,6 @@ a <- readSource(type = "BGR", subtype = "oil")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Renato Rodrigues
 }

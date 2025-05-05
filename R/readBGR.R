@@ -7,7 +7,6 @@
 #' @return magpie object of the BGR (Federal Institute for Geosciences and
 #' Natural Resources) data of reserves of oil, gas, coal and uranium per country.
 #' @author Renato Rodrigues
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "BGR", subtype = "oil")

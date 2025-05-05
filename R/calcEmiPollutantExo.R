@@ -5,7 +5,7 @@
 #' @author Julian Oeser
 #' @param subtype Either 'Waste' or 'AviationShipping'
 #' @param aviationshippingsource Defines source for aviation and shipping emissions. Either 'RCP' or 'LeeGAINS'.
-#' @seealso \code{\link{calcOutput}}
+#'
 #' @examples
 #' \dontrun{ a <- calcOutput(type="EmiPollutantExo")
 #' }

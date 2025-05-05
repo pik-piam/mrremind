@@ -19,7 +19,6 @@
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "ExpertGuess", subtype = "ies")

@@ -21,9 +21,6 @@ to REMIND and the iterative EDGE-T script
 a <- readSource(type = "EDGETransport")
 }
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Johanna Hoppe
 }

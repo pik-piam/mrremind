@@ -13,5 +13,5 @@ calcFEdemand(scenario)
 Calculates Final Energy Demand for Industry and Buildings
 }
 \author{
-Falk Benke
+Falk Benke, Robin Hasse
 }

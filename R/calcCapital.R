@@ -1,9 +1,9 @@
 #' Calculate macroeconomic capital stock
 #'
-#' Compute macroeconomic capital stock based on capital intensities from PWT and GDP scenarios from [mrdrivers].
+#' Compute macroeconomic capital stock based on capital intensities from PWT and GDP scenarios from mrdrivers.
 #' The PWT capital intensities are used up until 2010. After that, the capital intensities converge towards
 #' that of Japan in 2010, at speeds that vary across scenarios. The final capital stocks are the product
-#' of the capital intensities and the gdp scenarios from [mrdrivers].
+#' of the capital intensities and the gdp scenarios from mrdrivers.
 #'
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' @export

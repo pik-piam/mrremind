@@ -4,7 +4,7 @@
 #' @param subtype Either 'Waste' or 'AviationShipping'
 #' @return magpie object of the RCP data
 #' @author Julian Oeser
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{ a <- readSource(type="RCP", subtype="Waste")
 #' }

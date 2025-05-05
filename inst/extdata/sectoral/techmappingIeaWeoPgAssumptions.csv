@@ -25,5 +25,5 @@
 "Solar photovoltaics - Buildings";"spv";
 "Concentrating solar power";"csp";
 "Marine";"NA";"Not in REMIND"
-"Wind onshore";"wind";
-"Wind offshore";"NA";"Not in REMIND"
+"Wind onshore";"windon";
+"Wind offshore";"windoff";

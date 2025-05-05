@@ -4,7 +4,7 @@
 #'
 #' @author Lavinia Baumstark
 #' @seealso
-#' \code{\link{readSource}}, \code{\link{getCalculations}}, \code{\link{calcOutput}}
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @export
 #' @examples
 #' \dontrun{
@@ -100,22 +100,22 @@ fullREMIND <- function() {
   calcOutput("EmiMac1990",                                                      round = 5, file = "p_macBase1990.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2005,                                     round = 5, file = "p_macBaseCEDS2005.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
-  calcOutput("MACCbaseN2O",  source = "PBL_2007",                              round = 5, file = "p_macBaseVanv.cs4r")
-  calcOutput("MACCbaseN2O",  source = "PBL_2022",                              round = 5, file = "p_macBaseHarmsen2022.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2007",                               round = 5, file = "p_macBaseVanv.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2022",                               round = 5, file = "p_macBaseHarmsen2022.cs4r")
   calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
   calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
   calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs4r")
   calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs4r")
   calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
   calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
-  calcOutput("EmiFossilFuelExtr", source = "CEDS2024",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
+  calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = TRUE,    round = 5, file = "f11_emiFacAP.cs4r")
+  calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
   calcOutput("EmiLULUCFCountryAcc", subtype = "UNFCCC",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
@@ -141,8 +141,9 @@ fullREMIND <- function() {
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
 
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r")
-  calcOutput("Capacity", subtype = "capacityByTech_windoff",           round = 6,  file = "pm_histCap_windoff.cs3r")
+  avg5years <- quitte::remind_timesteps # average over 5y before 2023
+  avg5years <- avg5years[(avg5years$period <= 2020) | avg5years$period == avg5years$year,,]
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = avg5years)
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
@@ -156,6 +157,7 @@ fullREMIND <- function() {
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
+
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -167,8 +169,7 @@ fullREMIND <- function() {
   calcOutput("FossilExtraction", subtype = "FossilExtraction",         round = 9,  file = "f31_ffPolyCoeffs.cs3r")
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
   calcOutput("DiffInvestCosts",                                        round = 4,  file = "p_inco0.cs4r")
-  calcOutput("CapacityFactorHist", subtype = "wind",                   round = 4,  file = "p_histCapFac.cs4r")
-  calcOutput("CapacityFactorHist", subtype = "windoff",                round = 4,  file = "p_histCapFac_windoff.cs4r")
+  calcOutput("CapacityFactorHist",                                     round = 4,  file = "p_histCapFac.cs4r")
   calcOutput("GEA2012", subtype = "coal",                              round = 8,  file = "p31_grades_coal.cs4r")
   calcOutput("GEA2012", subtype = "gas",                               round = 8,  file = "p31_grades_gas.cs4r")
   calcOutput("GEA2012", subtype = "oil",                               round = 8,  file = "p31_grades_oil.cs4r")
@@ -235,17 +236,13 @@ fullREMIND <- function() {
 
   #---------------files used in reporting-------------------------------------------------------------
 
-  calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r")
+  calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r", aggregate = "reg+glo")
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
   calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
+  calcOutput("Emissions4ReportExtra", sectors = "CEDS", round = 9, file = "p_emissions4ReportExtraCEDS.cs4r")
+  calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
 
-  #---------------no longer used in REMIND-------------------------------------------------------------
-
-  calcOutput("EffortSharingTarget",                         round = 3, file = "p47_ESR_target.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2", round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
-  calcOutput("ETSRefEmi", subtype = "EEA_GHG",              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-
+  #---------------no longer used in REMIND develop-----------------------------------------------------
 
   calcOutput("Industry_CCS_limits",
              scenarios = feDemScen,

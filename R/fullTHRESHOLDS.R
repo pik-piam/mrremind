@@ -49,21 +49,40 @@ fullTHRESHOLDS <- function(type = "config") {
                       aggregate = columnsForAggregation, round = 3,
                       warnNA = FALSE, try = FALSE, years = years)
 
+  # hydro from IEA HSMR doesn't add up to global total, so calculate those here
+  hydroGlo <- readSource("IEA_HSMR", convert = FALSE)
+  hydroGlo <- hydroGlo["World", , ]
+  getItems(hydroGlo, dim = 1) <- "GLO"
+  hydroGlo <- add_columns(hydroGlo, addnm = c("y2025"), dim = 2, fill= NA)
+
+  # overwrite aggregated global values with explicit ones using
+  # same assumptions as used in calcProjectPipelines for regions
+  hydro["GLO", , "operational"] <- hydroGlo[, , "operational"]
+  hydro["GLO", , "expected"]    <- hydroGlo[, , "expected"]
+  hydro["GLO", , "accelerated"] <- hydroGlo[, , "accelerated"]
+  hydro["GLO", , "pumped"]      <- hydroGlo[, , "pumped"]
+
+  hydro["GLO", , "min_red"] <- hydroGlo[, , "operational"]
+  hydro["GLO", , "min_yel"] <- hydroGlo[, , "expected"]
+  hydro["GLO", , "max_yel"] <- hydroGlo[, , "accelerated"] + hydroGlo[, , "pumped"]
+  hydro["GLO", , "max_red"] <- hydroGlo[, , "accelerated"]*1.3 + hydroGlo[, , "pumped"]
+
+
   nuclear <- calcOutput("ProjectPipelines", subtype = "nuclear",
                         aggregate = columnsForAggregation, round = 3,
                         warnNA = FALSE, try = FALSE, years = years)
 
-  wind <- calcOutput("ProjectPipelines", subtype = "wind",
-                     aggregate = columnsForAggregation, round = 3,
-                     warnNA = FALSE, try = FALSE, years = years)
-
-  solar <- calcOutput("ProjectPipelines", subtype = "solar",
-                      aggregate = columnsForAggregation, round = 3,
-                      warnNA = FALSE, try = FALSE, years = years)
+  # wind <- calcOutput("ProjectPipelines", subtype = "wind",
+  #                    aggregate = columnsForAggregation, round = 3,
+  #                    warnNA = FALSE, try = FALSE, years = years)
+  #
+  # solar <- calcOutput("ProjectPipelines", subtype = "solar",
+  #                     aggregate = columnsForAggregation, round = 3,
+  #                     warnNA = FALSE, try = FALSE, years = years)
 
 
   # combine and export data to madrat output folder
-  out <- mbind(ccs, hydro, nuclear, wind, solar)
+  out <- mbind(ccs, hydro, nuclear)  #, wind, solar)
   # remove ROW region, in case it exists (from using extra region mappings)
   out <- out["ROW", , invert = TRUE]
 
@@ -168,7 +187,13 @@ fullTHRESHOLDS <- function(type = "config") {
   if (type == "full") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"
-    outfile <- "pipelines.mif"
+    outfile <- paste0(
+      "pipelines_",
+      gsub(".csv", "", gsub("regionmapping", "", getConfig("regionmapping"))),
+      "_",
+      Sys.Date(),
+      ".mif")
+
     quitte::as.quitte(out) %>%
       mutate("variable" = paste(.data$variable, .data$status, sep = "|")) %>%
       select(-"scenario", -"status") %>%
@@ -178,7 +203,12 @@ fullTHRESHOLDS <- function(type = "config") {
   } else if (type == "config") {
     # write report containing only the "min/max" thresholds in extra columns
     # (as used in a validationConfig)
-    outfile <- "thresholds.mif"
+    outfile <- paste0(
+      "thresholds_",
+      gsub(".csv", "", gsub("regionmapping", "", getConfig("regionmapping"))),
+      "_",
+      Sys.Date(),
+      ".mif")
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       quitte::as.quitte() %>%
       tidyr::pivot_wider(names_from = "status") %>%

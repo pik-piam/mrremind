@@ -16,7 +16,7 @@
 #' @return magpie objects of unweighted contribution to Theil, weights (= country shares of regional GDP)
 #' @param scenario A string (or vector of strings) designating the scenario(s) to be returned. Passed as is
 #' to the scenario argument of [mrdrivers::calcGDP].
-#' @seealso \code{\link{calcOutput}}, \code{\link{readGini}}
+#' @seealso \code{\link{readGini}}
 #'
 calcTheil <- function(scenario) {
   # Get SSP Gini projections

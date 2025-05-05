@@ -17,9 +17,6 @@ prepare the yearly Ember electricity data set
 To use only a part of the Ember data, call calcOutput("Ember", subtype = "...")
 and convert to TW if you want to use capacities as input data to REMIND.
 }
-\seealso{
-\code{\link[=calcOutput]{calcOutput()}}
-}
 \author{
 Pascal Weigmann
 }

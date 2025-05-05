@@ -9,7 +9,9 @@
 #'
 #' @export
 calcCCScapacity <- function(subtype) {
-  x <- calcOutput("ProjectPipelines", subtype = "CCS", aggregate = F)
+
+  x <- calcOutput("ProjectPipelines", subtype = "CCS",
+                  aggregate = FALSE, warnNA = FALSE)
 
   if (subtype == "pipeline") {
     # used as input-data for CCS bounds

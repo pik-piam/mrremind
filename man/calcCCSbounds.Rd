@@ -9,9 +9,6 @@ calcCCSbounds()
 \description{
 Calculate CCS bound indicator for 2025 and 2030
 }
-\seealso{
-\code{\link{calcOutput}}, \code{\link{readSource}}
-}
 \author{
 Jessica Strefler, Lavinia Baumstark
 }

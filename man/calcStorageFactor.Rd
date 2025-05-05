@@ -18,9 +18,6 @@ calcOutput("StorageFactor")
 }
 
 }
-\seealso{
-\code{\link{calcOutput}}
-}
 \author{
 Lavinia Baumstark
 }

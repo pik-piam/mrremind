@@ -15,14 +15,12 @@ Provides wind offshore potential data
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialWindOff")
-
 }
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readNREL}},
-\code{\link{convertNREL}}, \code{\link{readSource}}
+\code{\link{readNREL}}, \code{\link{convertNREL}}
 }
 \author{
 Chen Chris Gong
