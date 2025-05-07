@@ -95,8 +95,8 @@ fullREMIND <- function() {
   calcOutput("EmiMac1990",                                                      round = 5, file = "p_macBase1990.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2005,                                     round = 5, file = "p_macBaseCEDS2005.cs4r")
   calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
-  calcOutput("MACCbaseN2O",  source = "PBL_2007",                              round = 5, file = "p_macBaseVanv.cs4r")
-  calcOutput("MACCbaseN2O",  source = "PBL_2022",                              round = 5, file = "p_macBaseHarmsen2022.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2007",                               round = 5, file = "p_macBaseVanv.cs4r")
+  calcOutput("MACCbaseN2O",  source = "PBL_2022",                               round = 5, file = "p_macBaseHarmsen2022.cs4r")
   calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
   calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
   calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs4r")
@@ -136,8 +136,9 @@ fullREMIND <- function() {
   # delete the 'dummy' line
   system(paste0('sed -i "/dummy/d" ', getConfig()$outputfolder, "/p37_clinker-to-cement-ratio.cs3r"))
 
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r")
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap_windoff.cs3r")  # to remove after updating remind
+  avg5years <- quitte::remind_timesteps # average over 5y before 2023
+  avg5years <- avg5years[(avg5years$period <= 2020) | avg5years$period == avg5years$year,,]
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = avg5years)
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
@@ -151,6 +152,7 @@ fullREMIND <- function() {
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
   calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
+
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
   calcOutput("1stBioDem", subtype = "ethanol_oils", years = rem_years, round = 5,  file = "p30_bio1stgen.cs3r")
@@ -163,7 +165,6 @@ fullREMIND <- function() {
   calcOutput("FossilExtraction", subtype = "UraniumExtraction",        round = 5,  file = "f31_costExPoly.cs3r")
   calcOutput("DiffInvestCosts",                                        round = 4,  file = "p_inco0.cs4r")
   calcOutput("CapacityFactorHist",                                     round = 4,  file = "p_histCapFac.cs4r")
-  calcOutput("CapacityFactorHist",                                     round = 4,  file = "p_histCapFac_windoff.cs4r") # to remove after updating remind
   calcOutput("GEA2012", subtype = "coal",                              round = 8,  file = "p31_grades_coal.cs4r")
   calcOutput("GEA2012", subtype = "gas",                               round = 8,  file = "p31_grades_gas.cs4r")
   calcOutput("GEA2012", subtype = "oil",                               round = 8,  file = "p31_grades_oil.cs4r")
@@ -237,12 +238,6 @@ fullREMIND <- function() {
   calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
-
-  calcOutput("EffortSharingTarget",                         round = 3, file = "p47_ESR_target.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "EEA_GHG",    round = 6, file = "p47_ESR_GHG_referenceEmissions.cs4r")
-  calcOutput("EffortSharingRefEmi", subtype = "REMIND_CO2", round = 6, file = "p47_ESR_CO2_referenceEmissions.cs4r")
-  calcOutput("ETSRefEmi", subtype = "EEA_GHG",              round = 6, file = "p47_ETS_GHG_referenceEmissions.cs4r")
-
 
   calcOutput("Industry_CCS_limits",
              scenarios = feDemScen,
