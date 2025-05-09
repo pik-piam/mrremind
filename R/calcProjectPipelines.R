@@ -170,6 +170,7 @@ calcProjectPipelines <- function(subtype) {
 
     # add empty 2025 column, so IEA and GEM data can be merged
     y <- add_columns(y, addnm = c("y2025"), dim = 2, fill= NA)
+    getSets(y)["d2.1"] <- "period"
     #x <- mbind(x, y)
     x <- y
 
