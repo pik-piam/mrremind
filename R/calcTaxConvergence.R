@@ -24,8 +24,11 @@ calcTaxConvergence <- function(subtype) {
       unit_out = mrdrivers::toolGetUnitDollar(),
       replace_NAs = "with_USA"
     )
-  } else {
-    taxConvergence <- readSource("ExpertGuess", subtype = "taxConvergenceRollback")
+  } else if (subtype == "taxConvergenceRollback") {
+    taxConvergence <- readSource("ExpertGuess", subtype = "taxConvergenceRollback")}
+
+  else if (subtype == "subConvergenceRollback") {
+    taxConvergence <- readSource("ExpertGuess", subtype = "subConvergenceRollback")
   }
 
   # average weight

@@ -19,7 +19,7 @@ convertExpertGuess <- function(x, subtype) {
     ),
     weight = NULL
     )
-  } else if (subtype == "taxConvergenceRollback") {
+  } else if (subtype %in% c("taxConvergenceRollback", "subConvergenceRollback")) {
     mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
     out <- toolAggregate(x, mapping, weight = NULL, from = "RegionCode", to = "CountryCode")
   } else {
