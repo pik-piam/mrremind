@@ -52,12 +52,14 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
       longefs <- longefs[, c(7, 1:6)]
 
       out <- as.magpie(longefs, spatial = "region", temporal = "year")
-      comment(out) <- paste0("GAINS2025 emission factors for scenario ", scenario, " and all SSPs at aggregation level ", agglevel)
+      comment(out) <- paste0(
+        "GAINS2025 emission factors for scenario ", scenario, " and all SSPs at aggregation level ", agglevel
+      )
     }
   } else {
     # GCI data for each SSP, Contains NAs
     ingci <- read.csv("SSP_GI_2024_proj.csv")
-    longgci <- ingci[,c("scen", "iso3c", "year", "st_cap_ha")]
+    longgci <- ingci[, c("scen", "iso3c", "year", "st_cap_ha")]
     names(longgci) <- c("ssp", "country", "year", "value")
     out <- as.magpie(longgci, spatial = "country", temporal = "year")
   }
