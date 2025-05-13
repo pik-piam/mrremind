@@ -1,7 +1,10 @@
 #' Read air pollution emissions, activities and emission factors from GAINS data
 #'
 #' There's no associated convert function, as the disaggregation takes
-#' a combination of subtypes
+#' a combination of subtypes, and it is easier to carry out most
+#' calculations at the GAINS regional level first and then disaggregate
+#' the results
+#' 
 #' @return Activity levels, emissions or emission factors. Alternatively,
 #' a Govenrnmment Capacity Index (GCI) used for deriving some scenario
 #' extensions.
