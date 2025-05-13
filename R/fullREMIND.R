@@ -137,7 +137,7 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
   calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
-  calcOutput("Clinker_to_cement_ratio",               round = 2,  file = "p37_clinker-to-cement-ratio.cs3r")
+  calcOutput("ClinkerToCementRatio",                  round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = quitte::remind_timesteps)
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
