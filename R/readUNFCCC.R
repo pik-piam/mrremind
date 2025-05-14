@@ -436,7 +436,8 @@ readUNFCCC <- function() {
     files <- list.files(path = file.path(".", "2023", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
     for (file in files) {
-      year <- as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file))
+
+      year <- suppressWarnings(as.integer(sub(".{3}_[0-9]{4}_([0-9]{4})_.*", "\\1", file)))
       if (is.na(year)) {
         next
       }
