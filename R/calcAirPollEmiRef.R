@@ -8,12 +8,12 @@
 #' @importFrom magclass getNames<- getYears<-
 
 calcAirPollEmiRef <- function(subtype = "total", baseyear = 2020) {
-    require(tidyverse)
-    require(madrat)
-    require(magclass)
-    require(mrcommons)
-    subtype <- "total"
-    baseyear <- 2020
+    # require(tidyverse)
+    # require(madrat)
+    # require(magclass)
+    # require(mrcommons)
+    # subtype <- "total"
+    # baseyear <- 2020
 
     # Mapping from GAINS to CEDS2025 pollutant names
     polnamesmap <- c(
@@ -35,8 +35,10 @@ calcAirPollEmiRef <- function(subtype = "total", baseyear = 2020) {
     # Converting units. GAINS seems to be in kt of each pollutant,
     # CEDS is in Mt, but NOx and NH3 are ostensibly in MtN
     fullceds[, , ] <- fullceds[, , ] * 1e3
-    fullceds[, , "NOX"] <- fullceds[, , "NOX"] * (14 + 16 + 16) / 14 # Assuming NO2, ktN to ktNO2
-    fullceds[, , "NH3"] <- fullceds[, , "NH3"] * (14 + 3) / 14 # ktN to ktNH3 (actually makes for a worse fit with GAINS)
+    # Assuming NO2, ktN to ktNO2
+    fullceds[, , "NOX"] <- fullceds[, , "NOX"] * (14 + 16 + 16) / 14 
+    # ktN to ktNH3 (actually makes for a worse fit with GAINS)
+    fullceds[, , "NH3"] <- fullceds[, , "NH3"] * (14 + 3) / 14 
 
 
     if (subtype == "total") {
