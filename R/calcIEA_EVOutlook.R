@@ -45,8 +45,8 @@ calcIEA_EVOutlook <- function() {
   }
 
   x <- toolAggregate(x,
-    dim = 3.2, rel = map, from = "Variable",
-    to = "REMIND", partrel = TRUE, verbosity = 2
+                     dim = 3.2, rel = map, from = "Variable",
+                     to = "REMIND", partrel = TRUE, verbosity = 2
   )
 
   getSets(x)[3.1] <- "model"
