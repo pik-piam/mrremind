@@ -20,7 +20,7 @@ readIEA_EVOutlook <- function() {
   data <- distinct(data)
 
   # entries with varying values are summed up
-  data <- aggregate(value ~ region + year + scenario + variable + unit, data, sum)
+  data <- stats::aggregate(value ~ region + year + scenario + variable + unit, data, sum)
 
   as.magpie(data, spatial = 1)
 }
