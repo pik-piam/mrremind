@@ -5,7 +5,11 @@
 
 convertIEA_EVOutlook <- function(x) {
 
-  data <- x[c("World", "Rest of the world", "Europe", "EU27"), , invert = TRUE]
+  data <- x[c(
+    "World", "Rest of the world", "Europe", "EU27",
+    "Africa", "Asia Pacific", "Central and South America",
+    "Middle East and Caspian", "North America"
+  ), , invert = TRUE]
   getItems(data, dim = 1) <- toolCountry2isocode(getItems(data, dim = 1))
   data <- toolCountryFill(data, fill = NA, verbosity = 2)
 
