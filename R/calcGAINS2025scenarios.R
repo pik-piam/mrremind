@@ -13,14 +13,14 @@
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na
 #' @importFrom zoo na.approx
-calcGAINS2025scenarios <- function(subtype) {
+calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # require(magclass)
   # require(madrat)
   # devtools::load_all(".")
 
 
   # ====================================================================
-  # Mappings and definitions ===========================================
+  # Mappings, auxiliary files and definitions ==========================
   # ====================================================================
   allssps <- c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5")
 
@@ -32,18 +32,23 @@ calcGAINS2025scenarios <- function(subtype) {
   # readGAINS2025 does not disaggregate its outputs
   regmap <- toolGetMapping(type = "regional", name = "regionmapping_GAINS2025.csv", where = "mrremind")
 
+  # List of valid sectors, used to pad the data
+  fullseclist <- readSource("GAINS2025", subtype = "sectorlist")
+  seclist <- fullseclist[, names(fullseclist) == paste0("EMF30_", toupper(agglevel))]
+  seclist <- unique(seclist)
+
   # ====================================================================
   # READING GAINS DATA =================================================
   # ====================================================================
 
   # GAINS baseline scenario emissions and activities
-  baseemi <- readSource("GAINS2025", subtype = "emissions", subset = "baseline.det")
-  baseact <- readSource("GAINS2025", subtype = "activities", subset = "baseline.det")
+  baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", agglevel))
+  baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", agglevel))
 
   # GAINS scenarios
-  incle <- readSource("GAINS2025", subtype = "emifacs", subset = "cle_rev.det")
-  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = "middle.det")
-  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = "mtfr.det")
+  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", agglevel))
+  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", agglevel))
+  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", agglevel))
   # Using scenario names closer to the usual IIASA ones
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
@@ -58,7 +63,7 @@ calcGAINS2025scenarios <- function(subtype) {
   baseact[is.na(baseact)] <- 0.0
 
   # EF input files are a bit messier, so only assume zeroes after
-  # the time dimension is handled properly
+  # the time dimension is handled properly and some NAs are filled
 
   # ====================================================================
   # EF SCENARIO ASSUMPTIONS ============================================
@@ -73,29 +78,58 @@ calcGAINS2025scenarios <- function(subtype) {
   # CLE is the only scenario with an actual SSP dimension,
   # and that includes the 2050-2100 period. All of them
   # have the baseline name. Here we keep it as is.
+  # It also includes the historical period, which we need for filling in
+  # some sectors/years, but we drop in cle (it's in the ssp set)
   cle <- incle[, keepyears, allssps]
 
   # MFR ========================================================================
   # MFR is, by definition, the maximum feasible reduction scenario. So we assume
-  # the same for all SSPs. It also comes with the 2100 extension already.
+  # the same for all SSPs. It also comes with the 2100 extension already
   mfr <- mbind(lapply(allssps, \(ssp) setItems(inmfr, "ssp", ssp)))
+
+  # Some sectors are only present in the historical data, having NAs in the
+  # period in incle[,,"historical"] but simply being missing in inmfr and insle
+  # Here we bind that future period with NAs to the scenario, so that concatenation
+  # between scenarios works and we can actually fill that data if needed after
+  # the historical period is also concatenated.
+  abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(inmfr, "sectorGAINS"))
+  dumfill <- collapseDim(incle[, keepyears, "historical"][, , abssectors], keepdim = "sectorGAINS")
+  dumfill <- toolAddDimensions(
+    toolAddDimensions(
+      dumfill, getItems(mfr, "ssp"), "ssp", 3.1
+    ), getItems(mfr, "scenario"), "scenario", 3.1
+  )
+
+  mfr <- mbind(mfr, dumfill)
 
   # SLE ========================================================================
   # SLE is a stronger legislation scenario. All data is already included
   sle <- inmid[, keepyears, allssps]
 
+  # See MFR comment above
+  abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(inmid, "sectorGAINS"))
+  dumfill <- collapseDim(incle[, keepyears, "historical"][, , abssectors], keepdim = "sectorGAINS")
+  dumfill <- toolAddDimensions(
+    toolAddDimensions(
+      dumfill, getItems(sle, "ssp"), "ssp", 3.1
+    ), getItems(sle, "scenario"), "scenario", 3.1
+  )
+
+  sle <- mbind(sle, dumfill)
+
+
   # Concatenating scenarios ==============================================================
   efs <- mbind(cle, mfr, sle)
   # Dropping odd sectors in the files that have no data
-  efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
+  # efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
 
   # Concatenating historical EFs to all scenarios ========================================
   histefs <- collapseDim(incle[, setdiff(getYears(incle), getYears(efs)), "historical"])
   histefs <- mbind(lapply(allssps, \(ssp) add_dimension(histefs, 3.1, add = "ssp", nm = ssp)))
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
-  histefs <- histefs[, , c("Unattributed"), invert = T]
+  # histefs <- histefs[, , c("Unattributed"), invert = T]
 
-  # 2025 tends to have no data in historical or scenario either, so interpolate
+  # 2025 tends to have no data in either historical or scenarios, so interpolate
   # between 2020 (historical) and 2030 (scenario)
   efs <- mbind(histefs, efs)
   gyears <- getYears(efs)
@@ -104,7 +138,7 @@ calcGAINS2025scenarios <- function(subtype) {
 
   # NA handling in EFs ====================================================================
   # The goal is to fill every EF with something, at least zero
-  # If there's some EF reported in any timestep of 
+  # If there's some EF reported in any timestep of
   # that activity*region*scenario, fill with the temporally closest
   # one, otherwise fill with zero
   efs <- toolFillYearsWithClosest(efs)
@@ -164,18 +198,27 @@ calcGAINS2025scenarios <- function(subtype) {
   sspemi <- efs * sspact
 
   # ====================================================================
-  # COUNTRY DISAGGREGATION =============================================
+  # COUNTRY DISAGGREGATION AND FINAL TOUCHES ===========================
   # ====================================================================
   # Up to this point, it was simpler to deal with everything at the level
   # of GAINS regions. But with emissions and EFs calculated, we have to
   # pick the right disaggregation weights, keeping in mind EFs are
   # intensive.
-
   # Assume constant emissions, activities and EFs after 2100
 
   # Use CEDS 2020 emissions as disaggregation weights for emissions
   # and activities
   inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = F)
+
+  # Function to pad the magpie object with missing sectors present in seclist
+  padMissingSectors <- function(mag, seclist, padval = 0) {
+    padsectors <- setdiff(seclist, getItems(mag, "sectorGAINS"))
+    emp <- mag[, , getItems(mag, "sectorGAINS")[1]]
+    emp[, , ] <- padval
+    padmat <- mbind(lapply(padsectors, \(s) setItems(emp, "sectorGAINS", s)))
+    mag <- mbind(mag, padmat)
+    return(mag)
+  }
 
   if (subtype == "emissions") {
     # Emissions: Weighted by CEDS2020 Emissions in disaggregation,
@@ -186,6 +229,7 @@ calcGAINS2025scenarios <- function(subtype) {
       weight = inceds, dim = 1, wdim = 1
     )
     outsspemi <- time_interpolate(csspemi, rtime, extrapolation_type = "constant")
+    outsspemi <- padMissingSectors(outsspemi, seclist)
 
     out <- outsspemi
     wgt <- NULL
@@ -203,6 +247,7 @@ calcGAINS2025scenarios <- function(subtype) {
     )
 
     outsspact <- time_interpolate(csspact, rtime, extrapolation_type = "constant")
+    outsspact <- padMissingSectors(outsspact, seclist)
 
     out <- outsspact
     wgt <- NULL
@@ -216,6 +261,7 @@ calcGAINS2025scenarios <- function(subtype) {
         weight = NULL, dim = 1, wdim = 1
       )
       outsspefs <- time_interpolate(csspefs, rtime, extrapolation_type = "constant")
+      outsspefs <- padMissingSectors(outsspefs, seclist)
 
       out <- outsspefs
       wgt <- outsspact

@@ -4,7 +4,7 @@
 #' a combination of subtypes, and it is easier to carry out most
 #' calculations at the GAINS regional level first and then disaggregate
 #' the results
-#' 
+#'
 #' @return Activity levels, emissions or emission factors. Alternatively,
 #' a Govenrnmment Capacity Index (GCI) used for deriving some scenario
 #' extensions.
@@ -13,6 +13,7 @@
 #'
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na
+#' @importFrom readxl read_excel
 readGAINS2025 <- function(subtype, subset = "baseline.det") {
   # Interpreting subtype as the codes used in the database
   subtypecode <- ifelse(subtype == "emissions", "EMISSION", "ACTIVITY")
@@ -20,7 +21,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
   scenario <- strsplit(subset, "\\.")[[1]][1]
   agglevel <- strsplit(subset, "\\.")[[1]][2]
 
-  if (subtype != "GCI") {
+  if (subtype %in% c("emifacs", "emissions", "activities")) {
     if (scenario == "baseline") {
       if (subtype == "emifacs") {
         stop("Only emission and activities are available for the historical baseline")
@@ -59,12 +60,20 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         "GAINS2025 emission factors for scenario ", scenario, " and all SSPs at aggregation level ", agglevel
       )
     }
-  } else {
+  } else if (subtype == "GCI") {
     # GCI data for each SSP, Contains NAs
     ingci <- read.csv("SSP_GI_2024_proj.csv")
     longgci <- ingci[, c("scen", "iso3c", "year", "st_cap_ha")]
     names(longgci) <- c("ssp", "country", "year", "value")
     out <- as.magpie(longgci, spatial = "country", temporal = "year")
+  } else if (subtype == "sectorlist") {
+    insec <- read_excel("EMF_sector_Unit_2025.xlsx")
+    out <- list(
+      x = as.data.frame(insec[!is.na(insec[, 1]), ]),
+      class = "data.frame"
+    )
+  } else {
+    stop(paste0("Unknown subtype: ", subtype))
   }
   return(out)
 }
