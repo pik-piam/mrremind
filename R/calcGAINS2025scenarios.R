@@ -24,6 +24,22 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   allssps <- c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5")
 
+  fixPolNames <- function(mag) {
+    # Mapping from GAINS2025 to REMIND (oldGAINS) pollutant names
+    polnamesmap <- c(
+      "CO" = "CO",
+      "NOx" = "NOX",
+      "BC" = "PM_BC",
+      "OC" = "PM_OC",
+      "SO2" = "SO2",
+      "NH3" = "NH3",
+      "VOC" = "VOC"
+    )
+    mag <- mag[, , polnamesmap]
+    getItems(mag, "species") <- names(polnamesmap)
+    return(mag)
+  }
+
   # REMIND timesteps
   rtime <- c(seq(2005, 2055, 5), seq(2060, 2110, 10), 2130, 2150)
 
@@ -53,6 +69,15 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
   getItems(inmfr, "scenario") <- "MFR"
+
+  # ====================================================================
+  # FIXING POLLUTANT NAMES TO REMIND STANDARD ==========================
+  # ====================================================================
+  baseemi <- fixPolNames(baseemi)
+  baseact <- fixPolNames(baseact)
+  incle <- fixPolNames(incle)
+  inmid <- fixPolNames(inmid)
+  inmfr <- fixPolNames(inmfr)
 
   # ====================================================================
   # NA HANDLING ========================================================
@@ -209,6 +234,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Use CEDS 2020 emissions as disaggregation weights for emissions
   # and activities
   inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = F)
+  inceds <- fixPolNames(inceds)
 
   # Function to pad the magpie object with missing sectors present in seclist
   padMissingSectors <- function(mag, seclist, padval = 0) {
