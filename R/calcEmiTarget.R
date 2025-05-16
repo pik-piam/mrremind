@@ -74,7 +74,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # create 1/0 dummy for calculation of regional share covered by quantitative target, per TarYear.
   # Note that 0 implies no goal, net zero targets have ghgfactor of 0 but dummy of 1
   dummy1 <- 1 * !is.na(ghgfactor[, , "SSP2", drop = TRUE])
-  ghgfactor <- mselect(ghgfactor, "data" = scenario)
+  ghgfactor <- mselect(ghgfactor, "scenario" = scenario)
 
   if (subtype == "Ghgfactor") {
     # in order to calculate the share of regional emissions coming from countries with quantitative target
