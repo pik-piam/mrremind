@@ -7,7 +7,8 @@
 #' @author Gabriel Abrahao
 #' @importFrom magclass getNames<- getYears<-
 
-calcAirPollEmiRef <- function(subtype = "total", baseyear = 2020, outunits = "Mt/yr") {
+calcAirPollEmiRef <- function(
+    subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
   # require(tidyverse)
   # require(madrat)
   # require(magclass)
@@ -58,6 +59,9 @@ calcAirPollEmiRef <- function(subtype = "total", baseyear = 2020, outunits = "Mt
     return(mag)
   }
 
+  if (namesformat == "REMIND") {
+    fullceds <- fixPolNames(fullceds)
+  }
 
   if (subtype == "total") {
     totceds <- dimSums(fullceds, dim = 3.1, na.rm = T)
