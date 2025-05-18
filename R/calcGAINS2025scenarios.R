@@ -24,6 +24,10 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   allssps <- c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5")
 
+  # conversion factors
+  conv_kt_per_PJ_to_Tg_per_TWa <- 1e-3 / (1e15 / (365 * 24 * 60 * 60) * 1e-12)
+  conv_kt_to_Mt <- 1e-3
+
   fixPolNames <- function(mag) {
     # Mapping from GAINS2025 to REMIND (oldGAINS) pollutant names
     polnamesmap <- c(
@@ -58,6 +62,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
 
   # GAINS baseline scenario emissions and activities
+  # Emissions seem to be in kt(pollutant)/yr, while activities have the units in seclist (mostly PJ or Mt/yr)
   baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", agglevel))
   baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", agglevel))
 
@@ -257,7 +262,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     outsspemi <- time_interpolate(csspemi, rtime, extrapolation_type = "constant")
     outsspemi <- padMissingSectors(outsspemi, seclist)
 
-    out <- outsspemi
+    out <- outsspemi * conv_kt_to_Mt
     wgt <- NULL
     unit <- "Mt/yr"
   } else if (subtype %in% c("activities", "emission_factors")) {
@@ -289,9 +294,9 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
       outsspefs <- time_interpolate(csspefs, rtime, extrapolation_type = "constant")
       outsspefs <- padMissingSectors(outsspefs, seclist)
 
-      out <- outsspefs
+      out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
       wgt <- outsspact
-      unit <- "Mt/PJorMt"
+      unit <- "Tg/TWa"
     }
   }
 
