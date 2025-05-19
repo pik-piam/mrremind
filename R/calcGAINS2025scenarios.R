@@ -1,6 +1,10 @@
 #' Calculates air pollutant emissions, activities and emission factors
 #' for all scenarios and SSPs available from GAINS, at the level
 #' of GAINS sectors.
+#' 
+#' This function is meant to be used to prepare the GAINS data
+#' in the most inclusive format possible. The actual generation
+#' of REMIND-specific files happens elsewhere, and uses this function.
 #'
 #' Extrapolates activities and emissions for the 2050-2100 periods
 #' assuming a relationship between changes in polluting activities
@@ -295,7 +299,8 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
       outsspefs <- padMissingSectors(outsspefs, seclist)
 
       out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
-      wgt <- outsspact
+      wgt <- mbind(lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(outsspact, dimCode("scenario", outsspefs), "scenario", x)))
+      # wgt <- outsspact
       unit <- "Tg/TWa"
     }
   }
