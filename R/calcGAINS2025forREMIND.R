@@ -75,7 +75,7 @@ calcGAINS2025forREMIND <- function(subtype) {
   } else if (subtype == "emission_factors_remindsectors") {
     # ==============================================================================================================
     # GAINS2025
-    # ==============================================================================================================    
+    # ==============================================================================================================
     # Input emission factors
     linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
     innew <- linnew$x
@@ -83,7 +83,7 @@ calcGAINS2025forREMIND <- function(subtype) {
 
     # Apparently REMIND expects TgS internally, but not in exoGAINS
     conv_ktSO2_to_ktS <- 1 / 2 # 32/(32+2*16)
-    innew[,,"SO2"] <- innew[,,"SO2"] * conv_ktSO2_to_ktS
+    innew[, , "SO2"] <- innew[, , "SO2"] * conv_ktSO2_to_ktS
 
     # This makes it easier to line up with the old standard
     fixDims <- function(mag) {
@@ -101,14 +101,14 @@ calcGAINS2025forREMIND <- function(subtype) {
 
     # Drop sectors not in mapping
     dropsectors <- getItems(innew, "sector")[!(getItems(innew, "sector") %in% secmap$gains)]
-    # Also drop sectors that are not mapped with sufficient detail. Those that can be 
+    # Also drop sectors that are not mapped with sufficient detail. Those that can be
     # used will have a dot "." splitting the specific technologies
-    dropsectors <- c(secmap$gains[!grepl("\\.",secmap$remind)], dropsectors)
+    dropsectors <- c(secmap$gains[!grepl("\\.", secmap$remind)], dropsectors)
     innew <- innew[, , dropsectors, invert = T]
     wgtnew <- wgtnew[, , dropsectors, invert = T]
 
     # Aggregate to REMIND sectors
-    filtsecmap <- secmap[!(secmap$gains %in% dropsectors),]
+    filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
     outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
     wgtnew <- toolAggregate(wgtnew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
 
@@ -124,6 +124,9 @@ calcGAINS2025forREMIND <- function(subtype) {
     outnew <- splitTechs(outnew)
     wgtnew <- splitTechs(wgtnew)
 
+    # Drop sectors not used in REMIND anymore
+    outnew <- outnew[, , c("pcc", "pco"), invert = T]
+    wgtnew <- wgtnew[, , c("pcc", "pco"), invert = T]
     # ==============================================================================================================
     # GAINSlegacy
     # ==============================================================================================================
@@ -137,7 +140,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     wgtold <- splitTechs(wgtold)
 
     # Pad with SSP dimension
-    nextdim <- as.numeric(paste0("3.", length(getSets(outold))-1))
+    nextdim <- as.numeric(paste0("3.", length(getSets(outold)) - 1))
     outold <- add_dimension(outold, nextdim, add = "ssp", nm = "GAINSlegacy")
     wgtold <- add_dimension(wgtold, nextdim, add = "ssp", nm = "GAINSlegacy")
     # outold <- mbind(lapply(getItems(innew, "ssp"), \(ssp) add_dimension(outold, nextdim, add = "ssp", nm = ssp)))
@@ -156,7 +159,6 @@ calcGAINS2025forREMIND <- function(subtype) {
     # str(wgt)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
-
   } else if (subtype == "emissions_exo_waste") {
   } else if (subtype == "emissions_exo_landuse") {
   } else {
