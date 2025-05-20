@@ -10,10 +10,9 @@
 #' @export
 calcCCScapacity <- function(subtype) {
 
-  x <- calcOutput("ProjectPipelines", subtype = "CCS",
-                  aggregate = FALSE, warnNA = FALSE)
-
   if (subtype == "pipeline") {
+    x <- calcOutput("ProjectPipelines", subtype = "CCS",
+                    aggregate = FALSE, warnNA = FALSE)
     # used as input-data for CCS bounds
     x <- x[, c(2020, 2025, 2030), c("operational", "construction", "planned")]
     # remove "model", "variable" and "unit" dimension
@@ -22,9 +21,7 @@ calcCCScapacity <- function(subtype) {
 
   if (subtype == "historical") {
     # project pipeline snapshot from beginning of 2024
-    x <- x[, , "operational"]
-    # remove "status" and "unit" dimension
-    x <- collapseDim(x, keepdim = c("model", "variable", "period"))
+    x <- readSource("IEA_CCUS", subtype = "historical")
   }
 
   return(list(
