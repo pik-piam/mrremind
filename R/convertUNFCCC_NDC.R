@@ -278,7 +278,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # Calculate emissions in target year relative to 2005 emissions
     reductionData <- x
 
-    # Historical emissions for 1990-2015 - CO2 (excl LU), CH4, N2O (so far no Fgas historic time series)
+    # Historical emissions for 1990-2015 - CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
     ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", aggregate = FALSE)
     gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
     gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
