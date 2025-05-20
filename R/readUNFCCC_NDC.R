@@ -1,14 +1,13 @@
 #' Reads NDC policy database with capacity, emission, and share targets, originally based on Rogelj et al. 2017
 #'
 #' @description Reads excel sheet with NDC (Nationally Determined Contributions)
-#'  data on different policy targets (capacity, emission, and share targets) with different variations
+#'  data on different policy targets (capacity, emission, and share targets) with different variations.
 #'
-#' @details Country name is ISO coded. Capacity/Additional Capacity targets are in GW. Generation/Production targets
-#'  are in GWh.
-#' @return  magpie object
-#' @author  Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux
-#' @param subtype Capacity_2023_cond (or 2018/2021/2022 or uncond) for capacity target,
-#'  Emissions_2023_cond (or 2018/2021/2022 or uncond) for Emissions targets
+#' @details Country name is ISO coded. Capacity/Additional Capacity targets are in GW.
+#' Generation/Production targets are in GWh.
+#' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux
+#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
+#'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
 #'
 readUNFCCC_NDC <- function(subtype, subset) {
@@ -39,19 +38,21 @@ readUNFCCC_NDC <- function(subtype, subset) {
       NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
       suppressMessages() %>%
       select(
-        "ISO_Code" = 2, "Reference_Year" = 7, "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "Unconditional" = 11, "Conditional" = 12, "Uncond2" = 13, "Cond2" = 14
+        "ISO_Code" = 2, "Reference_Year" = 7,
+        "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+        "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
+        "Unconditional Relative" = 13, "Conditional Relative" = 14
       )
 
-    # Look for entries with entries in both unconditional and/or conditional targets
-    bothcolumns <- input$ISO_Code[(!is.na(input$Unconditional) & !is.na(input$Uncond2)) |
-                                    (!is.na(input$Conditional) & !is.na(input$Cond2))]
+    # Check that no row has both absolute and relative conditional/unconditional
+    bothcolumns <- input$ISO_Code[(!is.na(input$`Unconditional Absolute`) & !is.na(input$`Unconditional Relative`)) |
+                                    (!is.na(input$`Conditional Absolute`) & !is.na(input$`Conditional Relative`))]
     if (length(bothcolumns) > 0) {
-      stop("readUNFCCC_NDC with subtype=", subtype, " has values in more than one Uncond/Cond column in: ",
+      stop("readUNFCCC_NDC with subtype=", subtype, " has both absolute and relative emission targets in: ",
            paste(bothcolumns, collapse = ", "))
     }
 
-    # Check consistency of Type. Note: this has to be identical to the definition in calcEmiTarget.R
+    # Check for valid types. Note: this has to be identical to the definition in calcEmiTarget.R
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
 
     if (any(!input$Type %in% allowedType)) {
@@ -62,11 +63,11 @@ readUNFCCC_NDC <- function(subtype, subset) {
       )
     }
 
-    # Check that correct columns are used for relative and Mt stuff
+    # Check that type matches values in absolute/relative conditional/unconditional columns
     if (!grepl("Emissions_20(18|21)", subtype)) {
-      colRelative <- is.na(input$Uncond2) & is.na(input$Cond2) &
+      colRelative <- is.na(input$`Conditional Relative`) & is.na(input$`Unconditional Relative`) &
         input$Type %in% c("GHG", "GHG/GDP", "CO2/GDP", "GHG/CAP")
-      colAbsolute <- is.na(input$Unconditional) & is.na(input$Conditional) &
+      colAbsolute <- is.na(input$`Conditional Absolute`) & is.na(input$`Unconditional Absolute`) &
         input$Type %in% c("GHG-Absolute", "GHG-fixed-total")
       colInconsistent <- !(colRelative | colAbsolute)
       if (any(colInconsistent)) {
@@ -77,14 +78,18 @@ readUNFCCC_NDC <- function(subtype, subset) {
       }
     }
 
-    # Drop extra columns
-    input[is.na(input$Unconditional), ]$Unconditional <- input[is.na(input$Unconditional), ]$Uncond2
-    input[is.na(input$Conditional), ]$Conditional <- input[is.na(input$Conditional), ]$Cond2
-    input$Uncond2 <- NULL
-    input$Cond2 <- NULL
-
-    # If conditional is empty, fill with unconditional
-    input[is.na(input$Conditional), ]$Conditional <- input[is.na(input$Conditional), ]$Unconditional
+    input <- input %>%
+      mutate(
+        # merge absolute and relative columns
+        "Unconditional" = ifelse(is.na(.data$`Unconditional Absolute`), .data$`Unconditional Relative`,
+                                 .data$`Unconditional Absolute`),
+        "Conditional" = ifelse(is.na(.data$`Conditional Absolute`), .data$`Conditional Relative`,
+                               .data$`Conditional Absolute`),
+        # if conditional is empty, fill with unconditional
+        "Conditional" = ifelse(is.na(.data$Conditional), .data$Unconditional, .data$Conditional)
+      ) %>%
+      select(-"Conditional Absolute", -"Unconditional Absolute",
+             -"Conditional Relative", -"Unconditional Relative")
 
     # In case a country has two or more types of targets for same year, use GHG-Absolute targets
     # note: the only remaining country in 2021 is MGD Madagascar based on its 2016 submission
@@ -101,7 +106,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
       )
     }
 
-    # Check if emission changes have no reference year or BAU reference
+    # Check whether Types describing emission changes relative to a reference year
+    # have a reference year or BAU reference
     ref4change <- input$ISO_Code[input$Reference_Year %in% c("no", NA) &
                                    input$Type %in% c("GHG", "CO2/GDP", "GHG/GDP", "GHG-Absolute")]
     if (length(ref4change) > 0) {
@@ -111,8 +117,9 @@ readUNFCCC_NDC <- function(subtype, subset) {
       )
     }
 
-    # as magclass can only cover numerical values well, transform: in column 2 BAU into -1, and
-    # Type into number based on allowedType
+    # as magclass can only cover numerical values well, transform:
+    # - Reference_Year: BAU to -1 and 'no'  to -2
+    # - Type into number based on allowedType
     input <- input %>%
       dplyr::mutate(
         Reference_Year = dplyr::case_match(

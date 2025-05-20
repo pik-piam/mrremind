@@ -1,18 +1,21 @@
 #' Output for 2 policy cases
+#'
+#' @param sources Database source
 #' @param subtype A string, one of: "Ghgshare2005", "Ghgfactor", "Ghghistshare"
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
-#' @param sources Database source
 #' @author Aman Malik, Christoph Bertram, Oliver Richters
 #'
 calcEmiTarget <- function(sources, subtype, scenario) {
+
   if (!sources %in% c("UNFCCC_NDC", "NewClimate")) {
     stop("Unknown source ", sources, " for calcEmiTarget.")
   }
+
   if (!subtype %in% c("Ghgshare2005", "Ghgfactor", "Ghghistshare")) {
     stop("Unknown 'subtype' argument")
   }
 
-  ## Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
+  # Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
   scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
 
   # Import historical emi needed for the calculations

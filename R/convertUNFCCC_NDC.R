@@ -1,14 +1,17 @@
-#' Policy targets for NDCs from UNFCCC_NDC
+#' Convert policy targets for NDCs from UNFCCC_NDC
 #'
-#' @description Converts conditional and unconditional capacity targets into total capacity (GW) in target year
-#' the Generation targets are similar to the capacity targets but include the capacity factors,
-#' the Emissions targets are the total (except land CO2) emissions in the target year
 #'
-#' @param x MAgPIE object to be converted
+#' (TODO: adjust capacity description)
+#' Converts conditional and unconditional capacity targets into total capacity (GW) in target year.
+#' the Generation targets are similar to the capacity targets but include the capacity factors.
+#'
+#' Emission targets are represented by a GHG factor, which is the quotient of total GHG
+#' emissions in the target year divided by the CEDS GHG emissions in 2005.
+#'
+#' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
-#' @param subset String, designating the GDP scenarios to use. Only important when subtype = Emissions_x.
-#' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
+#' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
 #'
 convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name_linter.
 
@@ -272,10 +275,10 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
 
-    # calculate emissions in target year relative to 2005 emissions
+    # Calculate emissions in target year relative to 2005 emissions
     reductionData <- x
 
-    # Historical emissions for 1990-2015 - co2 (excl LU), ch4, n2o (so far no Fgas historic time series)
+    # Historical emissions for 1990-2015 - CO2 (excl LU), CH4, N2O (so far no Fgas historic time series)
     ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", aggregate = FALSE)
     gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
     gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
@@ -296,26 +299,38 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # Future GDP values
     gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
 
-    # Define EU countries + croatia for special treatment because of joint NDC
+    # Define EU countries + Croatia for special treatment because of joint NDC
+    # GBR has its own NDC starting from 2022
     EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
                            "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
                            "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-                           "FRO", "GIB", "GGY", "IMN", "HRV", # included: HRV/croatia
-                           if (grepl("_20(18|19|20|21)_", subtype)) "GBR") # own NDC in 2022
+                           "FRO", "GIB", "GGY", "IMN", "HRV",
+                           if (grepl("_20(18|19|20|21)_", subtype)) "GBR")
 
 
     # NDC Types, order must be exactly the same as in readUNFCCC_NDC.R!
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
 
-    # Calculate GHG factor compared to 2005, taking into account different Types
-    # TODO: switch to 2015 (or even 2020)
-    calcGhgFactor <- function(data) {
+    # Calculate GHG target emissions in Mt CO2eq in target year based on information in the NDC database
+    ## Type describes how the target is formulated
+    ## - "GHG-Absolute" - absolute GHG change compared to reference year or given BAU emissions
+    ## - "GHG" - relative GHG change compared to reference year or given BAU emissions
+    ## - "GHG/GDP" or "CO2/GDP" - given the GDP growth from reference year to target year,
+    ##    the GHG emissions in reference year are assumed to grow proportionally to GDP,
+    ##    minus the the relative target
+    ## -  "GHG-fixed-total" - total GHG emissions in target year
+    ## Reference Year
+    ## - used to determine the reference year for GHG changes (and GDP growth)
+    ## - takes CEDS emissions for reference year (if not available, use latest year in CEDS emissions)
+    ## - if the column contains "BAU", use the value in "BAU_or_Reference_emissions_in_MtCO2e" as reference
+    calcGhgTarget <- function(data) {
 
       regi <- getItems(data, dim = 1)
       year <- getYears(data)
       ghgTarget <- NA
 
       if (allowedType[data[regi, year, "Type"]] == "GHG-Absolute") { # absolute GHG change
+
         if (data[regi, year, "Reference_Year"] == -1) {  # -1 if BAU;
           if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
             # target + BAU emissions in sheet
@@ -325,11 +340,19 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
             message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
           }
         } else { # then Reference_Year contains a year
-          # target + historic GHG emissions from CEDS
+          # target + historic GHG emissions from CEDS (best fit)
+          histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+          if (data[regi, year, "Reference_Year"] > 2015) {
+            message(
+              "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
+              " is above 2015, so we use 2015 as reference year."
+            )
+          }
+
           ghgTarget <- data[regi, year, conditional] +
-            setYears(ghg[regi, min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL)
+            setYears(ghg[regi, histYear, ], NULL)
         }
-      } else if (allowedType[data[regi, year, "Type"]] == "GHG") { # relative change of GHG
+      } else if (allowedType[data[regi, year, "Type"]] == "GHG") { # relative GHG change
 
         if (data[regi, year, "Reference_Year"] == -1) {  # -1 if BAU.
           if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
@@ -340,9 +363,19 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
             message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
           }
         } else { # then Reference_Year contains a year
-          # target * historic GHG emissions from CEDS
+
+          # target * historic GHG emissions from CEDS (best fit)
+          histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+
+          if (data[regi, year, "Reference_Year"] > 2015) {
+            message(
+              "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
+              " is above 2015, so we use 2015 as reference year."
+            )
+          }
+
           ghgTarget <- (1 + data[regi, year, conditional]) *
-            setYears(ghg[regi, min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL)
+            setYears(ghg[regi, histYear, ], NULL)
 
         }
       } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # GHG/GDP or CO2/GDP
@@ -369,7 +402,6 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
-    # magclass object storing GHG factors compared to 2005
     ghgFactor <- new.magpie(
       cells_and_regions = c(EUR_NDC_countries, setdiff(getItems(reductionData, dim = 1), "EUR")),
       years = getYears(reductionData),
@@ -379,6 +411,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     )
 
     # countries with known NDC/2005 ratios bigger than 2.5 or less than 0
+    # TODO: adjust once we switch to 2015
     knownHigh <- list("IND" = c(2030))
     knownLow <- list("GAB" = c(2050))
 
@@ -387,7 +420,9 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
       for (year in getYears(reductionData, as.integer = TRUE)) {
         if (!is.na(reductionData[regi, year, conditional][1])) {
           newyear <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
-          ghgFactor[regi, newyear, ] <- calcGhgFactor(reductionData[regi, year, ]) / setYears(ghg[regi, 2005, ], NULL)
+
+          ghgFactor[regi, newyear, ] <- calcGhgTarget(reductionData[regi, year, ]) /
+            setYears(ghg[regi, 2005, ], NULL)
 
           ghgFactorMax <- max(c(0, as.numeric(ghgFactor[regi, newyear, ])), na.rm = TRUE)
 
@@ -408,13 +443,14 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     }
 
     # calculate EUR NDC goal and assign to all EUR28 countries
-    # for EUR, only GHG and GHG-fixed-total are valid types
+    # for EUR, only "GHG" (with a reference year other than BAU) and "GHG-fixed-total" are valid types
     for (year in getYears(reductionData)) {
       if (!is.na(reductionData["EUR", year, conditional])[1]) {
         if (allowedType[reductionData["EUR", year, "Type"]] == "GHG") {
           # target * historic GHG emissions from CEDS
+          refYear <- min(reductionData["EUR", year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
           ghgTarget <- (1 + reductionData["EUR", year, conditional]) *
-            setYears(ghg[EUR_NDC_countries, min(reductionData["EUR", year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL)
+            setYears(ghg[EUR_NDC_countries, refYear, ], NULL)
           ghgFactor[EUR_NDC_countries, year, ] <- ghgTarget / setYears(ghg[EUR_NDC_countries, 2005, ], NULL)
         } else if (allowedType[reductionData["EUR", year, "Type"]] == "GHG-fixed-total") {
           ghgEUR2005 <- sum(setYears(ghg[EUR_NDC_countries, 2005, ], NULL))
