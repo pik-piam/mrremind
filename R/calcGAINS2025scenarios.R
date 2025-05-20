@@ -102,13 +102,10 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
     # Append extended and drop "Unattributed", which is mostly the waste sectors
     dropSectors <- function(mag) {
-      # mag <- incle
       dsecs <- c("Unattributed")
       if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
         mag <- mag[, , dsecs, invert = T]
       }
-      # mag <- mag[, , setdiff(getItems(mag, "sectorGAINS"), dsecs)]
-      # str(mag[, , setdiff(getItems(mag, "sectorGAINS"), dsecs)])
       return(mag)
     }
     baseemi <- mbind(dropSectors(baseemi), det_baseemi[, , extsectors])
