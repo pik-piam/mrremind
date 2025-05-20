@@ -131,7 +131,10 @@ calcGAINS2025forREMIND <- function(subtype) {
     # GAINSlegacy
     # ==============================================================================================================
     # GAINSlegacy does not actually follow its stated dimensions, so they are meaningless from this point on
-    linold <- calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE, aggregate = F, supplementary = T)
+    linold <- calcOutput(
+      "EmissionFactors",
+      subtype = "emission_factors", warnNA = FALSE, aggregate = F, supplementary = T
+    )
     inold <- linold$x
     wgtold <- linold$w
 

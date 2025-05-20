@@ -1,7 +1,7 @@
 #' Calculates air pollutant emissions, activities and emission factors
 #' for all scenarios and SSPs available from GAINS, at the level
 #' of GAINS sectors.
-#' 
+#'
 #' This function is meant to be used to prepare the GAINS data
 #' in the most inclusive format possible. The actual generation
 #' of REMIND-specific files happens elsewhere, and uses this function.
@@ -78,6 +78,45 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
   getItems(inmfr, "scenario") <- "MFR"
+
+  # ====================================================================
+  # ADDING EXTENDED SECTORS ============================================
+  # ====================================================================
+  if (agglevel == "agg") {
+    det_baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", "det"))
+    det_baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", "det"))
+    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", "det"))
+    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", "det"))
+    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", "det"))
+    getItems(det_incle, "scenario") <- "CLE"
+    getItems(det_inmid, "scenario") <- "SLE"
+    getItems(det_inmfr, "scenario") <- "MFR"
+
+    # Sectors to extend, if present in the detailed datasets
+    extsectors <- c(
+      "Waste_Solid_Industrial", "Waste_Solid_Municipal", "Waste_Water_Industrial", "Waste_Water_Municipal"
+    )
+    # GA: In the version obtained from Zig and Shaohui in May 2025,
+    # only "Waste_Solid_Municipal" and "Waste_Water_Municipal" were present
+    extsectors <- extsectors[extsectors %in% getItems(det_baseemi, "sectorGAINS")]
+
+    # Append extended and drop "Unattributed", which is mostly the waste sectors
+    dropSectors <- function(mag) {
+      # mag <- incle
+      dsecs <- c("Unattributed")
+      if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
+        mag <- mag[, , dsecs, invert = T]
+      }
+      # mag <- mag[, , setdiff(getItems(mag, "sectorGAINS"), dsecs)]
+      # str(mag[, , setdiff(getItems(mag, "sectorGAINS"), dsecs)])
+      return(mag)
+    }
+    baseemi <- mbind(dropSectors(baseemi), det_baseemi[, , extsectors])
+    baseact <- mbind(dropSectors(baseact), det_baseact[, , extsectors])
+    incle <- mbind(dropSectors(incle), det_incle[, , extsectors])
+    inmid <- mbind(dropSectors(inmid), det_inmid[, , extsectors])
+    inmfr <- mbind(dropSectors(inmfr), det_inmfr[, , extsectors])
+  }
 
   # ====================================================================
   # FIXING POLLUTANT NAMES TO REMIND STANDARD ==========================
