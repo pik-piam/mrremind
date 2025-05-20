@@ -303,6 +303,8 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
       # wgt <- outsspact
       unit <- "Tg/TWa"
     }
+  } else {
+    stop(paste0("Unknown subtype: ", subtype))
   }
 
   return(list(
