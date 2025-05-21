@@ -122,9 +122,6 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # Reduce the dimensions of the weights
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
-    # TODO: revisit this ..
-
-
     # Disaggregate and fill the gaps
     weightSum <- toolAggregate(wfe, mappingfile, from = region_col, to = iso_col, dim = 1)
 

@@ -278,23 +278,8 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # Calculate emissions in target year relative to 2005 emissions
     reductionData <- x
 
-    # Historical emissions for 1990-2015 - CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
-    ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", aggregate = FALSE)
-    gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
-    gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
-
-    # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-    ghg <- ceds[, seq(1990, 2015, 1), c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)")] +
-      gwpN2O / 1000 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
-                                                           "Emi|N2O|Land Use|Agriculture and Biomass Burning (kt N2O/yr)",
-                                                           "Emi|N2O|Land Use|Forest Burning (kt N2O/yr)",
-                                                           "Emi|N2O|Land Use|Grassland Burning (kt N2O/yr)",
-                                                           "Emi|N2O|Waste (kt N2O/yr)")], dim = 3) +
-      gwpCH4 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|CH4|Energy and Industrial Processes (Mt CH4/yr)",
-                                                    "Emi|CH4|Land Use|Agriculture and Biomass Burning (Mt CH4/yr)",
-                                                    "Emi|CH4|Land Use|Forest Burning (Mt CH4/yr)",
-                                                    "Emi|CH4|Land Use|Grassland Burning (Mt CH4/yr)",
-                                                    "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
+    # Reference Emissions from CEDS
+    ghg <- calcOutput("EmiTargetReference", aggregate = F)
 
     # Future GDP values
     gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
