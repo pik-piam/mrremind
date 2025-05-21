@@ -21,6 +21,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # require(magclass)
   # require(madrat)
   # devtools::load_all(".")
+  # agglevel = "agg"
 
 
   # ====================================================================
@@ -215,6 +216,29 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   efs[is.na(efs)] <- 0
 
   # ====================================================================
+  # SMOOTHING ==========================================================
+  # ====================================================================
+  # Smoothing the phase-in from historical by assuming
+  # 2025=2030, it appears that 2025 was a transition year in the original.
+  allyears <- getYears(efs, as.integer = T)
+  efs[, 2025, ] <- efs[, 2030, ]
+
+  # Smooth post-2050 transition, that is often very abrupt
+  sy <- 2050
+  ey <- 2080
+  inyears <- allyears[(allyears > sy & allyears < ey)]
+  efs <- time_interpolate(efs[, inyears, , invert = T], allyears)
+
+  # VLE (Very strong LEgislation) scenario
+  # SLE until 2050, then converges towards MFR in 2100
+  ssle <- collapseDim(efs[, , "SLE"], dim = 3.1)
+  smfr <- collapseDim(efs[, , "MFR"], dim = 3.1)
+  svle <- mbind(ssle[, allyears[allyears <= 2050], ], smfr[, allyears[allyears == 2100]])
+  svle <- time_interpolate(svle, allyears)
+  svle <- add_dimension(svle, dim = 3.1, "scenario", "VLE")
+  efs <- mbind(efs, svle)
+
+  # ====================================================================
   # EMISSIONS ==========================================================
   # ====================================================================
 
@@ -265,6 +289,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Extending emissions by applying EFs to activity levels
   # Note that none of those will be the same as the baseline, as the baseline scenario
   # is not included (CLE:current legislation is the least strict one)
+  # Activities are scenario-independent, so this expands the scenario dimension
   sspemi <- efs * sspact
 
   # ====================================================================
