@@ -25,8 +25,8 @@ calcTaxConvergence <- function(subtype) {
       replace_NAs = "with_USA"
     )
   } else if (subtype == "taxConvergenceRollback") {
-    taxConvergence <- readSource("ExpertGuess", subtype = "taxConvergenceRollback")}
-
+    taxConvergence <- readSource("ExpertGuess", subtype = "taxConvergenceRollback")
+  }
   else if (subtype == "subConvergenceRollback") {
     taxConvergence <- readSource("ExpertGuess", subtype = "subConvergenceRollback")
   }
