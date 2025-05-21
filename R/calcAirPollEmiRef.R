@@ -15,6 +15,8 @@ calcAirPollEmiRef <- function(
   # require(mrcommons)
   # subtype <- "total"
   # baseyear <- 2020
+  # outunits <- "Mt/yr"
+  # namesformat <- "GAINS2025"
 
   # Mapping from GAINS to CEDS2025 pollutant names
   polnamesmap <- c(
@@ -43,24 +45,36 @@ calcAirPollEmiRef <- function(
   # ktN to ktNH3 (actually makes for a worse fit with GAINS)
   fullceds[, , "NH3"] <- fullceds[, , "NH3"] * (14 + 3) / 14
 
-  fixPolNames <- function(mag) {
+  fixPolNames <- function(mag, fmt = "REMIND") {
     # Mapping from GAINS2025 to REMIND (oldGAINS) pollutant names
-    polnamesmap <- c(
-      "CO" = "CO",
-      "NOx" = "NOX",
-      "BC" = "PM_BC",
-      "OC" = "PM_OC",
-      "SO2" = "SO2",
-      "NH3" = "NH3",
-      "VOC" = "VOC"
-    )
+    if (fmt == "REMIND") {
+      polnamesmap <- c(
+        "CO" = "CO",
+        "NOx" = "NOX",
+        "BC" = "PM_BC",
+        "OC" = "PM_OC",
+        "SO2" = "SO2",
+        "NH3" = "NH3",
+        "VOC" = "VOC"
+      )
+    } else if (fmt == "REMINDexo") {
+      polnamesmap <- c(
+        "CO" = "CO",
+        "NOx" = "NOX",
+        "BC" = "PM_BC",
+        "OC" = "PM_OC",
+        "SOx" = "SO2",
+        "NH3" = "NH3",
+        "NMVOC" = "VOC"
+      )
+    }
     mag <- mag[, , polnamesmap]
     getItems(mag, "species") <- names(polnamesmap)
     return(mag)
   }
 
-  if (namesformat == "REMIND") {
-    fullceds <- fixPolNames(fullceds)
+  if (namesformat %in% c("REMIND","REMINDexo")) {
+    fullceds <- fixPolNames(fullceds, namesformat)
   }
 
   if (subtype == "total") {
