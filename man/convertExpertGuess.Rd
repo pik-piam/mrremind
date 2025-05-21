@@ -11,12 +11,6 @@ convertExpertGuess(x, subtype)
 
 \item{subtype}{Type of data that are converted.}
 }
-\value{
-magpie object with a completed dataset.
-}
 \description{
 Converts data from expert guess
-}
-\seealso{
-\code{\link{convertExpertGuess}}
 }
