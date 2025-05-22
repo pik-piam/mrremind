@@ -52,7 +52,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
            paste(bothcolumns, collapse = ", "))
     }
 
-    # Check for valid types. Note: this has to be identical to the definition in calcEmiTarget.R
+    # Check for valid types. Note: this has to be identical to the definition in convert function
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
 
     if (any(!input$Type %in% allowedType)) {
@@ -61,6 +61,11 @@ readUNFCCC_NDC <- function(subtype, subset) {
         paste(unique(input$Type)[!unique(input$Type) %in% allowedType], collapse = ", "),
         ". Please use: ", paste(allowedType, collapse = " or "), "."
       )
+    }
+
+    # Check that EUR only has "GHG" or "GHG-fixed-total" targets
+    if (any(!input[input$ISO_Code == "EUR", ]$Type %in% c("GHG", "GHG-fixed-total"))) {
+      stop("EU targets may only be 'GHG' or 'GHG-fixed-total'")
     }
 
     # Check that type matches values in absolute/relative conditional/unconditional columns
