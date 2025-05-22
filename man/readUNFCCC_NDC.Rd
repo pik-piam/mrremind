@@ -7,21 +7,15 @@
 readUNFCCC_NDC(subtype, subset)
 }
 \arguments{
-\item{subtype}{Capacity_2023_cond (or 2018/2021/2022 or uncond) for capacity target,
-Emissions_2023_cond (or 2018/2021/2022 or uncond) for Emissions targets}
+\item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
+Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
+determines the database version to be read in}
 
 \item{subset}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
-\value{
-magpie object
-}
 \description{
 Reads excel sheet with NDC (Nationally Determined Contributions)
-data on different policy targets (capacity, emission, and share targets) with different variations
-}
-\details{
-Country name is ISO coded. Capacity/Additional Capacity targets are in GW. Generation/Production targets
-are in GWh.
+data on different policy targets (capacity, emission, and share targets) with different variations.
 }
 \author{
 Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux

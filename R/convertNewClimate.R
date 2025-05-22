@@ -4,15 +4,11 @@
 #' the Generation targets are similar to the capacity targets but include the capacity factors,
 #' the Emissions targets are the total (except land CO2) emissions in the target year
 
-#' @param x MAgPIE object to be converted
-
+#' @param x a magclass object to be converted
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-#' Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
-#' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
-#' @return Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
-
+#'   Emissions_YYYY_uncond for Emissions targets, with YYYY version year
+#' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
-
 convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -298,27 +294,14 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     # end subtype contains Capacity
 
 
-  } else if (grepl("Emissions", subtype, fixed = TRUE)) { # calculate emissions in target year relative to 2005 emissions
+  }
+
+  if (grepl("Emissions", subtype, fixed = TRUE)) {
 
     reductionData <- x
-    ### Import historical data (gdp and emi) needed for the calculations
 
-    # Historical emissions for 1990-2015 - co2 (excl LU),ch4,n2o (so far no Fgas historic time series)
-    ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", aggregate = FALSE)
-    gwpCH4 <- 28 # "Global Warming Potentials of CH4, AR5 WG1 CH08 Table 8.7"     /28/
-    gwpN2O <- 265 # "Global Warming Potentials of N2O, AR5 WG1 CH08 Table 8.7"     /265/
-    # calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-    ghg <- ceds[, seq(1990, 2015, 1), c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)")] +
-      +gwpN2O / 1000 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
-                                                            "Emi|N2O|Land Use|Agriculture and Biomass Burning (kt N2O/yr)",
-                                                            "Emi|N2O|Land Use|Forest Burning (kt N2O/yr)",
-                                                            "Emi|N2O|Land Use|Grassland Burning (kt N2O/yr)",
-                                                            "Emi|N2O|Waste (kt N2O/yr)")], dim = 3) +
-      +gwpCH4 * dimSums(ceds[, seq(1990, 2015, 1), c("Emi|CH4|Energy and Industrial Processes (Mt CH4/yr)",
-                                                     "Emi|CH4|Land Use|Agriculture and Biomass Burning (Mt CH4/yr)",
-                                                     "Emi|CH4|Land Use|Forest Burning (Mt CH4/yr)",
-                                                     "Emi|CH4|Land Use|Grassland Burning (Mt CH4/yr)",
-                                                     "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
+    # Reference Emissions from CEDS
+    ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
 
     # Future GDP values
     gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
@@ -329,9 +312,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
                            "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
                            "FRO", "GIB", "GGY", "IMN", "HRV")
 
-    # NDC Types, order must be exactly the same as in readUNFCCC_NDC.R!
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
-    # define function that calculates ghgfactor compared to 2005 for each regi and year, taken into account different Types
 
     calcGhgfactor <- function(data) {
       if (nregions(data) != 1 || nyears(data) != 1) {

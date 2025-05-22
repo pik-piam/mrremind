@@ -2,20 +2,28 @@
 % Please edit documentation in R/calcEmiTarget.R
 \name{calcEmiTarget}
 \alias{calcEmiTarget}
-\title{Output for 2 policy cases}
+\title{Calculate Emission Targets}
 \usage{
-calcEmiTarget(sources, subtype, scenario)
+calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
 }
 \arguments{
-\item{sources}{Database source}
+\item{sources}{database source, either 'UNFCCC_NDC' or 'NewClimate'}
 
-\item{subtype}{A string, one of: "Ghgshare2005", "Ghgfactor", "Ghghistshare"}
+\item{subtype}{must be one of
+\itemize{
+\item 'Ghgfactor': for GHG factors calculated from the respective database
+\item 'Ghgshare2005': ???
+\item 'Ghghistshare': for GHG emissions share of countries with 2030 target per region
+}}
 
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
+
+\item{verbose}{set to TRUE for additional info on processing of NDC target,
+turned off for inpudata generation}
 }
 \description{
-Output for 2 policy cases
+TODO: describe this used for in REMIND and document the meaning of the subtypes
 }
 \author{
-Aman Malik, Christoph Bertram, Oliver Richters
+Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
 }

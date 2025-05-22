@@ -1,6 +1,5 @@
 #' Convert policy targets for NDCs from UNFCCC_NDC
 #'
-#'
 #' (TODO: adjust capacity description)
 #' Converts conditional and unconditional capacity targets into total capacity (GW) in target year.
 #' the Generation targets are similar to the capacity targets but include the capacity factors.
@@ -9,6 +8,7 @@
 #' emissions in the target year divided by the CEDS GHG emissions in 2005.
 #'
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux
+#' @param x a magclass object to be converted
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year
 #' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
@@ -297,7 +297,6 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     reductionData[EUR_NDC_countries, , ] <- reductionData["EUR", , ]
     reductionData <- reductionData["EUR", , , invert = TRUE]
 
-    # NDC Types, order must be exactly the same as in readUNFCCC_NDC.R!
     allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
 
     # Calculate GHG target emissions in Mt CO2eq in target year based on information in the NDC database
@@ -395,7 +394,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
       cells_and_regions = getItems(reductionData, dim = 1),
       years = getYears(reductionData),
       names = getNames(gdp),
-      set = c("iso3c", "year", "scenario"),
+      sets = c("iso3c", "year", "scenario"),
       fill = NA
     )
 

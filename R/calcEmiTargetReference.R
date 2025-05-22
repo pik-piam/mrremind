@@ -4,7 +4,7 @@
 #' CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
 # Note: CEDS2024 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
-#' @seealso \code{\link{calcEmiTarget}}, \code{\link{convertUNFCCC_NDC}}
+#' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
 calcEmiTargetReference <- function() {
   ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", years = 1990:2015, aggregate = FALSE)
 
