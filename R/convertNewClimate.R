@@ -381,6 +381,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     # this copy of the gdp structure is needed because of the different SSP
     ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"],
                               EUR_NDC_countries)), getYears(reductionData), ]
+    getSets(ghgfactor)[3] <- "scenario"
     ghgfactor[, , ] <- NA
     # define string that can be used to assess magpie variables
     uncond_or_cond <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
@@ -437,7 +438,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
   } # end subtype = Emissions_all
 
   # add NDC_version from subtype to allow for distinction of NDC version in calcEmiTarget/calcCapTarget
-  NDC_version <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
-  getNames(x) <- paste(NDC_version, getNames(x), sep = ".")
+  ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
+  x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
   return(x)
 }

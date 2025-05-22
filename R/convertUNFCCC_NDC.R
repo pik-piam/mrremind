@@ -279,7 +279,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     reductionData <- x
 
     # Reference Emissions from CEDS
-    ghg <- calcOutput("EmiTargetReference", aggregate = F)
+    ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
 
     # Future GDP values
     gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)

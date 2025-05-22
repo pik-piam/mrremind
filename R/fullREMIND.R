@@ -187,13 +187,15 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "timeValueCosts",                          file = "timeValueCosts.cs4r")
 
   #---------------policy parameters--------------------------------------------------------------------
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_2005shareTarget.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", scenario = gdpPopScen, round = 4, file = "fm_histShare.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_2005shareTarget.cs3r")
+  # TODO can this be removed?
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghghistshare", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_histShare.cs3r")
 
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_NC_2005shareTarget.cs3r")
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghghistshare", scenario = gdpPopScen, round = 4, file = "fm_NC_histShare.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_NC_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_NC_2005shareTarget.cs3r")
+  # TODO can this be removed?
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghghistshare", scenario = gdpPopScen, verbose = FALSE, round = 4, file = "fm_NC_histShare.cs3r")
 
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC", round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")
