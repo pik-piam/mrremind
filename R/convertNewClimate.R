@@ -1,14 +1,18 @@
-#' Policy targets for NDCs from UNFCCC_NDC
-
+#' Convert policy targets for NPIs from New Climate policy database
+#'
 #' @description Converts conditional and unconditional capacity targets into total capacity (GW) in target year
 #' the Generation targets are similar to the capacity targets but include the capacity factors,
 #' the Emissions targets are the total (except land CO2) emissions in the target year
-
+#'
+#' Emission targets are represented by a GHG factor, which is the quotient of total GHG
+#' emissions in the target year divided by the CEDS GHG emissions in 2005.
+#'
 #' @param x a magclass object to be converted
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-#'   Emissions_YYYY_uncond for Emissions targets, with YYYY version year
+#'   Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year
 #' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
+#'
 convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -298,128 +302,14 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
 
-    reductionData <- x
+    ghgFactor <- toolCalcGhgFactor(x, subtype, subset)
+    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
 
-    # Reference Emissions from CEDS
-    ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
+  }
 
-    # Future GDP values
-    gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
-
-    # Define EU countries + croatia for special treatment because of joint NDC
-    EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-                           "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-                           "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-                           "FRO", "GIB", "GGY", "IMN", "HRV")
-
-    allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
-
-    calcGhgfactor <- function(data) {
-      if (nregions(data) != 1 || nyears(data) != 1) {
-        warning("function calcGhgfactor(data) should be called with one single region and year as data only")
-      }
-      regi <- getItems(data, dim = "ISO_Code")
-      year <- getYears(data)
-      ghgtarget <- NA
-      if (allowedType[data[regi, year, "Type"]] == "GHG-Absolute") {
-        if (data[regi, year, "Reference_Year"] == -1) { # -1 if BAU;
-          if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) { # ignore if no BAU emissions given
-            ghgtarget <- data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"] + data[regi, year, uncond_or_cond]
-          }
-        } else { # use historic ghg data for Reference_Year, not those given in the database
-          ghgtarget <- setYears(ghg[regi, min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL) + data[regi, year, uncond_or_cond]
-        }
-      } else if (allowedType[data[regi, year, "Type"]] == "GHG") { # relative change of GHG
-        if (data[regi, year, "Reference_Year"] == -1) { # -1 if BAU.
-          if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) { # ignore if no BAU emissions given
-            ghgtarget <- data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"] * (1 + data[regi, year, uncond_or_cond])
-          }
-        } else { # then Reference_Year contains a year
-          ghgtarget <- setYears(ghg[regi, min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL) * (1 + data[regi, year, uncond_or_cond])
-        }
-      } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # OR: Why no distinction?
-        if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) { # ignore if no BAU emissions given
-          ghgtarget <- data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"] + data[regi, year, uncond_or_cond]
-
-        } else {
-
-          ghgtarget <- (1 + data[regi, year, uncond_or_cond]) * gdp[regi, year, ] / setYears(gdp[regi, round(as.numeric(data[regi, year, "Reference_Year"]) / 5) * 5, ], NULL) * setYears(ghg[regi, as.numeric(data[regi, year, "Reference_Year"]), ], NULL)
-        }
-      } else if (allowedType[data[regi, year, "Type"]] == "GHG-fixed-total") {
-        ghgtarget <- data[regi, year, uncond_or_cond]
-      } else {
-        warning("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ", allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
-      }
-      # return ghgtarget
-      return(ghgtarget)
-    } # end of function calc_ghgfactor
-
-    # countries with known NDC/2005 ratios bigger than 2.5 or less than 0
-    knownhigh <- list("IND" = c("y2030"))
-    knownlow <- list("GAB" = c("y2050"))
-
-    # ghgfactor compared to 2005, first set to NA
-    # this copy of the gdp structure is needed because of the different SSP
-    ghgfactor <- gdp[unique(c(getItems(reductionData, dim = "ISO_Code")[getItems(reductionData, dim = "ISO_Code") != "EUR"],
-                              EUR_NDC_countries)), getYears(reductionData), ]
-    getSets(ghgfactor)[3] <- "scenario"
-    ghgfactor[, , ] <- NA
-    # define string that can be used to assess magpie variables
-    uncond_or_cond <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
-
-    # loop through regions and years
-    for (regi in getItems(reductionData, dim = "ISO_Code")) {
-      for (year in getYears(reductionData)) {
-        if (!is.na(reductionData[regi, year, uncond_or_cond])[1]) { # check whether a target exists
-          if (regi != "EUR") { # call function calc_ghgfactor and divide by 2005 ghg data to get the ghgfactor
-            # move it to a year REMIND understands
-            newyear <- as.numeric(gsub("y", "", year))
-            newyear <- if (newyear < 2060) ceiling((newyear - 1) / 5) * 5 else ceiling((newyear - 2) / 10) * 10
-            ghgfactor[regi, newyear, ] <- calcGhgfactor(reductionData[regi, year, ]) / setYears(ghg[regi, 2005, ], NULL)
-            ghgfactormax <- max(c(0, as.numeric(ghgfactor[regi, newyear, ])), na.rm = TRUE)
-            if (isTRUE(ghgfactormax > 2.5) && !year %in% knownhigh[[regi]]) {
-              message("For ", regi, " in ", year, ", ghgfactor=", ghgfactormax, " is above 2.5 and will be dropped.")
-            }
-            ghgfactormin <- min(c(0, as.numeric(ghgfactor[regi, newyear, ])), na.rm = TRUE)
-            if (isTRUE(ghgfactormin < 0) && !year %in% knownlow[[regi]]) {
-              warning(
-                "For ", regi, " in ", year, ", ghgfactor=", ghgfactormin, " is below 0. ",
-                "Is the country really promising negative net emissions? Add it to 'knownlow' in calcEmiTarget."
-              )
-            }
-          }
-        }
-      }
-    }
-
-    for (year in getYears(reductionData)) { # assign EUR NDC goal to all EUR28 countries
-      if (!is.na(reductionData["EUR", year, uncond_or_cond])[1]) { # check whether a target exists
-        if (allowedType[reductionData["EUR", year, "Type"]] == "GHG") {
-          ghggoal <- (1 + reductionData["EUR", year, uncond_or_cond]) * setYears(ghg[EUR_NDC_countries, min(reductionData["EUR", year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE))), ], NULL)
-          ghgfactor[EUR_NDC_countries, year, ] <- ghggoal / setYears(ghg[EUR_NDC_countries, 2005, ], NULL)
-        } else if (allowedType[reductionData["EUR", year, "Type"]] == "GHG-fixed-total") {
-          ghg_EUR_2005 <- sum(setYears(ghg[EUR_NDC_countries, 2005, ], NULL))
-          ghgfactor[EUR_NDC_countries, year, ] <- reductionData["EUR", year, uncond_or_cond] / ghg_EUR_2005
-        } else {
-          warning(
-            "Calculation assumes EU target is GHG or GHG-fixed-total, but database says ",
-            reductionData["EUR", year, "Type"], ". Please check or exjust calcEmiTarget!"
-          )
-        }
-      }
-    }
-
-    # exclude country targets with factor higher than 2.5, which is about the highest region average BAU growth rate (but always use China and India)
-    for (regi in getItems(ghgfactor, dim = "iso3c")) {
-      if (!regi %in% c("IND", "CHN")) {
-        ghgfactor[regi, , ][ghgfactor[regi, , ] > 2.5] <- NA
-      }
-    }
-    x <- toolCountryFill(ghgfactor, fill = NA, verbosity = 2)
-  } # end subtype = Emissions_all
-
-  # add NDC_version from subtype to allow for distinction of NDC version in calcEmiTarget/calcCapTarget
+  # add NDC version from subtype
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
   return(x)
+
 }
