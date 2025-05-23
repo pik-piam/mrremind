@@ -9,15 +9,8 @@
 #'
 calcCapTarget <- function(sources) {
 
-  if (! sources %in% c("REN21", "UNFCCC_NDC", "UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
+  if (!sources %in% c("UNFCCC_NDC", "UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
     stop("Unknown 'sources' argument.")
-  }
-
-  if (sources == "REN21") {
-    return(list(x = readSource("REN21", subtype = "Capacity"),
-                weight = NULL,
-                unit = "GW",
-                description = "Capacity targets from REN 21(2017) database"))
   }
 
   if (sources == "NewClimate") {
@@ -57,6 +50,7 @@ calcCapTarget <- function(sources) {
                 description = "Capacity targets from Nationally Determined Contributions (NDC)"))
   }
 
+  # TODO remove when no longer needed
   if (sources == "UNFCCC_NDC+REN21+CHN_NUC") {
     # used to extend non NDC-data to data structure of NDC targets
     extend2Dim <- function(x, dimNames) {

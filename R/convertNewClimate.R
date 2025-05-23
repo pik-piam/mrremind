@@ -49,11 +49,6 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
       x <- x[, , "unconditional", invert = TRUE, drop = TRUE] # keep only conditional policies
     }
 
-    # TODO: is this still needed?
-    if ("FE-Production-Share" %in% getNames(x[, , ], fulldim = TRUE)$`Type of target`) {
-      message("FE-Production-Share currently not implemented.")
-    }
-
     x[is.na(x)] <- 0 # Converting all NAs to zero
 
     # generate target years, at least to 2035, but allow every year in x to be rounded up to next fiver
