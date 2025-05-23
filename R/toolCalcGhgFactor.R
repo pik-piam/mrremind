@@ -64,10 +64,10 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       } else { # then Reference_Year contains a year
         # target + historic GHG emissions from CEDS (best fit)
         histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
-        if (data[regi, year, "Reference_Year"] > 2015) {
+        if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
-            " is above 2015, so we use 2015 as reference year."
+            " is above ", max(getYears(ghg, as.integer = TRUE)), ", so we use the latter as reference year."
           )
         }
 
@@ -88,11 +88,10 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
         # target * historic GHG emissions from CEDS (best fit)
         histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
-
-        if (data[regi, year, "Reference_Year"] > 2015) {
+        if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
-            " is above 2015, so we use 2015 as reference year."
+            " is above ", max(getYears(ghg, as.integer = TRUE)), ", so we use the latter as reference year."
           )
         }
 
@@ -102,11 +101,12 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       }
     } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # GHG/GDP or CO2/GDP
 
-      # TODO: address this for NewClimate CHN
-      if (data[regi, year, "Reference_Year"] > 2015) {
+      # TODO: address this for NewClimate CHN, either use 2015 or drop?
+
+      if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
         message(
           "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
-          " is above 2015. Skipping for now"
+          " is above ", max(getYears(ghg, as.integer = TRUE)), ". Skipping for now."
         )
       } else {
         # NOTE: the inaccuracy for calculation of GHG factor for CO2/GDP is tolerated

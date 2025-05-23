@@ -16,6 +16,7 @@
 convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
+
     # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
     if (FALSE %in% (getNames(x[, , ], fulldim = TRUE)$`Type of target` %in% targetTypes)) {

@@ -2,12 +2,10 @@
 #'
 #' TODO: describe this used for in REMIND and document the meaning of the subtypes
 #'
-#'
 #' @param sources database source, either 'UNFCCC_NDC' or 'NewClimate'
 #' @param subtype must be one of
 #' - 'Ghgfactor': for GHG factors calculated from the respective database
 #' - 'Ghgshare2005': ???
-#' - 'Ghghistshare': for GHG emissions share of countries with 2030 target per region
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' @param verbose set to TRUE for additional info on processing of NDC target,
 #' turned off for inpudata generation
@@ -19,7 +17,7 @@ calcEmiTarget <- function(sources, subtype, scenario, verbose = TRUE) {
     stop("Unknown source ", sources, " for calcEmiTarget.")
   }
 
-  if (!subtype %in% c("Ghgshare2005", "Ghgfactor", "Ghghistshare")) {
+  if (!subtype %in% c("Ghgshare2005", "Ghgfactor")) {
     stop("Unknown 'subtype' argument")
   }
 
@@ -29,10 +27,6 @@ calcEmiTarget <- function(sources, subtype, scenario, verbose = TRUE) {
 
   # Reference Emissions from CEDS
   ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
-
-  # Make sure SSP2 is included in the ghgFactor scenarios (needed for subtype 'Ghghistshare')
-  subsetScen <- unique(c(scenario, "SSP2"))
-
 
   .read <- function(src, subtype, subset, verbose) {
     if (verbose) {
@@ -45,23 +39,23 @@ calcEmiTarget <- function(sources, subtype, scenario, verbose = TRUE) {
 
   if (sources == "UNFCCC_NDC") {
     listGhgFactors <- list(
-      "2018_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2018_cond", subset = subsetScen, verbose = verbose),
-      "2018_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2018_uncond", subset = subsetScen, verbose = verbose),
-      "2021_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2021_cond", subset = subsetScen, verbose = verbose),
-      "2021_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2021_uncond", subset = subsetScen, verbose = verbose),
-      "2022_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2022_cond", subset = subsetScen, verbose = verbose),
-      "2022_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2022_uncond", subset = subsetScen, verbose = verbose),
-      "2023_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2023_cond", subset = subsetScen, verbose = verbose),
-      "2023_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2023_uncond", subset = subsetScen, verbose = verbose),
-      "2024_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2024_cond", subset = subsetScen, verbose = verbose),
-      "2024_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = subsetScen, verbose = verbose)
+      "2018_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2018_cond", subset = scenario, verbose = verbose),
+      "2018_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2018_uncond", subset = scenario, verbose = verbose),
+      "2021_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2021_cond", subset = scenario, verbose = verbose),
+      "2021_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2021_uncond", subset = scenario, verbose = verbose),
+      "2022_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2022_cond", subset = scenario, verbose = verbose),
+      "2022_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2022_uncond", subset = scenario, verbose = verbose),
+      "2023_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2023_cond", subset = scenario, verbose = verbose),
+      "2023_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2023_uncond", subset = scenario, verbose = verbose),
+      "2024_cond"   = .read("UNFCCC_NDC", subtype = "Emissions_2024_cond", subset = scenario, verbose = verbose),
+      "2024_uncond" = .read("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = scenario, verbose = verbose)
     )
   }
 
   if (sources == "NewClimate") {
     listGhgFactors <- list(
-      "2025_cond"   = .read("NewClimate", subtype = "Emissions_2025_cond", subset = subsetScen, verbose = verbose),
-      "2025_uncond" = .read("NewClimate", subtype = "Emissions_2025_uncond", subset = subsetScen, verbose = verbose)
+      "2025_cond"   = .read("NewClimate", subtype = "Emissions_2025_cond", subset = scenario, verbose = verbose),
+      "2025_uncond" = .read("NewClimate", subtype = "Emissions_2025_uncond", subset = scenario, verbose = verbose)
     )
   }
 
@@ -72,7 +66,6 @@ calcEmiTarget <- function(sources, subtype, scenario, verbose = TRUE) {
 
   ghgFactor <- mbind(ghgFactor)
   ghgFactor <- ghgFactor[, sort(getYears(ghgFactor)), ]
-  ghgFactor <- mselect(ghgFactor, "scenario" = scenario)
 
   # GHG factors weighted by GHG in 2005
   if (subtype == "Ghgfactor") {
@@ -124,27 +117,4 @@ calcEmiTarget <- function(sources, subtype, scenario, verbose = TRUE) {
     ))
   }
 
-  if (subtype == "Ghghistshare") {
-
-    x <- new.magpie(
-      cells_and_regions = getItems(ghg, dim = 1),
-      years = getItems(ghg, dim = 2),
-      names = names(listGhgFactors)
-    )
-
-    # create 1/0 mask encoding whether a target year and country
-    # has a target represented by a GHG factor
-    mask <- 1 * !is.na(ghgFactor[, , "SSP2", drop = TRUE])
-
-    x[, , ] <- mask[, "y2030", ]
-
-    return(list(
-      x = x,
-      weight = ghg,
-      unit = "1",
-      description = glue::glue("GHG emissions share of countries with \\
-                quantifyable 2030 target in particular region"),
-      min = 0, max = 1
-    ))
-  }
 }
