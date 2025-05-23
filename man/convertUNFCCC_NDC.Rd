@@ -2,23 +2,27 @@
 % Please edit documentation in R/convertUNFCCC_NDC.R
 \name{convertUNFCCC_NDC}
 \alias{convertUNFCCC_NDC}
-\title{Policy targets for NDCs from UNFCCC_NDC}
+\title{Convert policy targets for NDCs from UNFCCC_NDC}
 \usage{
 convertUNFCCC_NDC(x, subtype, subset = NULL)
 }
 \arguments{
-\item{x}{MAgPIE object to be converted}
+\item{x}{a magclass object to be converted}
 
 \item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
 
-\item{subset}{String, designating the GDP scenarios to use. Only important when subtype = Emissions_x.}
-}
-\value{
-Magpie object with Total Installed Capacity (GW) targets, target years differ depending upon the database.
+\item{subset}{String, designating the GDP scenarios to use. Only used for emission targets.}
 }
 \description{
-Converts conditional and unconditional capacity targets into total capacity (GW) in target year
-the Generation targets are similar to the capacity targets but include the capacity factors,
-the Emissions targets are the total (except land CO2) emissions in the target year
+(TODO: adjust capacity description)
+Converts conditional and unconditional capacity targets into total capacity (GW) in target year.
+the Generation targets are similar to the capacity targets but include the capacity factors.
+}
+\details{
+Emission targets are represented by a GHG factor, which is the quotient of total GHG
+emissions in the target year divided by the CEDS GHG emissions in 2005.
+}
+\author{
+Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux
 }
