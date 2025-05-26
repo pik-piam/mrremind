@@ -81,10 +81,6 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
     hist_fe_buildings <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
     wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
-    if (any(wfe < 0)) {
-      warning("calcOutput('IOEdgeBuildings', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0") # nolint
-      wfe[wfe < 0] <- 0
-    }
 
     #---- Process Data -----------------
     # Replace NAs
@@ -122,13 +118,28 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # Reduce the dimensions of the weights
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
+    # Check if any of the FE weights are negative
+    if (any(wfe < 0)) {
+      warning("FE weights computed by calcOutput('IOEdgeBuildings', subtype = X), ",
+              "with X in (output_EDGE, output_EDGE_buildings), contain negative values, set to 0")
+      wfe[wfe < 0] <- 0
+    }
+
     # Disaggregate and fill the gaps
     weightSum <- toolAggregate(wfe, mappingfile, from = region_col, to = iso_col, dim = 1)
 
     # only throw the zeroWeight warning in toolAggregate, when any weights are zero,
     # but the corresponding data in x is not 0, as only in these cases the total sum of
     # the magpie object is actually changed
-    shouldWarn <- ifelse(any(weightSum[x != 0] == 0), "warn", "allow")
+    if (any(weightSum[x != 0] == 0)) {
+      warning("Some FE weights are zero for which the corresponding data in x is not zero.\n",
+              "Please check the alignment of historic edgebuildings FE data with the output of ",
+              "calcOutput('IOEdgeBuildings').\n",
+              "This will trigger a warning in 'toolAggregate'.")
+      shouldWarn <- "warn"
+    } else {
+      shouldWarn <- "allow"
+    }
 
     xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col,
                           zeroWeight = shouldWarn)
@@ -152,8 +163,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     WH_growth[WH_growth < 0] <- 0
     WH_growth_agg <- dimSums(WH_growth, dim = 1)
 
-    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <-
-      result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
+    result[getItems(WH_growth, dim = "region"), getYears(WH_growth), getNames(WH_growth)] <-
+      result[getItems(WH_growth, dim = "region"), getYears(WH_growth), getNames(WH_growth)] - WH_growth
     result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <-
       result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
 
