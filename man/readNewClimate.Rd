@@ -9,22 +9,16 @@ readNewClimate(subtype, subset)
 }
 \arguments{
 \item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year}
+Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
+determines the database version to be read in}
 
-\item{subset}{A string (or vector of strings) designating the scenario(s) to be
-returned (needed in 'convertNewClimate').}
-}
-\value{
-magpie object
+\item{subset}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
 \description{
 Reads excel sheet with NPi (National Policies Implemented)
 data on different policy targets (capacity) with different variations:
 unconditional for minimal and conditional for maximum targets.
 NPI targets only include targets that are based on implemented policy instruments.
-}
-\details{
-Country name is ISO coded. Capacity/Additional Capacity targets are in GW.
 }
 \author{
 Rahel Mandaroux, Léa Hayez, Falk Benke

@@ -165,7 +165,7 @@ calcPotentialHydro <- function() {
           restPotGrade[r,,"5"] <- 1.00 * restPot[r,,]
         }
       } # grade of installed capacity
-    } # instaed capacity yes/no
+    } # installed capacity yes/no
   } # r - countries
 
 
