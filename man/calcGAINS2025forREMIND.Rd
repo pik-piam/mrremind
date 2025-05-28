@@ -4,7 +4,9 @@
 \alias{calcGAINS2025forREMIND}
 \title{Calculates air pollutant emissions, activities and emission factors
 for all scenarios and SSPs available from GAINS, including both
-legacy and 2025 variants of GAINS data}
+legacy and 2025 variants of GAINS data. This generates the actual
+files needed for REMIND in the proper format, for the scenario logic,
+see \code{GAINS2025scenarios}.}
 \usage{
 calcGAINS2025forREMIND(subtype)
 }
@@ -17,7 +19,9 @@ Activity levels, emissions or emission factors
 \description{
 Calculates air pollutant emissions, activities and emission factors
 for all scenarios and SSPs available from GAINS, including both
-legacy and 2025 variants of GAINS data
+legacy and 2025 variants of GAINS data. This generates the actual
+files needed for REMIND in the proper format, for the scenario logic,
+see \code{GAINS2025scenarios}.
 }
 \author{
 Gabriel Abrahao
