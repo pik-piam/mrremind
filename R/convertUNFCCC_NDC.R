@@ -17,9 +17,10 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
 
+    # TODO: do we want to implement FE-Production-Share?
+
     # pre-processing ----
     x <- complete_magpie(x)
-
 
     if (grepl("uncond", subtype, fixed = TRUE)) {
       x <- x[, , "conditional", invert = TRUE, drop = TRUE]
@@ -80,7 +81,6 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2015, "Renewable hydropower"]
 
     # initialize Nuclear
-    # TODO: find a better source for this? or rather use with convert = F?
     hist_gen_nuclear <- readSource("BP", subtype = "Generation")
     # convert TWh to GWh
     hist_gen_nuclear <- hist_gen_nuclear[getItems(x_ref, dim = 1), 2015, "Generation|Nuclear (TWh)"] * 1000
@@ -88,7 +88,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # 0/1 mask to only initialize cells with targets in any year
     # this is most likely a correction of the values coming from BP,
-    # which in some cases are the result of disaggregating regions
+    # which in a few cases are the result of disaggregating regions (e.g. Other CIS)
     mask <- dimSums(x_target, dim = c(2, 3.1))[, , "Nuclear"]
     mask[mask != 0] <- 1
 
@@ -99,11 +99,12 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # converting additional capacity targets to absolute capacity targets
 
-    # TODO: so that means, all additional capacity targets mean 'in addition to 2015'?
+    # all additional capacity targets currently mean 'in addition to 2015'
+    # TODO: read in reference year as well, otherwise invalid capacity target
     x_capacity_abs[, , c("Nuclear", "Biomass", "Wind", "Solar")] <- x_ref[, , c("Nuclear", "Biomass", "Wind", "Solar")] +
       x_target[, , c("AC-Absolute.Nuclear", "AC-Absolute.Biomass", "AC-Absolute.Wind", "AC-Absolute.Solar"), drop = TRUE]
 
-    # TODO: SDN 2024 reported in GWh/yr, not in GW?
+    # TODO: SDN 2024 target has the wrong target type?
     # for Hydro, this is production (GWh/yr)
     x_capacity_abs[, , "Hydro"] <- x_ref[, , "Hydro"] +
       x_target[, , "AC-Absolute.Hydro", drop = TRUE] * cf_hydro * 8760
@@ -113,6 +114,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     x_capacity_tic <- x_capacity
 
     # total installed capacity targets are the maximum of 2015 capacity and capacity in target year
+    # TODO: possibly revise, as this might no longer make sense as we introduce new technologies (e.g. fossil technologies)
     x_capacity_tic[, , c("Nuclear", "Biomass", "Wind", "Solar")] <- pmax(
       x_ref[, , c("Nuclear", "Biomass", "Wind", "Solar")],
       x_target[, , c("Nuclear", "Biomass", "Wind", "Solar")][, , "TIC-Absolute", drop = TRUE]
@@ -121,7 +123,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # for Hydro, this is production (GWh/yr)
     x_capacity_tic[, , "Hydro"] <- pmax(
       x_ref[, , "Hydro"],
-      # TODO: Isn't the conversion missing * 8670?
+      # TODO: Isn't the conversion capacity to production missing multiplication with 8760?
       x_target[, , "TIC-Absolute.Hydro", drop = TRUE] * cf_hydro
     )
 
@@ -167,6 +169,9 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     x_target[, , "Production-Absolute.Hydro"] <- pmax(x_target[, , "Production-Absolute.Hydro"],
                                                       x_capacity_tic[, , "Hydro"],
                                                       x_capacity_abs[, , "Hydro"])
+
+    # TODO: figure out what the location in the potentials means
+
 
     # drop the target for all Production-Absolute Hydro targets with maxprod
     # all-zero or at least one negative maxprod value,
