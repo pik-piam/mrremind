@@ -47,6 +47,7 @@ Authors:
   \item Sophie Fuchs
   \item Rahel Mandaroux
   \item Johannes Koch
+  \item Gabriel Abrahao
 }
 
 }
