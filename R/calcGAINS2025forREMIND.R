@@ -1,22 +1,18 @@
 #' Calculates air pollutant emissions, activities and emission factors
 #' for all scenarios and SSPs available from GAINS, including both
-#' legacy and 2025 variants of GAINS data
+#' legacy and 2025 variants of GAINS data. This generates the actual
+#' files needed for REMIND in the proper format, for the scenario logic,
+#' see `GAINS2025scenarios`.
 #'
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
 #'
 #' @importFrom abind abind
+#' @importFrom utils head tail
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na
 calcGAINS2025forREMIND <- function(subtype) {
-  # require(magclass)
-  # require(madrat)
-  # devtools::load_all(".")
-  # subtype <- "emissions"
-  # subtype <- "emission_factors"
-  # subtype <- "emissions_starting_values"
-
   # Binds new and old versions of GAINS data, adding an "ssp" dimension
   # to old data and makes the new data conform to the old shape besides the
   # new dimension
@@ -146,8 +142,6 @@ calcGAINS2025forREMIND <- function(subtype) {
     nextdim <- as.numeric(paste0("3.", length(getSets(outold)) - 1))
     outold <- add_dimension(outold, nextdim, add = "ssp", nm = "GAINSlegacy")
     wgtold <- add_dimension(wgtold, nextdim, add = "ssp", nm = "GAINSlegacy")
-    # outold <- mbind(lapply(getItems(innew, "ssp"), \(ssp) add_dimension(outold, nextdim, add = "ssp", nm = ssp)))
-    # wgtold <- mbind(lapply(getItems(innew, "ssp"), \(ssp) add_dimension(wgtold, nextdim, add = "ssp", nm = ssp)))
 
     # GAINSlegacy weights were for a fixed year, expand the time dimension
     # so that it can be merged with the new data

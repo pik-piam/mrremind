@@ -18,12 +18,6 @@
 #' @importFrom tidyr pivot_longer drop_na
 #' @importFrom zoo na.approx
 calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
-  # require(magclass)
-  # require(madrat)
-  # devtools::load_all(".")
-  # agglevel = "agg"
-
-
   # ====================================================================
   # Mappings, auxiliary files and definitions ==========================
   # ====================================================================
