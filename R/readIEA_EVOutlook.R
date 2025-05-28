@@ -2,7 +2,11 @@
 #'
 #' @author Falk Benke
 readIEA_EVOutlook <- function() {
-  data <- utils::read.csv2(file.path("data", "2024", "IEA Global EV Data 2024.csv"), sep = ",")
+
+  data <- readxl::read_xlsx(
+    path = file.path("data", "2025", "EV Data Explorer 2025.xlsx"),
+    sheet = "GEVO_EV_2025"
+  )
 
   data <- data %>%
     mutate(
@@ -10,7 +14,13 @@ readIEA_EVOutlook <- function() {
       "value" = as.numeric(.data$value),
       "unit" = ifelse(is.na(.data$unit), "no", .data$unit)
     ) %>%
-    select("region", "year", "scenario" = "category", "variable", "unit", "value")
+    select("region" = "region_country", "year", "scenario" = "category", "variable", "unit", "value")
+
+  # assume that real duplicates can be removed
+  data <- distinct(data)
+
+  # entries with varying values are summed up
+  data <- stats::aggregate(value ~ region + year + scenario + variable + unit, data, sum)
 
   as.magpie(data, spatial = 1)
 }

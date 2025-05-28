@@ -1,12 +1,12 @@
 #' @title convertEDGAR7Fgases
 #' @author Gabriel Abrahao
-#' @param x  magpie object to be converted
+#' @param x magpie object to be converted
 #'
 #' @export
 convertEDGAR7Fgases <- function(x) {
   # Aggregate regions, but not species yet
   x[is.na(x)] <- 0 # set NA to 0
-  x <- toolCountryFill(x, fill = 0, verbosity = 2) # fill missing countries
+  x <- toolCountryFill(x, fill = 0, verbosity = 2, no_remove_warning = c("SCG")) # fill missing countries
 
   fgaskt <- x
 
@@ -36,8 +36,10 @@ convertEDGAR7Fgases <- function(x) {
   # Check if there are gases in EDGAR without a GWP in AR6 and throw a warning
   unknown_gases <- setdiff(gases_edgar, intersect(gases_ar6, gases_edgar))
   if (length(unknown_gases) > 0) {
-    warning(paste0("calcEDGAR7Fgases couldn't find GWPs for the following gases: ",
-                   paste(unknown_gases, collapse = ",")))
+    warning(paste0(
+      "calcEDGAR7Fgases couldn't find GWPs for the following gases: ",
+      paste(unknown_gases, collapse = ",")
+    ))
   }
 
   # Keep only used gases
