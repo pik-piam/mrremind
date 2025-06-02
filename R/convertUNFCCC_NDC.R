@@ -64,6 +64,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # Real world capacity factor for hydro = Generation in 2015 / Capacity in last 2015
     # using cf_hydro_realworld directly causes converges errors because some are very small
+    # TODO: why no use the more detailed capacity factors from PotentialHydro?
     cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] /
       (8760 * hist_cap[, 2015, "Renewable hydropower"])
     cf_hydro <- max(cf_hydro_realworld, na.rm = TRUE)
@@ -141,6 +142,8 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # handle Target Type 'Production-Absolute' for Solar, Wind, and Hydro ----
 
     # obtain the capacity factors (nur) values and associated maximum production (maxprod) for Hydro, Wind, and Solar
+    # the quality is a continuous number (1-9 for Solar/ Wind and 1-5 for Hydro) that is binned onto capacity factors,
+    # each with a limited installation potential, the lower the number, the higher the capacity factor
     potentialWind <- calcOutput("PotentialWindOn", aggregate = FALSE)
     potentialWind <- add_dimension(potentialWind, dim = 3.1, add = "tech", nm = "Wind")
 
@@ -170,8 +173,6 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
                                                       x_capacity_tic[, , "Hydro"],
                                                       x_capacity_abs[, , "Hydro"])
 
-    # TODO: figure out what the location in the potentials means
-
 
     # drop the target for all Production-Absolute Hydro targets with maxprod
     # all-zero or at least one negative maxprod value,
@@ -190,6 +191,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     regions <- numeric(length(getItems(x_target, dim = 1)))
     names(regions) <- getItems(x_target, dim = 1)
 
+    # TODO: understand and document this
     for (t in c("Solar", "Wind", "Hydro")) {
       pot <- potential[, , t]
       tar <- x_target[, , t]
@@ -251,6 +253,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # take the maximum of
     x_capacity[, , c("Solar", "Wind", "Biomass", "Nuclear")] <- pmax(
+
       x_capacity_abs[, , c("Solar", "Wind", "Biomass", "Nuclear")],
       x_capacity_tic[, , c("Solar", "Wind", "Biomass", "Nuclear")],
       x_capacity_prod[, , c("Solar", "Wind", "Biomass", "Nuclear")]
