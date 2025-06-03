@@ -5,7 +5,7 @@
 #' data on different policy targets (capacity, production, emissions) with different variations.
 #' NPI targets only include targets that are based on implemented policy instruments.
 
-#' @author  Rahel Mandaroux, Léa Hayez, Falk Benke
+#' @author Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
 #'   determines the database version to be read in
