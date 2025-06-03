@@ -2,15 +2,14 @@
 #' by PBL that translate the high impact policies of https://climatepolicydatabase.org/.
 
 #' @description Reads excel sheet with NPi (National Policies Implemented)
-#' data on different policy targets (capacity) with different variations:
-#' unconditional for minimal and conditional for maximum targets.
+#' data on different policy targets (capacity, production, emissions) with different variations.
 #' NPI targets only include targets that are based on implemented policy instruments.
 
 #' @author  Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
 #'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
 #'   determines the database version to be read in
-#' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
+#' @param subset A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).
 #'
 readNewClimate <- function(subtype, subset) {
 
@@ -20,8 +19,9 @@ readNewClimate <- function(subtype, subset) {
   )
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-    # Capacity/Additional Capacity targets are in GW.
-    NPI <- read_excel(
+
+    # TODO: what about H2-Electrolysers?
+    data <- read_excel(
       NPIfile,
       sheet = "Capacity_target_PBL_2025",
       col_types = c(
@@ -30,7 +30,18 @@ readNewClimate <- function(subtype, subset) {
         "numeric", "numeric", "numeric", "skip", "skip", "skip", "skip"
       )
     )
-    x <- as.magpie(NPI, spatial = 1, temporal = 2, datacol = 3)
+
+    targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
+
+    if (!all(unique(data$`Type of target`) %in% targetTypes)) {
+      stop(
+        subtype, ": Table read from NewClimate contains unknown target types: ",
+        unique(data$`Type of target`)[which(!(unique(data$`Type of target`) %in% targetTypes))]
+      )
+    }
+
+    x <- as.magpie(data, spatial = 1, temporal = 2, datacol = 3)
+
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
 
     input <- readxl::read_excel(

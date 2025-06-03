@@ -1,8 +1,7 @@
 #' Convert policy targets for NPIs from New Climate policy database
 #'
-#' @description Converts conditional and unconditional capacity targets into total capacity (GW) in target year
-#' the Generation targets are similar to the capacity targets but include the capacity factors,
-#' the Emissions targets are the total (except land CO2) emissions in the target year
+#' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
+#' For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
 #'
 #' Emission targets are represented by a GHG factor, which is the quotient of total GHG
 #' emissions in the target year divided by the CEDS GHG emissions in 2005.
@@ -12,299 +11,349 @@
 #'   Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year
 #' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
+#' @seealso [readIRENA()]
 #'
 convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-    # add missing magclass columns if they were not in the data provided to avoid index out of bound errors
-    targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
 
-    if (!all(getNames(x, dim = 2) %in% targetTypes)) {
-      warning(
-        "Table read from NewClimate contains unknown target types: ",
-        targetTypes[which(!(getNames(x, dim = 2) %in% targetTypes))]
-      )
+    # TODO: can we move parts to a separate tool function?
+
+    # pre-processing ----
+
+    x <- complete_magpie(x)
+    x <- magpiesort(x)
+
+    if (grepl("uncond", subtype, fixed = TRUE)) {
+      x <- x[, , "conditional", invert = TRUE, drop = TRUE]
+    } else {
+      uncond <- x[, , "conditional", invert = TRUE, drop = TRUE]
+      x <- x[, , "unconditional", invert = TRUE, drop = TRUE]
+      # when there is no conditional target, adapt unconditional target
+      x[is.na(x)] <- uncond[is.na(x)]
     }
 
-    techList <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar photovoltaic", "Concentrated solar power", "Biomass",
-                  "Nuclear", "Hydro", "Geothermal", "Coal")
-
-    listAllCombinations <- do.call(paste, c(expand.grid(getNames(x, fulldim = TRUE)$Conditionality, targetTypes, techList), sep = "."))
-    missingCombinations <- listAllCombinations[!listAllCombinations %in% getNames(x)]
-    x <- add_columns(x, addnm = missingCombinations, dim = 3, fill = NA)
-
-    if (grepl("uncond", subtype, fixed = TRUE)) {  # unconditional policies
-      x <- x[, , "conditional", invert = TRUE, drop = TRUE] # keep only unconditional policies
-    } else { # conditional policies
-      # loop to make conditional targets at least as good as unconditional targets
-      for (r in getItems(x, dim = "ISO")) {
-        for (t in getItems(x, dim = "Target Year")) {
-          for (tech in getNames(x[, , "conditional", drop = TRUE])) {
-            if (is.na(x[r, t, "conditional"][, , tech])) {
-              x[r, t, "conditional"][, , tech] <- x[r, t, "unconditional"][, , tech]
-            }
-          }
-        }
-      }
-      x <- x[, , "unconditional", invert = TRUE, drop = TRUE] # keep only conditional policies
-    }
-
-    x[is.na(x)] <- 0 # Converting all NAs to zero
-
-    # generate target years, at least to 2035, but allow every year in x to be rounded up to next fiver
-    targetYears <- seq(2020, max(max(getYears(x, as.integer = TRUE)), 4 + max(getYears(x, as.integer = TRUE))), by = 5)
-
-    # include EU targets
-    EUR_NPi_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-                           "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-                           "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-                           "FRO", "GIB", "GGY", "IMN", "HRV")
+    # make sure all supported target types are included
+    missingTargetTypes <- setdiff(c("AC-Absolute", "Production-Absolute", "TIC-Absolute"), getNames(x, dim = 1))
+    x <- add_columns(x, addnm = missingTargetTypes, dim = 3.1, fill = NA)
 
 
     # split EUR targets equally across EUR countries
+    EUR_NPi_countries <- c(
+      "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+      "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+      "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+      "FRO", "GIB", "GGY", "IMN", "HRV"
+    )
+
     rel <- data.frame(from = "EUR", to = EUR_NPi_countries)
     weight <- new.magpie(cells_and_regions = EUR_NPi_countries, fill = 1)
     euTargets <- toolAggregate(x["EUR", , ], rel = rel, weight = weight)
     x <- x["EUR", , , invert = TRUE]
     x <- mbind(x, euTargets)
 
-    # generate new object x_mod5 that has values only for targetYears and transfer those from x
-    x_mod5 <- new.magpie(getItems(x, dim = "ISO"), targetYears, getNames(x), fill = 0)
-    commonYears <- intersect(getYears(x, as.integer = TRUE), targetYears)
-    x_mod5[, commonYears, ] <- x[, commonYears, ]
+    # generate target years, at least to 2035, but allow every year in x to be rounded up to next fiver
+    targetYears <- seq(2020, max(2035, 4 + max(getYears(x, as.integer = TRUE))), by = 5)
 
+    # generate new object x_target that has values only for targetYears and transfer those from x
+    x_target <- new.magpie(getItems(x, dim = 1), targetYears, getNames(x), fill = NA)
+    x_target[, intersect(getYears(x), getYears(x_target)), ] <- x[, intersect(getYears(x), getYears(x_target)), ]
 
-    # for non-fiver years, transfer them to following fiver year, increasing every year by 5 percentage points
-    # if 2032 and 2035 data are given for the same country, use the higher value (apply max row-wise).
-    for (i in setdiff(getYears(x, as.integer = TRUE), targetYears)) {
-      x_mod5[, i - (i %% 5) + 5, ] <- apply(matrix(c(as.vector(x_mod5[, i - (i %% 5) + 5, ]), as.vector(x[, i, ]) * (1 + (5 - (i %% 5)) * 0.05)), ncol = 2), 1, max)
-    }
-
-    # Creating magpie object which at the end will only contain capacity targets
-    x_capacity <- new.magpie(getItems(x_mod5, dim = "region"), targetYears, techList, fill = 0)
-
-    # reading historical data
-    hist_cap <- readSource("IRENA", subtype = "Capacity") / 1000 # converting from MW to GW
-    hist_gen <- readSource("IRENA", subtype = "Generation") # Units are GWh
-
-    # Real world capacity factor for hydro = Generation in last year/Capacity in last year
-    cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] / (8760 * hist_cap[, 2015, "Renewable hydropower"])
-    cf_hydro_realworld[is.na(cf_hydro_realworld) | is.infinite(cf_hydro_realworld)] <- 0
-    getNames(cf_hydro_realworld) <- "Hydro"
-
-    # Capacity factors in REMIND. From : calcOutput("Capacityfactor"...) need to be verified!
-    cf_biomass <- 0.75
-    cf_nuclear <- 0.85
-    cf_coal <- 0.8
-    cf_hydro   <- max(cf_hydro_realworld) + 0 * cf_hydro_realworld
-
-    # using cf_hydro_realworld directly causes converges errors because some are very small. Second term needed such that cf_hydro has right structure
-    # Initialising all capacities for all model years to current capacities and converting generation to capacity
-    # EU target
-    IrenaTech <- c("Wind", "Onshore wind energy", "Offshore wind energy", "Solar photovoltaic", "Concentrated solar power", "Geothermal")
-
-    x_capacity[, , IrenaTech]  <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, IrenaTech])
-    x_capacity[, , "Biomass"]  <- setYears(hist_cap[getItems(x_mod5, dim = "region"), 2015, "Bioenergy"])
-
-    # special case for hydro.
-    x_capacity[, , "Hydro"]    <- setYears(hist_gen[getItems(x_capacity, dim = "region"), 2015, "Renewable hydropower"])
-    # Special case for nuclear
-    # TODO: nuclear is total generation check if fits with electricity targets!
-    hist_gen_fossil <- readSource("BP", subtype = "Generation") * 1000 # TWh to GWh
-    for (i in targetYears) {
-      for (j in getNames(x_mod5[, , c("Nuclear", "Coal")])) {
-        for (k in getItems(x_mod5, dim = "region")) {
-          if (x_mod5[k, i, j] != 0) {
-            x_capacity[k, , "Nuclear"] <- setYears(hist_gen_fossil[k, 2015, "Generation|Nuclear (TWh)"]) / (8760 * cf_nuclear)
-          }
-          x_capacity[k, , "Coal"] <- setYears(hist_gen_fossil[k, 2015, "Generation|Electricity|Coal (TWh)"]) / (8760 * cf_nuclear)
+    for (i in getYears(x, as.integer = TRUE)) {
+      if (i %% 5 != 0) {
+        # for non-fiver years, transfer them to following fiver year, increasing every year by 5 percentage points
+        x[, i, ] <- x[, i, ] * (1 + (5 - (i %% 5)) * 0.05)
+        j <- i - (i %% 5) + 5
+        if (j %in% getYears(x, as.integer = TRUE)) {
+          # if there is already a value for the year, use the higher value
+          x_target[, j, ] <- pmax(x[, i, ], x[, j, ], na.rm = TRUE)
+        } else {
+          x_target[, j, ] <- x[, i, ]
         }
       }
     }
-    x_current <- x_capacity # x_current contains current capacities except for hydro where current generation values are taken
-    x_capacity_abs <- 0 * x_capacity
-    x_capacity_prod_nb <- 0 * x_capacity
-    x_capacity_tic <- 0 * x_capacity
-    x_capacity_prod_swh <- 0 * x_capacity
 
-    # Converting additional capacity targets to absolute capacity targets
-    BPtech <- c("Nuclear", "Coal")
-    usedTech <- c(IrenaTech, BPtech, "Biomass")
-    absUsedTech <- paste("AC-Absolute.", usedTech, sep = "")
-
-    x_capacity_abs[, , usedTech] <- x_current[, , usedTech] +
-      x_mod5[, , absUsedTech, drop = TRUE]
-    # to do @Falk relative calculation is not correct
-    # currently it (adds additional capacity to historical of 2015), not to base
-
-    x_capacity_abs[, , "Hydro"] <- x_current[, , "Hydro"] + x_mod5[, , "AC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ] * 8760)
-
-    # Converting Production targets (GWh) to Capacity targets (TIC-Absolute) (GW) for nuclear and biomass
-    # pmax used to always take the higher value from existing capacity and new capacity (from production)
-    x_capacity_prod_nb[, , "Nuclear"] <- pmax(x_current[, , "Nuclear"], x_mod5[, , c("Production-Absolute.Nuclear")] / (8760 * cf_nuclear))
-    x_capacity_prod_nb[, , "Coal"] <- pmax(x_current[, , "Coal"], x_mod5[, , c("Production-Absolute.Coal")] / (8760 * cf_coal))
-    x_capacity_prod_nb[, , "Biomass"] <- pmax(x_current[, , "Biomass"], x_mod5[, , c("Production-Absolute.Biomass")] / (8760 * cf_biomass))
-
-    # Total installed capacity Targets
-    # target in target year should be the maximum from the target year and the current capacity
-    x_capacity_tic[, , usedTech] <- pmax(x_current[, , usedTech], x_mod5[, , usedTech][, , "TIC-Absolute", drop = TRUE])
-    x_capacity_tic[, , "Hydro"] <- pmax(x_current[, , "Hydro"], x_mod5[, , "TIC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_mod5, dim = "region"), , ]))
-
-    # Converting Production targets to capacity targets for solar (pv and csp), hydro, and wind
-    # Obtaining the capacity factors (nur) values and associated maxproduction (maxprod) for Hydro, Wind, and Solar
-    data_wind <- calcOutput("PotentialWindOn", aggregate = FALSE)
-
-    # Reordering dim=3 for data_wind so that 1st position corresponds to maxprod.nur.1 and not maxprod.nur.9
-    data_wind_sorted <- mbind(
-      data_wind[, , "1"], data_wind[, , "2"], data_wind[, , "3"], data_wind[, , "4"],
-      data_wind[, , "5"], data_wind[, , "6"], data_wind[, , "7"], data_wind[, , "8"], data_wind[, , "9"]
+    x_capacity <- new.magpie(getItems(x_target, dim = 1), getItems(x_target, dim = 2),
+                             getNames(x_target, dim = 2),
+                             fill = NA
     )
 
-    data_hydro <- calcOutput("PotentialHydro", aggregate = FALSE)
-    data_solar <- calcOutput("Solar", regionmapping = "regionmappingTCD.csv")
+    # gather reference capacities (2015) ----
+    # x_ref contains 2015 capacities except for hydro where current generation values are taken
 
-    names_solar <- paste0("Solar.", getNames(collapseNames((mselect(data_solar, type = c("nur", "maxprod"), technology = "spv")), collapsedim = 2)))
-    names_hydro <- paste0("Hydro.", getNames(data_hydro))
-    names_wind <- paste0("Wind.", getNames(data_wind_sorted))
-    data_combined <- new.magpie(getItems(data_hydro, dim = "region"), NULL, c(names_solar, names_hydro, names_wind))
-    data_combined[, , "Hydro"] <- data_hydro
-    data_combined[, , "Wind"] <- data_wind_sorted
-    data_combined[c("TCD", "JPN"), , "Solar"][, , "maxprod"] <- as.vector(data_solar[c("TCD", "JPN"), , "maxprod"][, , "spv"])
-    data_combined[c("TCD", "JPN"), , "Solar"][, , "nur"] <- as.vector(data_solar[c("TCD", "JPN"), , "nur"][, , "spv"])
-    data_combined <- data_combined[getItems(x_mod5, dim = "region"), , ]
-    for (n in getNames(data_combined, dim = 1)) {
-      name <- paste0(n, ".maxprod")
-      # Conversion from EJ/a to GWh
-      data_combined[, , name, pmatch = TRUE] <- data_combined[, , name, pmatch = TRUE] * 277777.778
-    }
+    x_ref <- x_capacity
 
-    data_combined[is.na(data_combined)] <- 0
-    # Production/Generation targets are converted into capacity targets by alloting production to certain capacity factors based on maxprod.
-    final <- numeric(length(getItems(x_mod5, dim = "region")))
-    names(final) <- getItems(x_mod5, dim = "region")
-    tmp_target <- numeric(10)
+    hist_cap <- readSource("IRENA", subtype = "Capacity") / 1000 # Units in GW
+    hist_gen <- readSource("IRENA", subtype = "Generation") # Units in GWh
 
-    x_mod5[, , "Production-Absolute.Hydro"] <- pmax(x_mod5[, , "Production-Absolute.Hydro"], x_capacity_tic[, , "Hydro"], x_capacity_abs[, , "Hydro"])
+    # capacity factors determine how much electricity (GWh/yr) you can produce from 1 GW of capacity
+    # the lower the number, the more electricity can be produced
 
-    x_mod5[is.na(x_mod5)] <- 0
-    # For all countries which have non-zero generation values but zero or negative maxprod(),
-    #  replace x_mod5[,,"Production-Absolute.Hydro]==0
-    #  Even if there is one +ve production absolute value for Hydro but all maxprod are zero
-    for (r in names(final)) {
-      if (any(x_mod5[r, , "Production-Absolute.Hydro"] != 0) &&
-          all(data_combined[r, , "Hydro.maxprod"] == 0) || any(data_combined[r, , "Hydro.maxprod"] < 0)) {
-        x_mod5[r, , "Production-Absolute.Hydro"] <- 0
+
+    # Real world capacity factor for hydro = Generation in 2015 / Capacity in last 2015
+    # using cf_hydro_realworld directly causes converges errors because some are very small
+    # TODO: why not use the more detailed capacity factors from PotentialHydro?
+    cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] /
+      (8760 * hist_cap[, 2015, "Renewable hydropower"])
+    cf_hydro <- max(cf_hydro_realworld, na.rm = TRUE)
+
+
+    # Capacity factors in REMIND, obtained using calcOutput("Capacityfactor")
+    # TODO: update hard coded values or read in directly?
+    cf_biomass <- 0.75
+    cf_nuclear <- 0.85
+    cf_coal <- 0.8
+
+    # Initialising all capacities for all model years to current capacities and converting generation to capacity
+    # EU target
+    renewableTech <- c(
+      "Wind", "Onshore wind energy", "Offshore wind energy",
+      "Solar photovoltaic", "Concentrated solar power", "Geothermal"
+    )
+
+    # initialize Renewables and Biomass
+    x_ref[, , renewableTech] <- hist_cap[getItems(x_ref, dim = 1), 2015, renewableTech]
+    x_ref[, , "Biomass"] <- hist_cap[getItems(x_ref, dim = 1), 2015, "Bioenergy"]
+
+    # initialize Hydro with historical generation
+    x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2015, "Renewable hydropower"]
+
+    hist_gen_bp <- readSource("BP", subtype = "Generation")
+
+    # initialize Nuclear
+    hist_gen_nuclear <- hist_gen_bp[getItems(x_ref, dim = 1), 2015, "Generation|Nuclear (TWh)"] * 1000
+    hist_cap_nuclear <- hist_gen_nuclear / (8760 * cf_nuclear)
+    # 0/1 mask to only initialize cells with targets in any year
+    # this is most likely a correction of the values coming from BP,
+    # which in a few cases are the result of disaggregating regions (e.g. Other CIS)
+    # TODO: might lead to weird behaviour when actual targets are 0, can this be removed?
+    mask <- dimSums(x_target, dim = c(2, 3.1), na.rm = TRUE)[, , "Nuclear"]
+    mask[mask != 0] <- 1
+    x_ref[, , "Nuclear"] <- hist_cap_nuclear * mask
+
+    # initialize Coal
+    hist_gen_coal <- hist_gen_bp[getItems(x_ref, dim = 1), 2015, "Generation|Electricity|Coal (TWh)"] * 1000
+    # TODO: shouldn't this be cf_coal?
+    hist_cap_coal <- hist_gen_coal / (8760 * cf_nuclear)
+    x_ref[, , "Coal"] <- hist_cap_coal
+
+    # handle Target Type 'AC-Absolute' ----
+    x_capacity_abs <- x_capacity
+
+    # converting additional capacity targets to absolute capacity targets
+
+    # all additional capacity targets currently mean 'in addition to 2015'
+    # TODO: read in reference year as well, otherwise invalid capacity target
+    allTech <- c("Nuclear", "Coal", "Biomass", renewableTech)
+    x_capacity_abs[, , allTech] <- x_ref[, , allTech] + x_target[, , "AC-Absolute", drop = TRUE][, , allTech]
+
+    # for Hydro, this is production (GWh/yr)
+    x_capacity_abs[, , "Hydro"] <- x_ref[, , "Hydro"] +
+      x_target[, , "AC-Absolute.Hydro", drop = TRUE] * cf_hydro * 8760
+
+    # handle Target Type 'TIC-Absolute' ----
+    x_capacity_tic <- x_capacity
+
+    # total installed capacity targets are already in the right format
+    x_capacity_tic[, , allTech] <- x_target[, , allTech][, , "TIC-Absolute", drop = TRUE]
+
+    # for Hydro, this is production (GWh/yr)
+    # TODO: Isn't the conversion capacity to production missing multiplication with 8760?
+    x_capacity_tic[, , "Hydro"] <- x_target[, , "TIC-Absolute.Hydro", drop = TRUE] * cf_hydro
+
+    # handle Target Type 'Production-Absolute' for Biomass, Coal, and Nuclear ----
+    x_capacity_prod <- x_capacity
+
+    # converting production targets (GWh) to absolute capacity targets (GW)
+
+    # capacity in target year, calculated from production
+    x_capacity_prod[, , "Nuclear"] <- x_target[, , "Production-Absolute.Nuclear"] / (8760 * cf_nuclear)
+    x_capacity_prod[, , "Coal"] <- x_target[, , "Production-Absolute.Coal"] / (8760 * cf_coal)
+    x_capacity_prod[, , "Biomass"] <- x_target[, , "Production-Absolute.Biomass"] / (8760 * cf_biomass)
+
+    # handle Target Type 'Production-Absolute' for Renewables ----
+
+    # obtain the capacity factors (nur) and associated maximum production (maxprod) for Hydro, Wind, and Solar
+    # the quality is a continuous number (1-9 for Solar/ Wind and 1-5 for Hydro) that is binned onto capacity factors,
+    # each with a limited installation potential, the lower the number, the higher the capacity factor
+    potentialWind <- calcOutput("PotentialWindOn", aggregate = FALSE)
+    potentialWind <- add_dimension(potentialWind, dim = 3.1, add = "tech", nm = "Wind")
+
+    potentialHydro <- calcOutput("PotentialHydro", aggregate = FALSE)
+    potentialHydro <- add_dimension(potentialHydro, dim = 3.1, add = "tech", nm = "Hydro")
+    potential <- mbind(potentialWind, potentialHydro)
+
+    potentialSolar <- calcOutput("Solar", regionmapping = "regionmappingTCD.csv")[c("TCD", "JPN"), , c("nur", "maxprod")][, , "spv"]
+    potentialSolar <- collapseDim(potentialSolar, dim = 3.2)
+    potentialSolar <- toolCountryFill(potentialSolar, fill = NA, verbosity = 2)
+    potentialSolar <- add_dimension(potentialSolar, dim = 3.1, add = "tech", nm = "Solar")
+    potential <- mbind(potential, potentialSolar)
+
+    # filter countries with target
+    potential <- potential[getItems(x_target, dim = 1), , ]
+
+    # make sure location is sorted in increasing order
+    potential <- potential[, , as.character(seq(1:9))]
+
+    # convert maxprod from EJ/a to GWh
+    potential[, , "maxprod"] <- potential[, , "maxprod"] * 277777.778
+    potential[is.na(potential)] <- 0
+
+    # for Hydro, any TIC and AC Absolute targets are converted to Production-Absolute targets in GWh/yr
+    # Production-Absolute is the max of TIC, AC, Production-Absolute, and 2015 reference
+    # TODO: why not do this just like for other Renewables? why special treatment for Hydro?
+    # TODO: why do the complex calculation below for reference values as well?
+    x_target[, , "Production-Absolute.Hydro"] <- pmax(x_target[, , "Production-Absolute.Hydro"],
+                                                      x_capacity_tic[, , "Hydro"],
+                                                      x_capacity_abs[, , "Hydro"],
+                                                      x_ref[, , "Hydro"],
+                                                      na.rm = TRUE
+    )
+
+    # drop the target for all Production-Absolute Hydro targets with maxprod all-zero,
+    # or at least one negative maxprod value
+    for (r in getItems(x_target, dim = 1)) {
+      if (any(x_target[r, , "Production-Absolute.Hydro"] != 0) &&
+          (all(potential[r, , "Hydro.maxprod"] == 0) || any(potential[r, , "Hydro.maxprod"] < 0))) {
+        message(subtype, ": Dropping target(s) of type 'Production-Absolute' for Hydro in country for ", r, ", as it has zero or negative maxprod.")
+        x_target[r, , "Production-Absolute.Hydro"] <- 0
       }
     }
 
+    # converting production targets (GWh/yr) to absolute capacity targets (GW)
+    # by allotting production to certain capacity factors based on maxprod
+
+    regions <- numeric(length(getItems(x_target, dim = 1)))
+    names(regions) <- getItems(x_target, dim = 1)
+
+    # TODO: refactor this
+    # TODO: what about Concentrated solar power, Geothermal, Offshore wind energy, Onshore wind Energy?
+    getNames(potential, dim = 1) <- c("Wind", "Hydro", "Solar photovoltaic")
     for (t in c("Solar photovoltaic", "Wind", "Hydro")) {
-      # no pure Solar in REMIND technology
-      getNames(data_combined, dim = 1) <- c("Solar photovoltaic",  "Hydro",  "Wind")
-      data_sel <- data_combined[, , t]
-      data_in_use <- data_sel[, , "maxprod"] / data_sel[, , "nur"]
+      pot <- potential[, , t]
+      tar <- x_target[, , t]
+      data_in_use <- pot[, , "maxprod"] / pot[, , "nur"]
       for (y in targetYears) {
-        final[] <- 0
-        for (r in names(final)) {
+        regions[] <- 0
+        for (r in getItems(tar, dim = 1)) {
           tmp_target <- numeric(10)
-          name <- paste0(t, ".maxprod")
-          name2 <- paste0("Production-Absolute.", t)
-          if (!R.utils::isZero(x_mod5[, , "Production-Absolute"][, , t])[r, y, ] &&
-              dimSums(data_combined[r, , name], na.rm = TRUE) > max(x_mod5[r, , name2])) {
-            # extracting the first non-zero location of maxprod
-            name <- paste0(t, ".maxprod")
-            loc <- min(which(!R.utils::isZero(data_combined[r, , name, pmatch = TRUE])))
-            tmp_target[1] <- x_mod5[r, y, "Production-Absolute"][, , t]
-            if (data_sel[r, , "maxprod"][, , loc] > tmp_target[1]) {
-              final[r] <- tmp_target[1] / (8760 * data_sel[r, , "nur"][, , loc])
-            } else {
-              tmp_target[2] <- tmp_target[1] - data_sel[r, , "maxprod"][, , loc]
-              if (data_sel[r, , "maxprod"][, , loc + 1] > tmp_target[2]) {
-                final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + tmp_target[1] / data_sel[r, , "nur"][, , loc + 1])
+          # target exists
+          if (!is.na(tar[r, y, "Production-Absolute"]) && !R.utils::isZero(tar[r, y, "Production-Absolute"])) {
+            # cumulated maxprod potential exceeds largest target for that region
+            if (dimSums(pot[r, , "maxprod"], na.rm = TRUE) > max(tar[r, , "Production-Absolute"], na.rm = TRUE)) {
+              # extracting the first non-zero location of maxprod
+              loc <- min(which(!R.utils::isZero(pot[r, , "maxprod"])))
+              tmp_target[1] <- tar[r, y, "Production-Absolute"]
+              # maxprod for best capacity factor exceeds target
+              if (pot[r, , "maxprod"][, , loc] > tmp_target[1]) {
+                # convert production to capacity using best capacity factor
+                regions[r] <- tmp_target[1] / (8760 * pot[r, , "nur"][, , loc])
               } else {
-                tmp_target[3] <- tmp_target[2] - data_sel[r, , "maxprod"][, , loc + 1]
-                if (data_sel[r, , "maxprod"][, , loc + 2] > tmp_target[3]) {
-                  final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1]
-                                            + tmp_target[2] / data_sel[r, , "nur"][, , loc + 2])
+                tmp_target[2] <- tmp_target[1] - pot[r, , "maxprod"][, , loc]
+                if (pot[r, , "maxprod"][, , loc + 1] > tmp_target[2]) {
+                  # TODO this is most likely wrong, should be tmp_target[2]
+                  regions[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + tmp_target[1] / pot[r, , "nur"][, , loc + 1])
                 } else {
-                  tmp_target[4] <- tmp_target[3] - data_sel[r, , "maxprod"][, , loc + 2]
-                  if (data_sel[r, , "maxprod"][, , loc + 3] > tmp_target[4]) {
-                    final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                                                tmp_target[3] / data_sel[r, , "nur"][, , loc + 3])
-                    final[r] <- tmp_target[1]
+                  # so far, we never get to beyond point in the calculation
+                  tmp_target[3] <- tmp_target[2] - pot[r, , "maxprod"][, , loc + 1]
+                  if (pot[r, , "maxprod"][, , loc + 2] > tmp_target[3]) {
+                    regions[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1]
+                                                + tmp_target[2] / pot[r, , "nur"][, , loc + 2])
                   } else {
-                    tmp_target[5] <- tmp_target[4] - data_sel[r, , "maxprod"][, , loc + 3]
-                    if (data_sel[r, , "maxprod"][loc + 4] > tmp_target[5]) {
-                      final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                                                  data_in_use[r, , ][, , loc + 3] + tmp_target[4] / data_sel[r, , "nur"][, , loc + 4])
+                    tmp_target[4] <- tmp_target[3] - pot[r, , "maxprod"][, , loc + 2]
+                    if (pot[r, , "maxprod"][, , loc + 3] > tmp_target[4]) {
+                      regions[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
+                                                    tmp_target[3] / pot[r, , "nur"][, , loc + 3])
+                      regions[r] <- tmp_target[1]
                     } else {
-                      tmp_target[6] <- tmp_target[5] - data_sel[r, , "maxprod"][, , loc + 4]
-                      if (data_sel[r, , "maxprod"][loc + 5] > tmp_target[6]) {
-                        final[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
-                                                    data_in_use[r, , ][, , loc + 3] + data_in_use[r, , ][, , loc + 4] +
-                                                    tmp_target[5] / data_sel[r, , "nur"][, , loc + 5])
+                      tmp_target[5] <- tmp_target[4] - pot[r, , "maxprod"][, , loc + 3]
+                      if (pot[r, , "maxprod"][loc + 4] > tmp_target[5]) {
+                        regions[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
+                                                      data_in_use[r, , ][, , loc + 3] + tmp_target[4] / pot[r, , "nur"][, , loc + 4])
+                      } else {
+                        tmp_target[6] <- tmp_target[5] - pot[r, , "maxprod"][, , loc + 4]
+                        if (pot[r, , "maxprod"][loc + 5] > tmp_target[6]) {
+                          regions[r] <- (1 / 8760) * (data_in_use[r, , ][, , loc] + data_in_use[r, , ][, , loc + 1] + data_in_use[r, , ][, , loc + 2] +
+                                                        data_in_use[r, , ][, , loc + 3] + data_in_use[r, , ][, , loc + 4] +
+                                                        tmp_target[5] / pot[r, , "nur"][, , loc + 5])
+                        }
                       }
                     }
                   }
                 }
               }
+            } else {
+              message(
+                subtype, ": Dropping ", y, " target of type 'Production-Absolute' for ", t,
+                " in ", r, ", as it exceeds maxprod potential."
+              )
             }
           }
         }
-        x_capacity_prod_swh[, y, t] <- final
+        x_capacity_prod[, y, t] <- regions
       }
     }
 
-    x_capacity_gen <- mbind(x_capacity_prod_swh[, , c("Solar photovoltaic", "Concentrated solar power", "Wind", "Hydro",
-                                                      "Onshore wind energy", "Offshore wind energy", "Geothermal")],
-                            x_capacity_prod_nb[, , c("Biomass", "Nuclear", "Coal")])
-    x_capacity[, , usedTech] <- pmax(x_capacity_abs[, , usedTech],
-                                     x_capacity_gen[, , usedTech],
-                                     x_capacity_tic[, , usedTech])
+    # merge capacities ---
 
-    x_capacity[, , "Hydro"] <- x_capacity_gen[, , "Hydro"]
+    # take the maximum of all target types (usually, only one is target is given)
+    # and the 2015 reference value
+    x_capacity[, , allTech] <- pmax(
+      x_capacity_abs[, , allTech],
+      x_capacity_tic[, , allTech],
+      x_capacity_prod[, , allTech],
+      x_ref[, , allTech],
+      na.rm = TRUE
+    )
 
-    # Making sure that targets in subsequent years are always same or greater than the proceeding year
-    for (r in getItems(x_mod5, dim = "region")) {
-      for (t in techList) {
+    # TIC and AC-Absolute for Hydro and 2015 reference have been included in previous steps already
+    x_capacity[, , "Hydro"] <- x_capacity_prod[, , "Hydro"]
+
+
+    # make sure that targets in subsequent years are always same or greater
+    for (r in getItems(x_target, dim = 1)) {
+      for (t in getNames(x_capacity)) {
         for (i in utils::head(targetYears, -1)) {
-          if (x_capacity[r, i + 5, t] < setYears(x_capacity[r, i, t])) {
-            x_capacity[r, i + 5, t] <- setYears(x_capacity[r, i, t])
-          } else {
-            x_capacity[r, i, t] <- x_capacity[r, i, t]
+          if (is.na(x_capacity[r, i + 5, t]) || x_capacity[r, i + 5, t] < x_capacity[r, i, t]) {
+            x_capacity[r, i + 5, t] <- x_capacity[r, i, t]
           }
         }
       }
     }
-    # countries not in the database
-    rest_regions <- getItems(hist_cap, dim = "Country/area")[!(getItems(hist_cap, dim = "Country/area") %in% getItems(x_capacity, dim = "region"))]
-    x_other <- new.magpie(rest_regions, targetYears, techList)
-    x_other[, , IrenaTech] <- setYears(hist_cap[rest_regions, 2015, IrenaTech])
+
+
+    # fill other regions with 2015 capacity values ----
+    otherRegions <- setdiff(getItems(hist_cap, dim = 1), getItems(x_capacity, dim = 1))
+
+    x_other <- new.magpie(otherRegions, targetYears, getNames(x_capacity))
+    x_other[, , renewableTech] <- hist_cap[otherRegions, 2015, renewableTech]
+    x_other[, , "Biomass"] <- hist_cap[otherRegions, 2015, "Bioenergy"]
+    x_other[, , "Hydro"] <- hist_cap[otherRegions, 2015, "Renewable hydropower"] * cf_hydro
     x_other[, , "Nuclear"] <- 0
     x_other[, , "Coal"] <- 0 # unclear if correct, need to see how it will be processed in calcfun
-    # if min target is it wrong, can also leave out coal target for now!!!
-    x_other[, , "Biomass"] <- setYears(hist_cap[rest_regions, 2015, "Bioenergy"])
-    x_other[, , "Hydro"] <- setYears(hist_cap[rest_regions, 2015, "Renewable hydropower"]) * setYears(cf_hydro[rest_regions, , ])
 
-    x_final <- magpiesort(mbind(x_capacity, x_other))
-    x_final[is.na(x_final)] <- 0
-    x <- toolCountryFill(x_final, fill = NA, verbosity = 2) # will be returned
-    getNames(x) <- c("wind", "windon", "windoff",  "spv", "csp", "bioigcc", "tnrs", "hydro", "geohdr", "coalchp")
-
-    # end subtype contains Capacity
+    x <- magpiesort(mbind(x_capacity, x_other))
+    x[is.na(x)] <- 0
 
 
+    # rename technologies according to REMIND ----
+    m <- c(
+      "Wind" = "wind", "Solar photovoltaic" = "spv", "Biomass" = "bioigcc",
+      "Nuclear" = "tnrs", "Hydro" = "hydro", "Coal" = "coalchp",
+      "Concentrated solar power" = "csp", "Geothermal" = "geohdr",
+      "Onshore wind energy" = "windon", "Offshore wind energy" = "windoff"
+    )
+
+    getNames(x) <- m[getNames(x)]
   }
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
-
     ghgFactor <- toolCalcGhgFactor(x, subtype, subset)
     x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
-
   }
 
   # add NDC version from subtype
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
   return(x)
-
 }

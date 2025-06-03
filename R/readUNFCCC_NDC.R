@@ -1,7 +1,7 @@
 #' Reads NDC policy database with capacity and emission targets, originally based on Rogelj et al. 2017
 #'
 #' @description Reads excel sheet with NDC (Nationally Determined Contributions)
-#'  data on different policy targets (capacity, emission) with different variations.
+#'  data on different policy targets (capacity, production, emissions) with different variations.
 #'
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or

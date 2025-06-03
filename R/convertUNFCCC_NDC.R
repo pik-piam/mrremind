@@ -1,7 +1,7 @@
 #' Convert policy targets for NDCs from UNFCCC_NDC
 #'
 #' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
-#' For countries and years without targets, 2015 values from IRENA are used to fill the gaps.
+#' For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
 #'
 #' Emission targets are represented by a GHG factor, which is the quotient of total GHG
 #' emissions in the target year divided by the CEDS GHG emissions in 2005.
@@ -16,6 +16,7 @@
 convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
+
     # TODO: do we want to implement FE-Production-Share?
 
     # pre-processing ----
@@ -69,7 +70,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # Real world capacity factor for hydro = Generation in 2015 / Capacity in last 2015
     # using cf_hydro_realworld directly causes converges errors because some are very small
-    # TODO: why no use the more detailed capacity factors from PotentialHydro?
+    # TODO: why not use the more detailed capacity factors from PotentialHydro?
     cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] /
       (8760 * hist_cap[, 2015, "Renewable hydropower"])
     cf_hydro <- max(cf_hydro_realworld, na.rm = TRUE)
@@ -95,6 +96,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # 0/1 mask to only initialize cells with targets in any year
     # this is most likely a correction of the values coming from BP,
     # which in a few cases are the result of disaggregating regions (e.g. Other CIS)
+    # TODO: might lead to weird behaviour when actual targets are 0, can this be removed?
     mask <- dimSums(x_target, dim = c(2, 3.1), na.rm = TRUE)[, , "Nuclear"]
     mask[mask != 0] <- 1
 
@@ -107,8 +109,8 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
     # all additional capacity targets currently mean 'in addition to 2015'
     # TODO: read in reference year as well, otherwise invalid capacity target
-    x_capacity_abs[, , c("Nuclear", "Biomass", "Wind", "Solar")] <- x_ref[, , c("Nuclear", "Biomass", "Wind", "Solar")] +
-      x_target[, , c("AC-Absolute.Nuclear", "AC-Absolute.Biomass", "AC-Absolute.Wind", "AC-Absolute.Solar"), drop = TRUE]
+    t <- c("Nuclear", "Biomass", "Wind", "Solar")
+    x_capacity_abs[, , t] <- x_ref[, , t] + x_target[, , "AC-Absolute", drop = TRUE][, , t]
 
     # TODO: SDN 2024 target has the wrong target type?
     # for Hydro, this is production (GWh/yr)
@@ -190,7 +192,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     names(regions) <- getItems(x_target, dim = 1)
 
 
-    # TODO: understand and document this
+    # TODO: refactor this
     for (t in c("Solar", "Wind", "Hydro")) {
       pot <- potential[, , t]
       tar <- x_target[, , t]
