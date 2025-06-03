@@ -12,12 +12,11 @@ readNewClimate(subtype, subset)
 Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
 determines the database version to be read in}
 
-\item{subset}{A string (or vector of strings) designating the scenario(s) to be returned.}
+\item{subset}{A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).}
 }
 \description{
 Reads excel sheet with NPi (National Policies Implemented)
-data on different policy targets (capacity) with different variations:
-unconditional for minimal and conditional for maximum targets.
+data on different policy targets (capacity, production, emissions) with different variations.
 NPI targets only include targets that are based on implemented policy instruments.
 }
 \author{

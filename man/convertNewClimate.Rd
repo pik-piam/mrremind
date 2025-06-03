@@ -15,12 +15,15 @@ Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year}
 \item{subset}{String, designating the GDP scenarios to use. Only used for emission targets.}
 }
 \description{
-Converts conditional and unconditional capacity targets into total capacity (GW) in target year
-the Generation targets are similar to the capacity targets but include the capacity factors,
-the Emissions targets are the total (except land CO2) emissions in the target year
-
+Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
+For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
+}
+\details{
 Emission targets are represented by a GHG factor, which is the quotient of total GHG
 emissions in the target year divided by the CEDS GHG emissions in 2005.
+}
+\seealso{
+\code{\link[=readIRENA]{readIRENA()}}
 }
 \author{
 Rahel Mandaroux, Léa Hayez, Falk Benke

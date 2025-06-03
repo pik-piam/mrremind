@@ -13,7 +13,6 @@ calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
 \itemize{
 \item 'Ghgfactor': for GHG factors calculated from the respective database
 \item 'Ghgshare2005': ???
-\item 'Ghghistshare': for GHG emissions share of countries with 2030 target per region
 }}
 
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
