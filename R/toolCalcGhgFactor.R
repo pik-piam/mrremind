@@ -145,7 +145,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     fill = NA
   )
 
-  # calculate goal for all countries outside of Europe
+  # for each country and year, calculate calculate GHG factor
   for (regi in getItems(reductionData, dim = 1)) {
     for (year in getYears(reductionData, as.integer = TRUE)) {
       if (!is.na(reductionData[regi, year, conditional][1])) {

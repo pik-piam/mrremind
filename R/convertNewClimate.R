@@ -17,7 +17,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
 
-    # TODO: can we move parts to a separate tool function?
+    # TODO: can we move parts to a separate tool function to avoid redundancies with convertUNFCCC_NDC?
 
     # pre-processing ----
 

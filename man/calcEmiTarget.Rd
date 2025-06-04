@@ -21,7 +21,7 @@ calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
 turned off for inpudata generation}
 }
 \description{
-TODO: describe this used for in REMIND and document the meaning of the subtypes
+TODO: describe what this is used for in REMIND and document the meaning of the subtypes
 }
 \author{
 Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke

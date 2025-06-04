@@ -1,6 +1,6 @@
 #' Calculate Emission Targets
 #'
-#' TODO: describe this used for in REMIND and document the meaning of the subtypes
+#' TODO: describe what this is used for in REMIND and document the meaning of the subtypes
 #'
 #' @param sources database source, either 'UNFCCC_NDC' or 'NewClimate'
 #' @param subtype must be one of

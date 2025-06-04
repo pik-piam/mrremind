@@ -20,7 +20,8 @@ readNewClimate <- function(subtype, subset) {
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
 
-    # TODO: what about H2-Electrolysers?
+    # TODO: what about targets for H2-Electrolysers?
+
     data <- read_excel(
       NPIfile,
       sheet = "Capacity_target_PBL_2025",
