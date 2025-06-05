@@ -11,7 +11,7 @@ readGAINS2025(subtype, subset = "baseline.det")
 }
 \value{
 Activity levels, emissions or emission factors. Alternatively,
-a Govenrnmment Capacity Index (GCI) used for deriving some scenario
+a Govenrnment Capacity Index (GCI) used for deriving some scenario
 extensions.
 }
 \description{

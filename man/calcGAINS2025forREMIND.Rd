@@ -11,7 +11,7 @@ see \code{GAINS2025scenarios}.}
 calcGAINS2025forREMIND(subtype)
 }
 \arguments{
-\item{subtype}{"emission_factors", "emissions","emissions_starting_values"}
+\item{subtype}{Either "emissions", "emission_factors", or "emission_factors_remindsectors"}
 }
 \value{
 Activity levels, emissions or emission factors
