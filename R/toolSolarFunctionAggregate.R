@@ -169,12 +169,11 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     mutate(production = value / 3.6 * 1e6) %>%
     select(region, production)
 
-
   # calculate cumulative normalized potential
   # noramlized by current (2015) production
   df.maxprod.norm <- df.cuml %>%
     filter(Type == "maxprod") %>%
-    left_join(df.prod.2015) %>%
+    left_join(df.prod.2015, by = "region") %>%
     mutate(maxprod.norm = value / production) %>%
     select(region, Technology, Distance, FLH, maxprod.norm)
 
@@ -182,7 +181,7 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
   # to be able to interplolate all three measures
   df.cuml <- df.cuml %>%
     tidyr::pivot_wider(names_from = "Type") %>%
-    left_join(df.maxprod.norm)
+    left_join(df.maxprod.norm, by = c("region", "Technology", "Distance", "FLH"))
 
   # get total potential per region, technology, distance,
   # needed for distinguishing mapping of fine grades to REMIND grades later
@@ -260,7 +259,7 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     group_by(region, Technology, Distance) %>%
     summarise(Min = min(maxprod.norm)) %>%
     ungroup() %>%
-    full_join(df.totalPot) %>%
+    full_join(df.totalPot, by = c("region", "Technology", "Distance")) %>%
     filter(Min > grade.breaks[1] | TotalPot < grade.breaks[length(grade.breaks)]) %>%
     mutate(Max = ifelse(is.na(TotalPot), grade.breaks[length(grade.breaks)], TotalPot))
 
@@ -321,9 +320,10 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
       df.outside <- rbind(df.outside, df.map.temp)
     }
   }
+
   # replace potential values of small potential regions with the equally spaced grades from the loop to avoid emtpy grades
   df.map.REMIND <- df.map.REMIND %>%
-    left_join(df.outside) %>%
+    left_join(df.outside, by = c("region", "Technology", "Distance", "Type", "maxprod.norm", "FLH", "value")) %>%
     mutate(grade = ifelse(is.na(grade.seq), grade, grade.seq)) %>%
     select(-grade.seq)
 
@@ -376,12 +376,9 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     filter(maxprod.norm == Max) %>%
     select(-Max) %>%
     # join lsat data point before last grade
-    left_join(df.seclast) %>%
+    left_join(df.seclast, by = c("region", "Technology", "Distance", "Type")) %>%
     mutate(diff = value - Seclast) %>%
     select(region, Technology, Distance, Type, diff)
-
-
-
 
   # assign remaining potential to last grade for regions/technologies
   # with total potential greater than last grade
@@ -389,7 +386,7 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     # filter for regions/technologies... with total potential within last grade
     filter(maxprod.norm >= grade.breaks[length(grade.breaks)]) %>%
     select(region, Technology, FLH) %>%
-    left_join(df.pot) %>%
+    left_join(df.pot, by = c("region", "Technology", "FLH")) %>%
     group_by(region, Technology, Distance, Type) %>%
     # sum all data point above lower bound of last grade to get last grade
     summarise(value = sum(value), FLH = mean(FLH)) %>%
@@ -398,18 +395,15 @@ toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", 
     tidyr::pivot_wider(names_from = "Type") %>%
     tidyr::gather(Type, value, capacity, area, maxprod, FLH) %>%
     # join overlap of first data point in last grade with second last grade from last grade
-    left_join(df.lastgrade.overlap) %>%
+    left_join(df.lastgrade.overlap, by = c("region", "Technology", "Distance", "Type")) %>%
     # subtract overlap from maxprod, area, capacity of last grade
     # because this overlap was already assgined to second last grade
     mutate(value = ifelse(is.na(diff), value, value - diff)) %>%
     select(region, Type, Technology, Distance, grade, value)
 
-
-
   df.aggregate.grades <- df.lastgrade %>%
     rbind(df.aggregate.grades) %>%
     arrange(region, Technology, Distance, Type, grade, value)
-
 
   # relabel dimensions, convert values to fit to desired REMIND input
   df.out <- df.aggregate.grades %>%
