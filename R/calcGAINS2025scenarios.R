@@ -333,6 +333,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
     # Activities: Weighted by CEDS2020 Emissions in disaggregation,
     # no weights for aggregation (sum)
+    sspact[sspact < 0] <- 0
     csspact <- toolAggregate(
       sspact, regmap,
       from = "gainscode", to = "CountryCode",
