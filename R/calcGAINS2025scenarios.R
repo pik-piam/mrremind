@@ -13,6 +13,9 @@
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param agglevel Aggregation level, either "agg" (default, aggregated) or "det" (detailed)
+#' keep in mind that "agg" also needs the detailed data to be present, as it includes a few
+#' extended sectors that are not present in the aggregated data.
 #'
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na

@@ -10,8 +10,6 @@
 #'
 #' @importFrom abind abind
 #' @importFrom utils head tail
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
 calcGAINS2025forREMIND <- function(subtype) {
   # Binds new and old versions of GAINS data, adding an "ssp" dimension
   # to old data and makes the new data conform to the old shape besides the
@@ -60,7 +58,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     out <- bindNewOld(innew, inold)
 
     # Weights, GAINS2025 uses activities that are per SSP but not per scenario, pad the dimensions
-    wgt <- bindNewOld(linnew$w, linold$w)
+    wgt <- bindNewOld(linnew$weight, linold$weight)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emissions_starting_values") {
@@ -75,7 +73,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Input emission factors
     linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
     innew <- linnew$x
-    wgtnew <- linnew$w
+    wgtnew <- linnew$weight
 
     # Apparently REMIND expects TgS internally, but not in exoGAINS
     conv_ktSO2_to_ktS <- 1 / 2 # 32/(32+2*16)
@@ -132,7 +130,7 @@ calcGAINS2025forREMIND <- function(subtype) {
       subtype = "emission_factors", warnNA = FALSE, aggregate = F, supplementary = T
     )
     inold <- linold$x
-    wgtold <- linold$w
+    wgtold <- linold$weight
 
     # Split dimensions
     outold <- splitTechs(inold)
@@ -168,10 +166,4 @@ calcGAINS2025forREMIND <- function(subtype) {
     unit = unit,
     description = desc
   ))
-  #     calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
-  #   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  #   calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
 }
