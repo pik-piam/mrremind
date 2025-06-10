@@ -9,13 +9,13 @@ readIMAGE2025 <- function() {
   indata <- read_excel("F_gas_data_PIK.xlsx")
   indata <- tidyr::pivot_longer(indata, 6:25, names_to = "period", values_to = "value")
   colnames(indata) <- tolower(colnames(indata))
-  
+
   # There are several duplicated scenarios in the original data, so we
   # keep only the last one as the defaultt as.magpie behaviour, and suppress warnings
   mdata <- suppressWarnings(as.magpie(indata, spatial = "region", temporal = "period"))
 
   # Drop global region
-  mdata <- mdata["World", , invert = TRUE]
+  x <- mdata["World", , invert = TRUE]
 
-  return(mdata)
+  return(x)
 }
