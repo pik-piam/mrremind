@@ -4,11 +4,13 @@
 \alias{calcFGas}
 \title{generate F-Gases based on IMAGE data}
 \usage{
-calcFGas(subtype = "interpolate2025")
+calcFGas(subtype = "IMAGE2025", interp = "none")
 }
 \arguments{
-\item{subtype}{"interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
-scenarios. Any other subtype will ignore this step.}
+\item{subtype}{"IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.}
+
+\item{interp}{"interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
+scenarios. Any other interp value will ignore this step.}
 }
 \value{
 magpie object with F-gases information
@@ -22,5 +24,5 @@ x <- calcOutput("FGas")
 }
 }
 \author{
-Lavinia Baumstark
+Lavinia Baumstark, Gabriel Abrahao
 }
