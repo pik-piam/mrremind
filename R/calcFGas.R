@@ -1,8 +1,11 @@
 #' generate F-Gases based on IMAGE data
 #'
 #' @param subtype "IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.
-#' @param interp "interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
-#' scenarios. Any other interp value will ignore this step.
+#' @param interp "interpolate2025" will intepolate from EDGAR historical data from 2025 to interpyear.
+#' To account for the very old IMAGE scenarios in IMAGElegacy,
+#' this used to be 2050 but is now flexible. Any other interp value will ignore this step.
+#' @param interpyear The year to interpolate to, default is 2030.
+#' interpyear is only used if interp is set to "interpolate2025".
 #'
 #' @return magpie object with F-gases information
 #' @author Lavinia Baumstark, Gabriel Abrahao
@@ -10,7 +13,7 @@
 #' \dontrun{
 #' x <- calcOutput("FGas")
 #' }
-calcFGas <- function(subtype = "IMAGE2025", interp = "none") {
+calcFGas <- function(subtype = "IMAGE2025", interp = "interpolate2025", interpyear = 2030) {
   # Mapping for the REMIND variable names. Works with both versions
   # of the IMAGE data
   emi_mapping <- list(
@@ -201,7 +204,7 @@ calcFGas <- function(subtype = "IMAGE2025", interp = "none") {
     edgar2025 <- setYears(edgar_all[, 2020, ] + 0.5 * (edgar_all[, 2020, ] - edgar_all[, 2010, ]), 2025)
 
     # Basis for interpolation
-    xpts <- x[, c(scenyears[scenyears <= 2025 | scenyears >= 2050]), ]
+    xpts <- x[, c(scenyears[scenyears <= 2025 | scenyears >= interpyear]), ]
 
     # Fill the years for which we do have EDGAR data with it, and 2025
     commonyears <- intersect(getYears(edgar_all), getYears(xpts))
@@ -209,7 +212,7 @@ calcFGas <- function(subtype = "IMAGE2025", interp = "none") {
     xpts[, commonyears, commonvars] <- edgar_all[, commonyears, commonvars]
     xpts[, 2025, commonvars] <- edgar2025[, 2025, commonvars]
 
-    # Interpolate the years between 2025 and 2050, which
+    # Interpolate the years between 2025 and interpyear, which
     # are the only ones not in xpts
     outx <- toolFillYears(xpts, scenyears)
   }
