@@ -4,13 +4,17 @@
 \alias{calcFGas}
 \title{generate F-Gases based on IMAGE data}
 \usage{
-calcFGas(subtype = "IMAGE2025", interp = "none")
+calcFGas(subtype = "IMAGE2025", interp = "interpolate2025", interpyear = 2030)
 }
 \arguments{
 \item{subtype}{"IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.}
 
-\item{interp}{"interpolate2025" will intepolate from EDGAR historical data from 2025-2050 to account for the very old IMAGE
-scenarios. Any other interp value will ignore this step.}
+\item{interp}{"interpolate2025" will intepolate from EDGAR historical data from 2025 to interpyear.
+To account for the very old IMAGE scenarios in IMAGElegacy,
+this used to be 2050 but is now flexible. Any other interp value will ignore this step.}
+
+\item{interpyear}{The year to interpolate to, default is 2030.
+interpyear is only used if interp is set to "interpolate2025".}
 }
 \value{
 magpie object with F-gases information
