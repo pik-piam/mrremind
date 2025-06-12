@@ -16,15 +16,16 @@ calcCapacityFactorHist <- function(){
 
   #mapping of remind technology names to IRENA categories
   mappingIRENA <- tibble::tribble(
-    ~irena,                      ~remind,
-    "Renewable hydropower",      "hydro",
-    "Onshore wind energy",       "windon",
-    "Offshore wind energy",      "windoff",
-    "Solar photovoltaic",        "spv",
-    "Concentrated solar power",  "csp",
-    "Bioenergy",                 "bioigcc",
-    "Geothermal",                "geohdr"
+    ~remind,   ~irena,
+    "geohdr",  "Geothermal",
+    "hydro",   "Hydropower", # contains renewable hydropower and mixed hydro plants, but not pure pumped storage
+    "windon",  "Onshore wind energy",
+    "windoff", "Offshore wind energy",
+    "spv",     "Solar photovoltaic",
+    "csp",     "Concentrated solar power",
+    "bioigcc", "Bioenergy",
   )
+
 
   # Read capacity factor inputs
   histCapacity <- readSource(type = "IRENA", subtype = "Capacity") / 1000 # converting from MW to GW
