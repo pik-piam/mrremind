@@ -1,0 +1,249 @@
+X;CountryCode;RegionCode
+Aruba;ABW;RCAM
+Afghanistan;AFG;RSAS
+Angola;AGO;RSAF
+Anguilla;AIA;RCAM
+Aland Islands;ALA;WEU
+Albania;ALB;CEU
+Andorra;AND;WEU
+United Arab Emirates;ARE;ME
+Argentina;ARG;RSAM
+Armenia;ARM;RUS
+American Samoa;ASM;OCE
+French Southern Territories;ATF;RSAS
+Antigua and Barbuda;ATG;RCAM
+Australia;AUS;OCE
+Austria;AUT;WEU
+Azerbaijan;AZE;RUS
+Burundi;BDI;EAF
+Belgium;BEL;WEU
+Benin;BEN;WAF
+Bonaire, Sint Eustatius and Saba;BES;RCAM
+Burkina Faso;BFA;WAF
+Bangladesh;BGD;RSAS
+Bulgaria;BGR;CEU
+Bahrain;BHR;ME
+Bahamas;BHS;RCAM
+Bosnia and Herzegovina;BIH;CEU
+Saint Barthelemy;BLM;RCAM
+Belarus;BLR;UKR
+Belize;BLZ;RCAM
+Bermuda;BMU;RCAM
+Bolivia, Plurinational State of;BOL;RSAM
+Brazil;BRA;BRA
+Barbados;BRB;RCAM
+Brunei Darussalam;BRN;SEAS
+Bhutan;BTN;RSAS
+Bouvet Island;BVT;WEU
+Botswana;BWA;RSAF
+Central African Republic;CAF;WAF
+Canada;CAN;CAN
+Cocos (Keeling) Islands;CCK;OCE
+Switzerland;CHE;WEU
+Chile;CHL;RSAM
+China;CHN;CHN
+Cote d Ivoire;CIV;WAF
+Cameroon;CMR;WAF
+Congo, the Democratic Republic of the;COD;WAF
+Congo;COG;WAF
+Cook Islands;COK;OCE
+Colombia;COL;RSAM
+Comoros;COM;EAF
+Cape Verde;CPV;WAF
+Costa Rica;CRI;RCAM
+Cuba;CUB;RCAM
+Curacao;CUW;RCAM
+Christmas Island;CXR;OCE
+Cayman Islands;CYM;RCAM
+Cyprus;CYP;CEU
+Czech Republic;CZE;CEU
+Germany;DEU;WEU
+Djibouti;DJI;EAF
+Dominica;DMA;RCAM
+Denmark;DNK;WEU
+Dominican Republic;DOM;RCAM
+Algeria;DZA;NAF
+Ecuador;ECU;RSAM
+Egypt;EGY;NAF
+Eritrea;ERI;EAF
+Western Sahara;ESH;NAF
+Spain;ESP;WEU
+Estonia;EST;CEU
+Ethiopia;ETH;EAF
+Finland;FIN;WEU
+Fiji;FJI;OCE
+Falkland Islands (Malvinas);FLK;RSAM
+France;FRA;WEU
+Faroe Islands;FRO;WEU
+Micronesia, Federated States of;FSM;OCE
+Gabon;GAB;WAF
+United Kingdom;GBR;WEU
+Georgia;GEO;RUS
+Guernsey;GGY;WEU
+Ghana;GHA;WAF
+Gibraltar;GIB;WEU
+Guinea;GIN;WAF
+Guadeloupe;GLP;RCAM
+Gambia;GMB;WAF
+Guinea-Bissau;GNB;WAF
+Equatorial Guinea;GNQ;WAF
+Greece;GRC;WEU
+Grenada;GRD;RCAM
+Greenland;GRL;WEU
+Guatemala;GTM;RCAM
+French Guiana;GUF;RSAM
+Guam;GUM;OCE
+Guyana;GUY;RSAM
+Hong Kong;HKG;CHN
+Heard Island and McDonald Islands;HMD;OCE
+Honduras;HND;RCAM
+Croatia;HRV;CEU
+Haiti;HTI;RCAM
+Hungary;HUN;CEU
+Indonesia;IDN;INDO
+Isle of Man;IMN;WEU
+India;IND;INDIA
+British Indian Ocean Territory;IOT;RSAS
+Ireland;IRL;WEU
+Iran, Islamic Republic of;IRN;ME
+Iraq;IRQ;ME
+Iceland;ISL;WEU
+Israel;ISR;ME
+Italy;ITA;WEU
+Jamaica;JAM;RCAM
+Jersey;JEY;WEU
+Jordan;JOR;ME
+Japan;JPN;JAP
+Kazakhstan;KAZ;STAN
+Kenya;KEN;EAF
+Kyrgyzstan;KGZ;STAN
+Cambodia;KHM;SEAS
+Kiribati;KIR;OCE
+Saint Kitts and Nevis;KNA;RCAM
+Korea, Republic of;KOR;KOR
+Kuwait;KWT;ME
+Lao People's Democratic Republic;LAO;SEAS
+Lebanon;LBN;ME
+Liberia;LBR;WAF
+Libya;LBY;NAF
+Saint Lucia;LCA;RCAM
+Liechtenstein;LIE;WEU
+Sri Lanka;LKA;RSAS
+Lesotho;LSO;RSAF
+Lithuania;LTU;CEU
+Luxembourg;LUX;WEU
+Latvia;LVA;CEU
+Macao;MAC;CHN
+Saint Martin (French part);MAF;RCAM
+Morocco;MAR;NAF
+Monaco;MCO;WEU
+Moldova, Republic of;MDA;UKR
+Madagascar;MDG;EAF
+Maldives;MDV;RSAS
+Mexico;MEX;MEX
+Marshall Islands;MHL;OCE
+Macedonia, the former Yugoslav Republic of;MKD;CEU
+Mali;MLI;WAF
+Malta;MLT;WEU
+Myanmar;MMR;SEAS
+Montenegro;MNE;CEU
+Mongolia;MNG;CHN
+Northern Mariana Islands;MNP;OCE
+Mozambique;MOZ;RSAF
+Mauritania;MRT;WAF
+Montserrat;MSR;RCAM
+Martinique;MTQ;RCAM
+Mauritius;MUS;EAF
+Malawi;MWI;RSAF
+Malaysia;MYS;SEAS
+Mayotte;MYT;EAF
+Namibia;NAM;RSAF
+New Caledonia;NCL;OCE
+Niger;NER;WAF
+Norfolk Island;NFK;OCE
+Nigeria;NGA;WAF
+Nicaragua;NIC;RCAM
+Niue;NIU;OCE
+Netherlands;NLD;WEU
+Norway;NOR;WEU
+Nepal;NPL;RSAS
+Nauru;NRU;OCE
+New Zealand;NZL;OCE
+Oman;OMN;ME
+Pakistan;PAK;RSAS
+Panama;PAN;RCAM
+Pitcairn;PCN;OCE
+Peru;PER;RSAM
+Philippines;PHL;SEAS
+Palau;PLW;OCE
+Papua New Guinea;PNG;INDO
+Poland;POL;CEU
+Puerto Rico;PRI;RCAM
+Korea, Democratic People's Republic of;PRK;KOR
+Portugal;PRT;WEU
+Paraguay;PRY;RSAM
+Palestine, State of;PSE;ME
+French Polynesia;PYF;OCE
+Qatar;QAT;ME
+Reunion;REU;EAF
+Romania;ROU;CEU
+Russian Federation;RUS;RUS
+Rwanda;RWA;EAF
+Saudi Arabia;SAU;ME
+Sudan;SDN;EAF
+Senegal;SEN;WAF
+Singapore;SGP;SEAS
+South Georgia and the South Sandwich Islands;SGS;RCAM
+Saint Helena, Ascension and Tristan da Cunha;SHN;WAF
+Svalbard and Jan Mayen;SJM;WEU
+Solomon Islands;SLB;OCE
+Sierra Leone;SLE;WAF
+El Salvador;SLV;RCAM
+San Marino;SMR;WEU
+Somalia;SOM;EAF
+Saint Pierre and Miquelon;SPM;USA
+Serbia;SRB;CEU
+South Sudan;SSD;EAF
+Sao Tome and Principe;STP;WAF
+Suriname;SUR;RSAM
+Slovakia;SVK;CEU
+Slovenia;SVN;CEU
+Sweden;SWE;WEU
+Swaziland;SWZ;RSAF
+Sint Maarten (Dutch part);SXM;RCAM
+Seychelles;SYC;EAF
+Syrian Arab Republic;SYR;NAF
+Turks and Caicos Islands;TCA;RCAM
+Chad;TCD;WAF
+Togo;TGO;WAF
+Thailand;THA;SEAS
+Tajikistan;TJK;STAN
+Tokelau;TKL;OCE
+Turkmenistan;TKM;STAN
+Timor-Leste;TLS;INDO
+Tonga;TON;OCE
+Trinidad and Tobago;TTO;RCAM
+Tunisia;TUN;NAF
+Turkey;TUR;TUR
+Tuvalu;TUV;OCE
+Taiwan, Province of China;TWN;CHN
+Tanzania, United Republic of;TZA;RSAF
+Uganda;UGA;EAF
+Ukraine;UKR;UKR
+United States Minor Outlying Islands;UMI;RSAS
+Uruguay;URY;RSAM
+United States;USA;USA
+Uzbekistan;UZB;STAN
+Holy See (Vatican City State);VAT;WEU
+Saint Vincent and the Grenadines;VCT;RCAM
+Venezuela, Bolivarian Republic of;VEN;RSAM
+Virgin Islands, British;VGB;RCAM
+Virgin Islands, U.S.;VIR;RCAM
+Viet Nam;VNM;SEAS
+Vanuatu;VUT;OCE
+Wallis and Futuna;WLF;OCE
+Samoa;WSM;OCE
+Yemen;YEM;ME
+South Africa;ZAF;SAF
+Zambia;ZMB;RSAF
+Zimbabwe;ZWE;RSAF
