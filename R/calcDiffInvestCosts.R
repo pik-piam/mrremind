@@ -112,6 +112,10 @@ calcDiffInvestCosts <- function() {
   # based on IEA PVPS data from 2018,
   # some regions manually adjusted
 
+  ### RP: update CHA and LAM costs based on IRENA 2023 costs of renewables report:
+  costsRemind["CHN", 2015, "windon"] <- 800 # in USD/kW
+  costsRemind["BRA", 2015, "windon"] <- 1100 # in USD/kW
+
   # add some manual adjustments to IEA PVPS data for 2020 PV investment cost input data
   regmapping <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
   costsManual <- new.magpie(unique(regmapping$RegionCode), years = "y2020", fill = NA)
