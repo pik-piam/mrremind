@@ -71,8 +71,9 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     # Real world capacity factor for hydro = Generation in 2015 / Capacity in last 2015
     # using cf_hydro_realworld directly causes converges errors because some are very small
     # TODO: why not use the more detailed capacity factors from PotentialHydro?
-    cf_hydro_realworld <- hist_gen[, 2015, "Renewable hydropower"] /
-      (8760 * hist_cap[, 2015, "Renewable hydropower"])
+    # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
+    cf_hydro_realworld <- hist_gen[, 2015, "Hydropower"] /
+      (8760 * hist_cap[, 2015, "Hydropower"])
     cf_hydro <- max(cf_hydro_realworld, na.rm = TRUE)
 
     # Capacity factors in REMIND, obtained using calcOutput("Capacityfactor")
@@ -85,7 +86,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     x_ref[, , "Biomass"] <- hist_cap[getItems(x_ref, dim = 1), 2015, "Bioenergy"]
 
     # initialize Hydro with historical generation
-    x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2015, "Renewable hydropower"]
+    x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2015, "Hydropower"]
 
     # initialize Nuclear
     hist_gen_nuclear <- readSource("BP", subtype = "Generation")
@@ -290,7 +291,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     x_other <- new.magpie(otherRegions, targetYears, getNames(x_capacity))
     x_other[, , c("Wind", "Solar")] <- hist_cap[otherRegions, 2015, c("Solar", "Wind")]
     x_other[, , "Biomass"] <- hist_cap[otherRegions, 2015, "Bioenergy"]
-    x_other[, , "Hydro"] <- hist_cap[otherRegions, 2015, "Renewable hydropower"] * cf_hydro
+    x_other[, , "Hydro"] <- hist_cap[otherRegions, 2015, "Hydropower"] * cf_hydro
     x_other[, , "Nuclear"] <- 0
 
     x <- magpiesort(mbind(x_capacity, x_other))

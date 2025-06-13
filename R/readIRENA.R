@@ -14,10 +14,8 @@
 #'
 #' @importFrom dplyr mutate rename select
 readIRENA <- function(subtype) {
-
   # Reading renewables electricity capacity or generation values from xlsx
-  data <- readxl::read_xlsx("2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx",
-                            sheet = "All Data")
+  data <- readxl::read_xlsx("2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx", sheet = "All Data")
 
   if (subtype == "Capacity") {
     data <- data %>%
@@ -67,19 +65,16 @@ readIRENA <- function(subtype) {
     summarise(value = sum(.data$value), .groups = "drop")
 
   # harmonize Technology names with older version
-  mask <- data.frame(
-    tech_before = c("Hydropower (excl. Pumped Storage)",
-                    "Wind energy",
-                    "Solar energy",
-                    "Geothermal energy",
-                    "Marine energy",
-                    "Other primary solid biofuels n.e.s."),
-    tech_after = c("Hydropower",
-                   "Wind",
-                   "Solar",
-                   "Geothermal",
-                   "Marine",
-                   "Other solid biofuels"))
+  mask <- tibble::tribble(
+    ~tech_before,                           ~tech_after,
+    # "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
+    "Hydropower (excl. Pumped Storage)",    "Hydropower",
+    "Wind energy",                          "Wind",
+    "Solar energy",                         "Solar",
+    "Geothermal energy",                    "Geothermal",
+    "Marine energy",                        "Marine",
+    "Other primary solid biofuels n.e.s.",  "Other solid biofuels"
+  )
 
   for (n in 1:nrow(mask)) {
     data[data$Technology == mask[n, 1], "Technology"] <- mask[n, 2]
