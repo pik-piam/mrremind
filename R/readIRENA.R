@@ -64,10 +64,10 @@ readIRENA <- function(subtype) {
     group_by(.data$`ISO3 code`, .data$Year, .data$Technology) %>%
     summarise(value = sum(.data$value), .groups = "drop") %>%
     relocate("Year") %>% # put Year as the first column
-    rename(`Country/area` = `ISO3 code`) # keep regional column name of before 9678353
+    rename(`Country/area` = "ISO3 code") # keep regional column name of before 9678353
 
   # harmonize Technology names with older version
-  data <- data %>% mutate(Technology = case_match(Technology,
+  data <- data %>% mutate(Technology = case_match(.data$Technology,
     # "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
     "Hydropower (excl. Pumped Storage)"   ~ "Hydropower",
     "Wind energy"                         ~ "Wind",
@@ -75,7 +75,7 @@ readIRENA <- function(subtype) {
     "Geothermal energy"                   ~ "Geothermal",
     "Marine energy"                       ~ "Marine",
     "Other primary solid biofuels n.e.s." ~ "Other solid biofuels",
-    .default = Technology
+    .default = .data$Technology
   ))
 
   # creating capacity or generation magpie object
