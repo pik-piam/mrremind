@@ -15,6 +15,7 @@
 #' @importFrom dplyr mutate rename select
 readIRENA <- function(subtype) {
   # Reading renewables electricity capacity or generation values from xlsx
+  data <- readxl::read_xlsx(paste0(getConfig("sourcefolder"), "/IRENA/2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx"), sheet = "All Data")
   data <- readxl::read_xlsx("2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx", sheet = "All Data")
 
   if (subtype == "Capacity") {
@@ -28,8 +29,8 @@ readIRENA <- function(subtype) {
   }
 
   data <- data %>%
-    select(c("ISO3 code", "RE or Non-RE", "Group Technology", "Technology",
-             "Sub-Technology", "Year", "value"))
+    select(c("Year", "ISO3 code", "RE or Non-RE", "Group Technology", "Technology",
+             "Sub-Technology", "value"))
 
   # Technology information is split over multiple columns, assemble it and
   # calculate sums where necessary
@@ -62,31 +63,21 @@ readIRENA <- function(subtype) {
             mutate(Technology = .data$`Sub-Technology`)
           )  %>%
     group_by(.data$`ISO3 code`, .data$Year, .data$Technology) %>%
-    summarise(value = sum(.data$value), .groups = "drop")
+    summarise(value = sum(.data$value), .groups = "drop") %>%
+    relocate("Year") %>% # put Year as the first column
+    rename(`Country/area` = `ISO3 code`) # keep regional column name of before 9678353
 
   # harmonize Technology names with older version
-  mask <- tibble::tribble(
-    ~tech_before,                           ~tech_after,
+  data <- data %>% mutate(Technology = case_match(Technology,
     # "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
-    "Hydropower (excl. Pumped Storage)",    "Hydropower",
-    "Wind energy",                          "Wind",
-    "Solar energy",                         "Solar",
-    "Geothermal energy",                    "Geothermal",
-    "Marine energy",                        "Marine",
-    "Other primary solid biofuels n.e.s.",  "Other solid biofuels"
-  )
-
-  for (n in 1:nrow(mask)) {
-    data[data$Technology == mask[n, 1], "Technology"] <- mask[n, 2]
-  }
-
-  # rearrange column order to more readable format:
-  # year, country, tech, value (capacity or generation)
-  data <- data[, c(2, 1, 3, 4)]
-
-  # fix name of regional column to the value it used to have before 9678353
-  data <- data %>%
-    rename(`Country/area` = 2)
+    "Hydropower (excl. Pumped Storage)"   ~ "Hydropower",
+    "Wind energy"                         ~ "Wind",
+    "Solar energy"                        ~ "Solar",
+    "Geothermal energy"                   ~ "Geothermal",
+    "Marine energy"                       ~ "Marine",
+    "Other primary solid biofuels n.e.s." ~ "Other solid biofuels",
+    .default = Technology
+  ))
 
   # creating capacity or generation magpie object
   x <- as.magpie(data, temporal = 1, spatial = 2, datacol = 4)
