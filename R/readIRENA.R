@@ -12,10 +12,9 @@
 #' a <- readSource(type = "IRENA", subtype = "Capacity")
 #' }
 #'
-#' @importFrom dplyr mutate rename select
+#' @importFrom dplyr mutate rename select case_match relocate
 readIRENA <- function(subtype) {
   # Reading renewables electricity capacity or generation values from xlsx
-  data <- readxl::read_xlsx(paste0(getConfig("sourcefolder"), "/IRENA/2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx"), sheet = "All Data")
   data <- readxl::read_xlsx("2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx", sheet = "All Data")
 
   if (subtype == "Capacity") {
