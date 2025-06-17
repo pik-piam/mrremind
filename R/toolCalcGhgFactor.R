@@ -1,7 +1,7 @@
 #' Calculate GHG Emission Factors from GHG emission targets
 #'
 #' Emission targets are represented by a GHG Emission Factor, which is the quotient of total GHG
-#' emissions in the target year divided by the CEDS GHG emissions in 2005.
+#' emissions in the target year divided by the CEDS GHG emissions in 2015
 #'
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux, Falk Benke
 #' @param x a magclass object with targets read in from NDC or NPI database
@@ -101,8 +101,6 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       }
     } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # GHG/GDP or CO2/GDP
 
-      # TODO: address this for NewClimate CHN, either use 2015 or drop?
-
       if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
         message(
           "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
@@ -153,12 +151,12 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
 
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
-          ghg2005 <- sum(setYears(ghg[EUR_NDC_countries, 2005, ], NULL))
+          ghg2015 <- sum(setYears(ghg[EUR_NDC_countries, 2015, ], NULL))
         } else {
-          ghg2005 <- setYears(ghg[regi, 2005, ], NULL)
+          ghg2015 <- setYears(ghg[regi, 2015, ], NULL)
         }
 
-        ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2005
+        ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
 
         ghgFactorMax <- max(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
 
