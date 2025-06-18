@@ -26,10 +26,11 @@ calcPotentialHydro <- function() {
   #
   # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
   prodElec <- readSource("IRENA","Generation")
-  prodElec <- prodElec[,2015,"Renewable hydropower"] / 1000
-
   IRENA_hydro_cap <- readSource("IRENA","Capacity") # in MW
-  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Renewable hydropower"]
+
+  # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
+  prodElec <- prodElec[,2015,"Hydropower"] / 1000
+  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Hydropower"]
 
   # ensure that overall potential can produce the generation of 2015, if not set potential to IRENA 2015 generation
   checkDiff <- new.magpie(getRegions(techPot),NULL,fill = 0)
@@ -165,7 +166,7 @@ calcPotentialHydro <- function() {
           restPotGrade[r,,"5"] <- 1.00 * restPot[r,,]
         }
       } # grade of installed capacity
-    } # instaed capacity yes/no
+    } # installed capacity yes/no
   } # r - countries
 
 

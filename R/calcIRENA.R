@@ -6,7 +6,8 @@ calcIRENA <- function() {
   mapping <- tibble::tribble(
     ~irena,                     ~mif,
     "Geothermal",               "Cap|Electricity|Geothermal (GW)",
-    "Renewable hydropower",     "Cap|Electricity|Hydro (GW)",
+    # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
+    "Hydropower",               "Cap|Electricity|Hydro (GW)",
     "Wind",                     "Cap|Electricity|Wind (GW)",
     "Onshore wind energy",      "Cap|Electricity|Wind|Onshore (GW)",
     "Offshore wind energy",     "Cap|Electricity|Wind|Offshore (GW)",

@@ -1,62 +1,68 @@
-#' Capacity targets from two sources
+#' Calculate Capacity Targets
 #'
-#' @description The capacity targets (GW)  at regional level are produced from two different databases-
-#' UNFCCC_NDC database, an update of the Rogelj 2017 paper (see readme in inputdata), and REN21 Global Renewables
-#' report. The UNFCCC_NDC capacity targets are further broken down to conditional and unconditional targets.
+#' @description The capacity targets (GW) at regional level are produced from different databases
+#' - UNFCCC_NDC database, an update of the Rogelj 2017 paper (see readme in inputdata)
+#' - REN21 Global Renewables
+#' - New Climate NPI policy database
 #'
-#' @param sources Database source
-#' @author Aman Malik, Oliver Richters
+#' @param sources either "NewClimate" or "UNFCCC_NDC+REN21+CHN_NUC"
+#' @author Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez, Falk Benke
 #'
-calcCapTarget <- function(sources) {
+# TODO: switch to sources "NewClimate" and "NewClimate+UNFCCC_NDC"
+calcCapTarget <- function(sources, verbose = TRUE) {
 
-  if (! sources %in% c("REN21", "UNFCCC_NDC", "UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
+  if (!sources %in% c("UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
     stop("Unknown 'sources' argument.")
   }
 
-  if (sources == "REN21") {
-    return(list(x = readSource("REN21", subtype = "Capacity"),
-                weight = NULL,
-                unit = "GW",
-                description = "Capacity targets from REN 21(2017) database"))
+  .read <- function(src, subtype, verbose) {
+    if (verbose) {
+      x <- readSource(src, subtype)
+    } else {
+      x <- suppressMessages(readSource(src, subtype))
+    }
+    return(x)
   }
 
   if (sources == "NewClimate") {
-    capCond <- readSource("NewClimate", subtype = "Capacity_2025_cond")
-    capUncond <- readSource("NewClimate", subtype = "Capacity_2025_uncond")
-    x <- mbind(capCond, capUncond)
-    return(list(x = x,
+    listCapacities <- list(
+      "2024_cond"   = .read("NewClimate", subtype = "Capacity_2025_cond", verbose = verbose),
+      "2024_uncond" = .read("NewClimate", subtype = "Capacity_2025_uncond", verbose = verbose)
+    )
+  } else {
+    listCapacities <- list(
+      "2018_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2018_cond", verbose = verbose),
+      "2018_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2018_uncond", verbose = verbose),
+      "2021_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2021_cond", verbose = verbose),
+      "2021_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2021_uncond", verbose = verbose),
+      "2022_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2022_cond", verbose = verbose),
+      "2022_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2022_uncond", verbose = verbose),
+      "2023_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2023_cond", verbose = verbose),
+      "2023_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2023_uncond", verbose = verbose),
+      "2024_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2024_cond", verbose = verbose),
+      "2024_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2024_uncond", verbose = verbose)
+    )
+  }
+
+  # ensure that all magclass objects in the list have matching years so they can be bound together
+  listYears <- lapply(listCapacities, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
+  capacities <- purrr::map(listCapacities,
+                    ~ add_columns(.x, listYears[!listYears %in% getItems(.x, dim = "year")], 2))
+  capacities <- mbind(capacities)
+
+  capacities <- capacities[,  sort(getYears(capacities)), ]
+  capacities[is.na(capacities)] <- 0
+
+  if (sources == "NewClimate") {
+
+    return(list(x = capacities,
                 weight = NULL,
                 unit = "GW",
                 description = "Capacity targets combined from NewClimate Database for Current Policy Scenarios")
     )
   }
 
-  listCapacitiesNDC <- list(
-    "2018_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2018_cond"),
-    "2018_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2018_uncond"),
-    "2021_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2021_cond"),
-    "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2021_uncond"),
-    "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2022_cond"),
-    "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2022_uncond"),
-    "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2023_cond"),
-    "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond"),
-    "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2024_cond"),
-    "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2024_uncond")
-  )
-  listYears <- lapply(listCapacitiesNDC, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
-  NDC <- purrr::map(listCapacitiesNDC,
-                    ~ add_columns(.x, listYears[!listYears %in% getItems(.x, dim = "year")], 2)) %>%
-    mbind()
-  NDC <- NDC[, sort(getYears(NDC)), ]
-  NDC[is.na(NDC)] <- 0
-
-  if (sources == "UNFCCC_NDC") {
-    return(list(x = NDC,
-                weight = NULL,
-                unit = "GW",
-                description = "Capacity targets from Nationally Determined Contributions (NDC)"))
-  }
-
+  # TODO remove when no longer needed
   if (sources == "UNFCCC_NDC+REN21+CHN_NUC") {
     # used to extend non NDC-data to data structure of NDC targets
     extend2Dim <- function(x, dimNames) {
@@ -68,23 +74,23 @@ calcCapTarget <- function(sources) {
     }
 
     REN21data <- readSource("REN21", subtype = "Capacity")
-    REN21 <- extend2Dim(REN21data, names(listCapacitiesNDC))
+    REN21 <- extend2Dim(REN21data, names(listCapacities))
 
     # names of all technologies in REN21 and NDC database + apCarElT
-    techNames <- c(getNames(NDC), getNames(REN21), paste(names(listCapacitiesNDC), "apCarElT", sep = ".")) %>%
+    techNames <- c(getNames(capacities), getNames(REN21), paste(names(listCapacities), "apCarElT", sep = ".")) %>%
       unique() %>%
       sort()
 
     x <- new.magpie(getItems(REN21, dim = "region"), getYears(REN21), techNames)
     # China's nuclear target
     common_tech <- intersect(getNames(REN21) %>% unlist() %>% unique(),
-                             getNames(NDC)   %>% unlist() %>% unique())
+                             getNames(capacities)   %>% unlist() %>% unique())
     # for common technologies, take bigger value
-    x[, listYears, common_tech] <- pmax(REN21[, listYears, common_tech], NDC[, , common_tech])
+    x[, listYears, common_tech] <- pmax(REN21[, listYears, common_tech], capacities[, , common_tech])
     # for tech. in REN21 but not in NDC, take REN21 values
     x[, , setdiff(getNames(REN21), common_tech)] <- REN21[, , setdiff(getNames(REN21), common_tech)]
     # for tech. in NDC but not in REN21, take NDC values
-    x[, getYears(NDC), setdiff(getNames(NDC), common_tech)] <- NDC[, , setdiff(getNames(NDC), common_tech)]
+    x[, getYears(capacities), setdiff(getNames(capacities), common_tech)] <- capacities[, , setdiff(getNames(capacities), common_tech)]
     # additional nuclear policy for CHN. The target is actually 2020 in 58 GW in 2020, but setting this leads to an
     # unfeasible solution in REMIND, therefore setting from 2025 onwards
     x["CHN", seq(2025, 2040, 5), "tnrs"] <- 58 # in GW
@@ -137,7 +143,7 @@ calcCapTarget <- function(sources) {
                                      weight = GDP2015[country.target.regs, , , invert = TRUE])
     # bind country target together with disaggregation of EU targets to other countries
     H2Target.out <- magpiesort(mbind(H2Target.country[country.target.regs, , ], H2Target.disagg))
-    x <- mbind(x, extend2Dim(H2Target.out, names(listCapacitiesNDC)))
+    x <- mbind(x, extend2Dim(H2Target.out, names(listCapacities)))
 
     x[is.na(x)] <- 0
 

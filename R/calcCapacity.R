@@ -19,7 +19,7 @@ calcCapacity <- function(subtype) {
     mapping <- tibble::tribble(
       ~remind,   ~irena,
       "geohdr",  "Geothermal",
-      "hydro",   "Renewable hydropower",
+      "hydro",   "Hydropower", # contains renewable hydropower and mixed hydro plants, but not pure pumped storage
       "windon",  "Onshore wind energy",
       "windoff", "Offshore wind energy",
       "spv",     "Solar photovoltaic",

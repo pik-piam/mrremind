@@ -15,7 +15,8 @@ calcSolar
 calculate Area, Capacity and Energy for photovoltaics (PV) and contentrated solar power (CSP)
 }
 \examples{
-\dontrun{ a <- calcOutput(type="Solar")
+\dontrun{
+a <- calcOutput(type = "Solar")
 }
 }
 \author{
