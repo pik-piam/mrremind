@@ -6,19 +6,16 @@
 #'
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
-#' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param subtype Either "emissions", "emission_factors", or "emission_factors_remindsectors"
 #'
-#' @importFrom abind abind
-#' @importFrom utils head tail
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
 calcGAINS2025forREMIND <- function(subtype) {
+
   # Binds new and old versions of GAINS data, adding an "ssp" dimension
   # to old data and makes the new data conform to the old shape besides the
   # new dimension
   bindNewOld <- function(innew, inold) {
     # Assume a dummy "GAINSlegacy" SSP for the old data to fill the dimension
-    newlastdim <- 3 + (as.integer(substr(tail(names(getSets(inold)), 1), 4, 4)) + 1) * 1e-1
+    newlastdim <- 3 + (as.integer(substr(utils::tail(names(getSets(inold)), 1), 4, 4)) + 1) * 1e-1
     old <- toolAddDimensions(inold, "GAINSlegacy", "ssp", newlastdim)
     getSets(innew) <- c("region", "year", "scenario", "ssp", "sector", "emi")
     outdimorder <- match(getSets(innew), getSets(old))[3:length(getSets(innew))] - 2
@@ -43,24 +40,24 @@ calcGAINS2025forREMIND <- function(subtype) {
     return(out)
   }
 
-
   if (subtype == "emissions") {
-    inold <- calcOutput("GAINSEmi", subtype = "emissions", aggregate = F)
-    innew <- calcOutput("GAINS2025scenarios", subtype = "emissions", aggregate = F)
+    inold <- calcOutput("GAINSEmi", subtype = "emissions", aggregate = FALSE)
+    innew <- calcOutput("GAINS2025scenarios", subtype = "emissions", aggregate = FALSE)
     out <- bindNewOld(innew, inold)
 
     wgt <- NULL
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emission_factors") {
-    linold <- calcOutput("GAINSEmi", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linold <- calcOutput("GAINSEmi", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     inold <- linold$x
-    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     innew <- linnew$x
     out <- bindNewOld(innew, inold)
 
     # Weights, GAINS2025 uses activities that are per SSP but not per scenario, pad the dimensions
-    wgt <- bindNewOld(linnew$w, linold$w)
+    # TODO: address warnings negative weights and zero weight sum
+    wgt <- bindNewOld(linnew$weight, linold$weight)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emissions_starting_values") {
@@ -73,9 +70,9 @@ calcGAINS2025forREMIND <- function(subtype) {
     # GAINS2025
     # ==============================================================================================================
     # Input emission factors
-    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     innew <- linnew$x
-    wgtnew <- linnew$w
+    wgtnew <- linnew$weight
 
     # Apparently REMIND expects TgS internally, but not in exoGAINS
     conv_ktSO2_to_ktS <- 1 / 2 # 32/(32+2*16)
@@ -100,8 +97,8 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Also drop sectors that are not mapped with sufficient detail. Those that can be
     # used will have a dot "." splitting the specific technologies
     dropsectors <- c(secmap$gains[!grepl("\\.", secmap$remind)], dropsectors)
-    innew <- innew[, , dropsectors, invert = T]
-    wgtnew <- wgtnew[, , dropsectors, invert = T]
+    innew <- innew[, , dropsectors, invert = TRUE]
+    wgtnew <- wgtnew[, , dropsectors, invert = TRUE]
 
     # Aggregate to REMIND sectors
     filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
@@ -121,18 +118,18 @@ calcGAINS2025forREMIND <- function(subtype) {
     wgtnew <- splitTechs(wgtnew)
 
     # Drop sectors not used in REMIND anymore
-    outnew <- outnew[, , c("pcc", "pco"), invert = T]
-    wgtnew <- wgtnew[, , c("pcc", "pco"), invert = T]
+    outnew <- outnew[, , c("pcc", "pco"), invert = TRUE]
+    wgtnew <- wgtnew[, , c("pcc", "pco"), invert = TRUE]
     # ==============================================================================================================
     # GAINSlegacy
     # ==============================================================================================================
     # GAINSlegacy does not actually follow its stated dimensions, so they are meaningless from this point on
     linold <- calcOutput(
       "EmissionFactors",
-      subtype = "emission_factors", warnNA = FALSE, aggregate = F, supplementary = T
+      subtype = "emission_factors", warnNA = FALSE, aggregate = FALSE, supplementary = TRUE
     )
     inold <- linold$x
-    wgtold <- linold$w
+    wgtold <- linold$weight
 
     # Split dimensions
     outold <- splitTechs(inold)
@@ -151,13 +148,15 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Combining GAINSlegacy and GAINS2025
     # ==============================================================================================================
     out <- mbind(outold, outnew)
+    # TODO: address weight sum warning
     wgt <- mbind(wgtold, wgtnew)
-    # str(out)
-    # str(wgt)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
+
   } else if (subtype == "emissions_exo_waste") {
+    stop("Subtype not implemented yet.")
   } else if (subtype == "emissions_exo_landuse") {
+    stop("Subtype not implemented yet.")
   } else {
     stop(paste0("Unknown subtype: ", subtype))
   }
@@ -168,10 +167,4 @@ calcGAINS2025forREMIND <- function(subtype) {
     unit = unit,
     description = desc
   ))
-  #     calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
-  #   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  #   calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
 }

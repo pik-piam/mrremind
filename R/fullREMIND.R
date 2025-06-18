@@ -117,15 +117,10 @@ fullREMIND <- function() {
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  # calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
-  # calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
-  # calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
-
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors_remindsectors", warnNA = FALSE,                    round = 5, file = "f11_emiFacAP.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
-  calcOutput("AirPollEmiRef", subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMINDexo",  round = 5, file = "emirefCEDS2020_gains.cs4r")
-
+  calcOutput("AirPollEmiRef", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMINDexo",  round = 5, file = "emirefCEDS2020_gains.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")

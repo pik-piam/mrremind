@@ -6,14 +6,11 @@
 #' the results
 #'
 #' @return Activity levels, emissions or emission factors. Alternatively,
-#' a Govenrnmment Capacity Index (GCI) used for deriving some scenario
+#' a Govenrnment Capacity Index (GCI) used for deriving some scenario
 #' extensions.
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
 #'
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
-#' @importFrom readxl read_excel
 readGAINS2025 <- function(subtype, subset = "baseline.det") {
   # Interpreting subtype as the codes used in the database
   subtypecode <- ifelse(subtype == "emissions", "EMISSION", "ACTIVITY")
@@ -31,11 +28,10 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
 
       # Drop scenario dimension as we only have the baseline in the file
       inbaseactemi <- inbaseactemi[, -1]
-      longbaseactemi <- pivot_longer(
+      longbaseactemi <- tidyr::pivot_longer(
         inbaseactemi, 5:length(names(inbaseactemi)),
         names_prefix = "X", names_to = "year"
       )
-      head(longbaseactemi)
       names(longbaseactemi) <- c("region", "sectorGAINS", "species", "vartype", "year", "value")
       baseactemi <- as.magpie(longbaseactemi, spatial = "region", temporal = "year")
 
@@ -49,7 +45,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
       inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-03-25.csv"))
 
       # Convert to long format
-      longefs <- pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
+      longefs <- tidyr::pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
 
       names(longefs) <- c("ssp", "region", "sectorGAINS", "species", "year", "value")
       longefs$scenario <- scenario
@@ -67,7 +63,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
     names(longgci) <- c("ssp", "country", "year", "value")
     out <- as.magpie(longgci, spatial = "country", temporal = "year")
   } else if (subtype == "sectorlist") {
-    insec <- read_excel("EMF_sector_Unit_2025.xlsx")
+    insec <- readxl::read_excel("EMF_sector_Unit_2025.xlsx")
     out <- list(
       x = as.data.frame(insec[!is.na(insec[, 1]), ]),
       class = "data.frame"

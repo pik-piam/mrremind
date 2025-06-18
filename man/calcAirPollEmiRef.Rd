@@ -6,7 +6,6 @@
 in combination with GAINS data at different sectoral aggregations}
 \usage{
 calcAirPollEmiRef(
-  subtype = "total",
   baseyear = 2020,
   outunits = "Mt/yr",
   namesformat = "GAINS2025"
