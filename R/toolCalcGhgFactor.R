@@ -160,9 +160,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
         ghgFactorMax <- max(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
 
-        if (isTRUE(ghgFactorMax > 2.5) && !year %in% knownHigh[[regi]] && !regi %in% c("IND", "CHN")) {
+        if (isTRUE(ghgFactorMax > 1.5) && !year %in% knownHigh[[regi]] && !regi %in% c("IND", "CHN")) {
           ghgFactor[regi, y, ] <- NA
-          message("For ", regi, " in ", year, ", ghgFactor=", ghgFactorMax, " is above 2.5 and will be dropped.")
+          message("For ", regi, " in ", year, ", ghgFactor=", ghgFactorMax, " is above 1.5 and will be dropped.")
         }
 
         ghgFactorMin <- min(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
