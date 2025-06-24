@@ -2,21 +2,15 @@
 #' in combination with GAINS data at different sectoral aggregations
 #'
 #'
+#' @param outunits Units of the output, either "Mt/yr" or "kt/yr". Default is "Mt/yr"
+#' @param namesformat Format of the output pollutant names, either
+#' "GAINS2025" (default, for original GAINS names), "REMIND" (for REMIND internal names)
+#' or "REMINDexo" (for names as used in REMIND's calcEXOGAINS.R)
 #' @param baseyear year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions
 #' @return magclass object
 #' @author Gabriel Abrahao
-#' @importFrom magclass getNames<- getYears<-
-
-calcAirPollEmiRef <- function(
-    subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
-  # require(tidyverse)
-  # require(madrat)
-  # require(magclass)
-  # require(mrcommons)
-  # subtype <- "total"
-  # baseyear <- 2020
-  # outunits <- "Mt/yr"
-  # namesformat <- "GAINS2025"
+#'
+calcAirPollEmiRef <- function(baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
 
   # Mapping from GAINS to CEDS2025 pollutant names
   polnamesmap <- c(
@@ -73,17 +67,15 @@ calcAirPollEmiRef <- function(
     return(mag)
   }
 
-  if (namesformat %in% c("REMIND","REMINDexo")) {
+  if (namesformat %in% c("REMIND", "REMINDexo")) {
     fullceds <- fixPolNames(fullceds, namesformat)
   }
 
-  if (subtype == "total") {
-    totceds <- dimSums(fullceds, dim = 3.1, na.rm = T)
+  totceds <- dimSums(fullceds, dim = 3.1, na.rm = TRUE)
 
-    out <- setYears(totceds)
-    unit <- outunits
-    desc <- paste0("Emissions in year ", baseyear)
-  }
+  out <- setYears(totceds)
+  unit <- outunits
+  desc <- paste0("Emissions in year ", baseyear)
 
   return(list(
     x = out,

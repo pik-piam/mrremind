@@ -13,10 +13,10 @@
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param agglevel Aggregation level, either "agg" (default, aggregated) or "det" (detailed)
+#' keep in mind that "agg" also needs the detailed data to be present, as it includes a few
+#' extended sectors that are not present in the aggregated data.
 #'
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
-#' @importFrom zoo na.approx
 calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # Mappings, auxiliary files and definitions ==========================
@@ -99,7 +99,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     dropSectors <- function(mag) {
       dsecs <- c("Unattributed")
       if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
-        mag <- mag[, , dsecs, invert = T]
+        mag <- mag[, , dsecs, invert = TRUE]
       }
       return(mag)
     }
@@ -185,20 +185,17 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Concatenating scenarios ==============================================================
   efs <- mbind(cle, mfr, sle)
-  # Dropping odd sectors in the files that have no data
-  # efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
 
   # Concatenating historical EFs to all scenarios ========================================
   histefs <- collapseDim(incle[, setdiff(getYears(incle), getYears(efs)), "historical"])
   histefs <- mbind(lapply(allssps, \(ssp) add_dimension(histefs, 3.1, add = "ssp", nm = ssp)))
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
-  # histefs <- histefs[, , c("Unattributed"), invert = T]
 
   # 2025 tends to have no data in either historical or scenarios, so interpolate
   # between 2020 (historical) and 2030 (scenario)
   efs <- mbind(histefs, efs)
   gyears <- getYears(efs)
-  efs <- efs[, 2025, , invert = T]
+  efs <- efs[, 2025, , invert = TRUE]
   efs <- toolFillYears(efs, gyears)
 
   # NA handling in EFs ====================================================================
@@ -214,14 +211,14 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # Smoothing the phase-in from historical by assuming
   # 2025=2030, it appears that 2025 was a transition year in the original.
-  allyears <- getYears(efs, as.integer = T)
+  allyears <- getYears(efs, as.integer = TRUE)
   efs[, 2025, ] <- efs[, 2030, ]
 
   # Smooth post-2050 transition, that is often very abrupt
   sy <- 2050
   ey <- 2080
   inyears <- allyears[(allyears > sy & allyears < ey)]
-  efs <- time_interpolate(efs[, inyears, , invert = T], allyears)
+  efs <- time_interpolate(efs[, inyears, , invert = TRUE], allyears)
 
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
@@ -243,7 +240,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Reading GDP data from madrat for all SSPs and aggregating to
   # GAINS regions.
-  gdp <- calcOutput("GDP", scenario = allssps, aggregate = F)
+  gdp <- calcOutput("GDP", scenario = allssps, aggregate = FALSE)
   gdpgains <- toolAggregate(
     gdp, regmap,
     from = "CountryCode", to = "gainscode",
@@ -256,6 +253,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
 
   # Estimate elasticities of the GDP-activities relationship
+  # TODO: how to handle NaN warning?
   estela <- collapseDim(log(refract) / log(refrgdp))
   # Cap elasticies to avoid extreme values
   estela[estela > 1] <- 1
@@ -297,7 +295,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Use CEDS 2020 emissions as disaggregation weights for emissions
   # and activities
-  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = F)
+  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = FALSE)
   inceds <- fixPolNames(inceds)
 
   # Function to pad the magpie object with missing sectors present in seclist
@@ -330,6 +328,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
     # Activities: Weighted by CEDS2020 Emissions in disaggregation,
     # no weights for aggregation (sum)
+    sspact[sspact < 0] <- 0
     csspact <- toolAggregate(
       sspact, regmap,
       from = "gainscode", to = "CountryCode",
@@ -355,7 +354,6 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
       out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
       wgt <- mbind(lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(outsspact, dimCode("scenario", outsspefs), "scenario", x)))
-      # wgt <- outsspact
       unit <- "Tg/TWa"
     }
   } else {
