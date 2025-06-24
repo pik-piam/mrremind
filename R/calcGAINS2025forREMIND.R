@@ -148,7 +148,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Combining GAINSlegacy and GAINS2025
     # ==============================================================================================================
     out <- mbind(outold, outnew)
-    # TODO: address weight sum warning
+
     wgt <- mbind(wgtold, wgtnew)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
@@ -165,6 +165,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     x = out,
     weight = wgt,
     unit = unit,
-    description = desc
+    description = desc,
+    aggregationArguments = list(zeroWeight = "allow")
   ))
 }
