@@ -10,6 +10,10 @@ calcGAINS2025scenarios(subtype, agglevel = "agg")
 }
 \arguments{
 \item{subtype}{"emission_factors", "emissions","emissions_starting_values"}
+
+\item{agglevel}{Aggregation level, either "agg" (default, aggregated) or "det" (detailed)
+keep in mind that "agg" also needs the detailed data to be present, as it includes a few
+extended sectors that are not present in the aggregated data.}
 }
 \value{
 Activity levels, emissions or emission factors

@@ -13,6 +13,12 @@ calcAirPollEmiRef(
 }
 \arguments{
 \item{baseyear}{year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions}
+
+\item{outunits}{Units of the output, either "Mt/yr" or "kt/yr". Default is "Mt/yr"}
+
+\item{namesformat}{Format of the output pollutant names, either
+"GAINS2025" (default, for original GAINS names), "REMIND" (for REMIND internal names)
+or "REMINDexo" (for names as used in REMIND's calcEXOGAINS.R)}
 }
 \value{
 magclass object

@@ -10,6 +10,11 @@
 #' extensions.
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param subset Subset of the data to read, split with a dot (".") into 
+#' scenario and aggregation level. 
+#' scenario can be "baseline" for the historical baseline, "cle_rev" (current legislation), 
+#' "mid" (stronger legislation) or "mtfr" (maximum technically feasible reduction).
+#' The aggregation level can be "det" (detailed) or "agg" (aggregated).
 #'
 readGAINS2025 <- function(subtype, subset = "baseline.det") {
   # Interpreting subtype as the codes used in the database

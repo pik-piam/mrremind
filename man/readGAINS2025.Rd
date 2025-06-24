@@ -8,6 +8,12 @@ readGAINS2025(subtype, subset = "baseline.det")
 }
 \arguments{
 \item{subtype}{"emission_factors", "emissions","emissions_starting_values"}
+
+\item{subset}{Subset of the data to read, split with a dot (".") into
+scenario and aggregation level.
+scenario can be "baseline" for the historical baseline, "cle_rev" (current legislation),
+"mid" (stronger legislation) or "mtfr" (maximum technically feasible reduction).
+The aggregation level can be "det" (detailed) or "agg" (aggregated).}
 }
 \value{
 Activity levels, emissions or emission factors. Alternatively,
