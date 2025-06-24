@@ -74,7 +74,6 @@ fullREMIND <- function() {
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
-  calcOutput("WeightNash",                                  round = 6, file = "p80_eoWeights_fix.cs4r")
   calcOutput("IntertempElastSubst",                         round = 6, file = "pm_ies.cs4r")
   calcOutput("TimePref",                                    round = 6, file = "p23_prtp.cs4r")
   calcOutput("CO2Prices",                                   round = 2, file = "pm_taxCO2eqHist.cs4r")
