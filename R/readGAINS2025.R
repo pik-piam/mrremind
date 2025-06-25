@@ -41,13 +41,14 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
 
       out <- collapseDim(baseactemi[, , subtypecode], "vartype")
       comment(out) <- paste0("GAINS2025 ", subtype, " for scenario ", scenario, " at aggregation level ", agglevel)
-    } else if (scenario != "baseline") {
+    } else if (!(scenario %in% c("baseline","scenariomip"))) {
       if (subtype != "emifacs") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading scenario emission factors. Here there is also a SSP dimension
-      inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-03-25.csv"))
-
+      # inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-03-25.csv"))
+      inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-06-24.csv"))
+      
       # Convert to long format
       longefs <- pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
 
@@ -58,6 +59,23 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
       out <- as.magpie(longefs, spatial = "region", temporal = "year")
       comment(out) <- paste0(
         "GAINS2025 emission factors for scenario ", scenario, " and all SSPs at aggregation level ", agglevel
+      )
+    } else if (scenario == "scenariomip") {
+      if (subtype != "emifacs") {
+        stop("Only emission factors are available for scenarios other than the historical baseline")
+      }
+      # Reading emission factors for the ScenarioMIP combinations
+      inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-06-24.csv"))
+
+      # Convert to long format
+      longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
+      longefs <- longefs[, -1]
+
+      names(longefs) <- c("ssp", "scenario", "region", "sectorGAINS", "species", "year", "value")
+
+      out <- as.magpie(longefs, spatial = "region", temporal = "year")
+      comment(out) <- paste0(
+        "GAINS2025 emission factors for ScenarioMIP scenarios and selected SSPs at aggregation level ", agglevel
       )
     }
   } else if (subtype == "GCI") {
