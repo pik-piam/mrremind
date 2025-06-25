@@ -66,13 +66,16 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", agglevel))
 
   # GAINS scenarios
-  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", agglevel))
-  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", agglevel))
-  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", agglevel))
+  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", agglevel))
+  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", agglevel))
+  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", agglevel))
   # Using scenario names closer to the usual IIASA ones
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
   getItems(inmfr, "scenario") <- "MFR"
+
+  # ScenarioMIP scenarios
+  insmp <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("scenariomip.", agglevel))
 
   # ====================================================================
   # ADDING EXTENDED SECTORS ============================================
@@ -80,12 +83,13 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   if (agglevel == "agg") {
     det_baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", "det"))
     det_baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", "det"))
-    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", "det"))
-    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", "det"))
-    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", "det"))
+    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", "det"))
+    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", "det"))
+    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", "det"))
     getItems(det_incle, "scenario") <- "CLE"
     getItems(det_inmid, "scenario") <- "SLE"
     getItems(det_inmfr, "scenario") <- "MFR"
+    det_insmp <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("scenariomip.", "det"))
 
     # Sectors to extend, if present in the detailed datasets
     extsectors <- c(
@@ -108,6 +112,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     incle <- mbind(dropSectors(incle), det_incle[, , extsectors])
     inmid <- mbind(dropSectors(inmid), det_inmid[, , extsectors])
     inmfr <- mbind(dropSectors(inmfr), det_inmfr[, , extsectors])
+    insmp <- mbind(dropSectors(insmp), det_insmp[, , extsectors])
   }
 
   # ====================================================================
@@ -118,6 +123,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   incle <- fixPolNames(incle)
   inmid <- fixPolNames(inmid)
   inmfr <- fixPolNames(inmfr)
+  insmp <- fixPolNames(insmp)
 
   # ====================================================================
   # NA HANDLING ========================================================
@@ -157,34 +163,81 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Here we bind that future period with NAs to the scenario, so that concatenation
   # between scenarios works and we can actually fill that data if needed after
   # the historical period is also concatenated.
-  abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(inmfr, "sectorGAINS"))
-  dumfill <- collapseDim(incle[, keepyears, "historical"][, , abssectors], keepdim = "sectorGAINS")
-  dumfill <- toolAddDimensions(
-    toolAddDimensions(
-      dumfill, getItems(mfr, "ssp"), "ssp", 3.1
-    ), getItems(mfr, "scenario"), "scenario", 3.1
-  )
+  padAbsentSectors <- function(magscen, incle) {
+    abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(magscen, "sectorGAINS"))
+    if (length(abssectors) == 0) {
+      return(magscen)
+    }
+    dumfill <- collapseDim(incle[, keepyears, "historical"][, , abssectors], keepdim = "sectorGAINS")
+    dumfill <- toolAddDimensions(
+      toolAddDimensions(
+        dumfill, getItems(magscen, "ssp"), "ssp", 3.1
+      ), getItems(magscen, "scenario"), "scenario", 3.1
+    )
 
-  mfr <- mbind(mfr, dumfill)
+    magscen <- mbind(magscen, dumfill)
+    return(magscen)
+  }
+
+  mfr <- padAbsentSectors(mfr, incle)
 
   # SLE ========================================================================
   # SLE is a stronger legislation scenario. All data is already included
   sle <- inmid[, keepyears, allssps]
 
   # See MFR comment above
-  abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(inmid, "sectorGAINS"))
-  dumfill <- collapseDim(incle[, keepyears, "historical"][, , abssectors], keepdim = "sectorGAINS")
-  dumfill <- toolAddDimensions(
-    toolAddDimensions(
-      dumfill, getItems(sle, "ssp"), "ssp", 3.1
-    ), getItems(sle, "scenario"), "scenario", 3.1
-  )
+  sle <- padAbsentSectors(sle, incle)
 
-  sle <- mbind(sle, dumfill)
+  # ScenarioMIP scenarios ========================================================================
+  # The raw data is directly mapped to ScenarioMIP scenarios ("Low", "High", etc.),
+  # only for a limited set of SSPs for each scenario (the ones actually used in ScenarioMIP).
+  # However, those are mostly simply mapped by IIASA from a synthetic combination of SLE and CLE
+  # that varies only across SSPs based on the GCI. The exception is Very Low Limited Overshot
+  # (sic, typo in the actual data), which has a different scenario logic.
 
+  # For this reason, we reduce the original scenario set to two: one which is the ScenarioMIP
+  # "default" that varies only with SSPs (SMIPbySSP) and a specific one for VLLO (SMIPVLLO).
+  # To facilitate ex-post combinations, we also extend the SSP coverage by making some assumptions
+
+  ## SMIPbySSP ------------------------------------------------------------------------------------
+  # Choosing arbitrary scenarios for each SSP, they should all be the same except for VLLO
+  dum1 <- setItems(insmp[, , "SSP1.Medium"], "scenario", "SMIPbySSP")
+  dum2 <- setItems(insmp[, , "SSP2.Medium"], "scenario", "SMIPbySSP")
+  dum3 <- setItems(insmp[, , "SSP3.Medium"], "scenario", "SMIPbySSP")
+  dum4 <- setItems(insmp[, , "SSP4.Low Overshoot"], "scenario", "SMIPbySSP")
+  dum5 <- setItems(insmp[, , "SSP5.High"], "scenario", "SMIPbySSP")
+
+  smpbyssp <- mbind(dum1, dum2, dum3, dum4, dum5)
+  smpbyssp <- dimOrder(smpbyssp, perm = c(2,1,3,4))
+  smpbyssp <- padAbsentSectors(smpbyssp, incle)
+    
+  
+
+  ## SMIPVLLO -------------------------------------------------------------------------------------
+  # VLLO only contains data for SSP1 and SSP2, pad the others with SSP2
+  dum1 <- setItems(setItems(insmp[, , "SSP1.Very Low Limited Overshot"], "scenario", "SMIPVLLO"), "ssp", "SSP1")
+  dum2 <- setItems(setItems(insmp[, , "SSP2.Very Low Limited Overshot"], "scenario", "SMIPVLLO"), "ssp", "SSP2")
+  dum3 <- setItems(setItems(insmp[, , "SSP2.Very Low Limited Overshot"], "scenario", "SMIPVLLO"), "ssp", "SSP3")
+  dum4 <- setItems(setItems(insmp[, , "SSP2.Very Low Limited Overshot"], "scenario", "SMIPVLLO"), "ssp", "SSP4")
+  dum5 <- setItems(setItems(insmp[, , "SSP2.Very Low Limited Overshot"], "scenario", "SMIPVLLO"), "ssp", "SSP5")
+
+  smpvllo <- mbind(dum1, dum2, dum3, dum4, dum5)
+  smpvllo <- dimOrder(smpvllo, perm = c(2,1,3,4))
+  smpvllo <- padAbsentSectors(smpvllo, incle)
 
   # Concatenating scenarios ==============================================================
-  efs <- mbind(cle, mfr, sle)
+  # The ScenarioMIP ones actually have valid 2025 data, so we remove it here and
+  # add it later, overriding the interpolation filling step for those scenarios
+  efs <- mbind(
+    cle, mfr, sle,
+    smpbyssp[, 2025, , invert = T],
+    smpvllo[, 2025, , invert = T]
+  )
+
+  # Blow up dimension combinations to ensure it can be concatenated with historical
+  # In particular, some sector-pollutant combinations are not present in all scenarios
+  efs <- complete_magpie(efs)
+
   # Dropping odd sectors in the files that have no data
   # efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
 
@@ -194,12 +247,20 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
   # histefs <- histefs[, , c("Unattributed"), invert = T]
 
+  # Blow up dimensions, see above
+  histefs <- complete_magpie(histefs)
+
   # 2025 tends to have no data in either historical or scenarios, so interpolate
   # between 2020 (historical) and 2030 (scenario)
   efs <- mbind(histefs, efs)
   gyears <- getYears(efs)
   efs <- efs[, 2025, , invert = T]
   efs <- toolFillYears(efs, gyears)
+
+  # ScenarioMIP scenarios have (hopefully) properly validated 
+  # near ter data, so use it instead of the interpolation
+  efs[,2025, "SMIPbySSP"] <- complete_magpie(smpbyssp[,2025,])
+  efs[,2025, "SMIPVLLO"] <- complete_magpie(smpvllo[,2025,])
 
   # NA handling in EFs ====================================================================
   # The goal is to fill every EF with something, at least zero
@@ -212,19 +273,20 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # SMOOTHING ==========================================================
   # ====================================================================
-  # Smoothing the phase-in from historical by assuming
-  # 2025=2030, it appears that 2025 was a transition year in the original.
-  allyears <- getYears(efs, as.integer = T)
-  efs[, 2025, ] <- efs[, 2030, ]
+  # # Smoothing the phase-in from historical by assuming
+  # # 2025=2030, it appears that 2025 was a transition year in the original.
+  # 
+  # efs[, 2025, ] <- efs[, 2030, ]
 
-  # Smooth post-2050 transition, that is often very abrupt
-  sy <- 2050
-  ey <- 2080
-  inyears <- allyears[(allyears > sy & allyears < ey)]
-  efs <- time_interpolate(efs[, inyears, , invert = T], allyears)
+  # # Smooth post-2050 transition, that is often very abrupt
+  # sy <- 2050
+  # ey <- 2080
+  # inyears <- allyears[(allyears > sy & allyears < ey)]
+  # efs <- time_interpolate(efs[, inyears, , invert = T], allyears)
 
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
+  allyears <- getYears(efs, as.integer = T)
   ssle <- collapseDim(efs[, , "SLE"], dim = 3.1)
   smfr <- collapseDim(efs[, , "MFR"], dim = 3.1)
   svle <- mbind(ssle[, allyears[allyears <= 2050], ], smfr[, allyears[allyears == 2100]])
@@ -279,6 +341,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Remove sectors absent in efs
   sspact <- sspact[, , getItems(efs, "sectorGAINS")]
+  
+  # Expand activities to ensure they will match EFs when used as weights
+  # As they might be used as weights, fill with zeroes
+  sspact <- complete_magpie(sspact) 
+  sspact[is.na(sspact)] <- 0
 
   # Extending emissions by applying EFs to activity levels
   # Note that none of those will be the same as the baseline, as the baseline scenario
