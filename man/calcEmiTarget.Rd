@@ -12,7 +12,7 @@ calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
 \item{subtype}{must be one of
 \itemize{
 \item 'Ghgfactor': for GHG factors calculated from the respective database
-\item 'Ghgshare2005': ???
+\item 'Ghgshare2015': ???
 }}
 
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
