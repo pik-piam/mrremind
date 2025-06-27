@@ -12,13 +12,13 @@ calcEmiTargetReference <- function() {
   gwpN2O <- 265
 
   # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-  ghg <- dimSums(ceds[, , c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)",
+  ghg <- dimSums(ceds[, , c("Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
                             "Emi|CO2|Agriculture (Mt CO2/yr)",
                             "Emi|CO2|Waste (Mt CO2/yr)")], dim = 3) +
-    gwpN2O / 1000 * dimSums(ceds[, , c("Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
+    gwpN2O / 1000 * dimSums(ceds[, , c("Emi|N2O|w/o Bunkers|Energy and Industrial Processes (kt N2O/yr)",
                                        "Emi|N2O|Agriculture (kt N2O/yr)",
                                        "Emi|N2O|Waste (kt N2O/yr)")], dim = 3) +
-    gwpCH4 * dimSums(ceds[, , c("Emi|CH4|Energy and Industrial Processes (Mt CH4/yr)",
+    gwpCH4 * dimSums(ceds[, , c("Emi|CH4|w/o Bunkers|Energy and Industrial Processes (Mt CH4/yr)",
                                 "Emi|CH4|Agriculture (Mt CH4/yr)",
                                 "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
 
