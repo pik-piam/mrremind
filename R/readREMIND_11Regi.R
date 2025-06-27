@@ -45,7 +45,6 @@ readREMIND_11Regi <- function(subtype) {
     },
     "uraniumExtractionCoeff" = read.csv("uranium_extraction_cost_eq_coefficients.csv", sep = ";") %>%
       as.magpie(spatial = 1, temporal = 0, datacol = 3),
-    "nashWeight"             =  read.csv("nash_weights.csv", sep = ";")        %>% as.magpie(spatial = 1, datacol = 2),
     stop("Not a valid subtype!")
   )
 }

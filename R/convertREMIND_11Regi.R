@@ -23,9 +23,6 @@ convertREMIND_11Regi <- function(x,subtype) {
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
-  } else if (subtype == "nashWeight") {
-    gdp <- calcOutput("GDP", scenario = "SSP2", years = 2005, aggregate = FALSE)
-    y <- toolAggregate(x,"regionmappingREMIND.csv",weight=gdp)
   } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" |
              subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
