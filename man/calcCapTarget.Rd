@@ -4,7 +4,7 @@
 \alias{calcCapTarget}
 \title{Calculate Capacity Targets}
 \usage{
-calcCapTarget(sources, verbose = TRUE)
+calcCapTarget(sources)
 }
 \arguments{
 \item{sources}{either "NewClimate" or "UNFCCC_NDC+REN21+CHN_NUC"}

@@ -9,38 +9,29 @@
 #' @author Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez, Falk Benke
 #'
 # TODO: switch to sources "NewClimate" and "NewClimate+UNFCCC_NDC"
-calcCapTarget <- function(sources, verbose = TRUE) {
+calcCapTarget <- function(sources) {
 
   if (!sources %in% c("UNFCCC_NDC+REN21+CHN_NUC", "NewClimate")) {
     stop("Unknown 'sources' argument.")
   }
 
-  .read <- function(src, subtype, verbose) {
-    if (verbose) {
-      x <- readSource(src, subtype)
-    } else {
-      x <- suppressMessages(readSource(src, subtype))
-    }
-    return(x)
-  }
-
   if (sources == "NewClimate") {
     listCapacities <- list(
-      "2024_cond"   = .read("NewClimate", subtype = "Capacity_2025_cond", verbose = verbose),
-      "2024_uncond" = .read("NewClimate", subtype = "Capacity_2025_uncond", verbose = verbose)
+      "2024_cond"   = readSource("NewClimate", subtype = "Capacity_2025_cond"),
+      "2024_uncond" = readSource("NewClimate", subtype = "Capacity_2025_uncond")
     )
   } else {
     listCapacities <- list(
-      "2018_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2018_cond", verbose = verbose),
-      "2018_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2018_uncond", verbose = verbose),
-      "2021_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2021_cond", verbose = verbose),
-      "2021_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2021_uncond", verbose = verbose),
-      "2022_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2022_cond", verbose = verbose),
-      "2022_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2022_uncond", verbose = verbose),
-      "2023_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2023_cond", verbose = verbose),
-      "2023_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2023_uncond", verbose = verbose),
-      "2024_cond"   = .read("UNFCCC_NDC", subtype = "Capacity_2024_cond", verbose = verbose),
-      "2024_uncond" = .read("UNFCCC_NDC", subtype = "Capacity_2024_uncond", verbose = verbose)
+      "2018_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2018_cond"),
+      "2018_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2018_uncond"),
+      "2021_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2021_cond"),
+      "2021_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2021_uncond"),
+      "2022_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2022_cond"),
+      "2022_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2022_uncond"),
+      "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2023_cond"),
+      "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2023_uncond"),
+      "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Capacity_2024_cond"),
+      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Capacity_2024_uncond")
     )
   }
 
