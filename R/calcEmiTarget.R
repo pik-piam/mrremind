@@ -5,7 +5,7 @@
 #' @param sources database source, either 'UNFCCC_NDC' or 'NewClimate'
 #' @param subtype must be one of
 #' - 'Ghgfactor': for GHG factors calculated from the respective database
-#' - 'Ghgshare2005': ???
+#' - 'Ghgshare2015': ???
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' turned off for inpudata generation
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
@@ -16,7 +16,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     stop("Unknown source ", sources, " for calcEmiTarget.")
   }
 
-  if (!subtype %in% c("Ghgshare2005", "Ghgfactor")) {
+  if (!subtype %in% c("Ghgshare2015", "Ghgfactor")) {
     stop("Unknown 'subtype' argument")
   }
 
@@ -58,7 +58,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   ghgFactor <- mbind(ghgFactor)
   ghgFactor <- ghgFactor[, sort(getYears(ghgFactor)), ]
 
-  # GHG factors weighted by GHG in 2005
+  # GHG factors weighted by GHG in 2015
   if (subtype == "Ghgfactor") {
 
     x <- ghgFactor
@@ -69,13 +69,13 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     mask <- 1 * !is.na(ghgFactor)
 
     # GHG emission as weight, but only for countries and years with a GHG factor
-    weight <- setNames(setYears(ghg[, 2005, ], NULL), NULL) * mask
+    weight <- setNames(setYears(ghg[, 2015, ], NULL), NULL) * mask
 
     return(list(
       x = x,
       weight = weight,
       unit = "1",
-      description = glue::glue("Multiplier for target year emissions vs 2005 emissions, \\
+      description = glue::glue("Multiplier for target year emissions vs 2015 emissions, \\
                 as weighted average for all countries with NDC target in each region per target year."),
       # TODO: this might have to be adjusted once the new bounds are set
       min = -5, max = 4,
@@ -84,8 +84,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     ))
   }
 
-  # TODO: update to 2015 or even 2020
-  if (subtype == "Ghgshare2005") {
+  if (subtype == "Ghgshare2015") {
 
     # 0/1 matrix with 1s indicating countries with target represented as GHG factor
     x <- 1 * (!is.na(ghgFactor))
@@ -96,13 +95,13 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     # assuming constant relative emission intensities across countries of one region
     weight <- ghgFactor
     weight[, , ] <- NA
-    weight[, , ] <- setYears(ghg[, 2005, ] / gdp[, 2005, ], NULL) * gdp[, getYears(weight), ]
+    weight[, , ] <- setYears(ghg[, 2015, ] / gdp[, 2015, ], NULL) * gdp[, getYears(weight), ]
 
     return(list(
       x = x,
       weight = weight,
       unit = "1",
-      description = glue::glue("2005 GHG emission share of countries with \\
+      description = glue::glue("2015 GHG emission share of countries with \\
                 quantifyable emissions under NDC in particular region per target year"),
       min = 0, max = 1
     ))
