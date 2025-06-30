@@ -27,7 +27,8 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         stop("Only emission and activities are available for the historical baseline")
       }
       # Reading baseline scenario activities and emissions
-      inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
+      # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
+      inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))      
 
       # Drop scenario dimension as we only have the baseline in the file
       inbaseactemi <- inbaseactemi[, -1]
@@ -35,7 +36,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         inbaseactemi, 5:length(names(inbaseactemi)),
         names_prefix = "X", names_to = "year"
       )
-      head(longbaseactemi)
+      
       names(longbaseactemi) <- c("region", "sectorGAINS", "species", "vartype", "year", "value")
       baseactemi <- as.magpie(longbaseactemi, spatial = "region", temporal = "year")
 
