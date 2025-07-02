@@ -128,8 +128,8 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     return(ghgTarget)
   }
 
-  # countries with known target/2005 ratios bigger than 2.5 or less than 0
-  # TODO: adjust once we switch to 2015
+  # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
+  # between target year and 2015 multiplied by factor 0.1
   knownHigh <- list("IND" = c(2030))
   knownLow <- list("GAB" = c(2050))
 
