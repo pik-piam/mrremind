@@ -48,7 +48,6 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         )
       } else {
         # Reading baseline scenario activities and emissions
-        # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
         inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))
 
         # Drop scenario dimension as we only have the baseline in the file
@@ -69,7 +68,6 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading scenario emission factors. Here there is also a SSP dimension
-      # inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-03-25.csv"))
       inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-06-24.csv"))
 
       # Convert to long format

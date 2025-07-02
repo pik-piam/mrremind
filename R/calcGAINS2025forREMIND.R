@@ -152,8 +152,6 @@ calcGAINS2025forREMIND <- function(subtype) {
     # ==============================================================================================================
     out <- mbind(outold, outnew)
     wgt <- mbind(wgtold, wgtnew)
-    # str(out)
-    # str(wgt)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emissions_exo_waste") {

@@ -281,17 +281,6 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # SMOOTHING ==========================================================
   # ====================================================================
-  # # Smoothing the phase-in from historical by assuming
-  # # 2025=2030, it appears that 2025 was a transition year in the original.
-  #
-  # efs[, 2025, ] <- efs[, 2030, ]
-
-  # # Smooth post-2050 transition, that is often very abrupt
-  # sy <- 2050
-  # ey <- 2080
-  # inyears <- allyears[(allyears > sy & allyears < ey)]
-  # efs <- time_interpolate(efs[, inyears, , invert = T], allyears)
-
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
   allyears <- getYears(efs, as.integer = T)
@@ -430,7 +419,6 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
       out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
       wgt <- mbind(lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(outsspact, dimCode("scenario", outsspefs), "scenario", x)))
-      # wgt <- outsspact
       unit <- "Tg/TWa"
     }
   } else {
