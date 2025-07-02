@@ -4,7 +4,7 @@
 \alias{calcEmiTarget}
 \title{Calculate Emission Targets}
 \usage{
-calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
+calcEmiTarget(sources, subtype, scenario)
 }
 \arguments{
 \item{sources}{database source, either 'UNFCCC_NDC' or 'NewClimate'}
@@ -15,9 +15,7 @@ calcEmiTarget(sources, subtype, scenario, verbose = TRUE)
 \item 'Ghgshare2005': ???
 }}
 
-\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
-
-\item{verbose}{set to TRUE for additional info on processing of NDC target,
+\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.
 turned off for inpudata generation}
 }
 \description{
