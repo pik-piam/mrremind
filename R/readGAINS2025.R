@@ -9,7 +9,7 @@
 #' a Govenrnmment Capacity Index (GCI) used for deriving some scenario
 #' extensions.
 #' @author Gabriel Abrahao
-#' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param subtype "emifacs", "emissions","activities", "GCI"
 #'
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na
@@ -28,7 +28,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
       }
       # Reading baseline scenario activities and emissions
       # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
-      inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))      
+      inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))
 
       # Drop scenario dimension as we only have the baseline in the file
       inbaseactemi <- inbaseactemi[, -1]
@@ -36,20 +36,20 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         inbaseactemi, 5:length(names(inbaseactemi)),
         names_prefix = "X", names_to = "year"
       )
-      
+
       names(longbaseactemi) <- c("region", "sectorGAINS", "species", "vartype", "year", "value")
       baseactemi <- as.magpie(longbaseactemi, spatial = "region", temporal = "year")
 
       out <- collapseDim(baseactemi[, , subtypecode], "vartype")
       comment(out) <- paste0("GAINS2025 ", subtype, " for scenario ", scenario, " at aggregation level ", agglevel)
-    } else if (!(scenario %in% c("baseline","scenariomip"))) {
+    } else if (!(scenario %in% c("baseline", "scenariomip"))) {
       if (subtype != "emifacs") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading scenario emission factors. Here there is also a SSP dimension
       # inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-03-25.csv"))
       inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-06-24.csv"))
-      
+
       # Convert to long format
       longefs <- pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
 
@@ -66,7 +66,16 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading emission factors for the ScenarioMIP combinations
-      inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-06-24.csv"))
+      # GA: This if condition is temporary, until we get a file for the detailed aggregation level
+      # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
+      # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
+      if (agglevel == "det") {
+        inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-06-24.csv"))
+      } else {
+        inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_FINAL_2025-07-01.csv"))
+        inefs <- inefs[!grepl("^[ ]*$",inefs$EMF30_AGG),] # Version FINAL_2025-07-01 has a " " sector
+      }
+
 
       # Convert to long format
       longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
