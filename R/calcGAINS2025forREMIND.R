@@ -6,7 +6,8 @@
 #'
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
-#' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param subtype "emission_factors", "emissions","emission_factors_remindsectors",
+#' "emissions_starting_values" (not implemented)
 #'
 #' @importFrom abind abind
 #' @importFrom utils head tail
