@@ -24,7 +24,28 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
   if (subtype %in% c("emifacs", "emissions", "activities")) {
     if (scenario == "baseline") {
       if (subtype == "emifacs") {
-        stop("Only emission and activities are available for the historical baseline")
+        # Reading emission factors for the ScenarioMIP combinations
+        # GA: This if condition is temporary, until we get a file for the detailed aggregation level
+        # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
+        # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
+        if (agglevel == "det") {
+          inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_final_2025-06-24.csv"))
+        } else {
+          inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_FINAL-2025-07-01.csv"))
+          inefs <- inefs[!grepl("^[ ]*$", inefs$EMF30_AGG), ] # Version FINAL_2025-07-01 has a " " sector
+        }
+
+
+        # Convert to long format
+        longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
+        longefs <- longefs[, -1]
+
+        names(longefs) <- c("ssp", "scenario", "region", "sectorGAINS", "species", "year", "value")
+
+        out <- as.magpie(longefs, spatial = "region", temporal = "year")
+        comment(out) <- paste0(
+          "GAINS2025 emission factors for ScenarioMIP scenarios and selected SSPs at aggregation level ", agglevel
+        )
       }
       # Reading baseline scenario activities and emissions
       # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
@@ -73,7 +94,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-06-24.csv"))
       } else {
         inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_FINAL_2025-07-01.csv"))
-        inefs <- inefs[!grepl("^[ ]*$",inefs$EMF30_AGG),] # Version FINAL_2025-07-01 has a " " sector
+        inefs <- inefs[!grepl("^[ ]*$", inefs$EMF30_AGG), ] # Version FINAL_2025-07-01 has a " " sector
       }
 
 
