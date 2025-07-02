@@ -10,6 +10,7 @@
 #' extensions.
 #' @author Gabriel Abrahao
 #' @param subtype "emifacs", "emissions","activities", "GCI"
+#' @param subset scenario and aggregation level ("agg" or "det"), separated by a dot
 #'
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na

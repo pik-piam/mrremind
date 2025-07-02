@@ -13,6 +13,7 @@
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param agglevel "agg" or "det", sectoral aggregation level
 #'
 #' @importFrom magclass as.magpie
 #' @importFrom tidyr pivot_longer drop_na
