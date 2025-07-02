@@ -7,6 +7,9 @@ using EDGAR HFC emissions in 2005 as weights}
 \usage{
 convertIMAGE2025(x)
 }
+\arguments{
+\item{x}{magpie object}
+}
 \value{
 magpie object
 }
