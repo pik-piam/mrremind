@@ -46,23 +46,24 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         comment(out) <- paste0(
           "GAINS2025 emission factors for ScenarioMIP scenarios and selected SSPs at aggregation level ", agglevel
         )
+      } else {
+        # Reading baseline scenario activities and emissions
+        # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
+        inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))
+
+        # Drop scenario dimension as we only have the baseline in the file
+        inbaseactemi <- inbaseactemi[, -1]
+        longbaseactemi <- pivot_longer(
+          inbaseactemi, 5:length(names(inbaseactemi)),
+          names_prefix = "X", names_to = "year"
+        )
+
+        names(longbaseactemi) <- c("region", "sectorGAINS", "species", "vartype", "year", "value")
+        baseactemi <- as.magpie(longbaseactemi, spatial = "region", temporal = "year")
+
+        out <- collapseDim(baseactemi[, , subtypecode], "vartype")
+        comment(out) <- paste0("GAINS2025 ", subtype, " for scenario ", scenario, " at aggregation level ", agglevel)
       }
-      # Reading baseline scenario activities and emissions
-      # inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-03-25.csv"))
-      inbaseactemi <- read.csv(paste0("IMAGE_emf_", agglevel, "_activity_emission_2025-06-30.csv"))
-
-      # Drop scenario dimension as we only have the baseline in the file
-      inbaseactemi <- inbaseactemi[, -1]
-      longbaseactemi <- pivot_longer(
-        inbaseactemi, 5:length(names(inbaseactemi)),
-        names_prefix = "X", names_to = "year"
-      )
-
-      names(longbaseactemi) <- c("region", "sectorGAINS", "species", "vartype", "year", "value")
-      baseactemi <- as.magpie(longbaseactemi, spatial = "region", temporal = "year")
-
-      out <- collapseDim(baseactemi[, , subtypecode], "vartype")
-      comment(out) <- paste0("GAINS2025 ", subtype, " for scenario ", scenario, " at aggregation level ", agglevel)
     } else if (!(scenario %in% c("baseline", "scenariomip"))) {
       if (subtype != "emifacs") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
