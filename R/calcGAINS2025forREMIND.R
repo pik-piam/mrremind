@@ -6,7 +6,8 @@
 #'
 #' @return Activity levels, emissions or emission factors
 #' @author Gabriel Abrahao
-#' @param subtype "emission_factors", "emissions","emissions_starting_values"
+#' @param subtype "emission_factors", "emissions","emission_factors_remindsectors",
+#' "emissions_starting_values" (not implemented)
 #'
 #' @importFrom abind abind
 #' @importFrom utils head tail
@@ -105,7 +106,10 @@ calcGAINS2025forREMIND <- function(subtype) {
 
     # Aggregate to REMIND sectors
     filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
-    outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
+    # outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
+    # Here, zeroWeight = "allow" is allowing cases where there might be EFs, but all emissions are zero. In
+    # that case, that puts zero in the resulting EF.
+    outnew <- toolAggregate(innew, filtsecmap, weight = wgtnew, from = "gains", to = "remind", dim = "sector", zeroWeight = "allow")
     wgtnew <- toolAggregate(wgtnew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
 
     # Use abind to split the dimensions of specific technologies into subsectors
@@ -152,8 +156,6 @@ calcGAINS2025forREMIND <- function(subtype) {
     # ==============================================================================================================
     out <- mbind(outold, outnew)
     wgt <- mbind(wgtold, wgtnew)
-    # str(out)
-    # str(wgt)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emissions_exo_waste") {
@@ -168,10 +170,4 @@ calcGAINS2025forREMIND <- function(subtype) {
     unit = unit,
     description = desc
   ))
-  #     calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
-  #   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
-  #   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  #   calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
 }

@@ -3,6 +3,9 @@
 #'
 #' @return magpie object
 #' @author Gabriel Abrahao
+#' 
+#' @param x magpie object
+
 convertIMAGE2025 <- function(x) {
   w <- readSource("EDGAR", subtype = "HFC")
   w[is.na(w)] <- 0
