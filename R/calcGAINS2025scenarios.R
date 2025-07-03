@@ -182,7 +182,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
         dumfill, getItems(magscen, "ssp"), "ssp", 3.1
       ), getItems(magscen, "scenario"), "scenario", 3.1
     )
-    dumfill <- mbind(lapply(getYears(magscen), \(yr) setYears(dumfill[,useyear,], yr)))
+    dumfill <- mbind(lapply(getYears(magscen), \(yr) setYears(dumfill[, useyear, ], yr)))
     magscen <- mbind(magscen, dumfill)
     return(magscen)
   }
@@ -318,7 +318,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Reference GDP relative change between 2025 and 2050
   refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
 
-  # Estimate elasticities of the GDP-activities relationship. 
+  # Estimate elasticities of the GDP-activities relationship.
   # Surpress warnings as all generated NaNs were checked and handled below
   estela <- suppressWarnings(collapseDim(log(refract) / log(refrgdp)))
   # Cap elasticies to avoid extreme values
@@ -426,7 +426,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
       outsspefs <- padMissingSectors(outsspefs, seclist)
 
       out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
-      wgt <- mbind(lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(outsspact, dimCode("scenario", outsspefs), "scenario", x)))
+      wgt <- mbind(
+        lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(
+          outsspact, dimCode("scenario", outsspefs), "scenario", x
+        ))
+      )
       unit <- "Tg/TWa"
     }
   } else {
