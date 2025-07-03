@@ -15,9 +15,6 @@
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
 #' @param agglevel "agg" or "det", sectoral aggregation level
 #'
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
-#' @importFrom zoo na.approx
 calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # Mappings, auxiliary files and definitions ==========================
@@ -108,7 +105,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     dropSectors <- function(mag) {
       dsecs <- c("Unattributed")
       if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
-        mag <- mag[, , dsecs, invert = T]
+        mag <- mag[, , dsecs, invert = TRUE]
       }
       return(mag)
     }
@@ -233,6 +230,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   smpvllo <- padAbsentSectors(smpvllo, incle)
 
   # Concatenating scenarios ==============================================================
+
   # The ScenarioMIP ones actually have valid 2025 data, so we remove it here and
   # add it later, overriding the interpolation filling step for those scenarios
   efs <- mbind(
@@ -253,7 +251,6 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # histefs <- collapseDim(incle[, setdiff(getYears(incle), getYears(efs)), "historical"])
   histefs <- mbind(lapply(allssps, \(ssp) add_dimension(histefs, 3.1, add = "ssp", nm = ssp)))
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
-  # histefs <- histefs[, , c("Unattributed"), invert = T]
 
   # Blow up dimensions, see above
   histefs <- complete_magpie(histefs)
@@ -303,7 +300,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Reading GDP data from madrat for all SSPs and aggregating to
   # GAINS regions.
-  gdp <- calcOutput("GDP", scenario = allssps, aggregate = F)
+  gdp <- calcOutput("GDP", scenario = allssps, aggregate = FALSE)
   gdpgains <- toolAggregate(
     gdp, regmap,
     from = "CountryCode", to = "gainscode",
@@ -316,6 +313,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
 
   # Estimate elasticities of the GDP-activities relationship
+  # TODO: how to handle NaN warning?
   estela <- collapseDim(log(refract) / log(refrgdp))
   # Cap elasticies to avoid extreme values
   estela[estela > 1] <- 1
@@ -362,7 +360,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Use CEDS 2020 emissions as disaggregation weights for emissions
   # and activities
-  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = F)
+  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = FALSE)
   inceds <- fixPolNames(inceds)
 
   # Function to pad the magpie object with missing sectors present in seclist
@@ -395,6 +393,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
     # Activities: Weighted by CEDS2020 Emissions in disaggregation,
     # no weights for aggregation (sum)
+    sspact[sspact < 0] <- 0
     csspact <- toolAggregate(
       sspact, regmap,
       from = "gainscode", to = "CountryCode",
