@@ -24,3 +24,6 @@ legacy and 2025 variants of GAINS data. This generates the actual
 files needed for REMIND in the proper format, for the scenario logic,
 see \code{GAINS2025scenarios}.
 }
+\author{
+Gabriel Abrahão
+}

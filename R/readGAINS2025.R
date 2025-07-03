@@ -6,7 +6,7 @@
 #' the results
 #'
 #' @return Activity levels, emissions or emission factors. Alternatively,
-#' a Govenrnment Capacity Index (GCI) used for deriving some scenario
+#' a Government Capacity Index (GCI) used for deriving some scenario
 #' extensions.
 #' @author Gabriel Abrahao
 #' @param subtype "emifacs", "emissions","activities", "GCI"

@@ -4,6 +4,7 @@
 #' files needed for REMIND in the proper format, for the scenario logic,
 #' see `GAINS2025scenarios`.
 #'
+#' @author Gabriel Abrahão
 #' @return Activity levels, emissions or emission factors
 #' @param subtype "emission_factors", "emissions","emission_factors_remindsectors",
 #' "emissions_starting_values" (not implemented)
@@ -56,7 +57,6 @@ calcGAINS2025forREMIND <- function(subtype) {
     out <- bindNewOld(innew, inold)
 
     # Weights, GAINS2025 uses activities that are per SSP but not per scenario, pad the dimensions
-    # TODO: address warnings negative weights and zero weight sum
     wgt <- bindNewOld(linnew$weight, linold$weight)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
