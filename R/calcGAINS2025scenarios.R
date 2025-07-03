@@ -70,9 +70,9 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", agglevel))
 
   # GAINS scenarios
-  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", agglevel))
-  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", agglevel))
-  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", agglevel))
+  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", agglevel))
+  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", agglevel))
+  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", agglevel))
   # Using scenario names closer to the usual IIASA ones
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
@@ -88,9 +88,9 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     det_baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", "det"))
     det_baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", "det"))
     det_baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", "det"))
-    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", "det"))
-    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", "det"))
-    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", "det"))
+    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", "det"))
+    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", "det"))
+    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", "det"))
     getItems(det_incle, "scenario") <- "CLE"
     getItems(det_inmid, "scenario") <- "SLE"
     getItems(det_inmfr, "scenario") <- "MFR"
@@ -108,7 +108,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     dropSectors <- function(mag) {
       dsecs <- c("Unattributed")
       if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
-        mag <- mag[, , dsecs, invert = T]
+        mag <- mag[, , dsecs, invert = TRUE]
       }
       return(mag)
     }
@@ -167,10 +167,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Some sectors are only present in the historical data, having NAs in the
   # period in incle[,,"historical"] but simply being missing in inmfr and insle
-  # Here we bind that future period with NAs to the scenario, so that concatenation
+  # Here we bind that future period with NAs to the scenario (taking 2030 as
+  # reference), so that concatenation
   # between scenarios works and we can actually fill that data if needed after
   # the historical period is also concatenated.
-  padAbsentSectors <- function(magscen, incle) {
+  padAbsentSectors <- function(magscen, incle, useyear = 2030) {
     abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(magscen, "sectorGAINS"))
     if (length(abssectors) == 0) {
       return(magscen)
@@ -181,7 +182,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
         dumfill, getItems(magscen, "ssp"), "ssp", 3.1
       ), getItems(magscen, "scenario"), "scenario", 3.1
     )
-
+    dumfill <- mbind(lapply(getYears(magscen), \(yr) setYears(dumfill[, useyear, ], yr)))
     magscen <- mbind(magscen, dumfill)
     return(magscen)
   }
@@ -211,8 +212,10 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   dum1 <- setItems(insmp[, , "SSP1.Medium"], "scenario", "SMIPbySSP")
   dum2 <- setItems(insmp[, , "SSP2.Medium"], "scenario", "SMIPbySSP")
   dum3 <- setItems(insmp[, , "SSP3.Medium"], "scenario", "SMIPbySSP")
-  dum4 <- setItems(insmp[, , "SSP4.Low Overshoot"], "scenario", "SMIPbySSP")
+  # dum4 <- setItems(insmp[, , "SSP4.Low Overshoot"], "scenario", "SMIPbySSP")
   dum5 <- setItems(insmp[, , "SSP5.High"], "scenario", "SMIPbySSP")
+  # GA: Final data does not have SSP4, copying it from SSP3
+  dum4 <- setItems(setItems(insmp[, , "SSP3.Medium"], "scenario", "SMIPbySSP"), "ssp", "SSP4")
 
   smpbyssp <- mbind(dum1, dum2, dum3, dum4, dum5)
   smpbyssp <- dimOrder(smpbyssp, perm = c(2, 1, 3, 4))
@@ -237,23 +240,19 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # add it later, overriding the interpolation filling step for those scenarios
   efs <- mbind(
     cle, mfr, sle,
-    smpbyssp[, 2025, , invert = T],
-    smpvllo[, 2025, , invert = T]
+    smpbyssp[, 2025, , invert = TRUE],
+    smpvllo[, 2025, , invert = TRUE]
   )
 
   # Blow up dimension combinations to ensure it can be concatenated with historical
   # In particular, some sector-pollutant combinations are not present in all scenarios
   efs <- complete_magpie(efs)
 
-  # Dropping odd sectors in the files that have no data
-  # efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
-
   # Concatenating historical EFs to all scenarios ========================================
   histefs <- collapseDim(baseefs)
   # histefs <- collapseDim(incle[, setdiff(getYears(incle), getYears(efs)), "historical"])
   histefs <- mbind(lapply(allssps, \(ssp) add_dimension(histefs, 3.1, add = "ssp", nm = ssp)))
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
-  # histefs <- histefs[, , c("Unattributed"), invert = T]
 
   # Blow up dimensions, see above
   histefs <- complete_magpie(histefs)
@@ -261,7 +260,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # 2025 tends to have no data in either historical or scenarios, so interpolate
   # between 2020 (historical) and 2030 (scenario)
   efs <- mbind(histefs, efs)
-  gyears <- getYears(efs, as.integer = T)
+  gyears <- getYears(efs, as.integer = TRUE)
   gyears <- c(gyears[gyears <= 2020], 2025, gyears[gyears >= 2030]) # In case 2025 is absent
   efs <- efs[, 2025, , invert = T] # In case 2025 is present
   efs <- toolFillYears(efs, gyears)
@@ -280,11 +279,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   efs[is.na(efs)] <- 0
 
   # ====================================================================
-  # SMOOTHING ==========================================================
+  # SMOOTHING AND DERIVED SCENARIOS ====================================
   # ====================================================================
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
-  allyears <- getYears(efs, as.integer = T)
+  allyears <- getYears(efs, as.integer = TRUE)
   ssle <- collapseDim(efs[, , "SLE"], dim = 3.1)
   smfr <- collapseDim(efs[, , "MFR"], dim = 3.1)
   svle <- mbind(ssle[, allyears[allyears <= 2050], ], smfr[, allyears[allyears == 2100]])
@@ -315,11 +314,15 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Reference GDP relative change between 2025 and 2050
   refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
 
-  # Estimate elasticities of the GDP-activities relationship
-  estela <- collapseDim(log(refract) / log(refrgdp))
+  # Estimate elasticities of the GDP-activities relationship.
+  # Surpress warnings as all generated NaNs were checked and handled below
+  estela <- suppressWarnings(collapseDim(log(refract) / log(refrgdp)))
   # Cap elasticies to avoid extreme values
   estela[estela > 1] <- 1
   estela[estela < -1] <- -1
+  # NaNs all come from weird NaN or negative activities, assume zero elasticity in these cases
+  estela[is.na(estela)] <- 0
+  estela[is.nan(estela)] <- 0
 
   # Future GDP relative change between 2050 and 2100
   futrgdp <- setYears(gdpgains[, 2100, ], NULL) / setYears(gdpgains[, 2050, ], NULL)
@@ -419,7 +422,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
       outsspefs <- padMissingSectors(outsspefs, seclist)
 
       out <- outsspefs * conv_kt_per_PJ_to_Tg_per_TWa
-      wgt <- mbind(lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(outsspact, dimCode("scenario", outsspefs), "scenario", x)))
+      wgt <- mbind(
+        lapply(getItems(outsspefs, "scenario"), \(x) add_dimension(
+          outsspact, dimCode("scenario", outsspefs), "scenario", x
+        ))
+      )
       unit <- "Tg/TWa"
     }
   } else {
