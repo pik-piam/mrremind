@@ -167,10 +167,11 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Some sectors are only present in the historical data, having NAs in the
   # period in incle[,,"historical"] but simply being missing in inmfr and insle
-  # Here we bind that future period with NAs to the scenario, so that concatenation
+  # Here we bind that future period with NAs to the scenario (taking 2030 as
+  # reference), so that concatenation
   # between scenarios works and we can actually fill that data if needed after
   # the historical period is also concatenated.
-  padAbsentSectors <- function(magscen, incle) {
+  padAbsentSectors <- function(magscen, incle, useyear = 2030) {
     abssectors <- setdiff(getItems(incle[, , "historical"], "sectorGAINS"), getItems(magscen, "sectorGAINS"))
     if (length(abssectors) == 0) {
       return(magscen)
@@ -181,7 +182,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
         dumfill, getItems(magscen, "ssp"), "ssp", 3.1
       ), getItems(magscen, "scenario"), "scenario", 3.1
     )
-
+    dumfill <- mbind(lapply(getYears(magscen), \(yr) setYears(dumfill[,useyear,], yr)))
     magscen <- mbind(magscen, dumfill)
     return(magscen)
   }
@@ -282,7 +283,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   efs[is.na(efs)] <- 0
 
   # ====================================================================
-  # SMOOTHING ==========================================================
+  # SMOOTHING AND DERIVED SCENARIOS ====================================
   # ====================================================================
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
@@ -317,11 +318,15 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Reference GDP relative change between 2025 and 2050
   refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
 
-  # Estimate elasticities of the GDP-activities relationship
-  estela <- collapseDim(log(refract) / log(refrgdp))
+  # Estimate elasticities of the GDP-activities relationship. 
+  # Surpress warnings as all generated NaNs were checked and handled below
+  estela <- suppressWarnings(collapseDim(log(refract) / log(refrgdp)))
   # Cap elasticies to avoid extreme values
   estela[estela > 1] <- 1
   estela[estela < -1] <- -1
+  # NaNs all come from weird NaN or negative activities, assume zero elasticity in these cases
+  estela[is.na(estela)] <- 0
+  estela[is.nan(estela)] <- 0
 
   # Future GDP relative change between 2050 and 2100
   futrgdp <- setYears(gdpgains[, 2100, ], NULL) / setYears(gdpgains[, 2050, ], NULL)
