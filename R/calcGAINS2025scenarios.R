@@ -70,9 +70,9 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", agglevel))
 
   # GAINS scenarios
-  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", agglevel))
-  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", agglevel))
-  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", agglevel))
+  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", agglevel))
+  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", agglevel))
+  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", agglevel))
   # Using scenario names closer to the usual IIASA ones
   getItems(incle, "scenario") <- "CLE"
   getItems(inmid, "scenario") <- "SLE"
