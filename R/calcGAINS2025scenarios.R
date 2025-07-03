@@ -108,7 +108,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     dropSectors <- function(mag) {
       dsecs <- c("Unattributed")
       if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
-        mag <- mag[, , dsecs, invert = T]
+        mag <- mag[, , dsecs, invert = TRUE]
       }
       return(mag)
     }
@@ -240,23 +240,19 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # add it later, overriding the interpolation filling step for those scenarios
   efs <- mbind(
     cle, mfr, sle,
-    smpbyssp[, 2025, , invert = T],
-    smpvllo[, 2025, , invert = T]
+    smpbyssp[, 2025, , invert = TRUE],
+    smpvllo[, 2025, , invert = TRUE]
   )
 
   # Blow up dimension combinations to ensure it can be concatenated with historical
   # In particular, some sector-pollutant combinations are not present in all scenarios
   efs <- complete_magpie(efs)
 
-  # Dropping odd sectors in the files that have no data
-  # efs <- efs[, , c(" ", "Power_Gen_HLF_CCS", "Unattributed"), invert = T]
-
   # Concatenating historical EFs to all scenarios ========================================
   histefs <- collapseDim(baseefs)
   # histefs <- collapseDim(incle[, setdiff(getYears(incle), getYears(efs)), "historical"])
   histefs <- mbind(lapply(allssps, \(ssp) add_dimension(histefs, 3.1, add = "ssp", nm = ssp)))
   histefs <- mbind(lapply(getItems(efs, "scenario"), \(scen) add_dimension(histefs, 3.1, add = "scenario", nm = scen)))
-  # histefs <- histefs[, , c("Unattributed"), invert = T]
 
   # Blow up dimensions, see above
   histefs <- complete_magpie(histefs)
@@ -264,7 +260,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # 2025 tends to have no data in either historical or scenarios, so interpolate
   # between 2020 (historical) and 2030 (scenario)
   efs <- mbind(histefs, efs)
-  gyears <- getYears(efs, as.integer = T)
+  gyears <- getYears(efs, as.integer = TRUE)
   gyears <- c(gyears[gyears <= 2020], 2025, gyears[gyears >= 2030]) # In case 2025 is absent
   efs <- efs[, 2025, , invert = T] # In case 2025 is present
   efs <- toolFillYears(efs, gyears)
@@ -287,7 +283,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # VLE (Very strong LEgislation) scenario
   # SLE until 2050, then converges towards MFR in 2100
-  allyears <- getYears(efs, as.integer = T)
+  allyears <- getYears(efs, as.integer = TRUE)
   ssle <- collapseDim(efs[, , "SLE"], dim = 3.1)
   smfr <- collapseDim(efs[, , "MFR"], dim = 3.1)
   svle <- mbind(ssle[, allyears[allyears <= 2050], ], smfr[, allyears[allyears == 2100]])
