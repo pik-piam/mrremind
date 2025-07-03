@@ -29,13 +29,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         # GA: This if condition is temporary, until we get a file for the detailed aggregation level
         # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
         # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
-        if (agglevel == "det") {
-          inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_final_2025-07-02.csv"))
-        } else {
-          inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_FINAL-2025-07-01.csv"))
-          inefs <- inefs[!grepl("^[ ]*$", inefs$EMF30_AGG), ] # Version FINAL_2025-07-01 has a " " sector
-        }
-
+        inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_final_2025-07-02.csv"))
 
         # Convert to long format
         longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
