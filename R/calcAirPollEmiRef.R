@@ -1,16 +1,16 @@
 #' Calculate air pollutant emissions for a reference year, for use
 #' in combination with GAINS data at different sectoral aggregations
 #'
-#'
-#' @param outunits Units of the output, either "Mt/yr" or "kt/yr". Default is "Mt/yr"
-#' @param namesformat Format of the output pollutant names, either
-#' "GAINS2025" (default, for original GAINS names), "REMIND" (for REMIND internal names)
-#' or "REMINDexo" (for names as used in REMIND's calcEXOGAINS.R)
+#' @param subtype just "total" is supported
 #' @param baseyear year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions
+#' @param outunits "Mt/yr" or "kt/yr"
+#' @param namesformat "GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names
 #' @return magclass object
 #' @author Gabriel Abrahao
-#'
-calcAirPollEmiRef <- function(baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
+#' @importFrom magclass getNames<- getYears<-
+
+calcAirPollEmiRef <- function(
+    subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
 
   # Mapping from GAINS to CEDS2025 pollutant names
   polnamesmap <- c(

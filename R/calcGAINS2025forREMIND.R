@@ -5,8 +5,8 @@
 #' see `GAINS2025scenarios`.
 #'
 #' @return Activity levels, emissions or emission factors
-#' @author Gabriel Abrahao
-#' @param subtype Either "emissions", "emission_factors", or "emission_factors_remindsectors"
+#' @param subtype "emission_factors", "emissions","emission_factors_remindsectors",
+#' "emissions_starting_values" (not implemented)
 #'
 calcGAINS2025forREMIND <- function(subtype) {
 
@@ -102,7 +102,10 @@ calcGAINS2025forREMIND <- function(subtype) {
 
     # Aggregate to REMIND sectors
     filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
-    outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
+    # outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
+    # Here, zeroWeight = "allow" is allowing cases where there might be EFs, but all emissions are zero. In
+    # that case, that puts zero in the resulting EF.
+    outnew <- toolAggregate(innew, filtsecmap, weight = wgtnew, from = "gains", to = "remind", dim = "sector", zeroWeight = "allow")
     wgtnew <- toolAggregate(wgtnew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
 
     # Use abind to split the dimensions of specific technologies into subsectors

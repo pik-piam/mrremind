@@ -11,7 +11,8 @@ see \code{GAINS2025scenarios}.}
 calcGAINS2025forREMIND(subtype)
 }
 \arguments{
-\item{subtype}{Either "emissions", "emission_factors", or "emission_factors_remindsectors"}
+\item{subtype}{"emission_factors", "emissions","emission_factors_remindsectors",
+"emissions_starting_values" (not implemented)}
 }
 \value{
 Activity levels, emissions or emission factors
@@ -22,7 +23,4 @@ for all scenarios and SSPs available from GAINS, including both
 legacy and 2025 variants of GAINS data. This generates the actual
 files needed for REMIND in the proper format, for the scenario logic,
 see \code{GAINS2025scenarios}.
-}
-\author{
-Gabriel Abrahao
 }
