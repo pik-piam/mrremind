@@ -88,9 +88,9 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
     det_baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", "det"))
     det_baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", "det"))
     det_baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", "det"))
-    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("CLE.", "det"))
-    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("SLE.", "det"))
-    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("MTFR.", "det"))
+    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", "det"))
+    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", "det"))
+    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", "det"))
     getItems(det_incle, "scenario") <- "CLE"
     getItems(det_inmid, "scenario") <- "SLE"
     getItems(det_inmfr, "scenario") <- "MFR"
@@ -211,8 +211,10 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   dum1 <- setItems(insmp[, , "SSP1.Medium"], "scenario", "SMIPbySSP")
   dum2 <- setItems(insmp[, , "SSP2.Medium"], "scenario", "SMIPbySSP")
   dum3 <- setItems(insmp[, , "SSP3.Medium"], "scenario", "SMIPbySSP")
-  dum4 <- setItems(insmp[, , "SSP4.Low Overshoot"], "scenario", "SMIPbySSP")
+  # dum4 <- setItems(insmp[, , "SSP4.Low Overshoot"], "scenario", "SMIPbySSP")
   dum5 <- setItems(insmp[, , "SSP5.High"], "scenario", "SMIPbySSP")
+  # GA: Final data does not have SSP4, copying it from SSP3
+  dum4 <- setItems(setItems(insmp[, , "SSP3.Medium"], "scenario", "SMIPbySSP"), "ssp", "SSP4")
 
   smpbyssp <- mbind(dum1, dum2, dum3, dum4, dum5)
   smpbyssp <- dimOrder(smpbyssp, perm = c(2, 1, 3, 4))
