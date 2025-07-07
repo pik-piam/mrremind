@@ -355,6 +355,17 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   sspemi <- efs * sspact
 
   # ====================================================================
+  # HANDLING OF PROBLEMATIC SECTORS ====================================
+  # ====================================================================
+  # According to Zig and Shaohui's email from July 4th, some sectors are
+  # currently problematic and would be best dropped for the final 
+  # ScenarioMIP, so we drop them here for all scenarios. 
+  badsectors <- c("Transformations_HLF", "Transformations_LLF")
+  efs[,,badsectors] <- 0
+  sspemi[,,badsectors] <- 0
+  sspact[,,badsectors] <- 0
+
+  # ====================================================================
   # COUNTRY DISAGGREGATION AND FINAL TOUCHES ===========================
   # ====================================================================
   # Up to this point, it was simpler to deal with everything at the level
