@@ -100,6 +100,7 @@ readUNFCCC <- function() {
 
     message("Reading in ", region, "\n\n")
 
+
     for (file in files) {
 
       rx <- dplyr::case_when(
@@ -133,8 +134,9 @@ readUNFCCC <- function() {
             )
           )
 
-          if (nrow(s) == 0 ){
-            message("No data found in ", names(sheets[i]), " for ", region, " ", year, ".")
+          # some sheets are not filled out, so skip them
+          if (nrow(s) == 0 ) {
+            next
           }
 
           s <- suppressMessages(
@@ -178,12 +180,16 @@ readUNFCCC <- function() {
               "value" = suppressWarnings(as.double(.data$value)),
               # remove appended remarks in brackets from entry
               "variable" = sub("\\(.*\\) *$", "", .data$variable),
-              "variable" = sub("  ", " ", .data$variable),
+              "variable" = trimws(.data$variable),
+              "variable" = gsub("  +", " ", .data$variable),
               "variable" = paste0(.data$variable, "|", sub("kt ", "", .data$unit))
             ) %>%
             filter(!is.na(.data$value)) %>%
             select("region", "year", "variable", "unit", "value")
 
+          if (nrow(s) == 0 ) {
+            next
+          }
         }
 
         tmpCtry <- bind_rows(tmpCtry, s)
