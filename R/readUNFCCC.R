@@ -11,7 +11,7 @@
 readUNFCCC <- function() {
 
   # structural definition of the source ----
-  # nolint start
+
   sheets <- list(
     "Table1" = list(
       type = "identifier",
@@ -84,7 +84,6 @@ readUNFCCC <- function() {
       colnames = paste0("kt ", c("CO2", "CH4", "N2O"))
     )
   )
-  # nolint end
 
   # parse directories ----
 
@@ -93,13 +92,13 @@ readUNFCCC <- function() {
   tmp <- NULL
 
   for (dir in dirs) {
+
     tmpCtry <- NULL
 
     files <- list.files(path = file.path(".", "2024", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
 
     message("Reading in ", region, "\n\n")
-
 
     for (file in files) {
 
@@ -116,8 +115,8 @@ readUNFCCC <- function() {
 
       availableSheets <- readxl::excel_sheets(file.path(".", "2024", dir, file))
 
-      if (length(intersect(names(sheets), availableSheets)) == 0) {
-        stop("No matching sheets found in ", file)
+      if (length(setdiff(names(sheets), availableSheets)) > 0) {
+        stop("Some of the expected sheets are missing in file ", file)
       }
 
       for (i in seq_along(sheets)) {
@@ -135,7 +134,7 @@ readUNFCCC <- function() {
           )
 
           # some sheets are not filled out, so skip them
-          if (nrow(s) == 0 ) {
+          if (nrow(s) == 0) {
             next
           }
 
@@ -155,9 +154,8 @@ readUNFCCC <- function() {
             )
           )
 
-          # read in data via identifiers (up to level 1.A.1.a.)
         } else {
-
+          # read in data via identifiers (up to level 1.A.1.a.)
           s <- suppressMessages(
             readxl::read_xlsx(path = file.path("2024", dir, file), sheet = names(sheets[i]))
           )
@@ -187,7 +185,7 @@ readUNFCCC <- function() {
             filter(!is.na(.data$value)) %>%
             select("region", "year", "variable", "unit", "value")
 
-          if (nrow(s) == 0 ) {
+          if (nrow(s) == 0) {
             next
           }
         }
@@ -196,11 +194,10 @@ readUNFCCC <- function() {
 
         # duplicates can be introduced because of repetition in the sheets
         if (any(duplicated(tmpCtry))) {
-          tmpCtry <- tmpCtry[-which(duplicated(tmpCtry[,-5])), ]
+          tmpCtry <- tmpCtry[-which(duplicated(tmpCtry[, -5])), ]
         }
       }
     }
-
 
     tmp <- bind_rows(tmp, tmpCtry)
   }

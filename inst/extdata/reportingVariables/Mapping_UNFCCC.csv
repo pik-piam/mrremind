@@ -281,7 +281,7 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.D.2. Multilateral operations|NOX;;;
 1.D.2. Multilateral operations|SO2;;;
 1.D.3. CO2 emissions from biomass|CO2;;;
-1.D.4. CO2 captured|CO2;0.001;Carbon Management|Carbon Sinks|Storage;Mt CO2/yr
+1.D.4. CO2 captured|CO2;-0.001;Carbon Management|Carbon Sinks|Storage;Mt CO2/yr
 1.D.4.a. For domestic storage|CO2;;;
 2. Industrial processes and product use|CH4;;;
 2. Industrial processes and product use|CO2;;;
