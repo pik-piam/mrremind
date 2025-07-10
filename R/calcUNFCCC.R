@@ -18,7 +18,7 @@ calcUNFCCC <- function() {
 
   df <- data %>%
     mselect(variable = unique(mapping$variable)) %>%
-    as.quitte(na.rm = TRUE) %>%
+    quitte::as.quitte(na.rm = TRUE) %>%
     filter(.data$period >= 1990)
 
   x <- left_join(df, mapping, by = "variable", relationship = "many-to-many") %>%
