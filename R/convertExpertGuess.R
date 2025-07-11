@@ -3,21 +3,28 @@
 #' @param x unconverted magpie object from read-script
 #' @param subtype Type of data that are converted.
 #'
-#'
 convertExpertGuess <- function(x, subtype) {
-  if (subtype == "costsTradePeFinancial") {
-    # use data for each country that belongs to a region
-    # No weighting for spatial aggregation
-    out <- toolAggregate(x, toolGetMapping(
-      type = "regional", name = "regionmappingH12.csv",
-      returnPathOnly = TRUE, where = "mappingfolder"
-    ),
-    weight = NULL
-    )
-  } else if (subtype %in% c("taxConvergenceRollback", "subConvergenceRollback")) {
+
+  if (subtype %in% c(
+    "capacityFactorRules",
+    "costsTradePeFinancial",
+    "subConvergenceRollback",
+    "taxConvergenceRollback"
+  )) {
+
+    # source data for these types is in H12 regions
+    # use the region data for each country that belongs to the region
+    # no weighting for spatial aggregation
+
+    # Replacing NA values with zero
+    x[is.na(x)] <- 0
+
     mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
-    out <- toolAggregate(x, mapping, weight = NULL, from = "RegionCode", to = "CountryCode", partrel = TRUE) %>%
-      toolCountryFill(fill = 0)
+
+    out <- toolAggregate(x, rel = mapping, weight = NULL,
+                         from = "RegionCode", to = "CountryCode", partrel = TRUE) %>%
+      toolCountryFill(fill = 0, verbosity = 2)
+
   } else {
     out <- x
   }
