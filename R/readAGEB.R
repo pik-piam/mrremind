@@ -47,11 +47,11 @@ readAGEB <- function(subtype = "balances") {
         "6.8 Endenergieverbrauch im Subsektor Strassenverkehr nach Energietraegern"
       ),
       range = c(
-        "B4:AK13", "B4:AK15", "B4:AK15", "B4:AK15", "B4:AK10",
-        "B4:AK15", "B4:AK16",
-        "B4:AK15",
-        "B4:AK15", "B4:AK15",
-        "B4:AK15", "B4:AK15", "B4:AK15", "B4:AK15", "B4:AK15", "B4:AK15", "B4:AK13", "B4:AK12"
+        "B4:AL13", "B4:AL15", "B4:AL15", "B4:AL15", "B4:AL10",
+        "B4:AL15", "B4:AL16",
+        "B4:AL15",
+        "B4:AL15", "B4:AL15",
+        "B4:AL15", "B4:AL15", "B4:AL15", "B4:AL15", "B4:AL15", "B4:AL15", "B4:AL13", "B4:AL12"
       )
     )
 
@@ -60,12 +60,12 @@ readAGEB <- function(subtype = "balances") {
     for (i in seq_len(nrow(sheets))) {
       tmp <- suppressWarnings(
         read_xlsx(
-          path = "EBD23e_Auswertungstabellen_deutsch.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
-          col_types = c("text", "text", rep("numeric", 34)),
+          path = "EBD24p1_Auswertungstabellen_deutsch.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
+          col_types = c("text", "text", rep("numeric", 35)),
           range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
         )
       ) %>%
-        filter(!is.na(!!sym("Einheit"))) %>%
+        filter(!is.na(.data$Einheit)) %>%
         mutate("Energietraeger" = paste0(sheets[["name"]][[i]], "|", !!sym("Energietr\u00E4ger"))) %>%
         select(-1)
 
