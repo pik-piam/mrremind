@@ -9,6 +9,7 @@ convertExpertGuess <- function(x, subtype) {
     "capacityFactorRules",
     "costsTradePeFinancial",
     "subConvergenceRollback",
+    "taxConvergence",
     "taxConvergenceRollback"
   )) {
 

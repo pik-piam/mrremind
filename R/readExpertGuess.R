@@ -104,6 +104,13 @@ readExpertGuess <- function(subtype) {
     out <- as.magpie(a)
   }
 
+  if (subtype == "taxConvergence") {
+
+    out <- read.csv("tax_convergence.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+
+  }
+
   if (subtype == "taxConvergenceRollback") {
     out <- read.csv("tax_convergence_rollback.csv",
                     sep = ",",
