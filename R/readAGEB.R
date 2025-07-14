@@ -85,18 +85,19 @@ readAGEB <- function(subtype = "balances") {
 
     sheets <-  tibble(
       sheet = c("STRERZ (brutto)", "STRERZ (netto)"),
-      prefix = c("9 Bruttostromerzeugung", "10 Nettostromerzeugung")
+      prefix = c("9 Bruttostromerzeugung", "10 Nettostromerzeugung"),
+      range = c("B3:AK29", "B3:AK23")
     )
 
     data <- NULL
 
     for (i in seq_len(nrow(sheets))) {
       tmp <- read_xlsx(
-        path = "STRERZ_Abg_02_2024_korr.xlsx",
+        path = "STRERZ-Abgabe-2025-02.xlsx",
         sheet = sheets[["sheet"]][[i]],
         col_names = TRUE,
-        col_types = c("text", rep("numeric", 34)),
-        range = "B3:AJ23", .name_repair = "minimal", na = c("k.A.")
+        col_types = c("text", rep("numeric", 35)),
+        range = sheets[["range"]][[i]],, .name_repair = "minimal", na = c("k.A.")
       ) %>%
         mutate("TWh" = gsub(", darunter:", "", .data$TWh)) %>%
         mutate("TWh" = gsub("- ", "", .data$TWh)) %>%
