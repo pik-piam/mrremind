@@ -4,6 +4,10 @@
 #'
 #' @md
 #' @param subtype Type of data that should be read.  One of
+#'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
+#'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `costsTradePeFinancial`
+#'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
 #'     production in total steel production and years between which a linear
@@ -12,8 +16,6 @@
 #'     (relative to global average) to which per-capita cement demand converges
 #'   - `ies`
 #'   - `prtp`
-#'   - `CCSbounds`
-#'   - `costsTradePeFinancial`
 #'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
@@ -27,7 +29,8 @@
 #' @importFrom dplyr bind_rows filter pull select
 #'
 readExpertGuess <- function(subtype) {
-  a <- switch (
+
+  a <- switch(
     subtype,
     "ies"                   = read.csv("ies.csv", sep = ";"),
     "prtp"                  = read.csv("prtp.csv", sep = ";"),
@@ -42,7 +45,7 @@ readExpertGuess <- function(subtype) {
     a$Country <- NULL
     out <- as.magpie(a)
     out[is.na(out)] <- 0
-   }
+  }
 
   if (subtype %in% c("ies", "prtp")) {
     getYears(out) <- "2005"
@@ -118,5 +121,13 @@ readExpertGuess <- function(subtype) {
       as.magpie(datacol = 5)
   }
 
-  out
+  if (subtype == "capacityFactorGlobal") {
+    out <- read.csv("capacity-factors-global_REMIND_3.4.0.csv", sep = ";") %>%
+      as.magpie(datacol = 2)
+  } else if (subtype == "capacityFactorRules") {
+    out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+  }
+
+  return(out)
 }
