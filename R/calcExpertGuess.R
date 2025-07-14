@@ -46,8 +46,8 @@ calcExpertGuess <- function(subtype) {
     )
 
     unit <- "US$2017/GJ"
-    # TODO: improve description
-    description <- "Tax convergence level for specific regions, year and final energy type"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type")
     weight <- x
     weight[, , ] <- 1
     isocountries <- TRUE
@@ -55,8 +55,8 @@ calcExpertGuess <- function(subtype) {
   } else if (subtype == "taxConvergenceRollback") {
 
     unit <- "US$2017/GJ"
-    # TODO: improve description
-    description <- "Tax convergence level for specific regions, year and final energy type"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type in rollback scenario")
     weight <- x
     weight[, , ] <- 1
     isocountries <- TRUE
@@ -64,8 +64,9 @@ calcExpertGuess <- function(subtype) {
   } else if (subtype == "subConvergenceRollback") {
 
     unit <- "US$2017/GJ"
-    # TODO: improve description
-    description <- "Tax convergence level for specific regions, year and final energy type"
+    description <- glue::glue("Subsidy convergence level for specific regions, \\
+                              year, emission sectors and final energy type in \\
+                              rollback scenario")
     weight <- x
     weight[, , ] <- 1
     isocountries <- TRUE

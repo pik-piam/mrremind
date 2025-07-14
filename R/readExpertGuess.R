@@ -6,10 +6,9 @@
 #' @param subtype Type of data that should be read. One of
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
-#'   - `subConvergenceRollback`: TODO
-#'   - `taxConvergence`: TODO
-#'   - `taxConvergenceRollback`: TODO
-#'
+#'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario
+#'   - `taxConvergence`: Tax convergence level in US$2005
+#'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario
 #'   - `costsTradePeFinancial`
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
