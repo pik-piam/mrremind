@@ -3,9 +3,13 @@
 #' Read-in data that are based on expert guess
 #'
 #' @md
-#' @param subtype Type of data that should be read.  One of
+#' @param subtype Type of data that should be read. One of
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `subConvergenceRollback`: TODO
+#'   - `taxConvergence`: TODO
+#'   - `taxConvergenceRollback`: TODO
+#'
 #'   - `costsTradePeFinancial`
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
@@ -29,9 +33,7 @@
 #' @importFrom dplyr bind_rows filter pull select
 #'
 readExpertGuess <- function(subtype) {
-
-  a <- switch(
-    subtype,
+  a <- switch(subtype,
     "ies"                   = read.csv("ies.csv", sep = ";"),
     "prtp"                  = read.csv("prtp.csv", sep = ";"),
     "CCSbounds"             = read.csv("CCSbounds.csv", sep = ";"),
@@ -104,35 +106,29 @@ readExpertGuess <- function(subtype) {
     out <- as.magpie(a)
   }
 
-  if (subtype == "taxConvergence") {
-
-    out <- read.csv("tax_convergence.csv", sep = ";") %>%
-      as.magpie(datacol = 4)
-
-  }
-
-  if (subtype == "taxConvergenceRollback") {
-    out <- read.csv("tax_convergence_rollback.csv",
-                    sep = ",",
-                    skip = 4,
-                    col.names = c("Year", "Region", "FE", "value"),
-                    header = FALSE) %>%
-      as.magpie(datacol = 4)
-  }
-  if (subtype == "subConvergenceRollback") {
-    out <- read.csv("sub_convergence_rollback.csv",
-                    sep = ",",
-                    skip = 4,
-                    col.names = c("Year", "Region", "sector", "FE", "value"),
-                    header = FALSE) %>%
-      as.magpie(datacol = 5)
-  }
-
   if (subtype == "capacityFactorGlobal") {
+
     out <- read.csv("capacity-factors-global_REMIND_3.4.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
+
   } else if (subtype == "capacityFactorRules") {
+
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+
+  } else if (subtype == "subConvergenceRollback") {
+
+    out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "sector", "FE", "value")) %>%
+      as.magpie(datacol = 5)
+
+  } else if (subtype == "taxConvergence") {
+
+    out <- read.csv("tax_convergence_v1.0.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    out <- read.csv("tax_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "FE", "value")) %>%
       as.magpie(datacol = 4)
   }
 
