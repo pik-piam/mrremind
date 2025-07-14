@@ -36,6 +36,15 @@ calcExpertGuess <- function(subtype) {
 
   } else if (subtype == "taxConvergence") {
 
+
+    # convert data from $2005 to $2017
+    x <- GDPuc::toolConvertGDP(
+      gdp = x,
+      unit_in = "constant 2005 US$MER",
+      unit_out = mrdrivers::toolGetUnitDollar(),
+      replace_NAs = "with_USA"
+    )
+
     unit <- "US$2017/GJ"
     # TODO: improve description
     description <- "Tax convergence level for specific regions, year and final energy type"
