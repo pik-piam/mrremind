@@ -122,7 +122,9 @@ readExpertGuess <- function(subtype) {
   }
 
   if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_3.4.0.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
+      #out <- read.csv(file.path("C:/PIK/inputdata/sources/ExpertGuess",
+      #                          "capacity-factors-global_REMIND_3.6.0.csv"), sep = ";") %>%
       as.magpie(datacol = 2)
   } else if (subtype == "capacityFactorRules") {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
