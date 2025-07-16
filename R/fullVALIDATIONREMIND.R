@@ -137,7 +137,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base
   ceds <- calcOutput(
-    "Emissions", datasource = "CEDS2025",
+    "Emissions", datasource = "CEDS2025", years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
 
   # the following variables only have meaningful data on global level
@@ -161,7 +161,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base, aggregated to IAMC sectors
   calcOutput(
-    "Emissions", datasource = "CEDS2025_IAMC", file = valfile,
+    "Emissions", datasource = "CEDS2025_IAMC", file = valfile, years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
