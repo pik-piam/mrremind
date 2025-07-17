@@ -13,7 +13,7 @@ calcEmiLULUCFCountryAcc(subtype)
 Magpie object with historical LULUCF emissions
 }
 \description{
-hisorical LULUCF emissions following country accounting
+historical LULUCF emissions following country accounting
 }
 \author{
 Felix Schreyer
