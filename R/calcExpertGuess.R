@@ -22,7 +22,7 @@ calcExpertGuess <- function(subtype) {
   }
 
   isocountries <- c(
-    "subConvergencceRollback" = TRUE,
+    "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
     "taxConvergenceRollback" = TRUE
