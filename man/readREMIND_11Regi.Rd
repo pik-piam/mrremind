@@ -8,7 +8,7 @@ readREMIND_11Regi(subtype)
 }
 \arguments{
 \item{subtype}{Name of the regional data, e.g.
-"tradecost", "deltacapoffset", "taxConvergence", "maxFeSubsidy",
+"tradecost", "deltacapoffset", "maxFeSubsidy",
 "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{

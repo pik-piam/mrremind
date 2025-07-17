@@ -7,7 +7,11 @@
 calcExpertGuess(subtype)
 }
 \arguments{
-\item{subtype}{must be 'tradeConstraints' (more to come)}
+\item{subtype}{must be one of
+'subConvergenceRollback'
+'tradeConstraints'
+'taxConvergence'
+'taxConvergenceRollback'}
 }
 \description{
 Calculate expert guesses

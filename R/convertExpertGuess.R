@@ -1,7 +1,7 @@
 #' @title convertExpertGuess
 #' @description Converts data from expert guess
 #' @param x unconverted magpie object from read-script
-#' @param subtype Type of data that are converted.
+#' @inheritParams readExpertGuess
 #'
 convertExpertGuess <- function(x, subtype) {
 
@@ -9,6 +9,7 @@ convertExpertGuess <- function(x, subtype) {
     "capacityFactorRules",
     "costsTradePeFinancial",
     "subConvergenceRollback",
+    "taxConvergence",
     "taxConvergenceRollback"
   )) {
 

@@ -2,31 +2,86 @@
 #'
 #' @author Falk Benke
 #'
-#' @param subtype must be 'tradeConstraints' (more to come)
+#' @param subtype must be one of
+#' 'subConvergenceRollback'
+#' 'tradeConstraints'
+#' 'taxConvergence'
+#' 'taxConvergenceRollback'
 #' @export
 calcExpertGuess <- function(subtype) {
-  if (subtype != "tradeConstraints") {
-    stop("Invalid subtype. Supported subtypes: 'tradeConstraints'")
+
+  subtypes <- c(
+    "subConvergenceRollback",
+    "tradeConstraints",
+    "taxConvergence",
+    "taxConvergenceRollback"
+  )
+
+  if (!(subtype %in% subtypes)) {
+    stop("Invalid subtype. Supported subtypes: ", paste0(subtypes, collapse = ", "))
   }
 
-  x <- readSource("ExpertGuess", subtype = subtype, convert = FALSE)
+  isocountries <- c(
+    "subConvergenceRollback" = TRUE,
+    "tradeConstraints" = FALSE,
+    "taxConvergence" = TRUE,
+    "taxConvergenceRollback" = TRUE
+  )
+
+  x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
 
   if (subtype == "tradeConstraints") {
+
     unit <- "unitless"
-    description <- c(
-      "parameter by Nicolas Bauer (2024) for the region specific ",
-      "trade constraints, values different to 1 activate constraints ",
-      "and the value is used as effectiveness to varying degrees ",
-      "such as percentage numbers"
+    description <- glue::glue(
+      "parameter by Nicolas Bauer (2024) for the region specific \\
+      trade constraints, values different to 1 activate constraints \\
+      and the value is used as effectiveness to varying degrees \\
+      such as percentage numbers"
     )
-    isocountries <- FALSE
+    weight <- NULL
+
+  } else if (subtype == "taxConvergence") {
+
+
+    # convert data from $2005 to $2017
+    x <- GDPuc::toolConvertGDP(
+      gdp = x,
+      unit_in = "constant 2005 US$MER",
+      unit_out = mrdrivers::toolGetUnitDollar(),
+      replace_NAs = "with_USA"
+    )
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type in rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "subConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Subsidy convergence level for specific regions, \\
+                              year, emission sectors and final energy type in \\
+                              rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
   }
 
   return(list(
     x = x,
-    weight = NULL,
+    weight = weight,
     unit = unit,
     description = description,
-    isocountries = isocountries
+    isocountries = isocountries[[subtype]]
   ))
 }
