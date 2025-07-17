@@ -16,9 +16,12 @@
 #'     (relative to global average) to which per-capita cement demand converges
 #'   - `ies`
 #'   - `prtp`
-#'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
+#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
+#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+#'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
 #' @examples
@@ -38,9 +41,9 @@ readExpertGuess <- function(subtype) {
     "co2prices"             = read.csv("co2prices-2024-11.csv", sep = ";"),
     "costsTradePeFinancial" = read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2),
     "tradeConstraints"      = read.csv("tradeConstraints.csv", sep = ";")
-  )
+    )
 
-  if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
+   if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
     a$RegionCode <- NULL
     a$Country <- NULL
     out <- as.magpie(a)
@@ -127,6 +130,12 @@ readExpertGuess <- function(subtype) {
   } else if (subtype == "capacityFactorRules") {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
+  }
+
+  if (subtype == "biocharPrices") {
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx",
+                             sheet = "pricePath") %>%
+      as.magpie()
   }
 
   return(out)

@@ -3,7 +3,7 @@
 #' @author Tabea Dorndorf
 #'
 calcBiocharBounds <- function() {
-  x <- readSource("BiocharData", subtype = "biocharBounds")
+  x <- readSource("BiocharDeploymentData")
 
   x[is.na(x)] <- 0
 
