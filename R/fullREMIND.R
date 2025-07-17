@@ -212,7 +212,7 @@ fullREMIND <- function() {
 
   calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r", aggregate = "reg+glo")
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
-  calcOutput("EmiPollutantExo", subtype = "AviateionShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
+  calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
   calcOutput("Emissions4ReportExtra", sectors = "CEDS", round = 9, file = "p_emissions4ReportExtraCEDS.cs4r")
   calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
 
