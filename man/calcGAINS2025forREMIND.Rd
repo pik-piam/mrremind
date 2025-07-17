@@ -25,5 +25,5 @@ files needed for REMIND in the proper format, for the scenario logic,
 see \code{GAINS2025scenarios}.
 }
 \author{
-Gabriel Abrahao
+Gabriel Abrahão
 }
