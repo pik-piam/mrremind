@@ -3,7 +3,7 @@ message: If you use this software, please cite it using the metadata from this f
 type: software
 title: 'mrremind: MadRat REMIND Input Data Package'
 version: 0.234.0
-date-released: '2025-07-10'
+date-released: '2025-07-16'
 abstract: The mrremind packages contains data preprocessing for the REMIND model.
 authors:
 - family-names: Baumstark
