@@ -9,6 +9,7 @@
 #' 'taxConvergenceRollback'
 #' @export
 calcExpertGuess <- function(subtype) {
+
   subtypes <- c(
     "subConvergenceRollback",
     "tradeConstraints",
@@ -20,7 +21,14 @@ calcExpertGuess <- function(subtype) {
     stop("Invalid subtype. Supported subtypes: ", paste0(subtypes, collapse = ", "))
   }
 
-  x <- readSource("ExpertGuess", subtype = subtype)
+  isocountries <- c(
+    "subConvergencceRollback" = TRUE,
+    "tradeConstraints" = FALSE,
+    "taxConvergence" = TRUE,
+    "taxConvergenceRollback" = TRUE
+  )
+
+  x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
 
   if (subtype == "tradeConstraints") {
 
@@ -32,7 +40,6 @@ calcExpertGuess <- function(subtype) {
       such as percentage numbers"
     )
     weight <- NULL
-    isocountries <- FALSE
 
   } else if (subtype == "taxConvergence") {
 
@@ -50,7 +57,6 @@ calcExpertGuess <- function(subtype) {
                               and final energy type")
     weight <- x
     weight[, , ] <- 1
-    isocountries <- TRUE
 
   } else if (subtype == "taxConvergenceRollback") {
 
@@ -59,7 +65,6 @@ calcExpertGuess <- function(subtype) {
                               and final energy type in rollback scenario")
     weight <- x
     weight[, , ] <- 1
-    isocountries <- TRUE
 
   } else if (subtype == "subConvergenceRollback") {
 
@@ -69,7 +74,6 @@ calcExpertGuess <- function(subtype) {
                               rollback scenario")
     weight <- x
     weight[, , ] <- 1
-    isocountries <- TRUE
 
   }
 
@@ -78,6 +82,6 @@ calcExpertGuess <- function(subtype) {
     weight = weight,
     unit = unit,
     description = description,
-    isocountries = isocountries
+    isocountries = isocountries[[subtype]]
   ))
 }

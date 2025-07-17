@@ -7,10 +7,13 @@
 readExpertGuess(subtype)
 }
 \arguments{
-\item{subtype}{Type of data that should be read.  One of
+\item{subtype}{Type of data that should be read. One of
 \itemize{
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
+\item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017
+\item \code{taxConvergence}: Tax convergence level in US$2005
+\item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017
 \item \code{costsTradePeFinancial}
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
