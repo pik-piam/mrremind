@@ -5,7 +5,7 @@
 #' @param subtype must be 'tradeConstraints' (more to come)
 #' @export
 calcExpertGuess <- function(subtype) {
-  if (! subtype %in% c("tradeConstraints","biocharPrices")) {
+  if (! subtype %in% c("tradeConstraints", "biocharPrices")) {
     stop("Invalid subtype. Supported subtypes: 'tradeConstraints' and 'biocharPrices'")
   }
 
@@ -22,7 +22,7 @@ calcExpertGuess <- function(subtype) {
     isocountries <- FALSE
   }
 
-  if (subtype == "biocharPrices"){
+  if (subtype == "biocharPrices") {
     unit <- "USD 2015/t biochar"
     description <- c("Biochar price assumptions over time.
     Assumptions based on collection of current bulk sale prices

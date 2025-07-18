@@ -41,9 +41,9 @@ readExpertGuess <- function(subtype) {
     "co2prices"             = read.csv("co2prices-2024-11.csv", sep = ";"),
     "costsTradePeFinancial" = read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2),
     "tradeConstraints"      = read.csv("tradeConstraints.csv", sep = ";")
-    )
+  )
 
-   if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
+  if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
     a$RegionCode <- NULL
     a$Country <- NULL
     out <- as.magpie(a)

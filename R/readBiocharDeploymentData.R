@@ -21,10 +21,12 @@ readBiocharDeploymentData <- function() {
   # for those systems with energy co-production
 
   df <- df %>%
-    mutate(data = dplyr::if_else(variable == "Production",
-                                 data / capacity_factor, data)) %>%
-    mutate(variable = dplyr::if_else(variable == "Production",
-                                     "Installed Capacity", variable))
+    mutate("data" = dplyr::if_else(.data$variable == "Production",
+                                   .data$data / capacity_factor,
+                                   .data$data)) %>%
+    mutate("variable" = dplyr::if_else(.data$variable == "Production",
+                                       "Installed Capacity",
+                                       .data$variable))
 
   # convert to magpie object
   m <- as.magpie(df)

@@ -12,22 +12,30 @@ convertBiocharDeploymentData <- function(x) {
 
   map <- merge(map0, weights0, by = "CountryCode", all.x = TRUE)
 
-  map <- map %>% group_by(RegionCode) %>%
-    mutate(OtherRegionShareCounts = sum(!is.na(data))) %>% ungroup()
+  map <- map %>%
+    group_by(.data$RegionCode) %>%
+    mutate("OtherRegionShareCounts" = sum(!is.na(.data$data))) %>%
+    ungroup()
 
-  map <- map %>% group_by(RegionCode) %>%
-    mutate(RegionCountTotal = dplyr::n()) %>% ungroup()
+  map <- map %>%
+    group_by(.data$RegionCode) %>%
+    mutate("RegionCountTotal" = dplyr::n()) %>%
+    ungroup()
 
-  map <- map %>% group_by(RegionCode) %>%
-    mutate(RemainingShare = 1- sum(data, na.rm = TRUE)) %>% ungroup()
+  map <- map %>%
+    group_by(.data$RegionCode) %>%
+    mutate("RemainingShare" = 1 - sum(.data$data, na.rm = TRUE)) %>%
+    ungroup()
 
-  map <- map %>% mutate(RemainingRegionCount = RegionCountTotal - OtherRegionShareCounts) %>%
-    mutate(data2 = RemainingShare * 1/RemainingRegionCount)
+  map <- map %>%
+    mutate("RemainingRegionCount" =
+             .data$RegionCountTotal - .data$OtherRegionShareCounts) %>%
+    mutate("data2" = .data$RemainingShare * 1 / .data$RemainingRegionCount)
 
-  map <- map %>% mutate(data = dplyr::if_else(is.na(data), data2, data))
+  map <- map %>%
+    mutate("data" = dplyr::if_else(is.na(.data$data), .data$data2, data$data))
 
-  weight <- map %>% select(c(CountryCode, data)) %>%
-    as.magpie()
+  weight <- map %>% select(c(.data$CountryCode, .data$data)) %>% as.magpie()
 
   x <- toolAggregate(x, rel = map0, from = "RegionCode", to = "CountryCode",
                      weight = weight)
