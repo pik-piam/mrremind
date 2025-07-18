@@ -33,7 +33,7 @@ convertBiocharDeploymentData <- function(x) {
     mutate("data2" = .data$RemainingShare * 1 / .data$RemainingRegionCount)
 
   map <- map %>%
-    mutate("data" = dplyr::if_else(is.na(.data$data), .data$data2, data$data))
+    mutate("data" = dplyr::if_else(is.na(.data$data), .data$data2, .data$data))
 
   weight <- map %>% select(c(.data$CountryCode, .data$data)) %>% as.magpie()
 
