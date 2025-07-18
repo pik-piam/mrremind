@@ -4,9 +4,13 @@
 #'
 #' @md
 #' @param subtype Type of data that should be read.  One of
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
+#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
 #'   - `costsTradePeFinancial`
+#'   - `storageFactor`: Regional storage parameterization
+#'
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
@@ -19,11 +23,10 @@
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
-#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
-#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+
 #'
 #' @return magpie object of the data
-#' @author Lavinia Baumstark
+#' @author Lavinia Baumstark, Falk Benke
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "ExpertGuess", subtype = "ies")
@@ -124,19 +127,21 @@ readExpertGuess <- function(subtype) {
       as.magpie(datacol = 5)
   }
 
-  if (subtype == "capacityFactorGlobal") {
+
+  if (subtype == "biocharPrices") {
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
+      as.magpie()
+  } else if (subtype == "capacityFactorGlobal") {
     out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
   } else if (subtype == "capacityFactorRules") {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
-  }
-
-  if (subtype == "biocharPrices") {
-    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx",
-                             sheet = "pricePath") %>%
+  } else if (subtype == "storageFactor") {
+    out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
       as.magpie()
   }
+
 
   return(out)
 }
