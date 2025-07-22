@@ -12,14 +12,14 @@
 
 readEmber <- function() {
   filename <- "yearly_full_release_long_format.csv"
-  df <- read.csv(file.path("2024", filename))
+  df <- read.csv(file.path("2025", filename))
 
   # filter out aggregated regions by only choosing rows that don't have a blank country.code
-  df <- df[df$Country.code != "", ]
+  df <- df[df$ISO.3.code != "", ]
 
   # combine category columns to one variable column and rename according to madrat standard
   df$variable <- paste(df$Category, df$Subcategory, df$Variable, sep = "|")
-  df <- select(df, c(region = "Country.code",
+  df <- select(df, c(region = "ISO.3.code",
                      year = "Year",
                      variable = "variable",
                      unit = "Unit",
