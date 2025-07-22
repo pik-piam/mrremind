@@ -67,17 +67,15 @@ calcAirPollEmiRef <- function(
     return(mag)
   }
 
-  if (namesformat %in% c("REMIND","REMINDexo")) {
+  if (namesformat %in% c("REMIND", "REMINDexo")) {
     fullceds <- fixPolNames(fullceds, namesformat)
   }
 
-  if (subtype == "total") {
-    totceds <- dimSums(fullceds, dim = 3.1, na.rm = T)
+  totceds <- dimSums(fullceds, dim = 3.1, na.rm = TRUE)
 
-    out <- setYears(totceds)
-    unit <- outunits
-    desc <- paste0("Emissions in year ", baseyear)
-  }
+  out <- setYears(totceds)
+  unit <- outunits
+  desc <- paste0("Emissions in year ", baseyear)
 
   return(list(
     x = out,
