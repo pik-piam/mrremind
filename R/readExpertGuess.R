@@ -16,9 +16,12 @@
 #'     (relative to global average) to which per-capita cement demand converges
 #'   - `ies`
 #'   - `prtp`
-#'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
+#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
+#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+#'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
 #' @examples
@@ -122,11 +125,17 @@ readExpertGuess <- function(subtype) {
   }
 
   if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_3.4.0.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
   } else if (subtype == "capacityFactorRules") {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
+  }
+
+  if (subtype == "biocharPrices") {
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx",
+                             sheet = "pricePath") %>%
+      as.magpie()
   }
 
   return(out)
