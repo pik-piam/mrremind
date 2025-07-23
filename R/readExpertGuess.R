@@ -138,7 +138,7 @@ readExpertGuess <- function(subtype) {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
   } else if (subtype == "gridFactor") {
-    out <- read.csv("~/madrat/sources/ExpertGuess/homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%
+    out <- read.csv("homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%
       dplyr::select("country" = "CountryCode", "value" = "grid.factor") %>%
       as.magpie(datacol = 2)
   } else if (subtype == "storageFactor") {
