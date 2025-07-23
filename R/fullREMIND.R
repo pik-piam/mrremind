@@ -147,7 +147,7 @@ fullREMIND <- function() {
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
-  calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
+  calcOutput("ExpertGuess", subtype = "gridFactor",                    round = 6,  file = "p32_grid_factor.cs4r")
   # Pass the same scenarios to FEShares as to FEDemand to optimize madrat cache usage.
   calcOutput("FEShares", subtype = "ind_coal", scenario = feDemScen,   round = 5,  file = "p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype = "ind_bio", scenario = feDemScen,    round = 5,  file = "p_share_ind_fesos_bio.cs4r")
@@ -182,7 +182,7 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
   calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
   calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
-  
+
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")

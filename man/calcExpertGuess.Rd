@@ -7,7 +7,7 @@
 calcExpertGuess(subtype)
 }
 \arguments{
-\item{subtype}{must be 'tradeConstraints' (more to come)}
+\item{subtype}{must be one of \code{biocharPrices}, \code{gridFactor}, \code{tradeConstraints}}
 }
 \description{
 Calculate expert guesses

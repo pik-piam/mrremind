@@ -9,7 +9,8 @@
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
 #'   - `costsTradePeFinancial`
-#'   - `storageFactor`: Regional storage parameterization
+#'   - `gridFactor`: ..
+#'   - `storageFactor`: Regional storage parametrization
 #'
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
@@ -127,7 +128,6 @@ readExpertGuess <- function(subtype) {
       as.magpie(datacol = 5)
   }
 
-
   if (subtype == "biocharPrices") {
     out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
       as.magpie()
@@ -137,6 +137,10 @@ readExpertGuess <- function(subtype) {
   } else if (subtype == "capacityFactorRules") {
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
+  } else if (subtype == "gridFactor") {
+    out <- read.csv("~/madrat/sources/ExpertGuess/homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%
+      dplyr::select("country" = "CountryCode", "value" = "grid.factor") %>%
+      as.magpie(datacol = 2)
   } else if (subtype == "storageFactor") {
     out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
       as.magpie()

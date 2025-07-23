@@ -20,11 +20,6 @@ readREMIND_11Regi <- function(subtype) {
     "maxFeSubsidy"         = read.csv("max_FE_subsidy_REMIND_3.5_v1.1.csv", sep = ";") %>% as.magpie(datacol = 4),
     "maxPeSubsidy"         = read.csv("max_PE_subsidy.csv", sep = ";")             %>% as.magpie(datacol = 4),
     "propFeSubsidy"        = read.csv("prop_FE_subsidy.csv", sep = ";")            %>% as.magpie(datacol = 4),
-    "gridFactor"           = {
-      x <- read.csv("homogenous_regions_for grids.csv", sep = ";")
-      x$X <- NULL
-      as.magpie(x, datacol = 2)
-    },
     "AP_starting_values"   = read.csv("f11_emiAPexsolve.cs4r", skip = 1, header = FALSE) %>% as.magpie(datacol = 6),
     "ccs"                  = read.csv("p_dataccs.csv", sep = ";")             %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent"           = read.csv("ffPolyRent.csv", sep = ";")            %>% as.magpie(spatial = 1, datacol = 5),

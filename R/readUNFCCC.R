@@ -98,8 +98,6 @@ readUNFCCC <- function() {
     files <- list.files(path = file.path(".", "2024", dir))
     region <- toupper(sub("\\-.*", "\\1", dir))
 
-    message("Reading in ", region, "\n\n")
-
     for (file in files) {
 
       rx <- dplyr::case_when(

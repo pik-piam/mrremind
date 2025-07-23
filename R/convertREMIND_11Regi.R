@@ -103,8 +103,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"pecoal.max.highCoal"] <-
       y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"pecoal.max.highCoal"] * (1 + 0.2)
 
-  } else if (subtype == "gridFactor") {
-    y <- x
   } else if (subtype == "ccs") {
     # use total land area as weight
     area <- calcOutput("LanduseInitialisation",aggregate=FALSE)[,2005,]

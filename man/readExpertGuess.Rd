@@ -14,7 +14,8 @@ based on collection of current bulk sale prices (see Dorndorf et al (submitted))
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
 \item \code{costsTradePeFinancial}
-\item \code{storageFactor}: Regional storage parameterization
+\item \code{gridFactor}: ..
+\item \code{storageFactor}: Regional storage parametrization
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel
