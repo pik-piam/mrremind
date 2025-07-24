@@ -10,12 +10,12 @@ readExpertGuess(subtype)
 \item{subtype}{Type of data that should be read.  One of
 \itemize{
 \item \code{biocharPrices}: Biochar price assumptions over time. Assumptions
-based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+based on collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
 \item \code{costsTradePeFinancial}
-\item \code{gridFactor}: ..
-\item \code{storageFactor}: Regional storage parametrization
+\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
+\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel

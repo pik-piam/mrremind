@@ -5,12 +5,12 @@
 #' @md
 #' @param subtype Type of data that should be read.  One of
 #'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
-#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
 #'   - `costsTradePeFinancial`
-#'   - `gridFactor`: ..
-#'   - `storageFactor`: Regional storage parametrization
+#'   - `gridFactor`: Estimates distribution of electricity demands per region (Robert Pietzcker)
+#'   - `storageFactor`: Regional storage parametrization (Robert Pietzcker)
 #'
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
@@ -145,7 +145,6 @@ readExpertGuess <- function(subtype) {
     out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
       as.magpie()
   }
-
 
   return(out)
 }

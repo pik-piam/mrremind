@@ -32,6 +32,7 @@ calcExpertGuess <- function(subtype) {
     weight <- NULL
   } else if (subtype == "gridFactor") {
     unit <- "factor"
+    getNames(x) <- NULL
     description <- glue::glue(
       "multiplicative factor that scales total grid requirements \\
       down in comparatively small or homogeneous regions"
