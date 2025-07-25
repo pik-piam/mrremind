@@ -3,6 +3,7 @@
 #' @author Falk Benke
 #'
 #' @param subtype must be one of
+#' 'biocharPrices'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
@@ -11,6 +12,7 @@
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
+    "biocharPrices",
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
@@ -22,6 +24,7 @@ calcExpertGuess <- function(subtype) {
   }
 
   isocountries <- c(
+    "biocharPrices" = FALSE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
@@ -30,7 +33,15 @@ calcExpertGuess <- function(subtype) {
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
 
-  if (subtype == "tradeConstraints") {
+
+  if (subtype == "biocharPrices") {
+
+    unit <- "USD 2015/t biochar"
+    description <- glue::glue("Biochar price assumptions over time. Assumptions \\
+    based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    weight <- NULL
+
+  } else if (subtype == "tradeConstraints") {
 
     unit <- "unitless"
     description <- glue::glue(

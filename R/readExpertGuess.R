@@ -4,6 +4,8 @@
 #'
 #' @md
 #' @param subtype Type of data that should be read. One of
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions based on
+#'      collection of current bulk sale prices (see Dorndorf et al (submitted))
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017
@@ -19,9 +21,11 @@
 #'     (relative to global average) to which per-capita cement demand converges
 #'   - `ies`
 #'   - `prtp`
-#'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
+#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
+
+#'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
 #' @examples
@@ -105,9 +109,13 @@ readExpertGuess <- function(subtype) {
     out <- as.magpie(a)
   }
 
-  if (subtype == "capacityFactorGlobal") {
+  if (subtype == "biocharPrices") {
 
-    out <- read.csv("capacity-factors-global_REMIND_3.4.0.csv", sep = ";") %>%
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
+      as.magpie()
+
+  } else if (subtype == "capacityFactorGlobal") {
+    out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 
   } else if (subtype == "capacityFactorRules") {
@@ -117,7 +125,8 @@ readExpertGuess <- function(subtype) {
 
   } else if (subtype == "subConvergenceRollback") {
 
-    out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "sector", "FE", "value")) %>%
+    out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";",
+                    col.names = c("Year", "Region", "sector", "FE", "value")) %>%
       as.magpie(datacol = 5)
 
   } else if (subtype == "taxConvergence") {

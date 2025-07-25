@@ -24,9 +24,11 @@ convergence from historic to target shares is to be applied.
 (relative to global average) to which per-capita cement demand converges
 \item \code{ies}
 \item \code{prtp}
-\item \code{tradeContsraints}: parameter by Nicolas Bauer (2024) for the region
+\item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region
 specific trade constraints, values different to 1 activate constraints
 and the value is used as effectiveness to varying degrees such as percentage numbers
+\item \code{biocharPrices}: Biochar price assumptions over time. Assumptions
+based on collection of current bulk sale prices (see Dorndorf et al (submitted))
 }}
 }
 \value{
