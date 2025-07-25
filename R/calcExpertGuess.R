@@ -2,13 +2,23 @@
 #'
 #' @author Falk Benke
 #'
-#' @param subtype must be one of `biocharPrices`, `gridFactor`, `tradeConstraints`
+#' @param subtype must be one of
+#'    'biocharPrices'
+#'    'gridFactor'
+#'    'subConvergenceRollback'
+#'    'tradeConstraints'
+#'    'taxConvergence'
+#'    'taxConvergenceRollback'
+#'
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
     "gridFactor",
-    "tradeConstraints"
+    "subConvergenceRollback",
+    "tradeConstraints",
+    "taxConvergence",
+    "taxConvergenceRollback"
   )
 
   if (!(subtype %in% subtypes)) {
@@ -18,12 +28,16 @@ calcExpertGuess <- function(subtype) {
   isocountries <- c(
     "biocharPrices" = FALSE,
     "gridFactor" = TRUE,
-    "tradeConstraints" = FALSE
+    "subConvergenceRollback" = TRUE,
+    "tradeConstraints" = FALSE,
+    "taxConvergence" = TRUE,
+    "taxConvergenceRollback" = TRUE
   )
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
 
   if (subtype == "biocharPrices") {
+
     unit <- "USD 2015/t biochar"
     description <- glue::glue(
       "Biochar price assumptions over time. Assumptions based on collection of \\
@@ -47,6 +61,33 @@ calcExpertGuess <- function(subtype) {
       such as percentage numbers"
     )
     weight <- NULL
+
+  } else if (subtype == "taxConvergence") {
+
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type in rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "subConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Subsidy convergence level for specific regions, \\
+                              year, emission sectors and final energy type in \\
+                              rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
   }
 
   return(list(

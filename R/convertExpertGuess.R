@@ -7,11 +7,13 @@
 convertExpertGuess <- function(x, subtype) {
 
   # subtypes that require disaggregation
+
   mapping <- c(
     "capacityFactorRules" = "regionmappingH12.csv",
     "costsTradePeFinancial" = "regionmappingH12.csv",
     "storageFactor" = "regionmapping_21_EU11.csv",
     "subConvergenceRollback" = "regionmappingH12.csv",
+    "taxConvergence" = "regionmappingH12.csv",
     "taxConvergenceRollback" = "regionmappingH12.csv"
   )
 

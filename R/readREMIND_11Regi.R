@@ -3,7 +3,7 @@
 #' Read-in an csv files that contains regional data
 #'
 #' @param subtype Name of the regional data, e.g.
-#' "tradecost", "deltacapoffset", "taxConvergence", "maxFeSubsidy",
+#' "tradecost", "deltacapoffset", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return magpie object of region dependent data
 #' @author original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
@@ -16,7 +16,6 @@ readREMIND_11Regi <- function(subtype) {
     subtype,
     "tradecost"            = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset_REMIND3.4.0.csv", sep = ";")     %>% as.magpie(datacol = 2),
-    "taxConvergence"       = read.csv("tax_convergence.csv", sep = ";")            %>% as.magpie(datacol = 4),
     "maxFeSubsidy"         = read.csv("max_FE_subsidy_REMIND_3.5_v1.1.csv", sep = ";") %>% as.magpie(datacol = 4),
     "maxPeSubsidy"         = read.csv("max_PE_subsidy.csv", sep = ";")             %>% as.magpie(datacol = 4),
     "propFeSubsidy"        = read.csv("prop_FE_subsidy.csv", sep = ";")            %>% as.magpie(datacol = 4),
