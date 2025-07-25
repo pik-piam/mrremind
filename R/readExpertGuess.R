@@ -3,9 +3,14 @@
 #' Read-in data that are based on expert guess
 #'
 #' @md
-#' @param subtype Type of data that should be read.  One of
+#' @param subtype Type of data that should be read. One of
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions based on
+#'      collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
+#'   - `taxConvergence`: Tax convergence level in US$2017 (Nico Bauer)
+#'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
 #'   - `costsTradePeFinancial`
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
@@ -19,8 +24,7 @@
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
 #'      specific trade constraints, values different to 1 activate constraints
 #'      and the value is used as effectiveness to varying degrees such as percentage numbers
-#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions
-#'      based on collection of current bulk sale prices (see Dorndorf et al (submitted))
+
 #'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark
@@ -32,9 +36,7 @@
 #' @importFrom dplyr bind_rows filter pull select
 #'
 readExpertGuess <- function(subtype) {
-
-  a <- switch(
-    subtype,
+  a <- switch(subtype,
     "ies"                   = read.csv("ies.csv", sep = ";"),
     "prtp"                  = read.csv("prtp.csv", sep = ";"),
     "CCSbounds"             = read.csv("CCSbounds.csv", sep = ";"),
@@ -107,35 +109,35 @@ readExpertGuess <- function(subtype) {
     out <- as.magpie(a)
   }
 
-  if (subtype == "taxConvergenceRollback") {
-    out <- read.csv("tax_convergence_rollback.csv",
-                    sep = ",",
-                    skip = 4,
-                    col.names = c("Year", "Region", "FE", "value"),
-                    header = FALSE) %>%
-      as.magpie(datacol = 4)
-  }
-  if (subtype == "subConvergenceRollback") {
-    out <- read.csv("sub_convergence_rollback.csv",
-                    sep = ",",
-                    skip = 4,
-                    col.names = c("Year", "Region", "sector", "FE", "value"),
-                    header = FALSE) %>%
-      as.magpie(datacol = 5)
-  }
+  if (subtype == "biocharPrices") {
 
-  if (subtype == "capacityFactorGlobal") {
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
+      as.magpie()
+
+  } else if (subtype == "capacityFactorGlobal") {
     out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
+
   } else if (subtype == "capacityFactorRules") {
+
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
-  }
 
-  if (subtype == "biocharPrices") {
-    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx",
-                             sheet = "pricePath") %>%
-      as.magpie()
+  } else if (subtype == "subConvergenceRollback") {
+
+    out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";",
+                    col.names = c("Year", "Region", "sector", "FE", "value")) %>%
+      as.magpie(datacol = 5)
+
+  } else if (subtype == "taxConvergence") {
+
+    out <- read.csv("tax_convergence_v1.0.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    out <- read.csv("tax_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "FE", "value")) %>%
+      as.magpie(datacol = 4)
   }
 
   return(out)

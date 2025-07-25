@@ -7,7 +7,12 @@
 calcExpertGuess(subtype)
 }
 \arguments{
-\item{subtype}{must be 'tradeConstraints' (more to come)}
+\item{subtype}{must be one of
+'biocharPrices'
+'subConvergenceRollback'
+'tradeConstraints'
+'taxConvergence'
+'taxConvergenceRollback'}
 }
 \description{
 Calculate expert guesses

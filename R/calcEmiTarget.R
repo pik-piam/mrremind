@@ -1,11 +1,9 @@
 #' Calculate Emission Targets
 #'
-#' TODO: describe what this is used for in REMIND and document the meaning of the subtypes
-#'
 #' @param sources database source, either 'UNFCCC_NDC' or 'NewClimate'
 #' @param subtype must be one of
 #' - 'Ghgfactor': for GHG factors calculated from the respective database
-#' - 'Ghgshare2005': ???
+#' - 'Ghgshare2005': for Emission share of countries with targets per region
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' turned off for inpudata generation
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
@@ -77,7 +75,6 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       unit = "1",
       description = glue::glue("Multiplier for target year emissions vs 2005 emissions, \\
                 as weighted average for all countries with NDC target in each region per target year."),
-      # TODO: this might have to be adjusted once the new bounds are set
       min = -5, max = 4,
       # do not throw warning for zero weights, as they only occur when there are no values to be aggregated
       aggregationArguments = list(zeroWeight = "allow")
