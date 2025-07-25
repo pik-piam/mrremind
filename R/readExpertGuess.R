@@ -12,6 +12,9 @@
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nico Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
 #'   - `costsTradePeFinancial`
+#'   - `gridFactor`: Estimates distribution of electricity demands per region (Robert Pietzcker)
+#'   - `storageFactor`: Regional storage parametrization (Robert Pietzcker)
+#'
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
@@ -27,7 +30,7 @@
 
 #'
 #' @return magpie object of the data
-#' @author Lavinia Baumstark
+#' @author Lavinia Baumstark, Falk Benke
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "ExpertGuess", subtype = "ies")
@@ -110,32 +113,30 @@ readExpertGuess <- function(subtype) {
   }
 
   if (subtype == "biocharPrices") {
-
     out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
       as.magpie()
-
   } else if (subtype == "capacityFactorGlobal") {
     out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
-
   } else if (subtype == "capacityFactorRules") {
-
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
-
+  } else if (subtype == "gridFactor") {
+    out <- read.csv("homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%
+      dplyr::select("country" = "CountryCode", "value" = "grid.factor") %>%
+      as.magpie(datacol = 2)
+  } else if (subtype == "storageFactor") {
+    out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
+      as.magpie()
   } else if (subtype == "subConvergenceRollback") {
-
     out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";",
-                    col.names = c("Year", "Region", "sector", "FE", "value")) %>%
+      col.names = c("Year", "Region", "sector", "FE", "value")
+    ) %>%
       as.magpie(datacol = 5)
-
   } else if (subtype == "taxConvergence") {
-
     out <- read.csv("tax_convergence_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
-
   } else if (subtype == "taxConvergenceRollback") {
-
     out <- read.csv("tax_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "FE", "value")) %>%
       as.magpie(datacol = 4)
   }

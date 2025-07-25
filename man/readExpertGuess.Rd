@@ -17,6 +17,8 @@ collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea D
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nico Bauer)
 \item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
 \item \code{costsTradePeFinancial}
+\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
+\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel
@@ -44,5 +46,5 @@ a <- readSource(type = "ExpertGuess", subtype = "ies")
 
 }
 \author{
-Lavinia Baumstark
+Lavinia Baumstark, Falk Benke
 }
