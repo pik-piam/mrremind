@@ -11,6 +11,8 @@ convertExpertGuess(x, subtype)
 
 \item{subtype}{Type of data that should be read. One of
 \itemize{
+\item \code{biocharPrices}: Biochar price assumptions over time. Assumptions based on
+collection of current bulk sale prices (see Dorndorf et al (submitted))
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017
@@ -26,7 +28,7 @@ convergence from historic to target shares is to be applied.
 (relative to global average) to which per-capita cement demand converges
 \item \code{ies}
 \item \code{prtp}
-\item \code{tradeContsraints}: parameter by Nicolas Bauer (2024) for the region
+\item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region
 specific trade constraints, values different to 1 activate constraints
 and the value is used as effectiveness to varying degrees such as percentage numbers
 }}

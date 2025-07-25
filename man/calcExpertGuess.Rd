@@ -8,6 +8,7 @@ calcExpertGuess(subtype)
 }
 \arguments{
 \item{subtype}{must be one of
+'biocharPrices'
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
