@@ -9,17 +9,6 @@ convertExpertGuess(x, subtype)
 \arguments{
 \item{x}{unconverted magpie object from read-script}
 
-<<<<<<< HEAD
-\item{subtype}{Type of data that should be read.  One of
-\itemize{
-\item \code{biocharPrices}: Biochar price assumptions over time. Assumptions
-based on collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
-\item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
-\item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
-\item \code{costsTradePeFinancial}
-\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
-\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
-=======
 \item{subtype}{Type of data that should be read. One of
 \itemize{
 \item \code{biocharPrices}: Biochar price assumptions over time. Assumptions based on
@@ -30,7 +19,8 @@ collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea D
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nico Bauer)
 \item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
 \item \code{costsTradePeFinancial}
->>>>>>> taxConv
+\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
+\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel

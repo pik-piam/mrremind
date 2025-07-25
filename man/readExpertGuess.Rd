@@ -9,13 +9,8 @@ readExpertGuess(subtype)
 \arguments{
 \item{subtype}{Type of data that should be read. One of
 \itemize{
-<<<<<<< HEAD
-\item \code{biocharPrices}: Biochar price assumptions over time. Assumptions
-based on collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
-=======
 \item \code{biocharPrices}: Biochar price assumptions over time. Assumptions based on
 collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
->>>>>>> taxConv
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)

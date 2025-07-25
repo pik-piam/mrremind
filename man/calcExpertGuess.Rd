@@ -7,16 +7,13 @@
 calcExpertGuess(subtype)
 }
 \arguments{
-<<<<<<< HEAD
-\item{subtype}{must be one of \code{biocharPrices}, \code{gridFactor}, \code{tradeConstraints}}
-=======
 \item{subtype}{must be one of
 'biocharPrices'
+'gridFactor'
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
 'taxConvergenceRollback'}
->>>>>>> taxConv
 }
 \description{
 Calculate expert guesses
