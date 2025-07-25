@@ -5,12 +5,12 @@
 #' @md
 #' @param subtype Type of data that should be read. One of
 #'   - `biocharPrices`: Biochar price assumptions over time. Assumptions based on
-#'      collection of current bulk sale prices (see Dorndorf et al (submitted))
+#'      collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
-#'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017
-#'   - `taxConvergence`: Tax convergence level in US$2005
-#'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017
+#'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
+#'   - `taxConvergence`: Tax convergence level in US$2017 (Nico Bauer)
+#'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
 #'   - `costsTradePeFinancial`
 #'   - `CCSbounds`
 #'   - `Steel_Production`: Steel production estimates
