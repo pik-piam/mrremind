@@ -30,6 +30,7 @@ calcEDGETransport <- function(subtype) {
       weight <- as.magpie(weight)
       unit <- "2017US$/(p|t)km"
       description <- "Capital cost (purchase) per energy service demand on CES level."
+      aggregationArguments <- list(zeroWeight = "allow")
     },
     "f35_fe2es" = {
       weight <- readSource("EDGETransport", "f35_demByTech")
@@ -46,21 +47,27 @@ calcEDGETransport <- function(subtype) {
       weight <- as.magpie(weight)
       unit <- "trn (p|t)km/Twa"
       description <- "Energy efficiency on CES level."
+      aggregationArguments <- list(zeroWeight = "allow")
     },
     "f35_demByTech" = {
       weight <- NULL
       unit <- "TWa"
       description <- "Final energy demand on CES level."
+      aggregationArguments <- list()
     },
     "f29_trpdemand" = {
       weight <- NULL
       unit <- "trillion pkm/trillion tkm"
       description <- "Energy service demand on CES level."
+      aggregationArguments <- list()
     }
   )
 
-  list(x = x,
-       weight = weight,
-       unit = unit,
-       description = description)
+  list(
+    x = x,
+    weight = weight,
+    unit = unit,
+    description = description,
+    aggregationArguments = aggregationArguments
+  )
 }
