@@ -22,7 +22,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
     columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
+      colnames(toolGetMapping(mapping, "regional", where = "mappingfolder")),
       c("X", "CountryCode")
     )
 
