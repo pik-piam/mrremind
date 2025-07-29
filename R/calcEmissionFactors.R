@@ -1,3 +1,7 @@
+#' Calc Emission Factors
+#'
+#'
+
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
   if (!(subtype %in% c("emission_factors", "activities", "emissions"))) {
     stop('subtype must be in c("emission_factors", "activities", "emissions")')
@@ -253,60 +257,60 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   # Emission factors
   # low income countries
   ef[r_L, 2030, "SSP1"] <- ef_eclipse[r_L, 2030, "CLE"] # 2030: CLE30
-  ef[r_L, 2050, "SSP1"] <- pmin(
+  ef[r_L, 2050, "SSP1"] <- base::pmin(
     setYears(ef[r_L, 2030, "SSP1"]),
     setYears(allocate_c2r_ef(ef_eclipse, r_L, select_weu, 2030, "CLE"))
   ) # 2050: CLE30 WEU, if not higher than 2030 value
 
   # 2100: SLE30, if not higher than 2050 value
-  ef[r_L, 2100, "SSP1"] <- pmin(setYears(ef[r_L, 2050, "SSP1"]), setYears(ef_eclipse[r_L, 2030, "SLE"]))
+  ef[r_L, 2100, "SSP1"] <- base::pmin(setYears(ef[r_L, 2050, "SSP1"]), setYears(ef_eclipse[r_L, 2030, "SLE"]))
   # high income countries
   ef[r_HM, 2030, "SSP1"] <- 0.75 * ef_eclipse[r_HM, 2030, "CLE"] # 2030: 75% of CLE30
   # 2050: SLE30, if not higher than 2030 value
-  ef[r_HM, 2050, "SSP1"] <- pmin(setYears(ef[r_HM, 2030, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "SLE"]))
+  ef[r_HM, 2050, "SSP1"] <- base::pmin(setYears(ef[r_HM, 2030, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "SLE"]))
   # 2100: MFR, if not higher than 2050 value
-  ef[r_HM, 2100, "SSP1"] <- pmin(setYears(ef[r_HM, 2050, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "MFR"]))
+  ef[r_HM, 2100, "SSP1"] <- base::pmin(setYears(ef[r_HM, 2050, "SSP1"]), setYears(ef_eclipse[r_HM, 2030, "MFR"]))
 
   # Emissions
   # low income countries
   emi[r_L, 2030, "SSP1"] <- emissions_exogenous[r_L, 2030, "CLE"] # 2030: CLE30
-  emi[r_L, 2050, "SSP1"] <- pmin(setYears(emi[r_L, 2030, "SSP1"]), setYears(0.5 * emissions_exogenous[r_L, 2030, "CLE"]
+  emi[r_L, 2050, "SSP1"] <- base::pmin(setYears(emi[r_L, 2030, "SSP1"]), setYears(0.5 * emissions_exogenous[r_L, 2030, "CLE"]
     + 0.5 * emissions_exogenous[r_L, 2030, "SLE"])) # 2050: CLE30 WEU, if not higher than 2030 value
-  emi[r_L, 2100, "SSP1"] <- pmin(setYears(emi[r_L, 2050, "SSP1"]), setYears(emissions_exogenous[r_L, 2030, "SLE"])) # 2100: SLE30, if not higher than 2050 value
+  emi[r_L, 2100, "SSP1"] <- base::pmin(setYears(emi[r_L, 2050, "SSP1"]), setYears(emissions_exogenous[r_L, 2030, "SLE"])) # 2100: SLE30, if not higher than 2050 value
   # high income countries
   emi[r_HM, 2030, "SSP1"] <- 0.75 * emissions_exogenous[r_HM, 2030, "CLE"] # 2030: 75% of CLE30
-  emi[r_HM, 2050, "SSP1"] <- pmin(setYears(emi[r_HM, 2030, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "SLE"])) # 2050: SLE30, if not higher than 2030 value
-  emi[r_HM, 2100, "SSP1"] <- pmin(setYears(emi[r_HM, 2050, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "MFR"])) # 2100: MFR, if not higher than 2050 value
+  emi[r_HM, 2050, "SSP1"] <- base::pmin(setYears(emi[r_HM, 2030, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "SLE"])) # 2050: SLE30, if not higher than 2030 value
+  emi[r_HM, 2100, "SSP1"] <- base::pmin(setYears(emi[r_HM, 2050, "SSP1"]), setYears(emissions_exogenous[r_HM, 2030, "MFR"])) # 2100: MFR, if not higher than 2050 value
 
   # ----------------- SSP2 --------------------------------------
   # Emission factors
   # High-Medium income countries with strong pollution policies in place
   ef[r_HMStrong, 2030, "SSP2"] <- ef_eclipse[r_HMStrong, 2030, "CLE"] # 2030: CLE30
-  ef[r_HMStrong, 2050, "SSP2"] <- pmin(
+  ef[r_HMStrong, 2050, "SSP2"] <- base::pmin(
     setYears(ef[r_HMStrong, 2030, "SSP2"]),
     setYears(ef_eclipse[r_HMStrong, 2030, "SLE"])
   ) # 2050: SLE30
-  ef[r_HMStrong, 2100, "SSP2"] <- pmin(
+  ef[r_HMStrong, 2100, "SSP2"] <- base::pmin(
     setYears(ef[r_HMStrong, 2050, "SSP2"]),
     setYears(allocate_min2r_ef(ef_eclipse, r_HMStrong, r_oecd, 2030, "SLE"))
   ) # 2100: Lowest SLE30 or lower
   # High-Medium income countries with lower emissions goals
   ef[r_HMRest, 2030, "SSP2"] <- ef_eclipse[r_HMRest, 2030, "CLE"] # 2030: CLE30
-  ef[r_HMRest, 2050, "SSP2"] <- pmin(
+  ef[r_HMRest, 2050, "SSP2"] <- base::pmin(
     setYears(ef[r_HMRest, 2030, "SSP2"]),
     setYears(allocate_min2r_ef(ef_eclipse, r_HMRest, r_HMRest, 2030, "CLE"))
   ) # 2050: Min CLE30
-  ef[r_HMRest, 2100, "SSP2"] <- pmin(
+  ef[r_HMRest, 2100, "SSP2"] <- base::pmin(
     setYears(ef[r_HMRest, 2050, "SSP2"]),
     setYears(allocate_c2r_ef(ef_eclipse, r_HMRest, select_weu, 2030, "SLE"))
   ) # 2100: SLE30 WEU
   # low income countries
   ef[r_L, 2030, "SSP2"] <- setYears(ef_eclipse[r_L, 2020, "CLE"]) # 2030: CLE20
-  ef[r_L, 2050, "SSP2"] <- pmin(
+  ef[r_L, 2050, "SSP2"] <- base::pmin(
     setYears(ef[r_L, 2030, "SSP2"]),
     setYears(allocate_min2r_ef(ef_eclipse, r_L, r_L, 2030, "CLE"))
   ) # 2050: Min CLE30
-  ef[r_L, 2100, "SSP2"] <- pmin(
+  ef[r_L, 2100, "SSP2"] <- base::pmin(
     setYears(ef[r_L, 2050, "SSP2"]),
     setYears(allocate_c2r_ef(ef_eclipse, r_L, select_weu, 2030, "CLE"))
   ) # 2100: CLE30 WEU
@@ -314,31 +318,31 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   # Emissions
   # High-Medium income countries with strong pollution policies in place
   emi[r_HMStrong, 2030, "SSP2"] <- emissions_exogenous[r_HMStrong, 2030, "CLE"] # 2030: CLE30
-  emi[r_HMStrong, 2050, "SSP2"] <- pmin(
+  emi[r_HMStrong, 2050, "SSP2"] <- base::pmin(
     setYears(emi[r_HMStrong, 2030, "SSP2"]),
     setYears(emissions_exogenous[r_HMStrong, 2030, "SLE"])
   ) # 2050: SLE30
-  emi[r_HMStrong, 2100, "SSP2"] <- pmin(
+  emi[r_HMStrong, 2100, "SSP2"] <- base::pmin(
     setYears(emi[r_HMStrong, 2050, "SSP2"]),
     setYears(emissions_exogenous[r_HMStrong, 2030, "SLE"] * 0.8)
   ) # 2100: Lowest SLE30 or lower -> 0.8*SLE30
   # High-Medium income countries with lower emissions goals
   emi[r_HMRest, 2030, "SSP2"] <- emissions_exogenous[r_HMRest, 2030, "CLE"] # 2030: CLE30
-  emi[r_HMRest, 2050, "SSP2"] <- pmin(
+  emi[r_HMRest, 2050, "SSP2"] <- base::pmin(
     setYears(emi[r_HMRest, 2030, "SSP2"]),
     setYears(emissions_exogenous[r_HMRest, 2030, "SLE"])
   ) # 2050: Min CLE30 -> SLE30
-  emi[r_HMRest, 2100, "SSP2"] <- pmin(
+  emi[r_HMRest, 2100, "SSP2"] <- base::pmin(
     setYears(emi[r_HMRest, 2050, "SSP2"]),
     setYears(emissions_exogenous[r_HMRest, 2030, "SLE"] * 0.8)
   ) # 2100: SLE30 WEU -> 0.8*SLE30
   # low income countries
   emi[r_L, 2030, "SSP2"] <- setYears(emissions_exogenous[r_L, 2020, "CLE"]) # 2030: CLE20
-  emi[r_L, 2050, "SSP2"] <- pmin(
+  emi[r_L, 2050, "SSP2"] <- base::pmin(
     setYears(emi[r_L, 2030, "SSP2"]),
     setYears(emissions_exogenous[r_L, 2030, "CLE"])
   ) # 2050: Min CLE30 -> CLE30
-  emi[r_L, 2100, "SSP2"] <- pmin(
+  emi[r_L, 2100, "SSP2"] <- base::pmin(
     setYears(emi[r_L, 2050, "SSP2"]),
     setYears(emissions_exogenous[r_L, 2030, "SLE"] * 0.95)
   ) # 2100: CLE30 WEU -> 0.95*SLE30
@@ -351,41 +355,41 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
   # Emission factors
   # High-Medium income countries with strong pollution policies in place
   ef[r_HMStrong, 2030, "SSP3"] <- ef_eclipse[r_HMStrong, 2030, "CLE"]                                                # 2030: CLE30
-  ef[r_HMStrong, 2050, "SSP3"] <- pmin(setYears(ef[r_HMStrong,        2030, "SSP3"]),
+  ef[r_HMStrong, 2050, "SSP3"] <- base::pmin(setYears(ef[r_HMStrong,        2030, "SSP3"]),
                                        setYears(ef_eclipse[r_HMStrong, 2030, "CLE"]))                                # 2050: CLE30
-  ef[r_HMStrong, 2100, "SSP3"] <- pmin(setYears(ef[r_HMStrong,        2050, "SSP3"]),
+  ef[r_HMStrong, 2100, "SSP3"] <- base::pmin(setYears(ef[r_HMStrong,        2050, "SSP3"]),
                                        setYears(allocate_min2r_ef(ef_eclipse, r_HMStrong, r_oecd, 2030, "CLE")))   # 2100: Lowest CLE30 or lower
   # High-Medium income countries with lower emissions goals
   ef[r_HMRest, 2030, "SSP3"]  <- ef_eclipse[r_HMRest, 2030, "CLE"]                                                   # 2030: CLE30
-  ef[r_HMRest, 2050, "SSP3"]  <- pmin(setYears(ef[r_HMRest,       2030, "SSP3"]),
+  ef[r_HMRest, 2050, "SSP3"]  <- base::pmin(setYears(ef[r_HMRest,       2030, "SSP3"]),
                                       setYears(allocate_min2r_ef(ef_eclipse, r_HMRest, r_HMRest, 2030, "CLE")))    # 2050: Min CLE30
-  ef[r_HMRest, 2100, "SSP3"]  <- pmin(setYears(ef[r_HMRest, 2050, "SSP3"]),
+  ef[r_HMRest, 2100, "SSP3"]  <- base::pmin(setYears(ef[r_HMRest, 2050, "SSP3"]),
                                       setYears(allocate_c2r_ef(ef_eclipse, r_HMRest, select_weu, 2030, "CLE")))    # 2100: CLE30 WEU
   # low income countries
   ef[r_L, 2030, "SSP3"]       <- setYears(ef_eclipse[r_L, 2020, "CLE"])                                            # 2030: CLE20
-  ef[r_L, 2050, "SSP3"]       <- pmin(setYears(ef[r_L,       2030, "SSP3"]),
+  ef[r_L, 2050, "SSP3"]       <- base::pmin(setYears(ef[r_L,       2030, "SSP3"]),
                                       setYears(allocate_min2r_ef(ef_eclipse, r_L, r_L, 2030, "CLE")))              # 2050: Min CLE30
-  ef[r_L, 2100, "SSP3"]       <- pmin(setYears(ef[r_L, 2050, "SSP3"]),
+  ef[r_L, 2100, "SSP3"]       <- base::pmin(setYears(ef[r_L, 2050, "SSP3"]),
                                       setYears(allocate_c2r_ef(ef_eclipse, r_L, select_weu, 2030, "CLE")))         # 2100: CLE30 WEU
 
   # Emissions
   # High-Medium income countries with strong pollution policies in place
   emi[r_HMStrong, 2030, "SSP3"] <- emissions_exogenous[r_HMStrong, 2030, "CLE"]                                               # 2030: CLE30
-  emi[r_HMStrong, 2050, "SSP3"] <- pmin(setYears(emi[r_HMStrong,        2030, "SSP3"]),
+  emi[r_HMStrong, 2050, "SSP3"] <- base::pmin(setYears(emi[r_HMStrong,        2030, "SSP3"]),
                                         setYears(emissions_exogenous[r_HMStrong, 2030, "CLE"]))                                # 2050: CLE30
-  emi[r_HMStrong, 2100, "SSP3"] <- pmin(setYears(emi[r_HMStrong,        2050, "SSP3"]),
+  emi[r_HMStrong, 2100, "SSP3"] <- base::pmin(setYears(emi[r_HMStrong,        2050, "SSP3"]),
                                         setYears(emissions_exogenous[r_HMStrong, 2030, "CLE"] ))                           # 2100: Lowest CLE30 or lower -> 0.8*CLE30
   # High-Medium income countries with lower emissions goals
   emi[r_HMRest, 2030, "SSP3"]  <- emissions_exogenous[r_HMRest, 2030, "CLE"]                                                  # 2030: CLE30
-  emi[r_HMRest, 2050, "SSP3"]  <- pmin(setYears(emi[r_HMRest,       2030, "SSP3"]),
+  emi[r_HMRest, 2050, "SSP3"]  <- base::pmin(setYears(emi[r_HMRest,       2030, "SSP3"]),
                                        setYears(emissions_exogenous[r_HMRest, 2030, "CLE"]))                                  # 2050: Min CLE30 -> CLE30
-  emi[r_HMRest, 2100, "SSP3"]  <- pmin(setYears(emi[r_HMRest, 2050, "SSP3"]),
+  emi[r_HMRest, 2100, "SSP3"]  <- base::pmin(setYears(emi[r_HMRest, 2050, "SSP3"]),
                                        setYears(emissions_exogenous[r_HMRest, 2030, "CLE"] ))                              # 2100: CLE30 WEU -> 0.8*CLE30
   # low income countries
   emi[r_L, 2030, "SSP3"]       <- setYears(emissions_exogenous[r_L, 2020, "CLE"])                                           # 2030: CLE20
-  emi[r_L, 2050, "SSP3"]       <- pmin(setYears(emi[r_L, 2030, "SSP3"]),
+  emi[r_L, 2050, "SSP3"]       <- base::pmin(setYears(emi[r_L, 2030, "SSP3"]),
                                        setYears(emissions_exogenous[r_L, 2030, "CLE"]))                                     # 2050: Min CLE30 -> CLE30
-  emi[r_L, 2100, "SSP3"]       <- pmin(setYears(emi[r_L, 2050, "SSP3"]),
+  emi[r_L, 2100, "SSP3"]       <- base::pmin(setYears(emi[r_L, 2050, "SSP3"]),
                                        setYears(emissions_exogenous[r_L, 2030, "CLE"] ))                                # 2100: CLE30 WEU -> 0.95*CLE30
 
   # ----------------- SSP4 --------------------------------------
@@ -474,7 +478,7 @@ calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolutio
         nm <- getNames(ef[, , paste0("power.", kspec)][, , ktech][, , kscen])
       }
       ef[, intersect(getYears(ef), getYears(ef_eclipse)), paste0("power.", kspec)][, , ktech][, , kscen] <- setNames(
-        pmin(
+        base::pmin(
           mbind(lapply(getYears(ef), function(x) {
             setYears(ef_eclipse[, 2030, paste0(curtech, kspec, ".MFR")] / adv_factor[adv_specs == kspec], x)
           }))[, intersect(getYears(ef), getYears(ef_eclipse)), ],
