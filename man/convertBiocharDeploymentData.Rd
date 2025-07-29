@@ -6,6 +6,9 @@
 \usage{
 convertBiocharDeploymentData(x)
 }
+\arguments{
+\item{x}{a magpie object}
+}
 \description{
 Provide Biochar price path data
 }
