@@ -87,7 +87,7 @@ fullREMIND <- function() {
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")
   calcOutput("EmiCO2LandUse",                                                   round = 5, file = "p_macPolCO2luc.cs4r")
-  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 5, file = "f_macBaseMagpie.cs4r")
+  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 8, file = "f_macBaseMagpie.cs4r")
   calcOutput("MacBaseLandUse", subtype = "Exogenous",                           round = 5, file = "f_macBaseExo.cs4r")
   calcOutput("MACCsCO2",                                                        round = 5, file = "p_abatparam_CO2.cs4r", aggregate = FALSE)
   calcOutput("EmiMac",                                                          round = 5, file = "p_macBase2005.cs4r")
