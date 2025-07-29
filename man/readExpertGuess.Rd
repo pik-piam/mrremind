@@ -13,6 +13,7 @@ readExpertGuess(subtype)
 collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 \item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
+\item \code{deltacapoffset}: ??? (Robert Pietzcker)
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nico Bauer)
 \item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)

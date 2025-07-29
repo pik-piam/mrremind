@@ -8,6 +8,7 @@
 #'      collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `deltacapoffset`: ??? (Robert Pietzcker)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nico Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
@@ -114,7 +115,13 @@ readExpertGuess <- function(subtype) {
     out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
       as.magpie()
 
+  } else if (subtype == "deltacapoffset") {
+
+    out <- read.csv("p_adj_deltacapoffset_v1.0.0.csv", sep = ";") %>%
+      as.magpie()
+
   } else if (subtype == "capacityFactorGlobal") {
+
     out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 

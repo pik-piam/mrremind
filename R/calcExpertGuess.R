@@ -4,6 +4,7 @@
 #'
 #' @param subtype must be one of
 #' 'biocharPrices'
+#' 'deltacapoffset'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
@@ -13,6 +14,7 @@ calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
+    "deltacapoffset",
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
@@ -25,6 +27,7 @@ calcExpertGuess <- function(subtype) {
 
   isocountries <- c(
     "biocharPrices" = FALSE,
+    "deltacapoffset" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
@@ -39,6 +42,14 @@ calcExpertGuess <- function(subtype) {
     unit <- "USD 2015/t biochar"
     description <- glue::glue("Biochar price assumptions over time. Assumptions \\
     based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    weight <- NULL
+
+  } else if (subtype == "deltacapoffset") {
+
+    getYears(x) <- "y2010"
+    unit <- "TW"
+    description <- glue::glue("Global offset of 200MW multiplied with the regional \\
+                              share of PE2SE capacities")
     weight <- NULL
 
   } else if (subtype == "tradeConstraints") {
