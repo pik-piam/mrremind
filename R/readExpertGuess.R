@@ -8,11 +8,17 @@
 #'      collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
 #'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies
 #'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `ccsBounds`: CCS bounds indicating the if a country is expected to do CCS in the
+#'      foreseeable future (Jessica Strefler)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nico Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nico Bauer)
+#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
+#'      constraints, values different to 1 activate constraints and the value is used as
+#'      effectiveness to varying degrees such as percentage numbers
+
 #'   - `costsTradePeFinancial`
-#'   - `CCSbounds`
+
 #'   - `Steel_Production`: Steel production estimates
 #'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
 #'     production in total steel production and years between which a linear
@@ -21,9 +27,7 @@
 #'     (relative to global average) to which per-capita cement demand converges
 #'   - `ies`
 #'   - `prtp`
-#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region
-#'      specific trade constraints, values different to 1 activate constraints
-#'      and the value is used as effectiveness to varying degrees such as percentage numbers
+
 
 #'
 #' @return magpie object of the data
@@ -39,13 +43,13 @@ readExpertGuess <- function(subtype) {
   a <- switch(subtype,
     "ies"                   = read.csv("ies.csv", sep = ";"),
     "prtp"                  = read.csv("prtp.csv", sep = ";"),
-    "CCSbounds"             = read.csv("CCSbounds.csv", sep = ";"),
+
     "co2prices"             = read.csv("co2prices-2024-11.csv", sep = ";"),
     "costsTradePeFinancial" = read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2),
-    "tradeConstraints"      = read.csv("tradeConstraints.csv", sep = ";")
+
   )
 
-  if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
+  if (subtype %in% c("ies", "prtp", "co2prices")) {
     a$RegionCode <- NULL
     a$Country <- NULL
     out <- as.magpie(a)
@@ -105,9 +109,6 @@ readExpertGuess <- function(subtype) {
       quitte::madrat_mule()
   }
 
-  if (subtype == "tradeConstraints") {
-    out <- as.magpie(a)
-  }
 
   if (subtype == "biocharPrices") {
 
@@ -122,6 +123,12 @@ readExpertGuess <- function(subtype) {
 
     out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
+
+  } else if (subtype == "ccsBounds") {
+
+    out <- read.csv("CCSbounds.csv", sep = ";") %>%
+      select("country" = "CountryCode", "value" = "Value") %>%
+      as.magpie()
 
   } else if (subtype == "subConvergenceRollback") {
 
@@ -138,6 +145,11 @@ readExpertGuess <- function(subtype) {
 
     out <- read.csv("tax_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "FE", "value")) %>%
       as.magpie(datacol = 4)
+
+  } else if (subtype == "tradeConstraints") {
+
+    out <- read.csv("tradeConstraints.csv", sep = ";") %>%
+      as.magpie()
   }
 
   return(out)
