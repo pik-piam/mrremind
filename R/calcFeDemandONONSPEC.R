@@ -106,7 +106,7 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
                               eps = constTolerance) {
     decay <- -log(eps) * (1 + epsCorrection) / dt
     x <- xStart + xDotStart / decay * (1 - exp(-decay * (t - tStart)))
-    pmax(0, x)
+    base::pmax(0, x)
   }
 
 
