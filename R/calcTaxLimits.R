@@ -18,7 +18,7 @@
 #'
 calcTaxLimits <- function(subtype) {
 
-  if (!(subtype %in% c("maxFeSubsidy", "propFeSubsidy"))) {
+  if (!(subtype %in% c("maxFeSubsidy"))) {
     stop("the argument subtype must be in c('maxFeSubsidy', 'propFeSubsidy')")
   }
 
@@ -28,22 +28,7 @@ calcTaxLimits <- function(subtype) {
     description <- "maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429"
     # using final energy to weight the max subsidy levels
     weight <- calcOutput("FE", aggregate = FALSE)[, 2005, "FE (EJ/yr)"]
-  } else if (subtype == "propFeSubsidy") {
-    # Read proportional adjustment final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype = "propFeSubsidy")[, , c("fehoi")]
-    getNames(output) <- c("fehos")
-    description <- "subsidy proportional cap to avoid liquids increasing dramatically"
-    # average weight
-    weight <- new.magpie(getItems(output, dim = 1), getYears(output), getNames(output), fill = 1)
   }
-
-  # convert data from $2005 to $2017
-  output <- GDPuc::toolConvertGDP(
-    gdp = output,
-    unit_in = "constant 2005 US$MER",
-    unit_out = mrdrivers::toolGetUnitDollar(),
-    replace_NAs = "with_USA"
-  )
 
   # Return tax convergence levels aggregated to selected REMIND regions
   return(list(x = output, weight = weight, unit = "US$2017/GJ", description = description))

@@ -3,12 +3,12 @@
 #' @param x MAgPIE object to be converted
 #' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
 #' "deltacapoffset", "maxFeSubsidy",
-#' "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
 convertREMIND_11Regi <- function(x,subtype) {
 
-  if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
+  if (subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
   } else if (subtype == "AP_starting_values") {
@@ -17,7 +17,7 @@ convertREMIND_11Regi <- function(x,subtype) {
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
-  } else if (subtype == "maxFeSubsidy" | subtype == "propFeSubsidy") {
+  } else if (subtype == "maxFeSubsidy") {
     # Loading REMIND old region mapping
     mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # Filtering REMIND old region mapping (selecting just regions available on data)
