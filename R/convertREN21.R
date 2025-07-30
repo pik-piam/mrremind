@@ -116,14 +116,14 @@ convertREN21 <- function(x, subtype) {
 
     # Total installed capacity Targets for all technologies
 
-    x_cap_tic[, , c("Wind", "SolarPV", "SolarCSP", "Biomass")] <- pmax(x_cap[, , c("Wind", "SolarPV", "SolarCSP", "Biomass")], x_tmp[, target_years, c("Wind", "SolarPV", "SolarCSP", "Biomass")][, , "TIC-Absolute", drop = TRUE])
-    x_cap_tic[, , "Hydro"] <- pmax(x_cap[, , "Hydro"], x_tmp[, target_years, "TIC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_tmp, dim = 1), , ] * 8760))
+    x_cap_tic[, , c("Wind", "SolarPV", "SolarCSP", "Biomass")] <- base::pmax(x_cap[, , c("Wind", "SolarPV", "SolarCSP", "Biomass")], x_tmp[, target_years, c("Wind", "SolarPV", "SolarCSP", "Biomass")][, , "TIC-Absolute", drop = TRUE])
+    x_cap_tic[, , "Hydro"] <- base::pmax(x_cap[, , "Hydro"], x_tmp[, target_years, "TIC-Absolute.Hydro", drop = TRUE] * setYears(cf_hydro[getItems(x_tmp, dim = 1), , ] * 8760))
 
     # Converting Production targets (GWh) to Capacity targets (TIC-Absolute) (GW) for geothermal and biomass
-    # pmax takes the higher value from existing capacity and new capacity derived (from production)
-    x_cap_pt[, , "Biomass"] <- pmax(x_cap[, , "Biomass"], x_tmp[, target_years, "Production-Absolute.Biomass"] / (8760 * cf_biomass))
+    # base::pmax takes the higher value from existing capacity and new capacity derived (from production)
+    x_cap_pt[, , "Biomass"] <- base::pmax(x_cap[, , "Biomass"], x_tmp[, target_years, "Production-Absolute.Biomass"] / (8760 * cf_biomass))
 
-    x_cap_pt[, , "Geothermal"] <- pmax(x_cap[, , "Geothermal"], x_tmp[, target_years, c("Production-Absolute.Geothermal")] / (8760 * cf_geothermal))
+    x_cap_pt[, , "Geothermal"] <- base::pmax(x_cap[, , "Geothermal"], x_tmp[, target_years, c("Production-Absolute.Geothermal")] / (8760 * cf_geothermal))
     # for solar, wind, and hydro conversion will be done using another method below
     x_cap_pt[, target_years, c("SolarPV", "SolarCSP", "Wind")] <- x_tmp[, target_years, c("SolarPV", "SolarCSP", "Wind")][, , "Production-Absolute", drop = TRUE]
 
@@ -133,7 +133,7 @@ convertREN21 <- function(x, subtype) {
     # converted into capacity targets based on maxprod and capacity factors.
 
     # Special case for hydro as mentioned above
-    x_cap_pt[, target_years, "Hydro"] <- pmax(x_tmp[, target_years, "Production-Absolute.Hydro"], x_cap_tic[, , "Hydro"], x_cap_ac[, , "Hydro"])
+    x_cap_pt[, target_years, "Hydro"] <- base::pmax(x_tmp[, target_years, "Production-Absolute.Hydro"], x_cap_tic[, , "Hydro"], x_cap_ac[, , "Hydro"])
 
     # Obtaining the capacity factors (nur) values and associated maxproduction (maxprod) for Hydro, Wind, and Solar
 
@@ -242,7 +242,7 @@ convertREN21 <- function(x, subtype) {
     x_cap_pt_2_tic <- mbind(x_cap_pt_2_tic[, , c("SolarPV", "SolarCSP", "Wind", "Hydro")], x_cap_pt[, , c("Biomass", "Geothermal")])
     # choose the maximum of installed capacity targets
     techs_e_hydro <- setdiff(techs, "Hydro")
-    x_cap_pt_2_tic[, , techs_e_hydro] <- pmax(x_cap_ac[, , techs_e_hydro], x_cap_tic[, , techs_e_hydro], x_cap_pt_2_tic[, , techs_e_hydro])
+    x_cap_pt_2_tic[, , techs_e_hydro] <- base::pmax(x_cap_ac[, , techs_e_hydro], x_cap_tic[, , techs_e_hydro], x_cap_pt_2_tic[, , techs_e_hydro])
 
     for (r in regions) {
       for (t in techs) {

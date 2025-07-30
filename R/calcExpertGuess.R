@@ -2,31 +2,101 @@
 #'
 #' @author Falk Benke
 #'
-#' @param subtype must be 'tradeConstraints' (more to come)
+#' @param subtype must be one of
+#' 'biocharPrices'
+#' 'ccsBounds'
+#' 'subConvergenceRollback'
+#' 'tradeConstraints'
+#' 'taxConvergence'
+#' 'taxConvergenceRollback'
 #' @export
 calcExpertGuess <- function(subtype) {
-  if (subtype != "tradeConstraints") {
-    stop("Invalid subtype. Supported subtypes: 'tradeConstraints'")
+
+  subtypes <- c(
+    "biocharPrices",
+    "ccsBounds",
+    "subConvergenceRollback",
+    "tradeConstraints",
+    "taxConvergence",
+    "taxConvergenceRollback"
+  )
+
+  if (!(subtype %in% subtypes)) {
+    stop("Invalid subtype. Supported subtypes: ", paste0(subtypes, collapse = ", "))
   }
 
-  x <- readSource("ExpertGuess", subtype = subtype, convert = FALSE)
+  isocountries <- c(
+    "biocharPrices" = FALSE,
+    "ccsBounds" = TRUE,
+    "subConvergenceRollback" = TRUE,
+    "tradeConstraints" = FALSE,
+    "taxConvergence" = TRUE,
+    "taxConvergenceRollback" = TRUE
+  )
 
-  if (subtype == "tradeConstraints") {
+  x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
+
+  if (subtype == "biocharPrices") {
+
+    unit <- "USD 2015/t biochar"
+    description <- glue::glue("Biochar price assumptions over time. Assumptions \\
+    based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    weight <- NULL
+
+  } else if (subtype == "ccsBounds") {
+
+    getNames(x) <- NULL
+
+    unit = "unitless"
+    description = glue::glue("CCS bound indicator by Jessica Strefler. \\
+    A value of 0 means a country will not do CCS in the foreseeable future, \\
+    a value of 1 means that no bound should be set.")
+    weight = NULL
+
+  } else if (subtype == "tradeConstraints") {
+
     unit <- "unitless"
-    description <- c(
-      "parameter by Nicolas Bauer (2024) for the region specific ",
-      "trade constraints, values different to 1 activate constraints ",
-      "and the value is used as effectiveness to varying degrees ",
-      "such as percentage numbers"
+    description <- glue::glue(
+      "parameter by Nicolas Bauer (2024) for the region specific \\
+      trade constraints, values different to 1 activate constraints \\
+      and the value is used as effectiveness to varying degrees \\
+      such as percentage numbers"
     )
-    isocountries <- FALSE
+    weight <- NULL
+
+  } else if (subtype == "taxConvergence") {
+
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Tax convergence level for specific regions, year \\
+                              and final energy type in rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
+  } else if (subtype == "subConvergenceRollback") {
+
+    unit <- "US$2017/GJ"
+    description <- glue::glue("Subsidy convergence level for specific regions, \\
+                              year, emission sectors and final energy type in \\
+                              rollback scenario")
+    weight <- x
+    weight[, , ] <- 1
+
   }
 
   return(list(
     x = x,
-    weight = NULL,
+    weight = weight,
     unit = unit,
     description = description,
-    isocountries = isocountries
+    isocountries = isocountries[[subtype]]
   ))
 }

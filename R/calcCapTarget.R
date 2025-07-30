@@ -77,7 +77,7 @@ calcCapTarget <- function(sources) {
     common_tech <- intersect(getNames(REN21) %>% unlist() %>% unique(),
                              getNames(capacities)   %>% unlist() %>% unique())
     # for common technologies, take bigger value
-    x[, listYears, common_tech] <- pmax(REN21[, listYears, common_tech], capacities[, , common_tech])
+    x[, listYears, common_tech] <- base::pmax(REN21[, listYears, common_tech], capacities[, , common_tech])
     # for tech. in REN21 but not in NDC, take REN21 values
     x[, , setdiff(getNames(REN21), common_tech)] <- REN21[, , setdiff(getNames(REN21), common_tech)]
     # for tech. in NDC but not in REN21, take NDC values
