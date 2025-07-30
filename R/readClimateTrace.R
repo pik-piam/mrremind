@@ -14,7 +14,6 @@
 #' @importFrom dplyr mutate rename select
 #' @importFrom tidyr %>%
 readClimateTrace <- function() {
-  #setwd(paste0(getConfig("sourcefolder"), "/ClimateTrace"))
   gases <- c("CO2", "CH4", "N2O", "F-Gases")
 
   data <- data.frame()
