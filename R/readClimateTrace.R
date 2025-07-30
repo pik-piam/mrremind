@@ -27,7 +27,11 @@ readClimateTrace <- function() {
                region = .data$iso3_country,
                variable = .data$subsector,
                value = .data$emissions_quantity) %>%
-        select(gas, variable, region, period, value)
+        select(.data$gas,
+               .data$variable,
+               .data$region,
+               .data$period,
+               .data$value)
       data <- rbind(data, var_data)
     }
   }
