@@ -8,19 +8,14 @@ readREMIND_11Regi(subtype)
 }
 \arguments{
 \item{subtype}{Name of the regional data, e.g.
-"tradecost", "deltacapoffset", "maxFeSubsidy",
-"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
+"tradecost", "deltacapoffset", "maxFeSubsidy", "fossilExtractionCoeff",
+"uraniumExtractionCoeff"}
 }
 \value{
 magpie object of region dependent data
 }
 \description{
 Read-in an csv files that contains regional data
-}
-\examples{
-\dontrun{
-a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
-}
 }
 \author{
 original: not defined, tax, fossil and RLDC changes: Renato Rodrigues

@@ -2,12 +2,9 @@
 % Please edit documentation in R/calcPETaxes.R
 \name{calcPETaxes}
 \alias{calcPETaxes}
-\title{Calculate SubsStationary}
+\title{Calculate PE Taxes}
 \usage{
-calcPETaxes(subtype = "subsidies")
-}
-\arguments{
-\item{subtype}{subsidies rate ("subsidies") output}
+calcPETaxes()
 }
 \value{
 MAgPIE object
