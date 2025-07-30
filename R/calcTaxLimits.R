@@ -7,8 +7,8 @@
 #' and final energies.
 #'
 #' @param subtype Name of the subsidy data type limit, e.g. "maxFeSubsidy" for
-#' maximum final energy subsidy,"maxPeSubsidy" for maximum primary energy subsidy
-#' or "propFeSubsidy" for proportional cap for final energy subsidy
+#' maximum final energy subsidy or "propFeSubsidy" for proportional cap for
+#' final energy subsidy
 #' @return magpie object of the subtype tax limit
 #' @author Renato Rodrigues
 #' @examples
@@ -18,8 +18,8 @@
 #'
 calcTaxLimits <- function(subtype) {
 
-  if (!(subtype %in% c("maxFeSubsidy", "maxPeSubsidy", "propFeSubsidy"))) {
-    stop("the argument subtype must be in c('maxFeSubsidy','maxPeSubsidy', 'propFeSubsidy')")
+  if (!(subtype %in% c("maxFeSubsidy", "propFeSubsidy"))) {
+    stop("the argument subtype must be in c('maxFeSubsidy', 'propFeSubsidy')")
   }
 
   if (subtype == "maxFeSubsidy") {
@@ -28,13 +28,6 @@ calcTaxLimits <- function(subtype) {
     description <- "maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429"
     # using final energy to weight the max subsidy levels
     weight <- calcOutput("FE", aggregate = FALSE)[, 2005, "FE (EJ/yr)"]
-  } else if (subtype == "maxPeSubsidy") {
-    # Read max primary energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype = "maxPeSubsidy")
-    description <- paste0("maximum primary energy subsidy levels (in $/Gj) to ",
-                          "provide plausible upper bound: 40$/barrel ~ 8 $/GJ")
-    # using primary energy to weight the max subsidy levels
-    weight <- calcOutput("PE", aggregate = FALSE)[, 2005, "PE (EJ/yr)"]
   } else if (subtype == "propFeSubsidy") {
     # Read proportional adjustment final energy subsidy levels
     output <- readSource("REMIND_11Regi", subtype = "propFeSubsidy")[, , c("fehoi")]
