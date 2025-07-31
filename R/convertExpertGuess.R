@@ -5,6 +5,7 @@
 #'
 convertExpertGuess <- function(x, subtype) {
 
+
   if (subtype %in% c(
     "capacityFactorRules",
     "costsTradePeFinancial",
@@ -25,6 +26,12 @@ convertExpertGuess <- function(x, subtype) {
     out <- toolAggregate(x, rel = mapping, weight = NULL,
                          from = "RegionCode", to = "CountryCode", partrel = TRUE) %>%
       toolCountryFill(fill = 0, verbosity = 2)
+
+  } else if (subtype == "deltacapoffset") {
+
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2010, c("feelb", "feeli")], dim = 3)
+    mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
+    out <- toolAggregate(x, rel = mapping, weight = weight, from = "RegionCode", to = "CountryCode")
 
   } else {
     out <- x
