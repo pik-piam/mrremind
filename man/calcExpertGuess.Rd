@@ -9,11 +9,8 @@ calcExpertGuess(subtype)
 \arguments{
 \item{subtype}{must be one of
 'biocharPrices'
-<<<<<<< HEAD
-'deltacapoffset'
-=======
 'ccsBounds'
->>>>>>> master
+'deltacapoffset'
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
