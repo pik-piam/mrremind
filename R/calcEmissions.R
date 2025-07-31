@@ -768,7 +768,7 @@ calcEmissions <- function(datasource = "CEDS16") {
 
 
     ## Additional Variables
-    # sectoral sums
+    # energy supply
     emi <- add_columns(emi, "Energy|Supply|Electricity and Heat", dim = 3.2)
     emi[, , "Energy|Supply|Electricity and Heat"] <-
       emi[, , "Energy|Supply|Electricity"] +
@@ -779,6 +779,22 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Energy|Supply|Electricity and Heat"] +
       emi[, , "Energy|Supply|Fuels"]
 
+    # additional transport aggregations
+    emi <-
+      add_columns(emi, "Energy|Demand|Transport|International Bunkers", dim = 3.2)
+    emi[, , "Energy|Demand|Transport|International Bunkers"] <-
+      emi[, , "Transport|Freight|International Shipping|Demand"] +
+      emi[, , "Transport|Pass|Aviation|International|Demand"]
+
+    emi <-
+      add_columns(emi, "w/o Bunkers|Energy|Demand|Transport", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy|Demand|Transport"] <-
+      emi[, , "Energy|Demand|Transport|Freight|Domestic Shipping"] +
+      emi[, , "Energy|Demand|Transport|Pass|Domestic Aviation"] +
+      emi[, , "Energy|Demand|Transport|Rail"] +
+      emi[, , "Energy|Demand|Transport|Road"]
+
+    # energy and industrial processes
     emi <-
       add_columns(emi, "w/o Bunkers|Energy and Industrial Processes", dim = 3.2)
     emi[, , "w/o Bunkers|Energy and Industrial Processes"] <-
@@ -786,13 +802,6 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
       emi[, , "Energy|Demand|Buildings"] +
       emi[, , "Industry"]  # = Energy|Demand|Industry + Industrial Processes
-
-    # bunkers
-    emi <-
-      add_columns(emi, "Energy|Demand|Transport|International Bunkers", dim = 3.2)
-    emi[, , "Energy|Demand|Transport|International Bunkers"] <-
-      emi[, , "Transport|Freight|International Shipping|Demand"] +
-      emi[, , "Transport|Pass|Aviation|International|Demand"]
 
 
     # variables with bunker emissions
@@ -833,7 +842,6 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Emi|CO2|w/o Bunkers (Mt CO2/yr)"] <-
       emi[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
       emi[, , "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)"] +
-      emi[, , "Emi|CO2|Extraction (Mt CO2/yr)"] +
       emi[, , "Emi|CO2|Waste (Mt CO2/yr)"] +
       emi[, , "Emi|CO2|Land-Use Change (Mt CO2/yr)"] +
       emi[, , "Emi|CO2|non-ES CDR (Mt CO2/yr)"]
@@ -842,7 +850,6 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Emi|CH4|w/o Bunkers (Mt CH4/yr)"] <-
       emi[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] +
       emi[, , "Emi|CH4|w/o Bunkers|Energy and Industrial Processes (Mt CH4/yr)"] +
-      emi[, , "Emi|CH4|Extraction (Mt CH4/yr)"] +
       emi[, , "Emi|CH4|Waste (Mt CH4/yr)"] +
       emi[, , "Emi|CH4|Land-Use Change (Mt CH4/yr)"] +
       emi[, , "Emi|CH4|non-ES CDR (Mt CH4/yr)"]
@@ -851,7 +858,6 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Emi|N2O|w/o Bunkers (kt N2O/yr)"] <-
       emi[, , "Emi|N2O|Agriculture (kt N2O/yr)"] +
       emi[, , "Emi|N2O|w/o Bunkers|Energy and Industrial Processes (kt N2O/yr)"] +
-      emi[, , "Emi|N2O|Extraction (kt N2O/yr)"] +
       emi[, , "Emi|N2O|Waste (kt N2O/yr)"] +
       emi[, , "Emi|N2O|Land-Use Change (kt N2O/yr)"] +
       emi[, , "Emi|N2O|non-ES CDR (kt N2O/yr)"]
@@ -860,7 +866,6 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Emi|GHG|w/o Bunkers (Mt CO2eq/yr)"] <-
       emi[, , "Emi|GHG|Agriculture (Mt CO2eq/yr)"] +
       emi[, , "Emi|GHG|w/o Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"] +
-      emi[, , "Emi|GHG|Extraction (Mt CO2eq/yr)"] +
       emi[, , "Emi|GHG|Waste (Mt CO2eq/yr)"] +
       emi[, , "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"] +
       emi[, , "Emi|GHG|non-ES CDR (Mt CO2eq/yr)"] +
@@ -904,6 +909,11 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Emi|GHG (Mt CO2eq/yr)"] <-
       emi[, , "Emi|GHG|w/ Bunkers (Mt CO2eq/yr)"]
 
+    # F-Gases only exist as GHG equivalent, remove other variables
+    emi <- emi[, , c("Emi|CO2|F-Gases (Mt CO2/yr)",
+                     "Emi|CH4|F-Gases (Mt CH4/yr)",
+                     "Emi|N2O|F-Gases (kt N2O/yr)"),
+               invert = TRUE]
 
     tmp <- emi
 
