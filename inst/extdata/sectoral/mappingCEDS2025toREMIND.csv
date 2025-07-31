@@ -2,7 +2,7 @@ CEDS2025;REMIND;IAMC;CommentREMIND;CommentIAMC
 1A1a_Electricity-autoproducer;Energy|Supply|Electricity;Energy Sector;;
 1A1a_Electricity-public;Energy|Supply|Electricity;Energy Sector;;
 1A1a_Heat-production;Energy|Supply|Heat;Energy Sector;;
-1A1bc_Other-transformation;Energy|Supply|Fuel Production;Energy Sector;This variable does not exist in REMIND yet, it is the sum of Supply|Liquids/Gases/Solids;
+1A1bc_Other-transformation;Energy|Supply|Fuels;Energy Sector;;
 1A2a_Ind-Comb-Iron-steel;Energy|Demand|Industry|Steel;Industrial Sector;;
 1A2b_Ind-Comb-Non-ferrous-metals;Energy|Demand|Industry|Other;Industrial Sector;;
 1A2c_Ind-Comb-Chemicals;Energy|Demand|Industry|Chemicals;Industrial Sector;;
