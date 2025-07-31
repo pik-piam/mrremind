@@ -120,16 +120,42 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
-  # Subsidy proportional cap to avoid liquids increasing dramatically
 
   if (subtype == "subsidies") {
 
-    # apply to MEA countries according to old 11Regi definition
-    mea <- toolGetMapping("regionmappingREMIND.csv", "regional", where = "mappingfolder") %>%
+    mapREMIND11 <- toolGetMapping("regionmappingREMIND.csv", "regional", where = "mappingfolder")
+
+    # MEA, LAM, AFR countries according to old 11Regi definition
+
+    MEA <- mapREMIND11 %>%
       filter(.data$RegionCode == "MEA") %>%
       pull("CountryCode")
 
-    Rtax[mea, , "fehos"] <- Rtax[mea, , "fehos"] * 0.4
+    LAM <- mapREMIND11 %>%
+      filter(.data$RegionCode == "LAM") %>%
+      pull("CountryCode")
+
+    AFR <- mapREMIND11 %>%
+      filter(.data$RegionCode == "AFR") %>%
+      pull("CountryCode")
+
+    # Adjustment of final energy subsidies to avoid neg. implicit 2005 prices that result in huge
+    # demand increases in 2010 and 2015
+    # Maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429
+
+    Rtax[AFR, , "fegas"] <- pmax(Rtax[AFR, , "fegas"], -1.8)
+    Rtax["IND", , "fegas"] <- pmax(Rtax["IND", , "fegas"], -5.3)
+    Rtax[MEA, , "fegas"] <- pmax(Rtax[MEA, , "fegas"], -3.1)
+    Rtax["RUS", , "fegas"] <- pmax(Rtax["RUS", , "fegas"], -2.6)
+    Rtax[LAM, , "fegas"] <- pmax(Rtax[LAM, , "fegas"], -3)
+
+    Rtax[AFR, , "fehos"] <- pmax(Rtax[AFR, , "fehos"], -2.5)
+    Rtax["IND", , "fehos"] <- pmax(Rtax["IND", , "fehos"], -4.6)
+
+    Rtax[MEA, , "fesos"] <- pmax(Rtax[MEA, , "fesos"], -1.5)
+
+    # Subsidy proportional cap to avoid liquids increasing dramatically
+    Rtax[MEA, , "fehos"] <- Rtax[MEA, , "fehos"] * 0.4
   }
 
   # Weights do not take into account the differentiation by services. So if

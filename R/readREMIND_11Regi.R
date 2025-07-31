@@ -3,8 +3,8 @@
 #' Read-in an csv files that contains regional data
 #'
 #' @param subtype Name of the regional data, e.g.
-#' "tradecost", "deltacapoffset", "maxFeSubsidy", "fossilExtractionCoeff",
-#' "uraniumExtractionCoeff"
+#' "tradecost", "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#'
 #' @return magpie object of region dependent data
 #'
 #' @author original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
