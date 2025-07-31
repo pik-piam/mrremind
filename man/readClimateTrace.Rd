@@ -8,10 +8,10 @@ readClimateTrace()
 }
 \value{
 magpie object of the ClimateTrace data with historical emissions
-by subsector and country
 }
 \description{
-Read-in an Climate Trace csv files as magclass object for CO2, CH4 and N2O
+Read in Climate Trace csv files as magclass object for CO2, CH4 and N2O
+emissions by subsector and country.
 }
 \examples{
 \dontrun{
