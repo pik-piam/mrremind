@@ -14,7 +14,6 @@ readREMIND_11Regi <- function(subtype) {
     "tradecost"            = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "deltacapoffset"       = read.csv("p_adj_deltacapoffset_REMIND3.4.0.csv", sep = ";")     %>% as.magpie(datacol = 2),
     "storageFactor"        = read.csv("storageFactor_REMIND_3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
-    "maxFeSubsidy"         = read.csv("max_FE_subsidy_REMIND_3.5_v1.1.csv", sep = ";") %>% as.magpie(datacol = 4),
     "gridFactor"           = {
       x <- read.csv("homogenous_regions_for grids.csv", sep = ";")
       x$X <- NULL
