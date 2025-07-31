@@ -66,5 +66,5 @@
 "sesofos.fesob.tdfossob";;"FE|Buildings|Solids|Fossil"
 "sesobio.fesoi.tdbiosoi";"SE|Solids|Industry|Biomass";"FE|Industry|Solids|Biomass"
 "sesofos.fesoi.tdfossoi";"SE|Solids|Industry|Fossil";"FE|Industry|Solids|Fossil"
-"x_seliq;x_feho;x_nonenergy";;"FE|Non-energy Use"
-"x_seliq;x_fedie;x_bunkers";;"FE|Transport|Bunkers"
+"x_seliq.x_feho.x_nonenergy";;"FE|Non-energy Use"
+"x_seliq.x_fedie.x_bunkers";;"FE|Transport|Bunkers"
