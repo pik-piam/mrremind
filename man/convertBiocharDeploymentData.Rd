@@ -7,7 +7,11 @@
 convertBiocharDeploymentData(x)
 }
 \arguments{
+<<<<<<< HEAD
 \item{x}{magpie object}
+=======
+\item{x}{a magpie object}
+>>>>>>> master
 }
 \description{
 Provide Biochar price path data

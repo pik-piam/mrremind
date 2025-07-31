@@ -1,6 +1,6 @@
 #' Provide Biochar price path data
 #'
-#' @param x magpie object
+#' @param x a magpie object
 #' @author Tabea Dorndorf
 #'
 convertBiocharDeploymentData <- function(x) {

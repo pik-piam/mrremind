@@ -3,17 +3,19 @@
 #' @author Falk Benke
 #'
 #' @param subtype must be one of
-#'    'biocharPrices'
-#'    'gridFactor'
-#'    'subConvergenceRollback'
-#'    'tradeConstraints'
-#'    'taxConvergence'
-#'    'taxConvergenceRollback'
-#'
+#' 'biocharPrices'
+#' 'ccsBounds'
+#' 'gridFactor'
+#' 'subConvergenceRollback'
+#' 'tradeConstraints'
+#' 'taxConvergence'
+#' 'taxConvergenceRollback'
+#' @export
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
+    "ccsBounds",
     "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
@@ -27,6 +29,7 @@ calcExpertGuess <- function(subtype) {
 
   isocountries <- c(
     "biocharPrices" = FALSE,
+    "ccsBounds" = TRUE,
     "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
@@ -44,7 +47,18 @@ calcExpertGuess <- function(subtype) {
       current bulk sale prices (see Dorndorf et al (submitted))."
     )
     weight <- NULL
+  } else if (subtype == "ccsBounds") {
+
+    getNames(x) <- NULL
+
+    unit = "unitless"
+    description = glue::glue("CCS bound indicator by Jessica Strefler. \\
+    A value of 0 means a country will not do CCS in the foreseeable future, \\
+    a value of 1 means that no bound should be set.")
+    weight = NULL
+
   } else if (subtype == "gridFactor") {
+
     unit <- "factor"
     getNames(x) <- NULL
     description <- glue::glue(
@@ -52,6 +66,17 @@ calcExpertGuess <- function(subtype) {
       down in comparatively small or homogeneous regions"
     )
     weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
+
+  } else if (subtype == "ccsBounds") {
+
+    getNames(x) <- NULL
+
+    unit = "unitless"
+    description = glue::glue("CCS bound indicator by Jessica Strefler. \\
+    A value of 0 means a country will not do CCS in the foreseeable future, \\
+    a value of 1 means that no bound should be set.")
+    weight = NULL
+
   } else if (subtype == "tradeConstraints") {
     unit <- "unitless"
     description <- glue::glue(
