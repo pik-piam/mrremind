@@ -11,8 +11,9 @@ readExpertGuess(subtype)
 \itemize{
 \item \code{biocharPrices}: Biochar price assumptions over time. Assumptions based on
 collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
-\item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies
+\item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies (Renato Rodrigues)
 \item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
+<<<<<<< HEAD
 \item \code{deltacapoffset}: ??? (Robert Pietzcker)
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nico Bauer)
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nico Bauer)
@@ -20,16 +21,27 @@ collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea D
 \item \code{costsTradePeFinancial}
 \item \code{CCSbounds}
 \item \code{Steel_Production}: Steel production estimates
+=======
+\item \code{ccsBounds}: CCS bounds indicating the if a country is expected to do CCS in the
+foreseeable future (Jessica Strefler)
+\item \code{co2prices}: CO2 prices (Robert Pietzcker)
+\item \code{costsTradePeFinancial}: primary energy tradecosts (financial costs on import,
+export and use) (Nicolas Bauer)
+\item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
+\item \code{prtp}: pure rate of time preference (Nicolas Bauer)
+\item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{taxConvergence}: Tax convergence level in US$2017 (Nicolas Bauer)
+\item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
+constraints, values different to 1 activate constraints and the value is used as
+effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
+\item \code{Steel_Production}: Steel production estimates (Michaja Pehl)
+>>>>>>> master
 \item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel
 production in total steel production and years between which a linear
-convergence from historic to target shares is to be applied.
+convergence from historic to target shares is to be applied. (Michaja Pehl)
 \item \code{cement_production_convergence_parameters}: convergence year and level
-(relative to global average) to which per-capita cement demand converges
-\item \code{ies}
-\item \code{prtp}
-\item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region
-specific trade constraints, values different to 1 activate constraints
-and the value is used as effectiveness to varying degrees such as percentage numbers
+(relative to global average) to which per-capita cement demand converges (Michaja Pehl)
 }}
 }
 \value{
@@ -45,5 +57,5 @@ a <- readSource(type = "ExpertGuess", subtype = "ies")
 
 }
 \author{
-Lavinia Baumstark
+Lavinia Baumstark, Falk Benke
 }

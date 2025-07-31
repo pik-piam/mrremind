@@ -9,6 +9,11 @@ calcEmissionFactors(
   sectoral_resolution = "aggregated"
 )
 }
+\arguments{
+\item{subtype}{either 'emission_factors', 'activities', or 'emissions'}
+
+\item{sectoral_resolution}{must be 'aggregated'}
+}
 \description{
 Calc Emission Factors
 }

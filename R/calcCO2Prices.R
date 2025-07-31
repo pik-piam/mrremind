@@ -21,5 +21,5 @@ calcCO2Prices <- function() {
   list(x = x,
        weight = ceds,
        unit = "US$2017/t CO2",
-       description = "CO2 prices in 2010, 2015 and 2020")
+       description = "CO2 prices from 2010-2030, loosely based on World Bank CO2 prices.")
 }

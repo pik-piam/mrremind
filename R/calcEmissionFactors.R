@@ -1,6 +1,7 @@
 #' Calc Emission Factors
 #'
-#'
+#' @param subtype either 'emission_factors', 'activities', or 'emissions'
+#' @param sectoral_resolution must be 'aggregated'
 
 calcEmissionFactors <- function(subtype = "emission_factors", sectoral_resolution = "aggregated") {
   if (!(subtype %in% c("emission_factors", "activities", "emissions"))) {

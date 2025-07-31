@@ -4,6 +4,7 @@
 #'
 #' @param subtype must be one of
 #' 'biocharPrices'
+#' 'ccsBounds'
 #' 'deltacapoffset'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
@@ -14,6 +15,7 @@ calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
+    "ccsBounds",
     "deltacapoffset",
     "subConvergenceRollback",
     "tradeConstraints",
@@ -27,6 +29,7 @@ calcExpertGuess <- function(subtype) {
 
   isocountries <- c(
     "biocharPrices" = FALSE,
+    "ccsBounds" = TRUE,
     "deltacapoffset" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
@@ -36,13 +39,22 @@ calcExpertGuess <- function(subtype) {
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
 
-
   if (subtype == "biocharPrices") {
 
     unit <- "USD 2015/t biochar"
     description <- glue::glue("Biochar price assumptions over time. Assumptions \\
     based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
     weight <- NULL
+
+  } else if (subtype == "ccsBounds") {
+
+    getNames(x) <- NULL
+
+    unit = "unitless"
+    description = glue::glue("CCS bound indicator by Jessica Strefler. \\
+    A value of 0 means a country will not do CCS in the foreseeable future, \\
+    a value of 1 means that no bound should be set.")
+    weight = NULL
 
   } else if (subtype == "deltacapoffset") {
 
