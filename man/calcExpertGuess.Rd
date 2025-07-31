@@ -9,11 +9,8 @@ calcExpertGuess(subtype)
 \arguments{
 \item{subtype}{must be one of
 'biocharPrices'
-<<<<<<< HEAD
-'gridFactor'
-=======
 'ccsBounds'
->>>>>>> master
+'gridFactor'
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
