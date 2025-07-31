@@ -7,8 +7,6 @@
 #'
 #' @author Anne Merfort, Falk Benke
 #'
-#'
-#' @export
 convertIEA_CCUS <- function(x) {
   getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))
   x <- toolCountryFill(x, fill = 0, verbosity = 2)

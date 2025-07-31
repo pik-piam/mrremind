@@ -4,7 +4,6 @@
 #' @param x A [`magpie`][magclass::magclass] object returned by [readGlobalCCSinstitute()].
 #' @inherit readGlobalCCSinstitute
 #' @return A [`magpie`][magclass::magclass] object.
-#' @export
 convertGlobalCCSinstitute <- function(x, subtype = '08-09-2017') {
   if ('08-09-2017' == subtype) { # 08-09-2017 ----
 

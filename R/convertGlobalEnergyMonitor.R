@@ -4,7 +4,6 @@
 #'
 #' @param x A magclass object returned from readGlobalEnergyMonitor().
 #'
-#' @export
 convertGlobalEnergyMonitor <- function(x) {
   x <- x["Bonaire, Sint Eustatius, and Saba", , , invert = T]
   getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))

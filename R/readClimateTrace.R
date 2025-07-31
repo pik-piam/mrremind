@@ -1,9 +1,9 @@
 #' Read Climate Trace
 #'
-#' Read-in an Climate Trace csv files as magclass object for CO2, CH4 and N2O
+#' Read in Climate Trace csv files as magclass object for CO2, CH4 and N2O
+#' emissions by subsector and country.
 #'
 #' @return magpie object of the ClimateTrace data with historical emissions
-#' by subsector and country
 #' @author Pascal Weigmann
 #'
 #' @examples
@@ -11,8 +11,8 @@
 #' a <- readSource(type = "ClimateTrace")
 #' }
 #'
-#' @importFrom dplyr mutate rename select
-#' @importFrom tidyr %>%
+#' @importFrom dplyr mutate select
+#'
 readClimateTrace <- function() {
   gases <- c("CO2", "CH4", "N2O", "F-Gases")
 

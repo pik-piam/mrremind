@@ -8,8 +8,6 @@
 #'
 #' @author Pascal Weigmann
 #'
-#' @export
-
 convertClimateTrace <- function(x) {
 
   # aggregate Kosovo to Serbia and Northern Cyprus to Cyprus

@@ -8,9 +8,6 @@
 #'
 #' @author Pascal Weigmann
 #'
-#'
-#' @export
-
 convertEmber <- function(x) {
 
   # add missing countries
