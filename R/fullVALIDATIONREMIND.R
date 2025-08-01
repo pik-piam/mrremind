@@ -202,6 +202,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   write.report(bunkers, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
 
+  # ClimateTrace emission data ----
+  calcOutput(
+    type = "Emissions", datasource = "ClimateTrace", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "ClimateTrace")
+  )
+
   # Ember electricity data ----
 
   calcOutput(

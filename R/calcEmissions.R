@@ -2,7 +2,7 @@
 #'
 #' @return magpie object with historical emissions
 #' @param datasource "CEDS2REMIND", "CEDS2025", "EDGAR6",
-#'                   "EDGARghg", "CDIAC"
+#'                   "EDGARghg", "CDIAC", "ClimateTrace"
 #'
 #' @author Steve Smith, Pascal Weigmann
 #'
@@ -219,7 +219,7 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Energy|Supply"] <-
         emi[, , "Energy|Supply|Electricity"] +
         emi[, , "Energy|Supply|Heat"] +
-        emi[, , "Energy|Supply|Fuel Production"]
+        emi[, , "Energy|Supply|Fuels"]
 
       # Addition of new items for industry subsectors
       emi <- add_columns(emi, "Energy|Demand|Industry", dim = 3.1)
@@ -615,7 +615,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi <- add_columns(emi, "Energy|Supply", dim = 3.2)
     emi[, , "Energy|Supply"] <-
       emi[, , "Energy|Supply|Electricity and Heat"] +
-      emi[, , "Energy|Supply|Fuel Production"]
+      emi[, , "Energy|Supply|Fuels"]
 
     emi <- add_columns(emi, "w/o Bunkers|Energy|Demand", dim = 3.2)
     emi[, , "w/o Bunkers|Energy|Demand"] <-
@@ -724,8 +724,201 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     tmp <- tmp * 44 / 12 / 1000 # from ktC -> MtCO2
     tmp <- tmp[, seq(1970, 2013), ]
+
     description <- "historic emissions in 1970-2013"
-  }
+
+    ## ---- ClimateTrace ----
+  } else if (datasource == "ClimateTrace") {
+    emi <- readSource("ClimateTrace")
+    # map variables
+    mapping <- toolGetMapping("mappingClimateTrace.csv",
+                              type = "sectoral",
+                              where = "mrremind")
+    emi <- toolAggregate(
+      emi,
+      dim = 3.2,
+      rel = mapping,
+      from = "ClimateTrace",
+      to = "REMIND",
+      partrel = TRUE
+    )
+
+    # rename pollutants
+    map_pol <-
+      c(co2e_100yr = "GHG",
+        n2o = "N2O",
+        ch4 = "CH4",
+        co2 = "CO2"
+      )
+    getNames(emi, dim = 1) <- map_pol[getNames(emi, dim = 1)]
+
+    # at this point all variables exist for GHG, but only F-Gases have values
+    # F-Gases also exist for other gases, but values are zero.
+    emi[, , "GHG"] <-
+      emi[, , "CO2"] +
+      emi[, , "CH4"] * 28 +  # (AR5 GWP100)
+      emi[, , "N2O"] * 265 + # (AR5 GWP100)
+      emi[, , "GHG"]
+
+    # convert from t to Mt: GHG, CO2, CH4
+    emi[, , c("GHG", "CO2", "CH4")] <- emi[, , c("GHG", "CO2", "CH4")] / 1e6
+
+    # convert from t to kt: N2O
+    emi[, , "N2O"] <- emi[, , "N2O"] / 1000
+
+
+    ## Additional Variables
+    # energy supply
+    emi <- add_columns(emi, "Energy|Supply|Electricity and Heat", dim = 3.2)
+    emi[, , "Energy|Supply|Electricity and Heat"] <-
+      emi[, , "Energy|Supply|Electricity"] +
+      emi[, , "Energy|Supply|Heat"]
+
+    emi <- add_columns(emi, "Energy|Supply", dim = 3.2)
+    emi[, , "Energy|Supply"] <-
+      emi[, , "Energy|Supply|Electricity and Heat"] +
+      emi[, , "Energy|Supply|Fuels"]
+
+    # additional transport aggregations
+    emi <-
+      add_columns(emi, "Energy|Demand|Transport|International Bunkers", dim = 3.2)
+    emi[, , "Energy|Demand|Transport|International Bunkers"] <-
+      emi[, , "Transport|Freight|International Shipping|Demand"] +
+      emi[, , "Transport|Pass|Aviation|International|Demand"]
+
+    emi <-
+      add_columns(emi, "w/o Bunkers|Energy|Demand|Transport", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy|Demand|Transport"] <-
+      emi[, , "Energy|Demand|Transport|Freight|Domestic Shipping"] +
+      emi[, , "Energy|Demand|Transport|Pass|Domestic Aviation"] +
+      emi[, , "Energy|Demand|Transport|Rail"] +
+      emi[, , "Energy|Demand|Transport|Road"]
+
+    # energy and industrial processes
+    emi <-
+      add_columns(emi, "w/o Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "Energy|Supply"] +
+      emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
+      emi[, , "Energy|Demand|Buildings"] +
+      emi[, , "Industry"]  # = Energy|Demand|Industry + Industrial Processes
+
+
+    # variables with bunker emissions
+    emi <-
+      add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "w/o Bunkers|Energy and Industrial Processes"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy|Demand|Transport", dim = 3.2)
+    emi[, , "w/ Bunkers|Energy|Demand|Transport"] <-
+      emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
+      emi[, , "Energy|Demand|Transport|International Bunkers"]
+
+    # add default variables corresponding to w/ bunkers
+    emi <-
+      add_columns(emi, "Energy and Industrial Processes", dim = 3.2)
+    emi[, , "Energy and Industrial Processes"] <-
+      emi[, , "w/ Bunkers|Energy and Industrial Processes"]
+
+    emi <- add_columns(emi, "Energy|Demand|Transport", dim = 3.2)
+    emi[, , "Energy|Demand|Transport"] <-
+      emi[, , "w/ Bunkers|Energy|Demand|Transport"]
+
+
+    # Add "Emi" and replace "." by "|" hereby reducing name dimension, add units
+    getNames(emi) <-
+      gsub("^([^\\.]*)\\.(.*$)",
+           "Emi|\\1|\\2 (Mt \\1/yr)",
+           getNames(emi))
+    getNames(emi) <- gsub("Mt N2O", "kt N2O", getNames(emi))
+    getNames(emi) <- gsub("Mt GHG", "Mt CO2eq", getNames(emi))
+
+    getSets(emi) <- c("region", "period", "variable")
+
+    # add totals per pollutant
+    emi <- add_columns(emi, "Emi|CO2|w/o Bunkers (Mt CO2/yr)", dim = 3.1)
+    emi[, , "Emi|CO2|w/o Bunkers (Mt CO2/yr)"] <-
+      emi[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
+      emi[, , "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)"] +
+      emi[, , "Emi|CO2|Waste (Mt CO2/yr)"] +
+      emi[, , "Emi|CO2|Land-Use Change (Mt CO2/yr)"] +
+      emi[, , "Emi|CO2|non-ES CDR (Mt CO2/yr)"]
+
+    emi <- add_columns(emi, "Emi|CH4|w/o Bunkers (Mt CH4/yr)", dim = 3.1)
+    emi[, , "Emi|CH4|w/o Bunkers (Mt CH4/yr)"] <-
+      emi[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] +
+      emi[, , "Emi|CH4|w/o Bunkers|Energy and Industrial Processes (Mt CH4/yr)"] +
+      emi[, , "Emi|CH4|Waste (Mt CH4/yr)"] +
+      emi[, , "Emi|CH4|Land-Use Change (Mt CH4/yr)"] +
+      emi[, , "Emi|CH4|non-ES CDR (Mt CH4/yr)"]
+
+    emi <- add_columns(emi, "Emi|N2O|w/o Bunkers (kt N2O/yr)", dim = 3.1)
+    emi[, , "Emi|N2O|w/o Bunkers (kt N2O/yr)"] <-
+      emi[, , "Emi|N2O|Agriculture (kt N2O/yr)"] +
+      emi[, , "Emi|N2O|w/o Bunkers|Energy and Industrial Processes (kt N2O/yr)"] +
+      emi[, , "Emi|N2O|Waste (kt N2O/yr)"] +
+      emi[, , "Emi|N2O|Land-Use Change (kt N2O/yr)"] +
+      emi[, , "Emi|N2O|non-ES CDR (kt N2O/yr)"]
+
+    emi <- add_columns(emi, "Emi|GHG|w/o Bunkers (Mt CO2eq/yr)", dim = 3.1)
+    emi[, , "Emi|GHG|w/o Bunkers (Mt CO2eq/yr)"] <-
+      emi[, , "Emi|GHG|Agriculture (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|w/o Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|Waste (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|Land-Use Change (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|non-ES CDR (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|F-Gases (Mt CO2eq/yr)"]
+
+    # totals with Bunkers
+    emi <- add_columns(emi, "Emi|CO2|w/ Bunkers (Mt CO2/yr)", dim = 3.1)
+    emi[, , "Emi|CO2|w/ Bunkers (Mt CO2/yr)"] <-
+      emi[, , "Emi|CO2|w/o Bunkers (Mt CO2/yr)"] +
+      emi[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
+
+    emi <- add_columns(emi, "Emi|CH4|w/ Bunkers (Mt CH4/yr)", dim = 3.1)
+    emi[, , "Emi|CH4|w/ Bunkers (Mt CH4/yr)"] <-
+      emi[, , "Emi|CH4|w/o Bunkers (Mt CH4/yr)"] +
+      emi[, , "Emi|CH4|Energy|Demand|Transport|International Bunkers (Mt CH4/yr)"]
+
+    emi <- add_columns(emi, "Emi|N2O|w/ Bunkers (kt N2O/yr)", dim = 3.1)
+    emi[, , "Emi|N2O|w/ Bunkers (kt N2O/yr)"] <-
+      emi[, , "Emi|N2O|w/o Bunkers (kt N2O/yr)"] +
+      emi[, , "Emi|N2O|Energy|Demand|Transport|International Bunkers (kt N2O/yr)"]
+
+    emi <- add_columns(emi, "Emi|GHG|w/ Bunkers (Mt CO2eq/yr)", dim = 3.1)
+    emi[, , "Emi|GHG|w/ Bunkers (Mt CO2eq/yr)"] <-
+      emi[, , "Emi|GHG|w/o Bunkers (Mt CO2eq/yr)"] +
+      emi[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
+
+    # add default totals corresponding to w/ bunkers
+    emi <- add_columns(emi, "Emi|CO2 (Mt CO2/yr)", dim = 3.1)
+    emi[, , "Emi|CO2 (Mt CO2/yr)"] <-
+      emi[, , "Emi|CO2|w/ Bunkers (Mt CO2/yr)"]
+
+    emi <- add_columns(emi, "Emi|CH4 (Mt CH4/yr)", dim = 3.1)
+    emi[, , "Emi|CH4 (Mt CH4/yr)"] <-
+      emi[, , "Emi|CH4|w/ Bunkers (Mt CH4/yr)"]
+
+    emi <- add_columns(emi, "Emi|N2O (kt N2O/yr)", dim = 3.1)
+    emi[, , "Emi|N2O (kt N2O/yr)"] <-
+      emi[, , "Emi|N2O|w/ Bunkers (kt N2O/yr)"]
+
+    emi <- add_columns(emi, "Emi|GHG (Mt CO2eq/yr)", dim = 3.1)
+    emi[, , "Emi|GHG (Mt CO2eq/yr)"] <-
+      emi[, , "Emi|GHG|w/ Bunkers (Mt CO2eq/yr)"]
+
+    # F-Gases only exist as GHG equivalent, remove other variables
+    emi <- emi[, , c("Emi|CO2|F-Gases (Mt CO2/yr)",
+                     "Emi|CH4|F-Gases (Mt CH4/yr)",
+                     "Emi|N2O|F-Gases (kt N2O/yr)"),
+               invert = TRUE]
+
+    tmp <- emi
+
+    description <- "historic emissions from 2015-2024"
+    }
 
   return(list(
     x = tmp,
