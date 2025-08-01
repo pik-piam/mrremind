@@ -7,7 +7,7 @@
 calcCCScapacity(subtype)
 }
 \arguments{
-\item{subtype}{either \code{historical} for data until 2022 or \code{projections}
+\item{subtype}{either \code{historical} for data until 2024 or \code{pipeline}
 for projections in 2020, 2025 and 2030 (including some redistribution on EU/NEU level)}
 }
 \description{
