@@ -15,7 +15,7 @@ calcCapacity <- function(subtype) {
 
 
     ###### Use IRENA data for world renewables capacity
-    # Year: 2000-2023
+    # Year: 2000-2024
     mapping <- tibble::tribble(
       ~remind,   ~irena,
       "geohdr",  "Geothermal",
@@ -30,8 +30,8 @@ calcCapacity <- function(subtype) {
       toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
       1e-6 # converting MW to TW
 
-    # Year 2025: use 2023 as a lower-bound
-    getYears(capIRENA) <- gsub("2023", "2025", getYears(capIRENA))
+    # Year 2025: use 2024 as a lower-bound
+    getYears(capIRENA) <- gsub("2024", "2025", getYears(capIRENA))
 
 
     ###### Use Openmod capacity values updated by the LIMES team for the European countries
