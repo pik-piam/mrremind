@@ -1,10 +1,8 @@
-#' Calculate SubsStationary
+#' Calculate PE Taxes
 #'
 #' Reads in the data of the source IIASA_subs_taxes, by country. and
 #' calculate taxes at primary energy level. Regional aggregation is done via the
 #' respective energy quantities as weights.
-#'
-#' @param subtype subsidies rate ("subsidies") output
 #'
 #' @return MAgPIE object
 #' @author Christoph Bertram and Renato Rodrigues
@@ -15,10 +13,7 @@
 #' calcOutput("PETaxes")
 #' }
 #'
-calcPETaxes <- function(subtype = "subsidies") {
-  if (subtype != "subsidies") {
-    stop("the subtype must be 'subsidies'")
-  }
+calcPETaxes <- function() {
 
   tax <- -readSource("IIASA_subs_taxes", subtype = "subsidies_bulk")
   desc <- "Aggregated primary energy subsidy data from country level data provided by IIASA (Jessica Jewell)"
