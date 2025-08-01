@@ -3,8 +3,9 @@
 #' renewable energy targets into total installed capacity targets (in GW).
 #' @details Policy database accessible in "inputdata/sources/REN21/README"
 #' @param x MAgPIE object to be converted
-#' @param subtype Only "Capacity" asof now
-#' @return Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
+#' @param subtype Only "Capacity" as of now
+#' @return Magpie object with Total Installed Capacity targets. The target years
+#'         differ depending upon the database.
 #' @author Aman Malik
 #' @importFrom utils read.csv
 #'
