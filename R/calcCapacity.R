@@ -30,10 +30,6 @@ calcCapacity <- function(subtype) {
       toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
       1e-6 # converting MW to TW
 
-    # Year 2025: use 2024 as a lower-bound
-    getYears(capIRENA) <- gsub("2024", "2025", getYears(capIRENA))
-
-
     ###### Use Openmod capacity values updated by the LIMES team for the European countries
     # Year: 2015
     mappingOpenmod <- tibble::tribble(
