@@ -5,6 +5,7 @@
 #' @param subtype must be one of
 #' 'biocharPrices'
 #' 'ccsBounds'
+#' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
@@ -15,6 +16,7 @@ calcExpertGuess <- function(subtype) {
   subtypes <- c(
     "biocharPrices",
     "ccsBounds",
+    "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
@@ -28,6 +30,7 @@ calcExpertGuess <- function(subtype) {
   isocountries <- c(
     "biocharPrices" = FALSE,
     "ccsBounds" = TRUE,
+    "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
@@ -39,9 +42,30 @@ calcExpertGuess <- function(subtype) {
   if (subtype == "biocharPrices") {
 
     unit <- "USD 2015/t biochar"
-    description <- glue::glue("Biochar price assumptions over time. Assumptions \\
-    based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    description <- glue::glue(
+      "Biochar price assumptions over time. Assumptions based on collection of \\
+      current bulk sale prices (see Dorndorf et al (submitted))."
+    )
     weight <- NULL
+  } else if (subtype == "ccsBounds") {
+
+    getNames(x) <- NULL
+
+    unit = "unitless"
+    description = glue::glue("CCS bound indicator by Jessica Strefler. \\
+    A value of 0 means a country will not do CCS in the foreseeable future, \\
+    a value of 1 means that no bound should be set.")
+    weight = NULL
+
+  } else if (subtype == "gridFactor") {
+
+    unit <- "factor"
+    getNames(x) <- NULL
+    description <- glue::glue(
+      "multiplicative factor that scales total grid requirements \\
+      down in comparatively small or homogeneous regions"
+    )
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
 
   } else if (subtype == "ccsBounds") {
 
@@ -54,7 +78,6 @@ calcExpertGuess <- function(subtype) {
     weight = NULL
 
   } else if (subtype == "tradeConstraints") {
-
     unit <- "unitless"
     description <- glue::glue(
       "parameter by Nicolas Bauer (2024) for the region specific \\
