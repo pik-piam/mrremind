@@ -7,7 +7,7 @@
 calcPotentialHydro()
 }
 \value{
-hydro potential data and corresonding weights as a list of two
+hydro potential data and corresponding weights as a list of two
 MAgPIE objects
 }
 \description{
