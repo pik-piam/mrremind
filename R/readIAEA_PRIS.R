@@ -6,7 +6,6 @@
 #' @author Pascal Weigmann
 #' @importFrom readxl read_xlsx
 #'
-#' @export
 readIAEA_PRIS <- function() {
   # only information given is what is currently operating and what is under
   # construction (without start date). all calculations are about 2030 estimates

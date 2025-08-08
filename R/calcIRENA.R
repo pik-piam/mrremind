@@ -1,7 +1,7 @@
 #' Calculate REMIND variables from historical IRENA capacities.
 #'
 #' @author Falk Benke
-#' @export
+#'
 calcIRENA <- function() {
   mapping <- tibble::tribble(
     ~irena,                     ~mif,

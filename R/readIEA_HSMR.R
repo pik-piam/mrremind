@@ -6,7 +6,6 @@
 #' @author Pascal Weigmann
 #' @importFrom readxl read_xlsx
 #'
-#' @export
 readIEA_HSMR <- function() {
 
   x <- readxl::read_xlsx("IEA_Hydropower_Special_Market_Report.xlsx") %>%

@@ -6,7 +6,7 @@
 #' of the capital intensities and the gdp scenarios from mrdrivers.
 #'
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
-#' @export
+#'
 #' @seealso \itemize{
 #'   \item See the vignette \code{vignette("scenarios", "mrdrivers")} for information on the GDP scenarios.
 #'   \item [readPWT()] for information on the PWT version used.
