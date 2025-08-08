@@ -192,25 +192,25 @@ calcProjectPipelines <- function(subtype) {
   # Nuclear ----
   } else if (subtype == "nuclear") {
     # Source 1: GEM
-    x <- readSource("GlobalEnergyMonitor")
-    x <- x[, , "Nuclear", pmatch = T]
-
-    # initialize magclass object for thresholds
-    t <- new.magpie(getRegions(x),
-                    c(2020, 2025, 2030),
-                    c("GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_red.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_yel.GW",
-                      "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_red.GW"),
-                    sets = getSets(x))
-
-    # ASSUMPTION: min_yel (only one project in Belarus with start date)
-    t[, , "min_yel"] <- x[, , "operating"]*0.8
-
-    # no max_yel, max_red -> would probably make sense to use construction also
-    # without start date, otherwise very low upper bounds
-
-    x <- mbind(x, t)
+    # x <- readSource("GlobalEnergyMonitor")
+    # x <- x[, , "Nuclear", pmatch = T]
+    #
+    # # initialize magclass object for thresholds
+    # t <- new.magpie(getRegions(x),
+    #                 c(2020, 2025, 2030),
+    #                 c("GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_red.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Nuclear.min_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_yel.GW",
+    #                   "GlobalEnergyMonitor.Cap|Electricity|Nuclear.max_red.GW"),
+    #                 sets = getSets(x))
+    #
+    # # ASSUMPTION: min_yel (only one project in Belarus with start date)
+    # t[, , "min_yel"] <- x[, , "operating"]*0.8
+    #
+    # # no max_yel, max_red -> would probably make sense to use construction also
+    # # without start date, otherwise very low upper bounds
+    #
+    # x <- mbind(x, t)
 
     # Source 2: IAEA PRIS
     # doesn't contain dates for expected start of operation
@@ -249,7 +249,7 @@ calcProjectPipelines <- function(subtype) {
     y <- mbind(y, t)
 
     # combine data from both sources
-    x <- mbind(x, y)
+    x <- y  # mbind(x, y)
 
     # meta data
     unit <- "GW"
