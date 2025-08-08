@@ -10,9 +10,6 @@ calcAGEB(subtype = "balances")
 \item{subtype}{data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
 "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")}
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Calculate REMIND final energy variables from historical AGEB values
 }

@@ -3,7 +3,6 @@
 #' Compute macroeconomic capital investments based on investments shares from the PWT and GDP scenarios from
 #' mrdrivers. The final investments are the product of the two.
 #'
-#' @export
 #' @seealso \itemize{
 #'   \item See the vignette \code{vignette("scenarios", "mrdrivers")} for information on the GDP scenarios.
 #'   \item [readPWT()] for information on the PWT version used.

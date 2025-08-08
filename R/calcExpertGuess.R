@@ -9,7 +9,7 @@
 #' 'tradeConstraints'
 #' 'taxConvergence'
 #' 'taxConvergenceRollback'
-#' @export
+#'
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(

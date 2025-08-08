@@ -1,12 +1,9 @@
 #' Read UNFCCC data
 #'
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #'
 #' @importFrom dplyr bind_rows mutate select
 #' @importFrom tibble tibble
-#' @export
 #'
 readUNFCCC <- function() {
 

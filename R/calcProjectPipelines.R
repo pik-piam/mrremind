@@ -13,7 +13,6 @@
 #' @param subtype choose technology `biomass`, `coal`, `geothermal`, `hydro`,
 #' `nuclear`, `solar`, `wind` or `CCS`
 #'
-#' @export
 calcProjectPipelines <- function(subtype) {
   # CCS ----
   if (subtype == "CCS") {

@@ -12,7 +12,7 @@ readGlobalCCSinstitute(subtype = "08-09-2017")
 - \code{'2023-11'}: Data from the Global Status of CCS 2023 report.}
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+a magpie object
 }
 \description{
 Read Global CCS Institute Project Database
