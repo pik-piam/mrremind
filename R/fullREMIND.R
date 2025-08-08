@@ -143,7 +143,7 @@ fullREMIND <- function() {
              temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
-  calcOutput("SeProduction",                                           round = 8,  file = "f_seProduction.cs3r")
+  calcOutput("SeProduction",                                           round = 8,  file = "p_seProduction.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
   calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
   # Pass the same scenarios to FEShares as to FEDemand to optimize madrat cache usage.
