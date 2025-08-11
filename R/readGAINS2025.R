@@ -6,15 +6,12 @@
 #' the results
 #'
 #' @return Activity levels, emissions or emission factors. Alternatively,
-#' a Govenrnmment Capacity Index (GCI) used for deriving some scenario
+#' a Government Capacity Index (GCI) used for deriving some scenario
 #' extensions.
 #' @author Gabriel Abrahao
 #' @param subtype "emifacs", "emissions","activities", "GCI"
 #' @param subset scenario and aggregation level ("agg" or "det"), separated by a dot
 #'
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
-#' @importFrom readxl read_excel
 readGAINS2025 <- function(subtype, subset = "baseline.det") {
   # Interpreting subtype as the codes used in the database
   subtypecode <- ifelse(subtype == "emissions", "EMISSION", "ACTIVITY")
@@ -76,7 +73,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
       inefs <- read.csv(paste0("SSPs_IMAGE_emf_", agglevel, "_", scenario, "_2025-07-02.csv"))
 
       # Convert to long format
-      longefs <- pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
+      longefs <- tidyr::pivot_longer(inefs, 5:length(names(inefs)), names_prefix = "X", names_to = "year")
 
       names(longefs) <- c("ssp", "region", "sectorGAINS", "species", "year", "value")
       longefs$scenario <- scenario
@@ -91,10 +88,8 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading emission factors for the ScenarioMIP combinations
-      # GA: This if condition is temporary, until we get a file for the detailed aggregation level
-      # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
-      # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
       inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-07-02.csv"))
+      # GA: There are some sector-specific corrections for the aggregated sectors
       if (agglevel == "agg") {
         corfiles <- c(
           "Transformations_NatGas_SSP_variant-2025-07-04-CORRECTION.csv",
@@ -127,7 +122,7 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
     names(longgci) <- c("ssp", "country", "year", "value")
     out <- as.magpie(longgci, spatial = "country", temporal = "year")
   } else if (subtype == "sectorlist") {
-    insec <- read_excel("EMF_sector_Unit_2025.xlsx")
+    insec <- readxl::read_excel("EMF_sector_Unit_2025.xlsx")
     out <- list(
       x = as.data.frame(insec[!is.na(insec[, 1]), ]),
       class = "data.frame"
