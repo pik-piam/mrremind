@@ -4,22 +4,19 @@
 #' files needed for REMIND in the proper format, for the scenario logic,
 #' see `GAINS2025scenarios`.
 #'
+#' @author Gabriel Abrahão
 #' @return Activity levels, emissions or emission factors
-#' @author Gabriel Abrahao
 #' @param subtype "emission_factors", "emissions","emission_factors_remindsectors",
 #' "emissions_starting_values" (not implemented)
 #'
-#' @importFrom abind abind
-#' @importFrom utils head tail
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
 calcGAINS2025forREMIND <- function(subtype) {
+
   # Binds new and old versions of GAINS data, adding an "ssp" dimension
   # to old data and makes the new data conform to the old shape besides the
   # new dimension
   bindNewOld <- function(innew, inold) {
     # Assume a dummy "GAINSlegacy" SSP for the old data to fill the dimension
-    newlastdim <- 3 + (as.integer(substr(tail(names(getSets(inold)), 1), 4, 4)) + 1) * 1e-1
+    newlastdim <- 3 + (as.integer(substr(utils::tail(names(getSets(inold)), 1), 4, 4)) + 1) * 1e-1
     old <- toolAddDimensions(inold, "GAINSlegacy", "ssp", newlastdim)
     getSets(innew) <- c("region", "year", "scenario", "ssp", "sector", "emi")
     outdimorder <- match(getSets(innew), getSets(old))[3:length(getSets(innew))] - 2
@@ -44,19 +41,18 @@ calcGAINS2025forREMIND <- function(subtype) {
     return(out)
   }
 
-
   if (subtype == "emissions") {
-    inold <- calcOutput("GAINSEmi", subtype = "emissions", aggregate = F)
-    innew <- calcOutput("GAINS2025scenarios", subtype = "emissions", aggregate = F)
+    inold <- calcOutput("GAINSEmi", subtype = "emissions", aggregate = FALSE)
+    innew <- calcOutput("GAINS2025scenarios", subtype = "emissions", aggregate = FALSE)
     out <- bindNewOld(innew, inold)
 
     wgt <- NULL
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
   } else if (subtype == "emission_factors") {
-    linold <- calcOutput("GAINSEmi", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linold <- calcOutput("GAINSEmi", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     inold <- linold$x
-    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     innew <- linnew$x
     out <- bindNewOld(innew, inold)
 
@@ -74,7 +70,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     # GAINS2025
     # ==============================================================================================================
     # Input emission factors
-    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = F, supplementary = T)
+    linnew <- calcOutput("GAINS2025scenarios", subtype = "emission_factors", aggregate = FALSE, supplementary = TRUE)
     innew <- linnew$x
     wgtnew <- linnew$weight
 
@@ -101,8 +97,8 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Also drop sectors that are not mapped with sufficient detail. Those that can be
     # used will have a dot "." splitting the specific technologies
     dropsectors <- c(secmap$gains[!grepl("\\.", secmap$remind)], dropsectors)
-    innew <- innew[, , dropsectors, invert = T]
-    wgtnew <- wgtnew[, , dropsectors, invert = T]
+    innew <- innew[, , dropsectors, invert = TRUE]
+    wgtnew <- wgtnew[, , dropsectors, invert = TRUE]
 
     # Aggregate to REMIND sectors
     filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
@@ -125,15 +121,15 @@ calcGAINS2025forREMIND <- function(subtype) {
     wgtnew <- splitTechs(wgtnew)
 
     # Drop sectors not used in REMIND anymore
-    outnew <- outnew[, , c("pcc", "pco"), invert = T]
-    wgtnew <- wgtnew[, , c("pcc", "pco"), invert = T]
+    outnew <- outnew[, , c("pcc", "pco"), invert = TRUE]
+    wgtnew <- wgtnew[, , c("pcc", "pco"), invert = TRUE]
     # ==============================================================================================================
     # GAINSlegacy
     # ==============================================================================================================
     # GAINSlegacy does not actually follow its stated dimensions, so they are meaningless from this point on
     linold <- calcOutput(
       "EmissionFactors",
-      subtype = "emission_factors", warnNA = FALSE, aggregate = F, supplementary = T
+      subtype = "emission_factors", warnNA = FALSE, aggregate = FALSE, supplementary = TRUE
     )
     inold <- linold$x
     wgtold <- linold$weight
@@ -155,11 +151,15 @@ calcGAINS2025forREMIND <- function(subtype) {
     # Combining GAINSlegacy and GAINS2025
     # ==============================================================================================================
     out <- mbind(outold, outnew)
+
     wgt <- mbind(wgtold, wgtnew)
     desc <- getFromComment(innew, "description")
     unit <- getFromComment(innew, "unit")
+
   } else if (subtype == "emissions_exo_waste") {
+    stop("Subtype not implemented yet.")
   } else if (subtype == "emissions_exo_landuse") {
+    stop("Subtype not implemented yet.")
   } else {
     stop(paste0("Unknown subtype: ", subtype))
   }
@@ -168,6 +168,7 @@ calcGAINS2025forREMIND <- function(subtype) {
     x = out,
     weight = wgt,
     unit = unit,
-    description = desc
+    description = desc,
+    aggregationArguments = list(zeroWeight = "allow")
   ))
 }

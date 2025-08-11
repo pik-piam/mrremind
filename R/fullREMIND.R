@@ -34,15 +34,10 @@ fullREMIND <- function() {
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
   calcOutput("FETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_fe_sub.cs4r")
-  calcOutput("TaxConvergence", subtype = "taxConvergence", round = 2, file = "f21_tax_convergence.cs4r")
-  calcOutput("TaxConvergence",
-             subtype = "taxConvergenceRollback",
-             round = 2,
-             file = "f21_tax_convergence_rollback.cs4r")
-  calcOutput("TaxConvergence",
-             subtype = "subConvergenceRollback",
-             round = 2,
-             file = "f21_sub_convergence_rollback.cs4r")
+
+  calcOutput("ExpertGuess", subtype = "taxConvergence", round = 2, file = "f21_tax_convergence.cs4r")
+  calcOutput("ExpertGuess", subtype = "taxConvergenceRollback", round = 2, file = "f21_tax_convergence_rollback.cs4r")
+  calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round = 2,  file = "f21_max_fe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
@@ -92,7 +87,7 @@ fullREMIND <- function() {
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")
   calcOutput("EmiCO2LandUse",                                                   round = 5, file = "p_macPolCO2luc.cs4r")
-  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 5, file = "f_macBaseMagpie.cs4r")
+  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 8, file = "f_macBaseMagpie.cs4r")
   calcOutput("MacBaseLandUse", subtype = "Exogenous",                           round = 5, file = "f_macBaseExo.cs4r")
   calcOutput("MACCsCO2",                                                        round = 5, file = "p_abatparam_CO2.cs4r", aggregate = FALSE)
   calcOutput("EmiMac",                                                          round = 5, file = "p_macBase2005.cs4r")
@@ -116,15 +111,10 @@ fullREMIND <- function() {
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  # calcOutput("GAINSEmi", subtype = "emissions",                                 round = 5, file = "emi_gains.cs4r")
-  # calcOutput("GAINSEmi", subtype = "emission_factors",                          round = 5, file = "ef_gains.cs4r")
-  # calcOutput("EmissionFactors", subtype = "emission_factors", warnNA = FALSE,   round = 5, file = "f11_emiFacAP.cs4r")
-
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors_remindsectors", warnNA = FALSE,                    round = 5, file = "f11_emiFacAP.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
   calcOutput("AirPollEmiRef", subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMINDexo",  round = 5, file = "emirefCEDS2020_gains.cs4r")
-
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")
@@ -134,6 +124,8 @@ fullREMIND <- function() {
   calcOutput("PotentialWeathering",                   round = 3,  file = "f33_maxProdGradeRegiWeathering.cs3r")
   calcOutput("CostsWeathering",                       round = 8,  file = "p33_transportCostsWeathering.cs4r")
   calcOutput("EEZdistribution",                       round = 4,  file = "p33_EEZdistribution.cs4r")
+  calcOutput("ExpertGuess", subtype = "biocharPrices",            file = "p33_BiocharPricePath.cs4r", aggregate = FALSE)
+  calcOutput("BiocharBounds",                         round = 2,  file = "p_boundCapBiochar.cs4r")
   calcOutput("CostsTrade",                            round = 5,  file = "pm_costsPEtradeMp.cs4r")
   calcOutput("CostsTradePeFinancial",                 round = 5,  file = "pm_costsTradePeFinancial.cs3r")
   calcOutput("ShareCHP",                              round = 3,  file = "f32_shCHP.cs4r")
@@ -146,7 +138,9 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
   calcOutput("ClinkerToCementRatio",                  round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
 
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = quitte::remind_timesteps)
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
+             # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
+             temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
@@ -158,7 +152,7 @@ fullREMIND <- function() {
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
-  calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
+  calcOutput("ExpertGuess", subtype = "ccsBounds",                     round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
 
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
@@ -185,13 +179,7 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
   calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
   calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
-  calcOutput("EDGETransport", subtype = "CAPEXandNonFuelOPEX",                     file = "CAPEXandNonFuelOPEX.cs4r")
-  calcOutput("EDGETransport", subtype = "scenSpecPrefTrends",                      file = "scenSpecPrefTrends.cs4r")
-  calcOutput("EDGETransport", subtype = "scenSpecLoadFactor",                      file = "scenSpecLoadFactor.cs4r")
-  calcOutput("EDGETransport", subtype = "scenSpecEnIntensity",                     file = "scenSpecEnIntensity.cs4r")
-  calcOutput("EDGETransport", subtype = "initialIncoCosts",                        file = "initialIncoCosts.cs4r")
-  calcOutput("EDGETransport", subtype = "annualMileage",                           file = "annualMileage.cs4r")
-  calcOutput("EDGETransport", subtype = "timeValueCosts",                          file = "timeValueCosts.cs4r")
+
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")

@@ -1,14 +1,11 @@
 #' Calculate REMIND final energy variables from historical AGEB values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #'
 #' @param subtype data subtype. Either "balances" ("Auswertungstabellen zur Energiebilanz Deutschland") or
 #'        "electricity" ("Bruttostromerzeugung in Deutschland nach Energieträgern")
 #' @importFrom dplyr select mutate left_join
-#' @export
+
 calcAGEB <- function(subtype = "balances") {
   ageb <- readSource("AGEB", subtype = subtype)
 

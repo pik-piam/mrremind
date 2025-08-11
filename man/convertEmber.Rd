@@ -8,7 +8,7 @@ convertEmber(x)
 }
 \arguments{
 \item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
-\code{\link[=readHRE]{readHRE()}}.}
+\code{\link[=readEmber]{readEmber()}}.}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.

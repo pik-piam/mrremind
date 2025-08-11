@@ -129,30 +129,30 @@ fullTHRESHOLDS <- function(type = "config") {
 
   # global thresholds (scale with 10/20% instead of 5/10%)
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.9
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.1
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
 
   # regional thresholds (same scaling as other sources: 20/40%)
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.6
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.4
 
 
@@ -181,7 +181,7 @@ fullTHRESHOLDS <- function(type = "config") {
   getItems(out, dim = 1) <- gsub("GLO", "World", getItems(out, dim = 1))
 
   # remove GEM as it is not up to date and shouldn't be used in this state
-  out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
+  # out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
 
   # export to file ----
   if (type == "full") {

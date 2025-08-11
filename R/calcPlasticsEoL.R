@@ -1,15 +1,10 @@
 #' calculates projections for the end of life fate of plastic waste
 #' in particular, calculates the share that is incinerated
 #'
-#' @md
-#' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
-#'   `unit`, `description`.
-#'
 #' @author Falk Benke, Simón Moreno Leiva
 #'
 #' @importFrom dplyr filter pull select
 #' @importFrom tibble as_tibble
-#' @export
 #'
 calcPlasticsEoL <- function() {
   # read source data ----

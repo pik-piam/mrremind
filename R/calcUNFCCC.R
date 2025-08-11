@@ -1,50 +1,33 @@
 #' Calculate REMIND emission variables from historical UNFCCC values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
+#' @return A magpie object.
 #'
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
-#' @export
+#'
 calcUNFCCC <- function() {
 
   data <- readSource("UNFCCC")
 
-  mapping <- toolGetMapping("Mapping_UNFCCC.csv",
-                            type = "reportingVariables",
-                            where = "mrremind") %>%
-    mutate("conversion" = as.numeric(.data$Factor) * .data$Weight) %>%
-    select("variable" = "UNFCCC", "REMIND",
-           "conversion",
-           "unit" = "Unit_UNFCCC", "Unit_REMIND")
+  mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mrremind") %>%
+    select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
+    mutate("REMIND" = trimws(.data$REMIND),
+           "variable" = trimws(gsub("\\.", "_", .data$variable))) %>%
+    filter(!is.na(.data$REMIND), .data$REMIND != "")
 
-  mapping$variable <- gsub(pattern = "\\.",
-                           replacement = "_",
-                           mapping$variable) %>%
-    trimws()
-  mapping$REMIND <- trimws(mapping$REMIND)
+  df <- data %>%
+    mselect(variable = unique(mapping$variable)) %>%
+    quitte::as.quitte(na.rm = TRUE) %>%
+    filter(.data$period >= 1990)
 
-  x <- left_join(
-    data %>%
-      mselect(variable = unique(mapping$variable)) %>%
-      as.data.frame() %>%
-      as_tibble() %>%
-      select(
-        "region" = "Region", "variable" = "Data1", "unit" = "Data2",
-        "year" = "Year", "value" = "Value"
-      ),
-    mapping,
-    by = "variable",
-    relationship = "many-to-many"
-  ) %>%
-    filter(.data$REMIND != "") %>%
+  x <- left_join(df, mapping, by = "variable", relationship = "many-to-many") %>%
     mutate(
       "value" = .data$value * .data$conversion,
       "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")")
     ) %>%
-    select("variable" = "REMIND", "region", "year", "value")
+    select("variable" = "REMIND", "region", "period", "value")
 
-  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + period, x, sum) %>%
     as.magpie() %>%
     toolCountryFill(fill = NA, verbosity = 2)
 

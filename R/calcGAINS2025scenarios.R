@@ -15,9 +15,6 @@
 #' @param subtype "emission_factors", "emissions","emissions_starting_values"
 #' @param agglevel "agg" or "det", sectoral aggregation level
 #'
-#' @importFrom magclass as.magpie
-#' @importFrom tidyr pivot_longer drop_na
-#' @importFrom zoo na.approx
 calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # ====================================================================
   # Mappings, auxiliary files and definitions ==========================
@@ -236,6 +233,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   smpvllo <- padAbsentSectors(smpvllo, incle)
 
   # Concatenating scenarios ==============================================================
+
   # The ScenarioMIP ones actually have valid 2025 data, so we remove it here and
   # add it later, overriding the interpolation filling step for those scenarios
   efs <- mbind(
@@ -302,7 +300,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Reading GDP data from madrat for all SSPs and aggregating to
   # GAINS regions.
-  gdp <- calcOutput("GDP", scenario = allssps, aggregate = F)
+  gdp <- calcOutput("GDP", scenario = allssps, aggregate = FALSE)
   gdpgains <- toolAggregate(
     gdp, regmap,
     from = "CountryCode", to = "gainscode",
@@ -317,6 +315,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # Estimate elasticities of the GDP-activities relationship.
   # Surpress warnings as all generated NaNs were checked and handled below
   estela <- suppressWarnings(collapseDim(log(refract) / log(refrgdp)))
+
   # Cap elasticies to avoid extreme values
   estela[estela > 1] <- 1
   estela[estela < -1] <- -1
@@ -376,7 +375,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
   # Use CEDS 2020 emissions as disaggregation weights for emissions
   # and activities
-  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = F)
+  inceds <- calcOutput("AirPollEmiRef", baseyear = 2020, aggregate = FALSE)
   inceds <- fixPolNames(inceds)
 
   # Function to pad the magpie object with missing sectors present in seclist
@@ -409,6 +408,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
 
     # Activities: Weighted by CEDS2020 Emissions in disaggregation,
     # no weights for aggregation (sum)
+    sspact[sspact < 0] <- 0
     csspact <- toolAggregate(
       sspact, regmap,
       from = "gainscode", to = "CountryCode",

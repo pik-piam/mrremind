@@ -14,7 +14,7 @@
 #' @examples \dontrun{
 #' calcOutput("RatioPPP2MER")
 #' }
-#' @export
+#'
 calcRatioPPP2MER <- function(year = as.numeric(mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE))) {
 
   data <- readSource("WDI", "PA.NUS.PPPC.RF")[, year, ]

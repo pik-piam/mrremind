@@ -6,9 +6,6 @@
 \usage{
 readUBA()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Read UBA
 }

@@ -6,7 +6,6 @@
 #'
 #' @source https://heatroadmap.eu/roadmaps/
 #' @importFrom dplyr select
-#' @export
 #'
 readHRE <- function() {
   filename <- "HRE4-summary-tables-and-figures-web.xlsx"
