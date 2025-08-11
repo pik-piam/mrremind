@@ -27,9 +27,9 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         # GA: There are some sector-specific corrections for the aggregated sectors
         if (agglevel == "agg") {
           corfiles <- c(
-            "Transformations_NatGas_hist-2025-07-04-CORRECTION.csv", 
+            "Transformations_NatGas_hist-2025-07-04-CORRECTION.csv",
             "Transformations_Coal_hist-2025-07-04-CORRECTION.csv"
-            )
+          )
           for (corfile in corfiles) {
             incorsec <- read.csv(corfile)
             secs <- unique(incorsec$EMF30_AGG)
