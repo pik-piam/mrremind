@@ -1,8 +1,7 @@
 #' Calculate REMIND variables from IEA World Energy Outlook data.
 #'
 #' @author Falk Benke
-#' @export
-
+#'
 calcIEA_WorldEnergyOutlook <- function() { # nolint
 
   dataGlo <- readSource("IEA_WorldEnergyOutlook", convert = FALSE)["World", , ]

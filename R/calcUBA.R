@@ -1,12 +1,9 @@
 #' Calculate REMIND final energy variables from historical UBA values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join filter
-#' @export
+#'
 calcUBA <- function() {
   uba <- readSource("UBA")
 

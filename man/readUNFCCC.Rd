@@ -6,9 +6,6 @@
 \usage{
 readUNFCCC()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Read UNFCCC data
 }

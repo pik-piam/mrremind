@@ -5,7 +5,7 @@
 #' (https://www.iea.org/data-and-statistics/data-product/world-energy-investment-2024-datafile)
 #'
 #' @author Nicolas Bauer, Falk Benke
-#' @export
+#'
 readIEA_WEIO <- function() {
 
   dataFile <- file.path("2024", "WorldEnergyInvestment2024_DataFile.xlsx")

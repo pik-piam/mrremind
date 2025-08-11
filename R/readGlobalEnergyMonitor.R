@@ -6,7 +6,6 @@
 #'
 #' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
-#' @export
 #'
 readGlobalEnergyMonitor <- function() {
   # GEM GIPT 2024

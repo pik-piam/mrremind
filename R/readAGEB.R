@@ -1,7 +1,4 @@
 #' Read AGEB
-#' @md
-#'
-#' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke
 #'
@@ -10,7 +7,6 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows select filter mutate
-#' @export
 #'
 readAGEB <- function(subtype = "balances") {
   if (!subtype %in% c("balances", "electricity")) {
