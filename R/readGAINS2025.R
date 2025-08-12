@@ -23,10 +23,20 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
     if (scenario == "baseline") {
       if (subtype == "emifacs") {
         # Reading emission factors for the ScenarioMIP combinations
-        # GA: This if condition is temporary, until we get a file for the detailed aggregation level
-        # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
-        # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
         inefs <- read.csv(paste0("emission_factors_", agglevel, "_hist_final_2025-07-02.csv"))
+        # GA: There are some sector-specific corrections for the aggregated sectors
+        if (agglevel == "agg") {
+          corfiles <- c(
+            "Transformations_NatGas_hist-2025-07-04-CORRECTION.csv",
+            "Transformations_Coal_hist-2025-07-04-CORRECTION.csv"
+          )
+          for (corfile in corfiles) {
+            incorsec <- read.csv(corfile)
+            secs <- unique(incorsec$EMF30_AGG)
+            inefs <- inefs[!(inefs$EMF30_AGG %in% secs), ]
+            inefs <- rbind(inefs, incorsec)
+          }
+        }
 
         # Convert to long format
         longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
@@ -78,10 +88,21 @@ readGAINS2025 <- function(subtype, subset = "baseline.det") {
         stop("Only emission factors are available for scenarios other than the historical baseline")
       }
       # Reading emission factors for the ScenarioMIP combinations
-      # GA: This if condition is temporary, until we get a file for the detailed aggregation level
-      # for the FINAL_2025-07-01 version. But the other version is compatible with it, so this ultimately
-      # only means that Municipal Waste EFs are read from the old version in calcGAINS2025scenarios
       inefs <- read.csv(paste0("emission_factors_", agglevel, "_ssp_variant_final_2025-07-02.csv"))
+      # GA: There are some sector-specific corrections for the aggregated sectors
+      if (agglevel == "agg") {
+        corfiles <- c(
+          "Transformations_NatGas_SSP_variant-2025-07-04-CORRECTION.csv",
+          "Transformations_Coal_SSP_variant-2025-07-04-CORRECTION.csv"
+        )
+        for (corfile in corfiles) {
+          incorsec <- read.csv(corfile)
+          secs <- unique(incorsec$EMF30_AGG)
+          inefs <- inefs[!(inefs$EMF30_AGG %in% secs), ]
+          inefs <- rbind(inefs, incorsec)
+        }
+      }
+
 
       # Convert to long format
       longefs <- pivot_longer(inefs, 7:length(names(inefs)), names_prefix = "X", names_to = "year")
