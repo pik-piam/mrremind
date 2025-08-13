@@ -67,6 +67,9 @@ fullREMIND <- function() {
              round = 8,
              file = "f36_uedemand_build.cs4r")
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
+  calcOutput("AllChemicalRoute2020", CCS=FALSE,             round = 8, file = "pm_outflowPrcHist_chemicals.cs4r")
+  calcOutput("AllChemicalMat2Ue",                           round = 8, file = "p37_mat2ue_chemicals.cs4r")
+  calcOutput("AllChemicalEnergy2005_2020", CCS=FALSE,       round = 8, file = "p37_demFePrcHist_chemicals.cs4r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
   calcOutput("IntertempElastSubst",                         round = 6, file = "pm_ies.cs4r")
