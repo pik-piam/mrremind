@@ -105,7 +105,7 @@ fullREMIND <- function() {
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
-  calcOutput("EmiLULUCFCountryAcc", subtype = "UNFCCC",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
+  calcOutput("EmiLULUCFCountryAcc", subtype = "CO2",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
   #-------------- air pollution parameters ---------------------------------------------------------
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
