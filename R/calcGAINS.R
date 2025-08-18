@@ -302,8 +302,8 @@ calcGAINS <- function(subtype = "emission_factors", sectoral_resolution = "exten
 
   # -----------------SSP1<SSP2-----------------------------------
 
-  ef[, 2030, "SSP1"]   <- collapseDim(setYears(ef[, 2030, "SSP2"]), setYears(ef[, 2030, "SSP1"]))
-  ef[, 2050, "SSP1"]   <- collapseDim(setYears(ef[, 2050, "SSP2"]), setYears(ef[, 2050, "SSP1"]))  # make sure SSP1 is not higher than SSP2
+  ef[, 2030, "SSP1"]   <- pmin(collapseDim(ef[, 2030, "SSP2"]), collapseDim(ef[, 2030, "SSP1"]))
+  ef[, 2050, "SSP1"]   <- pmin(collapseDim(ef[, 2050, "SSP2"]), collapseDim(ef[, 2050, "SSP1"]))  # make sure SSP1 is not higher than SSP2
 
   # ----------------- SSP5 --------------------------------------
   # set SSP5 to the values of SSP1
