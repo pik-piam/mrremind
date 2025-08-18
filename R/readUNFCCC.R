@@ -99,6 +99,11 @@ readUNFCCC <- function() {
 
     for (file in files) {
 
+      # skip swap files
+      if (substr(file, 0, 2) == "~$") {
+        next
+      }
+
       rx <- dplyr::case_when(
         region == "AUS" ~ "AUS_2024_([0-9]{4})_.*",
         region == "EUA" ~ "EUA_CRT_([0-9]{4}).*",
