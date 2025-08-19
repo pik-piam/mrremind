@@ -14,7 +14,7 @@ c("CH4_entf", "CH4_gasp", "CH4_landf", "CH4_manu", "CH4_oilp",
 "N2O_nitr", "N2O_sewa", "N2O tran")}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Read emission factors from a PBL IMAGE baseline (no mitigation) scenario
