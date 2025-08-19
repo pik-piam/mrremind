@@ -15,10 +15,10 @@ calcEmiLULUCFCountryAcc <- function(subtype) {
     out[is.na(out)] <- 0
     unit <- "Mt CO2/yr"
   } else if (subtype == "GHG") {
-    out <- unfccc[, , "4_ Total LULUCF|CO2"] +
-      unfccc[, , "4_ Total LULUCF|CH4"] * 28 +
+    out <- unfccc[, , "4_ Total LULUCF|CO2"] / 1000 +
+      unfccc[, , "4_ Total LULUCF|CH4"] / 1000 * 28 +
       unfccc[, , "4_ Total LULUCF|N2O"] / 1000 * 265
-
+    out[is.na(out)] <- 0
     unit <- "Mt CO2eq/yr"
   } else {
     stop("Please define a valid subtype for this function.")
