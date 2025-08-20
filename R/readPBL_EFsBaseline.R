@@ -2,9 +2,9 @@
 #' for a specific sector and gas species (CH4 or N2O)
 #'
 #' @md
-#' @param subtype gas and subsector combination string. One of: 
-#' c("CH4_entf", "CH4_gasp", "CH4_landf", "CH4_manu", "CH4_oilp", 
-#'   "CH4_rice", "CH4_sewa", "N2O_adip", "N2O_fert", "N2O_manu", 
+#' @param subtype gas and subsector combination string. One of:
+#' c("CH4_entf", "CH4_gasp", "CH4_landf", "CH4_manu", "CH4_oilp",
+#'   "CH4_rice", "CH4_sewa", "N2O_adip", "N2O_fert", "N2O_manu",
 #'   "N2O_nitr", "N2O_sewa", "N2O tran")
 #' @return A [`magpie`][magclass::magclass] object.
 #'
@@ -12,7 +12,7 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom readxl read_excel
 #'
-#' @export
+#'
 readPBL_EFsBaseline <- function(subtype) {
 
     # IMAGE regions in the order they appear in the Excel file

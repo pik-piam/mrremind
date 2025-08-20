@@ -6,15 +6,9 @@
 \usage{
 calcIEA_EB_directSum()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Calculates \code{PE|Coal}, \code{PE|Oil}, \code{PE|Gas}, and \code{FE} as direct sums of relevant
 products for \code{TES} (PEs) or \code{TFC} (FE), minus (negative) bunkers.  Used for
 benchmarking in the \code{historical.mif} and for the IIASA Scenario Compass
 Initiative vetting.
-}
-\seealso{
-\code{\link[madrat:calcOutput]{calcOutput()}}
 }

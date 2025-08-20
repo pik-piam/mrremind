@@ -2,16 +2,11 @@
 #'
 #' @param x MAgPIE object to be converted
 #' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
-#' "deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy",
+#' "deltacapoffset", "maxFeSubsidy",
 #' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
-#' @author original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
-#' @examples
+#' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
-#' \dontrun{ a <- convertREMIND_11Regi(x,subtype="capacityFactorGlobal")
-#' }
-#'
-
 convertREMIND_11Regi <- function(x,subtype) {
 
   if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
@@ -23,8 +18,7 @@ convertREMIND_11Regi <- function(x,subtype) {
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
-  } else if (subtype=="capacityFactorRules" | subtype == "taxConvergence" | subtype == "maxFeSubsidy" |
-             subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
+  } else if (subtype == "maxFeSubsidy" | subtype == "maxPeSubsidy" | subtype == "propFeSubsidy") {
     # Loading REMIND old region mapping
     mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
     # Filtering REMIND old region mapping (selecting just regions available on data)

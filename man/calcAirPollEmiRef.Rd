@@ -7,13 +7,19 @@ in combination with GAINS data at different sectoral aggregations}
 \usage{
 calcAirPollEmiRef(
   subtype = "total",
-  baseyear = 2020,
+  baseyear = 2015,
   outunits = "Mt/yr",
   namesformat = "GAINS2025"
 )
 }
 \arguments{
+\item{subtype}{"total" or "sectorsCEDS16"}
+
 \item{baseyear}{year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions}
+
+\item{outunits}{"Mt/yr" or "kt/yr"}
+
+\item{namesformat}{"GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names}
 }
 \value{
 magclass object

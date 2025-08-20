@@ -22,7 +22,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
     columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
+      colnames(toolGetMapping(mapping, "regional", where = "mappingfolder")),
       c("X", "CountryCode")
     )
 
@@ -137,7 +137,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base
   ceds <- calcOutput(
-    "Emissions", datasource = "CEDS2025",
+    "Emissions", datasource = "CEDS2025", years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
 
   # the following variables only have meaningful data on global level
@@ -161,7 +161,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # Historical emissions from CEDS data base, aggregated to IAMC sectors
   calcOutput(
-    "Emissions", datasource = "CEDS2025_IAMC", file = valfile,
+    "Emissions", datasource = "CEDS2025_IAMC", file = valfile, years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
@@ -201,6 +201,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   bunkers <- edgar["GLO", , vars_glo_only, pmatch = TRUE]
   write.report(bunkers, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
+
+  # ClimateTrace emission data ----
+  calcOutput(
+    type = "Emissions", datasource = "ClimateTrace", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "ClimateTrace")
+  )
 
   # Ember electricity data ----
 

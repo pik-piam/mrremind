@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'mrremind: MadRat REMIND Input Data Package'
-version: 0.232.5.9001
-date-released: '2025-06-30'
+version: 0.240.7
+date-released: '2025-08-19'
 abstract: The mrremind packages contains data preprocessing for the REMIND model.
 authors:
 - family-names: Baumstark

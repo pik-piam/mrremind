@@ -7,11 +7,13 @@
 readGAINS2025(subtype, subset = "baseline.det")
 }
 \arguments{
-\item{subtype}{"emission_factors", "emissions","emissions_starting_values"}
+\item{subtype}{"emifacs", "emissions","activities", "GCI"}
+
+\item{subset}{scenario and aggregation level ("agg" or "det"), separated by a dot}
 }
 \value{
 Activity levels, emissions or emission factors. Alternatively,
-a Govenrnmment Capacity Index (GCI) used for deriving some scenario
+a Government Capacity Index (GCI) used for deriving some scenario
 extensions.
 }
 \description{

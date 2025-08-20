@@ -1,12 +1,8 @@
 #' Calculate REMIND emission variables from IEA ETP values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #'
 #' @importFrom dplyr select mutate left_join filter
-#' @export
 #'
 calcIEA_ETP <- function() {
 

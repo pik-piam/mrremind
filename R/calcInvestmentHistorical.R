@@ -1,7 +1,6 @@
 #' Calculate REMIND investment variables from IEA World Energy Investment Outlook (2024)
 #' @author Nicolas Bauer, Falk Benke
 #'
-#' @export
 calcInvestmentHistorical <- function() {
   x <- readSource("IEA_WEIO")[c("World", "China"), , ]
   getItems(x, dim = 1) <- c("GLO", "CHN")

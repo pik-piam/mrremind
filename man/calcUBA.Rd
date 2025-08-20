@@ -6,9 +6,6 @@
 \usage{
 calcUBA()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Calculate REMIND final energy variables from historical UBA values
 }

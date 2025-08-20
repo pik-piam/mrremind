@@ -1,23 +1,16 @@
 #' Calculate air pollutant emissions for a reference year, for use
 #' in combination with GAINS data at different sectoral aggregations
 #'
-#'
+#' @param subtype "total" or "sectorsCEDS16"
 #' @param baseyear year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions
+#' @param outunits "Mt/yr" or "kt/yr"
+#' @param namesformat "GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names
 #' @return magclass object
 #' @author Gabriel Abrahao
 #' @importFrom magclass getNames<- getYears<-
 
 calcAirPollEmiRef <- function(
-    subtype = "total", baseyear = 2020, outunits = "Mt/yr", namesformat = "GAINS2025") {
-  # require(tidyverse)
-  # require(madrat)
-  # require(magclass)
-  # require(mrcommons)
-  # subtype <- "total"
-  # baseyear <- 2020
-  # outunits <- "Mt/yr"
-  # namesformat <- "GAINS2025"
-
+    subtype = "total", baseyear = 2015, outunits = "Mt/yr", namesformat = "GAINS2025") {
   # Mapping from GAINS to CEDS2025 pollutant names
   polnamesmap <- c(
     "CO" = "co",
@@ -73,17 +66,32 @@ calcAirPollEmiRef <- function(
     return(mag)
   }
 
-  if (namesformat %in% c("REMIND","REMINDexo")) {
+  if (namesformat %in% c("REMIND", "REMINDexo")) {
     fullceds <- fixPolNames(fullceds, namesformat)
   }
 
   if (subtype == "total") {
-    totceds <- dimSums(fullceds, dim = 3.1, na.rm = T)
+    totceds <- dimSums(fullceds, dim = 3.1, na.rm = TRUE)
 
     out <- setYears(totceds)
     unit <- outunits
     desc <- paste0("Emissions in year ", baseyear)
+  } else if (subtype == "sectorsCEDS16") {
+    subtype <- "sectorsCEDS16"
+    # CEDS Sectoral mapping to aggregated CEDS sectors
+    cedsecmap <- toolGetMapping(type = "sectoral", name = "mappingCEDS62toCEDS16.csv", where = "mrremind")
+
+    fullceds16 <- toolAggregate(
+      fullceds[, , "6B_Other-not-in-total", invert = TRUE], cedsecmap,
+      from = "CEDS62", to = "CEDS16",
+      weight = NULL, dim = 3.1
+    )
+
+    out <- setYears(fullceds16)
+    unit <- outunits
+    desc <- paste0("Emissions in year ", baseyear)
   }
+
 
   return(list(
     x = out,

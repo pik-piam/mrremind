@@ -11,7 +11,8 @@ see \code{GAINS2025scenarios}.}
 calcGAINS2025forREMIND(subtype)
 }
 \arguments{
-\item{subtype}{"emission_factors", "emissions","emissions_starting_values"}
+\item{subtype}{"emission_factors", "emissions","emission_factors_remindsectors",
+"emissions_starting_values" (not implemented)}
 }
 \value{
 Activity levels, emissions or emission factors
@@ -24,5 +25,5 @@ files needed for REMIND in the proper format, for the scenario logic,
 see \code{GAINS2025scenarios}.
 }
 \author{
-Gabriel Abrahao
+Gabriel Abrahão
 }

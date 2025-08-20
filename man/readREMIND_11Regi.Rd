@@ -8,8 +8,7 @@ readREMIND_11Regi(subtype)
 }
 \arguments{
 \item{subtype}{Name of the regional data, e.g.
-"tradecost", "deltacapoffset", "capacityFactorGlobal",
-"capacityFactorRules", "taxConvergence", "maxFeSubsidy",
+"tradecost", "deltacapoffset", "maxFeSubsidy",
 "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{
@@ -24,5 +23,5 @@ a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
 }
 }
 \author{
-original: not defined, capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
+original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
 }
