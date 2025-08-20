@@ -77,7 +77,7 @@ readGlobalEnergyMonitor <- function() {
 
   # transform data from list of capacities with start and end date
   # to sum of active capacities in 2025 and 2030
-  d <- mutate(d, end = base::pmin(.data$end, 2030))  # improves performance of next step
+  d <- mutate(d, end = pmin(.data$end, 2030))  # improves performance of next step
   tmp_list <- vector("list", nrow(d))
   for (i in seq_len(nrow(d))) {
     tmp_list[[i]] <- data.frame(
