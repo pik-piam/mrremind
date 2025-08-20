@@ -17,9 +17,7 @@ calcEDGETransport <- function(subtype) {
       weight[weight < 1e-5] <- 0
       unit <- "2017US$/(p|t)km"
       description <- "Capital cost (purchase) per energy service demand on CES level."
-
       aggregationFunction <- function(x, rel, weight) {
-
         # check whether weightsum is zero for some cases
         # if so, the values should just be aggregated equally in order to prevent zeros in the results
         weight <- rmndt::magpie2dt(weight)
@@ -33,16 +31,13 @@ calcEDGETransport <- function(subtype) {
         weight <- as.magpie(weight)
         toolAggregate(x, rel = rel, weight)
       }
-
     },
     "f35_fe2es" = {
       weight <- readSource("EDGETransport", "f35_demByTech")
       weight[weight < 1e-5] <- 0
       unit <- "trn (p|t)km/Twa"
       description <- "Energy efficiency on CES level."
-
       aggregationFunction <- function(x, rel, weight) {
-
         # check whether weightsum is zero for some cases
         # if so, the values should just be aggregated equally in order to prevent zeros in the results
         weight <- rmndt::magpie2dt(weight)
@@ -56,7 +51,6 @@ calcEDGETransport <- function(subtype) {
         weight <- as.magpie(weight)
         toolAggregate(x, rel = rel, weight)
       }
-
     },
     "f35_demByTech" = {
       weight <- NULL
