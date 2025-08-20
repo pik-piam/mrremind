@@ -1,16 +1,14 @@
 #' Read Global CCS Institute Project Database
 #'
-#' @md
 #' @param subtype Project Database version to read, one of
 #'     - `'08-09-2017'`: Data apparently from June 2017.
 #'     - `'2023-11'`: Data from the Global Status of CCS 2023 report.
 #'
-#' @return A [`magpie`][magclass::magclass] object.
+#' @return a magpie object
 #'
 #' @importFrom dplyr mutate select
 #' @importFrom readxl read_excel
 #'
-#' @export
 readGlobalCCSinstitute <- function(subtype = '08-09-2017') {
    if ('08-09-2017' == subtype) { # 08-09-2017 ----
       . <- NULL

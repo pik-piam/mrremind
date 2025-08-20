@@ -8,8 +8,6 @@
 #'
 #' @importFrom dplyr select
 #'
-#' @export
-
 readEmber <- function() {
   filename <- "yearly_full_release_long_format.csv"
   df <- read.csv(file.path("2025", filename))

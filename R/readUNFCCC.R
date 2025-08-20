@@ -1,12 +1,9 @@
 #' Read UNFCCC data
 #'
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
 #'
 #' @importFrom dplyr bind_rows mutate select
 #' @importFrom tibble tibble
-#' @export
 #'
 readUNFCCC <- function() {
 
@@ -101,6 +98,11 @@ readUNFCCC <- function() {
     message("Reading in ", region, "\n\n")
 
     for (file in files) {
+
+      # skip swap files
+      if (substr(file, 0, 2) == "~$") {
+        next
+      }
 
       rx <- dplyr::case_when(
         region == "AUS" ~ "AUS_2024_([0-9]{4})_.*",

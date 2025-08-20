@@ -7,11 +7,7 @@
 convertAGEB(x)
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
-\code{\link[=readAGEB]{readAGEB()}}.}
-}
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+\item{x}{a magpie object}
 }
 \description{
 Convert AGEB data

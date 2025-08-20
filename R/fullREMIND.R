@@ -87,7 +87,7 @@ fullREMIND <- function() {
   calcOutput("HistEmissions", subtype = "sector",                               round = 8, file = "p_histEmiSector.cs4r")
   calcOutput("HistEmissions", subtype = "MAC",                                  round = 8, file = "p_histEmiMac.cs4r")
   calcOutput("EmiCO2LandUse",                                                   round = 5, file = "p_macPolCO2luc.cs4r")
-  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 5, file = "f_macBaseMagpie.cs4r")
+  calcOutput("MacBaseLandUse", subtype = "DirectlyFromMAgPIE",                  round = 8, file = "f_macBaseMagpie.cs4r")
   calcOutput("MacBaseLandUse", subtype = "Exogenous",                           round = 5, file = "f_macBaseExo.cs4r")
   calcOutput("MACCsCO2",                                                        round = 5, file = "p_abatparam_CO2.cs4r", aggregate = FALSE)
   calcOutput("EmiMac",                                                          round = 5, file = "p_macBase2005.cs4r")
@@ -105,7 +105,7 @@ fullREMIND <- function() {
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
-  calcOutput("EmiLULUCFCountryAcc", subtype = "UNFCCC",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
+  calcOutput("EmiLULUCFCountryAcc", subtype = "CO2",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
   #-------------- air pollution parameters ---------------------------------------------------------
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
@@ -138,9 +138,12 @@ fullREMIND <- function() {
   calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
   calcOutput("ClinkerToCementRatio",                  round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
 
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r", temporalmapping = quitte::remind_timesteps)
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
+             # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
+             temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
+  calcOutput("SeProduction",                                           round = 8,  file = "p_histProdSe.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
   calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
   # Pass the same scenarios to FEShares as to FEDemand to optimize madrat cache usage.
@@ -150,7 +153,7 @@ fullREMIND <- function() {
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
-  calcOutput("CCSbounds",                                              round = 8,  file = "p_boundCapCCSindicator.cs4r")
+  calcOutput("ExpertGuess", subtype = "ccsBounds",                     round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
 
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
@@ -177,7 +180,7 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
   calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
   calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
-  
+
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")

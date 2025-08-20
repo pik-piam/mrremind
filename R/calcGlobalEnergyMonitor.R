@@ -1,13 +1,8 @@
 #' Calc capacities from Global Energy Monitor
 #'
 #' Calculate near-term expectations of capacities for use in fullVALIDATION.R
-#'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
-#' @export
-
+#'
 calcGlobalEnergyMonitor <- function() {
 
   x <- readSource("GlobalEnergyMonitor")

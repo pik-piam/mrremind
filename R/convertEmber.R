@@ -2,15 +2,12 @@
 #'
 #' @md
 #' @param x A [`magpie`][magclass::magclass] object returned from
-#'          [`readHRE()`].
+#'          [`readEmber()`].
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Pascal Weigmann
 #'
-#'
-#' @export
-
 convertEmber <- function(x) {
 
   # add missing countries

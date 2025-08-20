@@ -5,15 +5,10 @@
 #' benchmarking in the `historical.mif` and for the IIASA Scenario Compass
 #' Initiative vetting.
 #'
-#' @md
 #' @importFrom madrat readSource
 #' @importFrom magclass dimSums mbind setNames
 #' @importFrom quitte cartesian
 #'
-#' @returns A [`magpie`][magclass::magclass] object.
-#' @seealso [`calcOutput()`][madrat::calcOutput]
-
-#' @export
 calcIEA_EB_directSum <- function()
 {
     iea_data <- readSource('IEA', subtype = 'EnergyBalances-latest') * 4.1868e-5

@@ -6,11 +6,10 @@
 #' @author Pascal Weigmann
 #' @importFrom readxl read_xlsx
 #'
-#' @export
 readIAEA_PRIS <- function() {
   # only information given is what is currently operating and what is under
   # construction (without start date). all calculations are about 2030 estimates
-  x <- readxl::read_xlsx("nuclear_capacities_20240716.xlsx") %>%
+  x <- readxl::read_xlsx("nuclear_capacities_20250808.xlsx") %>%
     mutate("operational"  = .data$operational,
            "construction" = .data$construction,
            "inactive"     = .data$inactive,  # only relevant for Japan
