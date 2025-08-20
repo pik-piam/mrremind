@@ -7,12 +7,12 @@
 calcEmiTargetReference()
 }
 \description{
-Uses historical CEDS emissions from 1990-2015
+Uses historical CEDS emissions from 1990-2023
 CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
 }
 \seealso{
 \code{\link[=calcEmiTarget]{calcEmiTarget()}}, \code{\link[=convertUNFCCC_NDC]{convertUNFCCC_NDC()}}
 }
 \author{
-Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
+Rahel Mandaroux, Falk Benke
 }
