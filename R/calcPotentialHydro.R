@@ -205,7 +205,7 @@ calcPotentialHydro <- function() {
 
   ### specific countries: increase potential beyond NDC targets
   data[c("BEL","LUX","NLD","AUT"),,"maxprod"] <- data[c("BEL","LUX","NLD","AUT"),,"maxprod"]*1.3 # EWN
-  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.365 #ECE
+  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.5 #ECE
   data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*2.1 # UKI
 
   # FS: Australia reached full hydro potential today at about 0.07 EJ/yr
