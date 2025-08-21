@@ -29,6 +29,7 @@ Missing conversion factors are set to 1 and regional aggregation is weighed by G
 \dontrun{
 calcOutput("RatioPPP2MER")
 }
+
 }
 \seealso{
 \code{\link[madrat:calcOutput]{madrat::calcOutput()}}

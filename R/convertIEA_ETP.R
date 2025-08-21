@@ -4,7 +4,7 @@
 #'
 #' @param x IEA ETP projection magpie object derived from readIEA_ETP function
 #' @param subtype data subtype. Either "industry", "buildings", "summary", or "transport"
-#' @export
+#'
 #'
 convertIEA_ETP <- function(x, subtype) { # nolint: object_name_linter.
 

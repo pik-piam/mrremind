@@ -6,9 +6,6 @@
 \usage{
 calcGlobalEnergyMonitor()
 }
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
-}
 \description{
 Calculate near-term expectations of capacities for use in fullVALIDATION.R
 }

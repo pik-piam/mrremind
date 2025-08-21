@@ -181,7 +181,7 @@ fullTHRESHOLDS <- function(type = "config") {
   getItems(out, dim = 1) <- gsub("GLO", "World", getItems(out, dim = 1))
 
   # remove GEM as it is not up to date and shouldn't be used in this state
-  out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
+  # out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
 
   # export to file ----
   if (type == "full") {

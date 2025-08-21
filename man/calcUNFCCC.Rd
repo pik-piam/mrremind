@@ -7,7 +7,7 @@
 calcUNFCCC()
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A magpie object.
 }
 \description{
 Calculate REMIND emission variables from historical UNFCCC values

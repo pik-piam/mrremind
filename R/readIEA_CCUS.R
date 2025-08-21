@@ -10,7 +10,6 @@
 #' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
 #'
-#' @export
 readIEA_CCUS <- function(subtype) {
   # ASSUMPTION: transport and storage are limiting factors for CCS
   # project types filter applied to source

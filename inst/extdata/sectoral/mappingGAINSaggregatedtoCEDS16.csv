@@ -1,0 +1,37 @@
+CEDS16,GAINS
+Industrial Process and Product Use,CEMENT
+Solvents Production and Application,CHEM
+Industrial Process and Product Use,CHEMBULK
+Industrial Process and Product Use,CUSM
+Industrial Process and Product Use,NACID
+Industrial Process and Product Use,PAPER
+Industrial Process and Product Use,STEEL
+Industrial Combustion,End_Use_Industry_Bio_Trad
+Industrial Combustion,End_Use_Industry_Coal
+Industrial Combustion,End_Use_Industry_HLF
+Industrial Combustion,End_Use_Industry_LLF
+Industrial Combustion,End_Use_Industry_NatGas
+Residential Commercial Other - Residential Commercial,End_Use_Residential_Bio_Mod
+Residential Commercial Other - Residential Commercial,End_Use_Residential_Bio_Trad
+Residential Commercial Other - Residential Commercial,End_Use_Residential_Coal
+Residential Commercial Other - Residential Commercial,End_Use_Residential_HLF
+Residential Commercial Other - Residential Commercial,End_Use_Residential_LLF
+Residential Commercial Other - Residential Commercial,End_Use_Residential_NatGas
+Residential Commercial Other - Residential Commercial,End_Use_Services_Bio_Trad
+Residential Commercial Other - Residential Commercial,End_Use_Services_Coal
+Road Transportation,End_Use_Transport_HLF
+Road Transportation,End_Use_Transport_LLF
+Non-Road Transportation,End_Use_Transport_NatGas
+Fuel Production and Transformation,Losses_Coal
+Oil and Gas Fugitive/Flaring,Losses_Distribution_Use
+Oil and Gas Fugitive/Flaring,Losses_Vent_Flare
+Electricity and Heat Production,Power_Gen_Bio_Trad
+Electricity and Heat Production,Power_Gen_Coal
+Electricity and Heat Production,Power_Gen_HLF
+Electricity and Heat Production,Power_Gen_LLF
+Electricity and Heat Production,Power_Gen_NatGas
+Fuel Production and Transformation,Transformations_Coal
+Fuel Production and Transformation,Transformations_HLF
+Fuel Production and Transformation,Transformations_HLF_Refinery
+Fuel Production and Transformation,Transformations_LLF
+Fuel Production and Transformation,Transformations_NatGas
