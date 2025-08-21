@@ -24,14 +24,14 @@ calcPotentialHydro <- function() {
   ecoPot  <- wgbu[,,"Wirtschaftlich es Potenzial (TWh/a)"]
   # produced electricity
   #
-  # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
+  # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000 # nolint
   prodElec <- readSource("IRENA", "Generation")
   IRENA_hydro_cap <- readSource("IRENA", "Capacity") # in MW
 
   # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but
   # not pure pumped storage
-  prodElec <- prodElec[,2015,"Hydropower"] / 1000
-  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Hydropower"]
+  prodElec <- prodElec[, 2015, "Hydropower"] / 1000
+  IRENA_hydro_cap <- IRENA_hydro_cap[, 2015,"Hydropower"]
 
   # ensure that overall potential can produce the generation of 2015, if not set
   # potential to IRENA 2015 generation
