@@ -99,6 +99,15 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       ),
       Type = match(.data$Type, allowedType)
     ) %>%
+    dplyr::mutate(
+      LULUCF = dplyr::case_match(
+        .data$LULUCF,
+        "unknown" ~ 0,
+        "Including" ~ 1,
+        "Excluding" ~ -1,
+        .default = as.numeric(.data$LULUCF)
+      )
+    ) %>%
     suppressWarnings()
 
   return(input)

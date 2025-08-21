@@ -16,8 +16,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
     grepl("2021", subtype, fixed = TRUE) ~ "NDC_2021.xlsx",
     grepl("2022", subtype, fixed = TRUE) ~ "NDC_2022-12-31.xlsx",
     grepl("2023", subtype, fixed = TRUE) ~ "NDC_2023-11-29.xlsx",
-    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-08-31.xlsx",
-    .default = "NDC_2024-08-31.xlsx"
+    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-08-31_corrected.xlsx",
+    .default = "NDC_2024-08-31_corrected.xlsx"
   )
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -56,19 +56,19 @@ readUNFCCC_NDC <- function(subtype, subset) {
 
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
 
-    input <- readxl::read_excel(
+      input <- readxl::read_excel(
       NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
       suppressMessages() %>%
       select(
         "ISO_Code" = 2, "Reference_Year" = 7,
         "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
-        "Unconditional Relative" = 13, "Conditional Relative" = 14
+        "Type" = 10, "LULUCF" = 11, "Unconditional Absolute" = 12, "Conditional Absolute" = 13,
+        "Unconditional Relative" = 14, "Conditional Relative" = 15
       ) %>%
       toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
-
+    
     x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
-
+  
     return(x)
   } else {
     stop("Incorrect subtype, please use Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond).")

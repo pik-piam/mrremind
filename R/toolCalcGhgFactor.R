@@ -13,7 +13,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   reductionData <- x
 
   # Reference Emissions from CEDS
-  ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
+  emi <- calcOutput("EmiTargetReference", aggregate = FALSE)
+  
+  ghg <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
 
   # Future GDP values
   gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
@@ -124,6 +126,8 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       stop("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ",
            allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
     }
+    
+   
 
     return(ghgTarget)
   }
@@ -153,8 +157,18 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
           ghg2015 <- sum(setYears(ghg[EUR_NDC_countries, 2015, ], NULL))
         } else {
+          # if a country includes LULUCF emissions in their emission target,
+          # LULUCF emissions are subtracted from the base emission 
+          if (reductionData[regi, year, "LULUCF"] > 0 && emi[regi,2015, "Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)"]) {
+            
+            ghg2015 <- setYears(emi[regi, 2015,"Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)" ], NULL)
+          }
           ghg2015 <- setYears(ghg[regi, 2015, ], NULL)
         }
+        
+       
+        
+       
 
         ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
 
