@@ -56,6 +56,25 @@ readUNFCCC_NDC <- function(subtype, subset) {
 
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
 
+     if (grepl("2018|2021|2022|2023", subtype)) {
+
+       input <- readxl::read_excel(
+      NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
+      suppressMessages() %>%
+      select(
+        "ISO_Code" = 2, "Reference_Year" = 7,
+        "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+        "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
+        "Unconditional Relative" = 13, "Conditional Relative" = 14
+      ) %>%
+      toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
+
+    x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+
+     } else {
+
+
+
       input <- readxl::read_excel(
       NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
       suppressMessages() %>%
@@ -68,6 +87,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
       toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
     
     x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+     }
   
     return(x)
   } else {

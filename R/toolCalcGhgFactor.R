@@ -157,14 +157,18 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
           ghg2015 <- sum(setYears(ghg[EUR_NDC_countries, 2015, ], NULL))
         } else {
+          if (grepl("2018|2021|2022|2023", subtype)) {
+            ghg2015 <- setYears(ghg[regi, 2015, ], NULL)
+
+          }  else {
           # if a country includes LULUCF emissions in their emission target,
           # LULUCF emissions are subtracted from the base emission 
-          if (reductionData[regi, year, "LULUCF"] > 0 && emi[regi,2015, "Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)"]) {
+          if (reductionData[regi, year, "LULUCF"] > 0 && emi[regi,2015, "Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)"] > 0 ) {
             
             ghg2015 <- setYears(emi[regi, 2015,"Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)" ], NULL)
-          }
-          ghg2015 <- setYears(ghg[regi, 2015, ], NULL)
-        }
+          }  else {
+          ghg2015 <- setYears(ghg[regi, 2015, ], NULL)}
+        }}
         
        
         

@@ -23,13 +23,10 @@ calcEmiTargetReference <- function() {
                                 "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
   getNames(GHGwoLULUCF) <- "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"
  
-  EmiLULUCF <- read.csv("p_EmiLULUCFCountryAccV3.cs4r", skip = 4, header = FALSE) %>%
-  select("V1", "V2","V9")
-  colnames(EmiLULUCF) <- c("year", "region", "Emi|GHG|LULUCF (Mt CO2eq/yr)")
-  EmiLULUCF <- EmiLULUCF %>%   as.magpie(datacol = 2)
-  # needs to be replaced with correct calfunction
-  # EmiLULUCF <- calcOutput("EmiLULUCFCountryAcc", subtype = "GHG", years = 1990:2022, aggregate = FALSE, warnNA= FALSE)
+
+  EmiLULUCF <- calcOutput("EmiLULUCFCountryAcc", subtype = "GHG", years = 1990:2022, aggregate = FALSE, warnNA= FALSE)
   
+  getNames(EmiLULUCF) <- "Emi|GHG|LULUCF (Mt CO2eq/yr)"
   
   ghg<- mbind(GHGwoLULUCF,EmiLULUCF )
   

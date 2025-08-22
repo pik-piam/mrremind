@@ -23,7 +23,8 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
 
   # Reference Emissions from CEDS
-  ghg <- calcOutput("EmiTargetReference", aggregate = FALSE)
+  emi <- calcOutput("EmiTargetReference", aggregate = FALSE)
+  ghg <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
 
   if (sources == "UNFCCC_NDC") {
     listGhgFactors <- list(
