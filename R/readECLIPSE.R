@@ -189,7 +189,7 @@ readECLIPSE <- function(subtype) {
     ship_ef <- ship_ef[,2040,,invert=TRUE]
 
     # in some cases (CH4 and VOC) MFR is higher than CLE -> set MFR to CLE
-    ship_ef[,,"MFR"] <- base::pmin(ship_ef[,,"MFR"],ship_ef[,,"CLE"])
+    ship_ef[,,"MFR"] <- pmin(ship_ef[,,"MFR"],ship_ef[,,"CLE"])
 
     # define SSP5
     ship_ef[,2005,"SSP5"] <- ship_ef[,2005,"CLE"]
