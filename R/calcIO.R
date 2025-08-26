@@ -6,9 +6,6 @@
 #' Mapping structure example: IEA product ANTCOAL used for IEA flow TPATFUEL, contributes via REMIND technology
 #' coaltr for generating sesofos from pecoal (REMIND names)
 #'
-#' When using subtype `output_Industry_subsectors`, additional corrections are
-#' applied to the IEA data in [`mrindustry::tool_fix_IEA_data_for_Industry_subsectors`].
-#'
 #' @md
 #' @param subtype Data subtype. See default argument for possible values.
 #' @param ieaVersion Release version of IEA data, either 'default'
@@ -22,10 +19,10 @@
 #' }
 #'
 #' @importFrom dplyr filter mutate
-calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
-                               "input_Industry_subsectors", "output_Industry_subsectors"),
-                   ieaVersion = "default") {
+calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"), ieaVersion = "default") {
+
   subtype <- match.arg(subtype)
+
   switch(
     subtype,
     input = {
@@ -55,20 +52,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                                 where = "mrremind",
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_enty", "REMINDitems_trade")
-    },
-    input_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_inputs_Industry_subsectors.csv",
-                                where = "mrremind",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output_Industry_subsectors = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs_Industry_subsectors.csv",
-                                where = "mrremind",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     }
   )
 
@@ -91,42 +74,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
                         mutate(REMINDitems_out = "feelb"))
   }
 
-  if (subtype == "output_Industry_subsectors") {
-    # apply corrections to IEA data to cope with fragmentary time series
-    names_data_before <- getNames(data)
-    data <- mrindustry::tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch,
-                                                      threshold = 1e-2)
-
-    # warn if dimensions not present in the mapping have been added to the data
-    new_product_flows <- tibble(
-      text = setdiff(getNames(data), names_data_before)
-    ) %>%
-      tidyr::separate("text", c("product", "flow"), sep = "\\.") %>%
-      dplyr::anti_join(
-        ieamatch %>%
-          as_tibble() %>%
-          select(product = "iea_product", flow = "iea_flows"),
-
-        c("product", "flow")
-      ) %>%
-      tidyr::unite("text", c("product", "flow"), sep = ".") %>%
-      pull("text")
-
-    if (!rlang::is_empty(new_product_flows)) {
-      message("Product/flow combinations not present in mapping added by ",
-        "fix_IEA_data_for_Industry_subsectors():\n",
-        paste(new_product_flows, collapse = "\n")
-      )
-    }
-
-    # FIXME remove product/flow combinations from the mapping that have been
-    # removed from the data while replacing coke oven and blast furnace outputs
-    ieamatch <- ieamatch %>%
-      as_tibble() %>%
-      filter(paste(.data$iea_product, .data$iea_flows, sep = ".")
-             %in% getNames(data))
-  }
-
   # delete NAs rows
   ieamatch <- ieamatch %>%
     as_tibble() %>%
@@ -134,7 +81,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
     stats::na.omit() %>%
     tidyr::unite("target", tidyselect::all_of(target), sep = ".", remove = FALSE) %>%
     tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-    filter(!!sym("product.flow") %in% getNames(data))
+    filter(.data$`product.flow` %in% getNames(data))
   magpieNames <- ieamatch[["target"]] %>% unique()
 
   if (subtype == "output_biomass") {
@@ -168,7 +115,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   )
 
   # Split residential Biomass into traditional and modern biomass depending upon the income per capita
-  if (subtype %in% c("output", "input", "output_Industry_subsectors")) {
+  if (subtype %in% c("output", "input")) {
     # In order to split the REMIND technology biotr between biotr and biotrmod,
     # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
@@ -189,7 +136,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   # replace IEA data for 1st generation biomass with data that also MAgPIE uses
-  if (subtype %in% c("input", "output", "output_Industry_subsectors")) {
+  if (subtype %in% c("input", "output")) {
     bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
     reminditems[, , "pebios.seliqbio.bioeths"] <-
       time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),
@@ -233,7 +180,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade",
   }
 
   return(list(x = reminditems, weight = NULL, unit = "EJ",
-              description = paste0("IEA SE Output Data based on ",
-                                   toolGetIEAYear(ieaVersion),
+              description = paste0("IEA SE Output Data based on ", toolGetIEAYear(ieaVersion),
                                    " edition of IEA World Energy Balances")))
 }
