@@ -1,7 +1,8 @@
 #' Calculate air pollutant emissions for a reference year, for use
 #' in combination with GAINS data at different sectoral aggregations
 #'
-#' @param subtype "total" or "sectorsCEDS16"
+#' @param subtype total per pollutant ("total"), raw CEDS sectors ("sectorsCEDSraw") 
+#' or aggregated to CEDS16 ("sectorsCEDS16")
 #' @param baseyear year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions
 #' @param outunits "Mt/yr" or "kt/yr"
 #' @param namesformat "GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names
@@ -74,6 +75,10 @@ calcAirPollEmiRef <- function(
     totceds <- dimSums(fullceds, dim = 3.1, na.rm = TRUE)
 
     out <- setYears(totceds)
+    unit <- outunits
+    desc <- paste0("Emissions in year ", baseyear)
+  } else if (subtype == "sectorsCEDSraw") {
+    out <- setYears(fullceds)
     unit <- outunits
     desc <- paste0("Emissions in year ", baseyear)
   } else if (subtype == "sectorsCEDS16") {
