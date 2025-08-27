@@ -135,8 +135,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"), ie
     reminditems["JPN", 2005, "peoil.Mport"] <- reminditems["JPN", 2005, "peoil.Mport"] - 0.0245 / 31.71e-03
   }
 
-  # replace IEA data for 1st generation biomass with data that also MAgPIE uses
   if (subtype %in% c("input", "output")) {
+
+    # replace IEA data for 1st generation biomass with data that also MAgPIE uses ----
     bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
     reminditems[, , "pebios.seliqbio.bioeths"] <-
       time_interpolate(bio1st[, , "pebios"], interpolated_year = getYears(reminditems),
@@ -144,10 +145,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"), ie
     reminditems[, , "pebioil.seliqbio.biodiesel"] <-
       time_interpolate(bio1st[, , "pebioil"], interpolated_year = getYears(reminditems),
                        integrate_interpolated_years = FALSE, extrapolation_type = "constant")
-  }
 
-  if (subtype %in% c("input", "output")) {
-    # re-calculating fepet and fedie final energy based on updated EDGE shares
+    # re-calculating fepet and fedie final energy based on updated EDGE shares ----
     share <- calcOutput("LDVShares", warnNA = FALSE, aggregate = FALSE)
     regions <- getItems(share, dim = 1.1)
     feShares <- new.magpie(cells_and_regions = regions, years = intersect(getYears(share), getYears(reminditems)),
