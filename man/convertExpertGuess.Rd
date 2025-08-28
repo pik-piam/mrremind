@@ -20,9 +20,11 @@ foreseeable future (Jessica Strefler)
 \item \code{co2prices}: CO2 prices (Robert Pietzcker)
 \item \code{costsTradePeFinancial}: primary energy tradecosts (financial costs on import,
 export and use) (Nicolas Bauer)
+\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
 \item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
 \item \code{prtp}: pure rate of time preference (Nicolas Bauer)
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nicolas Bauer)
 \item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
 \item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
@@ -38,4 +40,7 @@ convergence from historic to target shares is to be applied. (Michaja Pehl)
 }
 \description{
 Converts data from expert guess
+}
+\author{
+Falk Benke
 }
