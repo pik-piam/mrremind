@@ -136,6 +136,11 @@ calcAirPollEmiRef <- function(
     # Fill NAs with zeros in the GAINS emissions data
     gainsemi[is.na(gainsemi)] <- 0
 
+    # If we're using a different pollutant names setup, fixPolNames should also work in gainsemi
+    if(namesformat != "GAINS2025") {
+      gainsemi <- fixPolNames(gainsemi)
+    }
+
     # Rename the "sector dimension to match that used in other functions
     # that operate on GAINS
     getSets(fullceds)[getSets(fullceds) == "sector"] <- "sectorGAINS"
@@ -179,7 +184,8 @@ calcAirPollEmiRef <- function(
         from = "CEDS62", to = "GAINS2025",
         weight = usegains,
         dim = 3.1,
-        wdim = 3.1
+        wdim = 3.1,
+        zeroWeight = "allow"
       )
 
       # Add the pollutant species dimension
