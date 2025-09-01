@@ -1,8 +1,8 @@
 #' Calculate air pollutant emissions for a reference year, for use
 #' in combination with GAINS data at different sectoral aggregations
 #'
-#' @param subtype total per pollutant ("total"), raw CEDS sectors ("sectorsCEDSraw")
-#' or aggregated to CEDS16 ("sectorsCEDS16")
+#' @param subtype total per pollutant ("total"), raw CEDS sectors ("sectorsCEDSraw"),
+#' aggregated to CEDS16 ("sectorsCEDS16") or mapped to GAINS2025 sectors ("sectorsGAINS2025")
 #' @param baseyear year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions
 #' @param outunits "Mt/yr" or "kt/yr"
 #' @param namesformat "GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names
