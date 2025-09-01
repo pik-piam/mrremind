@@ -89,7 +89,8 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
   # as magclass can only cover numerical values well, transform:
   # - Reference_Year: BAU to -1 and 'no'  to -2
   # - Type into number based on allowedType
-  input <- input %>%
+if (grepl("2018|2021|2022|2023", subtype)) {
+input <- input %>%
     dplyr::mutate(
       Reference_Year = dplyr::case_match(
         .data$Reference_Year,
@@ -100,6 +101,30 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       Type = match(.data$Type, allowedType)
     ) %>%
     suppressWarnings()
+} else {
+ # for years >= 2024 include LULUCF correction 
+ # - LULUCF: unknown to 0, Including to 1 and excluding to -1
+  input <- input %>%
+    dplyr::mutate(
+      Reference_Year = dplyr::case_match(
+        .data$Reference_Year,
+        "BAU" ~ -1,
+        "no" ~ -2,
+        .default = as.numeric(.data$Reference_Year)
+      ),
+      Type = match(.data$Type, allowedType)
+    ) %>%
+    dplyr::mutate(
+      LULUCF = dplyr::case_match(
+        .data$LULUCF,
+        "unknown" ~ 0,
+        "Including" ~ 1,
+        "Excluding" ~ -1,
+        .default = as.numeric(.data$LULUCF)
+      )
+    ) %>%
+    suppressWarnings()
+    }
 
   return(input)
 }
