@@ -1,133 +1,153 @@
-#' Calculates air pollutant emissions, activities and emission factors
-#' for all scenarios and SSPs available from GAINS, at the level
-#' of GAINS sectors.
+#' Calculate air pollutant emission factors for all scenarios and SSPs
+#' available from GAINS, at the level of GAINS sectors and for 2005-2100.
 #'
-#' This function is meant to be used to prepare the GAINS data
-#' in the most inclusive format possible. The actual generation
-#' of REMIND-specific files happens elsewhere, and uses this function.
+#' This function is meant to be used to clean-up, fill gaps and smoothen
+#' the GAINS data to obtain consistent timeseries of emission factors
+#' from 2005 to 2100.
+#' The actual generation REMIND-specific files happens in calcGAINS2025forREMIND.
 #'
-#' Extrapolates activities and emissions for the 2050-2100 periods
-#' assuming a relationship between changes in polluting activities
-#' and GDP.
+#' @return Emission factor timeseries for all scenarios from 2005 to 2100:
+#'         magclass object with dimensions region, year, and
+#'         ssp.scenario.sectorGAINS.species
+#' @author Gabriel Abrahao, Laurin Koehler-Schindler
+#' @param subtype "emifacs"
 #'
-#' @return Activity levels, emissions or emission factors
-#' @author Gabriel Abrahao
-#' @param subtype "emission_factors", "emissions","emissions_starting_values"
-#' @param agglevel "agg" or "det", sectoral aggregation level
-#'
-calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
-  # ====================================================================
-  # Mappings, auxiliary files and definitions ==========================
-  # ====================================================================
+calcGAINS2025scenarios <- function() {
+  # ==============================================================================
+  # Mappings and definitions =====================================================
+  # ==============================================================================
+
   allssps <- c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5")
-
-  # conversion factors
-  conv_kt_per_PJ_to_Tg_per_TWa <- 1e-3 / (1e15 / (365 * 24 * 60 * 60) * 1e-12)
-  conv_kt_to_Mt <- 1e-3
-
-  fixPolNames <- function(mag) {
-    # Mapping from GAINS2025 to REMIND (oldGAINS) pollutant names
-    polnamesmap <- c(
-      "CO" = "CO",
-      "NOx" = "NOX",
-      "BC" = "PM_BC",
-      "OC" = "PM_OC",
-      "SO2" = "SO2",
-      "NH3" = "NH3",
-      "VOC" = "VOC"
-    )
-    mag <- mag[, , polnamesmap]
-    getItems(mag, "species") <- names(polnamesmap)
-    return(mag)
-  }
 
   # REMIND timesteps
   rtime <- c(seq(2005, 2055, 5), seq(2060, 2110, 10), 2130, 2150)
+
+  # GAINS timesteps
+  # baseline
+  btime <- seq(2005, 2030, 5)
+  # future
+  ftime <- seq(2030, 2100, 5)
 
   # GAINS region mapping
   # Most of the calculations here happen at the GAINS region level, as
   # readGAINS2025 does not disaggregate its outputs
   regmap <- toolGetMapping(type = "regional", name = "regionmapping_GAINS2025.csv", where = "mrremind")
 
-  # List of valid sectors, used to pad the data
-  fullseclist <- readSource("GAINS2025", subtype = "sectorlist")
-  seclist <- fullseclist[, names(fullseclist) == paste0("EMF30_", toupper(agglevel))]
-  seclist <- unique(seclist)
+  # ==============================================================================
+  # METHOD:
+  # 1. Derive scenario-specific emission factors for 2030-2100.
+  #    This includes removing incomplete timeseries, filling NAs,
+  #    amd removing large spikes.
+  # 2. Calculate baseline emission factors for 2005-2030 based on
+  #    emissions and activities in the baseline scenario.
+  #    This includes filling NAs, removing large spikes, and
+  #    ensuring that emission factors in 2005-2025 are not below 2030 level.
+  # 3. Combine 1. and 2. by rescaling baseline emission factors (1.) so that
+  #    in 2030, it is equal to the scenario-specific emission factor (2.) of
+  #    the SSP2-SMIPbySSP scenario. This preserves relative changes between
+  #    timesteps and allows to smoothly concatenate the emission factors
+  #    before and after 2030
+  # ==============================================================================
 
-  # ====================================================================
-  # READING GAINS DATA =================================================
-  # ====================================================================
+  # 1. DERIVE SCENARIO-SPECIFIC EMISSION FACTORS FOR 2030-2100 ===================
 
-  # GAINS baseline scenario emissions and activities
-  # Emissions seem to be in kt(pollutant)/yr, while activities have the units in seclist (mostly PJ or Mt/yr)
-  baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", agglevel))
-  baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", agglevel))
+  # Read in emission factors for all scenarios (except baseline, for which no
+  # emission factors, but only emissions and activities, are available)
+  inefs <- readSource("GAINS2025", subtype = "emifacs")
 
-  # GAINS historical scenario emission facts
-  baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", agglevel))
+  # Keep only future scenarios for 2030-2100
+  futureefs <- inefs[, ftime, ]
+  futureefs <- mselect(futureefs,
+    ssp = c("SSP1", "SSP2", "SSP3", "SSP4", "SSP5", "MTFR", "SMIPVLLO"),
+    scenario = c("SMIPbySSP", "SMIPVLLO", "MTFR", "SLE", "CLE")
+  )
 
-  # GAINS scenarios
-  incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", agglevel))
-  inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", agglevel))
-  inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", agglevel))
-  # Using scenario names closer to the usual IIASA ones
-  getItems(incle, "scenario") <- "CLE"
-  getItems(inmid, "scenario") <- "SLE"
-  getItems(inmfr, "scenario") <- "MFR"
+  # 1.1. HANDLE MISSING DATA AT START (2030-) ===================================
+  # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
+  # Procedure: If data is missing for 2030 (i.e. NA), remove data for all
+  #            timesteps (i.e. set to NA)
+  # Example:
+  # BEFORE: x(2030)= NA, x(2035) = 5, x(2040) =5, ...
+  # AFTER:  x(2030)= NA, x(2035) = NA, x(2040) = NA, ...
 
-  # ScenarioMIP scenarios
-  insmp <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("scenariomip.", agglevel))
+  TODO
 
-  # ====================================================================
-  # ADDING EXTENDED SECTORS ============================================
-  # ====================================================================
-  if (agglevel == "agg") {
-    det_baseemi <- readSource("GAINS2025", subtype = "emissions", subset = paste0("baseline.", "det"))
-    det_baseact <- readSource("GAINS2025", subtype = "activities", subset = paste0("baseline.", "det"))
-    det_baseefs <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("baseline.", "det"))
-    det_incle <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("cle_rev.", "det"))
-    det_inmid <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("middle.", "det"))
-    det_inmfr <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("mtfr.", "det"))
-    getItems(det_incle, "scenario") <- "CLE"
-    getItems(det_inmid, "scenario") <- "SLE"
-    getItems(det_inmfr, "scenario") <- "MFR"
-    det_insmp <- readSource("GAINS2025", subtype = "emifacs", subset = paste0("scenariomip.", "det"))
+  # 1.2. HANDLE MISSING DATA AT END (-2100) =====================================
+  # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
+  # Procedure: If data is missing at the end, fill it with last available data
+  #            point.
+  # Example:
+  # BEFORE: ... ,x(2090)= 10, x(2095) = NA, x(2100) = NA
+  # AFTER:  ... ,x(2090)= 10, x(2095) = 10, x(2100) = 10
 
-    # Sectors to extend, if present in the detailed datasets
-    extsectors <- c(
-      "Waste_Solid_Industrial", "Waste_Solid_Municipal", "Waste_Water_Industrial", "Waste_Water_Municipal"
-    )
-    # GA: In the version obtained from Zig and Shaohui in May 2025,
-    # only "Waste_Solid_Municipal" and "Waste_Water_Municipal" were present
-    extsectors <- extsectors[extsectors %in% getItems(det_baseemi, "sectorGAINS")]
+  TODO
 
-    # Append extended and drop "Unattributed", which is mostly the waste sectors
-    dropSectors <- function(mag) {
-      dsecs <- c("Unattributed")
-      if (any(extsectors %in% getItems(mag, "sectorGAINS"))) {
-        mag <- mag[, , dsecs, invert = TRUE]
-      }
-      return(mag)
-    }
-    baseemi <- mbind(dropSectors(baseemi), det_baseemi[, , extsectors])
-    baseact <- mbind(dropSectors(baseact), det_baseact[, , extsectors])
-    baseefs <- mbind(dropSectors(baseefs), det_baseefs[, , extsectors])
-    incle <- mbind(dropSectors(incle), det_incle[, , extsectors])
-    inmid <- mbind(dropSectors(inmid), det_inmid[, , extsectors])
-    inmfr <- mbind(dropSectors(inmfr), det_inmfr[, , extsectors])
-    insmp <- mbind(dropSectors(insmp), det_insmp[, , extsectors])
-  }
+  # 1.3. LINEAR INTERPOLATION ===================================================
+  # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
+  # Procedure: If there are NAs in intermediate timesteps, use linear inter-
+  #            polation to fill these.
+  #            The linear interpolation should be done whenever data is available
+  #            for an earlier and for a later timestep.
+  #            Note that thanks to 2.1 and 2.2, there are no NAs at the start
+  #            or at the end of the timeseries.
+  # Example:
+  # BEFORE: x(2030)= 2, x(2035) = 5, x(2040) = NA, x(2045) = NA, x(2050) = 20
+  # AFTER:  x(2030)= 2, x(2035) = 5, x(2040) = 10, x(2045) = 15, x(2050) = 20
 
-  # ====================================================================
-  # FIXING POLLUTANT NAMES TO REMIND STANDARD ==========================
-  # ====================================================================
-  baseemi <- fixPolNames(baseemi)
-  baseact <- fixPolNames(baseact)
-  baseefs <- fixPolNames(baseefs)
-  incle <- fixPolNames(incle)
-  inmid <- fixPolNames(inmid)
-  inmfr <- fixPolNames(inmfr)
-  insmp <- fixPolNames(insmp)
+  TODO
+
+  # 1.4. SMOOTHING ==============================================================
+  # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
+  # Procedure: Limit the change between two consecutive timesteps to
+  #            a factor of 2.5 (a 250 percent increase in 5 years corresponds to
+  #            a 20% increase per year).
+  #            This shall limit increases as well as decreases.
+  #            Starting from t = 2030, the change from x(t) to x(t+5) should be
+  #            checked. If x(t+5) > x(t) * 2.5, set x(t+5) = x(t) * 2.5.
+  #            If x(t+5) < x(t) / 2.5, set x(t+5) = x(t) / 2.5.
+  #            Then continue with the next timestep, i.e. check the change from
+  #            the (possibly) updated value x(t+5) to x(t+10).
+  # Example 1:
+  # BEFORE: x(2030)= 1, x(2035) = 3, x(2040) = 5, x(2045) = 4
+  # AFTER:  x(2030)= 1, x(2035) = 2.5, x(2040) = 5, x(2045) = 4
+  # Example 2:
+  # BEFORE: x(2030)= 1, x(2035) = 0.4, x(2040) = 2, x(2045) = 2
+  # AFTER:  x(2030)= 1, x(2035) = 0.4, x(2040) = 1, x(2045) = 2
+
+  # TODO
+
+  # -------------------------
+
+  IGNORE # FROM HERE (WILL BE DONE SIMILARLY)
+
+  # 2. CALCULATE BASELINE EMISSION FACTORS FOR 2005-2030 =========================
+
+  # Read baseline emissions and activities =======================================
+  baseemis <- readSource("GAINS2025", subtype = "emissions")
+  baseacts <- readSource("GAINS2025", subtype = "activities")
+  # Keep only timesteps between 2005 and 2030
+  baseemis <- histemis[, btime, ]
+  baseacts <- histacts[, btime, ]
+
+  # 2.1. COMPUTE BASELINE EMISSION FACTORS =======================================
+  baseefs <- baseemis / baseacts
+
+  #  2.2. IF 2030 is missing, take 2025. If also missing, set all timesteps to NA.
+  #  2.3. Interpolate: Intermediate steps linearly, endpoints constant
+  #       CHECK: All should now be fully NA or complete
+  #  2.4. ALLOW AT MOST CHANGES BY A FACTOR 2.5 per 5-yr timestep - corresponds to about 20% per year (looking backwards from 2030)
+  #  2.5. emifactor (t) = max (emifactor (t), emifactor(2030) for t < 2030
+  #      CHECK: All combinations are there.
+
+
+  # 3. COMBINE EMISSION FACTORS FROM 1. (2005-2030) AND FROM 2. (2030-2100) ======
+
+
+
+  #---------------------------
+
+  OLD # STUFF FROM HERE
+
 
   # ====================================================================
   # NA HANDLING ========================================================
@@ -298,60 +318,7 @@ calcGAINS2025scenarios <- function(subtype, agglevel = "agg") {
   # activities. That relationship can be positive or negative, and is
   # modelled with an elasticity factor derived from the GAINS baseline.
 
-  # Reading GDP data from madrat for all SSPs and aggregating to
-  # GAINS regions.
-  gdp <- calcOutput("GDP", scenario = allssps, aggregate = FALSE)
-  gdpgains <- toolAggregate(
-    gdp, regmap,
-    from = "CountryCode", to = "gainscode",
-    weight = NULL, dim = 1, wdim = 1
-  )
 
-  # Reference activity relative change between 2025 and 2050
-  refract <- setYears(baseact[, 2050, ], NULL) / setYears(baseact[, 2025, ], NULL)
-  # Reference GDP relative change between 2025 and 2050
-  refrgdp <- setYears(gdpgains[, 2050, "SSP2"], NULL) / setYears(gdpgains[, 2025, "SSP2"], NULL)
-
-  # Estimate elasticities of the GDP-activities relationship.
-  # Surpress warnings as all generated NaNs were checked and handled below
-  estela <- suppressWarnings(collapseDim(log(refract) / log(refrgdp)))
-
-  # Cap elasticies to avoid extreme values
-  estela[estela > 1] <- 1
-  estela[estela < -1] <- -1
-  # NaNs all come from weird NaN or negative activities, assume zero elasticity in these cases
-  estela[is.na(estela)] <- 0
-  estela[is.nan(estela)] <- 0
-
-  # Future GDP relative change between 2050 and 2100
-  futrgdp <- setYears(gdpgains[, 2100, ], NULL) / setYears(gdpgains[, 2050, ], NULL)
-  getSets(futrgdp)[getSets(futrgdp) == "variable"] <- "ssp"
-
-  # Increment factor 2050-2100
-  incfac <- futrgdp^estela
-  incfac[is.na(incfac)] <- 1
-
-  # Expand activities to include all scenarios and SSPs
-  sspact <- mbind(lapply(allssps, \(ssp) add_dimension(baseact, 3.1, add = "ssp", nm = ssp)))
-
-  # Apply increment factors and interpolate periods 2050-2100
-  sspact2100 <- setYears(sspact[, 2050, ] * incfac, 2100)
-  sspact <- mbind(sspact, sspact2100)
-  sspact <- toolFillYears(sspact, years = getYears(efs))
-
-  # Remove sectors absent in efs
-  sspact <- sspact[, , getItems(efs, "sectorGAINS")]
-
-  # Expand activities to ensure they will match EFs when used as weights
-  # As they might be used as weights, fill with zeroes
-  sspact <- complete_magpie(sspact)
-  sspact[is.na(sspact)] <- 0
-
-  # Extending emissions by applying EFs to activity levels
-  # Note that none of those will be the same as the baseline, as the baseline scenario
-  # is not included (CLE:current legislation is the least strict one)
-  # Activities are scenario-independent, so this expands the scenario dimension
-  sspemi <- efs * sspact
 
   # ====================================================================
   # COUNTRY DISAGGREGATION AND FINAL TOUCHES ===========================
