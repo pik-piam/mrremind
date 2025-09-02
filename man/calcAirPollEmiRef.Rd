@@ -15,7 +15,8 @@ calcAirPollEmiRef(
 }
 \arguments{
 \item{subtype}{total per pollutant ("total"), raw CEDS sectors ("sectorsCEDSraw"),
-aggregated to CEDS16 ("sectorsCEDS16") or mapped to GAINS2025 sectors ("sectorsGAINS2025")}
+aggregated to CEDS16 ("sectorsCEDS16"), mapped to GAINS2025 sectors ("sectorsGAINS2025")
+or mapped to the INTERMEDIARY sectors used on the GAINS mapping ("sectorsINTERMEDIARY")}
 
 \item{baseyear}{year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions}
 
