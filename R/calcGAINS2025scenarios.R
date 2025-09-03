@@ -70,10 +70,10 @@ calcGAINS2025scenarios <- function() {
   # BEFORE: x(2030)= NA, x(2035) = 5, x(2040) =5, ...
   # AFTER:  x(2030)= NA, x(2035) = NA, x(2040) = NA, ...
   browser()
-  # TODO
-
-  # Laurins attempt, but does NOT seem to work
-  # futureefs[, ftime, ][is.na(futureefs[, 2030, ])] <- NA
+  
+  mask <- setYears(futureefs[, 2030, ], NULL)
+  mask[!is.na(mask)] <- 1
+  futureefs <- futureefs * mask
 
   # 1.2. HANDLE MISSING DATA AT END (-2100) =====================================
   # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
@@ -153,8 +153,9 @@ calcGAINS2025scenarios <- function() {
 
   #  If emission factor in 2020 is also missing (NA), i.e. 2030 still NA,
   #  remove emission factors for all timesteps (i.e. set to NA)
-
-  # TODO
+  mask <- setYears(baseefs[, 2030, ], NULL)
+  mask[!is.na(mask)] <- 1
+  baseefs <- baseefs * mask
 
   # 2.3. HANDLE MISSING DATA AT START (2005-) =====================================
   # Granularity: region (dim = 1) x ssp.scenario.sectorGAINS.species (dim = 3)
