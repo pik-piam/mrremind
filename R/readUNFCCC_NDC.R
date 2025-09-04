@@ -10,7 +10,7 @@
 #' @param subset A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).
 #'
 readUNFCCC_NDC <- function(subtype, subset) {
-
+  
   NDCfile <- dplyr::case_when(
     grepl("2018", subtype, fixed = TRUE) ~ "NDC_2018.xlsx",
     grepl("2021", subtype, fixed = TRUE) ~ "NDC_2021.xlsx",
@@ -19,9 +19,9 @@ readUNFCCC_NDC <- function(subtype, subset) {
     grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-08-31_corrected.xlsx",
     .default = "NDC_2024-08-31_corrected.xlsx"
   )
-
+  
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-
+    
     data <- readxl::read_excel(
       NDCfile,
       sheet = "Capacity_target",
@@ -30,65 +30,62 @@ readUNFCCC_NDC <- function(subtype, subset) {
         "numeric", "numeric", "numeric", "numeric", "skip", "skip", "skip"
       )
     )
-
+    
     targetTypes <- c("AC-Absolute", "Production-Absolute", "TIC-Absolute", "FE-Production-Share")
-
+    
     if (!all(unique(data$`Type of target`) %in% targetTypes)) {
       stop(
         subtype, ": Table read from UNFCCC_NDC contains unknown target types: ",
         unique(data$`Type of target`)[which(!(unique(data$`Type of target`) %in% targetTypes))]
       )
     }
-
+    
     conditional <- ifelse(length(grep("unconditional", subtype)) == 0, "conditional", "unconditional")
-
-
+    
     d <- data %>%
       filter(.data$`Type of target` == "FE-Production-Share", .data$Conditionality == conditional)
-
+    
     if (nrow(d > 0)) {
       message(subtype, ": Found targets of type 'FE-Production-Share' for ", paste(unique(d$ISO), collapse = ", "),
               ". These will be dropped, as this type is currently not supported.")
     }
-
+    
     x <- as.magpie(data, spatial = 1, temporal = 2, datacol = 3)
     return(x)
-
-  } else if (grepl("Emissions", subtype, fixed = TRUE)) {
-
-     if (grepl("2018|2021|2022|2023", subtype)) {
-
-       input <- readxl::read_excel(
-      NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
-      suppressMessages() %>%
-      select(
-        "ISO_Code" = 2, "Reference_Year" = 7,
-        "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
-        "Unconditional Relative" = 13, "Conditional Relative" = 14
-      ) %>%
-      toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
-
-    x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
-
-     } else {
-
-
-
-      input <- readxl::read_excel(
-      NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
-      suppressMessages() %>%
-      select(
-        "ISO_Code" = 2, "Reference_Year" = 7,
-        "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "LULUCF" = 11, "Unconditional Absolute" = 12, "Conditional Absolute" = 13,
-        "Unconditional Relative" = 14, "Conditional Relative" = 15
-      ) %>%
-      toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
     
-    x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
-     }
-  
+  } else if (grepl("Emissions", subtype, fixed = TRUE)) {
+    
+    if (grepl("2018|2021|2022|2023", subtype)) {
+      
+      input <- readxl::read_excel(
+        NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
+        suppressMessages() %>%
+        select(
+          "ISO_Code" = 2, "Reference_Year" = 7,
+          "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+          "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
+          "Unconditional Relative" = 13, "Conditional Relative" = 14
+        ) %>%
+        toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
+      
+      x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+      
+    } else {
+      
+      input <- readxl::read_excel(
+        NDCfile, sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE) %>%
+        suppressMessages() %>%
+        select(
+          "ISO_Code" = 2, "Reference_Year" = 7,
+          "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+          "Type" = 10, "LULUCF" = 11, "Unconditional Absolute" = 12, "Conditional Absolute" = 13,
+          "Unconditional Relative" = 14, "Conditional Relative" = 15
+        ) %>%
+        toolProcessClimateTargetDatabase(database = "UNFCCC_NDC", subtype = subtype)
+      
+      x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+    }
+    
     return(x)
   } else {
     stop("Incorrect subtype, please use Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond).")

@@ -7,7 +7,7 @@
 #' @param database database to be read in, used for logging info
 #' @param subtype database version to be read in, used for logging info
 toolProcessClimateTargetDatabase <- function(input, database, subtype) {
-
+  
   # Check that no row has both absolute and relative conditional/unconditional
   bothcolumns <- input$ISO_Code[(!is.na(input$`Unconditional Absolute`) & !is.na(input$`Unconditional Relative`)) |
                                   (!is.na(input$`Conditional Absolute`) & !is.na(input$`Conditional Relative`))]
@@ -15,10 +15,10 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
     stop(database, " with subtype=", subtype, " has both absolute and relative emission targets in: ",
          paste(bothcolumns, collapse = ", "))
   }
-
+  
   # Check for valid types. Note: this has to be identical to the definition in convert function
   allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
-
+  
   if (any(!input$Type %in% allowedType)) {
     stop(
       "Unknown data type used in ", database, " with subtype=", subtype, ": ",
@@ -26,12 +26,12 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       ". Please use: ", paste(allowedType, collapse = " or "), "."
     )
   }
-
+  
   # Check that EUR only has "GHG" or "GHG-fixed-total" targets
   if (any(!input[input$ISO_Code == "EUR", ]$Type %in% c("GHG", "GHG-fixed-total"))) {
     stop("EU targets may only be 'GHG' or 'GHG-fixed-total'")
   }
-
+  
   # Check that type matches values in absolute/relative conditional/unconditional columns
   if (!grepl("Emissions_20(18|21)", subtype)) {
     colRelative <- is.na(input$`Conditional Relative`) & is.na(input$`Unconditional Relative`) &
@@ -46,7 +46,7 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       )
     }
   }
-
+  
   input <- input %>%
     mutate(
       # merge absolute and relative columns
@@ -59,13 +59,13 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
     ) %>%
     select(-"Conditional Absolute", -"Unconditional Absolute",
            -"Conditional Relative", -"Unconditional Relative")
-
+  
   # In case a country has two or more types of targets for same year, use GHG-Absolute targets
   # note: the only remaining country in 2021 is MGD Madagascar based on its 2016 submission
   input <- input[!(input$ISO_Code %in% input[duplicated(input[c(1, 4)]), ]$ISO_Code &
                      input$Target_Year %in% input[duplicated(input[c(1, 4)]), ]$Target_Year &
                      input$Type != "GHG-Absolute"), ]
-
+  
   # Check whether conditional is more stringent than unconditional
   condTrumpsUncond <- (input$Conditional <= input$Unconditional) | is.na(input$Unconditional)
   if (any(!condTrumpsUncond)) {
@@ -74,7 +74,7 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       paste(input$ISO_Code[!condTrumpsUncond], collapse = ", ")
     )
   }
-
+  
   # Check whether Types describing emission changes relative to a reference year
   # have a reference year or BAU reference
   ref4change <- input$ISO_Code[input$Reference_Year %in% c("no", NA) &
@@ -85,46 +85,35 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
       paste(ref4change, collapse = ", ")
     )
   }
-
+  
   # as magclass can only cover numerical values well, transform:
   # - Reference_Year: BAU to -1 and 'no'  to -2
   # - Type into number based on allowedType
-if (grepl("2018|2021|2022|2023", subtype)) {
-input <- input %>%
-    dplyr::mutate(
-      Reference_Year = dplyr::case_match(
-        .data$Reference_Year,
-        "BAU" ~ -1,
-        "no" ~ -2,
-        .default = as.numeric(.data$Reference_Year)
-      ),
-      Type = match(.data$Type, allowedType)
-    ) %>%
-    suppressWarnings()
-} else {
- # for years >= 2024 include LULUCF correction 
- # - LULUCF: unknown to 0, Including to 1 and excluding to -1
   input <- input %>%
     dplyr::mutate(
       Reference_Year = dplyr::case_match(
         .data$Reference_Year,
         "BAU" ~ -1,
-        "no" ~ -2,
+        "no"  ~ -2,
         .default = as.numeric(.data$Reference_Year)
       ),
       Type = match(.data$Type, allowedType)
     ) %>%
-    dplyr::mutate(
-      LULUCF = dplyr::case_match(
-        .data$LULUCF,
-        "unknown" ~ 0,
-        "Including" ~ 1,
-        "Excluding" ~ -1,
-        .default = as.numeric(.data$LULUCF)
-      )
-    ) %>%
     suppressWarnings()
-    }
-
+  
+  if ("LULUCF" %in% names(input)) {
+    input <- input %>%
+      dplyr::mutate(
+        LULUCF = dplyr::case_match(
+          .data$LULUCF,
+          "unknown"   ~ 0,
+          "Including" ~ 1,
+          "Excluding" ~ -1,
+          .default    = as.numeric(.data$LULUCF)
+        )
+      ) %>%
+      suppressWarnings()
+  }
+  
   return(input)
 }

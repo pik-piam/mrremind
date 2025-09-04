@@ -6,15 +6,15 @@
 #' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
 calcEmiTargetReference <- function() {
   ceds <- calcOutput("Emissions", datasource = "CEDS2025", years = 1990:2022, aggregate = FALSE)
-
+  
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7
   gwpCH4 <- 28
   gwpN2O <- 265
-
+  
   # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
   GHGwoLULUCF <- dimSums(ceds[, , c("Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
-                            "Emi|CO2|Agriculture (Mt CO2/yr)",
-                            "Emi|CO2|Waste (Mt CO2/yr)")], dim = 3) +
+                                    "Emi|CO2|Agriculture (Mt CO2/yr)",
+                                    "Emi|CO2|Waste (Mt CO2/yr)")], dim = 3) +
     gwpN2O / 1000 * dimSums(ceds[, , c("Emi|N2O|w/o Bunkers|Energy and Industrial Processes (kt N2O/yr)",
                                        "Emi|N2O|Agriculture (kt N2O/yr)",
                                        "Emi|N2O|Waste (kt N2O/yr)")], dim = 3) +
@@ -22,8 +22,8 @@ calcEmiTargetReference <- function() {
                                 "Emi|CH4|Agriculture (Mt CH4/yr)",
                                 "Emi|CH4|Waste (Mt CH4/yr)")], dim = 3)
   getNames(GHGwoLULUCF) <- "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"
- 
-
+  
+  
   EmiLULUCF <- calcOutput("EmiLULUCFCountryAcc", subtype = "GHG", years = 1990:2022, aggregate = FALSE, warnNA= FALSE)
   
   getNames(EmiLULUCF) <- "Emi|GHG|LULUCF (Mt CO2eq/yr)"
@@ -35,7 +35,7 @@ calcEmiTargetReference <- function() {
     ghg[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
     ghg[, , "Emi|GHG|LULUCF (Mt CO2eq/yr)"] 
   
- 
+  
   
   
   return(list(
