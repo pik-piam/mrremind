@@ -7,21 +7,19 @@
 
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-#'   Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
-#'   determines the database version to be read in
+#'   Emissions_YYYY_uncond for Emissions targets, EnergyShareTargets for energy share targets (e.g. renewable share targets),
+#'   with YYYY NDC version year, determines the database version to be read in
 #' @param subset A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).
 #'
 readNewClimate <- function(subtype, subset) {
-
   NPIfile <- dplyr::case_when(
     grepl("2025", subtype, fixed = TRUE) ~ "NPi_2025-03-25.xlsx",
     .default = "NPi_2025-03-25.xlsx"
   )
-
+  
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-
     # TODO: what about targets for H2-Electrolysers?
-
+    
     data <- read_excel(
       NPIfile,
       sheet = "Capacity_target_PBL_2025",
@@ -57,8 +55,32 @@ readNewClimate <- function(subtype, subset) {
         "Unconditional Relative" = 13, "Conditional Relative" = 14
       ) %>%
       toolProcessClimateTargetDatabase(database = "NewClimate", subtype = subtype)
-
+    
     x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+    # read in energy share targets from policy modeling protocol
+  } else if (grepl("EnergyShareTargets", subtype, fixed = TRUE)) {
+    data <- readxl::read_excel(
+      NPIfile,
+      sheet = "EnergyShareTargets",
+      col_names = T
+    )
+    
+    # filter only for energy share targets (ShareTarget column is 1)
+    # and columns relevant for target implementation:
+    # country, target year, target type (e.g. share in electricity or final energy),
+    # MinMax (whether minimum or maximum value, values are different only for targets with range),
+    # value
+    data <- data %>%
+      filter(ShareTarget == 1) %>%
+      select("ISO-3", "Target Year", "TargetType", "Model Target Value Min", "Model Target Value Max") %>%
+      pivot_longer(
+        cols = dplyr::starts_with("Model Target Value"),
+        names_to = "MinMax",
+        values_to = "value"
+      ) %>%
+      mutate(MinMax = gsub("Model Target Value ", "", MinMax))
+    
+    x <- as.magpie(data, spatial = "ISO-3", temporal = "Target Year")
   } else {
     stop("Incorrect subtype, please use Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond).")
   }
