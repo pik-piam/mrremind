@@ -161,9 +161,8 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
             # if a country includes LULUCF emissions in their emission target,
             # LULUCF emissions are subtracted from the base emission
-            if (reductionData[regi, year, "LULUCF"] > 0 && emi[regi,2015, "Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)"] > 0 ) {
-              browser()
-              ghg2015 <- setYears(emi[regi, 2015,"Emi|GHG|w/o Bunkers LULUCF corrected (Mt CO2/yr)" ], NULL)
+            if (reductionData[regi, year, "LULUCF"] > 0 && emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 ) {
+              ghg2015 <- setYears(emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)" ], NULL)
             } else {
               ghg2015 <- setYears(ghg[regi, 2015, ], NULL)
             }
