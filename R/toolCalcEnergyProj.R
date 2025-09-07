@@ -1,8 +1,6 @@
 #' Calculate energy projections on country-level based on EDGE models outputs per country.
 #' These energy projections are solely used in the input data preparation for disaggregating and aggregating energy share targets
 #'
-#' Emission targets are represented by a GHG Emission Factor, which is the quotient of total GHG
-#' emissions in the target year divided by the CEDS GHG emissions in 2005.
 #'
 #' @author Felix Schreyer
 #' @param subtype "FE" (Total final energy consumption), "SE|Electricity" (SE electricity generation)
