@@ -59,10 +59,11 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     
     if ("LULUCF" %in% getNames(data) &&
         data[regi, year, "LULUCF"] > 0 &&
+        !is.na(emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]) &&
         #actually of target year
-        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] > 0) {
+        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       
-      ghg <- emi[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"]
+      ghg <- emi[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
       
     } else {
       
@@ -151,8 +152,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     
     if ("LULUCF" %in% getNames(data) &&
         data[regi, year, "LULUCF"] > 0 &&
+         !is.na(emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]) &&
         #actually of target year
-        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] > 0) {
+        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       #subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
       ghgTarget <- ghgTarget[regi, year,]-ghgLULUCF[regi, "y2020",]*factorLULUCF
       
@@ -164,7 +166,10 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
   # between target year and 2015 multiplied by factor 0.1
   knownHigh <- list("IND" = c(2030))
-  knownLow <- list("GAB" = c(2050))
+   knownLow <- list()
+  knownLow[["GAB"]] <- 2050
+  knownLow[["GBR"]] <- 2050
+  
 
   conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
