@@ -90,23 +90,23 @@ calcGAINS2025forREMIND <- function(subtype) {
     wgtnew <- fixDims(wgtnew)
 
     # Mapping from GAINS2025 sectors to REMIND GAMS subsectors
-    secmap <- toolGetMapping(type = "sectoral", name = "mappingGAINS2025toREMINDsectors.csv", where = "mrremind")
+    secmap <- toolGetMapping(type = "sectoral", name = "mappingINTERMEDIARYtoGAINS2025toREMINDtoIAMC.csv", where = "mrremind")
 
     # Drop sectors not in mapping
-    dropsectors <- getItems(innew, "sector")[!(getItems(innew, "sector") %in% secmap$gains)]
+    dropsectors <- getItems(innew, "sector")[!(getItems(innew, "sector") %in% secmap$GAINS2025)]
     # Also drop sectors that are not mapped with sufficient detail. Those that can be
     # used will have a dot "." splitting the specific technologies
-    dropsectors <- c(secmap$gains[!grepl("\\.", secmap$remind)], dropsectors)
+    dropsectors <- c(secmap$GAINS2025[!grepl("\\.", secmap$REMIND_INTERNAL)], dropsectors)
     innew <- innew[, , dropsectors, invert = TRUE]
     wgtnew <- wgtnew[, , dropsectors, invert = TRUE]
 
     # Aggregate to REMIND sectors
-    filtsecmap <- secmap[!(secmap$gains %in% dropsectors), ]
+    filtsecmap <- secmap[!(secmap$GAINS2025 %in% dropsectors), ]
     # outnew <- toolAggregate(innew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
     # Here, zeroWeight = "allow" is allowing cases where there might be EFs, but all emissions are zero. In
     # that case, that puts zero in the resulting EF.
-    outnew <- toolAggregate(innew, filtsecmap, weight = wgtnew, from = "gains", to = "remind", dim = "sector", zeroWeight = "allow")
-    wgtnew <- toolAggregate(wgtnew, filtsecmap, weight = NULL, from = "gains", to = "remind", dim = "sector")
+    outnew <- toolAggregate(innew, filtsecmap, weight = wgtnew, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector", zeroWeight = "allow")
+    wgtnew <- toolAggregate(wgtnew, filtsecmap, weight = NULL, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector")
 
     # Use abind to split the dimensions of specific technologies into subsectors
     splitTechs <- function(mag) {
