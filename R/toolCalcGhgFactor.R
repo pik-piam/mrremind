@@ -184,9 +184,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
 
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
-          ghg2005 <- sum(setYears(GHGwoLULUCF[EUR_NDC_countries, 2005, ], NULL))
+          ghg2015 <- sum(setYears(GHGwoLULUCF[EUR_NDC_countries, 2015, ], NULL))
         } else {
-          ghg2005 <- setYears(GHGwoLULUCF[regi, 2005, ], NULL)
+          ghg2015 <- setYears(GHGwoLULUCF[regi, 2015, ], NULL)
         }
         
         ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
