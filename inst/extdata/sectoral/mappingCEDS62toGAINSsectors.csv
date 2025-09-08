@@ -1,0 +1,170 @@
+CEDS62;INTERMEDIARY;GAINS2025;CEDS16;comment
+3B_Manure-management;Agriculture;NOGAINS_Agriculture;Agriculture;
+3D_Rice-Cultivation;Agriculture;NOGAINS_Agriculture;Agriculture;
+3D_Soil-emissions;Agriculture;NOGAINS_Agriculture;Agriculture;
+3E_Enteric-fermentation;Agriculture;NOGAINS_Agriculture;Agriculture;
+3I_Agriculture-other;Agriculture;NOGAINS_Agriculture;Agriculture;
+7BC_Indirect-N2O-non-agricultural-N;Agriculture;NOGAINS_Agriculture;Agriculture;
+1A3ai_International-aviation;Aircraft;NOGAINS_Aircraft;Aircraft;
+1A3aii_Domestic-aviation;Aircraft;NOGAINS_Aircraft;Aircraft;
+1A1a_Electricity-autoproducer;Electricity;Power_Gen_Bio_Trad;Electricity and Heat Production;
+1A1a_Electricity-autoproducer;Electricity;Power_Gen_Coal;Electricity and Heat Production;
+1A1a_Electricity-autoproducer;Electricity;Power_Gen_HLF;Electricity and Heat Production;
+1A1a_Electricity-autoproducer;Electricity;Power_Gen_LLF;Electricity and Heat Production;
+1A1a_Electricity-autoproducer;Electricity;Power_Gen_NatGas;Electricity and Heat Production;
+1A1a_Electricity-public;Electricity;Power_Gen_Bio_Trad;Electricity and Heat Production;
+1A1a_Electricity-public;Electricity;Power_Gen_Coal;Electricity and Heat Production;
+1A1a_Electricity-public;Electricity;Power_Gen_HLF;Electricity and Heat Production;
+1A1a_Electricity-public;Electricity;Power_Gen_LLF;Electricity and Heat Production;
+1A1a_Electricity-public;Electricity;Power_Gen_NatGas;Electricity and Heat Production;
+1A1a_Heat-production;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;Assume all heat here is industrial
+1A1a_Heat-production;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A1a_Heat-production;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A1a_Heat-production;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A1a_Heat-production;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+7A_Fossil-fuel-fires;Fossil Extraction and Distribution;Losses_Distribution_Use;Fossil Fuel Fires;
+7A_Fossil-fuel-fires;Fossil Extraction and Distribution;Losses_Coal;Fossil Fuel Fires;
+7A_Fossil-fuel-fires;Fossil Extraction and Distribution;Losses_Vent_Flare;Fossil Fuel Fires;
+1A1bc_Other-transformation;Fuel Transformation;Transformations_HLF_Refinery;Fuel Production and Transformation;
+1A1bc_Other-transformation;Fuel Transformation;Transformations_LLF;Fuel Production and Transformation;
+1A1bc_Other-transformation;Fuel Transformation;Transformations_NatGas;Fuel Production and Transformation;
+1A1bc_Other-transformation;Fuel Transformation;Transformations_Coal;Fuel Production and Transformation;
+1A1bc_Other-transformation;Fuel Transformation;Transformations_HLF;Fuel Production and Transformation;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Losses_Distribution_Use;Fuel Production and Transformation;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Losses_Coal;Fuel Production and Transformation;
+1B1_Fugitive-solid-fuels;Fossil Extraction and Distribution;Losses_Distribution_Use;Fuel Production and Transformation;
+1B1_Fugitive-solid-fuels;Fossil Extraction and Distribution;Losses_Coal;Fuel Production and Transformation;
+1B1_Fugitive-solid-fuels;Fossil Extraction and Distribution;Losses_Vent_Flare;Fuel Production and Transformation;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-Construction;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-Construction;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-Construction;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-Construction;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-Construction;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-machinery;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-machinery;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-machinery;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-machinery;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-machinery;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-other;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-other;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-other;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-other;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-other;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-transpequip;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;"""transport equipment"", but seems to be inside industry. Double counting?"
+1A2g_Ind-Comb-transpequip;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-transpequip;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-transpequip;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-transpequip;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+1A5_Other-unspecified;Industrial Combustion;End_Use_Industry_Bio_Trad;Industrial Combustion;Basing this solely on the mapping that says this is part of industrial combustion
+1A5_Other-unspecified;Industrial Combustion;End_Use_Industry_Coal;Industrial Combustion;
+1A5_Other-unspecified;Industrial Combustion;End_Use_Industry_HLF;Industrial Combustion;
+1A5_Other-unspecified;Industrial Combustion;End_Use_Industry_LLF;Industrial Combustion;
+1A5_Other-unspecified;Industrial Combustion;End_Use_Industry_NatGas;Industrial Combustion;
+2A1_Cement-production;Process Cement;CEMENT;Industrial Process and Product Use;Sectors 2 seems to be product use sectors 
+2A2_Lime-production;Process Chemicals;CHEM;Industrial Process and Product Use;
+2Ax_Other-minerals;Process Chemicals;CHEM;Industrial Process and Product Use;
+2B_Chemical-industry;Process Chemicals;CHEM;Industrial Process and Product Use;
+2B2_Chemicals-Nitric-acid;Process Nitric and Adipic Acid;NACID;Industrial Process and Product Use;
+2B3_Chemicals-Adipic-acid;Process Nitric and Adipic Acid;NACID;Industrial Process and Product Use;Assuming NACID also includes adipic acid
+2C1_Iron-steel-alloy-prod;Process Steel;STEEL;Industrial Process and Product Use;
+2C3_Aluminum-production;Process Solvents and Other;CUSM;Industrial Process and Product Use;"FIXME: Find out what the hell is CUSM, treating it as a ""other process/use"" sector for now"
+2C4_Non-Ferrous-other-metals;Process Solvents and Other;CUSM;Industrial Process and Product Use;"FIXME: Find out what the hell is CUSM, treating it as a ""other process/use"" sector for now"
+2H_Pulp-and-paper-food-beverage-wood;Process Paper;PAPER;Industrial Process and Product Use;
+2L_Other-process-emissions;Process Solvents and Other;CUSM;Industrial Process and Product Use;"FIXME: Find out what the hell is CUSM, treating it as a ""other process/use"" sector for now"
+6A_Other-in-total;NOGAINS_NotRepresented;NOGAINS_NotRepresented;Industrial Process and Product Use;"FIXME: Find out what the hell is CUSM, treating it as a ""other process/use"" sector for now"
+1A3di_International-shipping;NOGAINS_IntShipping;NOGAINS_IntShipping;International Shipping;Assume international shipping uses HLF and LLF but not Gas
+1A3di_Oil_Tanker_Loading;NOGAINS_IntShipping;NOGAINS_IntShipping;International Shipping;
+1A3c_Rail;Transport Domestic Ground;End_Use_Transport_HLF;Non-Road Transportation;
+1A3c_Rail;Transport Domestic Ground;End_Use_Transport_LLF;Non-Road Transportation;
+1A3c_Rail;Transport Domestic Ground;End_Use_Transport_NatGas;Non-Road Transportation;
+1A3c_Rail;Transport Domestic Ground;End_Use_Transport_Coal;Non-Road Transportation;
+1A3dii_Domestic-navigation;Transport Domestic Ground;End_Use_Transport_HLF;Non-Road Transportation;
+1A3dii_Domestic-navigation;Transport Domestic Ground;End_Use_Transport_LLF;Non-Road Transportation;
+1A3dii_Domestic-navigation;Transport Domestic Ground;End_Use_Transport_NatGas;Non-Road Transportation;
+1A3dii_Domestic-navigation;Transport Domestic Ground;End_Use_Transport_Coal;Non-Road Transportation;
+1A3eii_Other-transp;Transport Domestic Ground;End_Use_Transport_NatGas;Non-Road Transportation;Also assume no gas on boats
+1A3eii_Other-transp;Transport Domestic Ground;End_Use_Transport_HLF;Non-Road Transportation;
+1A3eii_Other-transp;Transport Domestic Ground;End_Use_Transport_LLF;Non-Road Transportation;"Maybe  some gas in ""other"""
+1A3eii_Other-transp;Transport Domestic Ground;End_Use_Transport_Coal;Non-Road Transportation;
+1B2_Fugitive-petr;Fossil Extraction and Distribution;Losses_Distribution_Use;Oil and Gas Fugitive/Flaring;Is there significant oil flaring?
+1B2_Fugitive-petr;Fossil Extraction and Distribution;Losses_Coal;Oil and Gas Fugitive/Flaring;
+1B2_Fugitive-petr;Fossil Extraction and Distribution;Losses_Vent_Flare;Oil and Gas Fugitive/Flaring;
+1B2b_Fugitive-NG-distr;Fossil Extraction and Distribution;Losses_Distribution_Use;Oil and Gas Fugitive/Flaring;Nothe the specific split in Gas fugitive
+1B2b_Fugitive-NG-distr;Fossil Extraction and Distribution;Losses_Coal;Oil and Gas Fugitive/Flaring;
+1B2b_Fugitive-NG-distr;Fossil Extraction and Distribution;Losses_Vent_Flare;Oil and Gas Fugitive/Flaring;
+1B2b_Fugitive-NG-prod;Fossil Extraction and Distribution;Losses_Distribution_Use;Oil and Gas Fugitive/Flaring;
+1B2b_Fugitive-NG-prod;Fossil Extraction and Distribution;Losses_Coal;Oil and Gas Fugitive/Flaring;
+1B2b_Fugitive-NG-prod;Fossil Extraction and Distribution;Losses_Vent_Flare;Oil and Gas Fugitive/Flaring;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Losses_Distribution_Use;Oil and Gas Fugitive/Flaring;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Losses_Coal;Oil and Gas Fugitive/Flaring;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Losses_Vent_Flare;Oil and Gas Fugitive/Flaring;"Coal fugitive seems to be ""other"", don't see anywhere else"
+1A4c_Agriculture-forestry-fishing;NOGAINS_Agriculture;NOGAINS_Agriculture;Residential Commercial Other - Other;
+1A4a_Commercial-institutional;Commercial Services;End_Use_Services_Bio_Trad;Residential Commercial Other - Residential Commercial;
+1A4a_Commercial-institutional;Commercial Services;End_Use_Services_Coal;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_Bio_Mod;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_Bio_Trad;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_Coal;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_HLF;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_LLF;Residential Commercial Other - Residential Commercial;
+1A4b_Residential;Residential;End_Use_Residential_NatGas;Residential Commercial Other - Residential Commercial;
+1A3b_Road;Transport Domestic Ground;End_Use_Transport_HLF;Road Transportation;
+1A3b_Road;Transport Domestic Ground;End_Use_Transport_LLF;Road Transportation;
+1A3b_Road;Transport Domestic Ground;End_Use_Transport_NatGas;Road Transportation;
+1A3b_Road;Transport Domestic Ground;End_Use_Transport_Coal;Road Transportation;
+2D_Degreasing-Cleaning;Process Solvents and Other;CUSM;Solvents Production and Application;
+2D_Paint-application;Process Solvents and Other;CUSM;Solvents Production and Application;Assuming solvents and co. are in CHEM
+2D_Chemical-products-manufacture-processing;Process Chemicals;CHEM;Solvents Production and Application;
+2D_Other-product-use;Process Solvents and Other;CUSM;Solvents Production and Application;
+5A_Solid-waste-disposal;Waste Solids and Other;Waste_Solid_Industrial;Waste;
+5A_Solid-waste-disposal;Waste Solids and Other;Waste_Solid_Municipal;Waste;
+5C_Waste-combustion;Waste Solids and Other;Waste_Solid_Industrial;Waste;
+5C_Waste-combustion;Waste Solids and Other;Waste_Solid_Municipal;Waste;
+5D_Wastewater-handling;Wastewater;Waste_Water_Industrial;Waste;
+5D_Wastewater-handling;Wastewater;Waste_Water_Municipal;Waste;
+5E_Other-waste-handling;Waste Solids and Other;Waste_Solid_Industrial;Waste;
+5E_Other-waste-handling;Waste Solids and Other;Waste_Solid_Municipal;Waste;
