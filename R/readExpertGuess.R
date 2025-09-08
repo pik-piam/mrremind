@@ -13,6 +13,7 @@
 #'   - `co2prices`: CO2 prices (Robert Pietzcker)
 #'   - `costsTradePeFinancial`: primary energy tradecosts (financial costs on import,
 #'      export and use) (Nicolas Bauer)
+#'   - `deltacapoffset`: ??? (Robert Pietzcker)
 #'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
 #'   - `prtp`: pure rate of time preference (Nicolas Bauer)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
@@ -66,6 +67,11 @@ readExpertGuess <- function(subtype) {
     out <- read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2) %>%
       as.magpie(spatial = 1, temporal = 0, datacol = 3) %>%
       collapseNames()
+
+  } else if (subtype == "deltacapoffset") {
+
+    out <- read.csv("p_adj_deltacapoffset_v1.0.0.csv", sep = ";") %>%
+      as.magpie()
 
   } else if (subtype == "ies") {
 
