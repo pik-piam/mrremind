@@ -2,13 +2,15 @@
 % Please edit documentation in R/calcEmiTargetReference.R
 \name{calcEmiTargetReference}
 \alias{calcEmiTargetReference}
-\title{Calculate Emission Targets reference to be used when calculation Emission Targets}
+\title{Calculate Emission Targets reference from UNFCCC and CEDS to be used when
+calculating Emission Targets.}
 \usage{
 calcEmiTargetReference()
 }
 \description{
-Uses historical CEDS emissions from 1990-2023
+Uses historical emissions from 1990-2022.
 CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
+When available, UNFCCC data is used, otherwise CEDS data.
 }
 \seealso{
 \code{\link[=calcEmiTarget]{calcEmiTarget()}}, \code{\link[=convertUNFCCC_NDC]{convertUNFCCC_NDC()}}

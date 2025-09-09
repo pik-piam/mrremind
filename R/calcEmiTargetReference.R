@@ -1,20 +1,21 @@
-#' Calculate Emission Targets reference to be used when calculation Emission Targets
+#' Calculate Emission Targets reference from UNFCCC and CEDS to be used when
+#' calculating Emission Targets.
 #'
-#' Uses historical CEDS emissions from 1990-2023
+#' Uses historical emissions from 1990-2022.
 #' CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
+#' When available, UNFCCC data is used, otherwise CEDS data.
+#'
 #' @author Rahel Mandaroux, Falk Benke
 #' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
 
 calcEmiTargetReference <- function() {
-  # TODO Rahel: adjust documentation
-
-  ceds <- calcOutput("Emissions", datasource = "CEDS2025", years = 1990:2022, aggregate = FALSE)
-  unfccc <- collapseDim(calcOutput("UNFCCC", years = 1990:2022, aggregate = FALSE))
-  unfcccReg <- intersect(getItems(unfccc, dim = 1), getItems(readSource("UNFCCC", convert = F), dim = 1))
 
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7
   gwpCH4 <- 28
   gwpN2O <- 265
+
+  ceds <- calcOutput("Emissions", datasource = "CEDS2025", years = 1990:2022, aggregate = FALSE)
+  unfccc <- collapseDim(calcOutput("UNFCCC", years = 1990:2022, aggregate = FALSE, warnNA = FALSE))
 
   # calculate CEDS values ----
 
@@ -37,11 +38,10 @@ calcEmiTargetReference <- function() {
 
   getNames(GHGwoLULUCF) <- "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"
 
-  EmiLULUCF <- unfccc[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
-
-  ghgCEDS <- mbind(GHGwoLULUCF, EmiLULUCF)
-
+  ghgCEDS <- mbind(GHGwoLULUCF, unfccc[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"])
   ghgCEDS <- add_columns(ghgCEDS, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3.1)
+
+  # calculate Emi with LULUCF from UNFCCC LULUCF, is NA for countries not in UNFCCC
   ghgCEDS[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
     ghgCEDS[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
     ghgCEDS[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
@@ -60,14 +60,21 @@ calcEmiTargetReference <- function() {
     ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
     ghgUNFCCC[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
 
+  # merge CEDS and UNFCCCC values ----
+
+  unfcccReg <- intersect(
+    getItems(unfccc, dim = 1),
+    getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
+  )
+
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
+  out[is.na(out)] <- 0
 
   return(list(
     x = out,
     unit = "Mt CO2eq",
-    # TODO Rahel: adjust description
-    description = glue::glue("historical total GHG emissions from 1990 to 2023 \\
-                             according to CEDS and GHG LULUCF from UNFCCC")
+    description = glue::glue("historical GHG emissions with and without LULUCF \\
+    from 1990 to 2022 according to UNFCCC and CEDS")
   ))
 }

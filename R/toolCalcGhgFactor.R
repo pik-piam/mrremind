@@ -12,14 +12,13 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
   reductionData <- x
 
-  
   # Reference Emissions from UNFCCC
   emi <- calcOutput("EmiTargetReference", aggregate = FALSE)
-  
+
   GHGwoLULUCF <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
   ghgLULUCF <- emi[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
-  
-  #growth factor fro LULUCF 2020 to target year, assumption constant LULUCF emissions
+
+  # growth factor fro LULUCF 2020 to target year, assumption constant LULUCF emissions
   factorLULUCF <- 1
 
   # Future GDP values
@@ -27,11 +26,13 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
   # Define EU countries + Croatia for special treatment because of joint targets
   # GBR has its own targets starting from 2022
-  EUR_NDC_countries <- c("POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-                         "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-                         "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-                         "FRO", "GIB", "GGY", "IMN", "HRV",
-                         if (grepl("_20(18|19|20|21)_", subtype)) "GBR")
+  EUR_NDC_countries <- c(
+    "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+    "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+    "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+    "FRO", "GIB", "GGY", "IMN", "HRV",
+    if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
+  )
 
   allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
 
@@ -53,30 +54,24 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   ## - takes CEDS emissions for reference year (if not available, use latest year in CEDS emissions)
   ## - if the column contains "BAU", use the value in "BAU_or_Reference_emissions_in_MtCO2e" as reference
   .calcGhgTarget <- function(data) {
-
     regi <- getItems(data, dim = 1)
     year <- getYears(data)
-    
+
     if ("LULUCF" %in% getNames(data) &&
-        data[regi, year, "LULUCF"] > 0 &&
-        !is.na(emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]) &&
-        #actually of target year
-        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
-      
+          data[regi, year, "LULUCF"] > 0 &&
+          # actually of target year
+          emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       ghg <- emi[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
-      
     } else {
-      
       ghg <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
-      
     }
-    
+
     ghgTarget <- NA
-    
-    #1.Type-GHG-Absolute: An absolute reduction value such as "country will reduce its emissions by 9 Mt" 
+
+    # 1.Type-GHG-Absolute: An absolute reduction value such as "country will reduce its emissions by 9 Mt"
     if (allowedType[data[regi, year, "Type"]] == "GHG-Absolute") { # absolute GHG change
 
-      if (data[regi, year, "Reference_Year"] == -1) {  # -1 if BAU;
+      if (data[regi, year, "Reference_Year"] == -1) { # -1 if BAU;
         if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
           # target + BAU emissions in sheet
           ghgTarget <- data[regi, year, conditional] +
@@ -97,10 +92,10 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         ghgTarget <- data[regi, year, conditional] +
           setYears(ghg[regi, histYear, ], NULL)
       }
-      #2. Type-GHG-relative: relative reduction of emissions. E.g., "9% reduction compared to base year or BAU"
+      # 2. Type-GHG-relative: relative reduction of emissions. E.g., "9% reduction compared to base year or BAU"
     } else if (allowedType[data[regi, year, "Type"]] == "GHG") { # relative GHG change
 
-      if (data[regi, year, "Reference_Year"] == -1) {  # -1 if BAU.
+      if (data[regi, year, "Reference_Year"] == -1) { # -1 if BAU.
         if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
           # target * BAU emissions in sheet
           ghgTarget <- (1 + data[regi, year, conditional]) *
@@ -122,7 +117,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         ghgTarget <- (1 + data[regi, year, conditional]) *
           setYears(ghg[regi, histYear, ], NULL)
       }
-      #3. Type CO2 or GHG /GDP: relative reduction of CO2 or GHG intensity  
+      # 3. Type CO2 or GHG /GDP: relative reduction of CO2 or GHG intensity
     } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # GHG/GDP or CO2/GDP
 
       if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
@@ -139,37 +134,34 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
           setYears(ghg[regi, as.numeric(data[regi, year, "Reference_Year"]), ], NULL)
       }
 
-      #4. Type-GHG-fixed-total: An absolute goal such as "country emissions will be 900 Mt in 2050" or net zero targets
+      # 4. Type-GHG-fixed-total: An absolute goal such as "country emissions will be 900 Mt in 2050" or net zero targets
     } else if (allowedType[data[regi, year, "Type"]] == "GHG-fixed-total") {
-
       # use the value in the Conditional / Unconditional Column
       ghgTarget <- data[regi, year, conditional]
-
     } else {
-      stop("Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ",
-           allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)")
+      stop(
+        "Unknown Type for regi ", regi, " and year ", year, ": ", data[regi, year, "Type"], " / ",
+        allowedType[data[regi, year, "Type"]], " (note: GHG/CAP currently not implemented)"
+      )
     }
-    
+
     if ("LULUCF" %in% getNames(data) &&
-        data[regi, year, "LULUCF"] > 0 &&
-         !is.na(emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]) &&
-        #actually of target year
-        emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
-      #subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year,]-ghgLULUCF[regi, "y2020",]*factorLULUCF
-      
+          data[regi, year, "LULUCF"] > 0 &&
+          # actually of target year
+          emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
+      ghgTarget <- ghgTarget[regi, year, ] - ghgLULUCF[regi, "y2020", ] * factorLULUCF
     }
-    
+
     return(ghgTarget)
   }
 
   # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
   # between target year and 2015 multiplied by factor 0.1
   knownHigh <- list("IND" = c(2030))
-   knownLow <- list()
+  knownLow <- list()
   knownLow[["GAB"]] <- 2050
   knownLow[["GBR"]] <- 2050
-  
 
   conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
@@ -185,7 +177,6 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   for (regi in getItems(reductionData, dim = 1)) {
     for (year in getYears(reductionData, as.integer = TRUE)) {
       if (!is.na(reductionData[regi, year, conditional][1])) {
-
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
 
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
@@ -193,7 +184,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         } else {
           ghg2015 <- setYears(GHGwoLULUCF[regi, 2015, ], NULL)
         }
-        
+
         ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
 
         ghgFactorMax <- max(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
