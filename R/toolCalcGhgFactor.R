@@ -13,11 +13,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   reductionData <- x
 
   # Reference Emissions from UNFCCC
-  emi <- calcOutput("EmiTargetReference", aggregate = FALSE)
-
-  GHGwoLULUCF <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
-  ghgLULUCF <- emi[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
-
+  emiRef <- calcOutput("EmiTargetReference", aggregate = FALSE)
   # growth factor fro LULUCF 2020 to target year, assumption constant LULUCF emissions
   factorLULUCF <- 1
 
@@ -60,10 +56,10 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     if ("LULUCF" %in% getNames(data) &&
           data[regi, year, "LULUCF"] > 0 &&
           # actually of target year
-          emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
-      ghg <- emi[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
+          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+      ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
     } else {
-      ghg <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
+      ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
     }
 
     ghgTarget <- NA
@@ -148,9 +144,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     if ("LULUCF" %in% getNames(data) &&
           data[regi, year, "LULUCF"] > 0 &&
           # actually of target year
-          emi[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] - ghgLULUCF[regi, "y2020", ] * factorLULUCF
+      ghgTarget <- ghgTarget[regi, year, ] - emiRef[regi, "y2020", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] * factorLULUCF
     }
 
     return(ghgTarget)
@@ -180,9 +176,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
 
         if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
-          ghg2015 <- sum(setYears(GHGwoLULUCF[EUR_NDC_countries, 2015, ], NULL))
+          ghg2015 <- sum(setYears(emiRef[EUR_NDC_countries, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL))
         } else {
-          ghg2015 <- setYears(GHGwoLULUCF[regi, 2015, ], NULL)
+          ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
         }
 
         ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
