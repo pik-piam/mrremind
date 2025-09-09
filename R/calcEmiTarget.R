@@ -21,7 +21,6 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", to calls of the individual scenarios.
   scenario <- mrdrivers::toolReplaceShortcuts(scenario) %>% unique()
 
-
   # Reference Emissions from CEDS
   emi <- calcOutput("EmiTargetReference", aggregate = FALSE)
   ghg <- emi[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
