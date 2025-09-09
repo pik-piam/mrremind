@@ -5,7 +5,8 @@
 #' calculations at the GAINS regional level first and then disaggregate
 #' the results
 #'
-#' @return  Activity levels, emissions or emission factors:
+#' @return  Activity levels, emissions or emission factors at the level of 
+#'          25 GAINS regions, 35 GAINS sectors and 7 species:
 #'          magclass object with dimensions region, year, and ssp.scenario.sectorGAINS.species
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
 #' @param subtype "emifacs", "emissions", "activities"
@@ -66,11 +67,11 @@ readGAINS2025 <- function(subtype) {
     # Add correct data
     df_corrected <- rbind(df_uncorrected, df_Coal, df_NatGas)
   }
-  
+
   # ================================================================================================
   # AIR POLLUTANT NAMES ============================================================================
   # ================================================================================================
-  
+
   # Function to maps from GAINS2025 to REMIND (oldGAINS) air pollutant names
   fixPolNames <- function(mag) {
     polnamesmap <- c(
@@ -86,7 +87,7 @@ readGAINS2025 <- function(subtype) {
     getItems(mag, "species") <- names(polnamesmap)
     return(mag)
   }
-  
+
   if (subtype == "emifacs") {
     # ================================================================================================
     # EMISSION FACTORS ===============================================================================
@@ -196,13 +197,28 @@ readGAINS2025 <- function(subtype) {
     # These are read in from a different source file for scenario "historical".
     cleefs <- cleefs %>% filter(ssp != "historical", year >= 2025)
 
+    # COMPLETE DATA FRAMES TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
+    # Years 1990 - 2020 (7 time steps, 25 regions, 35 sectors, 7 species = 42875)
+    histefs <- histefs %>%
+      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+    # Years 2025 - 2100 (16 time steps, 25 regions, 35 sectors, 7 species = 98000)
+    smipefs <- smipefs %>%
+      group_by(ssp, scenario) %>%
+      complete(region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+    cleefs <- cleefs %>%
+      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+    # Years 2030 - 2100 (15 time steps, 25 regions, 35 sectors, 7 species = 91875)
+    mtfrefs <- mtfrefs %>%
+      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+    sleefs <- sleefs %>%
+      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
 
     # COMBINE ALL SCENARIOS ===========================================================================
     allefs <- rbind(histefs, smipefs, mtfrefs, sleefs, cleefs) %>%
       select(ssp, scenario, sectorGAINS, species, region, year, value)
 
     out <- as.magpie(allefs, spatial = "region", temporal = "year")
-    comment(out) <- "GAINS2025 emission factors for all scenarios and all SSPs."
+    comment(out) <- "GAINS2025 emission factors for different scenarios and SSPs at the level of 25 GAINS regions, 35 GAINS sectors and 7 species."
   } else if (subtype %in% c("emissions", "activities")) {
     # ================================================================================================
     # EMISSIONS AND ACTIVITIES =======================================================================
@@ -228,28 +244,32 @@ readGAINS2025 <- function(subtype) {
         ssp = "baseline",
         scenario = "baseline"
       )
+    
+    # COMPLETE DATA FRAME TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
+    baseactemi <- baseactemi %>% 
+      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year, vartype)
 
     if (subtype == "emissions") {
       baseactemi <- baseactemi %>% filter(vartype == "EMISSION")
     } else {
       baseactemi <- baseactemi %>% filter(vartype == "ACTIVITY")
     }
-
+    
     baseactemi <- baseactemi %>%
       select(ssp, scenario, sectorGAINS, species, region, year, value)
 
     out <- as.magpie(baseactemi, spatial = "region", temporal = "year")
     if (subtype == "emissions") {
-      comment(out) <- "GAINS2025 emissions for the baseline scenario."
+      comment(out) <- "GAINS2025 emissions for the baseline scenario at the level of 25 GAINS regions, 35 GAINS sectors and 7 species.."
     } else {
-      comment(out) <- "GAINS2025 activities for the baseline scenario."
+      comment(out) <- "GAINS2025 activities for the baseline scenario at the level of 25 GAINS regions, 35 GAINS sectors and 7 species.."
     }
   } else {
     stop(paste0("Unknown subtype: ", subtype))
   }
-  
+
   # Change air pollutant names
   out <- fixPolNames(out)
-  
+
   return(out)
 }
