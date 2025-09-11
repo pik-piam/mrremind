@@ -114,8 +114,9 @@ fullREMIND <- function() {
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors_remindsectors", warnNA = FALSE,                    round = 5, file = "f11_emiFacAP.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
-  calcOutput("AirPollEmiRef", subtype = "sectorsGAINS2025", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMIND", useyearmean = TRUE,  round = 5, file = "emirefCEDS2020_gains.cs4r")
-
+  calcOutput("AirPollEmiRef", source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE,  round = 5, file = "emirefCEDS2020_gains.cs4r")
+  calcOutput("AirPollEmiRef", source = "GAINS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE,  round = 5, file = "emirefGAINS2020_gains.cs4r")
+  
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")
   calcOutput("PotentialWindOn",                       round = 3,  file = "f_maxProdGradeRegiWindOn.cs3r")
