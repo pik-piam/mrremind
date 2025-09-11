@@ -16,12 +16,12 @@ CEDS62;INTERMEDIARY_CEDS_GAINS;CMIP7_HARMONIZATION;OLD_INTERMEDIARY_CEDS_GAINS;C
 1A2g_Ind-Comb-textile-leather;Industrial Combustion;Industrial Sector;Industrial Combustion;
 1A2g_Ind-Comb-transpequip;Industrial Combustion;Industrial Sector;Industrial Combustion;
 1A2g_Ind-Comb-wood-products;Industrial Combustion;Industrial Sector;Industrial Combustion;
-1A3ai_International-aviation;NOGAINS Aircraft;Aircraft;NOGAINS_Aircraft;
-1A3aii_Domestic-aviation;NOGAINS Aircraft;Aircraft;NOGAINS_Aircraft;
+1A3ai_International-aviation;NOGAINS International Aviation;Aircraft;NOGAINS_Aircraft;
+1A3aii_Domestic-aviation;NOGAINS Domestic Aviation;Aircraft;NOGAINS_Aircraft;
 1A3b_Road;Transportation Sector;Transportation Sector;Transport Domestic Ground;
 1A3c_Rail;Transportation Sector;Transportation Sector;Transport Domestic Ground;
-1A3di_International-shipping;NO GAINS International Shipping;International Shipping;NOGAINS_IntShipping;
-1A3di_Oil_Tanker_Loading;NO GAINS International Shipping;International Shipping;NOGAINS_IntShipping;
+1A3di_International-shipping;NOGAINS International Shipping;International Shipping;NOGAINS_IntShipping;
+1A3di_Oil_Tanker_Loading;NOGAINS International Shipping;International Shipping;NOGAINS_IntShipping;
 1A3dii_Domestic-navigation;Transportation Sector;Transportation Sector;Transport Domestic Ground;
 1A3eii_Other-transp;Transportation Sector;Transportation Sector;Transport Domestic Ground;
 1A4a_Commercial-institutional;Residential Commercial Other;Residential Commercial Other;Commercial Services;

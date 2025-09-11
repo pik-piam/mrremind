@@ -9,7 +9,7 @@
 #' @param source "CEDS2025" or "GAINS2025"
 #' @param outsectors total ("TOT"),
 #'                   62 CEDS sectors ("CEDS"),
-#'                   15 intermediary sectors used to link CEDS and GAINS ("INT"),
+#'                   16 intermediary sectors used to link CEDS and GAINS ("INT"),
 #'                   35 GAINS sectors ("GAINS"),
 #'                   13 CMIP7 Harmonization sectors ("CMIP7")
 #' @return magclass object
@@ -332,7 +332,7 @@ calcAirPollEmiRef <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
       stop("GAINS to CEDS mapping currently not available. See 3.B in the code.")
     } else if (outsectors == "INT") {
       out <- emiGAINS.sectINT
-      desc <- paste0(source," emissions in year ", baseyear," at level of 15 intermediary sectors used to link CEDS and GAINS.")
+      desc <- paste0(source," emissions in year ", baseyear," at level of 16 intermediary sectors used to link CEDS and GAINS.")
     } else if (outsectors == "GAINS") {
       out <- emiGAINS.sectGAINS
       desc <- paste0(source," emissions in year ", baseyear," at level of 35 GAINS sectors.")
