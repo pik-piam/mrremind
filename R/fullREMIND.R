@@ -105,7 +105,7 @@ fullREMIND <- function() {
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
-  calcOutput("EmiLULUCFCountryAcc", subtype = "CO2",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
+  calcOutput("EmiLULUCFCountryAcc",                                             round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
   #-------------- air pollution parameters ---------------------------------------------------------
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
@@ -184,10 +184,10 @@ fullREMIND <- function() {
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_2015shareTarget.cs3r")
 
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_NC_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_NC_2015shareTarget.cs3r")
 
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC", round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")

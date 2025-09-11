@@ -12,7 +12,7 @@ calcEmiTarget(sources, subtype, scenario)
 \item{subtype}{must be one of
 \itemize{
 \item 'Ghgfactor': for GHG factors calculated from the respective database
-\item 'Ghgshare2005': for Emission share of countries with targets per region
+\item 'Ghgshare2015': for Emission share of countries with targets per region
 }}
 
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.
