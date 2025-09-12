@@ -15,7 +15,7 @@ toolCalcGhgFactor(x, subtype, subset)
 }
 \description{
 Emission targets are represented by a GHG Emission Factor, which is the quotient of total GHG
-emissions in the target year divided by the CEDS GHG emissions in 2005.
+emissions in the target year divided by the CEDS GHG emissions in 2015
 }
 \seealso{
 \code{\link[=convertUNFCCC_NDC]{convertUNFCCC_NDC()}}, \code{\link[=convertNewClimate]{convertNewClimate()}}

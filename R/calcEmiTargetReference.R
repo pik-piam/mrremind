@@ -1,42 +1,80 @@
-#' Calculate Emission Targets reference to be used when calculation Emission Targets
+#' Calculate Emission Targets reference from UNFCCC and CEDS to be used when
+#' calculating Emission Targets.
 #'
-#' Uses historical CEDS emissions from 1990-2015
+#' Uses historical emissions from 1990-2022.
 #' CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
-# Note: CEDS2024 does not include 'Emi|N2O|Land Use|*' variables and cannot be used.
-#' @author Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
+#' When available, UNFCCC data is used, otherwise CEDS data.
+#'
+#' @author Rahel Mandaroux, Falk Benke
 #' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
+
 calcEmiTargetReference <- function() {
-  ceds <- calcOutput("Emissions", datasource = "CEDS2REMIND", years = 1990:2015, aggregate = FALSE)
 
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7
   gwpCH4 <- 28
   gwpN2O <- 265
 
-  # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq]
-  n2Ovars <- c(
-    "Emi|N2O|Energy and Industrial Processes (kt N2O/yr)",
-    "Emi|N2O|Land Use|Agriculture and Biomass Burning (kt N2O/yr)",
-    "Emi|N2O|Land Use|Forest Burning (kt N2O/yr)",
-    "Emi|N2O|Land Use|Grassland Burning (kt N2O/yr)",
-    "Emi|N2O|Waste (kt N2O/yr)"
+  ceds <- calcOutput("Emissions", datasource = "CEDS2025", years = 1990:2022, aggregate = FALSE)
+  unfccc <- collapseDim(calcOutput("UNFCCC", years = 1990:2022, aggregate = FALSE, warnNA = FALSE))
+
+  # calculate CEDS values ----
+
+  # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
+  GHGwoLULUCF <- dimSums(ceds[, , c(
+    "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
+    "Emi|CO2|Agriculture (Mt CO2/yr)",
+    "Emi|CO2|Waste (Mt CO2/yr)"
+  )], dim = 3) +
+    gwpN2O / 1000 * dimSums(ceds[, , c(
+      "Emi|N2O|w/o Bunkers|Energy and Industrial Processes (kt N2O/yr)",
+      "Emi|N2O|Agriculture (kt N2O/yr)",
+      "Emi|N2O|Waste (kt N2O/yr)"
+    )], dim = 3) +
+    gwpCH4 * dimSums(ceds[, , c(
+      "Emi|CH4|w/o Bunkers|Energy and Industrial Processes (Mt CH4/yr)",
+      "Emi|CH4|Agriculture (Mt CH4/yr)",
+      "Emi|CH4|Waste (Mt CH4/yr)"
+    )], dim = 3)
+
+  getNames(GHGwoLULUCF) <- "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"
+
+  ghgCEDS <- mbind(GHGwoLULUCF, unfccc[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"])
+  ghgCEDS <- add_columns(ghgCEDS, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3.1)
+
+  # calculate Emi with LULUCF from UNFCCC LULUCF, is NA for countries not in UNFCCC
+  ghgCEDS[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
+    ghgCEDS[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
+    ghgCEDS[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+
+  # get UNFCCC values ----
+
+  ghgUNFCCC <- unfccc[, , c(
+    "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)",
+    "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
+  )]
+
+  ghgUNFCCC <- add_columns(ghgUNFCCC, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3.1)
+
+  ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
+    ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
+    ghgUNFCCC[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+  # merge CEDS and UNFCCCC values ----
+
+  unfcccReg <- intersect(
+    getItems(unfccc, dim = 1),
+    getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
   )
 
-  ch4vars <- c(
-    "Emi|CH4|Energy and Industrial Processes (Mt CH4/yr)",
-    "Emi|CH4|Land Use|Agriculture and Biomass Burning (Mt CH4/yr)",
-    "Emi|CH4|Land Use|Forest Burning (Mt CH4/yr)",
-    "Emi|CH4|Land Use|Grassland Burning (Mt CH4/yr)",
-    "Emi|CH4|Waste (Mt CH4/yr)"
-  )
-
-  ghg <- ceds[, , c("Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)")] +
-    gwpN2O / 1000 * dimSums(ceds[, , n2Ovars], dim = 3) +
-    gwpCH4 * dimSums(ceds[, , ch4vars], dim = 3)
-
-  getNames(ghg) <- "GHG Total"
+  out <- ghgCEDS
+  out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
+  out[is.na(out)] <- 0
 
   return(list(
-    x = ghg, unit = "Mt CO2eq",
-    description = "historical total GHG emissions from 1990-2015 according to CEDS"
+    x = out,
+    unit = "Mt CO2eq",
+    description = glue::glue("historical GHG emissions with and without LULUCF \\
+    from 1990 to 2022 according to UNFCCC and CEDS")
   ))
 }
