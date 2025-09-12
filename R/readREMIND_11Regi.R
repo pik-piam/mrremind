@@ -4,7 +4,7 @@
 #'
 #' @param subtype Name of the regional data, e.g.
 #' "tradecost", "deltacapoffset", "maxFeSubsidy",
-#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return magpie object of region dependent data
 #' @author original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples

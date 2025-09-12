@@ -9,7 +9,7 @@ readREMIND_11Regi(subtype)
 \arguments{
 \item{subtype}{Name of the regional data, e.g.
 "tradecost", "deltacapoffset", "maxFeSubsidy",
-"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
+"propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{
 magpie object of region dependent data
