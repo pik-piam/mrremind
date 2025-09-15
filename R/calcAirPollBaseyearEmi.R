@@ -17,7 +17,7 @@
 #' @importFrom magclass getNames<- getYears<-
 
 calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
-                              source = "CEDS2025", outsectors = "GAINS") {
+                                   source = "CEDS2025", outsectors = "GAINS") {
   # READ CEDS2025 DATA AT CEDS62 sectoral aggregation ===========================
   # Define years to be read
   if (CEDS.5yearmean) {
@@ -222,7 +222,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   #                  If global GAINS emissions also zero for the entire
   #                  intermediary sector, distribute equally.
   # =============================================================================
-  
+
   # Select CEDS emissions in INT sectors with counterpart in GAINS,
   # i.e. removing NO GAINS Aircraft, NO GAINS Agriculture,
   # NO GAINS International Shipping, and NO GAINS zero
@@ -280,19 +280,6 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     weight = weights, dim = "sector", wdim = 3.1
   )
 
-  # No emissions lost from sectCEDS to sectINT
-  emiCEDS.test.fromINT <- dimSums(emiCEDS.sectINT, dim = "sector")
-  emiCEDS.test.fromCEDS <- dimSums(emiCEDS.sectCEDS, dim = "sector")
-  max(emiCEDS.test.fromINT - emiCEDS.test.fromCEDS)
-  min(emiCEDS.test.fromINT - emiCEDS.test.fromCEDS)
-  
-  
-  
-  emiCEDS.test.fromGAINS <- dimSums(emiCEDS.sectGAINS, dim = "sector")
-  
-  max(emiCEDS.test.fromGAINS - emiCEDS.sectTOT)
-  
-  
   # =============================================================================
   # PART 3.B: SECTORAL DISAGGREGATION OF GAINS2025 EMISSIONS ====================
   #         TO CEDS62 SECTORS ===================================================
@@ -304,41 +291,41 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   # =============================================================================
   # RETURN ======================================================================
   # =============================================================================
-  
+
   if (source == "CEDS2025") {
     if (outsectors == "TOT") {
       out <- emiCEDS.sectTOT
-      desc <- paste0("Total ", source," emissions in year ", baseyear,".")
+      desc <- paste0("Total ", source, " emissions in year ", baseyear, ".")
     } else if (outsectors == "CEDS") {
       out <- emiCEDS.sectCEDS
-      desc <- paste0(source," emissions in year ", baseyear," at level of 62 CEDS sectors.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 62 CEDS sectors.")
     } else if (outsectors == "INT") {
       out <- emiCEDS.sectINT
-      desc <- paste0(source," emissions in year ", baseyear," at level of 15 intermediary sectors used to link CEDS and GAINS.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 15 intermediary sectors used to link CEDS and GAINS.")
     } else if (outsectors == "GAINS") {
       out <- emiCEDS.sectGAINS
-      desc <- paste0(source," emissions in year ", baseyear," at level of 35 GAINS sectors.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 35 GAINS sectors.")
     } else if (outsectors == "CMIP7") {
       out <- emiCEDS.sectCMIP7
-      desc <- paste0(source," emissions in year ", baseyear," at level of 13 CMIP7 Harmonization sectors.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 13 CMIP7 Harmonization sectors.")
     } else {
       stop(paste0("Unknown sectoral aggregation: ", outsectors))
     }
   } else if (source == "GAINS2025") {
     if (outsectors == "TOT") {
       out <- emiGAINS.sectTOT
-      desc <- paste0("Total ", source," emissions in year ", baseyear,".")
+      desc <- paste0("Total ", source, " emissions in year ", baseyear, ".")
     } else if (outsectors == "CEDS") {
       stop("GAINS to CEDS mapping currently not available. See 3.B in the code.")
     } else if (outsectors == "INT") {
       out <- emiGAINS.sectINT
-      desc <- paste0(source," emissions in year ", baseyear," at level of 16 intermediary sectors used to link CEDS and GAINS.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 16 intermediary sectors used to link CEDS and GAINS.")
     } else if (outsectors == "GAINS") {
       out <- emiGAINS.sectGAINS
-      desc <- paste0(source," emissions in year ", baseyear," at level of 35 GAINS sectors.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 35 GAINS sectors.")
     } else if (outsectors == "CMIP7") {
       out <- emiGAINS.sectCMIP7
-      desc <- paste0(source," emissions in year ", baseyear," at level of 13 CMIP7 Harmonization sectors.")
+      desc <- paste0(source, " emissions in year ", baseyear, " at level of 13 CMIP7 Harmonization sectors.")
     } else {
       stop(paste0("Unknown sectoral aggregation: ", outsectors))
     }
