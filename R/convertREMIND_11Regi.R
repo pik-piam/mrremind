@@ -9,7 +9,7 @@
 #'
 convertREMIND_11Regi <- function(x,subtype) {
 
-  if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
+  if(subtype == "tradecost" | subtype == "ffPolyRent" ){
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
   } else if (subtype == "AP_starting_values") {
@@ -102,8 +102,6 @@ convertREMIND_11Regi <- function(x,subtype) {
     y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"pecoal.max.highCoal"] <-
       y[c("USA","CAN","AUS","NZL","HMD","SPM"),,"pecoal.max.highCoal"] * (1 + 0.2)
 
-  } else if (subtype == "gridFactor") {
-    y <- x
   } else if (subtype == "ccs") {
     # use total land area as weight
     area <- calcOutput("LanduseInitialisation",aggregate=FALSE)[,2005,]
