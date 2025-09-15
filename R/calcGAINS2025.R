@@ -445,17 +445,95 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   )
   weights <- weights[, , getNames(isoefs)]
 
+  # D. Choose unit for output ====================================================
+
   if (outunit == "Tg/TWa") {
-    out <- isoefs * conv_Mt_per_PJ_to_Tg_per_TWa
+    # Convert unit
+    isoefs <- isoefs * conv_Mt_per_PJ_to_Tg_per_TWa
   } else if (outunit == "Mt/PJ") {
-    out <- isoefs
+    # Already in correct unit
   } else {
     stop(paste0("Unknown unit: ", outunit))
   }
 
+  # D. Choose sectors for output =================================================
+  #    and make necessary changes for handover to REMIND =========================
+
+  if (outsectors == "GAINS2025") {
+    # No changes needed as out and weights are already at the desired sectoral
+    # resolution
+    out <- isoefs
+    wgt <- weights
+  } else if (outsectors == "REMIND") {
+    # SO2 unit conversion =======================================================
+    # Apparently REMIND expects TgS internally, but not in exoGAINS
+    conv_MtSO2_to_MtS <- 1 / 2 # 32/(32+2*16)
+    isoefs[, , "SO2"] <- isoefs[, , "SO2"] * conv_MtSO2_to_MtS
+
+    # Rename and change order subdimensions =====================================
+    fixDims <- function(mag) {
+      getSets(mag) <- c("region", "year", "ssp", "scenario", "sector", "emi")
+      mag <- dimOrder(mag, c(3, 4, 2, 1), dim = 3) # c("sector", "emi", "scenario", "ssp")
+      return(mag)
+    }
+    isoefs <- fixDims(isoefs)
+    weights <- fixDims(weights)
+
+    # (Dis-)aggregation from GAINS2025 to REMIND sectors ========================
+
+    # Mapping from GAINS2025 sectors to REMIND GAMS subsectors
+    secmap <- toolGetMapping(
+      type = "sectoral",
+      name = "mappingINTERMEDIARYtoGAINS2025toREMINDtoIAMC.csv",
+      where = "mrremind"
+    )
+
+    # Drop sectors that are not mapped with sufficient detail. Those that can be
+    # used have a dot "." splitting the specific technologies
+    dropsectors <- secmap$GAINS2025[!grepl("\\.", secmap$REMIND_INTERNAL)]
+    isoefs <- isoefs[, , dropsectors, invert = TRUE]
+    weights <- weights[, , dropsectors, invert = TRUE]
+    filtsecmap <- secmap[!(secmap$GAINS2025 %in% dropsectors), ]
+
+    # (Dis-)aggregation depending on GAINS sector
+    # Example 1: Power_Gen_NatGas is disaggregated to pegas.seel.gaschp.power,
+    #            pegas.seel.ngcc.power, and pegas.seel.ngt.power
+    # Example 2: End_Use_Industry_Bio_Trad and End_Use_Services_Bio_Trad are
+    #            aggregated to pecoal.sesofos.coaltr.indst
+    #
+    # Since weights are provided at GAINS sector resolution, in Example 1,
+    # all REMIND sectors simply receive exactly the same values as the GAINS sector.
+    # In Example 2, the weights are used to form a weighted average.
+    #
+    # Zero weights are allowed for cases where acitivites are zero but the EFs
+    # are non-zero. In such cases, the resulting EF is zero.
+    isoefs <- toolAggregate(isoefs, filtsecmap, weight = weights, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector", wdim = NULL, zeroWeight = "allow")
+    weights <- toolAggregate(weights, filtsecmap, weight = NULL, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector")
+
+    # Split sector into several subdimensions 00000000000========================
+    # Use abind to split the dimensions of specific technologies into subsectors
+    splitTechs <- function(mag) {
+      mag <- as.magpie(abind::abind(clean_magpie(mag)), spatial = 1, temporal = 2)
+      getSets(mag) <- c("region", "year", "sector1", "sector2", "sector3", "sector4", "emi", "scenario", "ssp")
+      return(mag)
+    }
+    isoefs <- splitTechs(isoefs)
+    weights <- splitTechs(weights)
+
+    # Drop sectors not used in REMIND anymore ===================================
+    isoefs <- isoefs[, , c("pcc", "pco"), invert = TRUE]
+    weights <- weights[, , c("pcc", "pco"), invert = TRUE]
+
+    out <- isoefs
+    wgt <- weights
+  } else {
+    stop(paste0("Unknown sector aggergation: ", outsectors))
+  }
+
+
   return(list(
     x = out,
-    weight = weights,
+    weight = wgt,
     unit = outunit,
     description = "Emission factor timeseries for all scenarios and for all REMIND timesteps based on GAINS2025 data."
   ))
