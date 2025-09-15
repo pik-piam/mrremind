@@ -5,12 +5,22 @@
 #' calculations at the GAINS regional level first and then disaggregate
 #' the results
 #'
-#' @return  Activity levels, emissions or emission factors at the level of 
+#' @return  Activity levels, emissions or emission factors at the level of
 #'          25 GAINS regions, 35 GAINS sectors and 7 species:
 #'          magclass object with dimensions region, year, and ssp.scenario.sectorGAINS.species
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
 #' @param subtype "emifacs", "emissions", "activities"
-#'
+#' @importFrom stats na.omit
+#' @importFrom utils timestamp globalVariables
+#' @importFrom tidyr complete
+
+utils::globalVariables(c(
+  "EMF30_AGG", "EMF30_DET", "EMF30_MIXED", "Group_Region", "POLLUTANT_FRACTION",
+  "SCENARIO", "VARIABLE", "VARIANT", "region", "scen", "scenario",
+  "sectorGAINS", "species", "ssp", "value", "vartype", "year"
+))
+
+
 readGAINS2025final <- function(subtype) {
   # ================================================================================================
   # SECTOR INFORMATION =============================================================================
@@ -244,9 +254,9 @@ readGAINS2025final <- function(subtype) {
         ssp = "baseline",
         scenario = "baseline"
       )
-    
+
     # COMPLETE DATA FRAME TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
-    baseactemi <- baseactemi %>% 
+    baseactemi <- baseactemi %>%
       complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year, vartype)
 
     if (subtype == "emissions") {
@@ -254,7 +264,7 @@ readGAINS2025final <- function(subtype) {
     } else {
       baseactemi <- baseactemi %>% filter(vartype == "ACTIVITY")
     }
-    
+
     baseactemi <- baseactemi %>%
       select(ssp, scenario, sectorGAINS, species, region, year, value)
 

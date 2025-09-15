@@ -14,7 +14,8 @@
 #' @param outsectors Output sectoral aggregation ("GAINS2025" or "REMIND")
 #' @param outunit Output unit for emission factors ("Mt/PJ" or "Tg/TWa")
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
-#'
+#' @importFrom utils tail head
+
 calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", outunit = "Tg/TWa") {
   # ==============================================================================
   # Mappings and definitions =====================================================
@@ -335,8 +336,8 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
 
   baseefs_rescaled_expanded <- toolAddDimensions(
     toolAddDimensions(
-      baseefs_rescaled, getItems(futureefs, "scenario"), "scenario", 3.1
-    ), getItems(futureefs, "ssp"), "ssp", 3.1
+      baseefs_rescaled, dimVals = getItems(futureefs, "scenario"), dimName = "scenario", dimCode = 3.1
+    ), dimVals = getItems(futureefs, "ssp"), dimName = "ssp", dimCode = 3.1
   )
 
   baseefs_rescaled_expanded <- baseefs_rescaled_expanded[, , getNames(futureefs)]
@@ -440,8 +441,8 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
 
   weights <- toolAddDimensions(
     toolAddDimensions(
-      weights, getItems(isoefs, "scenario"), "scenario", 3.1
-    ), getItems(isoefs, "ssp"), "ssp", 3.1
+      weights, dimVals = getItems(isoefs, "scenario"), dimName = "scenario", dimCode = 3.1
+    ), dimVals = getItems(isoefs, "ssp"), dimName = "ssp", dimCode = 3.1
   )
   weights <- weights[, , getNames(isoefs)]
 

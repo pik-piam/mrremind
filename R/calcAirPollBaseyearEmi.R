@@ -14,7 +14,6 @@
 #'                   13 CMIP7 Harmonization sectors ("CMIP7")
 #' @return magclass object
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
-#' @importFrom magclass getNames<- getYears<-
 
 calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
                                    source = "CEDS2025", outsectors = "GAINS") {
@@ -145,7 +144,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   weights.sectTOT <- toolAddDimensions(emiCEDS.sectTOT,
     dimVals = getNames(emiCEDS.sectINT, dim = "sector"),
     dimName = "sector",
-    dim = 3.1
+    dimCode = 3.1
   )
   weights.sectTOT <- weights.sectTOT[, , getItems(weights, dim = 3)]
 
@@ -236,7 +235,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   weights.global <- toolAddDimensions(emiGAINS.sectGAINS.global,
     dimVals = getNames(emiGAINS.sectGAINS, dim = "region"),
     dimName = "region",
-    dim = 1
+    dimCode = 1
   )
   weights.global <- weights.global[getItems(weights, dim = 1), , getItems(weights, dim = 3)]
 
@@ -260,7 +259,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   mask2 <- toolAddDimensions(mask2,
     dimVals = getNames(emiGAINS.sectGAINS, dim = "region"),
     dimName = "region",
-    dim = 1
+    dimCode = 1
   )
   mask2 <- toolAggregate(mask2, gainsmap,
     from = "INTERMEDIARY_CEDS_GAINS", to = "GAINS2025",
