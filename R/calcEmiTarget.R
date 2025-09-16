@@ -75,7 +75,6 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       unit = "1",
       description = glue::glue("Multiplier for target year emissions vs 2015 emissions, \\
                 as weighted average for all countries with NDC target in each region per target year."),
-      min = -5, max = 4,
       # do not throw warning for zero weights, as they only occur when there are no values to be aggregated
       aggregationArguments = list(zeroWeight = "allow")
     ))
