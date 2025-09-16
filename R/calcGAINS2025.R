@@ -12,7 +12,7 @@
 #' @param weight_source Source of air pollutant reference emissions in 2020 that
 #'         is used to derive the weights ("CEDS2025" or "GAINS2025")
 #' @param outsectors Output sectoral aggregation ("GAINS2025" or "REMIND")
-#' @param outunit Output unit for emission factors ("Mt/PJ" or "Tg/TWa")
+#' @param outunit Output unit for emission factors ("kt/PJ" or "Tg/TWa")
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
 #' @importFrom utils tail head
 
@@ -22,7 +22,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   # ==============================================================================
 
   # conversion factors
-  conv_Mt_per_PJ_to_Tg_per_TWa <- (1e12 * (365 * 24 * 60 * 60)) / 1e15
+  conv_kt_per_PJ_to_Tg_per_TWa <-   1e-3* (1e12 * (365 * 24 * 60 * 60)) / 1e15
 
   # GAINS timesteps
   # historical
@@ -404,6 +404,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
     from = "gainscode", to = "CountryCode",
     weight = NULL, dim = 1, wdim = NULL
   )
+  isoefs <- magpiesort(isoefs)
 
   # C. Add weights ===============================================================
 
@@ -450,8 +451,8 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
 
   if (outunit == "Tg/TWa") {
     # Convert unit
-    isoefs <- isoefs * conv_Mt_per_PJ_to_Tg_per_TWa
-  } else if (outunit == "Mt/PJ") {
+    isoefs <- isoefs * conv_kt_per_PJ_to_Tg_per_TWa
+  } else if (outunit == "kt/PJ or kt/Mt") {
     # Already in correct unit
   } else {
     stop(paste0("Unknown unit: ", outunit))
@@ -468,8 +469,8 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   } else if (outsectors == "REMIND") {
     # SO2 unit conversion =======================================================
     # Apparently REMIND expects TgS internally, but not in exoGAINS
-    conv_MtSO2_to_MtS <- 1 / 2 # 32/(32+2*16)
-    isoefs[, , "SO2"] <- isoefs[, , "SO2"] * conv_MtSO2_to_MtS
+    conv_ktSO2_to_ktS <- 1 / 2 # 32/(32+2*16)
+    isoefs[, , "SO2"] <- isoefs[, , "SO2"] * conv_ktSO2_to_ktS
 
     # Rename and change order subdimensions =====================================
     fixDims <- function(mag) {
@@ -536,6 +537,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
     x = out,
     weight = wgt,
     unit = outunit,
-    description = "Emission factor timeseries for all scenarios and for all REMIND timesteps based on GAINS2025 data."
+    description = "Emission factor timeseries for all scenarios and for all REMIND timesteps based on GAINS2025 data.",
+    aggregationArguments = list(zeroWeight = "allow")
   ))
 }

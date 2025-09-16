@@ -17,7 +17,7 @@ is used to derive the weights ("CEDS2025" or "GAINS2025")}
 
 \item{outsectors}{Output sectoral aggregation ("GAINS2025" or "REMIND")}
 
-\item{outunit}{Output unit for emission factors ("Mt/PJ" or "Tg/TWa")}
+\item{outunit}{Output unit for emission factors ("kt/PJ" or "Tg/TWa")}
 }
 \value{
 Emission factor timeseries for all scenarios from 2005 to 2100:
