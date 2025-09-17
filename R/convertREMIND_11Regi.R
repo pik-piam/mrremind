@@ -2,8 +2,7 @@
 #'
 #' @param x MAgPIE object to be converted
 #' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
-#' "deltacapoffset",
-#' "maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' "deltacapoffset", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
