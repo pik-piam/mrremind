@@ -7,7 +7,7 @@
 #' and final energies.
 #'
 #' @param subtype Name of the subsidy data type limit, e.g. "maxFeSubsidy" for
-#' maximum final energy subsidy, "propFeSubsidy" for proportional cap for final energy subsidy
+#' maximum final energy subsidy
 #' @return magpie object of the subtype tax limit
 #' @author Renato Rodrigues
 #' @examples
@@ -17,24 +17,15 @@
 #'
 calcTaxLimits <- function(subtype) {
 
-  if (!(subtype %in% c("maxFeSubsidy", "propFeSubsidy"))) {
-    stop("the argument subtype must be in c('maxFeSubsidy', 'propFeSubsidy')")
+  if (subtype != "maxFeSubsidy") {
+    stop("the argument subtype must be in maxFeSubsidy")
   }
 
-  if (subtype == "maxFeSubsidy") {
-    # Read max final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype = "maxFeSubsidy")[, , c("fegas", "fehos", "fesos")]
-    description <- "maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429"
-    # using final energy to weight the max subsidy levels
-    weight <- calcOutput("FE", aggregate = FALSE)[, 2005, "FE (EJ/yr)"]
-  } else if (subtype == "propFeSubsidy") {
-    # Read proportional adjustment final energy subsidy levels
-    output <- readSource("REMIND_11Regi", subtype = "propFeSubsidy")[, , c("fehoi")]
-    getNames(output) <- c("fehos")
-    description <- "subsidy proportional cap to avoid liquids increasing dramatically"
-    # average weight
-    weight <- new.magpie(getItems(output, dim = 1), getYears(output), getNames(output), fill = 1)
-  }
+  # Read max final energy subsidy levels
+  output <- readSource("REMIND_11Regi", subtype = "maxFeSubsidy")[, , c("fegas", "fehos", "fesos")]
+  description <- "maximum final energy subsidy levels (in $/Gj) from REMIND version prior to rev. 5429"
+  # using final energy to weight the max subsidy levels
+  weight <- calcOutput("FE", aggregate = FALSE)[, 2005, "FE (EJ/yr)"]
 
   # convert data from $2005 to $2017
   output <- GDPuc::toolConvertGDP(

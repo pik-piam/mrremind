@@ -120,6 +120,23 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
+  if (subtype == "subsidies") {
+
+    mapREMINDH12 <- toolGetMapping("regionmappingH12.csv", "regional", where = "mappingfolder")
+
+    MEA <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "MEA") %>%
+      pull("CountryCode")
+
+    REF <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "REF") %>%
+      pull("CountryCode")
+
+    # Subsidy proportional cap to avoid liquids increasing dramatically
+    # These factors are derived from previous REMIND versions
+    Rtax[MEA, , "fehos"] <- Rtax[MEA, , "fehos"] * 0.54
+    Rtax[REF, , "fehos"] <- Rtax[REF, , "fehos"] * 0.42
+  }
 
   # Weights do not take into account the differentiation by services. So if
   # the tax in a Cooling country is very high and the tax in a country in the
