@@ -106,7 +106,7 @@ fullREMIND <- function() {
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
   calcOutput("EmiLULUCFCountryAcc",                                             round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
-  #-------------- air pollution parameters ---------------------------------------------------------
+  #-------------- air pollution parameters - legacy ----------------------------------------------------
   calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
   calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
@@ -114,6 +114,15 @@ fullREMIND <- function() {
   calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
   calcOutput("AirPollEmiRef", subtype = "sectorsGAINS2025", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMIND", useyearmean = TRUE,  round = 5, file = "emirefCEDS2020_gains.cs4r")
+  
+  #-------------- air pollution parameters - refactored -----------------------------------------------
+  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "REMIND",     outunit = "Tg/TWa",                round = 5, file = "f11_emifacs_sectREMIND_sourceCEDS.cs4r")
+  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "REMIND",     outunit = "Tg/TWa",                round = 5, file = "f11_emifacs_sectREMIND_sourceGAINS.cs4r")
+  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 5, file = "emifacs_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 5, file = "emifacs_sectGAINS_sourceGAINS.cs4r")
+  calcOutput("AirPollBaseyearEmi", source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 5, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("AirPollBaseyearEmi", source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 5, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
+  calcOutput("AirPollBaseyearEmi", source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 5, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")

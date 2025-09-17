@@ -23,6 +23,8 @@ or mapped to the INTERMEDIARY sectors used on the GAINS mapping ("sectorsINTERME
 \item{outunits}{"Mt/yr" or "kt/yr"}
 
 \item{namesformat}{"GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names}
+
+\item{useyearmean}{if TRUE, use a 5-year average around baseyear instead of just baseyear}
 }
 \value{
 magclass object
