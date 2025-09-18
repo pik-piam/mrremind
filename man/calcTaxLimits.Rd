@@ -8,8 +8,7 @@ calcTaxLimits(subtype)
 }
 \arguments{
 \item{subtype}{Name of the subsidy data type limit, e.g. "maxFeSubsidy" for
-maximum final energy subsidy,"maxPeSubsidy" for maximum primary energy subsidy
-or "propFeSubsidy" for proportional cap for final energy subsidy}
+maximum final energy subsidy, "propFeSubsidy" for proportional cap for final energy subsidy}
 }
 \value{
 magpie object of the subtype tax limit

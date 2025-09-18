@@ -7,19 +7,24 @@ in combination with GAINS data at different sectoral aggregations}
 \usage{
 calcAirPollEmiRef(
   subtype = "total",
-  baseyear = 2020,
+  baseyear = 2015,
   outunits = "Mt/yr",
-  namesformat = "GAINS2025"
+  namesformat = "GAINS2025",
+  useyearmean = FALSE
 )
 }
 \arguments{
-\item{subtype}{just "total" is supported}
+\item{subtype}{total per pollutant ("total"), raw CEDS sectors ("sectorsCEDSraw"),
+aggregated to CEDS16 ("sectorsCEDS16"), mapped to GAINS2025 sectors ("sectorsGAINS2025")
+or mapped to the INTERMEDIARY sectors used on the GAINS mapping ("sectorsINTERMEDIARY")}
 
 \item{baseyear}{year to take as a reference from CEDS, ignored for the EDGAR2005 LUC CO2 emissions}
 
 \item{outunits}{"Mt/yr" or "kt/yr"}
 
 \item{namesformat}{"GAINS2025" or "REMIND" or "REMINDexo", the standard to use for pollutant names}
+
+\item{useyearmean}{if TRUE, use a 5-year average around baseyear instead of just baseyear}
 }
 \value{
 magclass object

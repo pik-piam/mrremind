@@ -4,17 +4,14 @@
 \alias{calcEmiLULUCFCountryAcc}
 \title{calcEmiLULUCFCountryAcc}
 \usage{
-calcEmiLULUCFCountryAcc(subtype)
-}
-\arguments{
-\item{subtype}{Valid subtypes are 'UNFCCC'}
+calcEmiLULUCFCountryAcc()
 }
 \value{
 Magpie object with historical LULUCF emissions
 }
 \description{
-historical LULUCF emissions following country accounting
+historical LULUCF CO2 emissions following country accounting
 }
 \author{
-Felix Schreyer
+Felix Schreyer, Falk Benke
 }

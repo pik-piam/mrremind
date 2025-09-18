@@ -107,8 +107,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # in 2060 (depending on the threshold value above), exclusively GDP
 
     wfe <- mbind(wfe,
-      lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
-        (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
+                 lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
+                   (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
     )
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
@@ -131,18 +131,21 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # only throw the zeroWeight warning in toolAggregate, when any weights are zero,
     # but the corresponding data in x is not 0, as only in these cases the total sum of
     # the magpie object is actually changed
+
+    # see issue: https://github.com/pik-piam/mrremind/issues/678
     if (any(weightSum[x != 0] == 0)) {
-      warning("Some FE weights are zero for which the corresponding data in x is not zero.\n",
-              "Please check the alignment of historic edgebuildings FE data with the output of ",
-              "calcOutput('IOEdgeBuildings').\n",
-              "This will trigger a warning in 'toolAggregate'.")
-      shouldWarn <- "warn"
-    } else {
-      shouldWarn <- "allow"
+      warning(glue::glue(
+        "Weight sum is 0, so cannot normalize and will return 0 for some aggregation targets. \\
+        This changes the total sum of the magpie object! \\
+        Some FE weights are zero for which the corresponding data in x is not zero. \\
+        Please check the alignment of historic edgebuildings FE data with the output of \\
+        calcOutput('IOEdgeBuildings').")
+      )
     }
 
+    # never warn for zero weights, as this is covered by a custom warning
     xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col,
-                          zeroWeight = shouldWarn)
+                          zeroWeight = "allow")
 
     result <- toolCountryFill(xadd, 0, verbosity = 2)
 
