@@ -40,7 +40,6 @@ fullREMIND <- function() {
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round = 2,  file = "f21_max_fe_sub.cs4r")
-  calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
 
@@ -114,7 +113,7 @@ fullREMIND <- function() {
   calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
   calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
   calcOutput("AirPollEmiRef", subtype = "sectorsGAINS2025", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMIND", useyearmean = TRUE,  round = 5, file = "emirefCEDS2020_gains.cs4r")
-  
+
   #-------------- air pollution parameters - refactored -----------------------------------------------
   calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "REMIND",     outunit = "Tg/TWa",                round = 5, file = "f11_emifacs_sectREMIND_sourceCEDS.cs4r")
   calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "REMIND",     outunit = "Tg/TWa",                round = 5, file = "f11_emifacs_sectREMIND_sourceGAINS.cs4r")
