@@ -183,16 +183,27 @@ fullREMIND <- function() {
 
 
   #---------------policy parameters--------------------------------------------------------------------
+  
+  # NDC emissions targets from UNFCCC
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_2005shareTarget.cs3r")
-
+  
+  # NDC emissions targets from NewClimate protocol
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_NC_2005shareTarget.cs3r")
 
+  # capacity targets from UNFCCC
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC", round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
+  # capacity targets from NewClimate protocol
   calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")
+  
+  # renewable share targets from NewClimate protocol
+  calcOutput("EnergyShareTargets", sources = "NewClimate", round = 4, file = "f40_RenShareTargets.cs3r")
 
+  # specific renewable share targets only used for EU in techpol NDCplus realization
   calcOutput("SharedTarget", subtype = "FErenewablesShare", round = 3, file = "f40_FE_RenShare.cs4r")
+  
+  # trade constraints 
   calcOutput("ExpertGuess", subtype = "tradeConstraints", aggregate = FALSE, file = "p24_trade_constraints.cs4r")
 
   #---------------files used in reporting-------------------------------------------------------------
