@@ -14,7 +14,29 @@
 #' @importFrom quitte interpolate_missing_periods
 #'
 
-calcEnergyShareTargets <- function(sources) {
+calcRenShareTargets <- function(sources) {
+  
+  # The aggregation of renewable share targets from countries to REMIND regions is done with the following method:
+  # RenShareTarget(REMINDregion,targetYear) = sum over all countries of
+  # TotalDemand(country,targetYear) / TotalDemand(REMINDregion,targetYear) * RenShareTarget(country,targetYear).
+  # RenShareTarget - is the renewable share target
+  # TotalDemand - is the total demand, 
+  # i.e. in case of renewable electricity share targets it is total final electricity demand, 
+  # in case of renewable final energy share targets it is total final energy demand
+  # for countries without targt it is assumed that they maintain their renewable share in the target year:
+  # RenShareTarget(countriesWithoutTarget,targetYear) = historical renewable share
+  # TotalDemand(country,targetYear) is calculated by toolCalcEnergyProj() based on FE trajectories of EDGE models and GDP from SSP scenarios
+  # The function prepares RenShareTarget and TotalDemand and provides it as arguments x and weight respectively to the madrat aggregation routine,
+  # which implements the above method. 
+  
+  # The preparation makes the following steps:
+  # 1. get data and select target types to be considered
+  # 2. get historic renewable shares and totals
+  # 3. extrapolate targets to REMIND time steps
+  # 4. make assumptions about target development over time for countries with and without target
+  # 5. select which REMIND regions get targets and determine their respective target year
+  # 6. get total demand in target year to be used as aggregation weights
+  # 7. hand-over to madrat for aggregation via weighted sum
 
   ### define functions ----
 
@@ -139,7 +161,7 @@ calcEnergyShareTargets <- function(sources) {
   }
 
 
-  # function extrapolate target years which are not REMIND timesteps to REMIND timesteps
+  # function to extrapolate target years which are not REMIND timesteps to REMIND timesteps
   extrapolateTargetYears <- function(x, xHist, targetYears) {
     # generate new object x_target that has values only for targetYears and transfer those from x
     x_target <- new.magpie(getItems(x, dim = 1), targetYears, getNames(x), fill = NA)
@@ -167,8 +189,8 @@ calcEnergyShareTargets <- function(sources) {
   }
   
   # function to select REMIND regions with renewable share targets and choose target year per REMIND region
-  # based on target of country with largest historic total 
-  # (i.e. total electricity production or total FE demand depending on target type) 
+  # only assign renewable share target to REMIND regions with a demand share of countries with targets of at least MinCountryTargetShare
+  # choose target year of country with largest demand share across countries with targets
   selectTargetRemindRegion <- function(x, x_intp, xHistTotal, regionmapping, MinCountryTargetShare) {
     # create object for target selection
     targetSelect <- new.magpie(getRegions(x), getYears(x), getNames(x), fill = NA)
@@ -234,6 +256,9 @@ calcEnergyShareTargets <- function(sources) {
   }
 
   ### main function ----
+  
+  
+  ## 1. get data and select target types to be considered ----
 
   # get NewClimate energy share targets and conert from percent to share
   x <- readSource("NewClimate", subtype = "EnergyShareTargets")
@@ -255,14 +280,20 @@ calcEnergyShareTargets <- function(sources) {
   # assume that if there is a range countries will interpret the lower bound of the range as criterion to fulfill the target
   x <- collapseDim(x[, , "Min"])
 
+  
+  ## 2. get historic renewable shares and totals ----
 
   # historic energy share in 2020
   xHist <- getHistEnergyShare(getNames(x), AvgSeveralYears = T)
   xHistShare <- xHist[[1]]
   xHistTotal <- xHist[[2]]
   
+  ## 3. extrapolate targets to REMIND time steps ----
+  
   # extrapolate targets to REMIND time steps where targets are in years that are not REMIND timesteps
   x <- extrapolateTargetYears(x, xHistShare, seq(2020, 2050, 5))
+  
+  ## 4. make assumptions about target development over time for countries with and without target ----
   
   # interpolate and extrapolate renewable share targets for countries with targets
   # assume that countries with share targets reach their share linearly from 2020 shares to the target year
@@ -276,9 +307,14 @@ calcEnergyShareTargets <- function(sources) {
               interpolate_missing_periods(expand.values = T) %>% 
               as.magpie()
   
-  # select renewable share targets in REMIDN region
+  ## 4. select which REMIND regions get targets and determine their respective target year ----
+  
+  # get regionmapping to be used for aggregation method
   regionmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
+  # select which REMIND regions get targets and determine their respective target year
   x <- selectTargetRemindRegion(x, x_intp, xHistTotal, regionmapping, 0.2)
+  
+  ## 5. format renewable share target data to be used as input data for REMIND
   
   # rename target types to those used in REMIND techpol realization
   getNames(x) <- c( "RenElec",  "RenFE", "NonBioRenElec", "NonFossilElec")
@@ -287,6 +323,8 @@ calcEnergyShareTargets <- function(sources) {
   x[is.na(x)] <- 0
     
 
+  ## 6. get total demand in target year to be used as aggregation weights ----
+  
   # get aggregation weights for renewable share targets
   # generate new object EnergyProj for projections of total energy in target year 
   # that are used as country weights when aggregating to REMIND regions REMIND regions
@@ -299,9 +337,14 @@ calcEnergyShareTargets <- function(sources) {
   TotalsEnergyProj[, , "NonBioRenElec"] <- TotalsEnergyProj[, , "RenElec"]
   TotalsEnergyProj[, , "NonFossilElec"] <- TotalsEnergyProj[, , "RenElec"]
 
+  
+  ## 7. hand-over to madrat for aggregation via weighted sum ----
+  
   return(list(
-    x = x,
-    weight = TotalsEnergyProj,
+  # renewable share targets by country as aggregation variable
+    x = x,  
+  # total energy demand in target year by country as weight
+    weight = TotalsEnergyProj, 
     unit = "share",
     description = glue::glue("Renewable energy share targets for electricity and final energy \\
                                          based on NewClimate policy protocol")

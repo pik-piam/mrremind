@@ -1,6 +1,6 @@
 #' Calculate energy projections on country-level based on EDGE models outputs per country.
-#' These energy projections are solely used in the input data preparation for disaggregating and aggregating energy share targets
-#'
+#' These energy projections are used in the input data preparation for aggregating country-specific data to REMIND regions. 
+#' They are a country-level proxy of the final energy demand trajectories on the level of REMIND regions provided by the EDGE models.
 #'
 #' @author Felix Schreyer
 #' @param subtype "FE" (Total final energy consumption), "SE|Electricity" (SE electricity generation)
@@ -22,7 +22,7 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
   # 1. get historical energy data for 2020
   # 2. calculate trend of FE in REMIND region based on EDGE model projections
   # 3. calculate difference of GDP trends between country and REMIND region based on SSP GDP projections
-  # 4. project energy in the future with the above formulate using the terms calculated in 1.) to 3.)
+  # 4. project energy in the future with the above formulate using the terms calculated in 1. to 3.
   
   ### define functions ----
   

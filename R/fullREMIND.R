@@ -198,7 +198,7 @@ fullREMIND <- function() {
   calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")
   
   # renewable share targets from NewClimate protocol
-  calcOutput("EnergyShareTargets", sources = "NewClimate", round = 4, file = "f40_RenShareTargets.cs3r")
+  calcOutput("RenShareTargets", sources = "NewClimate", round = 4, file = "f40_RenShareTargets.cs3r")
 
   # specific renewable share targets only used for EU in techpol NDCplus realization
   calcOutput("SharedTarget", subtype = "FErenewablesShare", round = 3, file = "f40_FE_RenShare.cs4r")
