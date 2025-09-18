@@ -1,24 +1,28 @@
-#' Calculate Energy Share Targets
+#' Calculate Renewable Energy Share Targets
 #'
-#' @description This function calculates the energy share targets used for NPi runs from the climate policy modeling protocol provided by NewClimate. It selects
-#' the following energy share targets from the NewClimate data that we implement: 1) share of renewables in total final energy (FE|Renewable),
-#' 2) share of renewables in electricity generation (SE|Electricity|Renewable) and 3) share of non-fossil energy in total primary energy (PE|Non-fossil). It aggregates
-#' technology-specific energy share targets to one of these three categories (e.g. solar shares targets and wind share targets to a total renewable share target). Next,
-#' energy share targets for years which are not REMIND timesteps are extrapolated to REMIND time steps. Finally, energy share targets are aggregated from country-level
-#' to REMIND region-level using downscaled projections of FE demand from the EDGE models for the target years as country weights.
+#' @description This function calculates the renewable energy share targets by aggregating country-level targets to targets of REMIND regions. It calculates
+#' the following types of share targets: 1) share of renewables in electricity, 2) share of non-biomass renewables in electricty, 
+#' 3) share of non-fossil generation in  electricity, 4) share of renewables in total final energy. 
+#' First, targets are aggregated to one of these 4 types. Second, countries without targets are assumed to maintain their renewable share from 2020.
+#' Third, targets are harmonized within a REMIND region and filtered based on how many countries within a REMIND region have a target. Finally, energy share targets are aggregated from country-level
+#' to REMIND region-level using projections of electricity or final energy demand on country-level. These country-level projections are
+#' derived from final energy trends by REMIND regions from the EDGE models as well as GDP trends by country from SSP scenarios (see toolCalcEnergyProj). 
 #'
 #' @param sources "NewClimate"
 #' @author Felix Schreyer
+#' 
+#' @importFrom quitte interpolate_missing_periods
 #'
 
 calcEnergyShareTargets <- function(sources) {
+
   ### define functions ----
 
   # function to get historical 2020 renewable energy shares as well as 
   # energy totals for the respective target types
-  # (e.g. xHistShare is renewable electricity share and
-  #       xHistTotal is total electricity generation
-  # for target type "SE|Electricity|Renewable")
+  # (e.g. for target type "SE|Electricity|Renewable",
+  # xHistShare is renewable electricity share and
+  # xHistTotal is total electricity generation.)
   getHistEnergyShare <- function(ShareTypes, AvgSeveralYears) {
     # get historical FE and SE data from IEA energy balances
     IEA <- calcOutput("FE", source = "IEA", ieaVersion = "default", aggregate = F)
@@ -276,21 +280,24 @@ calcEnergyShareTargets <- function(sources) {
   regionmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
   x <- selectTargetRemindRegion(x, x_intp, xHistTotal, regionmapping, 0.2)
   
-
-
+  # rename target types to those used in REMIND techpol realization
+  getNames(x) <- c( "RenElec",  "RenFE", "NonBioRenElec", "NonFossilElec")
+  
+  # replace NA with 0 for the case that there are not targets in a country
+  x[is.na(x)] <- 0
+    
 
   # get aggregation weights for renewable share targets
   # generate new object EnergyProj for projections of total energy in target year 
   # that are used as country weights when aggregating to REMIND regions REMIND regions
   TotalsEnergyProj <- new.magpie(getItems(x, dim = 1), getItems(x, dim = 2), getNames(x), fill = NA)
   # get projections of energy use in target years
-  TotalsEnergyProj[, , "FE|Renewable"] <- toolCalcEnergyProj(subtype = "FE", subset = "SSP2")
-  TotalsEnergyProj[, , "SE|Electricity|Renewable"] <- toolCalcEnergyProj(subtype = "SE|Electricity", subset = "SSP2")
-  # for non-biomass renewable share in electricity and non-fossil share in eletricity the total is both SE electricity,
+  TotalsEnergyProj[, , "RenFE"] <- toolCalcEnergyProj(subtype = "FE", subset = "SSP2")
+  TotalsEnergyProj[, , "RenElec"] <- toolCalcEnergyProj(subtype = "SE|Electricity", subset = "SSP2")
+  # for non-biomass renewable share in electricity and non-fossil share in electricity the total is both SE electricity,
   # the same as for the renewable share in electricity
-  TotalsEnergyProj[, , "SE|Electricity|Non-Biomass Renewable"] <- TotalsEnergyProj[, , "SE|Electricity|Renewable"]
-  TotalsEnergyProj[, , "SE|Electricity|Non-Fossil"] <- TotalsEnergyProj[, , "SE|Electricity|Renewable"]
-
+  TotalsEnergyProj[, , "NonBioRenElec"] <- TotalsEnergyProj[, , "RenElec"]
+  TotalsEnergyProj[, , "NonFossilElec"] <- TotalsEnergyProj[, , "RenElec"]
 
   return(list(
     x = x,
