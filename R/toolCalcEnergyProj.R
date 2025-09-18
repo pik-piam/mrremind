@@ -1,5 +1,5 @@
 #' Calculate energy projections on country-level based on EDGE models outputs per country.
-#' These energy projections are used in the input data preparation for aggregating country-specific data to REMIND regions. 
+#' These energy projections are used in the input data preparation for aggregating country-specific data to REMIND regions.
 #' They are a country-level proxy of the final energy demand trajectories on the level of REMIND regions provided by the EDGE models.
 #'
 #' @author Felix Schreyer
@@ -17,20 +17,20 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
   # This means that, for example, future country-level FE demand is projected by multiplying historical FE demand with the sum of
   # a) the FE demand trend from the REMIND region of this country and
   # b) the difference in GDP between the country and the REMIND region.
-  
+
   # The projection applies four steps:
   # 1. get historical energy data for 2020
   # 2. calculate trend of FE in REMIND region based on EDGE model projections
   # 3. calculate difference of GDP trends between country and REMIND region based on SSP GDP projections
   # 4. project energy in the future with the above formulate using the terms calculated in 1. to 3.
-  
+
   ### define functions ----
-  
+
   # function get historical energy data for 2020
   getHistData <- function(subtype, AvgSeveralYears) {
     # get historical FE and SE data from IEA energy balances
     IEA <- calcOutput("FE", source = "IEA", ieaVersion = "default", aggregate = F)
-    
+
     # add items to calculate historical FE demand or historical SE generation
     if (subtype == "FE") {
       xHist <- collapseDim(IEA[, , "FE|Buildings (EJ/yr)"] + IEA[, , "FE|Industry (EJ/yr)"] + IEA[, , "FE|Transport (EJ/yr)"], dim = 3)
@@ -39,7 +39,7 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
                              IEA[, , "SE|Electricity|Hydro (EJ/yr)"] + IEA[, , "SE|Electricity|Geothermal (EJ/yr)"] + IEA[, , "SE|Electricity|Coal (EJ/yr)"] + IEA[, , "SE|Electricity|Gas (EJ/yr)"] + IEA[, , "SE|Electricity|Oil (EJ/yr)"] +
                              IEA[, , "SE|Electricity|Nuclear (EJ/yr)"], dim = 3)
     }
-    
+
     if (AvgSeveralYears) {
       AvgYears <- c("y2018", "y2019", "y2020", "y2021", "y2022")
       xHist <- collapseDim(dimSums(xHist[, AvgYears, ], dim = 2) / length(AvgYears))
@@ -47,10 +47,10 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
       # only get 2020 year
       xHist <- collapseDim(xHist[, "y2020", ])
     }
-    
+
     return(xHist)
   }
-  
+
   # function to calculate FE trend on level of REMIND regions based on EDGE data
   calcFeTrend <- function(subtype, subset, years) {
     # get FE demand projections per REMIND region for transport, buildings and industry for SSP2
@@ -62,7 +62,7 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
     FEBuildIndustry <- calcOutput("FEdemand", scenario = subset, signif = 4)
     # filter for SSP2 scenario
     FEBuildIndustry <- collapseNames(FEBuildIndustry[, , subset])
-    
+
     # define CES inputs over which to sum for respective FE demand
     if (subtype == "FE") {
       # for FE projection, get FE trend of total FE
@@ -84,10 +84,10 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
       )
       input.fe.trans <- c("feelt")
     }
-    
+
     # common years across EDGE outputs
     common.years <- intersect(getYears(FEBuildIndustry), getYears(FETransport))
-    
+
     # sum FE demand across sectors per REMIND region
     FeTotal <- dimSums(FEBuildIndustry[, common.years, input.fe.build], dim = 3) +
       dimSums(FEBuildIndustry[, common.years, input.fe.indst], dim = 3) +
@@ -101,7 +101,7 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
 
     return(FeTrend)
   }
-  
+
   # function to calculate difference in GDP trend between country and REMIND region
   calcGDPTrendDiff <- function(subset, years, MaxThreshold) {
     # GDP on country-level
@@ -119,24 +119,24 @@ toolCalcEnergyProj <- function(subtype, subset, years = seq(2020, 2050, 5)) {
     # very strong energy projection trends (negative energy projected) could be produced
     GDPTrendDiff[GDPTrendDiff < -MaxThreshold] <- -MaxThreshold
     GDPTrendDiff[GDPTrendDiff > MaxThreshold] <- MaxThreshold
-    
-    
+
+
     return(GDPTrendDiff)
   }
-  
+
   ### main function ----
-  
+
   # get historical energy data for 2020
   xHist <- getHistData(subtype, AvgSeveralYears = T)
   # calculate FE trend on level of REMIND regions based on EDGE data
   FeTrend <- calcFeTrend(subtype, subset, years)
   # calculate difference in GDP trend between country and REMIND region
   GDPTrendDiff <- calcGDPTrendDiff(subset, years, MaxThreshold = 0.3)
-  
+
   # project energy according to above formula
   x <- xHist * (FeTrend + GDPTrendDiff)
 
-  
+
   return(x)
 }
 

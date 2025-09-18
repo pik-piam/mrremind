@@ -1,34 +1,34 @@
 #' Calculate Renewable Energy Share Targets
 #'
 #' @description This function calculates the renewable energy share targets by aggregating country-level targets to targets of REMIND regions. It calculates
-#' the following types of share targets: 1) share of renewables in electricity, 2) share of non-biomass renewables in electricty, 
-#' 3) share of non-fossil generation in  electricity, 4) share of renewables in total final energy. 
+#' the following types of share targets: 1) share of renewables in electricity, 2) share of non-biomass renewables in electricty,
+#' 3) share of non-fossil generation in  electricity, 4) share of renewables in total final energy.
 #' First, targets are aggregated to one of these 4 types. Second, countries without targets are assumed to maintain their renewable share from 2020.
 #' Third, targets are harmonized within a REMIND region and filtered based on how many countries within a REMIND region have a target. Finally, energy share targets are aggregated from country-level
 #' to REMIND region-level using projections of electricity or final energy demand on country-level. These country-level projections are
-#' derived from final energy trends by REMIND regions from the EDGE models as well as GDP trends by country from SSP scenarios (see toolCalcEnergyProj). 
+#' derived from final energy trends by REMIND regions from the EDGE models as well as GDP trends by country from SSP scenarios (see toolCalcEnergyProj).
 #'
 #' @param sources "NewClimate"
 #' @author Felix Schreyer
-#' 
+#'
 #' @importFrom quitte interpolate_missing_periods
 #'
 
 calcRenShareTargets <- function(sources) {
-  
+
   # The aggregation of renewable share targets from countries to REMIND regions is done with the following method:
   # RenShareTarget(REMINDregion,targetYear) = sum over all countries of
   # TotalDemand(country,targetYear) / TotalDemand(REMINDregion,targetYear) * RenShareTarget(country,targetYear).
   # RenShareTarget - is the renewable share target
-  # TotalDemand - is the total demand, 
-  # i.e. in case of renewable electricity share targets it is total final electricity demand, 
+  # TotalDemand - is the total demand,
+  # i.e. in case of renewable electricity share targets it is total final electricity demand,
   # in case of renewable final energy share targets it is total final energy demand
   # for countries without targt it is assumed that they maintain their renewable share in the target year:
   # RenShareTarget(countriesWithoutTarget,targetYear) = historical renewable share
   # TotalDemand(country,targetYear) is calculated by toolCalcEnergyProj() based on FE trajectories of EDGE models and GDP from SSP scenarios
   # The function prepares RenShareTarget and TotalDemand and provides it as arguments x and weight respectively to the madrat aggregation routine,
-  # which implements the above method. 
-  
+  # which implements the above method.
+
   # The preparation makes the following steps:
   # 1. get data and select target types to be considered
   # 2. get historic renewable shares and totals
@@ -40,7 +40,7 @@ calcRenShareTargets <- function(sources) {
 
   ### define functions ----
 
-  # function to get historical 2020 renewable energy shares as well as 
+  # function to get historical 2020 renewable energy shares as well as
   # energy totals for the respective target types
   # (e.g. for target type "SE|Electricity|Renewable",
   # xHistShare is renewable electricity share and
@@ -51,8 +51,8 @@ calcRenShareTargets <- function(sources) {
 
     # create array for historical energy shares and totals
     xHistShare <- new.magpie(getItems(IEA, dim = 1), years = NULL, names = ShareTypes, fill = NA)
-    xHistTotal <- new.magpie(getItems(IEA, dim = 1), years = NULL, names = ShareTypes, fill = NA) 
-    
+    xHistTotal <- new.magpie(getItems(IEA, dim = 1), years = NULL, names = ShareTypes, fill = NA)
+
     for (targetType in ShareTypes) {
       if (targetType == "FE|Renewable") {
         # variables to sum for renewable final energy
@@ -153,10 +153,10 @@ calcRenShareTargets <- function(sources) {
       xHistShare[, , targetType] <- xHistShareVar / xHistTotalVar
       # for countries without data, set to share to 0
       xHistShare[is.na(xHistShare)] <- 0
-      # get total 
+      # get total
       xHistTotal[, , targetType] <- xHistTotalVar
     }
-    
+
     return(list(xHistShare,xHistTotal))
   }
 
@@ -187,7 +187,7 @@ calcRenShareTargets <- function(sources) {
     }
     return(x_target)
   }
-  
+
   # function to select REMIND regions with renewable share targets and choose target year per REMIND region
   # only assign renewable share target to REMIND regions with a demand share of countries with targets of at least MinCountryTargetShare
   # choose target year of country with largest demand share across countries with targets
@@ -199,65 +199,65 @@ calcRenShareTargets <- function(sources) {
       countries <- regionmapping %>%
         filter(RegionCode == RemindRegion) %>%
         pull(CountryCode)
-      
+
       for (targetType in getNames(x)) {
-        
+
         # get all countries with renewable share targets in REMIND region
         countriesWithTarget <- as.quitte(x) %>%
           filter(!is.na(value),
                  region %in% countries,
-                 data == targetType) %>% 
+                 data == targetType) %>%
           pull(region) %>%
           as.vector()
-        
+
         # check whether share in total demand of countries with target in REMIND region is larger than MinCountryTargetShare
         # If it is not, do not select share target for this REMIND region (leave targetSelect NA)
         TargetCountryDemandShare <- as.vector(dimSums(xHistTotal[countriesWithTarget,,targetType], dim = 1, na.rm = T) / dimSums(xHistTotal[countries,,targetType], dim = 1, na.rm = T) )
-        
+
         # if no country has target, set to 0 and discard
         if (length(TargetCountryDemandShare) == 0) {
           TargetCountryDemandShare <- 0
         }
-        
+
         if (TargetCountryDemandShare < MinCountryTargetShare) {
           print(paste("Share of countries with ", targetType ,"target in", RemindRegion, "is lower than", MinCountryTargetShare, "-> discard target for this REMIND region."))
           next
         }
-        
+
         # find out country with target with maximum historical total electricity production
         MaxCountry <- as.quitte(xHistTotal) %>%
           filter(region %in% countriesWithTarget,
-                 data == targetType) %>% 
-          mutate( Max = max(value)) %>% 
-          filter( value == Max) %>% 
+                 data == targetType) %>%
+          mutate( Max = max(value)) %>%
+          filter( value == Max) %>%
           pull(region) %>%
           as.vector()
-        
+
         # get target year of this country
-        MaxCountryYear <- as.quitte(x) %>% 
+        MaxCountryYear <- as.quitte(x) %>%
           filter(region == MaxCountry,
                  data == targetType,
-                 !is.na(value)) %>%  
-          pull(period) %>% 
+                 !is.na(value)) %>%
+          pull(period) %>%
           as.vector()
-        
-        
+
+
         # set target year for all countries in REMIND region to target year of country with maximum historic electricity production
         targetSelect[countries,MaxCountryYear,targetType] <- 1
       }
     }
 
-    # select targets by multiplying interpolated share targets with target selector targetSelect 
+    # select targets by multiplying interpolated share targets with target selector targetSelect
     # (if targetSelect is 1, target is included in target for REMIND region.
     # if targetSelect is NA, it is not included)
     x_select <- x_intp * targetSelect
-    
+
     return(x_select)
   }
 
   ### main function ----
-  
-  
+
+
   ## 1. get data and select target types to be considered ----
 
   # get NewClimate energy share targets and conert from percent to share
@@ -280,53 +280,53 @@ calcRenShareTargets <- function(sources) {
   # assume that if there is a range countries will interpret the lower bound of the range as criterion to fulfill the target
   x <- collapseDim(x[, , "Min"])
 
-  
+
   ## 2. get historic renewable shares and totals ----
 
   # historic energy share in 2020
   xHist <- getHistEnergyShare(getNames(x), AvgSeveralYears = T)
   xHistShare <- xHist[[1]]
   xHistTotal <- xHist[[2]]
-  
+
   ## 3. extrapolate targets to REMIND time steps ----
-  
+
   # extrapolate targets to REMIND time steps where targets are in years that are not REMIND timesteps
   x <- extrapolateTargetYears(x, xHistShare, seq(2020, 2050, 5))
-  
+
   ## 4. make assumptions about target development over time for countries with and without target ----
-  
+
   # interpolate and extrapolate renewable share targets for countries with targets
   # assume that countries with share targets reach their share linearly from 2020 shares to the target year
   # assume that after target year, renewable share targets stay constant
   # assume that countries without target keep their historic share in the future
   x_intp <- x
   x_intp[,"y2020",] <- xHistShare
-  x_intp <- as.quitte(x_intp) %>% 
-              mutate( variable = data) %>% 
-              select(-data) %>% 
-              interpolate_missing_periods(expand.values = T) %>% 
+  x_intp <- as.quitte(x_intp) %>%
+              mutate( variable = data) %>%
+              select(-data) %>%
+              interpolate_missing_periods(expand.values = T) %>%
               as.magpie()
-  
+
   ## 4. select which REMIND regions get targets and determine their respective target year ----
-  
+
   # get regionmapping to be used for aggregation method
   regionmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
   # select which REMIND regions get targets and determine their respective target year
   x <- selectTargetRemindRegion(x, x_intp, xHistTotal, regionmapping, 0.2)
-  
+
   ## 5. format renewable share target data to be used as input data for REMIND
-  
+
   # rename target types to those used in REMIND techpol realization
   getNames(x) <- c( "RenElec",  "RenFE", "NonBioRenElec", "NonFossilElec")
-  
+
   # replace NA with 0 for the case that there are not targets in a country
   x[is.na(x)] <- 0
-    
+
 
   ## 6. get total demand in target year to be used as aggregation weights ----
-  
+
   # get aggregation weights for renewable share targets
-  # generate new object EnergyProj for projections of total energy in target year 
+  # generate new object EnergyProj for projections of total energy in target year
   # that are used as country weights when aggregating to REMIND regions REMIND regions
   TotalsEnergyProj <- new.magpie(getItems(x, dim = 1), getItems(x, dim = 2), getNames(x), fill = NA)
   # get projections of energy use in target years
@@ -337,14 +337,14 @@ calcRenShareTargets <- function(sources) {
   TotalsEnergyProj[, , "NonBioRenElec"] <- TotalsEnergyProj[, , "RenElec"]
   TotalsEnergyProj[, , "NonFossilElec"] <- TotalsEnergyProj[, , "RenElec"]
 
-  
+
   ## 7. hand-over to madrat for aggregation via weighted sum ----
-  
+
   return(list(
   # renewable share targets by country as aggregation variable
-    x = x,  
+    x = x,
   # total energy demand in target year by country as weight
-    weight = TotalsEnergyProj, 
+    weight = TotalsEnergyProj,
     unit = "share",
     description = glue::glue("Renewable energy share targets for electricity and final energy \\
                                          based on NewClimate policy protocol")
