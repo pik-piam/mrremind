@@ -353,6 +353,26 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
   }
 
+  if (grepl("RenShareTargets", subtype, fixed = TRUE)) {
+    # disaggregate NewClimate regions to iso-country level
+    # only dissaggregation for EU needed
+    # allocate EU shares also to EU countries
+    x_EU <- collapseDim(x["EU", , ])
+
+    # ISO-countries in EU region
+    EUR_NPi_countries <- c(
+      "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+      "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+      "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+      "FRO", "GIB", "GGY", "IMN", "HRV"
+    )
+
+    # add missing countries with NA
+    x <- toolCountryFill(x)
+    # assign share EU values to EU countries
+    x[EUR_NPi_countries, , ] <- x_EU
+  }
+
   # add NDC version from subtype
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
