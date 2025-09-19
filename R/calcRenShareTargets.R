@@ -11,7 +11,7 @@
 #' @param sources "NewClimate"
 #' @author Felix Schreyer
 #'
-#' @importFrom quitte interpolate_missing_periods
+#' @importFrom quitte interpolate_missing_periods as.quitte
 #'
 
 calcRenShareTargets <- function(sources) {
@@ -197,17 +197,17 @@ calcRenShareTargets <- function(sources) {
     for (RemindRegion in unique(regionmapping$RegionCode)) {
       # get all countries in REMIND region
       countries <- regionmapping %>%
-        filter(RegionCode == RemindRegion) %>%
-        pull(CountryCode)
+        filter(.data$RegionCode == RemindRegion) %>%
+        pull(.data$CountryCode)
 
       for (targetType in getNames(x)) {
 
         # get all countries with renewable share targets in REMIND region
         countriesWithTarget <- as.quitte(x) %>%
-          filter(!is.na(value),
-                 region %in% countries,
-                 data == targetType) %>%
-          pull(region) %>%
+          filter(!is.na(.data$value),
+                 .data$region %in% countries,
+                 .data$data == targetType) %>%
+          pull(.data$region) %>%
           as.vector()
 
         # check whether share in total demand of countries with target in REMIND region is larger than MinCountryTargetShare
@@ -226,19 +226,19 @@ calcRenShareTargets <- function(sources) {
 
         # find out country with target with maximum historical total electricity production
         MaxCountry <- as.quitte(xHistTotal) %>%
-          filter(region %in% countriesWithTarget,
-                 data == targetType) %>%
-          mutate( Max = max(value)) %>%
-          filter( value == Max) %>%
-          pull(region) %>%
+          filter(.data$region %in% countriesWithTarget,
+                 .data$data == targetType) %>%
+          mutate( "Max" = max(.data$value)) %>%
+          filter( .data$value == .data$Max) %>%
+          pull(.data$region) %>%
           as.vector()
 
         # get target year of this country
         MaxCountryYear <- as.quitte(x) %>%
-          filter(region == MaxCountry,
-                 data == targetType,
-                 !is.na(value)) %>%
-          pull(period) %>%
+          filter(.data$region == MaxCountry,
+                 .data$data == targetType,
+                 !is.na(.data$value)) %>%
+          pull(.data$period) %>%
           as.vector()
 
 
@@ -261,7 +261,7 @@ calcRenShareTargets <- function(sources) {
   ## 1. get data and select target types to be considered ----
 
   # get NewClimate energy share targets and conert from percent to share
-  x <- readSource("NewClimate", subtype = "EnergyShareTargets")
+  x <- readSource("NewClimate", subtype = "RenShareTargets")
   x <- collapseDim(x / 100)
 
   # calaulate renewable share targets of specific countries from technology-specific targets
@@ -302,8 +302,8 @@ calcRenShareTargets <- function(sources) {
   x_intp <- x
   x_intp[,"y2020",] <- xHistShare
   x_intp <- as.quitte(x_intp) %>%
-              mutate( variable = data) %>%
-              select(-data) %>%
+              mutate( "variable" = .data$data) %>%
+              select(-.data$data) %>%
               interpolate_missing_periods(expand.values = T) %>%
               as.magpie()
 
