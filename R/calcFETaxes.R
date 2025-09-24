@@ -121,6 +121,20 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Renergy) <- "2005"
 
 
+  # introduce upper bounds for subsidies
+  if (subtype == "subsidies") {
+
+    mapREMINDH12 <- toolGetMapping("regionmappingH12.csv", "regional", where = "mappingfolder")
+
+    MEA <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "MEA") %>%
+      pull("CountryCode")
+
+    Rtax[MEA, , "fedie"] <- pmax(Rtax[MEA, , "fedie"], -8)
+    Rtax[MEA, , "fepet"] <- pmax(Rtax[MEA, , "fepet"], -8)
+
+  }
+
   # Weights do not take into account the differentiation by services. So if
   # the tax in a Cooling country is very high and the tax in a country in the
   # same region using a lot of electricity for cooking is low, the tax for
