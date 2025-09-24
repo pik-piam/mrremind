@@ -120,24 +120,6 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
-  if (subtype == "subsidies") {
-
-    mapREMINDH12 <- toolGetMapping("regionmappingH12.csv", "regional", where = "mappingfolder")
-
-    MEA <- mapREMINDH12 %>%
-      filter(.data$RegionCode == "MEA") %>%
-      pull("CountryCode")
-
-    REF <- mapREMINDH12 %>%
-      filter(.data$RegionCode == "REF") %>%
-      pull("CountryCode")
-
-    # Subsidy proportional cap to avoid liquids increasing dramatically
-    # These factors are derived from previous REMIND versions
-    Rtax[MEA, , "fehos"] <- Rtax[MEA, , "fehos"] * 0.54
-    Rtax[REF, , "fehos"] <- Rtax[REF, , "fehos"] * 0.42
-  }
-
   # introduce upper bounds for subsidies
   if (subtype == "subsidies") {
 
@@ -147,8 +129,39 @@ calcFETaxes <- function(subtype = "taxes") {
       filter(.data$RegionCode == "MEA") %>%
       pull("CountryCode")
 
+    LAM <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "LAM") %>%
+      pull("CountryCode")
+
+    REF <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "REF") %>%
+      pull("CountryCode")
+
+    SSA <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "SSA") %>%
+      pull("CountryCode")
+
+
+    Rtax[LAM, , "fegas"] <- pmax(Rtax[LAM, , "fegas"], -5)
+    Rtax[SSA, , "fegas"] <- pmax(Rtax[SSA, , "fegas"], -2.07)
+    Rtax[MEA, , "fegas"] <- pmax(Rtax[MEA, , "fegas"], -4.53)
+    Rtax[REF, , "fegas"] <- pmax(Rtax[REF, , "fegas"], -3.53)
+    Rtax["IND", , "fegas"] <- pmax(Rtax["IND", , "fegas"], -7.71)
+
+    Rtax[SSA, , "fehos"] <- pmax(Rtax[SSA, , "fehos"], -2.87)
+    Rtax[MEA, , "fehos"] <- pmax(Rtax[MEA, , "fehos"], -0.17)
+    Rtax["IND", , "fehos"] <- pmax(Rtax["IND", , "fehos"], -6.69)
+
+    Rtax[MEA, , "fesos"] <- pmax(Rtax[MEA, , "fesos"], -2.13)
+    Rtax[REF, , "fesos"] <- pmax(Rtax[REF, , "fesos"], -0.4)
+
     Rtax[MEA, , "fedie"] <- pmax(Rtax[MEA, , "fedie"], -8)
     Rtax[MEA, , "fepet"] <- pmax(Rtax[MEA, , "fepet"], -8)
+
+    # Subsidy proportional cap to avoid liquids increasing dramatically
+    # These factors are derived from previous REMIND versions
+    Rtax[MEA, , "fehos"] <- Rtax[MEA, , "fehos"] * 0.54
+    Rtax[REF, , "fehos"] <- Rtax[REF, , "fehos"] * 0.42
 
   }
 

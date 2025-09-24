@@ -17,17 +17,6 @@ convertREMIND_11Regi <- function(x,subtype) {
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
-  } else if (subtype == "maxFeSubsidy") {
-    # Loading REMIND old region mapping
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
-    # Filtering REMIND old region mapping (selecting just regions available on data)
-    mapping <- mapping[mapping[, 3] %in% getRegions(x),]
-    # Replacing NA values with zero
-    x[is.na(x)] <- 0
-    # Converting old Region data to country data
-    y <- toolAggregate(x, mapping, weight=NULL)
-    # Filling missing country data with zero values to avoid convert error check
-    y  <- toolCountryFill(y, fill = 0, verbosity = 2)
   } else if (subtype == "fossilExtractionCoeff"){
     # weight
     oil <- readSource("BGR", subtype="oil")[,,"Remaining_Potential"]
