@@ -162,9 +162,10 @@ readUNFCCC_NDC <- function(subtype, subset) {
         Type =dplyr::case_when(
           `Gas coverage` == "GHG" & 
             (!is.na(`Unconditional Relative`) | !is.na(`Conditional Relative`)) ~ "GHG",
-          
+          #attention! In the current PBL file absolute emission targets always
+          #refer to emission level targeted in the target year, no reduction levels
           `Gas coverage` == "GHG" & `Type of NDC` != "Specific" &
-            (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-Absolute",
+            (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
           
           `Gas coverage` == "GHG" & `Type of NDC` == "Specific" &
             (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
@@ -184,6 +185,10 @@ readUNFCCC_NDC <- function(subtype, subset) {
     `Unconditional Relative`,
     `Conditional Relative`
   )
+    
+#set as negative % targets (reduction)
+input2035$`Unconditional Relative` <- as.numeric(input2035$`Unconditional Relative`) / -100
+input2035$`Conditional Relative`   <- as.numeric(input2035$`Conditional Relative`) / -100 
     
 input <- dplyr::case_when(
       grepl("2025", subtype, fixed = TRUE) ~ rbind(input,input2035)
