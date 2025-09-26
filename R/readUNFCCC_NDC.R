@@ -184,11 +184,11 @@ readUNFCCC_NDC <- function(subtype, subset) {
     `Unconditional Relative`,
     `Conditional Relative`
   )
-    }
+    
 input <- dplyr::case_when(
       grepl("2025", subtype, fixed = TRUE) ~ rbind(input,input2035)
     )    
-  
+    }
 
 # Continue processing
 input <- toolProcessClimateTargetDatabase(
