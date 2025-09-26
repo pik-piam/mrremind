@@ -69,140 +69,144 @@ readUNFCCC_NDC <- function(subtype, subset) {
         select(
           "ISO_Code" = 2, "Reference_Year" = 7,
           "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-          "Type" = 10, "LULUCF" = 11, "Unconditional Absolute" = 12, 
-          "Conditional Absolute" = 13, "Unconditional Relative" = 14, 
-          "Conditional Relative" = 15
+          "Type" = 10, "LULUCF" = 11, "Unconditional Relative" = 12, 
+          "Conditional Relative" = 13, "Unconditional Absolute" = 14, 
+          "Conditional Absolute" = 15
         )
     } else {
       input <- input %>%
         select(
           "ISO_Code" = 2, "Reference_Year" = 7,
           "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-          "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
-          "Unconditional Relative" = 13, "Conditional Relative" = 14
+          "Type" = 10, "Unconditional Relative" = 11, "Conditional Relative" = 12,
+          "Unconditional Absolute" = 13, "Conditional Absolute" = 14
         )
     }
     
-
+    
     if (any(grepl("2025", subtype, fixed = TRUE))) {
-    input2035 <- readxl::read_excel(
-      NDC2035, sheet = "NDC overview", skip = 1, na = c("?", ""), progress = FALSE
-    ) %>%
-      suppressMessages() %>%
-      filter(!is.na(`Gas coverage`)) %>%
-      rename(
-        ISO_Code = ISO3,
-        Target_Year = `Target year`,
-        Reference_Year = `base year`,
-        BAU_or_Reference_emissions_in_MtCO2e = `BAU emission level (Mt CO2eq)`
-       # Type = `Type of NDC`
+      input2035 <- readxl::read_excel(
+        NDC2035, sheet = "NDC overview", skip = 1, na = c("?", ""), progress = FALSE
       ) %>%
-      
-      # --- ensure all target columns exist ---
-      mutate(
-        `Unconditional Relative` = NA_character_,
-        `Conditional Relative`   = NA_character_,
-        `Unconditional Absolute` = NA_character_,
-        `Conditional Absolute`   = NA_character_,
-        `Type`   = NA_character_
-      ) %>%
-      
-      # --- fill values by different types ---
-      mutate(
-        # base year unconditional relative
-        `Unconditional Relative` =dplyr::if_else(
-          `Type of NDC` == "Base year" & Conditionality == "Unconditional",
-          as.character(`reduction min (%)...21`),
-          `Unconditional Relative`
-        ),
-        # base year conditional relative
-        `Conditional Relative` =dplyr::if_else(
-          `Type of NDC` == "Base year" & Conditionality == "Conditional",
-          as.character(`reduction max (%)...22`),
+        suppressMessages() %>%
+        filter(!is.na(`Gas coverage`)) %>%
+        rename(
+          ISO_Code = ISO3,
+          Target_Year = `Target year`,
+          Reference_Year = `base year`,
+          BAU_or_Reference_emissions_in_MtCO2e = `BAU emission level (Mt CO2eq)`
+          # Type = `Type of NDC`
+        ) %>%
+        
+        # --- ensure all target columns exist ---
+        mutate(
+          `Unconditional Relative` = NA_character_,
+          `Conditional Relative`   = NA_character_,
+          `Unconditional Absolute` = NA_character_,
+          `Conditional Absolute`   = NA_character_,
+          `Type`   = NA_character_
+        ) %>%
+        
+        # --- fill values by different types ---
+        mutate(
+          # base year unconditional relative
+          `Unconditional Relative` =dplyr::if_else(
+            `Type of NDC` == "Base year" & Conditionality == "Unconditional",
+            as.character(`reduction min (%)...21`),
+            `Unconditional Relative`
+          ),
+          # base year conditional relative
+          `Conditional Relative` =dplyr::if_else(
+            `Type of NDC` == "Base year" & Conditionality == "Conditional",
+            as.character(`reduction max (%)...22`),
+            `Conditional Relative`
+          ),
+          # unconditional absolute emission targets
+          `Unconditional Absolute` =dplyr::if_else(
+            `Type of NDC` == "Specific" & Conditionality == "Unconditional",
+            as.character(`emission level min (Mt CO2eq)...16`),
+            `Unconditional Absolute`
+          ),
+          # conditional absolute emission targets
+          `Conditional Absolute` =dplyr::if_else(
+            `Type of NDC` == "Specific" & Conditionality == "Conditional",
+            as.character(`emission level max (Mt CO2eq)...17`),
+            `Conditional Absolute`
+          ),
+          
+          # BAU unconditional
+          `Unconditional Relative` =dplyr::case_when(
+            `Type of NDC` == "BAU" & Conditionality == "Unconditional" & !is.na(`reduction min (%)...18`) ~ 
+              as.character(`reduction min (%)...18`),
+            TRUE ~ `Unconditional Relative`
+          ),
+          `Unconditional Absolute` =dplyr::case_when(
+            `Type of NDC` == "BAU" & Conditionality == "Unconditional" & is.na(`reduction min (%)...18`) ~ 
+              as.character(`emission level min (Mt CO2eq)...16`),
+            TRUE ~ `Unconditional Absolute`
+          ),
+          
+          # BAU conditional
+          `Conditional Relative` =dplyr::case_when(
+            `Type of NDC` == "BAU" & Conditionality == "Conditional" & !is.na(`reduction min (%)...18`) ~ 
+              as.character(`reduction min (%)...18`),
+            TRUE ~ `Conditional Relative`
+          ),
+          `Conditional Absolute` =dplyr::case_when(
+            `Type of NDC` == "BAU" & Conditionality == "Conditional" & is.na(`reduction min (%)...18`) ~ 
+              as.character(`emission level min (Mt CO2eq)...16`),
+            TRUE ~ `Conditional Absolute`
+          ),
+          
+          # correct the GHG type 
+          Type =dplyr::case_when(
+            `Gas coverage` == "GHG" & 
+              (!is.na(`Unconditional Relative`) | !is.na(`Conditional Relative`)) ~ "GHG",
+            #attention! In the current PBL file absolute emission targets always
+            #refer to emission level targeted in the target year, no reduction levels
+            `Gas coverage` == "GHG" & `Type of NDC` != "Specific" &
+              (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
+            
+            `Gas coverage` == "GHG" & `Type of NDC` == "Specific" &
+              (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
+            
+            TRUE ~ "type missing"
+          )
+        ) %>%
+        select(
+          ISO_Code,
+          Reference_Year,
+          BAU_or_Reference_emissions_in_MtCO2e,
+          Target_Year,
+          Type,
+          LULUCF,
+          `Unconditional Absolute`,
+          `Conditional Absolute`,
+          `Unconditional Relative`,
           `Conditional Relative`
-        ),
-        # unconditional absolute emission targets
-        `Unconditional Absolute` =dplyr::if_else(
-          `Type of NDC` == "Specific" & Conditionality == "Unconditional",
-          as.character(`emission level min (Mt CO2eq)...16`),
-          `Unconditional Absolute`
-        ),
-        # conditional absolute emission targets
-        `Conditional Absolute` =dplyr::if_else(
-          `Type of NDC` == "Specific" & Conditionality == "Conditional",
-          as.character(`emission level max (Mt CO2eq)...17`),
-          `Conditional Absolute`
-        ),
-        
-        # BAU unconditional
-        `Unconditional Relative` =dplyr::case_when(
-          `Type of NDC` == "BAU" & Conditionality == "Unconditional" & !is.na(`reduction min (%)...18`) ~ 
-            as.character(`reduction min (%)...18`),
-          TRUE ~ `Unconditional Relative`
-        ),
-        `Unconditional Absolute` =dplyr::case_when(
-          `Type of NDC` == "BAU" & Conditionality == "Unconditional" & is.na(`reduction min (%)...18`) ~ 
-            as.character(`emission level min (Mt CO2eq)...16`),
-          TRUE ~ `Unconditional Absolute`
-        ),
-        
-        # BAU conditional
-        `Conditional Relative` =dplyr::case_when(
-          `Type of NDC` == "BAU" & Conditionality == "Conditional" & !is.na(`reduction min (%)...18`) ~ 
-            as.character(`reduction min (%)...18`),
-          TRUE ~ `Conditional Relative`
-        ),
-        `Conditional Absolute` =dplyr::case_when(
-          `Type of NDC` == "BAU" & Conditionality == "Conditional" & is.na(`reduction min (%)...18`) ~ 
-            as.character(`emission level min (Mt CO2eq)...16`),
-          TRUE ~ `Conditional Absolute`
-        ),
-        
-        # correct the GHG type 
-        Type =dplyr::case_when(
-          `Gas coverage` == "GHG" & 
-            (!is.na(`Unconditional Relative`) | !is.na(`Conditional Relative`)) ~ "GHG",
-          #attention! In the current PBL file absolute emission targets always
-          #refer to emission level targeted in the target year, no reduction levels
-          `Gas coverage` == "GHG" & `Type of NDC` != "Specific" &
-            (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
-          
-          `Gas coverage` == "GHG" & `Type of NDC` == "Specific" &
-            (!is.na(`Unconditional Absolute`) | !is.na(`Conditional Absolute`)) ~ "GHG-fixed-total",
-          
-          TRUE ~ "type missing"
         )
-      ) %>%
-  select(
-    ISO_Code,
-    Reference_Year,
-    BAU_or_Reference_emissions_in_MtCO2e,
-    Target_Year,
-    Type,
-    LULUCF,
-    `Unconditional Absolute`,
-    `Conditional Absolute`,
-    `Unconditional Relative`,
-    `Conditional Relative`
-  )
-    
-#set as negative % targets (reduction)
-input2035$`Unconditional Relative` <- as.numeric(input2035$`Unconditional Relative`) / -100
-input2035$`Conditional Relative`   <- as.numeric(input2035$`Conditional Relative`) / -100 
-    
-input <- dplyr::case_when(
-      grepl("2025", subtype, fixed = TRUE) ~ rbind(input,input2035)
-    )    
+      
+      #set BAU where needed
+      input2035$Reference_Year[!is.na(input2035$BAU_or_Reference_emissions_in_MtCO2e) & 
+                                 input2035$Type != "GHG-fixed-total"] <- "BAU"
+      
+      #set as negative % targets (reduction)
+      input2035$`Unconditional Relative` <- as.numeric(input2035$`Unconditional Relative`) / -100
+      input2035$`Conditional Relative`   <- as.numeric(input2035$`Conditional Relative`) / -100 
+      
+      input <- dplyr::case_when(
+        grepl("2025", subtype, fixed = TRUE) ~ rbind(input,input2035)
+      )    
     }
-
-# Continue processing
-input <- toolProcessClimateTargetDatabase(
-  input, database = "UNFCCC_NDC", subtype = subtype
-)
-
-x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
-
-return(x)
+    
+    # Continue processing
+    input <- toolProcessClimateTargetDatabase(
+      input, database = "UNFCCC_NDC", subtype = subtype
+    )
+    
+    x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
+    
+    return(x)
   } else {
     stop("Incorrect subtype, please use Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond).")
   }
