@@ -11,71 +11,57 @@
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
 #' @param subtype "emifacs", "emissions", "activities"
 #' @importFrom stats na.omit
-#' @importFrom utils timestamp globalVariables
 #' @importFrom tidyr complete
 
-utils::globalVariables(c(
-  "EMF30_AGG", "EMF30_DET", "EMF30_MIXED", "Group_Region", "POLLUTANT_FRACTION",
-  "SCENARIO", "VARIABLE", "VARIANT", "region", "scen", "scenario",
-  "sectorGAINS", "species", "ssp", "value", "vartype", "year"
-))
-
-
 readGAINS2025final <- function(subtype) {
-  # ================================================================================================
-  # SECTOR INFORMATION =============================================================================
-  # ================================================================================================
+  # GAINS2025 sectors
   sectors <- read.csv("GAINS2025_sectors_2025-07-02.csv")
-  sectors_agg <- na.omit(unique(sectors$EMF30_AGG))
-  # Aggregated GAINS sectors do not contain Waste, thus these selected sectors are added from the
-  # detailed GAINS sectors
-  sectors_det_selected <- c(
-    "Waste_Solid_Municipal",
-    "Waste_Water_Municipal"
-  )
-  # According to email "ScenarioMIP air pollution EFs - CORRECTION to Transformation"
-  # from Zig (GAINS team) on July 4, the following sectors need to be corrected
-  # for historical and ScenarioMIP emission factors
-  sectors_to_correct <- c(
-    "Transformations_Coal",
-    "Transformations_NatGas"
-  )
-  # According to emails "ScenarioMIP air pollution EFs - CORRECTION to Transformation" and
-  # "Re: ScenarioMIP air pollution EFs - 1 July - FINAL" from Zig (GAINS team) on July 4
-  # the following sectors should be ignored
-  sectors_to_ignore <- c(
-    "CHEMBULK",
-    "Transformations_HLF",
-    "Transformations_LLF"
-  )
 
   # Function to read in aggregated sectors except those to be ignored (sectors_to_ignore) and
   # selected detailed sectors (sectors_det_selected), and
   readSectors <- function(filepath_beginning, filepath_ending) {
+    # According to emails "ScenarioMIP air pollution EFs - CORRECTION to Transformation" and
+    # "Re: ScenarioMIP air pollution EFs - 1 July - FINAL" from Zig (GAINS team) on July 4
+    # the following sectors should be ignored
+    sectors_to_ignore <- c(
+      "CHEMBULK",
+      "Transformations_HLF",
+      "Transformations_LLF"
+    )
     # Read in aggregated sectors except those to be ignored (sectors_to_ignore)
     df_agg_sectors <- read.csv(paste0(filepath_beginning, "_agg_", filepath_ending)) %>%
-      rename(EMF30_MIXED = EMF30_AGG) %>%
-      filter(!(EMF30_MIXED %in% sectors_to_ignore))
+      rename("EMF30_MIXED" = "EMF30_AGG") %>%
+      filter(!(.data$EMF30_MIXED %in% sectors_to_ignore))
+    # Aggregated GAINS sectors do not contain Waste, thus these selected sectors are added from the
+    # detailed GAINS sectors
+    sectors_det_selected <- c(
+      "Waste_Solid_Municipal",
+      "Waste_Water_Municipal"
+    )
     # Read in selected detailed sectors (sectors_det_selected)
     df_sel_det_sectors <- read.csv(paste0(filepath_beginning, "_det_", filepath_ending)) %>%
-      rename(EMF30_MIXED = EMF30_DET) %>%
-      filter(EMF30_MIXED %in% sectors_det_selected)
+      rename("EMF30_MIXED" = "EMF30_DET") %>%
+      filter(.data$EMF30_MIXED %in% sectors_det_selected)
     # Combine
-    df_sectors <- rbind(df_agg_sectors, df_sel_det_sectors)
-    return(df_sectors)
+    return(rbind(df_agg_sectors, df_sel_det_sectors))
   }
 
   # Function to correct selected sectors (sectors_to_correct)
   correctSectors <- function(df_uncorrected, filepath_ending) {
+    # According to email "ScenarioMIP air pollution EFs - CORRECTION to Transformation"
+    # from Zig (GAINS team) on July 4, the following sectors need to be corrected
+    # for historical and ScenarioMIP emission factors
+    sectors_to_correct <- c(
+      "Transformations_Coal",
+      "Transformations_NatGas"
+    )
     # Read in correct data
     df_NatGas <- read.csv(paste0("Transformations_NatGas_", filepath_ending)) %>%
-      rename(EMF30_MIXED = EMF30_AGG)
+      rename("EMF30_MIXED" = "EMF30_AGG")
     df_Coal <- read.csv(paste0("Transformations_Coal_", filepath_ending)) %>%
-      rename(EMF30_MIXED = EMF30_AGG)
-    # Remove sectors to correct from uncorrected dataframe
-    df_uncorrected <- df_uncorrected %>% filter(!(EMF30_MIXED %in% sectors_to_correct))
-    # Add correct data
-    df_corrected <- rbind(df_uncorrected, df_Coal, df_NatGas)
+      rename("EMF30_MIXED" = "EMF30_AGG")
+    # Remove sectors to correct from uncorrected dataframe and add corrected data
+    return(rbind(filter(df_uncorrected, !(.data$EMF30_MIXED %in% sectors_to_correct)), df_Coal, df_NatGas))
   }
 
   # ================================================================================================
@@ -112,13 +98,13 @@ readGAINS2025final <- function(subtype) {
 
     # Convert to long format and standardize column names
     histefs <- pivot_longer(histefs, 7:length(names(histefs)), names_prefix = "X", names_to = "year") %>%
-      select(-timestamp) %>%
+      select(-"timestamp") %>%
       rename(
-        ssp = scen,
-        scenario = VARIANT,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION
+        "ssp" = "scen",
+        "scenario" = "VARIANT",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION"
       )
 
     # SCENARIOMIP ===================================================================================
@@ -132,23 +118,24 @@ readGAINS2025final <- function(subtype) {
 
     # Convert to long format and standardize column names
     smipefs <- pivot_longer(smipefs, 7:length(names(smipefs)), names_prefix = "X", names_to = "year") %>%
-      select(-timestamp) %>%
+      select(-"timestamp") %>%
       rename(
-        ssp = scen,
-        scenario = VARIANT,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION
+        "ssp" = "scen",
+        "scenario" = "VARIANT",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION"
       )
 
     # 1) Filtering for one scenario (not VLLO) per SSP, removing the others, and calling it "SMIPbySSP"
     smipefsSMIPbySSP <- smipefs %>%
-      filter((ssp %in% c("SSP1", "SSP2", "SSP3") & scenario == "Medium") | (ssp == "SSP5" & scenario == "High")) %>%
-      mutate(scenario = "SMIPbySSP")
+      filter((.data$ssp %in% c("SSP1", "SSP2", "SSP3") & .data$scenario == "Medium") |
+               (.data$ssp == "SSP5" & .data$scenario == "High")) %>%
+      mutate("scenario" = "SMIPbySSP")
     # 2) Filtering for VLLO and SSP1, removing the others, and calling it SMIPVLLO
     smipefsSMIPVLLO <- smipefs %>%
-      filter(ssp == "SSP1" & scenario == "Very Low Limited Overshot") %>%
-      mutate(ssp = "SMIPVLLO", scenario = "SMIPVLLO")
+      filter(.data$ssp == "SSP1" & .data$scenario == "Very Low Limited Overshot") %>%
+      mutate("ssp" = "SMIPVLLO", "scenario" = "SMIPVLLO")
     # Combining the filtered dataframes
     smipefs <- rbind(smipefsSMIPbySSP, smipefsSMIPVLLO)
     rm(smipefsSMIPbySSP, smipefsSMIPVLLO)
@@ -160,14 +147,14 @@ readGAINS2025final <- function(subtype) {
     # Convert to long format and standardize column names
     mtfrefs <- pivot_longer(mtfrefs, 5:length(names(mtfrefs)), names_prefix = "X", names_to = "year") %>%
       rename(
-        scenario = SCENARIO,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION
+        "scenario" = "SCENARIO",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION"
       ) %>%
       mutate(
-        ssp = "MTFR",
-        scenario = "MTFR"
+        "ssp" = "MTFR",
+        "scenario" = "MTFR"
       )
 
     # Strong Legislation Emissions (SLE) =============================================================
@@ -177,13 +164,13 @@ readGAINS2025final <- function(subtype) {
     # Convert to long format and standardize column names
     sleefs <- pivot_longer(sleefs, 5:length(names(sleefs)), names_prefix = "X", names_to = "year") %>%
       rename(
-        ssp = scen,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION
+        "ssp" = "scen",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION"
       ) %>%
       mutate(
-        scenario = "SLE"
+        "scenario" = "SLE"
       )
 
     # Current Legislation Emissions (CLE) =============================================================
@@ -194,38 +181,55 @@ readGAINS2025final <- function(subtype) {
     # Convert to long format and standardize column names
     cleefs <- pivot_longer(cleefs, 5:length(names(cleefs)), names_prefix = "X", names_to = "year") %>%
       rename(
-        ssp = scen,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION
+        "ssp" = "scen",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION"
       ) %>%
       mutate(
-        scenario = "CLE"
+        "scenario" = "CLE"
       )
 
     # Remove historical emissions factors and historical years.
     # These are read in from a different source file for scenario "historical".
-    cleefs <- cleefs %>% filter(ssp != "historical", year >= 2025)
-
+    cleefs <- cleefs %>% filter(.data$ssp != "historical", .data$year >= 2025)
     # COMPLETE DATA FRAMES TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
+    # Relying on automatic completion for magclass objects is insufficient. For example, sleefs has
+    # only 34 sectors (Transformations_NatGas is missing) and subdimensions are not completed
+    # automatically.
     # Years 1990 - 2020 (7 time steps, 25 regions, 35 sectors, 7 species = 42875)
     histefs <- histefs %>%
-      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+      complete(.data$ssp, .data$scenario, .data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year
+      )
     # Years 2025 - 2100 (16 time steps, 25 regions, 35 sectors, 7 species = 98000)
     smipefs <- smipefs %>%
-      group_by(ssp, scenario) %>%
-      complete(region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+      group_by(.data$ssp, .data$scenario) %>%
+      complete(.data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year
+      )
     cleefs <- cleefs %>%
-      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+      complete(.data$ssp, .data$scenario, .data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year
+      )
     # Years 2030 - 2100 (15 time steps, 25 regions, 35 sectors, 7 species = 91875)
     mtfrefs <- mtfrefs %>%
-      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+      complete(.data$ssp, .data$scenario, .data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year
+      )
     sleefs <- sleefs %>%
-      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year)
+      complete(.data$ssp, .data$scenario, .data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year
+      )
 
     # COMBINE ALL SCENARIOS ===========================================================================
     allefs <- rbind(histefs, smipefs, mtfrefs, sleefs, cleefs) %>%
-      select(ssp, scenario, sectorGAINS, species, region, year, value)
+      select("ssp", "scenario", "sectorGAINS", "species", "region", "year", "value")
 
     out <- as.magpie(allefs, spatial = "region", temporal = "year")
     comment(out) <- "GAINS2025 emission factors for different scenarios and SSPs at the level of 25 GAINS regions, 35 GAINS sectors and 7 species."
@@ -244,29 +248,32 @@ readGAINS2025final <- function(subtype) {
     # Convert to long format and standardize column names
     baseactemi <- pivot_longer(baseactemi, 6:length(names(baseactemi)), names_prefix = "X", names_to = "year") %>%
       rename(
-        scenario = SCENARIO,
-        region = Group_Region,
-        sectorGAINS = EMF30_MIXED,
-        species = POLLUTANT_FRACTION,
-        vartype = VARIABLE
+        "scenario" = "SCENARIO",
+        "region" = "Group_Region",
+        "sectorGAINS" = "EMF30_MIXED",
+        "species" = "POLLUTANT_FRACTION",
+        "vartype" = "VARIABLE"
       ) %>%
       mutate(
-        ssp = "baseline",
-        scenario = "baseline"
+        "ssp" = "baseline",
+        "scenario" = "baseline"
       )
 
     # COMPLETE DATA FRAME TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
     baseactemi <- baseactemi %>%
-      complete(ssp, scenario, region, sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)), species, year, vartype)
+      complete(.data$ssp, .data$scenario, .data$region,
+        sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),
+        .data$species, .data$year, .data$vartype
+      )
 
     if (subtype == "emissions") {
-      baseactemi <- baseactemi %>% filter(vartype == "EMISSION")
+      baseactemi <- baseactemi %>% filter(.data$vartype == "EMISSION")
     } else {
-      baseactemi <- baseactemi %>% filter(vartype == "ACTIVITY")
+      baseactemi <- baseactemi %>% filter(.data$vartype == "ACTIVITY")
     }
 
     baseactemi <- baseactemi %>%
-      select(ssp, scenario, sectorGAINS, species, region, year, value)
+      select("ssp", "scenario", "sectorGAINS", "species", "region", "year", "value")
 
     out <- as.magpie(baseactemi, spatial = "region", temporal = "year")
     if (subtype == "emissions") {
