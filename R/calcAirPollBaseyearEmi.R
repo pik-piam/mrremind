@@ -116,10 +116,6 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   # Still at GAINS regions level
   emiGAINS.sectGAINS.regGAINS <- fullgains
 
-  # GAINS sectors to totals
-  # Still at GAINS regions level
-  emiGAINS.sectTOT.regGAINS <- dimSums(emiGAINS.sectGAINS.regGAINS, dim = 3.1, na.rm = TRUE)
-
   # GAINS to INTERMEDIARY sectors
   # Still at GAINS regions level
   # No weights required (many-to-one)
@@ -248,7 +244,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     from = "INTERMEDIARY_CEDS_GAINS", to = "GAINS2025",
     weight = NULL, dim = "sector"
   )
-  mas1k <- mask1[getItems(weights, dim = 1), , getItems(weights, dim = 3)]
+  mask1 <- mask1[getItems(weights, dim = 1), , getItems(weights, dim = 3)]
 
   # Crease mask2 at ISO country and GAINS sector level to check
   # if a GAINS sector belongs to an INTERMEDIARY sector with
