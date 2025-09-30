@@ -25,7 +25,6 @@ readREMIND_11Regi <- function(subtype) {
       x$X <- NULL
       as.magpie(x, datacol = 2)
     },
-    "AP_starting_values"   = read.csv("f11_emiAPexsolve.cs4r", skip = 1, header = FALSE) %>% as.magpie(datacol = 6),
     "ccs"                  = read.csv("p_dataccs.csv", sep = ";")             %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent"           = read.csv("ffPolyRent.csv", sep = ";")            %>% as.magpie(spatial = 1, datacol = 5),
     "ffPolyCumEx"          = read.csv("ffPolyCumEx.csv", sep = ";")           %>% as.magpie(spatial = 1, datacol = 5),

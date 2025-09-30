@@ -11,9 +11,6 @@ convertREMIND_11Regi <- function(x,subtype) {
   if(subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent" ){
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight=NULL)
-  } else if (subtype == "AP_starting_values") {
-    pop <- calcOutput("Population", scenario = "SSP2", years = 2005, aggregate = FALSE)
-    y <- toolAggregate(x,"regionmappingREMIND.csv",weight=pop)
   } else if (subtype == "deltacapoffset") {
     fe <- dimSums(calcOutput("IO",subtype="output",aggregate=FALSE)[,2010,c("feelb","feeli")],dim=3)
     y <- toolAggregate(x,"regionmappingREMIND.csv",weight=fe)
