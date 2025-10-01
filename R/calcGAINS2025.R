@@ -330,7 +330,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   # Assumption: Set emission factor constant to 1 for all other regions.
   # Note that NH3 has zero cost in remind/modules/11_aerosols/exoGAINS/datainput.gms
 
-  tmp_reg <- setdiff(getItems(efs, dim = 1),c("CENT_EURO", "RUSS_PLUS", "WEST_EURO"))
+  tmp_reg <- setdiff(getItems(efs, dim = 1), c("CENT_EURO", "RUSS_PLUS", "WEST_EURO"))
   efs[tmp_reg, , "NH3"][, , "Waste_Water_Municipal"] <- 1
 
   # 4.2. PAPER, VOC ==============================================================
@@ -340,7 +340,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   # Assumption: Set emission factor constant to 1 for all regions.
   # Note that VOC has zero cost in remind/modules/11_aerosols/exoGAINS/datainput.gms
 
-  efs[,,"VOC"][,,"PAPER"] <- 1
+  efs[, , "VOC"][, , "PAPER"] <- 1
 
   # 5. PREPARE SCENARIOS FOR HANDOVER TO REMIND: =================================
   # A. Constant extrapolation to REMIND timesteps beyond 2100
@@ -367,7 +367,7 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
   # Reference emissions in 2020
   isoemis2020 <- calcOutput("AirPollBaseyearEmi",
     baseyear = 2020, CEDS.5yearmean = TRUE,
-    source = weight_source, outsectors = "GAINS",
+    data_source = weight_source, outsectors = "GAINS",
     aggregate = FALSE
   )
   getSets(isoemis2020)[getSets(isoemis2020) == "sector"] <- "sectorGAINS"
@@ -468,12 +468,19 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
     #
     # Zero weights are allowed for cases where acitivites are zero but the EFs
     # are non-zero. In such cases, the resulting EF is zero.
-    isoefs <- toolAggregate(isoefs, filtsecmap, weight = weights, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector", wdim = NULL, zeroWeight = "allow")
-    weights <- toolAggregate(weights, filtsecmap, weight = NULL, from = "GAINS2025", to = "REMIND_INTERNAL", dim = "sector")
+    isoefs <- toolAggregate(isoefs, filtsecmap,
+      weight = weights,
+      from = "GAINS2025", to = "REMIND_INTERNAL",
+      dim = "sector", wdim = NULL, zeroWeight = "allow"
+    )
+    weights <- toolAggregate(weights, filtsecmap,
+      weight = NULL,
+      from = "GAINS2025", to = "REMIND_INTERNAL",
+      dim = "sector"
+    )
     # toolAggregate has automatically recognized format of REMIND_INTERNAL sectors
     # such as pecoal.sehe.coalhp.power and split "sector" into four subdimensions.
     # Only need to assign correct names to sets
-    browser()
     getSets(isoefs) <- c("region", "year", "sector1", "sector2", "sector3", "sector4", "emi", "scenario", "ssp")
     getSets(weights) <- c("region", "year", "sector1", "sector2", "sector3", "sector4", "emi", "scenario", "ssp")
 

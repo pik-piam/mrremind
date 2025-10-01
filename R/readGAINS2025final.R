@@ -64,9 +64,7 @@ readGAINS2025final <- function(subtype) {
     return(rbind(filter(df_uncorrected, !(.data$EMF30_MIXED %in% sectors_to_correct)), df_Coal, df_NatGas))
   }
 
-  # ================================================================================================
   # AIR POLLUTANT NAMES ============================================================================
-  # ================================================================================================
 
   # Function to maps from GAINS2025 to REMIND (oldGAINS) air pollutant names
   fixPolNames <- function(mag) {
@@ -85,14 +83,12 @@ readGAINS2025final <- function(subtype) {
   }
 
   if (subtype == "emifacs") {
-    # ================================================================================================
     # EMISSION FACTORS ===============================================================================
-    # Read emission factors for historical timesteps, ScenarioMIP scenarios, CLE, SLE and MTFR =======
-    # Combine aggregated sectors and selected detailed sectors (Waste) ===============================
-    # Remove or correct erroneous data according to information from GAINS team ======================
-    # ================================================================================================
+    # Read emission factors for historical timesteps, ScenarioMIP scenarios, CLE, SLE and MTFR
+    # Combine aggregated sectors and selected detailed sectors (Waste)
+    # Remove or correct erroneous data according to information from GAINS team
 
-    # HISTORICAL =====================================================================================
+    ## HISTORICAL ====================================================================================
     histefs <- readSectors("emission_factors", "hist_final_2025-07-02.csv")
     histefs <- correctSectors(histefs, "hist-2025-07-04-CORRECTION.csv")
 
@@ -107,7 +103,7 @@ readGAINS2025final <- function(subtype) {
         "species" = "POLLUTANT_FRACTION"
       )
 
-    # SCENARIOMIP ===================================================================================
+    ## SCENARIOMIP ==================================================================================
     # These differ by SSP (1, 2, 3 and 5) and by scenario (H, HL, M, ML, L, VLHO, VLLO). But:
     # 1) All scenarios expect VLLO are identical and only differ by SSP,
     #    thus removing duplicates and calling this scenario "SMIPbySSP".
@@ -140,7 +136,7 @@ readGAINS2025final <- function(subtype) {
     smipefs <- rbind(smipefsSMIPbySSP, smipefsSMIPVLLO)
     rm(smipefsSMIPbySSP, smipefsSMIPVLLO)
 
-    # Maximum Technically Feasible Reduction (MTFR) ==================================================
+    ## Maximum Technically Feasible Reduction (MTFR) =================================================
     # No corrections for Transformations_Coal and Transformations_NatGas
     mtfrefs <- readSectors("SSPs_IMAGE_emf", "mtfr_2025-07-02.csv")
 
@@ -157,7 +153,7 @@ readGAINS2025final <- function(subtype) {
         "scenario" = "MTFR"
       )
 
-    # Strong Legislation Emissions (SLE) =============================================================
+    ## Strong Legislation Emissions (SLE) ============================================================
     # No corrections for Transformations_Coal and Transformations_NatGas
     sleefs <- readSectors("SSPs_IMAGE_emf", "middle_2025-07-02.csv")
 
@@ -173,7 +169,7 @@ readGAINS2025final <- function(subtype) {
         "scenario" = "SLE"
       )
 
-    # Current Legislation Emissions (CLE) =============================================================
+    ## Current Legislation Emissions (CLE) ============================================================
     # No corrections for Transformations_Coal and Transformations_NatGas
     # Also contains historical emission factors. Remove ???
     cleefs <- readSectors("SSPs_IMAGE_emf", "cle_rev_2025-07-02.csv")
@@ -193,7 +189,7 @@ readGAINS2025final <- function(subtype) {
     # Remove historical emissions factors and historical years.
     # These are read in from a different source file for scenario "historical".
     cleefs <- cleefs %>% filter(.data$ssp != "historical", .data$year >= 2025)
-    # COMPLETE DATA FRAMES TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
+    ## COMPLETE DATA FRAMES TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT ====
     # Relying on automatic completion for magclass objects is insufficient. For example, sleefs has
     # only 34 sectors (Transformations_NatGas is missing) and subdimensions are not completed
     # automatically.
@@ -227,21 +223,19 @@ readGAINS2025final <- function(subtype) {
         .data$species, .data$year
       )
 
-    # COMBINE ALL SCENARIOS ===========================================================================
+    ## COMBINE ALL SCENARIOS ==========================================================================
     allefs <- rbind(histefs, smipefs, mtfrefs, sleefs, cleefs) %>%
       select("ssp", "scenario", "sectorGAINS", "species", "region", "year", "value")
 
     out <- as.magpie(allefs, spatial = "region", temporal = "year")
     comment(out) <- "GAINS2025 emission factors for different scenarios and SSPs at the level of 25 GAINS regions, 35 GAINS sectors and 7 species."
   } else if (subtype %in% c("emissions", "activities")) {
-    # ================================================================================================
     # EMISSIONS AND ACTIVITIES =======================================================================
-    # Read emissions and activities for baseline scenario ============================================
-    # Combine aggregated sectors and selected detailed sectors (Waste) ===============================
-    # Remove or correct erroneous data according to information from GAINS team ======================
-    # ================================================================================================
+    # Read emissions and activities for baseline scenario
+    # Combine aggregated sectors and selected detailed sectors (Waste)
+    # Remove or correct erroneous data according to information from GAINS team
 
-    # BASELINE =======================================================================================
+    ## BASELINE ======================================================================================
     # No corrections for Transformations_Coal and Transformations_NatGas
     baseactemi <- readSectors("IMAGE_emf", "activity_emission_2025-07-02.csv")
 
@@ -259,7 +253,7 @@ readGAINS2025final <- function(subtype) {
         "scenario" = "baseline"
       )
 
-    # COMPLETE DATA FRAME TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT =====
+    ## COMPLETE DATA FRAME TO ENSURE THAT ALL SECTOR x SPECIES x REGION COMBINATIONS ARE PRESENT ====
     baseactemi <- baseactemi %>%
       complete(.data$ssp, .data$scenario, .data$region,
         sectorGAINS = na.omit(unique(sectors$EMF30_MIXED)),

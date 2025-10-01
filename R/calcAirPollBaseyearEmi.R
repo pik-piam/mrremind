@@ -6,7 +6,7 @@
 #' @param baseyear base year for which emissions are calculated
 #' @param CEDS.5yearmean computes 5-year average around base year for CEDS2025
 #'                ("TRUE"/"FALSE")
-#' @param source "CEDS2025" or "GAINS2025"
+#' @param data_source "CEDS2025" or "GAINS2025"
 #' @param outsectors total ("TOT"),
 #'                   62 CEDS sectors ("CEDS"),
 #'                   16 intermediary sectors used to link CEDS and GAINS ("INT"),
@@ -16,7 +16,7 @@
 #' @author Gabriel Abrahao, Laurin Koehler-Schindler
 
 calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
-                                   source = "CEDS2025", outsectors = "GAINS") {
+                                   data_source = "CEDS2025", outsectors = "GAINS") {
   # READ CEDS2025 DATA AT CEDS62 sectoral aggregation ===========================
   # Define years to be read
   if (CEDS.5yearmean) {
@@ -59,7 +59,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   fullceds[, , "NH3"] <- fullceds[, , "NH3"] * (14 + 3) / 14
 
   # READ GAINS2025 BASELINE EMISSIONS ===========================================
-  # AT GAINS2025 sectoral aggregation (35 mixed sectors) ========================
+  # AT GAINS2025 sectoral aggregation (35 mixed sectors)
 
   fullgains <- readSource("GAINS2025final", subtype = "emissions")[, baseyear, "baseline.baseline"]
   # Remove ssp and scenario dimension
@@ -73,18 +73,26 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   # Converting units to Mt. GAINS seems to be in kt of each pollutant.
   fullgains[, , ] <- fullgains[, , ] / 1e3
 
-  # =============================================================================
   # GET MAPPINGS ================================================================
-  # =============================================================================
 
-  gainsmap <- toolGetMapping(type = "sectoral", name = "mappingINTERMEDIARYtoGAINS2025toREMINDtoIAMC.csv", where = "mrremind")
-  cedsmap <- toolGetMapping(type = "sectoral", name = "mappingCEDS62toINTERMEDIARY.csv", where = "mrremind")
+  gainsmap <- toolGetMapping(
+    type = "sectoral",
+    name = "mappingINTERMEDIARYtoGAINS2025toREMINDtoIAMC.csv",
+    where = "mrremind"
+  )
+  cedsmap <- toolGetMapping(
+    type = "sectoral",
+    name = "mappingCEDS62toINTERMEDIARY.csv",
+    where = "mrremind"
+  )
 
-  regmap <- toolGetMapping(type = "regional", name = "regionmapping_GAINS2025.csv", where = "mrremind")
+  regmap <- toolGetMapping(
+    type = "regional",
+    name = "regionmapping_GAINS2025.csv",
+    where = "mrremind"
+  )
 
-  # =============================================================================
   # PART 1.A: SECTORAL AGGREGATION OF CEDS2025 EMISSIONS ========================
-  # =============================================================================
 
   # CEDS sectors
   emiCEDS.sectCEDS <- fullceds
@@ -108,9 +116,7 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     weight = NULL, dim = "sector", wdim = NULL
   )
 
-  # =============================================================================
   # PART 1.B: SECTORAL AGGREGATION OF GAINS2025 EMISSIONS =======================
-  # =============================================================================
 
   # GAINS sectors
   # Still at GAINS regions level
@@ -125,13 +131,11 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     weight = NULL, dim = "sector", wdim = NULL
   )
 
-  # =============================================================================
   # PART 2.A: REGIONAL DISAGGREGATION OF GAINS2025 EMISSIONS ====================
-  #         AT INTERMEDIARY SECTOR LEVEL ========================================
+  #         AT INTERMEDIARY SECTOR LEVEL
   #         Weights: Use CEDS emissions in intermediary sector. If zero
   #                  for the entire GAINS regions, use CEDS total emissions
   #                  instead.
-  # =============================================================================
 
   # Default weights: CEDS emissions in intermediary sectors
   weights <- emiCEDS.sectINT
@@ -168,10 +172,8 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     weight = weights, dim = "region", wdim = 1
   )
 
-  # =============================================================================
   # PART 2.B: SECTORAL (DIS-)AGGREGATION OF GAINS2025 EMISSIONS =================
-  #         AT ISO COUNTRY LEVEL ================================================
-  # =============================================================================
+  #         AT ISO COUNTRY LEVEL
 
   # INTERMEDIARY sectors to totals
   # No weights required (many-to-one)
@@ -206,9 +208,8 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     zeroWeight = "allow"
   )
 
-  # =============================================================================
-  # PART 3.A: SECTORAL DISAGGREGATION OF CEDS2025 EMISSIONS =====================
-  #         TO GAINS2025 SECTORS ================================================
+  # PART 3.A: SECTORAL DISAGGREGATION OF CEDS2025 EMISSIONS
+  #         TO GAINS2025 SECTORS
   #         Weights: Use GAINS emissions in ISO country. (Note that by 2.B,
   #                  the shares of GAINS sectors per INT sector are taken from
   #                  the GAINS region level.)
@@ -216,7 +217,6 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
   #                  use global GAINS emissions instead.
   #                  If global GAINS emissions also zero for the entire
   #                  intermediary sector, distribute equally.
-  # =============================================================================
 
   # Select CEDS emissions in INT sectors with counterpart in GAINS,
   # i.e. removing NO GAINS Aircraft, NO GAINS Agriculture,
@@ -275,57 +275,74 @@ calcAirPollBaseyearEmi <- function(baseyear = 2020, CEDS.5yearmean = TRUE,
     weight = weights, dim = "sector", wdim = 3.1
   )
 
-  # =============================================================================
   # PART 3.B: SECTORAL DISAGGREGATION OF GAINS2025 EMISSIONS ====================
-  #         TO CEDS62 SECTORS ===================================================
-  # =============================================================================
+  #         TO CEDS62 SECTORS
 
   # CURRENTLY NOT NEEDED
   # BUT COULD BE ADDED ANALOGOUSLY TO 3.A
 
-  # =============================================================================
   # RETURN ======================================================================
-  # =============================================================================
 
-  if (source == "CEDS2025") {
+  if (data_source == "CEDS2025") {
     if (outsectors == "TOT") {
       out <- emiCEDS.sectTOT
-      desc <- paste0("Total ", source, " emissions in year ", baseyear, ".")
+      desc <- paste0("Total ", data_source, " emissions in year ", baseyear, ".")
     } else if (outsectors == "CEDS") {
       out <- emiCEDS.sectCEDS
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 62 CEDS sectors.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 62 CEDS sectors."
+      )
     } else if (outsectors == "INT") {
       out <- emiCEDS.sectINT
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 15 intermediary sectors used to link CEDS and GAINS.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 15 intermediary sectors used to link CEDS and GAINS."
+      )
     } else if (outsectors == "GAINS") {
       out <- emiCEDS.sectGAINS
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 35 GAINS sectors.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 35 GAINS sectors."
+      )
     } else if (outsectors == "CMIP7") {
       out <- emiCEDS.sectCMIP7
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 13 CMIP7 Harmonization sectors.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 13 CMIP7 Harmonization sectors."
+      )
     } else {
       stop(paste0("Unknown sectoral aggregation: ", outsectors))
     }
-  } else if (source == "GAINS2025") {
+  } else if (data_source == "GAINS2025") {
     if (outsectors == "TOT") {
       out <- emiGAINS.sectTOT
-      desc <- paste0("Total ", source, " emissions in year ", baseyear, ".")
+      desc <- paste0("Total ", data_source, " emissions in year ", baseyear, ".")
     } else if (outsectors == "CEDS") {
       stop("GAINS to CEDS mapping currently not available. See 3.B in the code.")
     } else if (outsectors == "INT") {
       out <- emiGAINS.sectINT
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 16 intermediary sectors used to link CEDS and GAINS.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 16 intermediary sectors used to link CEDS and GAINS."
+      )
     } else if (outsectors == "GAINS") {
       out <- emiGAINS.sectGAINS
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 35 GAINS sectors.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 35 GAINS sectors."
+      )
     } else if (outsectors == "CMIP7") {
       out <- emiGAINS.sectCMIP7
-      desc <- paste0(source, " emissions in year ", baseyear, " at level of 13 CMIP7 Harmonization sectors.")
+      desc <- paste0(
+        data_source, " emissions in year ", baseyear,
+        " at level of 13 CMIP7 Harmonization sectors."
+      )
     } else {
       stop(paste0("Unknown sectoral aggregation: ", outsectors))
     }
   } else {
-    stop(paste0("Unknown source: ", source))
+    stop(paste0("Unknown source: ", data_source))
   }
 
   return(list(
