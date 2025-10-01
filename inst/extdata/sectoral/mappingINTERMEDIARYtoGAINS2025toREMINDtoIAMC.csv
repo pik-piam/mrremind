@@ -46,5 +46,5 @@ Industrial Processes Steel;STEEL;indprocess;indprocess;indprocess;Industrial Sec
 Fossil Extraction and Distribution;Transformations_Coal;extraction;extraction;power;Energy Sector;
 Fossil Extraction and Distribution;Transformations_HLF_Refinery;extraction;extraction;power;Energy Sector;
 Fossil Extraction and Distribution;Transformations_NatGas;extraction;extraction;power;Energy Sector;
-Waste Solids and Other;Waste_Solid_Municipal;;;Waste;Waste;Check if there is a REMIND internal sector for waste
-Wastewater;Waste_Water_Municipal;;;Waste;Waste;Check if there is a REMIND internal sector for waste
+Waste Solids and Other;Waste_Solid_Municipal;waste;waste;waste;Waste;
+Wastewater;Waste_Water_Municipal;waste;waste;waste;Waste;
