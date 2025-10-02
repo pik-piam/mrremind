@@ -22,9 +22,6 @@ a <- readSource(type = "IRENA", subtype = "Capacity")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Renato Rodrigues, Pascal Weigmann
 }

@@ -9,17 +9,8 @@
 #' to 0 by 2050. Should be replaced in the future by actual modeling of waste /
 #' other fossil plants, or at least connected to RCP scenario assumptions.
 #'
-#' @md
-#' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
-#'   `unit`, `description`.
-#'
 #' @author Robert Pietzcker, Falk Benke
 #'
-#' @seealso [`calcOutput()`]
-#'
-#' @export
-#'
-
 calcOtherFossilInElectricity <- function() {
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = "EnergyBalances") * 4.1868e-5

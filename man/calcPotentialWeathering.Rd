@@ -14,15 +14,10 @@ two MAgPIE objects
 Provides weathering potential data
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialWeathering")
-
 }
 
-}
-\seealso{
-\code{\link{calcOutput}}
 }
 \author{
 Lavinia Baumstark

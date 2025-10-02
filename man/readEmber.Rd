@@ -15,9 +15,6 @@ A \code{\link[magclass:magclass-package]{magpie}} object.
 \description{
 Read Ember Yearly Electricity Data
 }
-\seealso{
-\code{\link[=readSource]{readSource()}}
-}
 \author{
 Pascal Weigmann
 }

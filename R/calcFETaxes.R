@@ -9,8 +9,7 @@
 #'
 #' @return MAgPIE object
 #' @author Christoph Bertram and Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
-#' \code{\link{convertIIASA_subs_taxes}}
+#' @seealso \code{\link{readIIASA_subs_taxes}}, \code{\link{convertIIASA_subs_taxes}}
 #' @examples
 #' \dontrun{
 #' calcOutput("FETaxes")
@@ -71,7 +70,7 @@ calcFETaxes <- function(subtype = "taxes") {
                                 dim = 3.1, add = "sector", nm = sector))
     Renergy <- mbind(Renergy,
                      add_dimension(setNames(energy[, , tax_map[[sector]]], names(tax_map[[sector]])),
-                                dim = 3.1, add = "sector", nm = sector))
+                                   dim = 3.1, add = "sector", nm = sector))
   }
 
   # convert original data from bulk values to subsidies rates for the case of subsidies
@@ -121,6 +120,21 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
+
+  # introduce upper bounds for subsidies
+  if (subtype == "subsidies") {
+
+    mapREMINDH12 <- toolGetMapping("regionmappingH12.csv", "regional", where = "mappingfolder")
+
+    MEA <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "MEA") %>%
+      pull("CountryCode")
+
+    Rtax[MEA, , "fedie"] <- pmax(Rtax[MEA, , "fedie"], -8)
+    Rtax[MEA, , "fepet"] <- pmax(Rtax[MEA, , "fepet"], -8)
+
+  }
+
   # Weights do not take into account the differentiation by services. So if
   # the tax in a Cooling country is very high and the tax in a country in the
   # same region using a lot of electricity for cooking is low, the tax for
@@ -128,5 +142,8 @@ calcFETaxes <- function(subtype = "taxes") {
   # for cooling and low for cooking
   # So, we can assume that countries are app. similar in a given region
 
-  list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc)
+  list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc,
+       # do not throw a warning for zero weights, as they seem to be intended
+       aggregationArguments = list(zeroWeight = "allow")
+  )
 }

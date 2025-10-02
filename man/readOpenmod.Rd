@@ -18,6 +18,3 @@ a <- readSource(type = "Openmod")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}

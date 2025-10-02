@@ -8,7 +8,7 @@
 #'
 #' @return MAgPIE object
 #' @author Christoph Bertram and Renato Rodrigues
-#' @seealso \code{\link{calcOutput}}, \code{\link{readIIASA_subs_taxes}},
+#' @seealso \code{\link{readIIASA_subs_taxes}},
 #' \code{\link{convertIIASA_subs_taxes}}
 #' @examples
 #' \dontrun{
@@ -44,6 +44,9 @@ calcPETaxes <- function(subtype = "subsidies") {
   # convert original data from bulk values to subsidies rates for the case of subsidies
   Rtax <- Rtax / Renergy * 1e9 # converting from billion$/GJ to $/GJ
   Rtax[is.na(Rtax)] <- 0
+
+  # avoid zero weights, as they cause a warning in aggregation
+  Renergy[Renergy == 0] <- 1e-10
 
   # set base year
   getYears(Rtax) <- "2005"

@@ -2,20 +2,25 @@
 % Please edit documentation in R/calcEmiTarget.R
 \name{calcEmiTarget}
 \alias{calcEmiTarget}
-\title{Output for 2 policy cases}
+\title{Calculate Emission Targets}
 \usage{
 calcEmiTarget(sources, subtype, scenario)
 }
 \arguments{
-\item{sources}{Database source}
+\item{sources}{database source, either 'UNFCCC_NDC' or 'NewClimate'}
 
-\item{subtype}{A string, one of: "Ghgshare2005", "Ghgfactor", "Ghghistshare"}
+\item{subtype}{must be one of
+\itemize{
+\item 'Ghgfactor': for GHG factors calculated from the respective database
+\item 'Ghgshare2015': for Emission share of countries with targets per region
+}}
 
-\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.}
+\item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.
+turned off for inpudata generation}
 }
 \description{
-Output for 2 policy cases
+Calculate Emission Targets
 }
 \author{
-Aman Malik, Christoph Bertram, Oliver Richters
+Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
 }

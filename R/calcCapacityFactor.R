@@ -8,14 +8,15 @@
 #' }
 #'
 calcCapacityFactor <- function() {
+
   ### calculation of coal power capacity factor
   GWh_2_EJ <- 3.6e-6
 
   # Taken from the plyr package
-  round_any <- function(x, accuracy, f = round) f(x/ accuracy) * accuracy
+  round_any <- function(x, accuracy, f = round) f(x / accuracy) * accuracy
 
   # Read capacity factor inputs
-  global <- readSource("REMIND_11Regi", subtype = "capacityFactorGlobal", convert = FALSE)
+  global <- readSource("ExpertGuess", subtype = "capacityFactorGlobal", convert = FALSE)
 
   # remove no longer used items
   notUsed <- c("apcarelt", "aptrnelt", "apcarh2t", "apcarpet", "apcardit",
@@ -25,7 +26,7 @@ calcCapacityFactor <- function() {
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
   global[, , "pc"] <- 0.5
   # Read capacity factor rules
-  rules <- readSource("REMIND_11Regi", subtype = "capacityFactorRules")
+  rules <- readSource("ExpertGuess", subtype = "capacityFactorRules")
 
   #   Creating new MAgPIE object to store the final capacity values
   output <- new.magpie(getRegions(rules), seq(2005, 2150, 5), getNames(global))

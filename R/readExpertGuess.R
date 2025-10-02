@@ -3,23 +3,27 @@
 #' Read-in data that are based on expert guess
 #'
 #' @md
-#' @param subtype Type of data that should be read.  One of
-#'   - `Steel_Production`: Steel production estimates
-#'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
-#'     production in total steel production and years between which a linear
-#'     convergence from historic to target shares is to be applied.
-#'   - `cement_production_convergence_parameters`: convergence year and level
-#'     (relative to global average) to which per-capita cement demand converges
-#'   - `ies`
-#'   - `prtp`
-#'   - `CCSbounds`
-#'   - `costsTradePeFinancial`
-#'   - `tradeContsraints`: parameter by Nicolas Bauer (2024) for the region
-#'      specific trade constraints, values different to 1 activate constraints
-#'      and the value is used as effectiveness to varying degrees such as percentage numbers
+#' @param subtype Type of data that should be read. One of
+#'   - `biocharPrices`: Biochar price assumptions over time. Assumptions based on
+#'      collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
+#'   - `capacityFactorGlobal`: Global capacity factors for all REMIND technologies (Renato Rodrigues)
+#'   - `capacityFactorRules`: Capacity factor rules for selected H12 regions and REMIND technologies
+#'   - `ccsBounds`: CCS bounds indicating the if a country is expected to do CCS in the
+#'      foreseeable future (Jessica Strefler)
+#'   - `co2prices`: CO2 prices (Robert Pietzcker)
+#'   - `costsTradePeFinancial`: primary energy tradecosts (financial costs on import,
+#'      export and use) (Nicolas Bauer)
+#'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
+#'   - `prtp`: pure rate of time preference (Nicolas Bauer)
+#'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+#'   - `taxConvergence`: Tax convergence level in US$2017 (Nicolas Bauer)
+#'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+#'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
+#'      constraints, values different to 1 activate constraints and the value is used as
+#'      effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
+#'
 #' @return magpie object of the data
-#' @author Lavinia Baumstark
-#' @seealso \code{\link{readSource}}
+#' @author Lavinia Baumstark, Falk Benke
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "ExpertGuess", subtype = "ies")
@@ -28,88 +32,78 @@
 #' @importFrom dplyr bind_rows filter pull select
 #'
 readExpertGuess <- function(subtype) {
-  a <- switch (
-    subtype,
-    "ies"                   = read.csv("ies.csv", sep = ";"),
-    "prtp"                  = read.csv("prtp.csv", sep = ";"),
-    "CCSbounds"             = read.csv("CCSbounds.csv", sep = ";"),
-    "co2prices"             = read.csv("co2prices-2024-11.csv", sep = ";"),
-    "costsTradePeFinancial" = read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2),
-    "tradeConstraints"      = read.csv("tradeConstraints.csv", sep = ";")
-  )
 
-  if (subtype %in% c("ies", "prtp", "CCSbounds", "co2prices")) {
-    a$RegionCode <- NULL
-    a$Country <- NULL
-    out <- as.magpie(a)
-    out[is.na(out)] <- 0
-   }
+  if (subtype == "biocharPrices") {
 
-  if (subtype %in% c("ies", "prtp")) {
-    getYears(out) <- "2005"
-  }
+    out <- readxl::read_xlsx("biocharPrices_v0.1.xlsx", sheet = "pricePath") %>%
+      as.magpie()
 
-  if (subtype == "costsTradePeFinancial") {
-    out <- as.magpie(a, spatial = 1, temporal = 0, datacol = 3)
-    out <- collapseNames(out)
-  }
+  } else if (subtype == "capacityFactorGlobal") {
+    out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
+      as.magpie(datacol = 2)
 
-  if (subtype == "Steel_Production") {
-    out <- readr::read_csv(
-      file = "Steel_Production.csv",
-      comment = "#",
-      show_col_types = FALSE
-    ) %>%
-      quitte::madrat_mule()
-  }
+  } else if (subtype == "capacityFactorRules") {
 
-  if (subtype == "industry_max_secondary_steel_share") {
-    out <- readr::read_csv(
-      file = "industry_max_secondary_steel_share.csv",
-      comment = "#",
-      show_col_types = FALSE
-    ) %>%
-      quitte::madrat_mule()
-  }
-
-  if (subtype == "cement_production_convergence_parameters") {
-    out <- readr::read_csv(
-      file = "cement_production_convergence_parameters.csv",
-      col_types = "cdi",
-      comment = "#"
-    )
-
-    out <- bind_rows(
-      out %>%
-        filter(!is.na(.data$region)),
-      out %>%
-        utils::head(n = 1) %>%
-        filter(is.na(.data$region)) %>%
-        select(-"region") %>%
-        tidyr::expand_grid(region = toolGetMapping(
-          name = "regionmapping_21_EU11.csv",
-          type = "regional", where = "mappingfolder"
-        ) %>%
-          pull("RegionCode") %>%
-          unique() %>%
-          sort() %>%
-          setdiff(out$region))
-    ) %>%
-      quitte::madrat_mule()
-  }
-
-  if (subtype == "tradeConstraints") {
-    out <- as.magpie(a)
-  }
-
-  if (subtype == "taxConvergenceRollback") {
-    out <- read.csv("tax_convergence_rollback.csv",
-                    sep = ",",
-                    skip = 4,
-                    col.names = c("Year", "Region", "FE", "value"),
-                    header = FALSE) %>%
+    out <- read.csv("capacity-factor-rules_v1.0.csv", sep = ";") %>%
       as.magpie(datacol = 4)
+
+  } else if (subtype == "ccsBounds") {
+
+    out <- read.csv("CCSbounds.csv", sep = ";") %>%
+      select("country" = "CountryCode", "value" = "Value") %>%
+      as.magpie()
+
+  } else if (subtype == "co2prices") {
+
+    out <- read.csv("co2prices-2025-09.csv", sep = ";") %>%
+      select(-"Country", -"RegionCode") %>%
+      as.magpie()
+
+    out[is.na(out)] <- 0
+
+  } else if (subtype ==  "costsTradePeFinancial") {
+
+    out <- read.csv("pm_costsTradePeFinancial_v1.1.csv", sep = ";", skip = 2) %>%
+      as.magpie(spatial = 1, temporal = 0, datacol = 3) %>%
+      collapseNames()
+
+  } else if (subtype == "ies") {
+
+    out <- read.csv("ies.csv", sep = ";") %>%
+      select("country" = "CountryCode", "value" = "Value") %>%
+      as.magpie()
+
+    getYears(out) <- "2005"
+
+  } else if (subtype == "prtp") {
+
+    out <- read.csv("prtp.csv", sep = ";") %>%
+      select("country" = "CountryCode", "value" = "Value") %>%
+      as.magpie()
+
+    getYears(out) <- "2005"
+
+  } else if (subtype == "subConvergenceRollback") {
+
+    out <- read.csv("sub_convergence_rollback_v1.0.csv", sep = ";",
+                    col.names = c("Year", "Region", "sector", "FE", "value")) %>%
+      as.magpie(datacol = 5)
+
+  } else if (subtype == "taxConvergence") {
+
+    out <- read.csv("tax_convergence_v1.0.csv", sep = ";") %>%
+      as.magpie(datacol = 4)
+
+  } else if (subtype == "taxConvergenceRollback") {
+
+    out <- read.csv("tax_convergence_rollback_v1.0.csv", sep = ";", col.names = c("Year", "Region", "FE", "value")) %>%
+      as.magpie(datacol = 4)
+
+  } else if (subtype == "tradeConstraints") {
+
+    out <- read.csv("tradeConstraints.csv", sep = ";") %>%
+      as.magpie()
   }
 
-  out
+  return(out)
 }

@@ -5,7 +5,7 @@
 #' @param subtype data subtype. Either "target" or "emissions"
 #' @return magpie object of the EU Effort Sharing targets (%) or Effort Sharing historical historical emissions (MtCO2)
 #' @author Renato Rodrigues
-#' @seealso \code{\link{readSource}}
+#'
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "Eurostat_EffortSharing", subtype = "target")

@@ -3,7 +3,6 @@
 #' @param subtype Type of fossil fuel and type of data (oil, coal, or gas + costs, qtys, or dec)
 #' @return MAgPIE object of the GEA data
 #' @author Stephen Bi
-#' @seealso \code{\link{readSource}}
 #' @examples
 #' \dontrun{
 #' a <- readSource("GEA2012", "coal")
@@ -178,7 +177,7 @@ readGEA2012 <- function(subtype) {
     # Disaggregate the GEA data according to the BGR data on country-level oil/gas combined reserves + resources
     w <- dimSums(w, dim = 3)
     sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingREM11, weight = NULL)
-    sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingGEA, weight = w)
+    sp_IEADecRat <- toolAggregate(sp_IEADecRat, mappingGEA, weight = w, zeroWeight = "allow")
 
     ordered_names <- list(list())
 

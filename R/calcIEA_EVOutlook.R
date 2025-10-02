@@ -1,7 +1,7 @@
 #' Calculate REMIND variables from IEA Global EV Outlook data
 #'
 #' @author Falk Benke
-#' @export
+#'
 calcIEA_EVOutlook <- function() {
   x <- readSource("IEA_EVOutlook", convert = FALSE)[c("World", "Europe", "EU27"), , ]
   getItems(x, dim = 1) <- c("GLO", "EUR", "EU27")
@@ -45,8 +45,8 @@ calcIEA_EVOutlook <- function() {
   }
 
   x <- toolAggregate(x,
-    dim = 3.2, rel = map, from = "Variable",
-    to = "REMIND", partrel = TRUE, verbosity = 2
+                     dim = 3.2, rel = map, from = "Variable",
+                     to = "REMIND", partrel = TRUE, verbosity = 2
   )
 
   getSets(x)[3.1] <- "model"

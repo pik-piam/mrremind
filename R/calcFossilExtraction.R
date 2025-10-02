@@ -3,7 +3,6 @@
 #' @return magpie object of the coefficients for fossil fuels and uranium extraction cost equations
 #' @author Renato Rodrigues, Felix Schreyer
 #' @param subtype Either 'FossilExtraction' or 'UraniumExtraction'
-#' @seealso \code{\link{calcOutput}}
 #' @examples
 #' \dontrun{
 #' calcOutput(type = "FossilExtraction", subtype = "FossilExtraction")

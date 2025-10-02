@@ -4,14 +4,14 @@
 #'
 #' @author Anne Merfort, Falk Benke
 #'
-#' @param subtype either `historical` for data until 2022 or `projections`
+#' @param subtype either `historical` for data until 2024 or `pipeline`
 #' for projections in 2020, 2025 and 2030 (including some redistribution on EU/NEU level)
 #'
-#' @export
 calcCCScapacity <- function(subtype) {
-  x <- calcOutput("ProjectPipelines", subtype = "CCS", aggregate = F)
 
   if (subtype == "pipeline") {
+    x <- calcOutput("ProjectPipelines", subtype = "CCS",
+                    aggregate = FALSE, warnNA = FALSE)
     # used as input-data for CCS bounds
     x <- x[, c(2020, 2025, 2030), c("operational", "construction", "planned")]
     # remove "model", "variable" and "unit" dimension
@@ -19,10 +19,8 @@ calcCCScapacity <- function(subtype) {
   }
 
   if (subtype == "historical") {
-    # project pipeline snapshot from beginning of 2024
-    x <- x[, , "operational"]
-    # remove "status" and "unit" dimension
-    x <- collapseDim(x, keepdim = c("model", "variable", "period"))
+    # project pipeline snapshot from April 2025
+    x <- readSource("IEA_CCUS", subtype = "historical")
   }
 
   return(list(

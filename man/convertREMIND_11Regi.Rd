@@ -10,8 +10,7 @@ convertREMIND_11Regi(x, subtype)
 \item{x}{MAgPIE object to be converted}
 
 \item{subtype}{Name of the regional data, e.g. tradecost", "pe2se",
-"deltacapoffset", capacityFactorRules", "taxConvergence", "maxFeSubsidy",
-"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
+"deltacapoffset", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{
 A MAgPIE object containing country disaggregated data
@@ -19,12 +18,6 @@ A MAgPIE object containing country disaggregated data
 \description{
 Converts REMIND regional data
 }
-\examples{
-
-\dontrun{ a <- convertREMIND_11Regi(x,subtype="capacityFactorGlobal")
-}
-
-}
 \author{
-original: not defined - capacity factor, tax, fossil and RLDC changes: Renato Rodrigues
+original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 }

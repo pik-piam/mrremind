@@ -8,7 +8,6 @@
 #' @param scenario A string (or vector of strings) designating the scenario(s) to be returned.
 #' @return MAgPIE object with buildings floor space
 #'
-#' @export
 #'
 calcFloorspace <- function(scenario, onlyTotal = FALSE) {
 

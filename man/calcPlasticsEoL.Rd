@@ -7,16 +7,9 @@ in particular, calculates the share that is incinerated}
 \usage{
 calcPlasticsEoL()
 }
-\value{
-A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},
-\code{unit}, \code{description}.
-}
 \description{
 calculates projections for the end of life fate of plastic waste
 in particular, calculates the share that is incinerated
-}
-\seealso{
-\code{\link[=calcOutput]{calcOutput()}}
 }
 \author{
 Falk Benke, Simón Moreno Leiva

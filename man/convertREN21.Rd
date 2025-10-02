@@ -9,10 +9,11 @@ convertREN21(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Only "Capacity" asof now}
+\item{subtype}{Only "Capacity" as of now}
 }
 \value{
-Magpie object with Total Installed Capacity targets. The target years differ depending upon the database.
+Magpie object with Total Installed Capacity targets. The target years
+differ depending upon the database.
 }
 \description{
 This code aggregates and homogenises different types of

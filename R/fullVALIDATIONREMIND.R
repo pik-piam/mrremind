@@ -4,10 +4,10 @@
 #' REMIND model results can be compared.
 #'
 #' @md
-#' @param rev Unused parameter here for the pleasure of [`madrat`].
+#' @param rev Unused parameter, but required by `madrat`.
 #' @author David Klein, Falk Benke
-#' @seealso [`fullREMIND()`], [`readSource()`], [`getCalculations()`],
-#'     [`calcOutput()`]
+#' @seealso
+#' \code{\link[madrat]{readSource}}, \code{\link[madrat]{getCalculations}}, \code{\link[madrat]{calcOutput}}
 #' @examples
 #' \dontrun{
 #' fullVALIDATIONREMIND()
@@ -22,7 +22,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   rel <- "global" # always compute global aggregate
   for (mapping in c(getConfig("regionmapping"), getConfig("extramappings"))) {
     columns <- setdiff(
-      colnames(toolGetMapping(mapping, "regional")),
+      colnames(toolGetMapping(mapping, "regional", where = "mappingfolder")),
       c("X", "CountryCode")
     )
 
@@ -136,15 +136,32 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # CEDS Emissions ----
 
   # Historical emissions from CEDS data base
-  calcOutput(
-    "Emissions", datasource = "CEDS2024", file = valfile,
-    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS")
-  )
+  ceds <- calcOutput(
+    "Emissions", datasource = "CEDS2025", years = seq(1970, 2023, 1),
+    aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
+
+  # the following variables only have meaningful data on global level
+  # as bunkers exist in source only on the global level and were only added to
+  # regions because madrat doesn't allow global data before this point
+  # (see mrcommons::convertCEDS2025)
+  vars_glo_only <- getNames(ceds)[grepl("w/ Bunkers", getNames(ceds))]
+  vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(ceds)[grepl("International", getNames(ceds))])
+
+  # write all regions of w/o-bunker variables to report
+  non_bunk <- ceds[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
+  write.report(non_bunk, file = valfile, append = TRUE,
+               scenario = "historical", model = "CEDS")
+
+  # write only global values of w/ bunker variables
+  bunkers <- ceds["GLO", , vars_glo_only, pmatch = TRUE]
+  write.report(bunkers, file = valfile, append = TRUE,
+               scenario = "historical", model = "CEDS")
 
   # Historical emissions from CEDS data base, aggregated to IAMC sectors
   calcOutput(
-    "Emissions", datasource = "CEDS2024_IAMC", file = valfile,
+    "Emissions", datasource = "CEDS2025_IAMC", file = valfile, years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
@@ -152,6 +169,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
+  # remains only for additional gases that newer EDGAR releases lack
   calcOutput(
     type = "Emissions", datasource = "EDGAR6", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
@@ -162,19 +180,34 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # does not contain as many gases as EDGAR6
   edgar <- calcOutput(
     type = "Emissions", datasource = "EDGARghg",
-    aggregate = columnsForAggregation, warnNA = FALSE,
-    try = FALSE
+    aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE
   )
 
+  # the following variables only have meaningful data on global level
+  # as bunkers exist in source only on the global level and were only added to
+  # regions because madrat doesn't allow global data before this point
+  # (see mrcommons::convertEDGARghg)
+  vars_glo_only <- getNames(edgar)[grepl("w/ Bunkers", getNames(edgar))]
+  vars_glo_only <- c(vars_glo_only, gsub("\\|w/ Bunkers", "", vars_glo_only))
+  vars_glo_only <- c(vars_glo_only,
+                     getNames(edgar)[grepl("International", getNames(edgar))])
+
   # write all regions of non-bunker variables to report
-  non_bunk <- edgar[, , "International", pmatch = TRUE, invert = TRUE]
+  non_bunk <- edgar[, , vars_glo_only, pmatch = TRUE, invert = TRUE]
   write.report(non_bunk, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
 
   # write only global values of bunker variables
-  bunkers <- edgar["GLO", , "International", pmatch = TRUE]
+  bunkers <- edgar["GLO", , vars_glo_only, pmatch = TRUE]
   write.report(bunkers, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
+
+  # ClimateTrace emission data ----
+  calcOutput(
+    type = "Emissions", datasource = "ClimateTrace", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "ClimateTrace")
+  )
 
   # Ember electricity data ----
 

@@ -8,16 +8,16 @@
 #' @author Aman Malik
 
 calcDiffInvestCosts <- function() {
-  
+
   # IEA WEO 2016 costs are expressed in US dollars (2015 values)
   costsWEO <- readSource("IEA_WEO", subtype = "Invest_Costs")
   costsWEO[, , ] <- as.numeric(costsWEO[, , ]) # convert data values into numeric
-  
+
   # Various mapping files used to get needed mappings, for e.g., South Asia
   regiRemind <- toolGetMapping("regionmappingREMIND.csv", where = "mappingfolder", type = "regional")
   regiMagpie <- toolGetMapping("regionmappingMAgPIE.csv", where = "mappingfolder", type = "regional")
   regiSSP <- toolGetMapping("regionmappingSSP.csv", where = "mappingfolder", type = "regional")
-  
+
   # For countries in Africa and South Asia (except India) use subcritical plant investment costs as coal plant costs
   costsWEO[c(
     regiRemind$CountryCode[regiRemind$RegionCode == "AFR"],
@@ -26,7 +26,7 @@ calcDiffInvestCosts <- function() {
     "Coal.Steam Coal - SUPERCRITICAL",
     "Coal.Steam Coal - ULTRASUPERCRITICAL"
   )] <- 0
-  
+
   # For countries in IND, LAM, MEA and FSU use supercritical plant investment costs as standard coal plant costs
   costsWEO[c("IND",
     regiRemind$CountryCode[regiRemind$RegionCode == "LAM"],
@@ -36,13 +36,13 @@ calcDiffInvestCosts <- function() {
     "Coal.Steam Coal - SUBCRITICAL",
     "Coal.Steam Coal - ULTRASUPERCRITICAL"
   )] <- 0
-  
+
   # For countries in OECD and CHN use ultrasupercritical investment costs
   costsWEO[c("CHN", "KOR", "MAC", "HKG", regiSSP$CountryCode[regiSSP$RegionCode == "OECD"]), , c(
     "Coal.Steam Coal - SUBCRITICAL",
     "Coal.Steam Coal - SUPERCRITICAL"
   )] <- 0
-  
+
   # For remaining countries not covered above, use subcritical plant investment costs
   years <- getYears(costsWEO)
   for (y in years) {
@@ -56,31 +56,31 @@ calcDiffInvestCosts <- function() {
       )
     ] <- 0
   }
-  
+
   # create new magpie object with names of corresponding REMIND technologies
   tech_mapping <- toolGetMapping("techmappingIeaWeoPgAssumptions.csv", where = "mrremind", type = "sectoral") %>%
     filter(!is.na(.data$tech))
   costsRemind <- new.magpie(getRegions(costsWEO), names = unique(tech_mapping$tech), years = getYears(costsWEO), fill = 0)
-  
+
   # for "pc" add all types of coal plants so each country has one value of "pc"
   costsRemind[, , "pc"] <- costsWEO[, , "Coal.Steam Coal - SUBCRITICAL"] + costsWEO[, , "Coal.Steam Coal - SUPERCRITICAL"] +
     costsWEO[, , "Coal.Steam Coal - ULTRASUPERCRITICAL"]
-  
+
   # for "spv" take 3/4 costs from large-scale (utility scale) and 1/4 costs from small-scale (buildings)
   costsRemind[, , "spv"] <- 0.75 * costsWEO[, , "Renewables.Solar photovoltaics - Large scale"] + 0.25 * costsWEO[, , "Renewables.Solar photovoltaics - Buildings"]
-  
+
   # for "hydro" only consider large-scale
   costsRemind[, , "hydro"] <- costsWEO[, , "Renewables.Hydropower - large-scale"]
-  
+
   # for biomass combined heat and power, take 3/4 costs from medium and 1/4 costs from small
   costsRemind[, , "biochp"] <- 0.75 * costsWEO[, , "Renewables.Biomass CHP Medium"] + 0.25 * costsWEO[, , "Renewables.Biomass CHP Small"]
-  
+
   # for rest of technologies, simply match
   further_techs_to_map <- tech_mapping %>% filter(! .data$tech %in% c("pc", "spv", "hydro", "biochp"))
   costsRemind[, , further_techs_to_map$tech] <- as.numeric(costsWEO[, , further_techs_to_map$IEA])
-  
+
   costsRemind <- time_interpolate(costsRemind, c(2025, 2035), integrate_interpolated_years = TRUE)
-  
+
   # overwrite investment costs for renewables with data form REN21
   # did not find any explicit info, but REN costs should be roughly in US dollars (2015 values)
   costsREN21 <- readSource("REN21", subtype = "investmentCosts")
@@ -89,7 +89,7 @@ calcDiffInvestCosts <- function() {
   getNames(costsREN21avg) <- gsub("Solar PV", "spv", getNames(costsREN21avg))
   getNames(costsREN21avg) <- gsub("wind-on", "windon", getNames(costsREN21avg))
   costsREN21avg <- costsREN21avg[, , c("Biopower", "Geothermal Power", "csp", "wind-off"), invert = TRUE]
-  
+
   # use REN21 data only for 2015 for spv and windon; all other time steps are 0
   costsRemind[, , c("spv", "windon")] <- 0
   costsRemind[, 2015, c("spv", "windon")] <- costsREN21avg[, , c("spv", "windon")]
@@ -98,24 +98,28 @@ calcDiffInvestCosts <- function() {
   # (National_Survey_Report_of_PV_Power_Applications_in_Japan_-_2017.pdf)
   costsRemind["JPN", 2015, "hydro"] <- 2400 # in USD/KW, source is the 2016 WEO numbers - they seem more reliable here than the Oceania data of <2000USD/kW
   # as Japan is not substantially expanding hydro even at high electricity prices
-  
+
   ### Australia ###
-  
+
   # for wind 2015: take average of Europe and USA from REN21 (not from "Oceania" as before)
   costsRemind["AUS", 2015, "windon"] <- setNames(dimSums(costsREN21avg[c("USA", "FRA"), , "windon"], dim = 1) / 2, "windon")
   # for solar pv 2015: take IRENA number for large-scale solar investment cost by 2016
   # (neglect that rooftop is a bit more expensive)
   # source: https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2018/Jan/IRENA_2017_Power_Costs_2018.pdf
   costsRemind["AUS", 2015, "spv"] <- 1400 # in USD/kW
-  
+
   ### RP/FS: add PV investment cost for 2020
   # based on IEA PVPS data from 2018,
   # some regions manually adjusted
-  
+
+  ### RP: update CHA and LAM costs based on IRENA 2023 costs of renewables report:
+  costsRemind["CHN", 2015, "windon"] <- 800 # in USD/kW
+  costsRemind["BRA", 2015, "windon"] <- 1100 # in USD/kW
+
   # add some manual adjustments to IEA PVPS data for 2020 PV investment cost input data
   regmapping <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
   costsManual <- new.magpie(unique(regmapping$RegionCode), years = "y2020", fill = NA)
-  
+
   # CAZ: The Australian utility-scale market saw a stong jump upwards in 2018.
   # It is likely that the reported prices are a result of this jump, as in contrast,
   # rooftop is already well-established and has prices around 1.25$/W.
@@ -148,18 +152,18 @@ calcDiffInvestCosts <- function() {
   # SSA: IRENA states prices of ~1600$/W, but very likely that prices are currently decreasing through learning
   # from the low prices in North African countries.
   costsManual["SSA", , ] <- 1100
-  
+
   # disaggregate adjustments to iso level
   costsManual <- toolAggregate(costsManual, regmapping)
-  
+
   # regions which have not been manually adjusted -> replace by original IEA PVPS data
   # IEAP PVPS are expressed in US dollars (2015 values)
   costsPVPS <- readSource("IEA_PVPS")
   costsManual[which(is.na(costsManual))] <- costsPVPS[which(is.na(costsManual))]
-  
+
   # add new 2020 values PV
   costsRemind[, "y2020", "spv"] <- costsManual
-  
+
   # convert data from $2015 to $2017
   costsRemind <- GDPuc::toolConvertGDP(
     gdp = costsRemind,
@@ -167,10 +171,15 @@ calcDiffInvestCosts <- function() {
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
-  
+
+  weight <- costsRemind
+
+  # avoid zero weights, as they cause a warning in aggregation
+  weight[weight == 0] <- 1e-10
+
   return(list(
     x = costsRemind,
-    weight = costsRemind,
+    weight = weight,
     unit = "US$2017/KW",
     description = "Investment costs data"
   ))

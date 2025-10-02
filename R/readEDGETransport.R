@@ -5,7 +5,6 @@
 #'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Johanna Hoppe
-#' @seealso \code{\link{readSource}}
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
@@ -54,7 +53,7 @@ readEDGETransport <- function(subtype) {
       "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
       "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
       "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
-      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong" 
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
     )
   )
 

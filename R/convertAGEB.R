@@ -1,14 +1,10 @@
 #' Convert AGEB data
 #'
-#' @md
-#' @param x A [`magpie`][magclass::magclass] object returned from
-#'          [`readAGEB()`].
-#'
-#' @return A [`magpie`][magclass::magclass] object.
+#' @param x a magpie object
 #'
 #' @author Falk Benke
 #'
-#' @export
 convertAGEB <- function(x) {
-  add_columns(x, addnm = setdiff(getISOlist(), "DEU"), dim = 1, fill = NA) %>% return()
+  x <- add_columns(x, addnm = setdiff(getISOlist(), "DEU"), dim = 1, fill = NA)
+  return(x)
 }

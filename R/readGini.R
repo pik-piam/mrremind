@@ -9,7 +9,6 @@
 #' described in the article. The country codes are the World Bank codes.
 #'
 #' @return magpie object of the Gini data
-#' @seealso \code{\link{readSource}}
 #' @order 1
 #' @examples
 #' \dontrun{

@@ -49,21 +49,40 @@ fullTHRESHOLDS <- function(type = "config") {
                       aggregate = columnsForAggregation, round = 3,
                       warnNA = FALSE, try = FALSE, years = years)
 
+  # hydro from IEA HSMR doesn't add up to global total, so calculate those here
+  hydroGlo <- readSource("IEA_HSMR", convert = FALSE)
+  hydroGlo <- hydroGlo["World", , ]
+  getItems(hydroGlo, dim = 1) <- "GLO"
+  hydroGlo <- add_columns(hydroGlo, addnm = c("y2025"), dim = 2, fill= NA)
+
+  # overwrite aggregated global values with explicit ones using
+  # same assumptions as used in calcProjectPipelines for regions
+  hydro["GLO", , "operational"] <- hydroGlo[, , "operational"]
+  hydro["GLO", , "expected"]    <- hydroGlo[, , "expected"]
+  hydro["GLO", , "accelerated"] <- hydroGlo[, , "accelerated"]
+  hydro["GLO", , "pumped"]      <- hydroGlo[, , "pumped"]
+
+  hydro["GLO", , "min_red"] <- hydroGlo[, , "operational"]
+  hydro["GLO", , "min_yel"] <- hydroGlo[, , "expected"]
+  hydro["GLO", , "max_yel"] <- hydroGlo[, , "accelerated"] + hydroGlo[, , "pumped"]
+  hydro["GLO", , "max_red"] <- hydroGlo[, , "accelerated"]*1.3 + hydroGlo[, , "pumped"]
+
+
   nuclear <- calcOutput("ProjectPipelines", subtype = "nuclear",
                         aggregate = columnsForAggregation, round = 3,
                         warnNA = FALSE, try = FALSE, years = years)
 
-  wind <- calcOutput("ProjectPipelines", subtype = "wind",
-                     aggregate = columnsForAggregation, round = 3,
-                     warnNA = FALSE, try = FALSE, years = years)
-
-  solar <- calcOutput("ProjectPipelines", subtype = "solar",
-                      aggregate = columnsForAggregation, round = 3,
-                      warnNA = FALSE, try = FALSE, years = years)
+  # wind <- calcOutput("ProjectPipelines", subtype = "wind",
+  #                    aggregate = columnsForAggregation, round = 3,
+  #                    warnNA = FALSE, try = FALSE, years = years)
+  #
+  # solar <- calcOutput("ProjectPipelines", subtype = "solar",
+  #                     aggregate = columnsForAggregation, round = 3,
+  #                     warnNA = FALSE, try = FALSE, years = years)
 
 
   # combine and export data to madrat output folder
-  out <- mbind(ccs, hydro, nuclear, wind, solar)
+  out <- mbind(ccs, hydro, nuclear)  #, wind, solar)
   # remove ROW region, in case it exists (from using extra region mappings)
   out <- out["ROW", , invert = TRUE]
 
@@ -105,36 +124,36 @@ fullTHRESHOLDS <- function(type = "config") {
   emb <- calcOutput("Ember", aggregate = columnsForAggregation, round = 3)
 
   # use average over years 2018 to 2022 as 2020 Ember value
-  emb[, 2020, "Cap|Electricity|Nuclear", pmatch = T] <-
-    dimSums(emb[, 2018:2022, "Cap|Electricity|Nuclear", pmatch = T], dim = 2)/5
+  emb[, 2020, "Cap|Electricity|Nuclear (GW)"] <-
+    dimSums(emb[, 2018:2022, "Cap|Electricity|Nuclear (GW)"], dim = 2)/5
 
   # global thresholds (scale with 10/20% instead of 5/10%)
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.8
+    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.9
+    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.9
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.1
+    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.1
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb["GLO", 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.2
+    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
 
   # regional thresholds (same scaling as other sources: 20/40%)
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.6
+    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.6
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*0.8
+    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.2
+    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
-         emb[regions, 2020, "Cap|Electricity|Nuclear", pmatch = T])*1.4
+    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+         emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.4
 
 
   ## Near-Term: 2025, 2030 ####
@@ -162,13 +181,19 @@ fullTHRESHOLDS <- function(type = "config") {
   getItems(out, dim = 1) <- gsub("GLO", "World", getItems(out, dim = 1))
 
   # remove GEM as it is not up to date and shouldn't be used in this state
-  out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
+  # out <- out[, , "GlobalEnergyMonitor", invert = TRUE]
 
   # export to file ----
   if (type == "full") {
     # write report containing all available data, including all statuses and
     # thresholds attached to "variable"
-    outfile <- "pipelines.mif"
+    outfile <- paste0(
+      "pipelines_",
+      gsub(".csv", "", gsub("regionmapping", "", getConfig("regionmapping"))),
+      "_",
+      Sys.Date(),
+      ".mif")
+
     quitte::as.quitte(out) %>%
       mutate("variable" = paste(.data$variable, .data$status, sep = "|")) %>%
       select(-"scenario", -"status") %>%
@@ -178,7 +203,12 @@ fullTHRESHOLDS <- function(type = "config") {
   } else if (type == "config") {
     # write report containing only the "min/max" thresholds in extra columns
     # (as used in a validationConfig)
-    outfile <- "thresholds.mif"
+    outfile <- paste0(
+      "thresholds_",
+      gsub(".csv", "", gsub("regionmapping", "", getConfig("regionmapping"))),
+      "_",
+      Sys.Date(),
+      ".mif")
     out <- out[, , c("min_", "max_"), pmatch = TRUE] %>%
       quitte::as.quitte() %>%
       tidyr::pivot_wider(names_from = "status") %>%

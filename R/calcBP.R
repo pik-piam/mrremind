@@ -2,8 +2,6 @@
 #'
 #' @author Falk Benke
 #'
-#' @export
-#'
 calcBP <- function() {
   # read in emissions, capacity, generation, price ----
 

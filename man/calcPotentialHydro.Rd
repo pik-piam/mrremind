@@ -7,7 +7,7 @@
 calcPotentialHydro()
 }
 \value{
-hydro potential data and corresonding weights as a list of two
+hydro potential data and corresponding weights as a list of two
 MAgPIE objects
 }
 \description{
@@ -15,15 +15,13 @@ Provides hydro potential data
 }
 \examples{
 
-\dontrun{ 
+\dontrun{
 calcOutput("PotentialHydro")
-
 }
 
 }
 \seealso{
-\code{\link{calcOutput}}, \code{\link{readWGBU}},
-\code{\link{convertWGBU}}, \code{\link{readSource}}
+\code{\link{readWGBU}}, \code{\link{convertWGBU}}
 }
 \author{
 Lavinia Baumstark

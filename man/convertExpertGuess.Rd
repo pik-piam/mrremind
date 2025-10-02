@@ -9,14 +9,27 @@ convertExpertGuess(x, subtype)
 \arguments{
 \item{x}{unconverted magpie object from read-script}
 
-\item{subtype}{Type of data that are converted.}
-}
-\value{
-magpie object with a completed dataset.
+\item{subtype}{Type of data that should be read. One of
+\itemize{
+\item \code{biocharPrices}: Biochar price assumptions over time. Assumptions based on
+collection of current bulk sale prices (see Dorndorf et al (submitted)) (Tabea Dorndorf)
+\item \code{capacityFactorGlobal}: Global capacity factors for all REMIND technologies (Renato Rodrigues)
+\item \code{capacityFactorRules}: Capacity factor rules for selected H12 regions and REMIND technologies
+\item \code{ccsBounds}: CCS bounds indicating the if a country is expected to do CCS in the
+foreseeable future (Jessica Strefler)
+\item \code{co2prices}: CO2 prices (Robert Pietzcker)
+\item \code{costsTradePeFinancial}: primary energy tradecosts (financial costs on import,
+export and use) (Nicolas Bauer)
+\item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
+\item \code{prtp}: pure rate of time preference (Nicolas Bauer)
+\item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{taxConvergence}: Tax convergence level in US$2017 (Nicolas Bauer)
+\item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
+constraints, values different to 1 activate constraints and the value is used as
+effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
+}}
 }
 \description{
 Converts data from expert guess
-}
-\seealso{
-\code{\link{convertExpertGuess}}
 }

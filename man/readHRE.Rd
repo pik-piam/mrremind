@@ -15,9 +15,6 @@ A \code{\link[magclass:magclass-package]{magpie}} object.
 \description{
 Read Heat Roadmap Europe data
 }
-\seealso{
-\code{\link[=readSource]{readSource()}}
-}
 \author{
 Pascal Weigmann
 }

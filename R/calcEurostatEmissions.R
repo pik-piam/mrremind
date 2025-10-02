@@ -1,7 +1,7 @@
 #' Calculate REMIND emission variables from historical Eurostat (env_air_gge) values
 #'
 #' @author Falk Benke
-#' @export
+#'
 calcEurostatEmissions <- function() {
   data <- readSource(type = "Eurostat", subtype = "latest")
 

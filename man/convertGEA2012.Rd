@@ -23,9 +23,6 @@ a <- readSource("GEA2012")
 }
 
 }
-\seealso{
-\code{\link{readSource}}
-}
 \author{
 Stephen Bi
 }

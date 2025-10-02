@@ -81,10 +81,6 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
     hist_fe_buildings <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
     wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
-    if (any(wfe < 0)) {
-      warning("calcOutput('IOEdgeBuildings', subtype = X), with X in (output_EDGE, output_EDGE_buildings) produces negative values, set to 0") # nolint
-      wfe[wfe < 0] <- 0
-    }
 
     #---- Process Data -----------------
     # Replace NAs
@@ -111,8 +107,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # in 2060 (depending on the threshold value above), exclusively GDP
 
     wfe <- mbind(wfe,
-      lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
-        (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
+                 lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
+                   (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
     )
 
     # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
@@ -122,16 +118,34 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # Reduce the dimensions of the weights
     wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
+    # Check if any of the FE weights are negative
+    if (any(wfe < 0)) {
+      warning("FE weights computed by calcOutput('IOEdgeBuildings', subtype = X), ",
+              "with X in (output_EDGE, output_EDGE_buildings), contain negative values, set to 0")
+      wfe[wfe < 0] <- 0
+    }
+
     # Disaggregate and fill the gaps
     weightSum <- toolAggregate(wfe, mappingfile, from = region_col, to = iso_col, dim = 1)
 
     # only throw the zeroWeight warning in toolAggregate, when any weights are zero,
     # but the corresponding data in x is not 0, as only in these cases the total sum of
     # the magpie object is actually changed
-    shouldWarn <- ifelse(any(weightSum[x != 0] == 0), "warn", "allow")
 
+    # see issue: https://github.com/pik-piam/mrremind/issues/678
+    if (any(weightSum[x != 0] == 0)) {
+      warning(glue::glue(
+        "Weight sum is 0, so cannot normalize and will return 0 for some aggregation targets. \\
+        This changes the total sum of the magpie object! \\
+        Some FE weights are zero for which the corresponding data in x is not zero. \\
+        Please check the alignment of historic edgebuildings FE data with the output of \\
+        calcOutput('IOEdgeBuildings').")
+      )
+    }
+
+    # never warn for zero weights, as this is covered by a custom warning
     xadd <- toolAggregate(x, mappingfile, weight = wfe, from = region_col, to = iso_col,
-                          zeroWeight = shouldWarn)
+                          zeroWeight = "allow")
 
     result <- toolCountryFill(xadd, 0, verbosity = 2)
 
@@ -152,8 +166,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     WH_growth[WH_growth < 0] <- 0
     WH_growth_agg <- dimSums(WH_growth, dim = 1)
 
-    result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] <-
-      result[getRegions(WH_growth), getYears(WH_growth), getNames(WH_growth)] - WH_growth
+    result[getItems(WH_growth, dim = "region"), getYears(WH_growth), getNames(WH_growth)] <-
+      result[getItems(WH_growth, dim = "region"), getYears(WH_growth), getNames(WH_growth)] - WH_growth
     result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] <-
       result[reg_TUR, getYears(WH_growth), getNames(WH_growth)] + WH_growth_agg
 
