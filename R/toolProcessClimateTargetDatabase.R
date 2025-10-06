@@ -34,7 +34,7 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
   
   # Check that type matches values in absolute/relative conditional/unconditional columns
   if (!grepl("Emissions_20(18|21)", subtype)) {
-    #no values chould be in the wrong types
+    #no values should be in the wrong types
     colRelative <- is.na(input$`Conditional Relative`) & is.na(input$`Unconditional Relative`) &
       input$Type %in% c("GHG-Absolute", "GHG-fixed-total")
     colAbsolute <- is.na(input$`Conditional Absolute`) & is.na(input$`Unconditional Absolute`) &
