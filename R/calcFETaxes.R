@@ -120,7 +120,6 @@ calcFETaxes <- function(subtype = "taxes") {
   getYears(Rtax) <- "2005"
   getYears(Renergy) <- "2005"
 
-
   # introduce upper bounds for subsidies
   if (subtype == "subsidies") {
 
@@ -130,8 +129,35 @@ calcFETaxes <- function(subtype = "taxes") {
       filter(.data$RegionCode == "MEA") %>%
       pull("CountryCode")
 
+    LAM <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "LAM") %>%
+      pull("CountryCode")
+
+    REF <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "REF") %>%
+      pull("CountryCode")
+
+    SSA <- mapREMINDH12 %>%
+      filter(.data$RegionCode == "SSA") %>%
+      pull("CountryCode")
+
+    Rtax[LAM, , "fegas"] <- pmax(Rtax[LAM, , "fegas"], -7)
+    Rtax[MEA, , "fegas"] <- pmax(Rtax[MEA, , "fegas"], -5)
+    Rtax[REF, , "fegas"] <- pmax(Rtax[REF, , "fegas"], -3)
+    Rtax["IND", , "fegas"] <- pmax(Rtax["IND", , "fegas"], -7)
+
+    Rtax[REF, , "fesos"] <- pmax(Rtax[REF, , "fesos"], -1.5)
+
     Rtax[MEA, , "fedie"] <- pmax(Rtax[MEA, , "fedie"], -8)
     Rtax[MEA, , "fepet"] <- pmax(Rtax[MEA, , "fepet"], -8)
+
+    Rtax[SSA, , "fehos"] <- pmax(Rtax[SSA, , "fehos"], -3)
+    Rtax[MEA, , "fehos"] <- pmax(Rtax[MEA, , "fehos"], -0.1)
+    Rtax["IND", , "fehos"] <- pmax(Rtax["IND", , "fehos"], -6)
+
+    # Subsidy proportional cap to avoid liquids increasing dramatically
+    # These factors are derived from previous REMIND versions
+    Rtax[REF, , "fehos"] <- Rtax[REF, , "fehos"] * 0.5
 
   }
 
