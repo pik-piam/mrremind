@@ -40,7 +40,6 @@ fullREMIND <- function() {
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("TaxLimits", subtype = "maxFeSubsidy",   round = 2,  file = "f21_max_fe_sub.cs4r")
-  calcOutput("TaxLimits", subtype = "maxPeSubsidy",   round = 2,  file = "f21_max_pe_sub.cs4r")
   calcOutput("TaxLimits", subtype = "propFeSubsidy",  round = 2,  file = "f21_prop_fe_sub.cs4r")
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
@@ -110,16 +109,18 @@ fullREMIND <- function() {
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
-  calcOutput("EmiLULUCFCountryAcc", subtype = "CO2",                         round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
+  calcOutput("EmiLULUCFCountryAcc",                                             round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
-  #-------------- air pollution parameters ---------------------------------------------------------
-  calcOutput("EmiPollutantExo", subtype = "Waste",                              round = 6, file = "f11_emiAPexo.cs4r")
+  #-------------- air pollution parameters - outdated but currently still needed ----------------------
   calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
-  calcOutput("GAINSEmi", subtype = "emissions_starting_values",                 round = 5, file = "f11_emiAPexsolve.cs4r")
-  calcOutput("GAINS2025forREMIND", subtype = "emission_factors_remindsectors", warnNA = FALSE,                    round = 5, file = "f11_emiFacAP.cs4r")
-  calcOutput("GAINS2025forREMIND", subtype = "emissions",                                                         round = 5, file = "emi_gains.cs4r")
-  calcOutput("GAINS2025forREMIND", subtype = "emission_factors",                                                  round = 5, file = "ef_gains.cs4r")
-  calcOutput("AirPollEmiRef", subtype = "sectorsGAINS2025", baseyear = 2020, outunits = "Mt/yr", namesformat = "REMIND", useyearmean = TRUE,  round = 5, file = "emirefCEDS2020_gains.cs4r")
+
+  #-------------- air pollution parameters - refactored -----------------------------------------------
+  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "REMIND",     outunit = "Tg/TWa",                round = 8, file = "f11_emifacs_sectREMIND_sourceCEDS.cs4r")
+  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "REMIND",     outunit = "Tg/TWa",                round = 8, file = "f11_emifacs_sectREMIND_sourceGAINS.cs4r")
+  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceGAINS.cs4r")
+  calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")
@@ -189,10 +190,10 @@ fullREMIND <- function() {
 
   #---------------policy parameters--------------------------------------------------------------------
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_2015shareTarget.cs3r")
 
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2005", scenario = gdpPopScen, round = 4, file = "fm_NC_2005shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_NC_2015shareTarget.cs3r")
 
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC", round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
   calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")
@@ -204,9 +205,9 @@ fullREMIND <- function() {
 
   calcOutput("OtherFossilInElectricity", round = 6,  file = "se_otherfoss.cs4r", aggregate = "reg+glo")
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
-  calcOutput("EmiPollutantExo", subtype = "AviationShipping", round = 6, file = "f11_emiAPexoGlob.cs4r", aggregate = FALSE)
   calcOutput("Emissions4ReportExtra", sectors = "CEDS", round = 9, file = "p_emissions4ReportExtraCEDS.cs4r")
   calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
+  calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
 

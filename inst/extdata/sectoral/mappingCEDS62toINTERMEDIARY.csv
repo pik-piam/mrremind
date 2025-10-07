@@ -1,0 +1,63 @@
+CEDS62;INTERMEDIARY_CEDS_GAINS;CMIP7_HARMONIZATION;COMMENT
+1A1a_Electricity-autoproducer;Electricity and Heat Production;Energy Sector;
+1A1a_Electricity-public;Electricity and Heat Production;Energy Sector;
+1A1a_Heat-production;Electricity and Heat Production;Energy Sector;
+1A1bc_Other-transformation;Electricity and Heat Production;Energy Sector;
+1A2a_Ind-Comb-Iron-steel;Industrial Combustion;Industrial Sector;
+1A2b_Ind-Comb-Non-ferrous-metals;Industrial Combustion;Industrial Sector;
+1A2c_Ind-Comb-Chemicals;Industrial Combustion;Industrial Sector;
+1A2d_Ind-Comb-Pulp-paper;Industrial Combustion;Industrial Sector;
+1A2e_Ind-Comb-Food-tobacco;Industrial Combustion;Industrial Sector;
+1A2f_Ind-Comb-Non-metalic-minerals;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-Construction;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-machinery;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-mining-quarying;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-other;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-textile-leather;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-transpequip;Industrial Combustion;Industrial Sector;
+1A2g_Ind-Comb-wood-products;Industrial Combustion;Industrial Sector;
+1A3ai_International-aviation;NOGAINS International Aviation;Aircraft;
+1A3aii_Domestic-aviation;NOGAINS Domestic Aviation;Aircraft;
+1A3b_Road;Transportation Sector;Transportation Sector;
+1A3c_Rail;Transportation Sector;Transportation Sector;
+1A3di_International-shipping;NOGAINS International Shipping;International Shipping;
+1A3di_Oil_Tanker_Loading;NOGAINS International Shipping;International Shipping;
+1A3dii_Domestic-navigation;Transportation Sector;Transportation Sector;
+1A3eii_Other-transp;Transportation Sector;Transportation Sector;
+1A4a_Commercial-institutional;Residential Commercial Other;Residential Commercial Other;
+1A4b_Residential;Residential Commercial Other;Residential Commercial Other;
+1A4c_Agriculture-forestry-fishing;Residential Commercial Other;Residential Commercial Other;
+1A5_Other-unspecified;Industrial Combustion;Industrial Sector;
+1B1_Fugitive-solid-fuels;Fossil Extraction and Distribution;Energy Sector;
+1B2_Fugitive-petr;Fossil Extraction and Distribution;Energy Sector;
+1B2b_Fugitive-NG-distr;Fossil Extraction and Distribution;Energy Sector;
+1B2b_Fugitive-NG-prod;Fossil Extraction and Distribution;Energy Sector;
+1B2d_Fugitive-other-energy;Fossil Extraction and Distribution;Energy Sector;
+2A1_Cement-production;Industrial Combustion;Industrial Sector;Alternatively, could be mapped to Industrial Processes
+2A2_Lime-production;Industrial Combustion;Industrial Sector;Alternatively, could be mapped to Industrial Processes
+2Ax_Other-minerals;Industrial Combustion;Industrial Sector;Alternatively, could be mapped to Industrial Processes
+2B_Chemical-industry;Industrial Processes Other;Industrial Sector;
+2B2_Chemicals-Nitric-acid;Industrial Processes Other;Industrial Sector;
+2B3_Chemicals-Adipic-acid;Industrial Processes Other;Industrial Sector;
+2C1_Iron-steel-alloy-prod;Industrial Processes Steel;Industrial Sector;
+2C3_Aluminum-production;Industrial Processes Other;Industrial Sector;
+2C4_Non-Ferrous-other-metals;Industrial Processes Other;Industrial Sector;
+2D_Chemical-products-manufacture-processing;Solvents Production and Application;Solvents Production and Application;
+2D_Degreasing-Cleaning;Solvents Production and Application;Solvents Production and Application;
+2D_Other-product-use;Solvents Production and Application;Solvents Production and Application;
+2D_Paint-application;Solvents Production and Application;Solvents Production and Application;
+2H_Pulp-and-paper-food-beverage-wood;Industrial Processes Paper;Industrial Sector;
+2L_Other-process-emissions;Industrial Processes Other;Industrial Sector;
+3B_Manure-management;NOGAINS Agriculture;Agriculture;
+3D_Rice-Cultivation;NOGAINS Agriculture;Agriculture;
+3D_Soil-emissions;NOGAINS Agriculture;Agriculture;
+3E_Enteric-fermentation;NOGAINS Agriculture;Agriculture;
+3I_Agriculture-other;NOGAINS Agriculture;Agriculture;
+5A_Solid-waste-disposal;Waste Solids and Other;Waste;
+5C_Waste-combustion;Waste Solids and Other;Waste;
+5D_Wastewater-handling;Wastewater;Waste;
+5E_Other-waste-handling;Waste Solids and Other;Waste;
+6A_Other-in-total;Industrial Combustion;Industrial Sector;
+6B_Other-not-in-total;NOGAINS zero;Not in total;Should be equal to zero
+7A_Fossil-fuel-fires;Fossil Extraction and Distribution;Energy Sector;
+7BC_Indirect-N2O-non-agricultural-N;NOGAINS Agriculture;Agriculture;
