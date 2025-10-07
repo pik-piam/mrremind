@@ -36,7 +36,9 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       "2023_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2023_cond", subset = scenario),
       "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2023_uncond", subset = scenario),
       "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2024_cond", subset = scenario),
-      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = scenario)
+      "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = scenario),
+      "2025_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2025_cond", subset = scenario),
+      "2025_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2025_uncond", subset = scenario)
     )
   }
 
