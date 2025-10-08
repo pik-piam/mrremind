@@ -367,8 +367,10 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
       "FRO", "GIB", "GGY", "IMN", "HRV"
     )
 
+    # retain all data without EU which is not an iso-country
+    x_no_EU <- x[dimnames(x)[[1]] != "EU", , ]
     # add missing countries with NA
-    x <- toolCountryFill(x)
+    x <- toolCountryFill(x_no_EU)
     # assign share EU values to EU countries
     x[EUR_NPi_countries, , ] <- x_EU
   }
