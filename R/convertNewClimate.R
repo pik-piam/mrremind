@@ -375,8 +375,10 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     x[EUR_NPi_countries, , ] <- x_EU
   }
 
-  # add NDC version from subtype
+  # add NDC version from subtype (not for renewable share targets)
+  if (!grepl("RenShareTargets", subtype, fixed = TRUE)) {
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
+  }
   return(x)
 }
