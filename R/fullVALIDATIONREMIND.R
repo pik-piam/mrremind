@@ -318,7 +318,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA CCUS")
   )
 
   # IRENA Capacities  ----
