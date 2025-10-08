@@ -127,14 +127,14 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
 
   ### main function ----
 
-  # get historical energy data for 2020
+  # 1. get historical energy data for 2020 ----
   xHist <- .getHistData(subtype, AvgSeveralYears = T)
-  # calculate FE trend on level of REMIND regions based on EDGE data
+  # 2. calculate FE trend on level of REMIND regions based on EDGE data ----
   FeTrend <- .computeFeTrend(subtype, subset, years)
-  # calculate difference in GDP trend between country and REMIND region
+  # 3. calculate difference in GDP trend between country and REMIND region ----
   GDPTrendDiff <- .computeGDPTrendDiff(subset, years, MaxThreshold = 0.3)
 
-  # project energy according to above formula
+  # 4. project energy according to above formula ----
   x <- xHist * (FeTrend + GDPTrendDiff)
 
 
