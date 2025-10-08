@@ -159,9 +159,9 @@ calcRenShareTargets <- function(scenario) {
 
   # function to extrapolate target years which are not REMIND timesteps to REMIND timesteps
   .extrapolateTargetYears <- function(x, xHist, targetYears) {
-    # generate new object x_target that has values only for targetYears and transfer those from x
-    x_target <- new.magpie(getItems(x, dim = 1), targetYears, getNames(x), fill = NA)
-    x_target[, intersect(getYears(x), getYears(x_target)), ] <- x[, intersect(getYears(x), getYears(x_target)), ]
+    # generate new object xTarget that has values only for targetYears and transfer those from x
+    xTarget <- new.magpie(getItems(x, dim = 1), targetYears, getNames(x), fill = NA)
+    xTarget[, intersect(getYears(x), getYears(xTarget)), ] <- x[, intersect(getYears(x), getYears(xTarget)), ]
 
     for (targetYear in getYears(x, as.integer = TRUE)) {
       # if target year is outisde of REMIND five-year time steps
@@ -175,19 +175,19 @@ calcRenShareTargets <- function(scenario) {
         # if there is already a value for the next REMIND time step, use the higher value
         # if not, assign extrapolated value to next REMIND time step
         if (NextTimeStep %in% getYears(x, as.integer = TRUE)) {
-          x_target[, NextTimeStep, ] <- pmax(x[, targetYear, ], x[, NextTimeStep, ], na.rm = TRUE)
+          xTarget[, NextTimeStep, ] <- pmax(x[, targetYear, ], x[, NextTimeStep, ], na.rm = TRUE)
         } else {
-          x_target[, NextTimeStep, ] <- x[, targetYear, ]
+          xTarget[, NextTimeStep, ] <- x[, targetYear, ]
         }
       }
     }
-    return(x_target)
+    return(xTarget)
   }
 
   # function to select REMIND regions with renewable share targets and choose target year per REMIND region
   # only assign renewable share target to REMIND regions with a demand share of countries with targets of at least MinCountryTargetShare
   # choose target year of country with largest demand share across countries with targets
-  .selectTargetRemindRegion <- function(x, x_intp, xHistTotal, regionmapping, MinCountryTargetShare) {
+  .selectTargetRemindRegion <- function(x, xIntp, xHistTotal, regionmapping, MinCountryTargetShare) {
     # create object for target selection
     targetSelect <- new.magpie(getRegions(x), getYears(x), getNames(x), fill = NA)
     for (RemindRegion in unique(regionmapping$RegionCode)) {
@@ -251,9 +251,9 @@ calcRenShareTargets <- function(scenario) {
     # select targets by multiplying interpolated share targets with target selector targetSelect
     # (if targetSelect is 1, target is included in target for REMIND region.
     # if targetSelect is NA, it is not included)
-    x_select <- x_intp * targetSelect
+    xSelect <- xIntp * targetSelect
 
-    return(x_select)
+    return(xSelect)
   }
 
   ### main function ----
@@ -299,9 +299,9 @@ calcRenShareTargets <- function(scenario) {
   # assume that countries with share targets reach their share linearly from 2020 shares to the target year
   # assume that after target year, renewable share targets stay constant
   # assume that countries without target keep their historic share in the future
-  x_intp <- x
-  x_intp[, "y2020", ] <- xHistShare
-  x_intp <- as.quitte(x_intp) %>%
+  xIntp <- x
+  xIntp[, "y2020", ] <- xHistShare
+  xIntp <- as.quitte(xIntp) %>%
     mutate("variable" = .data$data) %>%
     select(-.data$data) %>%
     quitte::interpolate_missing_periods(expand.values = T) %>%
@@ -312,7 +312,7 @@ calcRenShareTargets <- function(scenario) {
   # get regionmapping to be used for aggregation method
   regionmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
   # select which REMIND regions get targets and determine their respective target year
-  x <- .selectTargetRemindRegion(x, x_intp, xHistTotal, regionmapping, 0.2)
+  x <- .selectTargetRemindRegion(x, xIntp, xHistTotal, regionmapping, 0.2)
 
   ## 5. format renewable share target data to be used as input data for REMIND
 
