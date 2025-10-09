@@ -568,7 +568,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     ## ---- EDGAR GHG ----
     # previous version: "EDGAR8"
   } else if (datasource == "EDGARghg") {
-    emi <- readSource("EDGARghg")
+    emi <- readSource("EDGARghg", subtype = "ghg_by_sector")
     emi[is.na(emi)] <- 0
 
     # map variables
@@ -584,7 +584,6 @@ calcEmissions <- function(datasource = "CEDS16") {
       to = "REMIND",
       partrel = TRUE
     )
-
 
     # aggregate pollutants to GHG (they already are given as GWPs)
     emi <- add_columns(emi,
@@ -696,7 +695,7 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     tmp <- emi
 
-    description <- "historic emissions from 1970-2023"
+    description <- "historic emissions from 1970-2024"
 
     ## ---- CDIAC ----
   } else if (datasource == "CDIAC") {
