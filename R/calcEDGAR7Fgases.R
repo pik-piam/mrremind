@@ -1,8 +1,6 @@
 #' @title calcEDGAR7Fgases
 #' @author Gabriel Abrahao
 #'
-#' @export
-
 calcEDGAR7Fgases <- function() {
     # F-gases emissions
     xout <- readSource("EDGAR7Fgases")

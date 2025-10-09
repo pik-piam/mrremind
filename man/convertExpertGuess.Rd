@@ -30,12 +30,6 @@ export and use) (Nicolas Bauer)
 \item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
 constraints, values different to 1 activate constraints and the value is used as
 effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
-\item \code{Steel_Production}: Steel production estimates (Michaja Pehl)
-\item \code{industry_max_secondary_steel_share}: Maximum share of secondary steel
-production in total steel production and years between which a linear
-convergence from historic to target shares is to be applied. (Michaja Pehl)
-\item \code{cement_production_convergence_parameters}: convergence year and level
-(relative to global average) to which per-capita cement demand converges (Michaja Pehl)
 }}
 }
 \description{

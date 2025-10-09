@@ -3,7 +3,7 @@
 #' Provides hydro potential data
 #'
 #'
-#' @return hydro potential data and corresonding weights as a list of two
+#' @return hydro potential data and corresponding weights as a list of two
 #' MAgPIE objects
 #' @author Lavinia Baumstark
 #' @seealso \code{\link{readWGBU}}, \code{\link{convertWGBU}}
@@ -24,24 +24,26 @@ calcPotentialHydro <- function() {
   ecoPot  <- wgbu[,,"Wirtschaftlich es Potenzial (TWh/a)"]
   # produced electricity
   #
-  # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000
-  prodElec <- readSource("IRENA","Generation")
-  IRENA_hydro_cap <- readSource("IRENA","Capacity") # in MW
+  # prodElec <- wgbu[,,"Erzeugter Strom(GWh/a)"] / 1000 # nolint
+  prodElec <- readSource("IRENA", "Generation")
+  IRENA_hydro_cap <- readSource("IRENA", "Capacity") # in MW
 
-  # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
-  prodElec <- prodElec[,2015,"Hydropower"] / 1000
-  IRENA_hydro_cap <- IRENA_hydro_cap[,2015,"Hydropower"]
+  # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but
+  # not pure pumped storage
+  prodElec <- prodElec[, 2015, "Hydropower"] / 1000
+  IRENA_hydro_cap <- IRENA_hydro_cap[, 2015,"Hydropower"]
 
-  # ensure that overall potential can produce the generation of 2015, if not set potential to IRENA 2015 generation
+  # ensure that overall potential can produce the generation of 2015, if not set
+  # potential to IRENA 2015 generation
   checkDiff <- new.magpie(getRegions(techPot),NULL,fill = 0)
   for(r in getRegions(techPot)){
-	checkDiff[r,,] <- rowSums(techPot[r,,])-prodElec[r,,]
+	  checkDiff[r,,] <- rowSums(techPot[r,,])-prodElec[r,,]
   }
   # find regions which need adjustment (techPot < prodElec)
   regions <- getRegions(checkDiff[which(checkDiff < 0)])
   # adjust regions
   for(r in regions){
-	techPot[r,,"Technisches Potenzial (TWh/a)"] <- prodElec[r,,]
+	  techPot[r,,"Technisches Potenzial (TWh/a)"] <- prodElec[r,,]
   }
 
   # calculate rest of technical potential (minus installed capacity)
@@ -50,13 +52,16 @@ calcPotentialHydro <- function() {
   restPot[restPot<0] <- 0 #making sure that we do not have negative potentials
 
   # calculate capacity factors for each country
-  # capFac <- setNames(prodElec / wgbu[,,"Derzeit installierte Leistung (MW)"] / 8760 * 1000000, "capacityFactor")
   capFac <- setNames((prodElec / IRENA_hydro_cap) / 8760 * 1000000, "capacityFactor")
+
   # set capacity factor of regions with no installed capacity to 0
   capFac[is.na(capFac)] <- 0
 
   # produced electricity data with grade dimension
-  prodElecGrade <- new.magpie(getRegions(prodElec),getYears(prodElec),c("1","2","3","4","5"),fill=0)
+  prodElecGrade <- new.magpie(getRegions(prodElec),
+                              getYears(prodElec),
+                              c("1","2","3","4","5"),
+                              fill=0)
   for(r in getRegions(prodElec)){
     if(capFac[r,,] > 0.5){
       prodElecGrade[r,,"1"] <- prodElec[r,,]
@@ -77,7 +82,10 @@ calcPotentialHydro <- function() {
   }
 
   # rest of technical potential data with grade dimension
-  restPotGrade  <- new.magpie(getRegions(restPot),getYears(restPot),c("1","2","3","4","5"),fill=0)
+  restPotGrade  <- new.magpie(getRegions(restPot),
+                              getYears(restPot),
+                              c("1","2","3","4","5"),
+                              fill=0)
   # allocate rest potential
   # (number of grades that can be filled depends on the grade of the installed capacity)
   # (3 categories depending on the share of installed capcity to the technical potential)
@@ -197,7 +205,7 @@ calcPotentialHydro <- function() {
 
   ### specific countries: increase potential beyond NDC targets
   data[c("BEL","LUX","NLD","AUT"),,"maxprod"] <- data[c("BEL","LUX","NLD","AUT"),,"maxprod"]*1.3 # EWN
-  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.365 #ECE
+  data[c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"] <- data[ c("CZE","EST","LVA","LTU","POL","SVK"),,"maxprod"]*1.5 #ECE
   data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"] <- data[c("GIB","GGY","IRL","IMN","JEY","GBR"),,"maxprod"]*2.1 # UKI
 
   # FS: Australia reached full hydro potential today at about 0.07 EJ/yr

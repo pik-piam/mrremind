@@ -24,13 +24,6 @@
 #'      constraints, values different to 1 activate constraints and the value is used as
 #'      effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
 #'
-#'   - `Steel_Production`: Steel production estimates (Michaja Pehl)
-#'   - `industry_max_secondary_steel_share`: Maximum share of secondary steel
-#'     production in total steel production and years between which a linear
-#'     convergence from historic to target shares is to be applied. (Michaja Pehl)
-#'   - `cement_production_convergence_parameters`: convergence year and level
-#'     (relative to global average) to which per-capita cement demand converges (Michaja Pehl)
-#'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark, Falk Benke
 #' @examples
@@ -64,7 +57,7 @@ readExpertGuess <- function(subtype) {
 
   } else if (subtype == "co2prices") {
 
-    out <- read.csv("co2prices-2024-11.csv", sep = ";") %>%
+    out <- read.csv("co2prices-2025-09.csv", sep = ";") %>%
       select(-"Country", -"RegionCode") %>%
       as.magpie()
 
@@ -123,52 +116,6 @@ readExpertGuess <- function(subtype) {
 
     out <- read.csv("tradeConstraints.csv", sep = ";") %>%
       as.magpie()
-  }
-
-  # expert guesses used in mrindustry ----
-
-  if (subtype == "Steel_Production") {
-    out <- readr::read_csv(
-      file = "Steel_Production.csv",
-      comment = "#",
-      show_col_types = FALSE
-    ) %>%
-      quitte::madrat_mule()
-  }
-
-  if (subtype == "industry_max_secondary_steel_share") {
-    out <- readr::read_csv(
-      file = "industry_max_secondary_steel_share.csv",
-      comment = "#",
-      show_col_types = FALSE
-    ) %>%
-      quitte::madrat_mule()
-  }
-
-  if (subtype == "cement_production_convergence_parameters") {
-    out <- readr::read_csv(
-      file = "cement_production_convergence_parameters.csv",
-      col_types = "cdi",
-      comment = "#"
-    )
-
-    out <- bind_rows(
-      out %>%
-        filter(!is.na(.data$region)),
-      out %>%
-        utils::head(n = 1) %>%
-        filter(is.na(.data$region)) %>%
-        select(-"region") %>%
-        tidyr::expand_grid(region = toolGetMapping(
-          name = "regionmapping_21_EU11.csv",
-          type = "regional", where = "mappingfolder"
-        ) %>%
-          pull("RegionCode") %>%
-          unique() %>%
-          sort() %>%
-          setdiff(out$region))
-    ) %>%
-      quitte::madrat_mule()
   }
 
   return(out)

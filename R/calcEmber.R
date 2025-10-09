@@ -5,13 +5,8 @@
 #'
 #' @param subtype data subtype. Either "capacity", "generation" or "all"
 #'
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Pascal Weigmann
 #'
-#'
-#' @export
-
 calcEmber <- function(subtype = "all") {
 
   # get Ember data

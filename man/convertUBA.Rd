@@ -7,11 +7,7 @@
 convertUBA(x)
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
-\code{\link[=readUBA]{readUBA()}}.}
-}
-\value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+\item{x}{a magpie object}
 }
 \description{
 Convert UBA data
