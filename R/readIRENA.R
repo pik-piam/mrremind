@@ -15,7 +15,7 @@
 #' @importFrom dplyr mutate rename select case_match relocate
 readIRENA <- function(subtype) {
   # Reading renewables electricity capacity or generation values from xlsx
-  data <- readxl::read_xlsx("2024/IRENA_Stats_Extract_ 2024_H1_V1.xlsx", sheet = "All Data")
+  data <- readxl::read_xlsx("2025/IRENA_Statistics_Extract_2025H2.xlsx", sheet = "Country")
 
   if (subtype == "Capacity") {
     data <- data %>%
@@ -67,7 +67,8 @@ readIRENA <- function(subtype) {
     rename(`Country/area` = "ISO3 code") # keep regional column name of before 9678353
 
   # harmonize Technology names with older version
-  data <- data %>% mutate(Technology = case_match(.data$Technology,
+  data <- data %>%
+    mutate(Technology = case_match(.data$Technology,
     # "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
     "Hydropower (excl. Pumped Storage)"   ~ "Hydropower",
     "Wind energy"                         ~ "Wind",

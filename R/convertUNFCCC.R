@@ -8,8 +8,6 @@
 #'
 #' @author Falk Benke
 #'
-#'
-#' @export
 convertUNFCCC <- function(x) {
   x <- toolCountryFill(x, verbosity = 2, no_remove_warning = "EUA")
   return(x)

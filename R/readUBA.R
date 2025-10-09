@@ -1,7 +1,4 @@
 #' Read UBA
-#' @md
-#'
-#' @return A [`magpie`][magclass::magclass] object.
 #'
 #' @author Falk Benke
 #'
@@ -9,7 +6,6 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr select mutate
 #'
-#' @export
 readUBA <- function() {
   sheets <- tibble(
     sheet = c("THG", "CO2"),

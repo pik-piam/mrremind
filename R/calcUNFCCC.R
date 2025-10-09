@@ -1,11 +1,10 @@
 #' Calculate REMIND emission variables from historical UNFCCC values
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
+#' @return A magpie object.
 #'
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
-#' @export
+#'
 calcUNFCCC <- function() {
 
   data <- readSource("UNFCCC")

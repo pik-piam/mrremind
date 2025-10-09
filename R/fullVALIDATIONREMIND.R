@@ -202,6 +202,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   write.report(bunkers, file = valfile, append = TRUE,
                scenario = "historical", model = "EDGARghg")
 
+  # ClimateTrace emission data ----
+  calcOutput(
+    type = "Emissions", datasource = "ClimateTrace", file = valfile,
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "ClimateTrace")
+  )
+
   # Ember electricity data ----
 
   calcOutput(
@@ -311,7 +318,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA CCUS")
   )
 
   # IRENA Capacities  ----

@@ -15,11 +15,6 @@ REMIND/iterative EDGE-T input data for all scenario combinations
 \description{
 Prepare EDGETransport inputs
 }
-\examples{
-\dontrun{
-a <- calcOutput(type = "EDGETransport", subtype = "CAPEXandNonFuelOPEX", aggregate = F)
-}
-}
 \author{
 Johanna Hoppe
 }
