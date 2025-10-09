@@ -301,7 +301,7 @@ calcRenShareTargets <- function(scenario) {
   # assume that countries without target keep their historic share in the future
   xIntp <- x
   xIntp[, "y2020", ] <- xHistShare
-  xIntp <- as.quitte(xIntp) %>%
+  xIntp <- quitte::as.quitte(xIntp) %>%
     mutate("variable" = .data$data) %>%
     select(-.data$data) %>%
     quitte::interpolate_missing_periods(expand.values = T) %>%

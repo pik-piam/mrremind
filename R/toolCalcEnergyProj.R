@@ -95,8 +95,8 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
       dimSums(FETransport[, common.years, input.fe.trans], dim = 3) * 31.536 # convert TWa/yr to EJ/yr
     # calculate FE trend of target year with respect to 2020
     FeTrend <- collapseDim(FeTotal[, years, ] / FeTotal[, "y2020", ])
-    # get H12 REMIND regionmapping
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
+    # get regionmapping
+    mapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
     # assign REMIND FE region trend to all countries within this region
     FeTrend <- toolAggregate(FeTrend, rel = mapping)
 
@@ -109,8 +109,8 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
     GDP_country <- calcOutput("GDP", scenario = subset, years = years, aggregate = F)
     # GDP on REMIND region-level
     GDP_region <- calcOutput("GDP", scenario = subset, years = years)
-    # get H12 REMIND regionmapping
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
+    # get regionmapping
+    mapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
     # assign REMIND GDP trend to all countries within this region to be able to subtract region GDP trend from country GDP trend
     GDP_region <- toolAggregate(GDP_region, rel = mapping)
     # calculate difference between country GDP trend and region GDP trend of target year with respect to 2020
