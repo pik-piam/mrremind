@@ -4,10 +4,10 @@
 \alias{calcRenShareTargets}
 \title{Calculate Renewable Energy Share Targets}
 \usage{
-calcRenShareTargets(sources)
+calcRenShareTargets(scenario)
 }
 \arguments{
-\item{sources}{"NewClimate"}
+\item{scenario}{GDP / FE demand scenarios to use}
 }
 \description{
 This function calculates the renewable energy share targets by aggregating country-level targets to targets of REMIND regions. It calculates

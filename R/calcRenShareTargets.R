@@ -7,9 +7,9 @@
 #' Third, targets are harmonized within a REMIND region and filtered based on how many countries within a REMIND region have a target. Finally, energy share targets are aggregated from country-level
 #' to REMIND region-level using projections of electricity or final energy demand on country-level. These country-level projections are
 #' derived from final energy trends by REMIND regions from the EDGE models as well as GDP trends by country from SSP scenarios (see toolCalcEnergyProj).
-#  @author Felix Schreyer
+#' @author Felix Schreyer
 #' @param scenario GDP / FE demand scenarios to use
-#  @importFrom quitte interpolate_missing_periods as.quitte
+#' @importFrom quitte interpolate_missing_periods as.quitte
 
 calcRenShareTargets <- function(scenario) {
   # The aggregation of renewable share targets from countries to REMIND regions is done with the following method:
