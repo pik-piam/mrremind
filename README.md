@@ -47,7 +47,7 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrremind: MadRat REMIND Input Data Package},
   author = {Lavinia Baumstark and Renato Rodrigues and Antoine Levesque and Julian Oeser and Christoph Bertram and Ioanna Mouratiadou and Aman Malik and Felix Schreyer and Bjoern Soergel and Marianna Rottoli and Abhijeet Mishra and Alois Dirnaichner and Michaja Pehl and Anastasis Giannousakis and David Klein and Jessica Strefler and Lukas Feldhaus and Regina Brecha and Sebastian Rauner and Jan Philipp Dietrich and Stephen Bi and Falk Benke and Pascal Weigmann and Oliver Richters and Robin Hasse and Sophie Fuchs and Rahel Mandaroux and Johannes Koch and Gabriel Abrahao},
-  date = {2025-10-08},
+  date = {2025-10-09},
   year = {2025},
   url = {https://github.com/pik-piam/mrremind},
   note = {Version: 0.243.2},
