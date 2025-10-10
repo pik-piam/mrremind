@@ -17,6 +17,7 @@
 #'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
 #'   - `prtp`: pure rate of time preference (Nicolas Bauer)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+#'   - `storageFactor`: Regional storage parametrization (Robert Pietzcker)
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nicolas Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
@@ -89,6 +90,11 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
     getYears(out) <- "2005"
+
+  } else if (subtype == "storageFactor") {
+
+    out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
+      as.magpie()
 
   } else if (subtype == "subConvergenceRollback") {
 

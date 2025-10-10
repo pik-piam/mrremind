@@ -7,7 +7,7 @@
 #' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
 convertREMIND_11Regi <- function(x, subtype) {
-  if (subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent") {
+  if (subtype == "tradecost" | subtype == "ffPolyRent") {
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight = NULL)
   } else if (subtype == "deltacapoffset") {
