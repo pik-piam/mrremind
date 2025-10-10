@@ -20,6 +20,7 @@ foreseeable future (Jessica Strefler)
 \item \code{co2prices}: CO2 prices (Robert Pietzcker)
 \item \code{costsTradePeFinancial}: primary energy tradecosts (financial costs on import,
 export and use) (Nicolas Bauer)
+\item \code{deltacapoffset}: ??? (Robert Pietzcker)
 \item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
 \item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
 \item \code{prtp}: pure rate of time preference (Nicolas Bauer)

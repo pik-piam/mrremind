@@ -5,6 +5,7 @@
 #' @param subtype must be one of
 #' 'biocharPrices'
 #' 'ccsBounds'
+#' 'deltacapoffset'
 #' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
@@ -16,6 +17,7 @@ calcExpertGuess <- function(subtype) {
   subtypes <- c(
     "biocharPrices",
     "ccsBounds",
+    "deltacapoffset",
     "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
@@ -30,6 +32,7 @@ calcExpertGuess <- function(subtype) {
   isocountries <- c(
     "biocharPrices" = FALSE,
     "ccsBounds" = TRUE,
+    "deltacapoffset" = TRUE,
     "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
@@ -55,6 +58,14 @@ calcExpertGuess <- function(subtype) {
     A value of 0 means a country will not do CCS in the foreseeable future, \\
     a value of 1 means that no bound should be set.")
     weight = NULL
+
+  } else if (subtype == "deltacapoffset") {
+
+    getYears(x) <- "y2010"
+    unit <- "TW"
+    description <- glue::glue("Global offset of 200MW multiplied with the regional \\
+                              share of PE2SE capacities")
+    weight <- NULL
 
   } else if (subtype == "gridFactor") {
 
