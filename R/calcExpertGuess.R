@@ -6,6 +6,7 @@
 #' 'biocharPrices'
 #' 'ccsBounds'
 #' 'deltacapoffset'
+#' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
@@ -17,6 +18,7 @@ calcExpertGuess <- function(subtype) {
     "biocharPrices",
     "ccsBounds",
     "deltacapoffset",
+    "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
@@ -31,6 +33,7 @@ calcExpertGuess <- function(subtype) {
     "biocharPrices" = FALSE,
     "ccsBounds" = TRUE,
     "deltacapoffset" = TRUE,
+    "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
@@ -63,6 +66,16 @@ calcExpertGuess <- function(subtype) {
     description <- glue::glue("Global offset of 200MW multiplied with the regional \\
                               share of PE2SE capacities")
     weight <- NULL
+
+  } else if (subtype == "gridFactor") {
+
+    unit <- "factor"
+    getNames(x) <- NULL
+    description <- glue::glue(
+      "multiplicative factor that scales total grid requirements \\
+      down in comparatively small or homogeneous regions"
+    )
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
 
   } else if (subtype == "tradeConstraints") {
 

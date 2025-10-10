@@ -1,8 +1,13 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
+<<<<<<< HEAD
 Version: 0.243.2
 Date: 2025-10-09
+=======
+Version: 0.244.1
+Date: 2025-10-10
+>>>>>>> 97e80133556daf06f5edc7daba13ff21254bc365
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -41,7 +46,6 @@ URL: https://github.com/pik-piam/mrremind
 Depends:
     R (>= 4.0)
 Imports:
-    abind,
     countrycode,
     data.table,
     dplyr,

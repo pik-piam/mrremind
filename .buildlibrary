@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ValidationKey: '49539840'
+=======
+ValidationKey: '49725611'
+>>>>>>> 97e80133556daf06f5edc7daba13ff21254bc365
 AcceptedWarnings:
 - Invalid URL: .*
 - 'Warning: package ''.*'' was built under R version'

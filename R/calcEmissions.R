@@ -568,7 +568,8 @@ calcEmissions <- function(datasource = "CEDS16") {
     ## ---- EDGAR GHG ----
     # previous version: "EDGAR8"
   } else if (datasource == "EDGARghg") {
-    emi <- readSource("EDGARghg")
+    # start with emissions without LULUCF
+    emi <- readSource("EDGARghg", subtype = "ghg_by_sector")
     emi[is.na(emi)] <- 0
 
     # map variables
@@ -584,7 +585,6 @@ calcEmissions <- function(datasource = "CEDS16") {
       to = "REMIND",
       partrel = TRUE
     )
-
 
     # aggregate pollutants to GHG (they already are given as GWPs)
     emi <- add_columns(emi,
@@ -635,12 +635,14 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Industrial Processes"]
 
     # bunkers
+    # variables are calculated here for all regions, however only the global sum
+    # is meaningful, as country-level data is not available.
+    # see mrcommons::convertEDGARghg.R for more details
     emi <-
       add_columns(emi, "Energy|Demand|Transport|International Bunkers", dim = 3.2)
     emi[, , "Energy|Demand|Transport|International Bunkers"] <-
       emi[, , "Transport|Freight|International Shipping|Demand"] +
       emi[, , "Transport|Pass|Aviation|International|Demand"]
-
 
     # variables with bunker emissions
     emi <- add_columns(emi, "w/ Bunkers|Energy", dim = 3.2)
@@ -682,6 +684,51 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi[, , "Energy|Demand|Transport"] <-
       emi[, , "w/ Bunkers|Energy|Demand|Transport"]
 
+    # combine with EDGAR LULUCF data from different sheet of same workbook
+    lu <- readSource("EDGARghg", subtype = "lulucf")
+    lu[is.na(lu)] <- 0
+    getNames(lu, dim = 2) <- paste0("Land-Use Change|", getNames(lu, dim = 2))
+
+    # sum over LULUCF subsectors
+    lu <- add_columns(lu, addnm = "Land-Use Change", dim = 3.2, fill = 0)
+    lu[, , "Land-Use Change"] <- dimSums(lu, dim = 3.2)
+
+    # aggregate pollutants to GHG (they already are given as GWPs)
+    lu <- add_columns(lu, addnm = "GHG", dim = 3.1, fill = 0)
+    lu[, , "GHG"] <- dimSums(lu, dim = 3.1)
+
+    # convert units, rename pollutants
+    getNames(lu, dim = 1) <- map_pol[getNames(lu, dim = 1)]
+
+    # convert from Mt CO2eq/yr to Mt CH4/yr (AR5 GWP100)
+    lu[, , "CH4"] <- lu[, , "CH4"] / 28
+
+    # convert from Mt CO2eq/yr to kt N2O/yr (AR5 GWP100)
+    lu[, , "N2O"] <- lu[, , "N2O"] * 1000 / 265
+
+    # combine emi and lu, adjust dimensions
+    emi <- emi[, getItems(lu, dim = 2), ]
+    lu <- add_columns(lu, "F-Gases", dim = 3.1, fill = 0)
+    emi <- mbind(emi, lu)
+
+    # pollutant totals with LULUCF, without bunkers
+    emi <- add_columns(emi, "w/o Bunkers", dim = 3.2)
+    emi[, , "w/o Bunkers"] <-
+      emi[, , "Agriculture"] +
+      emi[, , "w/o Bunkers|Energy"] +
+      emi[, , "Industrial Processes"] +
+      emi[, , "Waste"] +
+      emi[, , "Land-Use Change"]
+
+    # pollutant totals with LULUCF, with bunkers
+    emi <- add_columns(emi, "w/ Bunkers", dim = 3.2)
+    emi[, , "w/ Bunkers"] <-
+      emi[, , "Agriculture"] +
+      emi[, , "w/ Bunkers|Energy"] +
+      emi[, , "Industrial Processes"] +
+      emi[, , "Waste"] +
+      emi[, , "Land-Use Change"]
+
 
     # Add "Emi" and replace "." by "|" hereby reducing name dimension, add units
     getNames(emi) <-
@@ -691,12 +738,27 @@ calcEmissions <- function(datasource = "CEDS16") {
     getNames(emi) <- gsub("Mt N2O", "kt N2O", getNames(emi))
     getNames(emi) <- gsub("Mt F-Gases", "Mt CO2eq", getNames(emi))
     getNames(emi) <- gsub("Mt GHG", "Mt CO2eq", getNames(emi))
-
     getSets(emi) <- c("region", "period", "variable")
 
-    tmp <- emi
+    # default variable equals with bunkers
+    emi <- add_columns(emi, "Emi|CO2 (Mt CO2/yr)", dim = 3)
+    emi[, , "Emi|CO2 (Mt CO2/yr)"] <- emi[, , "Emi|CO2|w/ Bunkers (Mt CO2/yr)"]
 
-    description <- "historic emissions from 1970-2023"
+    emi <- add_columns(emi, "Emi|CH4 (Mt CH4/yr)", dim = 3)
+    emi[, , "Emi|CH4 (Mt CH4/yr)"] <- emi[, , "Emi|CH4|w/ Bunkers (Mt CH4/yr)"]
+
+    emi <- add_columns(emi, "Emi|N2O (kt N2O/yr)", dim = 3)
+    emi[, , "Emi|N2O (kt N2O/yr)"] <- emi[, , "Emi|N2O|w/ Bunkers (kt N2O/yr)"]
+
+    emi <- add_columns(emi, "Emi|F-Gases (Mt CO2eq/yr)", dim = 3)
+    emi[, , "Emi|F-Gases (Mt CO2eq/yr)"] <- emi[, , "Emi|F-Gases|w/ Bunkers (Mt CO2eq/yr)"]
+
+    emi <- add_columns(emi, "Emi|GHG (Mt CO2eq/yr)", dim = 3)
+    emi[, , "Emi|GHG (Mt CO2eq/yr)"] <- emi[, , "Emi|GHG|w/ Bunkers (Mt CO2eq/yr)"]
+
+
+    description <- "historical emissions from 1970-2024"
+    tmp <- emi
 
     ## ---- CDIAC ----
   } else if (datasource == "CDIAC") {

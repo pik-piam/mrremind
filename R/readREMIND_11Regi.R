@@ -14,11 +14,6 @@ readREMIND_11Regi <- function(subtype) {
   switch(subtype,
     "tradecost" = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "storageFactor" = read.csv("storageFactor_REMIND_3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
-    "gridFactor" = {
-      x <- read.csv("homogenous_regions_for grids.csv", sep = ";")
-      x$X <- NULL
-      as.magpie(x, datacol = 2)
-    },
     "ccs" = read.csv("p_dataccs.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent" = read.csv("ffPolyRent.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),
     "ffPolyCumEx" = read.csv("ffPolyCumEx.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),
