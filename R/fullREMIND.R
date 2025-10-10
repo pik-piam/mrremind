@@ -133,10 +133,10 @@ fullREMIND <- function() {
   calcOutput("CoolingSharesAll",                      round = 2,  file = "CoolingShares_time.cs4r")
   calcOutput("WaterConsCoef",                         round = 3,  file = "WaterConsCoef.cs4r", aggregate = FALSE)
   calcOutput("WaterWithCoef",                         round = 3,  file = "WaterWithCoef.cs4r", aggregate = FALSE)
-  calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
-  calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
-  calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
   calcOutput("ClinkerToCementRatio",                  round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
+  calcOutput("IO", subtype = "output", corrected = TRUE, round = 8,  file = "f04_IO_output.cs4r")
+  calcOutput("IO", subtype = "input",  corrected = TRUE, round = 8,  file = "f04_IO_input.cs4r")
+  calcOutput("IO", subtype = "trade",  corrected = TRUE, round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
              # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
