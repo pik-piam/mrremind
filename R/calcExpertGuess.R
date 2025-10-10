@@ -77,6 +77,16 @@ calcExpertGuess <- function(subtype) {
     a value of 1 means that no bound should be set.")
     weight = NULL
 
+  } else if (subtype == "gridFactor") {
+
+    unit <- "factor"
+    getNames(x) <- NULL
+    description <- glue::glue(
+      "multiplicative factor that scales total grid requirements \\
+      down in comparatively small or homogeneous regions"
+    )
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
+
   } else if (subtype == "tradeConstraints") {
     unit <- "unitless"
     description <- glue::glue(
