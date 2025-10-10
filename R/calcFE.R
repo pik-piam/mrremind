@@ -8,7 +8,8 @@
 calcFE <- function(source = "IEA", ieaVersion = "default") {
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA") {
-    data <- calcOutput("IO", subtype = "output", ieaVersion = ieaVersion, aggregate = FALSE)
+    data <- calcOutput("IO", subtype = "output", corrected = TRUE,
+                       ieaVersion = ieaVersion, aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
@@ -35,9 +36,9 @@ calcFE <- function(source = "IEA", ieaVersion = "default") {
     # add more variables
     x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE], dim = 3)
     - x[, , "FE|Transport|Bunkers (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE (EJ/yr)"))  # these new dummy items blow up FE demand when simply summing over all FE| terms, so they need to be subtracted again
-    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use (EJ/yr)"))  
-    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"], "FE|w/o Bunkers (EJ/yr)"))  
-    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use w/o Bunkers (EJ/yr)"))  
+    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use (EJ/yr)"))
+    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"], "FE|w/o Bunkers (EJ/yr)"))
+    x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use w/o Bunkers (EJ/yr)"))
     x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Electricity", pmatch = TRUE], dim = 3), "FE|Electricity (EJ/yr)"))
     x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Gases", pmatch = TRUE], dim = 3), "FE|Gases (EJ/yr)"))
     x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Heat", pmatch = TRUE], dim = 3), "FE|Heat (EJ/yr)"))
