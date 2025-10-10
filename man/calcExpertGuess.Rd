@@ -10,11 +10,8 @@ calcExpertGuess(subtype)
 \item{subtype}{must be one of
 'biocharPrices'
 'ccsBounds'
-<<<<<<< HEAD
 'deltacapoffset'
-=======
 'gridFactor'
->>>>>>> 97e80133556daf06f5edc7daba13ff21254bc365
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
