@@ -133,10 +133,10 @@ fullREMIND <- function() {
   calcOutput("CoolingSharesAll",                      round = 2,  file = "CoolingShares_time.cs4r")
   calcOutput("WaterConsCoef",                         round = 3,  file = "WaterConsCoef.cs4r", aggregate = FALSE)
   calcOutput("WaterWithCoef",                         round = 3,  file = "WaterWithCoef.cs4r", aggregate = FALSE)
-  calcOutput("IO",   subtype = "output",              round = 8,  file = "f04_IO_output.cs4r")
-  calcOutput("IO",   subtype = "input",               round = 8,  file = "f04_IO_input.cs4r")
-  calcOutput("IO",   subtype = "trade",               round = 8,  file = "f_IO_trade.cs4r")
   calcOutput("ClinkerToCementRatio",                  round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
+  calcOutput("IO", subtype = "output", corrected = TRUE, round = 8,  file = "f04_IO_output.cs4r")
+  calcOutput("IO", subtype = "input",  corrected = TRUE, round = 8,  file = "f04_IO_input.cs4r")
+  calcOutput("IO", subtype = "trade",  corrected = TRUE, round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
              # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
@@ -145,7 +145,7 @@ fullREMIND <- function() {
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("SeProduction",                                           round = 8,  file = "p_histProdSe.cs3r")
   calcOutput("StorageFactor",                                          round = 6,  file = "f32_factorStorage.cs4r")
-  calcOutput("GridFactor",                                             round = 6,  file = "p32_grid_factor.cs4r")
+  calcOutput("ExpertGuess", subtype = "gridFactor",                    round = 6,  file = "p32_grid_factor.cs4r")
   # Pass the same scenarios to FEShares as to FEDemand to optimize madrat cache usage.
   calcOutput("FEShares", subtype = "ind_coal", scenario = feDemScen,   round = 5,  file = "p_share_ind_fesos.cs4r")
   calcOutput("FEShares", subtype = "ind_bio", scenario = feDemScen,    round = 5,  file = "p_share_ind_fesos_bio.cs4r")
