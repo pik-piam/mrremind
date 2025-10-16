@@ -33,8 +33,6 @@ Electricity and Heat Production;Power_Gen_Coal;coal_el;pecoal.seel.coalchp.power
 Electricity and Heat Production;Power_Gen_Coal;coal_el;pecoal.sehe.coalhp.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.igcc.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.igccc.power;power;Energy Sector;
-Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.pcc.power;power;Energy Sector;
-Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.pco.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.segafos.coalgas.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_HLF;dot;peoil.seel.dot.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_LLF;dot;peoil.seel.dot.power;power;Energy Sector;
