@@ -16,8 +16,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
     grepl("2021", subtype, fixed = TRUE) ~ "NDC_2021.xlsx",
     grepl("2022", subtype, fixed = TRUE) ~ "NDC_2022-12-31.xlsx",
     grepl("2023", subtype, fixed = TRUE) ~ "NDC_2023-11-29.xlsx",
-    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-08-31_corrected.xlsx",
-    .default = "NDC_2024-08-31_corrected.xlsx"
+    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-12-31.xlsx",
+    .default = "NDC_2024-12-31.xlsx"
   )
   
   if (grepl("Capacity", subtype, fixed = TRUE)) {
