@@ -18,11 +18,6 @@ calcCapacityFactor <- function() {
   # Read capacity factor inputs
   global <- readSource("ExpertGuess", subtype = "capacityFactorGlobal", convert = FALSE)
 
-  # remove no longer used items
-  notUsed <- c("apcarelt", "aptrnelt", "apcarh2t", "apcarpet", "apcardit",
-               "apcardiefft", "apcardieffH2t", "pcc", "pco")
-  global <- global[, , notUsed, invert = TRUE]
-
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
   global[, , "pc"] <- 0.5
   # Read capacity factor rules

@@ -32,6 +32,7 @@ convertEdgeBuildings <- function(x, subtype, subset) {
   }
 
   #---- Parameters and Mappings ------
+
   rem_years_hist <- seq(1990, 2150, 5)
 
   struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
