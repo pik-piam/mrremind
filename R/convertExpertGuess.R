@@ -10,7 +10,8 @@ convertExpertGuess <- function(x, subtype) {
     "costsTradePeFinancial",
     "subConvergenceRollback",
     "taxConvergence",
-    "taxConvergenceRollback"
+    "taxConvergenceRollback",
+    "tradecost"
   )) {
 
     # source data for these types is in H12 regions

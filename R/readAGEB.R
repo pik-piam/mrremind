@@ -56,7 +56,7 @@ readAGEB <- function(subtype = "balances") {
     for (i in seq_len(nrow(sheets))) {
       tmp <- suppressWarnings(
         read_xlsx(
-          path = "EBD24p1_Auswertungstabellen_deutsch.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
+          path = "EBD24p2_Auswertungstabellen_deutsch.xlsx", sheet = sheets[["sheet"]][[i]], col_names = TRUE,
           col_types = c("text", "text", rep("numeric", 35)),
           range = sheets[["range"]][[i]], .name_repair = "minimal", na = c("n/a")
         )
