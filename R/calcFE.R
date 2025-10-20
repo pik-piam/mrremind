@@ -14,10 +14,10 @@ calcFE <- function(source = "IEA", ieaVersion = "default") {
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",
                               where = "mrremind", returnPathOnly = TRUE)
-    target <- c("output")
+
     map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
     # delete NAs rows
-    map <- map[c("io", target)] %>% stats::na.omit()
+    map <- map[c("io", "output")] %>% stats::na.omit()
 
     # Change the column name of the mapping
     colnames(map) <- gsub("io", "names_in", colnames(map))
