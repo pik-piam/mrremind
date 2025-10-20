@@ -8,7 +8,7 @@
 calcFE <- function(source = "IEA", ieaVersion = "default") {
   #------ READ-IN DATA----------------------------------------
   if (source == "IEA") {
-    data <- calcOutput("IO", subtype = "output", corrected = TRUE,
+    data <- calcOutput("IO", subtype = "output_reporting", corrected = TRUE,
                        ieaVersion = ieaVersion, aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
