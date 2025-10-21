@@ -57,9 +57,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
     # TODO: clarify with Robin
     message("The following EDGEitems coming from EDGE Buildings will be ignored in FE demand")
     print(setdiff(getNames(data, dim = "item"), mapping$EDGEitems))
-    data <- data[, , unique(mapping$EDGEitems)]
   }
-
 
   if (subtype == "FE") {
 
