@@ -48,7 +48,10 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   data <- mbind(ononspec, buildings)
 
   # Prepare Mapping
-  mapping <- toolGetMapping(type = "sectoral", name = "mappingEDGEBuildingsToREMIND.csv", where = "mrremind")
+  mapping <- toolGetMapping(type = "sectoral",
+                            name = "mappingEDGEBuildingsToREMIND.csv",
+                            where = "mrremind")  %>%
+    select(-"Comment")
 
   if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
     stop("Not all EDGE items are in the mapping")
