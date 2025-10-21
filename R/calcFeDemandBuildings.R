@@ -54,8 +54,12 @@ calcFeDemandBuildings <- function(subtype, scenario) {
     select(-"Comment")
 
   if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-    stop("Not all EDGE items are in the mapping")
+    # TODO: clarify with Robin
+    message("The following EDGEitems coming from EDGE Buildings will be ignored in FE demand")
+    print(setdiff(getNames(data, dim = "item"), mapping$EDGEitems))
+    data <- data[, , unique(mapping$EDGEitems)]
   }
+
 
   if (subtype == "FE") {
 
@@ -87,14 +91,11 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                        sets = getSets(data))
 
   for (v in remindVars) {
-    w <- mapping %>%
+    items <- mapping %>%
       filter(.data$REMINDitems_out == v) %>%
-      select(-"REMINDitems_out") %>%
-      as.magpie()
+      pull("EDGEitems")
 
-    tmp <- mselect(data, item = getNames(w)) * w
-
-    tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
+    tmp <- dimSums(data[,,items], dim = "item", na.rm = TRUE) %>%
       add_dimension(dim = 3.3, add = "item", nm = v)
 
     remind[, , getNames(tmp)] <- tmp
