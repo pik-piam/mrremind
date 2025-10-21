@@ -50,19 +50,6 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   # Prepare Mapping
   mapping <- toolGetMapping(type = "sectoral", name = "mappingEDGEBuildingsToREMIND.csv", where = "mrremind")
 
-  # TODO: is this still needed?
-  ## Add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
-  mapping <- rbind(
-    mapping,
-    mapping %>%
-      filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-      mutate(REMINDitems_out = "feelb")
-  )
-
-  mapping <- mapping %>%
-    filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
-    distinct()
-
   if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
     stop("Not all EDGE items are in the mapping")
   }
