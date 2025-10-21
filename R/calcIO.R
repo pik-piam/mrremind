@@ -140,7 +140,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       reminditems["JPN", 2005, "peoil.Mport"] <- reminditems["JPN", 2005, "peoil.Mport"] - 0.0245 / 31.71e-03
     }
 
-    if (subtype %in% c("output", "input")) {
+    if (subtype %in% c("output", "input", "output_reporting")) {
 
       # Split residential Biomass into traditional and modern biomass depending upon the income per capita ----
 
