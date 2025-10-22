@@ -5,7 +5,7 @@
 \title{Calc Input Output}
 \usage{
 calcIO(
-  subtype = c("input", "output", "output_biomass", "trade"),
+  subtype = c("input", "output", "output_biomass", "output_reporting", "trade"),
   ieaVersion = "default",
   corrected = FALSE
 )
@@ -16,7 +16,7 @@ calcIO(
 \item{ieaVersion}{Release version of IEA data, either 'default'
 (vetted and used in REMIND) or 'latest'.}
 
-\item{corrected}{boolean indicating wheter corrections should be applied to the data
+\item{corrected}{boolean indicating whether corrections should be applied to the data
 after mapping}
 }
 \value{
