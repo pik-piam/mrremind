@@ -126,7 +126,7 @@ fullREMIND <- function() {
   calcOutput("EEZdistribution",                       round = 4,  file = "p33_EEZdistribution.cs4r")
   calcOutput("ExpertGuess", subtype = "biocharPrices",            file = "p33_BiocharPricePath.cs4r", aggregate = FALSE)
   calcOutput("BiocharBounds",                         round = 2,  file = "p_boundCapBiochar.cs4r")
-  calcOutput("CostsTrade",                            round = 5,  file = "pm_costsPEtradeMp.cs4r")
+  calcOutput("ExpertGuess", subtype = "tradecost",    round = 5,  file = "pm_costsPEtradeMp.cs4r")
   calcOutput("CostsTradePeFinancial",                 round = 5,  file = "pm_costsTradePeFinancial.cs3r")
   calcOutput("ShareCHP",                              round = 3,  file = "f32_shCHP.cs4r")
   calcOutput("CapacityOffset",                        round = 5,  file = "p_adj_deltacapoffset.cs4r")

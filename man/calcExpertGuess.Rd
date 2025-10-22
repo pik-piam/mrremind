@@ -14,7 +14,8 @@ calcExpertGuess(subtype)
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
-'taxConvergenceRollback'}
+'taxConvergenceRollback',
+'tradecost'}
 }
 \description{
 Calculate expert guesses
