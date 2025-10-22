@@ -48,22 +48,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   data <- mbind(ononspec, buildings)
 
   # Prepare Mapping
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
-
-  # TODO: remove once this is in the mapping
-  ## Add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
-  mapping <- rbind(
-    mapping,
-    mapping %>%
-      filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-      mutate(REMINDitems_out = "feelb")
-  )
-
-  mapping <- mapping %>%
-    select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-    stats::na.omit() %>%
-    filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
-    distinct()
+  mapping <- toolGetMapping(type = "sectoral", name = "mappingEDGEBuildingsToREMIND.csv", where = "mrremind")
 
   if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
     stop("Not all EDGE items are in the mapping")
@@ -71,10 +56,6 @@ calcFeDemandBuildings <- function(subtype, scenario) {
 
   if (subtype == "FE") {
 
-    # REMIND variables in focus: those ending with b and stationary items not in industry focus
-    mapping <- mapping %>%
-      filter(grepl("b$", .data$REMINDitems_out) |
-               (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
     remindVars <- unique(mapping$REMINDitems_out)
     remindDims <- quitte::cartesian(getNames(data, dim = "scenario"), remindVars)
 

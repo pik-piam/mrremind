@@ -10,7 +10,7 @@
 #' @param subtype Data subtype. See default argument for possible values.
 #' @param ieaVersion Release version of IEA data, either 'default'
 #' (vetted and used in REMIND) or 'latest'.
-#' @param corrected boolean indicating wheter corrections should be applied to the data
+#' @param corrected boolean indicating whether corrections should be applied to the data
 #' after mapping
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis
@@ -21,7 +21,7 @@
 #' }
 #'
 #' @importFrom dplyr filter mutate
-calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"),
+calcIO <- function(subtype = c("input", "output", "output_biomass", "output_reporting", "trade"),
                    ieaVersion = "default", corrected = FALSE) {
 
   subtype <- match.arg(subtype)
@@ -49,6 +49,13 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"),
                                 returnPathOnly = TRUE)
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
+    output_reporting = {
+      mapping <- toolGetMapping(type = "sectoral",
+                                name = "structuremappingIO_outputs.csv",
+                                where = "mrcommons",
+                                returnPathOnly = TRUE)
+      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
+    },
     trade = {
       mapping <- toolGetMapping(type = "sectoral",
                                 name = "structuremappingIO_trade.csv",
@@ -70,12 +77,20 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"),
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  if (subtype == "output") {
+  # TODO: is this still needed?
+  if (subtype %in% c("output", "output_reporting")) {
     ieamatch <- rbind(ieamatch,
                       ieamatch %>%
                         filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
                         mutate(REMINDitems_out = "feelb"))
   }
+
+  # filter items starting with x_, as they are not used in REMIND, but only for reporting
+  if (subtype == "output") {
+    ieamatch <- ieamatch %>%
+      filter(!grepl("^x_", .data$REMINDitems_in))
+  }
+
 
   # delete NAs rows
   ieamatch <- ieamatch %>%
@@ -125,7 +140,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "trade"),
       reminditems["JPN", 2005, "peoil.Mport"] <- reminditems["JPN", 2005, "peoil.Mport"] - 0.0245 / 31.71e-03
     }
 
-    if (subtype %in% c("output", "input")) {
+    if (subtype %in% c("output", "input", "output_reporting")) {
 
       # Split residential Biomass into traditional and modern biomass depending upon the income per capita ----
 
