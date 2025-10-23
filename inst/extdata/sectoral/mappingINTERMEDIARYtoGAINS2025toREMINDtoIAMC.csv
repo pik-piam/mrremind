@@ -33,8 +33,6 @@ Electricity and Heat Production;Power_Gen_Coal;coal_el;pecoal.seel.coalchp.power
 Electricity and Heat Production;Power_Gen_Coal;coal_el;pecoal.sehe.coalhp.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.igcc.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.igccc.power;power;Energy Sector;
-Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.pcc.power;power;Energy Sector;
-Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.seel.pco.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_Coal;coal_el_adv;pecoal.segafos.coalgas.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_HLF;dot;peoil.seel.dot.power;power;Energy Sector;
 Electricity and Heat Production;Power_Gen_LLF;dot;peoil.seel.dot.power;power;Energy Sector;
@@ -46,5 +44,5 @@ Industrial Processes Steel;STEEL;indprocess;indprocess;indprocess;Industrial Sec
 Fossil Extraction and Distribution;Transformations_Coal;extraction;extraction;power;Energy Sector;
 Fossil Extraction and Distribution;Transformations_HLF_Refinery;extraction;extraction;power;Energy Sector;
 Fossil Extraction and Distribution;Transformations_NatGas;extraction;extraction;power;Energy Sector;
-Waste Solids and Other;Waste_Solid_Municipal;;;Waste;Waste;Check if there is a REMIND internal sector for waste
-Wastewater;Waste_Water_Municipal;;;Waste;Waste;Check if there is a REMIND internal sector for waste
+Waste Solids and Other;Waste_Solid_Municipal;waste;waste;waste;Waste;
+Wastewater;Waste_Water_Municipal;waste;waste;waste;Waste;

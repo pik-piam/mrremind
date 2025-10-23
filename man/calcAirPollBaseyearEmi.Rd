@@ -9,7 +9,7 @@ based on CEDS2025 and GAINS2025 data.}
 calcAirPollBaseyearEmi(
   baseyear = 2020,
   CEDS.5yearmean = TRUE,
-  source = "CEDS2025",
+  data_source = "CEDS2025",
   outsectors = "GAINS"
 )
 }
@@ -19,7 +19,7 @@ calcAirPollBaseyearEmi(
 \item{CEDS.5yearmean}{computes 5-year average around base year for CEDS2025
 ("TRUE"/"FALSE")}
 
-\item{source}{"CEDS2025" or "GAINS2025"}
+\item{data_source}{"CEDS2025" or "GAINS2025"}
 
 \item{outsectors}{total ("TOT"),
 62 CEDS sectors ("CEDS"),

@@ -8,7 +8,8 @@ calcPE <- function(subtype = "IEA", ieaVersion = "default") {
 
   if (subtype == "IEA") {
 
-    data <- calcOutput("IO", subtype = "input", ieaVersion = ieaVersion, aggregate = FALSE)
+    data <- calcOutput("IO", subtype = "input", corrected = TRUE,
+                       ieaVersion = ieaVersion, aggregate = FALSE)
 
     mapping <- toolGetMapping(type = "sectoral",
                               name = "structuremappingIO_reporting.csv",

@@ -9,9 +9,8 @@ convertREMIND_11Regi(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Name of the regional data, e.g. tradecost", "pe2se",
-"deltacapoffset", "maxFeSubsidy",
-"maxPeSubsidy", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
+\item{subtype}{Name of the regional data, e.g. "pe2se",
+"deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \value{
 A MAgPIE object containing country disaggregated data
