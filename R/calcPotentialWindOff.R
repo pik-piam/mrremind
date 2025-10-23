@@ -13,6 +13,10 @@
 #' calcOutput("PotentialWindOff")
 #' }
 calcPotentialWindOff <- function() {
+
+  # conversion factor
+  TWh_2_EJ <- 3.6e-3
+
   # read wind offshore data
   technicalPotential <- readSource("NREL", subtype = "offshore")
 
@@ -48,7 +52,7 @@ calcPotentialWindOff <- function() {
   # They find around 240 TWh generation potential at average full load hours of 3200.
   # Add more offshore potential to grade 6 (~ 3000 FLH) for Germany, such that overall offshore potential reaches 240 TWh/yr
   # The conversion / 3.66 * 1e3 is from EJ to TWh.
-  technicalPotential["DEU",,"6"] <- technicalPotential["DEU",,"6"] + (240 - dimSums(technicalPotential["DEU",,], dim=3) / 3.66 * 1e3) * 3.66 / 1e3
+  technicalPotential["DEU",,"6"] <- technicalPotential["DEU",,"6"] + (240 - dimSums(technicalPotential["DEU",,], dim=3) / TWh_2_EJ) * TWh_2_EJ
 
   # put technicalPotential (maxprod) and capacityFactor (nur) together
   technicalPotential <- add_dimension(technicalPotential, dim = 3.1, add = "char", nm = "maxprod")
