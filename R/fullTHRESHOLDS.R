@@ -129,30 +129,30 @@ fullTHRESHOLDS <- function(type = "config") {
 
   # global thresholds (scale with 10/20% instead of 5/10%)
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    base::pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmin(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*0.9
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.1
   out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    base::pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmax(out["GLO", 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb["GLO", 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
 
   # regional thresholds (same scaling as other sources: 20/40%)
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_red"] <-
-    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.6
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.min_yel"] <-
-    base::pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmin(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*0.8
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_yel"] <-
-    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.2
   out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.max_red"] <-
-    base::pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
+    pmax(out[regions, 2020, "IAEA_PRIS.Cap|Electricity|Nuclear.operational"],
          emb[regions, 2020, "Cap|Electricity|Nuclear (GW)"])*1.4
 
 
