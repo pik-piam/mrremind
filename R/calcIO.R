@@ -88,7 +88,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
   # filter items starting with x_, as they are not used in REMIND, but only for reporting
   if (subtype == "output") {
     ieamatch <- ieamatch %>%
-      filter(!grepl("^x_", .data$REMINDitems_in))
+      filter(!grepl("^rep_", .data$REMINDitems_in))
   }
 
 
