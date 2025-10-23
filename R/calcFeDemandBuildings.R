@@ -53,12 +53,6 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                             where = "mrremind")  %>%
     select(-"Comment")
 
-  if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-    # TODO: clarify with Robin
-    message("The following EDGEitems coming from EDGE Buildings will be ignored in FE demand")
-    print(setdiff(getNames(data, dim = "item"), mapping$EDGEitems))
-  }
-
   if (subtype == "FE") {
 
     remindVars <- unique(mapping$REMINDitems_out)
