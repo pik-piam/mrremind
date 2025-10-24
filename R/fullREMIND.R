@@ -105,16 +105,9 @@ fullREMIND <- function() {
   calcOutput("EmissionFactorsFeedstocks",                                       round = 5, file = "f_nechem_emissionFactors.cs4r")
   calcOutput("EmiLULUCFCountryAcc",                                             round = 5, file = "p_EmiLULUCFCountryAcc.cs4r")
 
-  #-------------- air pollution parameters - outdated but currently still needed ----------------------
-  calcOutput("EmiAirPollLandUse",                                               round = 6, file = "f11_emiAPexoAgricult.cs4r")
-
-  #-------------- air pollution parameters - refactored -----------------------------------------------
+  #-------------- air pollution parameters ------------------------------------------------------------
   calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "REMIND",     outunit = "Tg/TWa",                round = 8, file = "f11_emifacs_sectREMIND_sourceCEDS.cs4r")
   calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "REMIND",     outunit = "Tg/TWa",                round = 8, file = "f11_emifacs_sectREMIND_sourceGAINS.cs4r")
-  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceCEDS.cs4r")
-  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceGAINS.cs4r")
-  calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
-  calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
 
   #-------------- energy/technology parameters ---------------------------------------------------------
   calcOutput("PotentialHydro",                        round = 3,  file = "f_maxProdGradeRegiHydro.cs3r")
@@ -212,6 +205,10 @@ fullREMIND <- function() {
   calcOutput("WasteEnergyUseShares", round = 6, file = "emi_waste_shares.cs4r")
   calcOutput("Emissions4ReportExtra", sectors = "CEDS", round = 9, file = "p_emissions4ReportExtraCEDS.cs4r")
   calcOutput("Emissions4ReportExtra", sectors = "IAMC", round = 9, file = "p_emissions4ReportExtraIAMC.cs4r")
+  calcOutput("GAINS2025", weight_source = "CEDS2025",    outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("GAINS2025", weight_source = "GAINS2025",   outsectors = "GAINS2025",  outunit = "Tg/TWa",                round = 8, file = "emifacs_sectGAINS_sourceGAINS.cs4r")
+  calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
+  calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
