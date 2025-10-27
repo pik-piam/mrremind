@@ -1,9 +1,4 @@
-EDGEitems;weight_convertEDGE
-feh2b;feresliquid
-feh2i;feindliquid
-feelt;fetraelec
-fedie;fetraliquid
-fepet;fetraliquid
+EDGE_buildings_items;io_buildings
 appliances_light_elec_fe;elec
 space_cooling_elec_fe;elec
 appliances_light_elec_ue;elec
@@ -58,14 +53,3 @@ space_heating_elecHP_fe;elec
 space_heating_elecRH_fe;elec
 water_heating_elecHP_fe;elec
 water_heating_elecRH_fe;elec
-fepet_p_sm;petrol
-feh2t_p_sm;petrol
-feh2t_f_sm;petrol
-fegat_f_sm;natgas
-fegat_p_sm;natgas
-fedie_p_lo;diesel
-fedie_f_lo;diesel
-fedie_p_sm;diesel
-fedie_f_sm;diesel
-feelt_f_sm;elec
-feelt_p_sm;elec
