@@ -50,8 +50,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   # Prepare Mapping
   mapping <- toolGetMapping(type = "sectoral",
                             name = "mappingEDGEBuildingsToREMIND.csv",
-                            where = "mrremind")  %>%
-    select(-"Comment")
+                            where = "mrremind")
 
   if (subtype == "FE") {
 

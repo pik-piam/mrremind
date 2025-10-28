@@ -99,6 +99,11 @@ convertEdgeBuildings <- function(x, subtype, subset) {
       stop("mappingWeightConvertEDGE is missing EDGE buildings items")
     }
 
+    # extend mapping for useful energy
+    structureMapping <- structureMapping %>%
+      mutate("EDGE_buildings_items" = gsub("_fe$", "_ue", .data$EDGE_buildings_items)) %>%
+      rbind(structureMapping)
+
     edgebWeights  <- do.call("mbind", lapply(unique(structureMapping$EDGE_buildings_items), function(itemName) {
       weightName <- structureMapping[structureMapping$EDGE_buildings_items == itemName, "io_buildings"]
       m <- wfe[, , weightName]
