@@ -94,7 +94,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
     select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     stats::na.omit() %>%
     tidyr::unite("target", tidyselect::all_of(target), sep = ".", remove = FALSE) %>%
-    tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".")
+    tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
+    dplyr::filter(.data$product.flow %in% getNames(data))
 
   reminditems <-  do.call(
     mbind,
