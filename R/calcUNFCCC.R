@@ -9,6 +9,19 @@ calcUNFCCC <- function() {
 
   data <- readSource("UNFCCC")
 
+  # fill countries of selected regions with 0 to allow for regional aggregation
+  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
+  mapping <- toolGetMapping("regionmappingH12.csv",
+                            type = "regional",
+                            where = "mappingfolder") %>%
+    filter(.data$RegionCode %in% regions.fill)
+
+  tmp <- data[unique(mapping$CountryCode), , ]
+  tmp[is.na(tmp)] <- 0
+  data[unique(mapping$CountryCode), , ] <- tmp
+
+  # map to REMIND variables
+
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mrremind") %>%
     select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
     mutate("REMIND" = trimws(.data$REMIND),
@@ -285,16 +298,6 @@ calcUNFCCC <- function() {
 
   # return results ----
 
-  # fill countries of selected regions with 0 to allow for regional aggregation
-  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
-  mapping <- toolGetMapping("regionmappingH12.csv",
-                            type = "regional",
-                            where = "mappingfolder") %>%
-    filter(.data$RegionCode %in% regions.fill)
-
-  tmp <- x[unique(mapping$CountryCode), , ]
-  tmp[is.na(tmp)] <- 0
-  x[unique(mapping$CountryCode), , ] <- tmp
 
   # remove years before 1990 due to incomplete data
   x <- x[, seq(1986, 1989, 1), , invert = TRUE]
