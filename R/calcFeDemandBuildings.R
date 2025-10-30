@@ -50,8 +50,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   # Prepare Mapping
   mapping <- toolGetMapping(type = "sectoral",
                             name = "mappingEDGEBuildingsToREMIND.csv",
-                            where = "mrremind")  %>%
-    select(-"Comment")
+                            where = "mrremind")
 
   if (subtype == "FE") {
 
@@ -66,7 +65,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
     # Extend mapping for Useful Energy
     if (subtype == "UE_buildings") {
       mapping <- mapping %>%
-        mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
+        mutate(EDGE_buildings_items = gsub("_fe$", "_ue", .data[["EDGE_buildings_items"]]),
                REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
         rbind(mapping)
       remindVars <- gsub("^fe", "ue", remindVars)
@@ -85,7 +84,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   for (v in remindVars) {
     items <- mapping %>%
       filter(.data$REMINDitems_out == v) %>%
-      pull("EDGEitems")
+      pull("EDGE_buildings_items")
 
     tmp <- dimSums(data[,,items], dim = "item", na.rm = TRUE) %>%
       add_dimension(dim = 3.3, add = "item", nm = v)
