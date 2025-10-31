@@ -90,28 +90,16 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       filter(!grepl("^rep_", .data$REMINDitems_in))
   }
 
-  # delete NAs rows
   ieamatch <- ieamatch %>%
-    as_tibble() %>%
-    select("iea_product", "iea_flows", "Weight", target) %>%
+    select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     stats::na.omit() %>%
     tidyr::unite("target", tidyselect::all_of(target), sep = ".", remove = FALSE) %>%
     tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-    filter(.data$`product.flow` %in% getNames(data))
-
-  magpieNames <- unique(ieamatch$target)
-
-  if (subtype == "output_biomass") {
-    magpieNames <- grep("(fesob|fesoi)", magpieNames, value = TRUE)
-    if (is.null(magpieNames)) {
-      stop("Please consider the split between traditional and modern biomass when changing the IEA mappings.calcIO, ",
-           "subtypes = output_biomass and output_EDGE_buildings")
-    }
-  }
+    dplyr::filter(.data$product.flow %in% getNames(data))
 
   reminditems <-  do.call(
     mbind,
-    lapply(magpieNames,
+    lapply(unique(ieamatch$target),
            function(item) {
              product_flow <- ieamatch %>%
                filter(item == .data$target) %>%
