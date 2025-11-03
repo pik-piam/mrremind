@@ -9,6 +9,7 @@
 convertEdgeBuildings <- function(x, subtype, subset) {
 
   .renameExtraWeights <- function(magObj, magWeight, mapping) {
+
     do.call("mbind", lapply(mapping[["EDGEitems"]], function(itemIN) {
       if (itemIN %in% getNames(magObj, dim = "item")) {
         item_weight <- mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
@@ -35,13 +36,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
 
   rem_years_hist <- seq(1990, 2150, 5)
 
-  struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                        returnPathOnly = TRUE, where = "mrcommons")
-  struct_mapping <- utils::read.csv2(struct_mapping_path, na.strings = "")
-
-  # Select the relevant part of the mapping
-  struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
-  struct_mapping <- unique(struct_mapping[c("weight_convertEDGE", "EDGEitems")])
+  struct_mapping <- toolGetMapping(name = "mappingWeightConvertEDGE.csv",
+                                   type = "sectoral", where = "mrremind")
 
   # Create data for any missing scenarios (i.e. not in x) by duplication of the SSP2 data.
   xAdd <- purrr::map(subset[!subset %in% getNames(x, dim = "scenario")], function(scen) {
