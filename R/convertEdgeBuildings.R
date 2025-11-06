@@ -60,6 +60,21 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     #--- Load final energy data
     wfe <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
 
+    # Transform weights obtained from calcIOEdgeBuildings to weights compatible with EDGE buildings ----
+    structureMapping <- toolGetMapping(name = "mappingWeightConvertEDGE.csv",
+                                       type = "sectoral", where = "mrremind")
+
+    if (!all(unique(structureMapping$EDGE_buildings_items) %in% getNames(x, dim = "item"))) {
+      stop("mappingWeightConvertEDGE is missing EDGE buildings items")
+    }
+
+    # extend mapping for useful energy
+    structureMapping <- structureMapping %>%
+      mutate("EDGE_buildings_items" = gsub("_fe$", "_ue", .data$EDGE_buildings_items)) %>%
+      rbind(structureMapping)
+
+    wfe <- toolAggregate(wfe, rel = structureMapping, from = "io_buildings", to = "EDGE_buildings_items", dim = 3)
+
     #---- Process Data -----------------
     # Replace NAs
     x[is.na(x)] <- 0
@@ -89,28 +104,6 @@ convertEdgeBuildings <- function(x, subtype, subset) {
                  lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
                    (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
     )
-
-    # Transform weights obtained from calcIOEdgeBuildings to weights compatible with EDGE buildings
-
-    structureMapping <- toolGetMapping(name = "mappingWeightConvertEDGE.csv",
-                                       type = "sectoral", where = "mrremind")
-
-    if (!all(unique(structureMapping$EDGE_buildings_items) %in% getNames(x, dim = "item"))) {
-      stop("mappingWeightConvertEDGE is missing EDGE buildings items")
-    }
-
-    # extend mapping for useful energy
-    structureMapping <- structureMapping %>%
-      mutate("EDGE_buildings_items" = gsub("_fe$", "_ue", .data$EDGE_buildings_items)) %>%
-      rbind(structureMapping)
-
-    edgebWeights  <- do.call("mbind", lapply(unique(structureMapping$EDGE_buildings_items), function(itemName) {
-      weightName <- structureMapping[structureMapping$EDGE_buildings_items == itemName, "io_buildings"]
-      m <- wfe[, , weightName]
-      setNames(m, gsub(weightName, itemName, getNames(m)))
-    }))
-
-    wfe <- edgebWeights
 
     # Check if any of the FE weights are negative
     if (any(wfe < 0)) {
