@@ -82,11 +82,10 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                        sets = getSets(data))
 
   for (v in remindVars) {
-    items <- mapping %>%
-      filter(.data$REMINDitems_out == v) %>%
-      pull("EDGE_buildings_items")
 
-    tmp <- dimSums(data[,,items], dim = "item", na.rm = TRUE) %>%
+    items <- mapping[mapping$REMINDitems_out == v, "EDGE_buildings_items"]
+
+    tmp <- dimSums(data[, , items], dim = "item", na.rm = TRUE) %>%
       add_dimension(dim = 3.3, add = "item", nm = v)
 
     remind[, , getNames(tmp)] <- tmp
