@@ -15,8 +15,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
     grepl("2021", subtype, fixed = TRUE) ~ "NDC_2021.xlsx",
     grepl("2022", subtype, fixed = TRUE) ~ "NDC_2022-12-31.xlsx",
     grepl("2023", subtype, fixed = TRUE) ~ "NDC_2023-11-29.xlsx",
-    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-08-31_corrected.xlsx",
-    .default = "NDC_2024-08-31_corrected.xlsx"
+    grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-12-31.xlsx",
+    .default = "NDC_2024-12-31.xlsx"
   )
   NDC2035 <- dplyr::case_when(
     grepl("2025", subtype, fixed = TRUE) ~ "2025 NDC status per country_sept2025.xlsx",

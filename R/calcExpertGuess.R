@@ -5,20 +5,24 @@
 #' @param subtype must be one of
 #' 'biocharPrices'
 #' 'ccsBounds'
+#' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
-#' 'taxConvergenceRollback'
+#' 'taxConvergenceRollback',
+#' 'tradecost'
 #'
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
     "ccsBounds",
+    "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
-    "taxConvergenceRollback"
+    "taxConvergenceRollback",
+    "tradecost"
   )
 
   if (!(subtype %in% subtypes)) {
@@ -28,10 +32,12 @@ calcExpertGuess <- function(subtype) {
   isocountries <- c(
     "biocharPrices" = FALSE,
     "ccsBounds" = TRUE,
+    "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
-    "taxConvergenceRollback" = TRUE
+    "taxConvergenceRollback" = TRUE,
+    "tradecost" = TRUE
   )
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
@@ -52,6 +58,16 @@ calcExpertGuess <- function(subtype) {
     A value of 0 means a country will not do CCS in the foreseeable future, \\
     a value of 1 means that no bound should be set.")
     weight = NULL
+
+  } else if (subtype == "gridFactor") {
+
+    unit <- "factor"
+    getNames(x) <- NULL
+    description <- glue::glue(
+      "multiplicative factor that scales total grid requirements \\
+      down in comparatively small or homogeneous regions"
+    )
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
 
   } else if (subtype == "tradeConstraints") {
 
@@ -89,6 +105,12 @@ calcExpertGuess <- function(subtype) {
                               rollback scenario")
     weight <- x
     weight[, , ] <- 1
+
+  } else if (subtype == "tradecost") {
+
+    unit <- "share"
+    description <- glue::glue("energy costs in share (0..1)")
+    weight <- new.magpie(getRegions(x), "y2005", fill = 1)
 
   }
 

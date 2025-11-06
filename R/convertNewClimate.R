@@ -66,7 +66,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
         j <- i - (i %% 5) + 5
         if (j %in% getYears(x, as.integer = TRUE)) {
           # if there is already a value for the year, use the higher value
-          x_target[, j, ] <- base::pmax(x[, i, ], x[, j, ], na.rm = TRUE)
+          x_target[, j, ] <- pmax(x[, i, ], x[, j, ], na.rm = TRUE)
         } else {
           x_target[, j, ] <- x[, i, ]
         }
@@ -204,7 +204,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     # Production-Absolute is the max of TIC, AC, Production-Absolute, and 2015 reference
     # TODO: why not do this just like for other Renewables? why special treatment for Hydro?
     # TODO: why do the complex calculation below for reference values as well?
-    x_target[, , "Production-Absolute.Hydro"] <- base::pmax(x_target[, , "Production-Absolute.Hydro"],
+    x_target[, , "Production-Absolute.Hydro"] <- pmax(x_target[, , "Production-Absolute.Hydro"],
                                                       x_capacity_tic[, , "Hydro"],
                                                       x_capacity_abs[, , "Hydro"],
                                                       x_ref[, , "Hydro"],
@@ -299,7 +299,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
 
     # take the maximum of all target types (usually, only one is target is given)
     # and the 2015 reference value
-    x_capacity[, , allTech] <- base::pmax(
+    x_capacity[, , allTech] <- pmax(
       x_capacity_abs[, , allTech],
       x_capacity_tic[, , allTech],
       x_capacity_prod[, , allTech],
@@ -353,8 +353,32 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
   }
 
-  # add NDC version from subtype
+  if (grepl("RenShareTargets", subtype, fixed = TRUE)) {
+    # disaggregate NewClimate regions to iso-country level
+    # only dissaggregation for EU needed
+    # allocate EU shares also to EU countries
+    x_EU <- collapseDim(x["EU", , ])
+
+    # ISO-countries in EU region
+    EUR_NPi_countries <- c(
+      "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+      "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+      "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+      "FRO", "GIB", "GGY", "IMN", "HRV"
+    )
+
+    # retain all data without EU which is not an iso-country
+    x_no_EU <- x[dimnames(x)[[1]] != "EU", , ]
+    # add missing countries with NA
+    x <- toolCountryFill(x_no_EU)
+    # assign share EU values to EU countries
+    x[EUR_NPi_countries, , ] <- x_EU
+  }
+
+  # add NDC version from subtype (not for renewable share targets)
+  if (!grepl("RenShareTargets", subtype, fixed = TRUE)) {
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
+  }
   return(x)
 }
