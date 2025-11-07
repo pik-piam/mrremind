@@ -51,8 +51,8 @@ readNewClimate <- function(subtype, subset) {
       select(
         "ISO_Code" = 2, "Reference_Year" = 7,
         "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "Unconditional Absolute" = 11, "Conditional Absolute" = 12,
-        "Unconditional Relative" = 13, "Conditional Relative" = 14
+        "Type" = 10, "Unconditional Relative" = 11, "Conditional Relative" = 12,
+        "Unconditional Absolute" = 13, "Conditional Absolute" = 14
       ) %>%
       toolProcessClimateTargetDatabase(database = "NewClimate", subtype = subtype)
 
@@ -62,7 +62,7 @@ readNewClimate <- function(subtype, subset) {
     data <- readxl::read_excel(
       NPIfile,
       sheet = "EnergyShareTargets",
-      col_names = T
+      col_names = TRUE
     )
 
     # filter only for energy share targets (ShareTarget column is 1)
