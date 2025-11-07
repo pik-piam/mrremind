@@ -48,11 +48,9 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   data <- mbind(ononspec, buildings)
 
   # Prepare Mapping
-  mapping <- toolGetMapping(type = "sectoral", name = "mappingEDGEBuildingsToREMIND.csv", where = "mrremind")
-
-  if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-    stop("Not all EDGE items are in the mapping")
-  }
+  mapping <- toolGetMapping(type = "sectoral",
+                            name = "mappingEDGEBuildingsToREMIND.csv",
+                            where = "mrremind")
 
   if (subtype == "FE") {
 
@@ -67,7 +65,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
     # Extend mapping for Useful Energy
     if (subtype == "UE_buildings") {
       mapping <- mapping %>%
-        mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
+        mutate(EDGE_buildings_items = gsub("_fe$", "_ue", .data[["EDGE_buildings_items"]]),
                REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
         rbind(mapping)
       remindVars <- gsub("^fe", "ue", remindVars)
@@ -84,14 +82,10 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                        sets = getSets(data))
 
   for (v in remindVars) {
-    w <- mapping %>%
-      filter(.data$REMINDitems_out == v) %>%
-      select(-"REMINDitems_out") %>%
-      as.magpie()
 
-    tmp <- mselect(data, item = getNames(w)) * w
+    items <- mapping[mapping$REMINDitems_out == v, "EDGE_buildings_items"]
 
-    tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
+    tmp <- dimSums(data[, , items], dim = "item", na.rm = TRUE) %>%
       add_dimension(dim = 3.3, add = "item", nm = v)
 
     remind[, , getNames(tmp)] <- tmp
