@@ -1,7 +1,7 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.247.1
+Version: 0.248.0
 Date: 2025-11-07
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
@@ -32,7 +32,8 @@ Authors@R: c(
     person("Sophie", "Fuchs", role = "aut"),
     person("Rahel", "Mandaroux", role = "aut"),
     person("Johannes", "Koch", role = "aut"),
-    person("Gabriel", "Abrahao", role = "aut")
+    person("Gabriel", "Abrahao", role = "aut"),
+    person("Tabea", "Dorndorf", role = "aut")
   )
 Description: The mrremind packages contains data preprocessing for the
     REMIND model.

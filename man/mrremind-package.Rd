@@ -48,6 +48,7 @@ Authors:
   \item Rahel Mandaroux
   \item Johannes Koch
   \item Gabriel Abrahao
+  \item Tabea Dorndorf
 }
 
 }
