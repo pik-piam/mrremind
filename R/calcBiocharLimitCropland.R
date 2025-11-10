@@ -93,6 +93,7 @@ calcBiocharLimitCropland <- function(dataBCLimit = "CRCF_draft_2025",
     unit <- paste0("Mt over ", limitSpec$window, " years")
   }
 
+  getYears(massLimit) <- NULL
 
   ## Description:
   description <- paste(
