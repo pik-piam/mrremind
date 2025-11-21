@@ -1,14 +1,16 @@
 .onLoad <- function(libname, pkgname) {
-  madrat::madratAttach(c(pkgname, "edgeTransport", "GDPuc", "mrcommons", "mrdrivers", "mrindustry"))
   madrat::setConfig(
     nolabels = c("REMIND", "VALIDATIONREMIND"),
     .cfgchecks = FALSE, .verbose = FALSE
   )
 }
 
+.onAttach <- function(libname, pkgname) {
+  madrat::madratAttach(pkgname)
+}
 
-.onUnload <- function(libpath) {
-  madrat::madratDetach(c(libpath, "edgeTransport", "GDPuc", "mrcommons", "mrdrivers", "mrindustry"))
+.onDetach <- function(libpath) {
+  madrat::madratDetach(libpath)
 }
 
 # redirect standard messaging functions to vcat
