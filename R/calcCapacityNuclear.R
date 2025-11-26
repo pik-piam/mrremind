@@ -1,12 +1,8 @@
 #' Historical nuclear capacities and near-term capacity addition bounds for REMIND
 #'
-#' @description overall philosophy:
-#' currently under construction goes online over the 5-year long 2020 timestep
-#' 90% of planned and 60% of proposed plants can come online in 2025 or 2030 timestep
-#' this corresponds well with maximum to be expected capacities for India and China
-#' China target 120-150 GW in 2030 (https://af.reuters.com/article/africaTech/idAFL3N16M3QX)
-#' India 63 GW in 2032 (though pre-Fukushima)
-#' (https://economictimes.indiatimes.com/industry/energy/power/india-eyeing-63000-mw-nuclear-power-capacity-by-2032-npcil/articleshow/6730724.cms)
+#' @description use historical nuclear electricity generation capacity and
+#' calculate near-term estimates based on current nuclear power project status
+#' per country.
 #' @author Robert Pietzcker, Christoph Bertram, Aman Malik, Pascal Weigmann
 
 calcCapacityNuclear <- function() {
@@ -45,6 +41,7 @@ calcCapacityNuclear <- function() {
     + 0.7 * x[, 2025, "REACTORS PROPOSED (MWe gross)"] / grossnet
     + 0.1 * x[, 2025, "REACTORS OPERABLE (MWe net)"]  # represents extensions
     ) / 10^6  # convert to TW
+
 
   # Additional estimates ####
 
