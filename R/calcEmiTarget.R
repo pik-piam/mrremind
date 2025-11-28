@@ -83,39 +83,23 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # create new NDC version 2025 with extrapolated targets
 
   # if no 2035 targets available, add 2035 to target factor object
-  if (! "y2035" %in% getYears(ghgFactor)) {
-    ghgFactor <- mbind(ghgFactor, new.magpie(getRegions(ghgFactor),"y2035",getNames(ghgFactor), fill = NA))
+  if (! 2035 %in% getYears(ghgFactor, as.integer = TRUE)) {
+    ghgFactor <- add_columns(ghgFactor, addnm = "y2035", dim = 2, fill = NA)
   }
-  ghgFactorExtrapolated <- ghgFactor[,,c("2025_cond","2025_uncond")]
+  # create maglcass object for extrapolated NDC scenarios
+  ghgFactorExtrapolated <- ghgFactor[, , c("2025_cond", "2025_uncond")]
   getItems(ghgFactorExtrapolated, dim=3.1) <- paste0(getItems(ghgFactorExtrapolated, dim=3.1),"_extrapol")
-  # loop over countries and NDC scenarios to extrapolate 2030 targets to 2035 targets for those countries who do not have 2035 targets
-  for (country in getRegions(ghgFactorExtrapolated ) ) {
-    for (NDCscenario in getItems(ghgFactorExtrapolated, dim=3) ) {
-      # do extrapolation only if country has 2030 target but no 2035 target
-      if (c("y2035") %in% getYears(ghgFactorExtrapolated)) {
-        Do2035Extrapolation <- ( as.vector(is.na(ghgFactorExtrapolated[country, "y2035", NDCscenario])) &
-                                 as.vector(!is.na(ghgFactorExtrapolated[country, "y2030", NDCscenario])))
-      } else {
-        Do2035Extrapolation <- as.vector(!is.na(ghgFactorExtrapolated[country, "y2030", NDCscenario]))
-      }
-
-      # if country has 2030 target but no 2035 target
-      if (Do2035Extrapolation) {
-        # if no 2035 target available, linearly extrapolate target from 2030 to 2035
-        # Explanation of the calculation:
-        # Note that the ghgFactor gives the remaining relative emissions relative to 2015.
-        # Hence, 1 - ghgFactor gives the relative emissions reductions relative to 2015.
-        # Dividing by 15 years gives annual average emissions reductions.
-        # Multiplying by 20 years applies these emissions reductions over the whole 20-year period from 2015 to 2035.
-        # These relative emissions reduction need to be converted to a target factor by subtracting them from one.
-        ghgFactorExtrapolated[country, "y2035", NDCscenario] <- 1 - ( (1 - ghgFactorExtrapolated[country, "y2030", NDCscenario]) / 15 * 20)
-
-        print(paste0(country, " has no 2035 NDC emissions target."))
-        print(paste0("For the scenario ", NDCscenario, ", linearly extrapolate target factor from 2030 to 2035: ", ghgFactorExtrapolated[country, "y2030", NDCscenario], " -> ", ghgFactorExtrapolated[country, "y2035", NDCscenario]))
-      }
-    }
-  }
-
+  # Explanation of the extrapolation:
+  # Note that the ghgFactor gives the remaining relative emissions relative to 2015.
+  # Hence, 1 - ghgFactor gives the relative emissions reductions relative to 2015.
+  # Dividing by 15 years gives annual average emissions reductions.
+  # Multiplying by 20 years applies these emissions reductions over the whole 20-year period from 2015 to 2035.
+  # These relative emissions reduction need to be converted to a target factor by subtracting them from one.
+  ExtrapolatedTarget <- setYears(1 - ((1 - ghgFactorExtrapolated[, 2030, ]) / 15 * 20), 2035)
+  # only replace extrapolated 2035 target if country has no 2035 yet
+  Target2035 <- ghgFactorExtrapolated[, 2035, ]
+  Target2035[is.na(Target2035)] <- ExtrapolatedTarget[is.na(Target2035)]
+  ghgFactorExtrapolated[, 2035, ] <- Target2035
   # add extrapolated 2025 NDC versions to input data
   ghgFactor <- mbind(ghgFactor, ghgFactorExtrapolated)
 
