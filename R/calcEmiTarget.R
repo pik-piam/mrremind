@@ -18,14 +18,14 @@
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke
 #'
 calcEmiTarget <- function(sources, subtype, scenario) {
-# Main steps:
-# 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
-# 2. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
-# 3. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
-# 4. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
+  # Main steps:
+  # 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
+  # 2. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
+  # 3. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
+  # 4. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
 
 
-# 1. Read country-level NDC targets as target factors ----
+  # 1. Read country-level NDC targets as target factors ----
 
   # check whether valid sources and subtypes chosen
   if (!sources %in% c("UNFCCC_NDC", "NewClimate")) {
@@ -69,9 +69,14 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
   # convert target factors to magclass objects
   # ensure that all magclass objects in the list have matching years so they can be bound together
-  listYears <- lapply(listGhgFactors, getItems, dim = "year") %>% unlist() %>% unique() %>% sort()
-  ghgFactor <- purrr::map(listGhgFactors,
-                          ~ add_columns(.x, listYears[!listYears %in% getItems(.x, dim = "year")], 2))
+  listYears <- lapply(listGhgFactors, getItems, dim = "year") %>%
+    unlist() %>%
+    unique() %>%
+    sort()
+  ghgFactor <- purrr::map(
+    listGhgFactors,
+    ~ add_columns(.x, listYears[!listYears %in% getItems(.x, dim = "year")], 2)
+  )
   ghgFactor <- mbind(ghgFactor)
   ghgFactor <- ghgFactor[, sort(getYears(ghgFactor)), ]
 
@@ -83,12 +88,12 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # create new NDC version 2025 with extrapolated targets
 
   # if no 2035 targets available, add 2035 to target factor object
-  if (! 2035 %in% getYears(ghgFactor, as.integer = TRUE)) {
+  if (!2035 %in% getYears(ghgFactor, as.integer = TRUE)) {
     ghgFactor <- add_columns(ghgFactor, addnm = "y2035", dim = 2, fill = NA)
   }
   # create maglcass object for extrapolated NDC scenarios
   ghgFactorExtrapolated <- ghgFactor[, , c("2025_cond", "2025_uncond")]
-  getItems(ghgFactorExtrapolated, dim=3.1) <- paste0(getItems(ghgFactorExtrapolated, dim=3.1),"_extrapol")
+  getItems(ghgFactorExtrapolated, dim = 3.1) <- paste0(getItems(ghgFactorExtrapolated, dim = 3.1), "_extrapol")
   # Explanation of the extrapolation:
   # Note that the ghgFactor gives the remaining relative emissions relative to 2015.
   # Hence, 1 - ghgFactor gives the relative emissions reductions relative to 2015.
@@ -103,17 +108,15 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # add extrapolated 2025 NDC versions to input data
   ghgFactor <- mbind(ghgFactor, ghgFactorExtrapolated)
 
-# 3. Aggregate country-level target factors to region-level target factors ----
+  # 3. Aggregate country-level target factors to region-level target factors ----
 
-    if (subtype == "Ghgfactor") {
-
-
-# Explanation: The target factor ("ghgFactor") represents NDC target emissions normalized by 2015 emissions on country-level. The emissions
-# cover total GHG emissions excl. land-use change and excl. bunker emissions. They are aggregated to region-level
-# by a weighted sum of all countries with an NDC target where the weights are the 2015 emissions of the country
-# normalized to the 2015 emissions of the region:
-# targetFactor(region) = sum(country, emi2015(country) / emi2015(region) * targetFactor(country) ), for all countries with NDC targets.
-# Note that his aggregation is done via the madrat routine run with the return() statement of this function.
+  if (subtype == "Ghgfactor") {
+    # Explanation: The target factor ("ghgFactor") represents NDC target emissions normalized by 2015 emissions on country-level. The emissions
+    # cover total GHG emissions excl. land-use change and excl. bunker emissions. They are aggregated to region-level
+    # by a weighted sum of all countries with an NDC target where the weights are the 2015 emissions of the country
+    # normalized to the 2015 emissions of the region:
+    # targetFactor(region) = sum(country, emi2015(country) / emi2015(region) * targetFactor(country) ), for all countries with NDC targets.
+    # Note that his aggregation is done via the madrat routine run with the return() statement of this function.
 
     # target factor as aggregation variable
     x <- ghgFactor
@@ -138,10 +141,9 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     ))
   }
 
-# 4. Calculate share of emissions covered under NDC target per REMIND region ----
+  # 4. Calculate share of emissions covered under NDC target per REMIND region ----
 
   if (subtype == "Ghgshare") {
-
     # Explanation: The share of emissions covered under NDC ("ghgShare") is an estimate of target year emissions in a REMIND region
     # from all countries that have an NDC target. It is used to proxy which share of emissions in a region should follow NDC targets and
     # which should follow the Npi scenario (for countries without target).
@@ -174,5 +176,4 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       min = 0, max = 1
     ))
   }
-
 }
