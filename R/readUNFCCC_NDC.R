@@ -74,78 +74,124 @@ readUNFCCC_NDC <- function(subtype, subset) {
         )
     }
     if (any(grepl("2025", subtype, fixed = TRUE))) {
-      input2035 <- readxl::read_excel(
+
+      # read raw data from NDC emissions targets collection
+      input2035_raw <- readxl::read_excel(
         NDC2035,
         sheet = "NDC overview", skip = 1, na = c("?", ""), progress = FALSE
       ) %>%
-        suppressMessages() %>%
+        suppressMessages()
+
+      # clean data for missing gas definition and rename columns
+      input2035 <- input2035_raw %>%
         filter(!is.na(.data$`Gas coverage`)) %>%
         dplyr::rename(
           "ISO_Code" = "ISO3",
           "Target_Year" = .data$`Target year`,
           "Reference_Year" = .data$`base year`,
           "BAU_or_Reference_emissions_in_MtCO2e" = .data$`BAU emission level (Mt CO2eq)`
+        )
+
+
+      # add target value column and match with respective columns of target values depending on target type (e.g. absolute or relative emissions targets)
+      input2035 <- input2035 %>%
+        # add distintion between absolute and relative targets
+        # target type = "Specific" refers to absolute targets, others to relative
+        mutate( RelOrAbsTarget = ifelse( `Type of NDC` == "Specific",
+                                         "Absolute",
+                                         "Relative")) %>%
+        # add target column and fill with values of respective columns depending on types of targets
+        mutate( target = NA) %>%
+        mutate( target = dplyr::case_when(
+          # target values for base year targets, unconditional -> minimum relative reduction target
+          (`Type of NDC` == "Base year" &
+             Conditionality == "Unconditional" ) ~ .data$`reduction min (%)...21`,
+          # target values for base year targets, conditional -> maximum relative reduction target
+          (`Type of NDC` == "Base year" &
+             Conditionality == "Conditional" ) ~ .data$`reduction max (%)...22`,
+          # target values for specific (absolute) targets, unconditional -> maximum emissions level targets
+          (`Type of NDC` == "Specific" &
+             Conditionality == "Unconditional" ) ~ .data$`emission level max (Mt CO2eq)...17`,
+          # target values for specific (absolute) targets, conditional -> minimum emissions level targets
+          (`Type of NDC` == "Specific" &
+             Conditionality == "Conditional" ) ~ .data$`emission level min (Mt CO2eq)...16`,
+          # target values for BAU targets, unconditional, without minimum reduction target -> maximum emissions level targets
+          (`Type of NDC` == "BAU" &
+             `Conditionality` == "Unconditional" &
+             is.na(.data$`reduction min (%)...18`) ) ~ .data$`emission level max (Mt CO2eq)...17`,
+          # target values for BAU targets, conditional, without maximum reduction target -> minimum emissions level targets
+          (`Type of NDC` == "BAU" &
+             `Conditionality` == "Conditional" &
+             is.na(.data$`reduction max (%)...19`) ) ~ .data$`emission level min (Mt CO2eq)...16`,
+          # target values for BAU targets, unconditional, with minimum reduction target -> minimum reduction target
+          (`Type of NDC` == "BAU" &
+             `Conditionality` == "Unconditional" &
+             !is.na(.data$`reduction min (%)...18`) ) ~ .data$`reduction min (%)...18`,
+          # target values for BAU targets, conditional, with maximum reduction target -> maximum reduction target
+          (`Type of NDC` == "BAU" &
+            `Conditionality` == "Conditional" &
+             !is.na(.data$`reduction max (%)...19`) ) ~ .data$`reduction max (%)...19`)) %>%
+          # if target values for BAU targets but maximum/minimum relative reduction targets not present -> convert target type to absolute target as
+          # absolute target emissions values have been chosen in the previous lines
+        mutate( RelOrAbsTarget = dplyr::if_else( (`Type of NDC` == "BAU" &
+                                             `Conditionality` == "Unconditional" &
+                                              is.na(.data$`reduction min (%)...18`) ) |
+                                            (`Type of NDC` == "BAU" &
+                                             `Conditionality` == "Conditional" &
+                                              is.na(.data$`reduction max (%)...19`)), "Absolute", RelOrAbsTarget),
+
+                `Type of NDC` = dplyr::if_else( (`Type of NDC` == "BAU" &
+                                              `Conditionality` == "Unconditional" &
+                                              is.na(.data$`reduction min (%)...18`) ) |
+                                            (`Type of NDC` == "BAU" &
+                                               `Conditionality` == "Conditional" &
+                                               is.na(.data$`reduction max (%)...19`)), "Specific", `Type of NDC`))
+
+
+      # only select columns which are needed for further calculations to apply pivot_wider as desired below
+      # also rename EUU region to EUR (REMIND name)
+      input2035 <- input2035 %>%
+        select(
+          "ISO_Code",
+          "Reference_Year",
+          "BAU_or_Reference_emissions_in_MtCO2e",
+          "Target_Year",
+          "Gas coverage",
+          "Type of NDC",
+          "LULUCF",
+          "Conditionality",
+          "RelOrAbsTarget",
+          "target"
         ) %>%
-        # --- ensure all target columns exist ---
-        dplyr::mutate(
-          `Unconditional Relative` = NA_character_,
-          `Conditional Relative` = NA_character_,
-          `Unconditional Absolute` = NA_character_,
-          `Conditional Absolute` = NA_character_,
-          `Type` = NA_character_
-        ) %>%
-        # --- fill values by different types ---
-        dplyr::mutate(
-          # base year unconditional relative
-          `Unconditional Relative` = dplyr::if_else(
-            .data$`Type of NDC` == "Base year" & .data$Conditionality == "Unconditional",
-            as.character(.data$`reduction min (%)...21`),
-            .data$`Unconditional Relative`
-          ),
-          # base year conditional relative
-          `Conditional Relative` = dplyr::if_else(
-            .data$`Type of NDC` == "Base year" & .data$Conditionality == "Conditional",
-            as.character(.data$`reduction max (%)...22`),
-            .data$`Conditional Relative`
-          ),
-          # unconditional absolute emission targets
-          `Unconditional Absolute` = dplyr::if_else(
-            .data$`Type of NDC` == "Specific" & .data$Conditionality == "Unconditional",
-            as.character(.data$`emission level min (Mt CO2eq)...16`),
-            .data$`Unconditional Absolute`
-          ),
-          # conditional absolute emission targets
-          `Conditional Absolute` = dplyr::if_else(
-            .data$`Type of NDC` == "Specific" & .data$Conditionality == "Conditional",
-            as.character(.data$`emission level max (Mt CO2eq)...17`),
-            .data$`Conditional Absolute`
-          ),
-          # BAU unconditional
-          `Unconditional Relative` = dplyr::case_when(
-            .data$`Type of NDC` == "BAU" & .data$Conditionality == "Unconditional" 
-            & !is.na(.data$`reduction min (%)...18`) ~
-              as.character(.data$`reduction min (%)...18`),
-            TRUE ~ .data$`Unconditional Relative`
-          ),
-          `Unconditional Absolute` = dplyr::case_when(
-            .data$`Type of NDC` == "BAU" & .data$Conditionality == "Unconditional" 
-            & is.na(.data$`reduction min (%)...18`) ~
-              as.character(.data$`emission level min (Mt CO2eq)...16`),
-            TRUE ~ .data$`Unconditional Absolute`
-          ),
-          # BAU conditional
-          `Conditional Relative` = dplyr::case_when(
-            .data$`Type of NDC` == "BAU" & .data$Conditionality == "Conditional" 
-            & !is.na(.data$`reduction min (%)...18`) ~
-              as.character(.data$`reduction min (%)...18`),
-            TRUE ~ .data$`Conditional Relative`
-          ),
-          `Conditional Absolute` = dplyr::case_when(
-            .data$`Type of NDC` == "BAU" & .data$Conditionality == "Conditional" 
-            & is.na(.data$`reduction min (%)...18`) ~
-              as.character(.data$`emission level min (Mt CO2eq)...16`),
-            TRUE ~ .data$`Conditional Absolute`
-          ),
+        quitte::revalue.levels(ISO_Code = c( "EUU" = "EUR"))
+
+      # for countries that have two different reference emissions for unconditional and conditional targets
+      # make assumptions that the reference emissions of the unconditional target are also used for the conditional targets
+      # this only affects very few coutries so far (Ecudador) and is a simplification which makes the data processing easier at the moment
+      # in the future this can in theory be account for
+      input2035 <- input2035 %>%
+                          group_by(.data$`ISO_Code`) %>%
+                          mutate(
+                          # paste the reference emissions of unconditional target to another new column
+                          RefEmiUnCond = dplyr::first(.data$`BAU_or_Reference_emissions_in_MtCO2e`[.data$`Conditionality` == "Unconditional"]),
+                          # Replace the reference only for rows where category == "B"
+                          BAU_or_Reference_emissions_in_MtCO2e = dplyr::if_else(.data$`Conditionality` == "Conditional" & !is.na(RefEmiUnCond),
+                                                                         .data$`RefEmiUnCond`,
+                                                                         .data$`BAU_or_Reference_emissions_in_MtCO2e`)
+                          ) %>%
+                          select(-RefEmiUnCond) %>%
+                          ungroup()
+
+      # create wide format of target values with columns for
+      # "unconditional absolute", "unconditional relative", "conditional absolute", "conditional relative"
+      input2035 <- input2035 %>%
+                        tidyr::pivot_wider( names_from = c(Conditionality, RelOrAbsTarget),
+                        values_from = target,
+                        names_sep = " ")
+
+      # add target type ("GHG" = relative emissions target (to base year or BAU), "GHG-fixed-total" = absolute emissions target)
+      input2035 <- input2035 %>%
+        mutate(
           # correct the GHG type
           Type = dplyr::case_when(
             .data$`Gas coverage` == "GHG" &
@@ -158,7 +204,10 @@ readUNFCCC_NDC <- function(subtype, subset) {
               (!is.na(.data$`Unconditional Absolute`) | !is.na(.data$`Conditional Absolute`)) ~ "GHG-fixed-total",
             TRUE ~ "type missing"
           )
-        ) %>%
+        )
+
+      # only select columns needed for further calculation
+      input2035 <- input2035 %>%
         select(
           "ISO_Code",
           "Reference_Year",
