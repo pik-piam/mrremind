@@ -2,10 +2,11 @@
 #'
 #' @description This function calculates the emissions targets for the NDC scenarios applied in the REMIND module 45_carbonprice realization NDC.
 #' It contains the following steps:
-#' 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions).
-#' 2. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet).
-#' 3. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor").
-#' 4. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare").
+# 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
+# 2. Make country-specific assumptions about inclusions or adaptations of NDC targets
+# 3  Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
+# 4. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
+# 5. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
 #' The parameters calculated in 3.) and 4.) are further used in the NDC realization to calculate the region-wide NDC emissions targets
 #' in terms of total GHG emissions excl. bunkers and excl. LULUCF sectors.
 #'
@@ -20,9 +21,10 @@
 calcEmiTarget <- function(sources, subtype, scenario) {
   # Main steps:
   # 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
-  # 2. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
-  # 3. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
-  # 4. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
+  # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets
+  # 3  Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
+  # 4. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
+  # 5. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
 
 
   # 1. Read country-level NDC targets as target factors ----
@@ -80,8 +82,14 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   ghgFactor <- mbind(ghgFactor)
   ghgFactor <- ghgFactor[, sort(getYears(ghgFactor)), ]
 
+  # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets ----
 
-  # 2. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
+  # remove US targets from NDC targets as of 2025
+  # since under the Trump Administration the US has started a process of withdrawing from the Paris Agreement
+  ghgFactor["USA",,c("2025_uncond","2025_cond")] <- NA
+
+
+  # 3. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
 
   # add NDC versions "Emissions_NDC " and "Emissions_2025_uncond_extrapol"
   # that take the 2035 targets from the 2025 version, but extrapolate 2030 targets to 2035 for countries which do not have 2035 targets yet
@@ -108,7 +116,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
   # add extrapolated 2025 NDC versions to input data
   ghgFactor <- mbind(ghgFactor, ghgFactorExtrapolated)
 
-  # 3. Aggregate country-level target factors to region-level target factors ----
+  # 4. Aggregate country-level target factors to region-level target factors ----
 
   if (subtype == "Ghgfactor") {
     # Explanation: The target factor ("ghgFactor") represents NDC target emissions normalized by 2015 emissions on country-level. The emissions
@@ -141,7 +149,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     ))
   }
 
-  # 4. Calculate share of emissions covered under NDC target per REMIND region ----
+  # 5. Calculate share of emissions covered under NDC target per REMIND region ----
 
   if (subtype == "Ghgshare") {
     # Explanation: The share of emissions covered under NDC ("ghgShare") is an estimate of target year emissions in a REMIND region
