@@ -25,7 +25,7 @@ readNewClimate <- function(subtype, subset) {
       col_types = c(
         "text", "skip", "numeric", "text", "text", "numeric",
         "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-        "numeric", "numeric", "numeric", "skip", "skip", "skip", "skip"
+        "numeric", "numeric", "numeric", "numeric", "skip", "skip", "skip"
       )
     )
 
