@@ -180,11 +180,11 @@ fullREMIND <- function() {
 
   # NDC emissions targets from UNFCCC
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_2015shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare", scenario = gdpPopScen, round = 4, file = "fm_shareTarget.cs3r")
 
   # NDC emissions targets from NewClimate protocol
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare2015", scenario = gdpPopScen, round = 4, file = "fm_NC_2015shareTarget.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare", scenario = gdpPopScen, round = 4, file = "fm_NC_shareTarget.cs3r")
 
   # capacity targets from UNFCCC
   calcOutput("CapTarget", sources = "UNFCCC_NDC+REN21+CHN_NUC", round = 4, file = "f40_NDC+REN21+CHN_NUC.cs3r")
