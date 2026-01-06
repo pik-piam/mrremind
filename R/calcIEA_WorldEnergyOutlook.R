@@ -10,21 +10,21 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
   .mapToRemind <- function(data) {
 
-    # copy over Stated Policies Scenario for 2010 - 2022 to other scenarios
-    for (s in getNames(data, dim = 1)) {
-      data[, c("y2010", "y2015", "y2021", "y2022"), s] <-
-        data[, c("y2010", "y2015", "y2021", "y2022"), "Stated Policies Scenario"][, , getNames(data[, , s], dim = 2)]
+    # copy over Stated Policies Scenario for 2010 - 2024 to other scenarios
+    for (scen in getNames(data, dim = 1)) {
+      data[, c("y2010", "y2015", "y2023", "y2024"), scen] <-
+        data[, c("y2010", "y2015", "y2023", "y2024"), "Historical"][, , getNames(data[, , scen], dim = 2)]
     }
 
     # rename scenarios
     scens <- c(
       "Stated Policies Scenario" = "SPS",
-      "Announced pledges scenario" = "APS",
-      "Announced Pledges Scenario" = "APS",
+      "Historical" = "Historical",
+      "Current Policies Scenario" = "Current",
       "Net Zero Emissions by 2050 Scenario" = "Net2050"
     )
 
-    getNames(data, dim = 1) <- paste0("IEA WEO 2023 ", scens[getNames(data, dim = 1)])
+    getNames(data, dim = 1) <- paste0("IEA WEO 2025 ", scens[getNames(data, dim = 1)])
     getSets(data)[3] <- "model"
 
     map <- toolGetMapping("Mapping_IEA_WEO_complete.csv", type = "reportingVariables", where = "mrremind") %>%
@@ -39,7 +39,6 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
       tmp <- data[, , scen]
       tmp <- collapseDim(tmp, dim = 3.1)
-
 
       if (!any(unique(map$from) %in% getNames(tmp))){
         next
@@ -149,6 +148,6 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
     unit = c("GW", "EJ/yr", "Mt CO2/yr"),
     aggregationFunction = .customAggregate,
     aggregationArguments = list(glo = dataGlo),
-    description = "IEA World Energy Outlook 2023 values as REMIND variables"
+    description = "IEA World Energy Outlook 2025 values as REMIND variables"
   ))
 }
