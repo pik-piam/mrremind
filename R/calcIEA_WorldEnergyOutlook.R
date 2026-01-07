@@ -10,7 +10,7 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
   .mapToRemind <- function(data) {
 
-    # copy over Stated Policies Scenario for 2010 - 2024 to other scenarios
+    # copy over Historical for 2010 - 2024 to other scenarios
     for (scen in getNames(data, dim = 1)) {
       data[, c("y2010", "y2015", "y2023", "y2024"), scen] <-
         data[, c("y2010", "y2015", "y2023", "y2024"), "Historical"][, , getNames(data[, , scen], dim = 2)]
