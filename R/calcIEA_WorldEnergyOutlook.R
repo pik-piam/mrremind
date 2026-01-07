@@ -18,10 +18,10 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
     # rename scenarios
     scens <- c(
-      "Stated Policies Scenario" = "SPS",
+      "Stated Policies Scenario" = "StatedPol",
       "Historical" = "Historical",
-      "Current Policies Scenario" = "Current",
-      "Net Zero Emissions by 2050 Scenario" = "Net2050"
+      "Current Policies Scenario" = "CurPol",
+      "Net Zero Emissions by 2050 Scenario" = "NetZero"
     )
 
     getNames(data, dim = 1) <- paste0("IEA WEO 2025 ", scens[getNames(data, dim = 1)])
