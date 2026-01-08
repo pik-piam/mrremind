@@ -60,8 +60,8 @@ CO2 total-Total-Services (Mt CO2);;;
 CO2 total-Total-Total energy supply (Mt CO2);Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr);1;Total CO2 category in IEA WEO includes CO2 emissions from fossil combustion, fossil extraction and industrial processes. Bunkers are exlucded in WEO data on regional level. 
 CO2 total-Total-Total final consumption (Mt CO2);;;
 CO2 total-Total-Transport (Mt CO2);Emi|CO2|w/o Bunkers|Energy|Demand|Transport (Mt CO2/yr);1;
-Economic indicators-Total-GDP per capita (USD per capita (2024, PPP));GDP|per capita|PPP (kUS$2017/per capita);0.00084;convert from US$2022/capita to kUS$2017/capita (REMIND units)
-Economic indicators-Total-Gross domestic product (Billion USD (2024, PPP));GDP|PPP (billion US$2017/yr);0.84;convert from US$2022 to US$2017 (REMIND units)
+Economic indicators-Total-GDP per capita (USD per capita (2024, PPP));GDP|per capita|PPP (kUS$2017/per capita);0.00078;convert from US$2024/capita to kUS$2017/capita (REMIND units)
+Economic indicators-Total-Gross domestic product (Billion USD (2024, PPP));GDP|PPP (billion US$2017/yr);0.78;convert from US$2024 to US$2017 (REMIND units)
 Economic indicators-Total-Household (Million units);;;
 Energy intensity-Total-TES per GDP (GJ per thousand USD (2024, PPP));;;
 Energy intensity-Total-Total final consumption per GDP (GJ per thousand USD (2024, PPP));;;
@@ -169,7 +169,7 @@ Energy-Natural gas-Net exports (Billion cubic metres);;;
 Energy-Natural gas-Net imports (Billion cubic metres);;;
 Energy-Natural gas-Net trade (Billion cubic metres);;;
 Energy-Natural gas-Power sector inputs (EJ);;;
-Energy-Natural gas-Price (USD per MBtu (2024, MER));Price|Primary Energy|Gas (US$2017/GJ);0.8;convert from US$2022 / Mbtu to US$2017/GJ, muliplying by 0.84 (inflation) and 0.95 (Mbtu to GJ)
+Energy-Natural gas-Price (USD per MBtu (2024, MER));Price|Primary Energy|Gas (US$2017/GJ);0.74;convert from US$2024 / Mbtu to US$2017/GJ, multiplying by 0.78 (inflation) and 0.95 (Mbtu to GJ)
 Energy-Natural gas-Production (Billion cubic metres);;;
 Energy-Natural gas-Total energy supply (Billion cubic metres);;;
 Energy-Natural gas-Total energy supply (EJ);;;
@@ -194,7 +194,7 @@ Energy-Oil-Industry (EJ);;;
 Energy-Oil-Net exports (Million barrels per day);;;
 Energy-Oil-Net imports (Million barrels per day);;;
 Energy-Oil-Power sector inputs (EJ);;;
-Energy-Oil-Price (USD per barrel (2024, MER));Price|Primary Energy|Oil (US$2017/GJ);0.14;convert from US$2022 /barrel to US$2017/GJ, muliplying by 0.84 (inflation) and 0.17 (barrel to GJ)
+Energy-Oil-Price (USD per barrel (2024, MER));Price|Primary Energy|Oil (US$2017/GJ);0.13;convert from US$2024 /barrel to US$2017/GJ, multiplying by 0.78 (inflation) and 0.17 (barrel to GJ)
 Energy-Oil-Processing gains (Million barrels per day);;;
 Energy-Oil-Production (Million barrels per day);;;
 Energy-Oil-Supply (Million barrels per day);;;
@@ -266,30 +266,30 @@ Industrial material production-Aluminium-Non-ferrous metals: aluminium (Million 
 Industrial material production-Cement-Non-metallic minerals: cement (Million tonnes);Production|Industry|Cement (Mt/yr);1;
 Industrial material production-Crude steel-Iron and steel (Million tonnes);Production|Industry|Steel (Mt/yr);1;
 Industrial material production-Primary chemicals-Chemicals (Million tonnes);;;
-Investment spending, annual average-Battery storage-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Storage (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Coal-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Coal (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Battery storage-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Storage (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Coal-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Coal (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Investment spending, annual average-Coal-Supply (Billion USD (2024, MER));;;
-Investment spending, annual average-Electricity-Transmission and distribution (Billion USD (2024, MER));Energy Investments|Electricity|Grid|Normal (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Electricity-Transmission and distribution (Billion USD (2024, MER));Energy Investments|Electricity|Grid|Normal (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Investment spending, annual average-Fossil fuels with CCUS-Generation (Billion USD (2024, MER));;;
 Investment spending, annual average-Fuels-Supply (Billion USD (2024, MER));;;
-Investment spending, annual average-Gas-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Gas (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Hydro-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Hydro (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Hydrogen and Hydrogen-based fuels-Supply (Billion USD (2024, MER));Energy Investments|Hydrogen and Synfuels (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Liquid biofuels and biogases-Supply (Billion USD (2024, MER));Energy Investments|Liquids and Gases|Bio (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Nuclear-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Nuclear (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Gas-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Gas (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Hydro-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Hydro (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Hydrogen and Hydrogen-based fuels-Supply (Billion USD (2024, MER));Energy Investments|Hydrogen and Synfuels (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Liquid biofuels and biogases-Supply (Billion USD (2024, MER));Energy Investments|Liquids and Gases|Bio (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Nuclear-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Nuclear (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Investment spending, annual average-Oil and gas-Supply (Billion USD (2024, MER));;;
 Investment spending, annual average-Renewables and other-Supply, power and end-use (Billion USD (2024, MER));;;
-Investment spending, annual average-Renewables-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Renewables (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Solar PV-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Solar (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
-Investment spending, annual average-Total-Direct air capture (Billion USD (2024, MER));Energy Investments|DAC (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Renewables-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Renewables (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Solar PV-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Solar (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Total-Direct air capture (Billion USD (2024, MER));Energy Investments|DAC (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Investment spending, annual average-Total-End-use (Billion USD (2024, MER));;;
 Investment spending, annual average-Total-Energy efficiency (Billion USD (2024, MER));;;
 Investment spending, annual average-Total-Fuels and Power (Billion USD (2024, MER));;;
 Investment spending, annual average-Total-Generation (Billion USD (2024, MER));;;
-Investment spending, annual average-Total-Power (Billion USD (2024, MER));Energy Investments|Electricity (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Total-Power (Billion USD (2024, MER));Energy Investments|Electricity (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Investment spending, annual average-Total-Supply, power and end-use (Billion USD (2024, MER));;;
 Investment spending, annual average-Unabated fossil fuels-Generation (Billion USD (2024, MER));;;
-Investment spending, annual average-Wind-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Wind (billion US$2017/yr);0.84;convert from billion US$2022 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Wind-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Wind (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
 Population indicators-Total-Population (Million people);Population (million);1;
 Share of demand-Coal-Net imports (Percentage);;;
 Share of demand-Natural gas-Net imports (Percentage);;;
