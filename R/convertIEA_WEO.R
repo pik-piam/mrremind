@@ -1,25 +1,16 @@
 #' Converts IEA World Energy Outlook data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype data subtype. Either "Capacity", "Generation", "Emissions",
-#' "Investment Costs", or "O&M Costs"
-#' @return magpie object of the WEO data on generation (TWh), capacities (GW),
-#' emissions (Mt CO2) or disaggregated investment cost as magpie object
+#' @param subtype data subtype. Either "Capacity" or "Invest_Costs"
 #' @author Renato Rodrigues and Aman Malik
 #'
-#' @examples
-#' \dontrun{
-#' a <- convertWEO(x, subtype = "Capacity")
-#' }
-#'
-#' @importFrom readxl read_excel
 convertIEA_WEO <- function(x, subtype) {
 
-  if (subtype == "Invest_Costs" || subtype == "O&M_Costs") {
+  if (subtype == "Invest_Costs") {
 
     # mapping of all countries and their respective regions
     all_c <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
-    # seperating hydro case
+    # separating hydro case
     x_hydro <- x[unique(all_c$RegionCode), , "Hydro_2.hydro"]
     x <- x[unique(all_c$RegionCode), , "Hydro_2.hydro", invert = TRUE]
     eu_costs <- new.magpie(all_c$CountryCode[all_c$RegionCode == "EUR"], years = getYears(x), names = getNames(x))
@@ -88,49 +79,44 @@ convertIEA_WEO <- function(x, subtype) {
     x <- x_total
 
     x[is.na(x)] <- 0
-  } else if ((subtype == "Capacity") || (subtype == "Generation") || (subtype == "Emissions")) {
+  } else if (subtype == "Capacity") {
 
     H12map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
 
-    if (subtype == "Capacity") { # estimate OAS coal
 
-      # Approximate Caspian countries (part of the REF)
-      weight <- calcOutput("IO", subtype = "input", aggregate = FALSE)[, 2015, "pecoal.seel.pc"]
-      caspian <- new.magpie(cells_and_regions = "Caspian", names = getNames(x), years = 2015, fill = as.vector(x["EURASIA", 2015, getNames(x)]) - as.vector(x["RUS", 2015, getNames(x)]))
-      caspianMap <- data.frame(CountryCode = c("ARM", "AZE", "GEO", "KAZ", "KGZ", "TJK", "TKM", "UZB"), RegionCode = "Caspian")
-      caspianCountries <- toolAggregate(caspian, caspianMap, weight[c("ARM", "AZE", "GEO", "KAZ", "KGZ", "TJK", "TKM", "UZB"), , ])
 
-      # Approximate Latin America countries (minus MEX)
-      LAM <- new.magpie(cells_and_regions = "LAM", names = getNames(x), years = 2015, fill = as.vector(x["CSAM", 2015, getNames(x)]) - as.vector(x["BRAZIL", 2015, getNames(x)]))
-      LAMCountryCode <- H12map[which(H12map$RegionCode == "LAM"), ]$CountryCode
-      LAMCountries <- toolAggregate(LAM, H12map[which(H12map$CountryCode %in% LAMCountryCode[!LAMCountryCode %in% c("MEX", "BRA")]), ], weight[LAMCountryCode[!LAMCountryCode %in% c("MEX", "BRA")], , ])
+    # Approximate Caspian countries (part of the REF)
+    weight <- calcOutput("IO", subtype = "input", aggregate = FALSE)[, 2015, "pecoal.seel.pc"]
+    caspian <- new.magpie(cells_and_regions = "Caspian", names = getNames(x), years = 2015, fill = as.vector(x["EURASIA", 2015, getNames(x)]) - as.vector(x["RUS", 2015, getNames(x)]))
+    caspianMap <- data.frame(CountryCode = c("ARM", "AZE", "GEO", "KAZ", "KGZ", "TJK", "TKM", "UZB"), RegionCode = "Caspian")
+    caspianCountries <- toolAggregate(caspian, caspianMap, weight[c("ARM", "AZE", "GEO", "KAZ", "KGZ", "TJK", "TKM", "UZB"), , ])
 
-      # Approximate OAS countries
-      AUS_Coal <- 20 # Australia coal capacity in 2015 (GW)
-      NZL_Coal <- 0.55 # New zealand coal capacity in 2015 (GW)
-      OAStotal <- as.vector(x["ASIAPAC", 2015, "Coal"]) - as.vector(x["CHINA", 2015, "Coal"]) - as.vector(x["INDIA", 2015, "Coal"]) - as.vector(x["JPN", 2015, "Coal"]) - AUS_Coal - NZL_Coal
-      OAS <- new.magpie(cells_and_regions = "OAS", names = c("Coal"), years = 2015, fill = OAStotal)
-      OASCountries <- toolAggregate(OAS, H12map[which(H12map$RegionCode == "OAS"), ], weight[H12map[which(H12map$RegionCode == "OAS"), ]$CountryCode, , ])
-    }
+    # Approximate Latin America countries (minus MEX)
+    LAM <- new.magpie(cells_and_regions = "LAM", names = getNames(x), years = 2015, fill = as.vector(x["CSAM", 2015, getNames(x)]) - as.vector(x["BRAZIL", 2015, getNames(x)]))
+    LAMCountryCode <- H12map[which(H12map$RegionCode == "LAM"), ]$CountryCode
+    LAMCountries <- toolAggregate(LAM, H12map[which(H12map$CountryCode %in% LAMCountryCode[!LAMCountryCode %in% c("MEX", "BRA")]), ], weight[LAMCountryCode[!LAMCountryCode %in% c("MEX", "BRA")], , ])
+
+    # Approximate OAS countries
+    AUS_Coal <- 20 # Australia coal capacity in 2015 (GW)
+    NZL_Coal <- 0.55 # New zealand coal capacity in 2015 (GW)
+    OAStotal <- as.vector(x["ASIAPAC", 2015, "Coal"]) - as.vector(x["CHINA", 2015, "Coal"]) - as.vector(x["INDIA", 2015, "Coal"]) - as.vector(x["JPN", 2015, "Coal"]) - AUS_Coal - NZL_Coal
+    OAS <- new.magpie(cells_and_regions = "OAS", names = c("Coal"), years = 2015, fill = OAStotal)
+    OASCountries <- toolAggregate(OAS, H12map[which(H12map$RegionCode == "OAS"), ], weight[H12map[which(H12map$RegionCode == "OAS"), ]$CountryCode, , ])
 
     # get other regions directly from WEO data
     otherCap <- x[c("US", "BRAZIL", "RUS", "CHINA", "INDIA", "JPN"), 2015, ] # countries only
     getItems(otherCap, dim = 1) <- toolCountry2isocode(getItems(otherCap, dim = 1), mapping = c("US" = "USA", "RUS" = "RUS", "JPN" = "JPN"))
 
     # merge data
-    if (subtype == "Capacity") {
-      reg <- unique(c(getItems(otherCap, dim = 1), getItems(OASCountries, dim = 1), getItems(caspianCountries, dim = 1), getItems(LAMCountries, dim = 1), "MEX"))
-      names <- unique(c(getNames(otherCap), getNames(OASCountries), getNames(caspianCountries), getNames(LAMCountries)))
-      years <- unique(c(getYears(otherCap), getYears(OASCountries), getYears(caspianCountries), getYears(LAMCountries)))
-      out <- new.magpie(cells_and_regions = reg, names = names, years = years)
-      out[getItems(otherCap, dim = 1), , ] <- otherCap
-      out[getItems(OASCountries, dim = 1), , "Coal"] <- OASCountries[, , "Coal"]
-      out[getItems(caspianCountries, dim = 1), , "Coal"] <- caspianCountries[, , "Coal"]
-      out[getItems(LAMCountries, dim = 1), , "Coal"] <- LAMCountries[, , "Coal"]
-      out["MEX", , "Coal"] <- 5.378 # Mexico coal capacity in 2015 (GW)
-    } else {
-      out <- otherCap
-    }
+    reg <- unique(c(getItems(otherCap, dim = 1), getItems(OASCountries, dim = 1), getItems(caspianCountries, dim = 1), getItems(LAMCountries, dim = 1), "MEX"))
+    names <- unique(c(getNames(otherCap), getNames(OASCountries), getNames(caspianCountries), getNames(LAMCountries)))
+    years <- unique(c(getYears(otherCap), getYears(OASCountries), getYears(caspianCountries), getYears(LAMCountries)))
+    out <- new.magpie(cells_and_regions = reg, names = names, years = years)
+    out[getItems(otherCap, dim = 1), , ] <- otherCap
+    out[getItems(OASCountries, dim = 1), , "Coal"] <- OASCountries[, , "Coal"]
+    out[getItems(caspianCountries, dim = 1), , "Coal"] <- caspianCountries[, , "Coal"]
+    out[getItems(LAMCountries, dim = 1), , "Coal"] <- LAMCountries[, , "Coal"]
+    out["MEX", , "Coal"] <- 5.378 # Mexico coal capacity in 2015 (GW)
 
     # fill countries with no data
     out <- toolCountryFill(out, fill = 0, verbosity = 2)
@@ -141,34 +127,5 @@ convertIEA_WEO <- function(x, subtype) {
     x <- out
   }
 
-  if ((subtype == "PE") || (subtype == "FE")) {
-    x <- collapseNames(x)
-
-    regions <- c(
-      "BRAZIL", "CHINA", "JPN",
-      "INDIA",
-      "US", "RUS", "SAFR"
-    )
-    y <- x[regions, , ]
-
-    getItems(y, dim = 1) <- gsub("JPN", "Japan", getItems(y, dim = 1))
-    getItems(y, dim = 1) <- gsub("RUS", "Russia", getItems(y, dim = 1))
-    getItems(y, dim = 1) <- gsub("US", "United States of America", getItems(y, dim = 1))
-    getItems(y, dim = 1) <- gsub("SAFR", "South Africa", getItems(y, dim = 1))
-
-    y <- mbind(y)
-
-    getItems(y, dim = 1) <- toolCountry2isocode(getItems(y, dim = 1))
-    x <- y
-    x <- toolCountryFill(x = y, fill = NA, verbosity = 2)
-
-    if (subtype == "PE") {
-      x <- x[, , "Primary Energy", pmatch = TRUE]
-    }
-
-    if (subtype == "FE") {
-      x <- x[, , "Final Energy", pmatch = TRUE]
-    }
-  }
   return(x)
 }
