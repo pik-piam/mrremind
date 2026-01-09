@@ -69,16 +69,15 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # IEA Primary Energy ----
 
   calcOutput(
-    type = "PE", subtype = "IEA", ieaVersion = "latest", file = valfile,
+    type = "PE", ieaVersion = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
 
-
   # IEA Final Energy ----
 
   calcOutput(
-    type = "FE", source = "IEA", ieaVersion = "latest", file = valfile,
+    type = "FE", ieaVersion = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
@@ -253,7 +252,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "EEA")
   )
 
-
   # Global Energy Monitor ----
 
   calcOutput(
@@ -294,7 +292,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
 
-  # IEA World Energy Outlook 2023 ----
+  # IEA World Energy Outlook ----
   calcOutput(
     type = "IEA_WorldEnergyOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,

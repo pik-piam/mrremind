@@ -80,7 +80,7 @@ calcPlasticsEoL <- function() {
 
   # create weights ----
 
-  fe <- calcOutput("FE", source = "IEA", aggregate = FALSE)[, 2016, "FE (EJ/yr)"]
+  fe <- calcOutput("FE", aggregate = FALSE)[, 2016, "FE (EJ/yr)"]
 
   return(
     list(

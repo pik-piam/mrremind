@@ -58,7 +58,7 @@ convertIEA_ETP <- function(x, subtype) { # nolint: object_name_linter.
                         returnPathOnly = TRUE) %>%
     utils::read.csv2(check.names = FALSE)
 
-  fe <- calcOutput("FE", source = "IEA", aggregate = FALSE) %>%
+  fe <- calcOutput("FE", aggregate = FALSE) %>%
     mselect(d3 = switch(subtype,
                         industry  = "FE|Industry (EJ/yr)",
                         buildings = "FE|Buildings (EJ/yr)",
