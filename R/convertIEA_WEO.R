@@ -83,8 +83,6 @@ convertIEA_WEO <- function(x, subtype) {
 
     H12map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
 
-
-
     # Approximate Caspian countries (part of the REF)
     weight <- calcOutput("IO", subtype = "input", aggregate = FALSE)[, 2015, "pecoal.seel.pc"]
     caspian <- new.magpie(cells_and_regions = "Caspian", names = getNames(x), years = 2015, fill = as.vector(x["EURASIA", 2015, getNames(x)]) - as.vector(x["RUS", 2015, getNames(x)]))

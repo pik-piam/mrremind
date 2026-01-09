@@ -2,8 +2,7 @@
 #' @author Lavinia Baumstark, Aman Malik
 #' @param ieaVersion Release version of IEA data, either 'default' (vetted and used in REMIND)
 #' or 'latest'.
-
-calcFE <- function(source = "IEA", ieaVersion = "default") {
+calcFE <- function(ieaVersion = "default") {
 
   #------ READ-IN DATA----------------------------------------
 

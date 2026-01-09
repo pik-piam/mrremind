@@ -2,7 +2,6 @@
 #'
 #' @param ieaVersion Release version of IEA data, either 'default' (vetted and used in REMIND)
 #' or 'latest'.
-#' @return a magclass object
 calcPE <- function(ieaVersion = "default") {
 
   data <- calcOutput("IO", subtype = "input", corrected = TRUE,
