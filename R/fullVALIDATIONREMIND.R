@@ -74,12 +74,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
 
-  # World Energy Outlook 2019 Primary Energy ----
-
-  pe <- calcOutput(type = "PE", subtype = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
-  pe <- collapseNames(pe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
-
 
   # IEA Final Energy ----
 
@@ -88,12 +82,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
-
-  # World Energy Outlook 2019 Final Energy ----
-
-  fe <- calcOutput(type = "FE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
-  fe <- collapseNames(fe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(fe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
 
   # IEA Fossil Trade ----
 
