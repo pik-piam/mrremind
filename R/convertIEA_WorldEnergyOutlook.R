@@ -76,7 +76,9 @@ convertIEA_WorldEnergyOutlook <- function(x) { # nolint
     "Advanced economies", "Emerging market and developing economies",
     "International Energy Agency", "OECD", "Non-OECD",
     "North Africa", "Sub-Saharan Africa", "Rest of world",
-    "Other Asia Pacific", "Other Europe", "Non-OPEC"
+    "Other Asia Pacific", "Other Europe", "Non-OPEC",
+    "Non-OPEC plus", "OPECplus", "Other developing Asia",
+    "Other Southeast Asia"
   ), , , invert = TRUE]
 
   # remove all-NA variables
