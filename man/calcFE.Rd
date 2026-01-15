@@ -2,20 +2,16 @@
 % Please edit documentation in R/calcFE.R
 \name{calcFE}
 \alias{calcFE}
-\title{Calculates FE historical from IEA energy balances, projections from EDGE, and historical
-values from IEA WEO 2019}
+\title{Calculates FE historical from IEA energy balances}
 \usage{
-calcFE(source = "IEA", ieaVersion = "default")
+calcFE(ieaVersion = "default")
 }
 \arguments{
-\item{source}{"IEA" or "IEA_WEO"}
-
 \item{ieaVersion}{Release version of IEA data, either 'default' (vetted and used in REMIND)
 or 'latest'.}
 }
 \description{
-Calculates FE historical from IEA energy balances, projections from EDGE, and historical
-values from IEA WEO 2019
+Calculates FE historical from IEA energy balances
 }
 \author{
 Lavinia Baumstark, Aman Malik

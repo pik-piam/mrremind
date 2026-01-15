@@ -1,311 +1,307 @@
-Variable;REMIND;Conversion
-Activity of stock-Total-International marine bunkers (Billion tonne-km);;
-Activity of stock-Total-Road freight trucks (Billion tonne-km);;
-Activity of stock-Total-Road heavy-duty trucks (Billion tonne-km);;
-Activity of stock-Total-Road passenger light duty vehicle (Billion passenger-km);;
-Activity of stock-Total-Total aviation (domestic and bunkers) (Billion passenger-km);;
-Capacity: installed-Battery storage-Electrical capacity (GW);Cap|Electricity|Storage|Battery (GW);1
-Capacity: installed-Bioenergy: with CCUS-Electrical capacity (GW);Cap|Electricity|Biomass|w/ CC (GW);1
-Capacity: installed-Coal: unabated-Electrical capacity (GW);Cap|Electricity|Coal|w/o CC (GW);1
-Capacity: installed-Coal: with CCUS-Electrical capacity (GW);Cap|Electricity|Coal|w/ CC (GW);1
-Capacity: installed-Concentrating solar power-Electrical capacity (GW);Cap|Electricity|Solar|CSP (GW);1
-Capacity: installed-Fossil fuels: unabated-Electrical capacity (GW);Cap|Electricity|Fossil|w/o CC (GW);1
-Capacity: installed-Fossil fuels: with CCUS-Electrical capacity (GW);Cap|Electricity|Fossil|w/ CC (GW);1
-Capacity: installed-Geothermal-Electrical capacity (GW);Cap|Electricity|Geothermal (GW);1
-Capacity: installed-Hydro-Electrical capacity (GW);Cap|Electricity|Hydro (GW);1
-Capacity: installed-Hydrogen and H2-based fuels-Electrical capacity (GW);Cap|Electricity|Hydrogen (GW);1
-Capacity: installed-Marine-Electrical capacity (GW);;
-Capacity: installed-Modern bioenergy and renewable waste-Electrical capacity (GW);Cap|Electricity|Biomass (GW);1
-Capacity: installed-Natural gas: unabated-Electrical capacity (GW);Cap|Electricity|Gas|w/o CC (GW);1
-Capacity: installed-Natural gas: with CCUS-Electrical capacity (GW);Cap|Electricity|Gas|w/ CC (GW);1
-Capacity: installed-Nuclear-Electrical capacity (GW);Cap|Electricity|Nuclear (GW);1
-Capacity: installed-Oil-Electrical capacity (GW);Cap|Electricity|Oil (GW);1
-Capacity: installed-Renewables-Electrical capacity (GW);;
-Capacity: installed-Solar PV-Electrical capacity (GW);Cap|Electricity|Solar|PV (GW);1
-Capacity: installed-Total-Electrical capacity (GW);Cap|Electricity (GW);1
-Capacity: installed-Wind-Electrical capacity (GW);Cap|Electricity|Wind (GW);1
-CO2 combustion and process-Total-Chemicals (Mt CO2);;
-CO2 combustion and process-Total-Industry (Mt CO2);;
-CO2 combustion and process-Total-Iron and steel (Mt CO2);;
-CO2 combustion and process-Total-Non-ferrous metals: aluminium (Mt CO2);;
-CO2 combustion and process-Total-Non-metallic minerals: cement (Mt CO2);;
-CO2 combustion and process-Total-Other energy sector (Mt CO2);;
-CO2 combustion and process-Total-Total final consumption (Mt CO2);;
-CO2 combustion-Bioenergy and waste-Power sector inputs (Mt CO2);;
-CO2 combustion-Bioenergy and waste-Total energy supply (Mt CO2);;
-CO2 combustion-Bioenergy and waste-Total final consumption (Mt CO2);;
-CO2 combustion-Coal-Power sector inputs (Mt CO2);;
-CO2 combustion-Coal-Total energy supply (Mt CO2);;
-CO2 combustion-Coal-Total final consumption (Mt CO2);;
-CO2 combustion-Natural gas-Power sector inputs (Mt CO2);;
-CO2 combustion-Natural gas-Total energy supply (Mt CO2);;
-CO2 combustion-Natural gas-Total final consumption (Mt CO2);;
-CO2 combustion-Oil-Power sector inputs (Mt CO2);;
-CO2 combustion-Oil-Total energy supply (Mt CO2);;
-CO2 combustion-Oil-Total final consumption (Mt CO2);;
-CO2 combustion-Total-Buildings (Mt CO2);Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr);1
-CO2 combustion-Total-Power sector inputs (Mt CO2);Emi|CO2|Energy|Supply|Electricity w/ couple prod (Mt CO2/yr);1
-CO2 combustion-Total-Residential (Mt CO2);;
-CO2 combustion-Total-Road (Mt CO2);Emi|CO2|Transport|Road|Demand (Mt CO2/yr);1
-CO2 combustion-Total-Road heavy-duty trucks (Mt CO2);;
-CO2 combustion-Total-Road passenger light duty vehicle (Mt CO2);Emi|CO2|Transport|Pass|Road|LDV|Demand (Mt CO2/yr);1
-CO2 combustion-Total-Services (Mt CO2);;
-CO2 combustion-Total-Total aviation (domestic and bunkers) (Mt CO2);;
-CO2 combustion-Total-Total energy supply (Mt CO2);Emi|CO2|Energy (Mt CO2/yr);1
-CO2 combustion-Total-Total navigation (domestic and bunkers) (Mt CO2);;
-CO2 combustion-Total-Transport (Mt CO2);Emi|CO2|Energy|Demand|Transport (Mt CO2/yr);1
-CO2 DAC stored-Total-Direct air capture: offsite (Mt CO2);;
-CO2 process stored-Modern bioenergy: liquid-Biofuels production (Mt CO2);;
-CO2 total captured-Total-Total energy supply (Mt CO2);;
-CO2 total intensity-Electricity-Electricity generation (gCO2 per kWh);;
-CO2 total removed-Total-Biofuels production and direct air capture (Mt CO2);;
-CO2 total removed-Total-Total energy supply (Mt CO2);;
-CO2 total-Total-Total energy supply (Mt CO2);;
-Economic indicators-Floorspace-Services (Million square meters);;
-Economic indicators-Total-GDP per capita (USD per capita (2022, PPP));;
-Economic indicators-Total-Gross domestic product (Billion USD (2022, PPP));;
-Economic indicators-Total-Household (Million units);;
-Energy intensity-Total-TES per GDP (GJ per thousand USD (2022, PPP));;
-Energy intensity-Total-Total final consumption per GDP (GJ per thousand USD (2022, PPP));;
-Energy-Ammonia-Power sector inputs (EJ);;
-Energy-Ammonia-Total final consumption (EJ);;
-Energy-Bioenergy: with CCUS-Electricity generation (TWh);SE|Electricity|Biomass|w/ CC (EJ/yr);0.0036
-Energy-Biomethane-Buildings (EJ);;
-Energy-Biomethane-Industry (EJ);;
-Energy-Biomethane-Total final consumption (EJ);;
-Energy-Biomethane-Transport (EJ);;
-Energy-Coal-Buildings (EJ);FE|Buildings|Solids|Fossil (EJ/yr);1
-Energy-Coal-Net exports (Million tonnes of coal equivalent);;
-Energy-Coal-Net imports (Million tonnes of coal equivalent);;
-Energy-Coal-Net trade (Million tonnes of coal equivalent);;
-Energy-Coal-Power sector inputs (EJ);;
-Energy-Coal-Production (Million tonnes of coal equivalent);;
-Energy-Coal-Total energy supply (EJ);;
-Energy-Coal-Total energy supply (Million tonnes of coal equivalent);;
-Energy-Coal-Total final consumption (EJ);;
-Energy-Coal: unabated-Electricity generation (TWh);SE|Electricity|Coal|w/o CC (EJ/yr);0.0036
-Energy-Coal: unabated-Industry (EJ);;
-Energy-Coal: unabated-Power sector inputs (EJ);PE|Coal|Electricity (EJ/yr);1
-Energy-Coal: unabated-Total energy supply (EJ);PE|Coal (EJ/yr);1
-Energy-Coal: with CCUS-Electricity generation (TWh);SE|Electricity|Coal|w/ CC (EJ/yr);0.0036
-Energy-Coal: with CCUS-Industry (EJ);;
-Energy-Coal: with CCUS-Power sector inputs (EJ);PE|Coal|Electricity|w/ CC (EJ/yr);1
-Energy-Coal: with CCUS-Total energy supply (EJ);PE|Coal (EJ/yr);1
-Energy-Coalbed methane-Production (Billion cubic metres);;
-Energy-Coking coal-Net trade (Million tonnes of coal equivalent);;
-Energy-Coking coal-Production (Million tonnes of coal equivalent);;
-Energy-Concentrating solar power-Electricity generation (TWh);SE|Electricity|Solar|CSP (EJ/yr);0.0036
-Energy-Conventional crude oil-Production (Million barrels per day);;
-Energy-Conventional gas-Production (Billion cubic metres);;
-Energy-CTL, GTL and additives-Demand (Million barrels per day);;
-Energy-Diesel-Demand (Million barrels per day);;
-Energy-Direct use of crude oil-Demand (Million barrels per day);;
-Energy-District heat-Buildings (EJ);FE|Buildings|Heat (EJ/yr);1
-Energy-District heat-Industry (EJ);FE|Industry|Heat (EJ/yr);1
-Energy-District heat-Total final consumption (EJ);FE|Heat (EJ/yr);1
-Energy-Electricity-Buildings (EJ);FE|Buildings|Electricity (EJ/yr);1
-Energy-Electricity-Industry (EJ);FE|Industry|Electricity (EJ/yr);1
-Energy-Electricity-Total final consumption (EJ);FE|Electricity (EJ/yr);1
-Energy-Electricity-Transport (EJ);FE|Transport|Electricity (EJ/yr);1
-Energy-Extra-heavy oil and bitumen-Production (Million barrels per day);;
-Energy-Fossil fuels: unabated-Electricity generation (TWh);SE|Electricity|Fossil|w/o CC (EJ/yr);0.0036
-Energy-Fossil fuels: with CCUS-Electricity generation (TWh);SE|Electricity|Fossil|w/ CC (EJ/yr);0.0036
-Energy-Fuel oil-Demand (Million barrels per day);;
-Energy-Gasoline-Demand (Million barrels per day);;
-Energy-Geothermal-Electricity generation (TWh);SE|Electricity|Geothermal (EJ/yr);0.0036
-Energy-Hydro-Electricity generation (TWh);SE|Electricity|Hydro (EJ/yr);0.0036
-Energy-Hydro-Power sector inputs (EJ);;
-Energy-Hydro-Total energy supply (EJ);PE|Hydro (EJ/yr);1
-Energy-Hydrogen and H2-based fuels-Electricity generation (TWh);SE|Electricity|Hydrogen (EJ/yr);0.0036
-Energy-Hydrogen based fuels-Demand (Million barrels per day);;
-Energy-Hydrogen-based fuels: liquid-Total final consumption (EJ);;
-Energy-Hydrogen-Bioenergy and other (Million tonnes);;
-Energy-Hydrogen-Buildings (EJ);FE|Buildings|Hydrogen (EJ/yr);1
-Energy-Hydrogen-Final demand (EJ);FE|Industry|Hydrogen (EJ/yr);1
-Energy-Hydrogen-Fossil fuels with CCUS (Million tonnes);;
-Energy-Hydrogen-Hydrogen demand for end-use sectors (Million tonnes);;
-Energy-Hydrogen-In oil refining (Million tonnes);;
-Energy-Hydrogen-Industry (EJ);;
-Energy-Hydrogen-International bunkers (EJ);;
-Energy-Hydrogen-Low-emissions hydrogen production (Million tonnes);;
-Energy-Hydrogen-Low-emissions hydrogen-based fuels (Million tonnes);;
-Energy-Hydrogen-Power generation (Million tonnes);;
-Energy-Hydrogen-Power sector inputs (EJ);SE|Input|Hydrogen|Electricity (EJ/yr);1
-Energy-Hydrogen-To biofuels (Million tonnes);;
-Energy-Hydrogen-To hydrogen-based fuels (Million tonnes);;
-Energy-Hydrogen-To power generation (Million tonnes);;
-Energy-Hydrogen-Total final consumption (EJ);FE|Hydrogen (EJ/yr);1
-Energy-Hydrogen-Total final consumption (Million tonnes);;
-Energy-Hydrogen-Trade (Million tonnes);;
-Energy-Hydrogen-Trade as share of demand (Million tonnes);;
-Energy-Hydrogen-Transformation of hydrogen (Million tonnes);;
-Energy-Hydrogen-Transport (EJ);FE|Transport|Hydrogen (EJ/yr);1
-Energy-Hydrogen-Water electrolysis (Million tonnes);;
-Energy-Hydrogen: low emissions-Hydrogen production inputs: offsite (EJ);;
-Energy-Hydrogen: low emissions-Hydrogen production: offsite (EJ);;
-Energy-Hydrogen: low emissions-Hydrogen-based fuels production inputs (EJ);SE|Hydrogen|Electricity (EJ/yr);1
-Energy-Kerosene-Demand (Million barrels per day);;
-Energy-Lignite and peat-Production (Million tonnes of coal equivalent);;
-Energy-Liquids-Demand (Million barrels per day);;
-Energy-LNG-Net trade (Billion cubic metres);;
-Energy-LPG and ethane-Demand (Million barrels per day);;
-Energy-Marine-Electricity generation (TWh);;
-Energy-Modern bioenergy and renewable waste-Electricity generation (TWh);SE|Electricity|Biomass (EJ/yr);0.0036
-Energy-Modern bioenergy and renewable waste-Power sector inputs (EJ);PE|Biomass|Electricity (EJ/yr);1
-Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass (EJ/yr);1
-Energy-Modern bioenergy: gas-Total energy supply (EJ);FE|Gases|Biomass (EJ/yr);1
-Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass (EJ/yr);1
-Energy-Modern bioenergy: liquid-Buildings (EJ);FE|Buildings|Liquids|Biomass (EJ/yr);1
-Energy-Modern bioenergy: liquid-Total energy supply (EJ);;
-Energy-Modern bioenergy: liquid-Total final consumption (EJ);FE|Liquids|Biomass (EJ/yr);1
-Energy-Modern bioenergy: liquid-Transport (EJ);;
-Energy-Modern bioenergy: solid-Buildings (EJ);FE|Buildings|Solids|Biomass|Modern (EJ/yr);1
-Energy-Modern bioenergy: solid-Industry (EJ);;
-Energy-Modern bioenergy: solid-Total energy supply (EJ);FE|Solids|Biomass|Modern (EJ/yr);1
-Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass (EJ/yr);1
-Energy-Naphtha-Demand (Million barrels per day);;
-Energy-Natural gas liquids-Production (Million barrels per day);;
-Energy-Natural gas-Buildings (EJ);;
-Energy-Natural gas-Net exports (Billion cubic metres);;
-Energy-Natural gas-Net imports (Billion cubic metres);;
-Energy-Natural gas-Net trade (Billion cubic metres);;
-Energy-Natural gas-Power sector inputs (EJ);;
-Energy-Natural gas-Price (US dollars per million British thermal units);;
-Energy-Natural gas-Production (Billion cubic metres);;
-Energy-Natural gas-Total energy supply (Billion cubic metres);;
-Energy-Natural gas-Total energy supply (EJ);;
-Energy-Natural gas-Total final consumption (EJ);;
-Energy-Natural gas-Transport (EJ);;
-Energy-Natural gas: unabated-Electricity generation (TWh);SE|Electricity|Gas|w/o CC (EJ/yr);0.0036
-Energy-Natural gas: unabated-Industry (EJ);;
-Energy-Natural gas: unabated-Power sector inputs (EJ);PE|Gas|Electricity (EJ/yr);1
-Energy-Natural gas: unabated-Total energy supply (EJ);PE|Gas (EJ/yr);1
-Energy-Natural gas: with CCUS-Electricity generation (TWh);SE|Electricity|Gas|w/ CC (EJ/yr);0.0036
-Energy-Natural gas: with CCUS-Industry (EJ);;
-Energy-Natural gas: with CCUS-Power sector inputs (EJ);PE|Gas|Electricity|w/ CC (EJ/yr);1
-Energy-Natural gas: with CCUS-Total energy supply (EJ);PE|Gas (EJ/yr);1
-Energy-Nuclear-Electricity generation (TWh);SE|Electricity|Nuclear (EJ/yr);0.0036
-Energy-Nuclear-Power sector inputs (EJ);;
-Energy-Nuclear-Total energy supply (EJ);PE|Nuclear (EJ/yr);1
-Energy-Oil products-Demand (Million barrels per day);;
-Energy-Oil-Buildings (EJ);FE|Buildings|Liquids|Fossil|Oil (EJ/yr);1
-Energy-Oil-Demand (Million barrels per day);;
-Energy-Oil-Electricity generation (TWh);;
-Energy-Oil-Industry (EJ);;
-Energy-Oil-Net exports (Million barrels per day);;
-Energy-Oil-Net imports (Million barrels per day);;
-Energy-Oil-Non-energy use (EJ);;
-Energy-Oil-Power sector inputs (EJ);;
-Energy-Oil-Price (US dollars per barrel);;
-Energy-Oil-Processing gains (Million barrels per day);;
-Energy-Oil-Production (Million barrels per day);;
-Energy-Oil-Supply (Million barrels per day);;
-Energy-Oil-Total energy supply (EJ);PE|Oil (EJ/yr);1
-Energy-Oil-Total energy supply (Million barrels per day);;
-Energy-Oil-Total final consumption (EJ);FE|Liquids|Fossil|Oil (EJ/yr);1
-Energy-Oil-Transport (EJ);FE|Transport|Liquids|Fossil|Oil (EJ/yr);1
-Energy-Other products-Demand (Million barrels per day);;
-Energy-Other-Production (Billion cubic metres);;
-Energy-Other-Production (Million barrels per day);;
-Energy-Pipeline-Net trade (Billion cubic metres);;
-Energy-Products from NGLs-Demand (Million barrels per day);;
-Energy-Refinery market share-Demand (Percentage);;
-Energy-Refinery products-Demand (Million barrels per day);;
-Energy-Renewables-Electricity generation (TWh);;
-Energy-Renewables-Power sector inputs (EJ);;
-Energy-Renewables-Total energy supply (EJ);;
-Energy-Shale gas-Production (Billion cubic metres);;
-Energy-Solar PV-Electricity generation (TWh);SE|Electricity|Solar|PV (EJ/yr);0.0036
-Energy-Solar PV-Power sector inputs (EJ);;
-Energy-Solar-Total energy supply (EJ);PE|Solar (EJ/yr);1
-Energy-Solid bioenergy incl_ TUOB-Total final consumption (EJ);;
-Energy-Steam coal-Net trade (Million tonnes of coal equivalent);;
-Energy-Steam coal-Price (US dollars per tonne);;
-Energy-Steam coal-Production (Million tonnes of coal equivalent);;
-Energy-Synthetic methane-Total final consumption (EJ);;
-Energy-Synthetic oil products-Total final consumption (EJ);;
-Energy-Tight gas-Production (Billion cubic metres);;
-Energy-Tight oil-Production (Million barrels per day);;
-Energy-Total gases-Buildings (EJ);FE|Buildings|Gases (EJ/yr);1
-Energy-Total gases-Industry (EJ);FE|Industry|Gases (EJ/yr);1
-Energy-Total gases-Total final consumption (EJ);FE|Gases (EJ/yr);1
-Energy-Total gases-Transport (EJ);FE|Transport|Gases (EJ/yr);1
-Energy-Total liquids-Buildings (EJ);FE|Buildings|Liquids (EJ/yr);1
-Energy-Total liquids-Industry (EJ);FE|Industry|Liquids (EJ/yr);1
-Energy-Total liquids-Total final consumption (EJ);FE|Liquids (EJ/yr);1
-Energy-Total liquids-Transport (EJ);FE|Transport|Liquids (EJ/yr);1
-Energy-Total solid fuels-Buildings (EJ);FE|Buildings|Solids (EJ/yr);1
-Energy-Total solid fuels-Industry (EJ);FE|Industry|Solids (EJ/yr);1
-Energy-Total solid fuels-Total final consumption (EJ);FE|Solids (EJ/yr);1
-Energy-Total-Biofuels production: own use (EJ);SE|Liquids|Biomass (EJ/yr);1
-Energy-Total-Buildings (EJ);FE|Buildings (EJ/yr);1
-Energy-Total-Chemicals (EJ);;
-Energy-Total-Electricity generation (TWh);SE|Electricity (EJ/yr);0.0036
-Energy-Total-Industry (EJ);FE|Industry (EJ/yr);1
-Energy-Total-Iron and steel (EJ);FE|Industry|Steel (EJ/yr);1
-Energy-Total-Non-ferrous metals: aluminium (EJ);;
-Energy-Total-Non-metallic minerals: cement (EJ);;
-Energy-Total-Other energy sector (EJ);;
-Energy-Total-Power sector inputs (EJ);;
-Energy-Total-Refinery runs (Million barrels per day);;
-Energy-Total-Refining capacity (Million barrels per day);;
-Energy-Total-Refining capacity: capacity at risk (Million barrels per day);;
-Energy-Total-Residential (EJ);;
-Energy-Total-Road (EJ);FE|Transport|Road (EJ/yr);1
-Energy-Total-Road heavy-duty trucks (EJ);;
-Energy-Total-Road passenger light duty vehicle (EJ);FE|Transport|Pass|Road|LDV (EJ/yr);1
-Energy-Total-Services (EJ);;
-Energy-Total-Total aviation (domestic and bunkers) (EJ);;
-Energy-Total-Total energy supply (EJ);PE (EJ/yr);1
-Energy-Total-Total final consumption (EJ);FE (EJ/yr);1
-Energy-Total-Total navigation (domestic and bunkers) (EJ);FE|Transport|Freight|International Shipping (EJ/yr);1
-Energy-Total-Transport (EJ);FE|Transport (EJ/yr);1
-Energy-Traditional use of biomass-Residential (EJ);FE|Buildings|Solids|Biomass|Traditional (EJ/yr);1
-Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass (EJ/yr);1
-Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass|Traditional (EJ/yr);1
-Energy-Wind-Electricity generation (TWh);SE|Electricity|Wind (EJ/yr);0.0036
-Energy-Wind-Power sector inputs (EJ);;
-Energy-Wind-Total energy supply (EJ);PE|Wind (EJ/yr);1
-Industrial material production-Aluminium-Non-ferrous metals: aluminium (excl internal scrap) (Million tonnes);;
-Industrial material production-Cement-Non-metallic minerals: cement (Million tonnes);;
-Industrial material production-Crude steel-Iron and steel (Million tonnes);;
-Industrial material production-Primary chemicals-Chemicals (Million tonnes);;
-Investment spending, annual average-Battery storage-Generation (Billion US dollars);Energy Investments|Electricity|Storage (billion US$2017/yr);1
-Investment spending, annual average-Coal-Generation (Billion US dollars);Energy Investments|Electricity|Coal (billion US$2017/yr);1
-Investment spending, annual average-Coal-Supply (Billion US dollars);;
-Investment spending, annual average-Electricity-Transmission and distribution (Billion US dollars);Energy Investments|Electricity|Grid|Normal (billion US$2017/yr);1
-Investment spending, annual average-Fossil fuels with CCUS-Generation (Billion US dollars);;
-Investment spending, annual average-Fuels-Supply (Billion US dollars);;
-Investment spending, annual average-Gas-Generation (Billion US dollars);Energy Investments|Electricity|Gas (billion US$2017/yr);1
-Investment spending, annual average-Hydro-Generation (Billion US dollars);Energy Investments|Electricity|Hydro (billion US$2017/yr);1
-Investment spending, annual average-Hydrogen and Hydrogen-based fuels-Supply (Billion US dollars);Energy Investments|Hydrogen and Synfuels (billion US$2017/yr);1
-Investment spending, annual average-Liquid biofuels and biogases-Supply (Billion US dollars);Energy Investments|Liquids and Gases|Bio (billion US$2017/yr);1
-Investment spending, annual average-Nuclear-Generation (Billion US dollars);Energy Investments|Electricity|Nuclear (billion US$2017/yr);1
-Investment spending, annual average-Oil and gas-Supply (Billion US dollars);;
-Investment spending, annual average-Other-Generation (Billion US dollars);;
-Investment spending, annual average-Renewables and other-Supply, power and end-use (Billion US dollars);;
-Investment spending, annual average-Renewables-Generation (Billion US dollars);Energy Investments|Electricity|Renwables (billion US$2017/yr);1
-Investment spending, annual average-Solar PV-Generation (Billion US dollars);Energy Investments|Electricity|Solar (billion US$2017/yr);1
-Investment spending, annual average-Total-Direct air capture (Billion US dollars);Energy Investments|DAC (billion US$2017/yr);1
-Investment spending, annual average-Total-End-use (Billion US dollars);;
-Investment spending, annual average-Total-Energy efficiency (Billion US dollars);;
-Investment spending, annual average-Total-Fuels and Power (Billion US dollars);;
-Investment spending, annual average-Total-Generation (Billion US dollars);;1
-Investment spending, annual average-Total-Power (Billion US dollars);Energy Investments|Electricity (billion US$2017/yr);1
-Investment spending, annual average-Total-Supply, power and end-use (Billion US dollars);;
-Investment spending, annual average-Unabated fossil fuels-Generation (Billion US dollars);;
-Investment spending, annual average-Wind-Generation (Billion US dollars);Energy Investments|Electricity|Wind (billion US$2017/yr);1
-Population indicators-Total-Population (Million people);Population (million);1
-Share of demand-Coal-Net imports (Percentage);;
-Share of demand-Natural gas-Net imports (Percentage);;
-Share of demand-Oil-Net imports (Percentage);;
-Share of production-Coal-Net exports (Percentage);;
-Share of production-Coal-Net trade (Percentage);;
-Share of production-Coking coal-Net trade (Percentage);;
-Share of production-LNG-Net trade (Percentage);;
-Share of production-Natural gas-Net exports (Percentage);;
-Share of production-Natural gas-Net trade (Percentage);;
-Share of production-Oil-Net exports (Percentage);;
-Share of production-Pipeline-Net trade (Percentage);;
-Share of production-Steam coal-Net trade (Percentage);;
-Stock-Floorspace-Residential (Million square meters);;
+Variable;REMIND;Conversion;Comment
+Activity of stock-Total-Aviation: domestic and international bunkers (Billion passenger-km);ES|Transport|Pass|Aviation (billion tkm/yr);1;
+Activity of stock-Total-Navigation: international bunkers (Billion tonne-km);;;
+Activity of stock-Total-Road freight trucks (Billion tonne-km);ES|Transport|Freight|Road (billion tkm/yr);1;
+Activity of stock-Total-Road passenger light duty vehicles (Billion passenger-km);ES|Transport|Pass|Road|LDV (billion tkm/yr);1;
+Capacity: installed-Battery storage-Electrical capacity (GW);Cap|Electricity|Storage|Battery (GW);1;
+Capacity: installed-Bioenergy: with CCUS-Electrical capacity (GW);Cap|Electricity|Biomass|w/ CC (GW);1;
+Capacity: installed-Coal: unabated-Electrical capacity (GW);Cap|Electricity|Coal|w/o CC (GW);1;
+Capacity: installed-Coal: with CCUS-Electrical capacity (GW);Cap|Electricity|Coal|w/ CC (GW);1;
+Capacity: installed-Concentrating solar power-Electrical capacity (GW);Cap|Electricity|Solar|CSP (GW);1;
+Capacity: installed-Fossil fuels: unabated-Electrical capacity (GW);Cap|Electricity|Fossil|w/o CC (GW);1;
+Capacity: installed-Fossil fuels: with CCUS-Electrical capacity (GW);Cap|Electricity|Fossil|w/ CC (GW);1;
+Capacity: installed-Geothermal-Electrical capacity (GW);Cap|Electricity|Geothermal (GW);1;
+Capacity: installed-Hydro-Electrical capacity (GW);Cap|Electricity|Hydro (GW);1;
+Capacity: installed-Hydrogen and H2-based fuels-Electrical capacity (GW);Cap|Electricity|Hydrogen (GW);1;
+Capacity: installed-Marine-Electrical capacity (GW);;;
+Capacity: installed-Modern bioenergy and renewable waste-Electrical capacity (GW);Cap|Electricity|Biomass (GW);1;
+Capacity: installed-Natural gas: unabated-Electrical capacity (GW);Cap|Electricity|Gas|w/o CC (GW);1;
+Capacity: installed-Natural gas: with CCUS-Electrical capacity (GW);Cap|Electricity|Gas|w/ CC (GW);1;
+Capacity: installed-Nuclear-Electrical capacity (GW);Cap|Electricity|Nuclear (GW);1;
+Capacity: installed-Oil-Electrical capacity (GW);Cap|Electricity|Oil (GW);1;
+Capacity: installed-Renewables-Electrical capacity (GW);;;
+Capacity: installed-Solar PV-Electrical capacity (GW);Cap|Electricity|Solar|PV (GW);1;
+Capacity: installed-Total-Electrical capacity (GW);Cap|Electricity (GW);1;
+Capacity: installed-Wind-Electrical capacity (GW);Cap|Electricity|Wind (GW);1;
+CO2 combustion and process-Total-Chemicals (Mt CO2);Emi|CO2|Energy|Demand|Industry|Chemicals (Mt CO2/yr);1;
+CO2 combustion and process-Total-Iron and steel (Mt CO2);Emi|CO2|Energy|Demand|Industry|Steel (Mt CO2/yr);1;This includes both process and energy emissions from iron and steel. REMIND does not distinguish these emissions and all are included in Emi|CO2|Energy|Demand|Industry|Steel
+CO2 combustion and process-Total-Non-ferrous metals: aluminium (Mt CO2);;;
+CO2 combustion and process-Total-Non-metallic minerals: cement (Mt CO2);Emi|CO2|Energy|Demand|Industry|Cement (Mt CO2/yr);1;
+CO2 combustion-Bioenergy and waste-Total energy supply (Mt CO2);;;
+CO2 combustion-Bioenergy and waste-Total final consumption (Mt CO2);;;
+CO2 combustion-Coal-Total energy supply (Mt CO2);;;
+CO2 combustion-Coal-Total final consumption (Mt CO2);;;
+CO2 combustion-Natural gas-Total energy supply (Mt CO2);;;
+CO2 combustion-Natural gas-Total final consumption (Mt CO2);;;
+CO2 combustion-Oil-Total energy supply (Mt CO2);;;
+CO2 combustion-Oil-Total final consumption (Mt CO2);;;
+CO2 combustion-Total-Total energy supply (Mt CO2);Emi|CO2|w/o Bunkers|Energy (Mt CO2/yr);1;
+CO2 total captured-Total-Total energy supply (Mt CO2);Carbon Management|Carbon Capture (Mt CO2/yr);1;
+CO2 total intensity-Electricity-Electricity generation (gCO2 per kWh);;;
+CO2 total removed-Total-Biofuels production and direct air capture (Mt CO2);;;
+CO2 total removed-Total-Total energy supply (Mt CO2);;;
+CO2 total stored-Modern bioenergy: liquid-Biofuels production (Mt CO2);;;
+CO2 total stored-Total-Direct air capture (Mt CO2);Emi|CO2|CDR|DACCS (Mt CO2/yr);1;
+CO2 total-Bioenergy and waste-Power sector inputs (Mt CO2);;;
+CO2 total-Coal-Power sector inputs (Mt CO2);;;
+CO2 total-Natural gas-Power sector inputs (Mt CO2);;;
+CO2 total-Oil-Power sector inputs (Mt CO2);;;
+CO2 total-Total-Aviation: domestic and international bunkers (Mt CO2);;;
+CO2 total-Total-Buildings (Mt CO2);Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr);1;
+CO2 total-Total-Industry (Mt CO2);Emi|CO2|Industry (Mt CO2/yr);1;
+CO2 total-Total-Navigation: domestic and international bunkers (Mt CO2);;;
+CO2 total-Total-Other energy sector (Mt CO2);;;
+CO2 total-Total-Power sector inputs (Mt CO2);Emi|CO2|Energy|Supply|Electricity w/ couple prod (Mt CO2/yr);1;
+CO2 total-Total-Residential (Mt CO2);;;
+CO2 total-Total-Road (Mt CO2);Emi|CO2|Transport|Road|Demand (Mt CO2/yr);1;
+CO2 total-Total-Road freight trucks (Mt CO2);;;
+CO2 total-Total-Road passenger light duty vehicles (Mt CO2);Emi|CO2|Transport|Pass|Road|LDV|Demand (Mt CO2/yr);1;
+CO2 total-Total-Services (Mt CO2);;;
+CO2 total-Total-Total energy supply (Mt CO2);Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr);1;Total CO2 category in IEA WEO includes CO2 emissions from fossil combustion, fossil extraction and industrial processes. Bunkers are exlucded in WEO data on regional level. 
+CO2 total-Total-Total final consumption (Mt CO2);;;
+CO2 total-Total-Transport (Mt CO2);Emi|CO2|w/o Bunkers|Energy|Demand|Transport (Mt CO2/yr);1;
+Economic indicators-Total-GDP per capita (USD per capita (2024, PPP));GDP|per capita|PPP (kUS$2017/per capita);0.00078;convert from US$2024/capita to kUS$2017/capita (REMIND units)
+Economic indicators-Total-Gross domestic product (Billion USD (2024, PPP));GDP|PPP (billion US$2017/yr);0.78;convert from US$2024 to US$2017 (REMIND units)
+Economic indicators-Total-Household (Million units);;;
+Energy intensity-Total-TES per GDP (GJ per thousand USD (2024, PPP));;;
+Energy intensity-Total-Total final consumption per GDP (GJ per thousand USD (2024, PPP));;;
+Energy-Ammonia-Power sector inputs (EJ);;;
+Energy-Ammonia-Total final consumption (EJ);;;
+Energy-Bioenergy: with CCUS-Electricity generation (TWh);SE|Electricity|Biomass|w/ CC (EJ/yr);0.0036;
+Energy-Biomethane-Buildings (EJ);;;
+Energy-Biomethane-Industry (EJ);;;
+Energy-Biomethane-Total final consumption (EJ);;;
+Energy-Biomethane-Transport (EJ);;;
+Energy-Coal-Buildings (EJ);FE|Buildings|Solids|Fossil (EJ/yr);1;
+Energy-Coal-Net exports (Million tonnes of coal equivalent);;;
+Energy-Coal-Net imports (Million tonnes of coal equivalent);;;
+Energy-Coal-Net trade (Million tonnes of coal equivalent);;;
+Energy-Coal-Power sector inputs (EJ);;;
+Energy-Coal-Production (Million tonnes of coal equivalent);;;
+Energy-Coal-Total energy supply (EJ);;;
+Energy-Coal-Total energy supply (Million tonnes of coal equivalent);;;
+Energy-Coal-Total final consumption (EJ);;;
+Energy-Coal: unabated-Electricity generation (TWh);SE|Electricity|Coal|w/o CC (EJ/yr);0.0036;
+Energy-Coal: unabated-Industry (EJ);;;
+Energy-Coal: unabated-Power sector inputs (EJ);PE|Coal|Electricity (EJ/yr);1;
+Energy-Coal: unabated-Total energy supply (EJ);PE|Coal (EJ/yr);1;"Strictly speaking this is only coal not used in carbon capture plants (""unabated coal""). REMIND PE variable includes all coal. "
+Energy-Coal: with CCUS-Electricity generation (TWh);SE|Electricity|Coal|w/ CC (EJ/yr);0.0036;
+Energy-Coal: with CCUS-Industry (EJ);;;
+Energy-Coal: with CCUS-Power sector inputs (EJ);PE|Coal|Electricity|w/ CC (EJ/yr);1;
+Energy-Coal: with CCUS-Total energy supply (EJ);PE|Coal (EJ/yr);1;
+Energy-Coalbed methane-Production (Billion cubic metres);;;
+Energy-Coking coal-Net trade (Million tonnes of coal equivalent);;;
+Energy-Coking coal-Production (Million tonnes of coal equivalent);;;
+Energy-Concentrating solar power-Electricity generation (TWh);SE|Electricity|Solar|CSP (EJ/yr);0.0036;
+Energy-Conventional crude oil-Production (Million barrels per day);;;
+Energy-Conventional gas-Production (Billion cubic metres);;;
+Energy-CTL, GTL and additives-Demand (Million barrels per day);;;
+Energy-Diesel-Demand (Million barrels per day);;;
+Energy-Direct use of crude oil-Demand (Million barrels per day);;;
+Energy-District heat-Buildings (EJ);FE|Buildings|Heat (EJ/yr);1;
+Energy-District heat-Industry (EJ);FE|Industry|Heat (EJ/yr);1;
+Energy-District heat-Total final consumption (EJ);FE|Heat (EJ/yr);1;
+Energy-Electricity-Buildings (EJ);FE|Buildings|Electricity (EJ/yr);1;
+Energy-Electricity-Industry (EJ);FE|Industry|Electricity (EJ/yr);1;
+Energy-Electricity-Total final consumption (EJ);FE|Electricity (EJ/yr);1;
+Energy-Electricity-Transport (EJ);FE|Transport|Electricity (EJ/yr);1;
+Energy-Extra-heavy oil and bitumen-Production (Million barrels per day);;;
+Energy-Fossil fuels: unabated-Electricity generation (TWh);SE|Electricity|Fossil|w/o CC (EJ/yr);0.0036;
+Energy-Fossil fuels: with CCUS-Electricity generation (TWh);SE|Electricity|Fossil|w/ CC (EJ/yr);0.0036;
+Energy-Fuel oil-Demand (Million barrels per day);;;
+Energy-Gasoline-Demand (Million barrels per day);;;
+Energy-Geothermal-Electricity generation (TWh);SE|Electricity|Geothermal (EJ/yr);0.0036;
+Energy-Hydro-Electricity generation (TWh);SE|Electricity|Hydro (EJ/yr);0.0036;
+Energy-Hydro-Power sector inputs (EJ);;;
+Energy-Hydro-Total energy supply (EJ);PE|Hydro (EJ/yr);1;
+Energy-Hydrogen (incl onsite)-Final demand (EJ);FE|Industry|Hydrogen (EJ/yr);1;
+Energy-Hydrogen (incl onsite)-International bunkers (EJ);;;
+Energy-Hydrogen and H2-based fuels-Electricity generation (TWh);SE|Electricity|Hydrogen (EJ/yr);0.0036;
+Energy-Hydrogen based fuels-Demand (Million barrels per day);;;
+Energy-Hydrogen-based fuels: gaseous-Total final consumption (EJ);;;
+Energy-Hydrogen-based fuels: liquid-Total final consumption (EJ);;;
+Energy-Hydrogen-Bioenergy and other (Million tonnes);;;
+Energy-Hydrogen-Buildings (EJ);FE|Buildings|Hydrogen (EJ/yr);1;
+Energy-Hydrogen-Fossil fuels with CCUS (Million tonnes);;;
+Energy-Hydrogen-Hydrogen demand for end-use sectors (Million tonnes);;;
+Energy-Hydrogen-In oil refining (Million tonnes);;;
+Energy-Hydrogen-Industry (EJ);;;
+Energy-Hydrogen-Low-emissions hydrogen production (Million tonnes);;;
+Energy-Hydrogen-Low-emissions hydrogen-based fuels (Million tonnes);;;
+Energy-Hydrogen-Power generation (Million tonnes);;;
+Energy-Hydrogen-Power sector inputs (EJ);SE|Input|Hydrogen|Electricity (EJ/yr);1;
+Energy-Hydrogen-To biofuels (Million tonnes);;;
+Energy-Hydrogen-To hydrogen-based fuels (Million tonnes);;;
+Energy-Hydrogen-To power generation (Million tonnes);;;
+Energy-Hydrogen-Total final consumption (EJ);FE|Hydrogen (EJ/yr);1;
+Energy-Hydrogen-Total final consumption (Million tonnes);;;
+Energy-Hydrogen-Trade (Million tonnes);;;
+Energy-Hydrogen-Trade as share of demand (Million tonnes);;;
+Energy-Hydrogen-Transformation of hydrogen (Million tonnes);;;
+Energy-Hydrogen-Transport (EJ);FE|Transport|Hydrogen (EJ/yr);1;
+Energy-Hydrogen-Water electrolysis (Million tonnes);;;
+Energy-Hydrogen: low-emissions-Hydrogen production inputs: offsite (EJ);;;
+Energy-Hydrogen: low-emissions-Hydrogen production: offsite (EJ);;;
+Energy-Hydrogen: low-emissions-Hydrogen-based fuels production inputs (EJ);SE|Hydrogen|Electricity (EJ/yr);1;
+Energy-Kerosene-Demand (Million barrels per day);;;
+Energy-Lignite and peat-Production (Million tonnes of coal equivalent);;;
+Energy-Liquids-Demand (Million barrels per day);;;
+Energy-LNG-Net trade (Billion cubic metres);;;
+Energy-LPG and ethane-Demand (Million barrels per day);;;
+Energy-Marine-Electricity generation (TWh);;;
+Energy-Modern bioenergy and renewable waste-Electricity generation (TWh);SE|Electricity|Biomass (EJ/yr);0.0036;
+Energy-Modern bioenergy and renewable waste-Power sector inputs (EJ);PE|Biomass|Electricity (EJ/yr);1;
+Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass (EJ/yr);1;
+Energy-Modern bioenergy: gas-Total energy supply (EJ);FE|Gases|Biomass (EJ/yr);1;
+Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass (EJ/yr);1;
+Energy-Modern bioenergy: liquid-Buildings (EJ);FE|Buildings|Liquids|Biomass (EJ/yr);1;
+Energy-Modern bioenergy: liquid-Total energy supply (EJ);;;
+Energy-Modern bioenergy: liquid-Total final consumption (EJ);FE|Liquids|Biomass (EJ/yr);1;
+Energy-Modern bioenergy: liquid-Transport (EJ);;;
+Energy-Modern bioenergy: solid-Buildings (EJ);FE|Buildings|Solids|Biomass|Modern (EJ/yr);1;
+Energy-Modern bioenergy: solid-Industry (EJ);;;
+Energy-Modern bioenergy: solid-Total energy supply (EJ);FE|Solids|Biomass|Modern (EJ/yr);1;
+Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass (EJ/yr);1;
+Energy-Naphtha-Demand (Million barrels per day);;;
+Energy-Natural gas liquids-Production (Million barrels per day);;;
+Energy-Natural gas-Buildings (EJ);;;
+Energy-Natural gas-Net exports (Billion cubic metres);;;
+Energy-Natural gas-Net imports (Billion cubic metres);;;
+Energy-Natural gas-Net trade (Billion cubic metres);;;
+Energy-Natural gas-Power sector inputs (EJ);;;
+Energy-Natural gas-Price (USD per MBtu (2024, MER));Price|Primary Energy|Gas (US$2017/GJ);0.74;convert from US$2024 / Mbtu to US$2017/GJ, multiplying by 0.78 (inflation) and 0.95 (Mbtu to GJ)
+Energy-Natural gas-Production (Billion cubic metres);;;
+Energy-Natural gas-Total energy supply (Billion cubic metres);;;
+Energy-Natural gas-Total energy supply (EJ);;;
+Energy-Natural gas-Total final consumption (EJ);;;
+Energy-Natural gas-Transport (EJ);;;
+Energy-Natural gas: unabated-Electricity generation (TWh);SE|Electricity|Gas|w/o CC (EJ/yr);0.0036;
+Energy-Natural gas: unabated-Industry (EJ);;;
+Energy-Natural gas: unabated-Power sector inputs (EJ);PE|Gas|Electricity (EJ/yr);1;
+Energy-Natural gas: unabated-Total energy supply (EJ);PE|Gas (EJ/yr);1;
+Energy-Natural gas: with CCUS-Electricity generation (TWh);SE|Electricity|Gas|w/ CC (EJ/yr);0.0036;
+Energy-Natural gas: with CCUS-Industry (EJ);;;
+Energy-Natural gas: with CCUS-Power sector inputs (EJ);PE|Gas|Electricity|w/ CC (EJ/yr);1;
+Energy-Natural gas: with CCUS-Total energy supply (EJ);PE|Gas (EJ/yr);1;
+Energy-Nuclear-Electricity generation (TWh);SE|Electricity|Nuclear (EJ/yr);0.0036;
+Energy-Nuclear-Power sector inputs (EJ);;;
+Energy-Nuclear-Total energy supply (EJ);PE|Nuclear (EJ/yr);1;
+Energy-Oil products-Demand (Million barrels per day);;;
+Energy-Oil-Buildings (EJ);FE|Buildings|Liquids|Fossil|Oil (EJ/yr);1;
+Energy-Oil-Demand (Million barrels per day);;;
+Energy-Oil-Electricity generation (TWh);;;
+Energy-Oil-Industry (EJ);;;
+Energy-Oil-Net exports (Million barrels per day);;;
+Energy-Oil-Net imports (Million barrels per day);;;
+Energy-Oil-Power sector inputs (EJ);;;
+Energy-Oil-Price (USD per barrel (2024, MER));Price|Primary Energy|Oil (US$2017/GJ);0.13;convert from US$2024 /barrel to US$2017/GJ, multiplying by 0.78 (inflation) and 0.17 (barrel to GJ)
+Energy-Oil-Processing gains (Million barrels per day);;;
+Energy-Oil-Production (Million barrels per day);;;
+Energy-Oil-Supply (Million barrels per day);;;
+Energy-Oil-Total energy supply (EJ);PE|Oil (EJ/yr);1;Imprecise, note that WEO data excludes bunkers, REMIND variable includes them. 
+Energy-Oil-Total energy supply (Million barrels per day);;;
+Energy-Oil-Total final consumption (EJ);FE|Liquids|Fossil|Oil (EJ/yr);1;
+Energy-Oil-Transport (EJ);FE|Transport|Liquids|Fossil|Oil (EJ/yr);1;Imprecise, note that WEO data excludes bunkers, REMIND variable includes them. 
+Energy-Oil: non-energy use-Total energy supply (EJ);;;
+Energy-Other products-Demand (Million barrels per day);;;
+Energy-Pipeline-Net trade (Billion cubic metres);;;
+Energy-Products from NGLs-Demand (Million barrels per day);;;
+Energy-Refinery market share-Demand (Percentage);;;
+Energy-Refinery products-Demand (Million barrels per day);;;
+Energy-Renewables-Electricity generation (TWh);;;
+Energy-Renewables-Power sector inputs (EJ);;;
+Energy-Renewables-Total energy supply (EJ);;;
+Energy-Shale gas-Production (Billion cubic metres);;;
+Energy-Solar PV-Electricity generation (TWh);SE|Electricity|Solar|PV (EJ/yr);0.0036;
+Energy-Solar PV-Power sector inputs (EJ);;;
+Energy-Solar-Total energy supply (EJ);PE|Solar (EJ/yr);1;
+Energy-Solid bioenergy incl_ TUOB-Total final consumption (EJ);;;
+Energy-Steam coal-Net trade (Million tonnes of coal equivalent);;;
+Energy-Steam coal-Price (USD per tonne (2024, MER));;;
+Energy-Steam coal-Production (Million tonnes of coal equivalent);;;
+Energy-Synthetic methane-Total final consumption (EJ);;;
+Energy-Synthetic oil products-Total final consumption (EJ);;;
+Energy-Tight gas-Production (Billion cubic metres);;;
+Energy-Tight oil-Production (Million barrels per day);;;
+Energy-Total gases-Buildings (EJ);FE|Buildings|Gases (EJ/yr);1;
+Energy-Total gases-Industry (EJ);FE|Industry|Gases (EJ/yr);1;
+Energy-Total gases-Total final consumption (EJ);FE|Gases (EJ/yr);1;
+Energy-Total gases-Transport (EJ);FE|Transport|Gases (EJ/yr);1;
+Energy-Total liquids-Buildings (EJ);FE|Buildings|Liquids (EJ/yr);1;
+Energy-Total liquids-Industry (EJ);FE|Industry|Liquids (EJ/yr);1;
+Energy-Total liquids-Total final consumption (EJ);FE|Liquids (EJ/yr);1;Imprecise, note that WEO data excludes bunkers, REMIND variable includes them. 
+Energy-Total liquids-Transport (EJ);FE|Transport|Liquids (EJ/yr);1;Imprecise, note that WEO data excludes bunkers, REMIND variable includes them. 
+Energy-Total solid fuels-Buildings (EJ);FE|Buildings|Solids (EJ/yr);1;
+Energy-Total solid fuels-Industry (EJ);FE|Industry|Solids (EJ/yr);1;
+Energy-Total solid fuels-Total final consumption (EJ);FE|Solids (EJ/yr);1;
+Energy-Total-Aviation: domestic and international bunkers (EJ);;;
+Energy-Total-Biofuels production: own use (EJ);SE|Liquids|Biomass (EJ/yr);1;
+Energy-Total-Buildings (EJ);FE|Buildings (EJ/yr);1;
+Energy-Total-Chemicals (EJ);FE|Industry|Chemicals (EJ/yr);1;
+Energy-Total-Electricity generation (TWh);SE|Electricity (EJ/yr);0.0036;
+Energy-Total-Industry (EJ);FE|Industry (EJ/yr);1;
+Energy-Total-Iron and steel (EJ);FE|Industry|Steel (EJ/yr);1;
+Energy-Total-Navigation: domestic and international bunkers (EJ);FE|Transport|Freight|International Shipping (EJ/yr);1;Imprecise, note that WEO data also includes domestic, while REMIND variable only referes to international. 
+Energy-Total-Non-ferrous metals: aluminium (EJ);;;
+Energy-Total-Non-metallic minerals: cement (EJ);FE|Industry|Cement (EJ/yr);1;
+Energy-Total-Other energy sector (EJ);;;
+Energy-Total-Power sector inputs (EJ);;;
+Energy-Total-Refinery runs (Million barrels per day);;;
+Energy-Total-Refining capacity (Million barrels per day);;;
+Energy-Total-Residential (EJ);;;
+Energy-Total-Road (EJ);FE|Transport|Road (EJ/yr);1;
+Energy-Total-Road freight trucks (EJ);;;
+Energy-Total-Road passenger light duty vehicles (EJ);FE|Transport|Pass|Road|LDV (EJ/yr);1;
+Energy-Total-Services (EJ);;;
+Energy-Total-Total energy supply (EJ);PE (EJ/yr);1;Imprecise, note that WEO data excludes bunkers, REMIND variable includes them. 
+Energy-Total-Total final consumption (EJ);FE|w/o Bunkers (EJ/yr);1;Bunkers are excluded in WEO data on regional level. 
+Energy-Total-Transport (EJ);FE|Transport|w/o Bunkers (EJ/yr);1;Bunkers are excluded in WEO data on regional level. 
+Energy-Traditional use of biomass-Residential (EJ);FE|Buildings|Solids|Biomass|Traditional (EJ/yr);1;
+Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass (EJ/yr);1;
+Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass|Traditional (EJ/yr);1;
+Energy-Wind-Electricity generation (TWh);SE|Electricity|Wind (EJ/yr);0.0036;
+Energy-Wind-Power sector inputs (EJ);;;
+Energy-Wind-Total energy supply (EJ);PE|Wind (EJ/yr);1;
+Industrial material production-Aluminium-Non-ferrous metals: aluminium (Million tonnes);;;
+Industrial material production-Cement-Non-metallic minerals: cement (Million tonnes);Production|Industry|Cement (Mt/yr);1;
+Industrial material production-Crude steel-Iron and steel (Million tonnes);Production|Industry|Steel (Mt/yr);1;
+Industrial material production-Primary chemicals-Chemicals (Million tonnes);;;
+Investment spending, annual average-Battery storage-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Storage (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Coal-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Coal (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Coal-Supply (Billion USD (2024, MER));;;
+Investment spending, annual average-Electricity-Transmission and distribution (Billion USD (2024, MER));Energy Investments|Electricity|Grid|Normal (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Fossil fuels with CCUS-Generation (Billion USD (2024, MER));;;
+Investment spending, annual average-Fuels-Supply (Billion USD (2024, MER));;;
+Investment spending, annual average-Gas-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Gas (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Hydro-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Hydro (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Hydrogen and Hydrogen-based fuels-Supply (Billion USD (2024, MER));Energy Investments|Hydrogen and Synfuels (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Liquid biofuels and biogases-Supply (Billion USD (2024, MER));Energy Investments|Liquids and Gases|Bio (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Nuclear-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Nuclear (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Oil and gas-Supply (Billion USD (2024, MER));;;
+Investment spending, annual average-Renewables and other-Supply, power and end-use (Billion USD (2024, MER));;;
+Investment spending, annual average-Renewables-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Renewables (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Solar PV-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Solar (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Total-Direct air capture (Billion USD (2024, MER));Energy Investments|DAC (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Total-End-use (Billion USD (2024, MER));;;
+Investment spending, annual average-Total-Energy efficiency (Billion USD (2024, MER));;;
+Investment spending, annual average-Total-Fuels and Power (Billion USD (2024, MER));;;
+Investment spending, annual average-Total-Generation (Billion USD (2024, MER));;;
+Investment spending, annual average-Total-Power (Billion USD (2024, MER));Energy Investments|Electricity (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Investment spending, annual average-Total-Supply, power and end-use (Billion USD (2024, MER));;;
+Investment spending, annual average-Unabated fossil fuels-Generation (Billion USD (2024, MER));;;
+Investment spending, annual average-Wind-Generation (Billion USD (2024, MER));Energy Investments|Electricity|Wind (billion US$2017/yr);0.78;convert from billion US$2024 to billion US$2017 (assuming same monetary units as for GDP)
+Population indicators-Total-Population (Million people);Population (million);1;
+Share of demand-Coal-Net imports (Percentage);;;
+Share of demand-Natural gas-Net imports (Percentage);;;
+Share of demand-Oil-Net imports (Percentage);;;
+Share of production-Coal-Net exports (Percentage);;;
+Share of production-Coal-Net trade (Percentage);;;
+Share of production-Coking coal-Net trade (Percentage);;;
+Share of production-LNG-Net trade (Percentage);;;
+Share of production-Natural gas-Net exports (Percentage);;;
+Share of production-Natural gas-Net trade (Percentage);;;
+Share of production-Oil-Net exports (Percentage);;;
+Share of production-Pipeline-Net trade (Percentage);;;
+Share of production-Steam coal-Net trade (Percentage);;;
+Stock-Floorspace-Residential (Million square metres);;;
+Stock-Floorspace-Services (Million square metres);;;
