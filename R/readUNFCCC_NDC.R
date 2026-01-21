@@ -163,8 +163,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
           id_cols = c("ISO_Code", "Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e", 
                       "Target_Year", "Type", "LULUCF"),
           names_from  = target_type,
-          values_from = target_value) %>%
-        quitte::revalue.levels(ISO_Code = c("EU" = "EUR"))
+          values_from = target_value) 
       
       ###################################################################
       #manual corrections due to poor data quality should be remove later
@@ -215,9 +214,11 @@ readUNFCCC_NDC <- function(subtype, subset) {
       
       
       
-      input <-   dplyr::bind_rows(PBL_majorE, PBL_NDCs)  
-      
-      
+      input <-   dplyr::bind_rows(PBL_majorE, PBL_NDCs)  %>%
+        quitte::revalue.levels(ISO_Code = c("EU" = "EUR")) %>%
+        filter(!is.na(ISO_Code))
+     
+         
     }
     # Continue processing
     input <- toolProcessClimateTargetDatabase(

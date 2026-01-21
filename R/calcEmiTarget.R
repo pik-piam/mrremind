@@ -57,7 +57,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       "2023_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2023_uncond", subset = scenario),
       "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2024_cond", subset = scenario),
       "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = scenario),
-      "2026_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2025_cond", subset = scenario)
+      "2026_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2026_cond", subset = scenario)
       #,"2026_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2025_uncond", subset = scenario)
     )
   }
@@ -100,7 +100,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     ghgFactor <- add_columns(ghgFactor, addnm = "y2035", dim = 2, fill = NA)
   }
   # create maglcass object for extrapolated NDC scenarios
-  ghgFactorExtrapolated <- ghgFactor[, , c("2025_cond", "2025_uncond")]
+  ghgFactorExtrapolated <- ghgFactor[, , c("2024_cond", "2024_uncond")]
   getItems(ghgFactorExtrapolated, dim = 3.1) <- paste0(getItems(ghgFactorExtrapolated, dim = 3.1), "_extrapol")
   # Explanation of the extrapolation:
   # Note that the ghgFactor gives the remaining relative emissions relative to 2015.
