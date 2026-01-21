@@ -30,7 +30,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
   )
   NDC2035 <- dplyr::case_when(
     grepl("2026", subtype, fixed = TRUE) ~ "ELEVATE Task 6.3 Scenario Protocol NDC and LTS v1.xlsx", 
-    .default = "2025 NDC status per country_sept2025_PIK.xlsx"
+    .default = "ELEVATE Task 6.3 Scenario Protocol NDC and LTS v1.xlsx"
   )
   if (grepl("Capacity", subtype, fixed = TRUE)) {
     data <- readxl::read_excel(
