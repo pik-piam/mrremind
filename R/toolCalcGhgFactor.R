@@ -155,7 +155,8 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
   # between target year and 2015 multiplied by factor 0.1
   knownHigh <- list("IND" = c(2030))
-  knownLow <- list()
+  knownLow  <- list("NGA" = c(2030))
+  knownLow[["TGO"]] <- 2030
   knownLow[["GAB"]] <- 2050
   knownLow[["GBR"]] <- 2050
 

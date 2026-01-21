@@ -191,11 +191,18 @@ readUNFCCC_NDC <- function(subtype, subset) {
       
       majorISO <- unique( PBL_majorE$ISO_Code)
       
+      
+      EUR_NDC_countries <- c(
+        "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+        "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+        "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+        "FRO", "GIB", "GGY", "IMN", "HRV", "GBR")
+      
       PBL_NDCs <- readxl::read_excel(
         NDC2035,
         sheet = "NDC emission levels",skip = 2, progress = FALSE
       ) %>%select(ISO_Code = ...2, target_2030 = `excl LULUCF...5`, target_2035 =`excl LULUCF...7`) %>%
-        filter(!ISO_Code %in% majorISO) %>%
+        filter(!ISO_Code %in% majorISO, !ISO_Code %in% EUR_NDC_countries) %>%
         # pivot longer to get Target_Year and Conditional Absolute
         pivot_longer(
           cols = c(target_2030, target_2035),
