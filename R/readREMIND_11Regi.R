@@ -12,7 +12,6 @@
 #' }
 readREMIND_11Regi <- function(subtype) {
   switch(subtype,
-    "tradecost" = read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>% as.magpie(),
     "deltacapoffset" = read.csv("p_adj_deltacapoffset_REMIND3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
     "ccs" = read.csv("p_dataccs.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent" = read.csv("ffPolyRent.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),

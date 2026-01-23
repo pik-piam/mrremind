@@ -484,14 +484,10 @@ calcGAINS2025 <- function(weight_source = "CEDS2025", outsectors = "GAINS2025", 
     getSets(isoefs) <- c("region", "year", "sector1", "sector2", "sector3", "sector4", "emi", "scenario", "ssp")
     getSets(weights) <- c("region", "year", "sector1", "sector2", "sector3", "sector4", "emi", "scenario", "ssp")
 
-    # Drop sectors not used in REMIND anymore
-    isoefs <- isoefs[, , c("pcc", "pco"), invert = TRUE]
-    weights <- weights[, , c("pcc", "pco"), invert = TRUE]
-
     out <- isoefs
     wgt <- weights
   } else {
-    stop(paste0("Unknown sector aggergation: ", outsectors))
+    stop(paste0("Unknown sector aggregation: ", outsectors))
   }
 
 

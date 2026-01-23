@@ -1,13 +1,13 @@
 #' Converts REMIND regional data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
+#' @param subtype Name of the regional data, e.g.
 #' "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
 convertREMIND_11Regi <- function(x, subtype) {
-  if (subtype == "tradecost" | subtype == "ffPolyRent") {
+  if (subtype == "ffPolyRent") {
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight = NULL)
   } else if (subtype == "deltacapoffset") {

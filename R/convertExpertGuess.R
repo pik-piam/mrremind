@@ -14,7 +14,8 @@ convertExpertGuess <- function(x, subtype) {
     "storageFactor" = "regionmapping_21_EU11.csv",
     "subConvergenceRollback" = "regionmappingH12.csv",
     "taxConvergence" = "regionmappingH12.csv",
-    "taxConvergenceRollback" = "regionmappingH12.csv"
+    "taxConvergenceRollback" = "regionmappingH12.csv",
+    "tadecost" = "regionmappingH12.csv"
   )
 
   if (subtype %in% names(mapping)) {
