@@ -13,7 +13,7 @@
 #'
 readNewClimate <- function(subtype, subset) {
   NPIfile <- dplyr::case_when(
-    grepl("2025", subtype, fixed = TRUE) ~ "NPi_2025-12-11.xlsx",
+    grepl("2025", subtype, fixed = TRUE) ~ "NPi_PBL_2025.xlsx",
     .default = "NPi_2025-12-11.xlsx"
   )
 
