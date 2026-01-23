@@ -10,7 +10,8 @@
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
 #' 'taxConvergence'
-#' 'taxConvergenceRollback'
+#' 'taxConvergenceRollback',
+#' 'tradecost'
 #'
 calcExpertGuess <- function(subtype) {
 
@@ -22,7 +23,8 @@ calcExpertGuess <- function(subtype) {
     "subConvergenceRollback",
     "tradeConstraints",
     "taxConvergence",
-    "taxConvergenceRollback"
+    "taxConvergenceRollback",
+    "tradecost"
   )
 
   if (!(subtype %in% subtypes)) {
@@ -37,7 +39,8 @@ calcExpertGuess <- function(subtype) {
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
     "taxConvergence" = TRUE,
-    "taxConvergenceRollback" = TRUE
+    "taxConvergenceRollback" = TRUE,
+    "tradecost" = TRUE
   )
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
@@ -113,6 +116,12 @@ calcExpertGuess <- function(subtype) {
                               rollback scenario")
     weight <- x
     weight[, , ] <- 1
+
+  } else if (subtype == "tradecost") {
+
+    unit <- "share"
+    description <- glue::glue("energy costs in share (0..1)")
+    weight <- new.magpie(getRegions(x), "y2005", fill = 1)
 
   }
 

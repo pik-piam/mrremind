@@ -23,6 +23,7 @@
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
 #'      constraints, values different to 1 activate constraints and the value is used as
 #'      effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
+#'   - `tradecost`: old REMIND data for PE tradecosts (energy losses on import) (?)
 #'
 #' @return magpie object of the data
 #' @author Lavinia Baumstark, Falk Benke
@@ -41,7 +42,7 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
   } else if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_3.6.0.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_3.6.1.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 
   } else if (subtype == "capacityFactorRules") {
@@ -114,6 +115,11 @@ readExpertGuess <- function(subtype) {
   } else if (subtype == "tradeConstraints") {
 
     out <- read.csv("tradeConstraints.csv", sep = ";") %>%
+      as.magpie()
+
+  } else if (subtype == "tradecost") {
+
+    out <- read.csv("LueckenDiss_TradeCost.csv", sep = ";", row.names = 1) %>%
       as.magpie()
   }
 
