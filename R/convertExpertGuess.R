@@ -5,21 +5,15 @@
 #' @author Falk Benke
 #'
 convertExpertGuess <- function(x, subtype) {
-
-  # subtypes that require disaggregation
-
-  mapping <- c(
-    "capacityFactorRules" = "regionmappingH12.csv",
-    "costsTradePeFinancial" = "regionmappingH12.csv",
-    "storageFactor" = "regionmapping_21_EU11.csv",
-    "subConvergenceRollback" = "regionmappingH12.csv",
-    "taxConvergence" = "regionmappingH12.csv",
-    "taxConvergenceRollback" = "regionmappingH12.csv",
-    "tadecost" = "regionmappingH12.csv"
-  )
-
-  if (subtype %in% names(mapping)) {
-
+  if (subtype %in% c(
+    "capacityFactorRules",
+    "costsTradePeFinancial",
+    "storageFactor",
+    "subConvergenceRollback",
+    "taxConvergence",
+    "taxConvergenceRollback",
+    "tradecost"
+  )) {
     # source data for these types is in H12 regions
     # use the region data for each country that belongs to the region
     # no weighting for spatial aggregation
@@ -27,12 +21,17 @@ convertExpertGuess <- function(x, subtype) {
     # Replacing NA values with zero
     x[is.na(x)] <- 0
 
-    mapping <- toolGetMapping(type = "regional", name = mapping[[subtype]], where = "mappingfolder")
+    if (subtype == "storageFactor") {
+      mapping <- toolGetMapping(type = "regional", name = "regionmapping_21_EU11.csv", where = "mappingfolder")
+    } else {
+      mapping <- toolGetMapping(type = "regional", name = "regionmappingH12.csv", where = "mappingfolder")
+    }
 
-    out <- toolAggregate(x, rel = mapping, weight = NULL,
-                         from = "RegionCode", to = "CountryCode", partrel = TRUE) %>%
+    out <- toolAggregate(x,
+      rel = mapping, weight = NULL,
+      from = "RegionCode", to = "CountryCode", partrel = TRUE
+    ) %>%
       toolCountryFill(fill = 0, verbosity = 2)
-
   } else {
     out <- x
   }
