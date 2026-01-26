@@ -2,7 +2,7 @@
 #' @description provides capacity factor values
 #'
 #' @return magpie object of the capacity factor data
-#' @author Lavinia Baumstark
+#' @author Lavinia Baumstark, Robert Pietzcker
 #' @examples
 #' \dontrun{
 #' calcOutput("StorageFactor")
@@ -18,8 +18,23 @@ calcStorageFactor <- function() {
 
   ## for solar and csp
   tmp <- calcOutput("Solar", aggregate = FALSE)
-  weightSolar <- dimSums(tmp[, , "area"][, , "PV"][, , c("0-50", "50-100")], dim = c(3.4, 3.3))
-  weightSolar <- collapseNames(weightSolar)
+
+  # as weight, we use the PV potential (capacity * FLh) in each country,
+  # ignoring the uneconomic grades with FLh < 730
+
+  weightSolar <- tmp[, , "capacity"][, , "PV"][, , c("0-50", "50-100")] %>%
+    collapseNames() %>%
+    as.quitte() %>%
+    mutate(
+      "Bin" = as.numeric(as.character(.data$Bin)),
+      "value" = .data$value * .data$Bin * 1e-6
+    ) %>%
+    filter(.data$Bin > 729) %>%
+    group_by(.data$period, .data$region) %>%
+    summarise(value = sum(.data$value), .groups = "drop") %>%
+    ungroup() %>%
+    as.magpie()
+
   getNames(weightSolar) <- c("spv")
   weightSolar <- mbind(weightSolar, setNames(weightSolar, "csp"))
 
