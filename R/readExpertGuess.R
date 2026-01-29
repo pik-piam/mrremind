@@ -13,6 +13,7 @@
 #'   - `co2prices`: CO2 prices (Robert Pietzcker)
 #'   - `costsTradePeFinancial`: primary energy tradecosts (financial costs on import,
 #'      export and use) (Nicolas Bauer)
+#'   - `deltacapoffset`: ??? (Robert Pietzcker)
 #'   - `gridFactor`: Estimates distribution of electricity demands per region (Robert Pietzcker)
 #'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
 #'   - `prtp`: pure rate of time preference (Nicolas Bauer)
@@ -69,6 +70,10 @@ readExpertGuess <- function(subtype) {
       as.magpie(spatial = 1, temporal = 0, datacol = 3) %>%
       collapseNames()
 
+  } else if (subtype == "deltacapoffset") {
+
+    out <- read.csv("p_adj_deltacapoffset_v1.0.0.csv", sep = ";") %>%
+      as.magpie()
   } else if (subtype == "gridFactor") {
 
     out <- read.csv("homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%

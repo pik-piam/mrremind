@@ -3,7 +3,7 @@
 #' Read-in an csv files that contains regional data
 #'
 #' @param subtype Name of the regional data, e.g.
-#' "tradecost", "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' "tradecost", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return magpie object of region dependent data
 #' @author original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
 #' @examples
@@ -12,7 +12,6 @@
 #' }
 readREMIND_11Regi <- function(subtype) {
   switch(subtype,
-    "deltacapoffset" = read.csv("p_adj_deltacapoffset_REMIND3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
     "storageFactor" = read.csv("storageFactor_REMIND_3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
     "ccs" = read.csv("p_dataccs.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent" = read.csv("ffPolyRent.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),
