@@ -1,12 +1,12 @@
-#' This reads in .... TODO
+#' This function reads WACC markup data across technologies for each of the REMIND regions
 #library(dplyr)
 # library(tidyr)
 # library(mrcommons)
 # library(mrremind)
 # # 
-# setwd("C:/Users/adamanti/madrat/sources/ETH_WACC")
+# setwd("C:/Users/adamanti//madratsources/ETH_WACC")
 
-#' @author TODO
+#' @author Diamantis Koutsandreas
 # readETH_WACC <- function() {
 #   data <- readxl::read_xlsx("Source_data_WACC.xlsx", sheet = "wacc_markups_coal", range = "A1:V13") %>%
 #     pivot_longer(cols = 2:10, names_to = "technology", values_to = "value")
