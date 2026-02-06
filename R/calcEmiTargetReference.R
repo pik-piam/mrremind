@@ -9,7 +9,6 @@
 #' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
 
 calcEmiTargetReference <- function() {
-
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7
   gwpCH4 <- 28
   gwpN2O <- 265
@@ -69,12 +68,33 @@ calcEmiTargetReference <- function() {
 
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
+
+  # fill gaps for LULUCF national accounting with IIASA data ----
+
+  # for historical values, replace all NAs with IIASA data
+  iiasaHist <- readSource("IIASALanduse", subtype = "historical")
+  tmp <- out[, 2022, , invert = TRUE][, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+  tmp[is.na(tmp)] <- iiasaHist[is.na(tmp)]
+  out[, getYears(tmp), getNames(tmp)] <- tmp[, , ]
+
+  out <- add_columns(out, addnm = c("y2030", "y2035"), dim = 2)
+
+  # add forecast for 2030 from IIASA
+  fc2030 <- readSource("IIASALanduse", subtype = "forecast2030")
+  out[, 2030, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- fc2030
+
+  # add forecast fo 2035 from PBL
+  fc2035 <- readSource("IIASALanduse", subtype = "forecast2035")
+  out[, 2035, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- fc2035
+
+  # fill all remaining NAs with 0 ----
+
   out[is.na(out)] <- 0
 
   return(list(
     x = out,
     unit = "Mt CO2eq",
     description = glue::glue("historical GHG emissions with and without LULUCF \\
-    from 1990 to 2022 according to UNFCCC and CEDS")
+    from 1990 to 2022 according to UNFCCC, CEDS and IIASA")
   ))
 }
