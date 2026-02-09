@@ -289,10 +289,18 @@ readUNFCCC_NDC <- function(subtype, subset) {
             #`Model Target Indicator` == "Emissions|Kyoto Gases" ~ "Including",
             TRUE ~ NA_character_),
           target_value = dplyr::case_when(
-            Conditionality == "Unconditional" ~ `Target Value Min`, 
-            Conditionality == "Conditional"   ~ `Target Value Max`, 
+            
+            # --- Target level override ---
+            `Target type` == "Target level" & Conditionality == "Unconditional" ~ `Target Value Max`,
+            `Target type` == "Target level" & Conditionality == "Conditional"   ~ `Target Value Min`,
+            
+            # --- default behavior ---
+            Conditionality == "Unconditional" ~ `Target Value Min`,
+            Conditionality == "Conditional"   ~ `Target Value Max`,
+            
             TRUE ~ NA_real_
-          ) *
+          )
+          *
             dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
             dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
           target_type = paste(
@@ -333,11 +341,19 @@ readUNFCCC_NDC <- function(subtype, subset) {
               dplyr::filter(Conditionality == "Unconditional") %>%
               dplyr::slice(1) %>%
               dplyr::mutate(
+                
                 Conditionality = "Conditional",
+                
+                # choose min ONLY for target level, otherwise max
                 target_value =
-                  `Target Value Max` *
+                  dplyr::if_else(
+                    `Target type` == "Target level",
+                    `Target Value Min`,
+                    `Target Value Max`
+                  ) *
                   dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
                   dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
+                
                 target_type = paste(
                   "Conditional",
                   dplyr::if_else(`Target Unit` == "%", "Relative", "Absolute")
@@ -350,13 +366,14 @@ readUNFCCC_NDC <- function(subtype, subset) {
           df
         }) %>%
         dplyr::ungroup()
+      
       #####
       
       
       majorE <-   majorE_prepared %>%
         tidyr::pivot_wider(
           id_cols = c("ISO_Code", "Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e", 
-                      "Target_Year", "Type", "LULUCF", "Conditionality"),
+                      "Target_Year", "Type", "LULUCF"),
           names_from  = target_type,
           values_from = target_value) 
       
