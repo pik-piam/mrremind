@@ -248,7 +248,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
 
       input <- dplyr::bind_rows(PBL_majorE, PBL_NDCs) %>%
         quitte::revalue.levels(ISO_Code = c("EU" = "EUR")) %>%
-        filter(!is.na(ISO_Code))
+        filter(!is.na(.data$ISO_Code))
     } else {
       # reading NDC 2030 targets by PIK ----
       input <- readxl::read_excel(
