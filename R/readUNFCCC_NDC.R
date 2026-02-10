@@ -144,7 +144,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
               dplyr::filter(.data$Conditionality == "Unconditional") %>%
               dplyr::slice(1) %>%
               dplyr::mutate(
-                .data$Conditionality = "Conditional",
+                Conditionality = "Conditional",
 
                 # choose min ONLY for target level, otherwise max
                 target_value =
@@ -237,12 +237,12 @@ readUNFCCC_NDC <- function(subtype, subset) {
         ) %>%
         # convert Target_Year names into numeric
         mutate(
-          .data$Target_Year = dplyr::case_when(
+          Target_Year = dplyr::case_when(
             .data$Target_Year == "target_2030" ~ 2030,
             .data$Target_Year == "target_2035" ~ 2035
           ),
-          .data$Type = "GHG-fixed-total",
-          .data$LULUCF = "Excluding"
+          Type = "GHG-fixed-total",
+          LULUCF = "Excluding"
         ) %>%
         suppressMessages()
 
