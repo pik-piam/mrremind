@@ -83,7 +83,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
         dplyr::rename(
           ISO_Code = .data$`ISO-3`,
           Target_Year = .data$`Target Year`,
-          Reference_Year = Reference,
+          Reference_Year = .data$Reference,
           BAU_or_Reference_emissions_in_MtCO2e = .data$`Reference level`
         ) %>%
         # add column with Excluding/Including LULUCF
@@ -95,21 +95,21 @@ readUNFCCC_NDC <- function(subtype, subset) {
           target_value = dplyr::case_when(
             # special case for target level
             # select max value for unconditional case
-            .data$`Target type` == "Target level" & Conditionality == "Unconditional" ~ .data$`Target Value Max`,
-            .data$`Target type` == "Target level" & Conditionality == "Conditional" ~ .data$`Target Value Min`,
+            .data$`Target type` == "Target level" & .data$Conditionality == "Unconditional" ~ .data$`Target Value Max`,
+            .data$`Target type` == "Target level" & .data$Conditionality == "Conditional" ~ .data$`Target Value Min`,
 
             # default
             # select min value for unconditional case
-            Conditionality == "Unconditional" ~ .data$`Target Value Min`,
-            Conditionality == "Conditional" ~ .data$`Target Value Max`
+            .data$Conditionality == "Unconditional" ~ .data$`Target Value Min`,
+            .data$Conditionality == "Conditional" ~ .data$`Target Value Max`
           )
           # multiply unit to turn to %
           *
             dplyr::if_else(.data$`Target Unit` == "%", 1 / 100, 1),
 
           # add column with target type as "Un-/conditional Relative/Absolute"
-          target_type = paste(
-            Conditionality,
+          .data$target_type = paste(
+            .data$Conditionality,
             dplyr::if_else(.data$`Target Unit` == "%", "Relative", "Absolute")
           ),
           # add our PIK target types
@@ -132,7 +132,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
       ### if a country only has an unconditional target, use the max value as conditional
       # AI code needs to be cleaned
       majorE_prepared <- majorE_prepared %>%
-        dplyr::group_by(ISO_Code, Target_Year, .data$`Original Target Indicator`) %>%
+        dplyr::group_by(.data$ISO_Code, .data$Target_Year, .data$`Original Target Indicator`) %>%
         dplyr::group_modify(~ {
           df <- .x
 
@@ -141,10 +141,10 @@ readUNFCCC_NDC <- function(subtype, subset) {
 
           if (has_uncond && !has_cond) {
             new_row <- df %>%
-              dplyr::filter(Conditionality == "Unconditional") %>%
+              dplyr::filter(.data$Conditionality == "Unconditional") %>%
               dplyr::slice(1) %>%
               dplyr::mutate(
-                Conditionality = "Conditional",
+                .data$Conditionality = "Conditional",
 
                 # choose min ONLY for target level, otherwise max
                 target_value =
@@ -175,8 +175,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
             "ISO_Code", "Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e",
             "Target_Year", "Type", "LULUCF"
           ),
-          names_from = target_type,
-          values_from = target_value
+          names_from = .data$target_type,
+          values_from = .data$target_value
         )
 
       # manual corrections ----
@@ -228,21 +228,21 @@ readUNFCCC_NDC <- function(subtype, subset) {
         sheet = "NDC emission levels", skip = 2, progress = FALSE
       ) %>%
         select(ISO_Code = .data$...2, target_2030 = .data$`excl LULUCF...5`, target_2035 = .data$`excl LULUCF...7`) %>%
-        filter(!ISO_Code %in% majorISO, !ISO_Code %in% EUR_NDC_countries) %>%
+        filter(!.data$ISO_Code %in% majorISO, !.data$ISO_Code %in% EUR_NDC_countries) %>%
         # pivot longer to get Target_Year and Conditional Absolute
         pivot_longer(
-          cols = c(target_2030, target_2035),
+          cols = c(.data$target_2030, .data$target_2035),
           names_to = "Target_Year",
           values_to = "Conditional Absolute"
         ) %>%
         # convert Target_Year names into numeric
         mutate(
-          Target_Year = dplyr::case_when(
-            Target_Year == "target_2030" ~ 2030,
-            Target_Year == "target_2035" ~ 2035
+          .data$Target_Year = dplyr::case_when(
+            .data$Target_Year == "target_2030" ~ 2030,
+            .data$Target_Year == "target_2035" ~ 2035
           ),
-          Type = "GHG-fixed-total",
-          LULUCF = "Excluding"
+          .data$Type = "GHG-fixed-total",
+          .data$LULUCF = "Excluding"
         ) %>%
         suppressMessages()
 
