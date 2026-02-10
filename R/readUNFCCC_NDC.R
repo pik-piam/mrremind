@@ -254,45 +254,48 @@ readUNFCCC_NDC <- function(subtype, subset) {
           Reference_Year = Reference,
           BAU_or_Reference_emissions_in_MtCO2e = `Reference level`
         ) %>%
+        #add column with Excluding/Including LULUCF
         dplyr::mutate(
           LULUCF = dplyr::case_when(
             grepl("excl LULUCF", `Original Target Indicator`) ~ "Excluding",
-            grepl("incl LULUCF", `Original Target Indicator`) ~ "Including",
-            # `Model Target Indicator` == "Emissions|Kyoto Gases" ~ "Including",
-            TRUE ~ NA_character_
+            grepl("incl LULUCF", `Original Target Indicator`) ~ "Including"
           ),
           target_value = dplyr::case_when(
-            # --- Target level override ---
+            # special case for target level
+            # select max value for unconditional case 
             `Target type` == "Target level" & Conditionality == "Unconditional" ~ `Target Value Max`,
             `Target type` == "Target level" & Conditionality == "Conditional" ~ `Target Value Min`,
 
-            # --- default behavior ---
+            # default
+            #select min value for unconditional case
             Conditionality == "Unconditional" ~ `Target Value Min`,
-            Conditionality == "Conditional" ~ `Target Value Max`,
-            TRUE ~ NA_real_
+            Conditionality == "Conditional" ~ `Target Value Max`
           )
+          #multiply unit to turn to %
           *
-            dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
             dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
-          target_type = paste(
+         
+          #add column with target type as "Un-/conditional Relative/Absolute"
+           target_type = paste(
             Conditionality,
-            dplyr::if_else(`Target Unit` == "%", "Relative", "Absolute")
-          ),
+            dplyr::if_else(`Target Unit` == "%", "Relative", "Absolute")),
+          #add our PIK target types
           Type = dplyr::case_when(
+            #1. target type GHG: GHG % reduction
             `Target Unit` == "%" &
               grepl("Emissions\\|Kyoto Gases", `Model Target Indicator`) ~ "GHG",
+            #2. target type GHG/GDP: intensity % reduction
             `Target Unit` == "%" &
               grepl("GHG intensity", `Model Target Indicator`, ignore.case = TRUE) ~ "GHG/GDP",
+            #3. target type GHG-fixed-total: ghg emission level target
             `Target Unit` %in% c("MtCO2e", "Gt CO2e") &
-              target_value > 0 ~ "GHG-fixed-total",
+              `Target type`== "Target level" ~ "GHG-fixed-total",
+            #4. target type GHG-Absolute: ghg emission reduction
             `Target Unit` %in% c("MtCO2e", "Gt CO2e") &
-              target_value < 0 ~ "GHG-Absolute",
-            TRUE ~ NA_character_
-          )
-        )
+              `Target type`== "Reduction level" ~ "GHG-Absolute"))
 
       ### if a country only has an unconditional target, use the max value as conditional
-
+      #AI code needs to be cleaned
       majorE_prepared <- majorE_prepared %>%
         dplyr::group_by(ISO_Code, Target_Year, `Original Target Indicator`) %>%
         dplyr::group_modify(~ {
@@ -315,7 +318,6 @@ readUNFCCC_NDC <- function(subtype, subset) {
                     `Target Value Min`,
                     `Target Value Max`
                   ) *
-                    dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
                     dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
                 target_type = paste(
                   "Conditional",
@@ -329,7 +331,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
           df
         }) %>%
         dplyr::ungroup()
-
+      #end AI
       #####
 
       majorE <- majorE_prepared %>%
