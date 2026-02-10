@@ -9,7 +9,13 @@
 #'   determines the database version to be read in
 #' @param subset A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).
 #'
+
+# intermediary solution in the log run PIK targets can be removed
+# Description subtype Emissions: 2018-2024 read PIK NDC2030 targets, 2025 reads in addition 2035NDC,
+# 2026 ready PBL NDC targets for 2030 and 2035
+
 readUNFCCC_NDC <- function(subtype, subset) {
+
   NDCfile <- dplyr::case_when(
     grepl("2018", subtype, fixed = TRUE) ~ "NDC_2018.xlsx",
     grepl("2021", subtype, fixed = TRUE) ~ "NDC_2021.xlsx",
@@ -18,10 +24,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
     grepl("2024", subtype, fixed = TRUE) ~ "NDC_2024-12-31.xlsx",
     .default = "NDC_2024-12-31.xlsx"
   )
-  NDC2035 <- dplyr::case_when(
-    grepl("2025", subtype, fixed = TRUE) ~ "2025 NDC status per country_sept2025_PIK.xlsx",
-    .default = "2025 NDC status per country_sept2025_PIK.xlsx"
-  )
+
+
   if (grepl("Capacity", subtype, fixed = TRUE)) {
     data <- readxl::read_excel(
       NDCfile,
@@ -50,30 +54,16 @@ readUNFCCC_NDC <- function(subtype, subset) {
     x <- as.magpie(data, spatial = 1, temporal = 2, datacol = 3)
     return(x)
   } else if (grepl("Emissions", subtype, fixed = TRUE)) {
-    input <- readxl::read_excel(
-      NDCfile,
-      sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE
-    ) %>%
-      suppressMessages()
-    if ("LULUCF" %in% names(input)) {
-      input <- input %>%
-        select(
-          "ISO_Code" = 2, "Reference_Year" = 7,
-          "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-          "Type" = 10, "LULUCF" = 11, "Unconditional Relative" = 12,
-          "Conditional Relative" = 13, "Unconditional Absolute" = 14,
-          "Conditional Absolute" = 15
-        )
-    } else {
-      input <- input %>%
-        select(
-          "ISO_Code" = 2, "Reference_Year" = 7,
-          "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-          "Type" = 10, "Unconditional Relative" = 11, "Conditional Relative" = 12,
-          "Unconditional Absolute" = 13, "Conditional Absolute" = 14
-        )
-    }
+
     if (any(grepl("2025", subtype, fixed = TRUE))) {
+
+      # reading NDC 2035 by PIK
+
+      NDC2035 <- dplyr::case_when(
+        grepl("2025", subtype, fixed = TRUE) ~ "2025 NDC status per country_sept2025_PIK.xlsx",
+        .default = "2025 NDC status per country_sept2025_PIK.xlsx"
+      )
+
       # read raw data from NDC emissions targets collection
       input2035_raw <- readxl::read_excel(
         NDC2035,
@@ -232,7 +222,226 @@ readUNFCCC_NDC <- function(subtype, subset) {
       input2035$`Unconditional Relative` <- as.numeric(input2035$`Unconditional Relative`) / -100
       input2035$`Conditional Relative` <- as.numeric(input2035$`Conditional Relative`) / -100
       input <- rbind(input, input2035)
+    } else if (any(grepl("2026", subtype, fixed = TRUE))) {
+
+      # reading NDC 2030 & 2035 by PBL
+
+      PBLtargets <- dplyr::case_when(
+        grepl("2026", subtype, fixed = TRUE) ~ "ELEVATE T6.3 Scenario Protocol NDC and LTS information v3.xlsx",
+        .default = "ELEVATE T6.3 Scenario Protocol NDC and LTS information v3.xlsx"
+      )
+
+      # read raw data from NDC emissions targets collection
+      majorE_raw <- readxl::read_excel(
+        PBLtargets,
+        sheet = "NDC details major emitters", progress = FALSE
+      ) %>%
+        suppressMessages()
+
+      # clean data for missing gas definition and rename columns
+      emissions <- c(
+        "GHG emissions (excl LULUCF)",
+        "GHG emissions (incl LULUCF)",
+        "CO2 emissions intensity (tCO2/GDP) (incl LULUCF)",
+        "Emissions intensity (CO2e/GDP) (incl LULUCF)"
+      )
+
+      majorE_prepared <- majorE_raw %>%
+        dplyr::filter(`Original Target Indicator` %in% emissions) %>%
+        dplyr::rename(
+          ISO_Code = `ISO-3`,
+          Target_Year = `Target Year`,
+          Reference_Year = Reference,
+          BAU_or_Reference_emissions_in_MtCO2e = `Reference level`
+        ) %>%
+        dplyr::mutate(
+          LULUCF = dplyr::case_when(
+            grepl("excl LULUCF", `Original Target Indicator`) ~ "Excluding",
+            grepl("incl LULUCF", `Original Target Indicator`) ~ "Including",
+            # `Model Target Indicator` == "Emissions|Kyoto Gases" ~ "Including",
+            TRUE ~ NA_character_
+          ),
+          target_value = dplyr::case_when(
+            # --- Target level override ---
+            `Target type` == "Target level" & Conditionality == "Unconditional" ~ `Target Value Max`,
+            `Target type` == "Target level" & Conditionality == "Conditional" ~ `Target Value Min`,
+
+            # --- default behavior ---
+            Conditionality == "Unconditional" ~ `Target Value Min`,
+            Conditionality == "Conditional" ~ `Target Value Max`,
+            TRUE ~ NA_real_
+          )
+          *
+            dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
+            dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
+          target_type = paste(
+            Conditionality,
+            dplyr::if_else(`Target Unit` == "%", "Relative", "Absolute")
+          ),
+          Type = dplyr::case_when(
+            `Target Unit` == "%" &
+              grepl("Emissions\\|Kyoto Gases", `Model Target Indicator`) ~ "GHG",
+            `Target Unit` == "%" &
+              grepl("GHG intensity", `Model Target Indicator`, ignore.case = TRUE) ~ "GHG/GDP",
+            `Target Unit` %in% c("MtCO2e", "Gt CO2e") &
+              target_value > 0 ~ "GHG-fixed-total",
+            `Target Unit` %in% c("MtCO2e", "Gt CO2e") &
+              target_value < 0 ~ "GHG-Absolute",
+            TRUE ~ NA_character_
+          )
+        )
+
+      ### if a country only has an unconditional target, use the max value as conditional
+
+      majorE_prepared <- majorE_prepared %>%
+        dplyr::group_by(ISO_Code, Target_Year, `Original Target Indicator`) %>%
+        dplyr::group_modify(~ {
+          df <- .x
+
+          has_uncond <- any(df$Conditionality == "Unconditional")
+          has_cond <- any(df$Conditionality == "Conditional")
+
+          if (has_uncond && !has_cond) {
+            new_row <- df %>%
+              dplyr::filter(Conditionality == "Unconditional") %>%
+              dplyr::slice(1) %>%
+              dplyr::mutate(
+                Conditionality = "Conditional",
+
+                # choose min ONLY for target level, otherwise max
+                target_value =
+                  dplyr::if_else(
+                    `Target type` == "Target level",
+                    `Target Value Min`,
+                    `Target Value Max`
+                  ) *
+                    dplyr::if_else(`Target Unit` == "Gt CO2e", 1000, 1) *
+                    dplyr::if_else(`Target Unit` == "%", 1 / 100, 1),
+                target_type = paste(
+                  "Conditional",
+                  dplyr::if_else(`Target Unit` == "%", "Relative", "Absolute")
+                )
+              )
+
+            df <- dplyr::bind_rows(df, new_row)
+          }
+
+          df
+        }) %>%
+        dplyr::ungroup()
+
+      #####
+
+      majorE <- majorE_prepared %>%
+        tidyr::pivot_wider(
+          id_cols = c(
+            "ISO_Code", "Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e",
+            "Target_Year", "Type", "LULUCF"
+          ),
+          names_from = target_type,
+          values_from = target_value
+        )
+
+      # manual corrections ----
+
+      # China 2030 is excluding LULUCF, add reference data for CO2/GDP of 2005
+      # gdp["CHN", "y2005",]= 7284076/1000= 7284 bn$ and
+      # ghgCEDS["CHN","y2005", "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
+      # = 6876, therefore = 6876/7284= 0.944
+      # this should result in the following targets= 0.944*(1-0.65)*gdp(2030)36564
+      # =12080
+      majorE[
+        majorE$ISO_Code == "CHN" & majorE$Target_Year == 2030,
+        c("BAU_or_Reference_emissions_in_MtCO2e", "LULUCF")
+      ] <-
+        list(0.944, "Excluding")
+
+      # China 2035 this target is including LULUCF emissions
+      # peak year =2025
+      # reference emissions in 2025:
+      # from REMIND_2026_01_22 NPi2025;Emi|GHG|w/o Bunkers|w/o Land-Use Change in  2025= 16079
+      # LULUCF in 2020= -1211.589 in 2030= -935 thus we assume -1000 in 2025
+
+      majorE[
+        majorE$ISO_Code == "CHN" & majorE$Target_Year == 2035,
+        c("Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e")
+      ] <-
+        list("2025", 15500)
+
+      # Saudi Arabia still wrong it is 2019 instead of BAU
+      majorE[
+        majorE$ISO_Code == "SAU",
+        "Reference_Year"
+      ] <- "2019"
+
+      PBL_majorE <- majorE
+
+      majorISO <- unique(PBL_majorE$ISO_Code)
+
+
+      EUR_NDC_countries <- c(
+        "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+        "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+        "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+        "FRO", "GIB", "GGY", "IMN", "HRV", "GBR"
+      )
+
+      PBL_NDCs <- readxl::read_excel(
+        PBLtargets,
+        sheet = "NDC emission levels", skip = 2, progress = FALSE
+      ) %>%
+        select(ISO_Code = ...2, target_2030 = `excl LULUCF...5`, target_2035 = `excl LULUCF...7`) %>%
+        filter(!ISO_Code %in% majorISO, !ISO_Code %in% EUR_NDC_countries) %>%
+        # pivot longer to get Target_Year and Conditional Absolute
+        pivot_longer(
+          cols = c(target_2030, target_2035),
+          names_to = "Target_Year",
+          values_to = "Conditional Absolute"
+        ) %>%
+        # convert Target_Year names into numeric
+        mutate(
+          Target_Year = dplyr::case_when(
+            Target_Year == "target_2030" ~ 2030,
+            Target_Year == "target_2035" ~ 2035
+          ),
+          Type = "GHG-fixed-total",
+          LULUCF = "Excluding"
+        ) %>%
+        suppressMessages()
+
+      input <- dplyr::bind_rows(PBL_majorE, PBL_NDCs) %>%
+        quitte::revalue.levels(ISO_Code = c("EU" = "EUR")) %>%
+        filter(!is.na(ISO_Code))
+
+    } else {
+
+      # reading NDC 2030 targets by PIK
+      input <- readxl::read_excel(
+        NDCfile,
+        sheet = "Emissions", skip = 3, na = c("?", ""), progress = FALSE
+      ) %>%
+        suppressMessages()
+
+      if ("LULUCF" %in% names(input)) {
+        input <- input %>%
+          select(
+            "ISO_Code" = 2, "Reference_Year" = 7,
+            "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+            "Type" = 10, "LULUCF" = 11, "Unconditional Relative" = 12,
+            "Conditional Relative" = 13, "Unconditional Absolute" = 14,
+            "Conditional Absolute" = 15
+          )
+      } else {
+        input <- input %>%
+          select(
+            "ISO_Code" = 2, "Reference_Year" = 7,
+            "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
+            "Type" = 10, "Unconditional Relative" = 11, "Conditional Relative" = 12,
+            "Unconditional Absolute" = 13, "Conditional Absolute" = 14
+          )
+      }
     }
+
     # Continue processing
     input <- toolProcessClimateTargetDatabase(
       input,
