@@ -18,7 +18,7 @@ calcEmiTargetReference <- function() {
 
   # calculate CEDS values ----
 
-  # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
+  # calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
   GHGwoLULUCF <- dimSums(ceds[, , c(
     "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
     "Emi|CO2|Agriculture (Mt CO2/yr)",
@@ -44,7 +44,6 @@ calcEmiTargetReference <- function() {
   ghgCEDS[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
     ghgCEDS[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
     ghgCEDS[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
-
 
   # get UNFCCC values ----
 
@@ -74,6 +73,9 @@ calcEmiTargetReference <- function() {
   # for historical values, replace all NAs with IIASA data
   iiasaHist <- readSource("IIASALanduse", subtype = "historical")
   tmp <- out[, 2022, , invert = TRUE][, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+  # this does not overwrite existing data of better quality, but only uses IIASA where
+  # no better source is available
   tmp[is.na(tmp)] <- iiasaHist[is.na(tmp)]
   out[, getYears(tmp), getNames(tmp)] <- tmp[, , ]
 
@@ -86,6 +88,16 @@ calcEmiTargetReference <- function() {
   # add forecast fo 2035 from PBL
   fc2035 <- readSource("IIASALanduse", subtype = "forecast2035")
   out[, 2035, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- fc2035
+
+  # fill gaps for Emissions incl. LULUCF national accounting with IIASA data ----
+
+  # after filling gaps in "Emi|GHG|Land-Use Change|LULUCF national accounting" with IIASA data,
+  # we can now also redo the calculation of "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
+  # to fill more gaps (either gaps are filled, or previously existing values are recalculated below)
+
+  out[,,"Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
+    out[,,"Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
+    out[,,"Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
 
   # fill all remaining NAs with 0 ----
 
