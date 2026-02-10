@@ -13,7 +13,7 @@ convertIIASALanduse <- function(x, subtype) {
         "Korea (Democratic People's Republic of)" = "PRK"
       )
     )
-  } else if (subtype == "forecast2023") {
+  } else if (subtype == "forecast2035") {
     x <- x[c("ANT", "EU"), , , invert = TRUE]
   }
 
