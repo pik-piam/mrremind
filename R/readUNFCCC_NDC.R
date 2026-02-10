@@ -30,8 +30,8 @@ readUNFCCC_NDC <- function(subtype, subset) {
   )
   
   PBLtargets <- dplyr::case_when(
-    grepl("2026", subtype, fixed = TRUE) ~ "ELEVATE T6.3 Scenario Protocol NDC and LTS information v2.xlsx", 
-    .default = "ELEVATE Task 6.3 Scenario Protocol NDC and LTS v1.xlsx"
+    grepl("2026", subtype, fixed = TRUE) ~ "ELEVATE T6.3 Scenario Protocol NDC and LTS information v3.xlsx", 
+    .default = "ELEVATE T6.3 Scenario Protocol NDC and LTS information v3.xlsx"
   )
   
   if (grepl("Capacity", subtype, fixed = TRUE)) {
@@ -381,21 +381,25 @@ readUNFCCC_NDC <- function(subtype, subset) {
       #manual corrections 
       ###################
       
-      #China 2030, add reference data for CO2/GDP of 2005
-      #GDP (2005)= 7284076
+      #China 2030 is excluding LULUCF, add reference data for CO2/GDP of 2005
+      #gdp["CHN", "y2005",]= 7284076/1000= 7284 bn$ and 
+      #ghgCEDS["CHN","y2005", "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] 
+      #= 6876, therefore = 6876/7284= 0.944
+      #this should result in the following targets= 0.944*(1-0.65)*gdp(2030)36564
+      #=12080 
       majorE[majorE$ISO_Code == "CHN" & majorE$Target_Year == 2030,
              c("BAU_or_Reference_emissions_in_MtCO2e", "LULUCF")] <-
-        list(1.069, "Excluding")
+        list(0.944, "Excluding")
       
-      #China 2035
+      #China 2035 this target is including LULUCF emissions
+      #peak year =2025
+      #reference emissions in 2025:
+      #from REMIND_2026_01_22 NPi2025;Emi|GHG|w/o Bunkers|w/o Land-Use Change in  2025= 16079
+      #LULUCF in 2020= -1211.589 in 2030= -935 thus we assume -1000 in 2025
+      
       majorE[majorE$ISO_Code == "CHN" & majorE$Target_Year == 2035,
              c("Reference_Year","BAU_or_Reference_emissions_in_MtCO2e")] <-
         list("2025", 15500)
-      
-      #India reference year still wrong it shoud be 2005 instead of 2022
-      majorE[majorE$ISO_Code == "IND" & majorE$Type == "GHG/GDP",
-             "Reference_Year"] <- "2005"
-      
       
       #Saudi Arabia still wrong it is 2019 instead of BAU 
       majorE[majorE$ISO_Code == "SAU",
