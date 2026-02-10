@@ -108,7 +108,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
             dplyr::if_else(.data$`Target Unit` == "%", 1 / 100, 1),
 
           # add column with target type as "Un-/conditional Relative/Absolute"
-          .data$target_type = paste(
+          target_type = paste(
             .data$Conditionality,
             dplyr::if_else(.data$`Target Unit` == "%", "Relative", "Absolute")
           ),
