@@ -9,8 +9,8 @@ readNewClimate(subtype, subset)
 }
 \arguments{
 \item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-Emissions_YYYY_uncond for Emissions targets, with YYYY NDC version year,
-determines the database version to be read in}
+Emissions_YYYY_uncond for Emissions targets, RenShareTargets for renewable energy share targets,
+with YYYY NDC version year, determines the database version to be read in}
 
 \item{subset}{A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).}
 }

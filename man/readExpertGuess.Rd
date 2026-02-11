@@ -18,6 +18,8 @@ foreseeable future (Jessica Strefler)
 \item \code{co2prices}: CO2 prices (Robert Pietzcker)
 \item \code{costsTradePeFinancial}: primary energy tradecosts (financial costs on import,
 export and use) (Nicolas Bauer)
+\item \code{deltacapoffset}: ??? (Robert Pietzcker)
+\item \code{gridFactor}: Estimates distribution of electricity demands per region (Robert Pietzcker)
 \item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
 \item \code{prtp}: pure rate of time preference (Nicolas Bauer)
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
@@ -26,6 +28,7 @@ export and use) (Nicolas Bauer)
 \item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
 constraints, values different to 1 activate constraints and the value is used as
 effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
+\item \code{tradecost}: old REMIND data for PE tradecosts (energy losses on import) (?)
 }}
 }
 \value{

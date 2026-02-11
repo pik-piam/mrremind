@@ -10,10 +10,13 @@ calcExpertGuess(subtype)
 \item{subtype}{must be one of
 'biocharPrices'
 'ccsBounds'
+'deltacapoffset'
+'gridFactor'
 'subConvergenceRollback'
 'tradeConstraints'
 'taxConvergence'
-'taxConvergenceRollback'}
+'taxConvergenceRollback',
+'tradecost'}
 }
 \description{
 Calculate expert guesses

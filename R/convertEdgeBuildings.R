@@ -8,19 +8,6 @@
 #'
 convertEdgeBuildings <- function(x, subtype, subset) {
 
-  .renameExtraWeights <- function(magObj, magWeight, mapping) {
-    do.call("mbind", lapply(mapping[["EDGEitems"]], function(itemIN) {
-      if (itemIN %in% getNames(magObj, dim = "item")) {
-        item_weight <- mapping[mapping$EDGEitems == itemIN, "weight_convertEDGE"]
-        subMagpie <- magWeight[, , item_weight]
-        res <- setNames(subMagpie, gsub(item_weight, itemIN, getNames(subMagpie)))
-      } else {
-        res <- NULL
-      }
-      return(res)
-    }))
-  }
-
   .calcLambda <- function(exceedingYearsVec, threshold, previousYears = NULL) {
     exceedingYearsBefore <- exceedingYearsVec[exceedingYearsVec <= threshold]
     exceedingYearsAfter  <- exceedingYearsVec[exceedingYearsVec > threshold]
@@ -32,15 +19,8 @@ convertEdgeBuildings <- function(x, subtype, subset) {
   }
 
   #---- Parameters and Mappings ------
+
   rem_years_hist <- seq(1990, 2150, 5)
-
-  struct_mapping_path <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv",
-                                        returnPathOnly = TRUE, where = "mrcommons")
-  struct_mapping <- utils::read.csv2(struct_mapping_path, na.strings = "")
-
-  # Select the relevant part of the mapping
-  struct_mapping <- struct_mapping[!is.na(struct_mapping$weight_convertEDGE), ]
-  struct_mapping <- unique(struct_mapping[c("weight_convertEDGE", "EDGEitems")])
 
   # Create data for any missing scenarios (i.e. not in x) by duplication of the SSP2 data.
   xAdd <- purrr::map(subset[!subset %in% getNames(x, dim = "scenario")], function(scen) {
@@ -77,10 +57,23 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     wgAdd <- purrr::map(subset[!subset %in% gdpScen], ~setItems(wg[, , "SSP2"], 3, .x)) %>% mbind()
     wg <- mbind(wg, wgAdd) %>% mselect(variable = subset)
 
-    #--- Then load the final energy data
-    hist_fe_stationary <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE", aggregate = FALSE)
-    hist_fe_buildings <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
-    wfe <- mbind(hist_fe_stationary, hist_fe_buildings)
+    #--- Load final energy data
+    wfe <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings", aggregate = FALSE)
+
+    # Transform weights obtained from calcIOEdgeBuildings to weights compatible with EDGE buildings ----
+    structureMapping <- toolGetMapping(name = "mappingWeightConvertEDGE.csv",
+                                       type = "sectoral", where = "mrremind")
+
+    if (!all(unique(structureMapping$EDGE_buildings_items) %in% getNames(x, dim = "item"))) {
+      stop("mappingWeightConvertEDGE is missing EDGE buildings items")
+    }
+
+    # extend mapping for useful energy
+    structureMapping <- structureMapping %>%
+      mutate("EDGE_buildings_items" = gsub("_fe$", "_ue", .data$EDGE_buildings_items)) %>%
+      rbind(structureMapping)
+
+    wfe <- toolAggregate(wfe, rel = structureMapping, from = "io_buildings", to = "EDGE_buildings_items", dim = 3)
 
     #---- Process Data -----------------
     # Replace NAs
@@ -102,6 +95,7 @@ convertEdgeBuildings <- function(x, subtype, subset) {
 
     # Compute lambda
     lambda <- .calcLambda(exceeding_years, 2060)
+
     # For the future periods, the weight will be a linear combination of last FE weight and of the GDP size.
     # until maxYear_X_in_FE this will be exclusively FE,
     # in 2060 (depending on the threshold value above), exclusively GDP
@@ -110,13 +104,6 @@ convertEdgeBuildings <- function(x, subtype, subset) {
                  lambda[, exceeding_years, ] * wg[, exceeding_years, ] +
                    (1 - lambda[, exceeding_years, ]) * (setYears(wfe[, maxYear_X_in_FE, ], NULL))
     )
-
-    # In cases where the variables in EDGE do not exist in the mapping for computing the final energy,
-    # e.g. when EDGE produces further disaggregations, or when it gives REMIND items without computing them
-    wfe <- mbind(wfe, .renameExtraWeights(x, wfe, struct_mapping))
-
-    # Reduce the dimensions of the weights
-    wfe <- wfe[, getYears(x), getNames(x, dim = "item")]
 
     # Check if any of the FE weights are negative
     if (any(wfe < 0)) {

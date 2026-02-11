@@ -48,33 +48,12 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   data <- mbind(ononspec, buildings)
 
   # Prepare Mapping
-  mapping <- toolGetMapping(type = "sectoral", name = "structuremappingIO_outputs.csv", where = "mrcommons")
-
-  # TODO: remove once this is in the mapping
-  ## Add total buildings electricity demand: feelb = feelcb + feelhpb + feelrhb
-  mapping <- rbind(
-    mapping,
-    mapping %>%
-      filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-      mutate(REMINDitems_out = "feelb")
-  )
-
-  mapping <- mapping %>%
-    select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
-    stats::na.omit() %>%
-    filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
-    distinct()
-
-  if (length(setdiff(getNames(data, dim = "item"), mapping$EDGEitems) > 0)) {
-    stop("Not all EDGE items are in the mapping")
-  }
+  mapping <- toolGetMapping(type = "sectoral",
+                            name = "mappingEDGEBuildingsToREMIND.csv",
+                            where = "mrremind")
 
   if (subtype == "FE") {
 
-    # REMIND variables in focus: those ending with b and stationary items not in industry focus
-    mapping <- mapping %>%
-      filter(grepl("b$", .data$REMINDitems_out) |
-               (grepl("s$", .data$REMINDitems_out)) & !grepl("fe(..i$|ind)", .data$EDGEitems))
     remindVars <- unique(mapping$REMINDitems_out)
     remindDims <- quitte::cartesian(getNames(data, dim = "scenario"), remindVars)
 
@@ -86,7 +65,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
     # Extend mapping for Useful Energy
     if (subtype == "UE_buildings") {
       mapping <- mapping %>%
-        mutate(EDGEitems = gsub("_fe$", "_ue", .data[["EDGEitems"]]),
+        mutate(EDGE_buildings_items = gsub("_fe$", "_ue", .data[["EDGE_buildings_items"]]),
                REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
         rbind(mapping)
       remindVars <- gsub("^fe", "ue", remindVars)
@@ -103,14 +82,10 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                        sets = getSets(data))
 
   for (v in remindVars) {
-    w <- mapping %>%
-      filter(.data$REMINDitems_out == v) %>%
-      select(-"REMINDitems_out") %>%
-      as.magpie()
 
-    tmp <- mselect(data, item = getNames(w)) * w
+    items <- mapping[mapping$REMINDitems_out == v, "EDGE_buildings_items"]
 
-    tmp <- dimSums(tmp, dim = "item", na.rm = TRUE) %>%
+    tmp <- dimSums(data[, , items], dim = "item", na.rm = TRUE) %>%
       add_dimension(dim = 3.3, add = "item", nm = v)
 
     remind[, , getNames(tmp)] <- tmp
