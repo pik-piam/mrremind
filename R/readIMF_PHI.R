@@ -3,14 +3,10 @@
 # a value of 0.87 and the least efficient country a value of 0.60, with all
 # other countries mapped proportionally between these bounds. The PHI bounds
 # are determined based on IMF data.
-# setwd("C:/Users/adamanti/madrat/sources/IMF_PHI")
 
 #' @author Diamantis Koutsandreas
 
 readIMF_PHI <- function() {
-  
-  library(dplyr)
-  library(readxl)
   
   # ------------------------------------------------------------
   # Read raw country-level dataset
@@ -24,14 +20,9 @@ readIMF_PHI <- function() {
   # Clean numeric columns
   # ------------------------------------------------------------
   raw_clean <- raw %>%
-    mutate(
-      Efficiency = as.numeric(Efficiency),
-      GDP        = as.numeric(gsub(",", "", GDP))
-    ) %>%
-    filter(
-      !is.na(Remind_Region),
-      !is.na(Efficiency),
-      !is.na(GDP)
+    dplyr::mutate(
+      Efficiency = as.numeric(.data$Efficiency),
+      GDP        = as.numeric(gsub(",", "", .data$GDP))
     )
   
   # ------------------------------------------------------------
@@ -41,10 +32,10 @@ readIMF_PHI <- function() {
   eff_max <- max(raw_clean$Efficiency, na.rm = TRUE)
   
   raw_phi <- raw_clean %>%
-    mutate(
+    dplyr::mutate(
       phi_country =
         0.60 +
-        (Efficiency - eff_min) *
+        (.data$Efficiency - eff_min) *
         (0.87 - 0.60) /
         (eff_max - eff_min)
     )
@@ -53,14 +44,14 @@ readIMF_PHI <- function() {
   # GDP-weighted regional Phi
   # ------------------------------------------------------------
   phi_region <- raw_phi %>%
-    group_by(Remind_Region) %>%
-    summarise(
+    dplyr::group_by(.data$Remind_Region) %>%
+    dplyr::summarise(
       value =
-        sum(phi_country * GDP, na.rm = TRUE) /
-        sum(GDP, na.rm = TRUE),
+        sum(.data$phi_country * .data$GDP, na.rm = TRUE) /
+        sum(.data$GDP, na.rm = TRUE),
       .groups = "drop"
     ) %>%
-    rename(region = Remind_Region)
+    dplyr::rename(region = .data$Remind_Region)
   
   # ------------------------------------------------------------
   # Convert to magpie object (no time dimension)

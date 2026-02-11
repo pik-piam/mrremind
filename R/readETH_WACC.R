@@ -1,17 +1,6 @@
-#' This function reads WACC markup data across technologies for each of the REMIND regions
-#library(dplyr)
-# library(tidyr)
-# library(mrcommons)
-# library(mrremind)
-# # 
-# setwd("C:/Users/adamanti//madratsources/ETH_WACC")
-
+#' This function reads WACC markup data across technologies for each of
+#' the REMIND regions
 #' @author Diamantis Koutsandreas
-# readETH_WACC <- function() {
-#   data <- readxl::read_xlsx("Source_data_WACC.xlsx", sheet = "wacc_markups_coal", range = "A1:V13") %>%
-#     pivot_longer(cols = 2:10, names_to = "technology", values_to = "value")
-#   return(as.magpie(data))
-# }
 
 readETH_WACC <- function() {
   # Define the year vector
@@ -32,15 +21,11 @@ readETH_WACC <- function() {
   
   # Reorder columns to: t, reg, tewacc, value
   data_expanded <- data_expanded %>%
-    select(t, reg, tewacc, value)
+    select("t", "reg", "tewacc", "value")
   
   # Convert to magpie object
   return(as.magpie(data_expanded))
 }
-
-# Assuming your dataframe is named 'df'
-# write.csv(data_expanded, "C:/Users/adamanti/madrat/data.csv", row.names = FALSE)
-
   
 
 
