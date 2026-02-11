@@ -1,7 +1,7 @@
 #' Convert policy targets for NPIs from New Climate policy database
 #'
 #' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
-#' For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
+#' For countries and years without targets, 2020 values from IRENA and BP are used to fill the gaps.
 #'
 #' Emission targets are represented by a GHG factor, which is the quotient of total GHG
 #' emissions in the target year divided by the CEDS GHG emissions in 2005.
@@ -66,7 +66,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
         j <- i - (i %% 5) + 5
         if (j %in% getYears(x, as.integer = TRUE)) {
           # if there is already a value for the year, use the higher value
-          x_target[, j, ] <- base::pmax(x[, i, ], x[, j, ], na.rm = TRUE)
+          x_target[, j, ] <- pmax(x[, i, ], x[, j, ], na.rm = TRUE)
         } else {
           x_target[, j, ] <- x[, i, ]
         }
@@ -78,8 +78,8 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
                              fill = NA
     )
 
-    # gather reference capacities (2015) ----
-    # x_ref contains 2015 capacities except for hydro where current generation values are taken
+    # gather reference capacities (2020) ----
+    # x_ref contains 2020 capacities except for hydro where current generation values are taken
 
     x_ref <- x_capacity
 
@@ -90,12 +90,12 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     # the lower the number, the more electricity can be produced
 
 
-    # Real world capacity factor for hydro = Generation in 2015 / Capacity in last 2015
+    # Real world capacity factor for hydro = Generation in 2020 / Capacity in last 2020
     # using cf_hydro_realworld directly causes converges errors because some are very small
     # TODO: why not use the more detailed capacity factors from PotentialHydro?
     # Note: "Hydropower" contains renewable hydropower and mixed hydro plants, but not pure pumped storage
-    cf_hydro_realworld <- hist_gen[, 2015, "Hydropower"] /
-      (8760 * hist_cap[, 2015, "Hydropower"])
+    cf_hydro_realworld <- hist_gen[, 2020, "Hydropower"] /
+      (8760 * hist_cap[, 2020, "Hydropower"])
     cf_hydro <- max(cf_hydro_realworld, na.rm = TRUE)
 
 
@@ -113,16 +113,16 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     )
 
     # initialize Renewables and Biomass
-    x_ref[, , renewableTech] <- hist_cap[getItems(x_ref, dim = 1), 2015, renewableTech]
-    x_ref[, , "Biomass"] <- hist_cap[getItems(x_ref, dim = 1), 2015, "Bioenergy"]
+    x_ref[, , renewableTech] <- hist_cap[getItems(x_ref, dim = 1), 2020, renewableTech]
+    x_ref[, , "Biomass"] <- hist_cap[getItems(x_ref, dim = 1), 2020, "Bioenergy"]
 
     # initialize Hydro with historical generation
-    x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2015, "Hydropower"]
+    x_ref[, , "Hydro"] <- hist_gen[getItems(x_ref, dim = 1), 2020, "Hydropower"]
 
     hist_gen_bp <- readSource("BP", subtype = "Generation")
 
     # initialize Nuclear
-    hist_gen_nuclear <- hist_gen_bp[getItems(x_ref, dim = 1), 2015, "Generation|Nuclear (TWh)"] * 1000
+    hist_gen_nuclear <- hist_gen_bp[getItems(x_ref, dim = 1), 2020, "Generation|Nuclear (TWh)"] * 1000
     hist_cap_nuclear <- hist_gen_nuclear / (8760 * cf_nuclear)
     # 0/1 mask to only initialize cells with targets in any year
     # this is most likely a correction of the values coming from BP,
@@ -133,19 +133,21 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     x_ref[, , "Nuclear"] <- hist_cap_nuclear * mask
 
     # initialize Coal
-    hist_gen_coal <- hist_gen_bp[getItems(x_ref, dim = 1), 2015, "Generation|Electricity|Coal (TWh)"] * 1000
-    # TODO: shouldn't this be cf_coal?
-    hist_cap_coal <- hist_gen_coal / (8760 * cf_nuclear)
+    hist_gen_coal <- hist_gen_bp[getItems(x_ref, dim = 1), 2020, "Generation|Electricity|Coal (TWh)"] * 1000
+    hist_cap_coal <- hist_gen_coal / (8760 * cf_coal)
     x_ref[, , "Coal"] <- hist_cap_coal
+    
+    # initialize H2-Electrolysers: assume 0 existing capacity
+    x_ref[, , "H2-Electrolysers"] <- 0
 
     # handle Target Type 'AC-Absolute' ----
     x_capacity_abs <- x_capacity
 
     # converting additional capacity targets to absolute capacity targets
 
-    # all additional capacity targets currently mean 'in addition to 2015'
+    # all additional capacity targets currently mean 'in addition to 2020'
     # TODO: read in reference year as well, otherwise invalid capacity target
-    allTech <- c("Nuclear", "Coal", "Biomass", renewableTech)
+    allTech <- c("Nuclear", "Coal", "Biomass", renewableTech, "H2-Electrolysers")
     x_capacity_abs[, , allTech] <- x_ref[, , allTech] + x_target[, , "AC-Absolute", drop = TRUE][, , allTech]
 
     # for Hydro, this is production (GWh/yr)
@@ -201,10 +203,10 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     potential[is.na(potential)] <- 0
 
     # for Hydro, any TIC and AC Absolute targets are converted to Production-Absolute targets in GWh/yr
-    # Production-Absolute is the max of TIC, AC, Production-Absolute, and 2015 reference
+    # Production-Absolute is the max of TIC, AC, Production-Absolute, and 2020 reference
     # TODO: why not do this just like for other Renewables? why special treatment for Hydro?
     # TODO: why do the complex calculation below for reference values as well?
-    x_target[, , "Production-Absolute.Hydro"] <- base::pmax(x_target[, , "Production-Absolute.Hydro"],
+    x_target[, , "Production-Absolute.Hydro"] <- pmax(x_target[, , "Production-Absolute.Hydro"],
                                                       x_capacity_tic[, , "Hydro"],
                                                       x_capacity_abs[, , "Hydro"],
                                                       x_ref[, , "Hydro"],
@@ -298,8 +300,8 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     # merge capacities ---
 
     # take the maximum of all target types (usually, only one is target is given)
-    # and the 2015 reference value
-    x_capacity[, , allTech] <- base::pmax(
+    # and the 2020 reference value
+    x_capacity[, , allTech] <- pmax(
       x_capacity_abs[, , allTech],
       x_capacity_tic[, , allTech],
       x_capacity_prod[, , allTech],
@@ -307,7 +309,7 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
       na.rm = TRUE
     )
 
-    # TIC and AC-Absolute for Hydro and 2015 reference have been included in previous steps already
+    # TIC and AC-Absolute for Hydro and 2020 reference have been included in previous steps already
     x_capacity[, , "Hydro"] <- x_capacity_prod[, , "Hydro"]
 
 
@@ -323,15 +325,16 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     }
 
 
-    # fill other regions with 2015 capacity values ----
+    # fill other regions with 2020 capacity values ----
     otherRegions <- setdiff(getItems(hist_cap, dim = 1), getItems(x_capacity, dim = 1))
 
     x_other <- new.magpie(otherRegions, targetYears, getNames(x_capacity))
-    x_other[, , renewableTech] <- hist_cap[otherRegions, 2015, renewableTech]
-    x_other[, , "Biomass"] <- hist_cap[otherRegions, 2015, "Bioenergy"]
-    x_other[, , "Hydro"] <- hist_cap[otherRegions, 2015, "Hydropower"] * cf_hydro
+    x_other[, , renewableTech] <- hist_cap[otherRegions, 2020, renewableTech]
+    x_other[, , "Biomass"] <- hist_cap[otherRegions, 2020, "Bioenergy"]
+    x_other[, , "Hydro"] <- hist_cap[otherRegions, 2020, "Hydropower"] * cf_hydro
     x_other[, , "Nuclear"] <- 0
     x_other[, , "Coal"] <- 0 # unclear if correct, need to see how it will be processed in calcfun
+    x_other[, , "H2-Electrolysers"] <- 0 # assumes 0 existing capacity
 
     x <- magpiesort(mbind(x_capacity, x_other))
     x[is.na(x)] <- 0
@@ -342,7 +345,8 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
       "Wind" = "wind", "Solar photovoltaic" = "spv", "Biomass" = "bioigcc",
       "Nuclear" = "tnrs", "Hydro" = "hydro", "Coal" = "coalchp",
       "Concentrated solar power" = "csp", "Geothermal" = "geohdr",
-      "Onshore wind energy" = "windon", "Offshore wind energy" = "windoff"
+      "Onshore wind energy" = "windon", "Offshore wind energy" = "windoff", 
+      "H2-Electrolysers" = "elh2"
     )
 
     getNames(x) <- m[getNames(x)]
@@ -353,8 +357,32 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
   }
 
-  # add NDC version from subtype
+  if (grepl("RenShareTargets", subtype, fixed = TRUE)) {
+    # disaggregate NewClimate regions to iso-country level
+    # only dissaggregation for EU needed
+    # allocate EU shares also to EU countries
+    x_EU <- collapseDim(x["EU", , ])
+
+    # ISO-countries in EU region
+    EUR_NPi_countries <- c(
+      "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+      "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+      "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+      "FRO", "GIB", "GGY", "IMN", "HRV"
+    )
+
+    # retain all data without EU which is not an iso-country
+    x_no_EU <- x[dimnames(x)[[1]] != "EU", , ]
+    # add missing countries with NA
+    x <- toolCountryFill(x_no_EU)
+    # assign share EU values to EU countries
+    x[EUR_NPi_countries, , ] <- x_EU
+  }
+
+  # add NDC version from subtype (not for renewable share targets)
+  if (!grepl("RenShareTargets", subtype, fixed = TRUE)) {
   ver <- paste(unlist(strsplit(subtype, "_"))[-1], collapse = "_")
   x <- add_dimension(x, add = "version", nm = ver, dim = 3.1)
+  }
   return(x)
 }

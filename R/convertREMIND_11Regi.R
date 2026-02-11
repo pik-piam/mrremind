@@ -1,29 +1,15 @@
 #' Converts REMIND regional data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. tradecost", "pe2se",
-#' "deltacapoffset", "propFeSubsidy", "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' @param subtype Name of the regional data, e.g. "pe2se",
+#' "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"
 #' @return A MAgPIE object containing country disaggregated data
 #' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
 #'
 convertREMIND_11Regi <- function(x, subtype) {
-  if (subtype == "tradecost" | subtype == "storageFactor" | subtype == "ffPolyRent") {
+  if (subtype == "storageFactor" | subtype == "ffPolyRent") {
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight = NULL)
-  } else if (subtype == "deltacapoffset") {
-    fe <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2010, c("feelb", "feeli")], dim = 3)
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight = fe)
-  } else if (subtype == "maxFeSubsidy" | subtype == "propFeSubsidy") {
-    # Loading REMIND old region mapping
-    mapping <- toolGetMapping(type = "regional", name = "regionmappingREMIND.csv", where = "mappingfolder")
-    # Filtering REMIND old region mapping (selecting just regions available on data)
-    mapping <- mapping[mapping[, 3] %in% getRegions(x), ]
-    # Replacing NA values with zero
-    x[is.na(x)] <- 0
-    # Converting old Region data to country data
-    y <- toolAggregate(x, mapping, weight = NULL)
-    # Filling missing country data with zero values to avoid convert error check
-    y <- toolCountryFill(y, fill = 0, verbosity = 2)
   } else if (subtype == "fossilExtractionCoeff") {
     # weight
     oil <- readSource("BGR", subtype = "oil")[, , "Remaining_Potential"]
@@ -96,8 +82,6 @@ convertREMIND_11Regi <- function(x, subtype) {
     # Increase SSP5 max cumulative coal extraction for USA and CAZ by 20%
     y[c("USA", "CAN", "AUS", "NZL", "HMD", "SPM"), , "pecoal.max.highCoal"] <-
       y[c("USA", "CAN", "AUS", "NZL", "HMD", "SPM"), , "pecoal.max.highCoal"] * (1 + 0.2)
-  } else if (subtype == "gridFactor") {
-    y <- x
   } else if (subtype == "ccs") {
     # use total land area as weight
     area <- calcOutput("LanduseInitialisation", aggregate = FALSE)[, 2005, ]

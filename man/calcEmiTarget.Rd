@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcEmiTarget.R
 \name{calcEmiTarget}
 \alias{calcEmiTarget}
-\title{Calculate Emission Targets}
+\title{Calculate NDC Emissions Targets}
 \usage{
 calcEmiTarget(sources, subtype, scenario)
 }
@@ -11,15 +11,18 @@ calcEmiTarget(sources, subtype, scenario)
 
 \item{subtype}{must be one of
 \itemize{
-\item 'Ghgfactor': for GHG factors calculated from the respective database
-\item 'Ghgshare2015': for Emission share of countries with targets per region
+\item 'Ghgfactor': target factors (target year emissions normalized by 2015 emissions)
+\item 'Ghgshare': share of emissions covered under NDC target per REMIND region
 }}
 
 \item{scenario}{GDP and pop scenarios. Passed to \code{\link[mrdrivers:calcGDP]{mrdrivers::calcGDP()}}.
 turned off for inpudata generation}
 }
 \description{
-Calculate Emission Targets
+This function calculates the emissions targets for the NDC scenarios applied in the REMIND module 45_carbonprice realization NDC.
+It contains the following steps:
+The parameters calculated in 3.) and 4.) are further used in the NDC realization to calculate the region-wide NDC emissions targets
+in terms of total GHG emissions excl. bunkers and excl. LULUCF sectors.
 }
 \author{
 Aman Malik, Christoph Bertram, Oliver Richters, Rahel Mandaroux, Falk Benke

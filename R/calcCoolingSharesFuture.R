@@ -78,9 +78,6 @@ calcCoolingSharesFuture <- function() {
     }
   }
 
-  # remove no longer used technologies pcc and pco
-  output <- output[, , c("pcc", "pco"), invert = TRUE]
-
   # add assumed data
   output[, , "geohdr.tower"] <- 70
   output[, , "geohdr.dry"] <- 20
