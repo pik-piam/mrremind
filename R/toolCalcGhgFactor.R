@@ -152,11 +152,17 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     }
 
     if ("LULUCF" %in% getNames(data) &&
-          data[regi, year, "LULUCF"] > 0 &&
-          # actually of target year
-          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
-      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] - emiRef[regi, "y2020", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] * factorLULUCF
+      data[regi, year, "LULUCF"] > 0 &&
+      # actually of target year
+      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+
+      # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
+      if (!is.null(ghgTarget)) {
+        # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
+        ghgTarget <- ghgTarget[regi, year, ] -
+          emiRef[regi, "y2020", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
+            factorLULUCF
+      }
     }
 
     return(ghgTarget)
