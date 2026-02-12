@@ -58,7 +58,8 @@ calcEmiTarget <- function(sources, subtype, scenario) {
       "2024_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2024_cond", subset = scenario),
       "2024_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2024_uncond", subset = scenario),
       "2025_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2025_cond", subset = scenario),
-      "2025_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2025_uncond", subset = scenario)
+      "2025_uncond" = readSource("UNFCCC_NDC", subtype = "Emissions_2025_uncond", subset = scenario),
+      "2026_cond"   = readSource("UNFCCC_NDC", subtype = "Emissions_2026_cond", subset = scenario)
     )
   }
 
@@ -84,9 +85,10 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
   # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets ----
 
-  # remove US targets from NDC targets as of 2025
+  # remove US targets from NDC targets as of 2024
   # since under the Trump Administration the US has started a process of withdrawing from the Paris Agreement
-  ghgFactor["USA",,c("2025_uncond","2025_cond")] <- NA
+  if (sources == "UNFCCC_NDC") {
+  ghgFactor["USA",,c("2024_uncond","2024_cond","2025_uncond","2025_cond", "2026_cond")] <- NA }
 
 
   # 3. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
