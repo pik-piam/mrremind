@@ -141,8 +141,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
             .data$`Target type` == "Target level"  ~ .data$`Target Value Min`)
           *
             dplyr::if_else(.data$`Target Unit` == "%", 1 / 100, 1),
-          target_type = stringr::str_replace(.data$target_type,"Unconditional",
-                                             "Conditional"))
+          target_type = gsub("Unconditional",  "Conditional",  .data$target_type))
       
       
       majorE_prepared <- rbind(majorE_prepared, majorE_cond)
