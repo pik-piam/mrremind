@@ -106,8 +106,8 @@ readEDGETransport <- function(subtype) {
     # ! transportData changes outside the function !
     # no match: rows are left unchanged
     transportData[scenarioMap,
-                  on = .(DEM_scenario = DEM_edge, EDGE_scenario = EDGE_scenario), # match values
-                  `:=`(DEM_scenario = i.DEM_remind, # overwrite values if match
+                  on = .(DEM_scenario = demScen_edge, EDGE_scenario = transportPolScen_edge), # match values
+                  `:=`(DEM_scenario = i.demScen_remind, # overwrite values if match
                        EDGE_scenario = i.EDGEtr_scen_remind)]
   }
   
