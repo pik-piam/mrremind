@@ -4,7 +4,7 @@
 #' to REMIND and the iterative EDGE-T script
 #'
 #' @return magpie object of EDGEtransport iterative inputs
-#' @author Johanna Hoppe
+#' @author Johanna Hoppe, Alex K. Hagen
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
@@ -16,7 +16,7 @@
 
 readEDGETransport <- function(subtype) {
 
-  EDGE_scenario <- DEM_scenario <- NULL
+  EDGE_scenario <- DEM_scenario <- demScen_edge <- transportPolScen_edge <- i.demScen_remind <- i.EDGEtr_scen_remind <- NULL
   #############################################################
   ## Define all scenario combinations for which
   ## input data should be generated
@@ -98,7 +98,7 @@ readEDGETransport <- function(subtype) {
   ########################################################################
   
   # load scenarioMapping from edgeTransport package data
-  scenarioMapping <- fread(system.file("extdata/helpersMappingEdgeTtoREMINDscen.csv",
+  scenarioMapping <- data.table::fread(system.file("extdata/helpersMappingEdgeTtoREMINDscen.csv",
                                        package = "edgeTransport", mustWork = TRUE), header = TRUE)
   
   translateEdgeTransportScentoREMIND <- function(transportData, scenarioMap) {
@@ -106,7 +106,7 @@ readEDGETransport <- function(subtype) {
     # ! transportData changes outside the function !
     # no match: rows are left unchanged
     transportData[scenarioMap,
-                  on = .(DEM_scenario = demScen_edge, EDGE_scenario = transportPolScen_edge), # match values
+                  on = list(DEM_scenario = demScen_edge, EDGE_scenario = transportPolScen_edge), # match values
                   `:=`(DEM_scenario = i.demScen_remind, # overwrite values if match
                        EDGE_scenario = i.EDGEtr_scen_remind)]
   }
