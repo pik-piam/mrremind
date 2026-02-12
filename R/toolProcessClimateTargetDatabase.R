@@ -63,10 +63,10 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
   
   # In case a country has two or more types of targets for same year, use GHG-Absolute targets
   # note: the only remaining country in 2021 is MGD Madagascar based on its 2016 submission
-  input <- input[!(input$ISO_Code %in% input[duplicated(input[c(1, 4,7)]), ]$ISO_Code &
-                     input$Target_Year %in% input[duplicated(input[c(1, 4,7)]), ]$Target_Year &
-                     input$Type != "GHG-Absolute"), ]
   
+  input <- input[!(input$ISO_Code %in% input[duplicated(input[c(1, 4)]), ]$ISO_Code &
+                     input$Target_Year %in% input[duplicated(input[c(1, 4)]), ]$Target_Year &
+                     input$Type != "GHG-Absolute"), ]
   
   # Check whether conditional is more stringent than unconditional
   input$Conditional <- as.numeric(input$Conditional)

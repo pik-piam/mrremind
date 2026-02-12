@@ -87,7 +87,8 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
   # remove US targets from NDC targets as of 2024
   # since under the Trump Administration the US has started a process of withdrawing from the Paris Agreement
-  ghgFactor["USA",,c("2024_uncond","2024_cond","2025_uncond","2025_cond", "2026_cond")] <- NA
+  if (sources == "UNFCCC_NDC") {
+  ghgFactor["USA",,c("2024_uncond","2024_cond","2025_uncond","2025_cond", "2026_cond")] <- NA }
 
 
   # 3. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
