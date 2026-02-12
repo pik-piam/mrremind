@@ -1,18 +1,9 @@
-#' Read REMIND region dependent data
+#' Read REMIND 11 Regi data
 #'
-#' Read-in an csv files that contains regional data
-#'
-#' @param subtype Name of the regional data, e.g.
-#' "tradecost", "fossilExtractionCoeff", "uraniumExtractionCoeff"
-#' @return magpie object of region dependent data
-#' @author original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
-#' @examples
-#' \dontrun{
-#' a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
-#' }
+#' @param subtype Name of the source, e.g. "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' @author unknown
 readREMIND_11Regi <- function(subtype) {
   switch(subtype,
-    "storageFactor" = read.csv("storageFactor_REMIND_3.4.0.csv", sep = ";") %>% as.magpie(datacol = 2),
     "ccs" = read.csv("p_dataccs.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 2),
     "ffPolyRent" = read.csv("ffPolyRent.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),
     "ffPolyCumEx" = read.csv("ffPolyCumEx.csv", sep = ";") %>% as.magpie(spatial = 1, datacol = 5),
