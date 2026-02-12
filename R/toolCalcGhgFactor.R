@@ -77,7 +77,12 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         }
       } else { # then Reference_Year contains a year
         # target + historic GHG emissions from CEDS (best fit)
-        histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+
+        histYear <- min(
+          data[regi, year, "Reference_Year"],
+          max(getYears(ghg[, c(2030, 2035), , invert = TRUE], as.integer = TRUE))
+        )
+
         if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
@@ -102,7 +107,12 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       } else { # then Reference_Year contains a year
 
         # target * historic GHG emissions from CEDS (best fit)
-        histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+
+        histYear <- min(
+          data[regi, year, "Reference_Year"],
+          max(getYears(ghg[, c(2030, 2035), , invert = TRUE], as.integer = TRUE))
+        )
+
         if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
