@@ -53,12 +53,9 @@ readEDGETransport <- function(subtype) {
       "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
       "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
       "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
-      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
-      "SSP2",          "Mix1",                    FALSE,      "SSP2_lowAvShip",
-      "SSP2",          "Mix2",                    FALSE,      "SSP2_lowAvShip",
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix2",                    TRUE,       "SSP2_lowAvShip",
-      "SSP2",          "Mix3",                    TRUE,       "SSP2_lowAvShip",
-      "SSP2",          "Mix4",                    TRUE,       "SSP2_lowAvShip",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_lowAvShip"
     )
   )
 
