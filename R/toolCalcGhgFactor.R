@@ -170,8 +170,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     sets = c("iso3c", "year", "scenario"),
     fill = NA
   )
-
-  ghgTarget <- ghgFactor
+  # initialize magclass object for absolute emissions targets
+  # (only used for diagnostics, not needed for inputdata generation)
+  AbsTarget <- ghgFactor
 
   # for each country and year, calculate calculate GHG factor
   for (regi in getItems(reductionData, dim = 1)) {
@@ -203,11 +204,12 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
           )
 
         }
+
         # also report absolute emissions target
-        ghgTarget[regi, y, ] <- ghgFactor[regi, y, ] * ghg2015
+        AbsTarget[regi, y, ] <- ghgFactor[regi, y, ] * ghg2015
       }
     }
   }
 
-  return(list(ghgFactor,ghgTarget) )
+  return(list(ghgFactor,AbsTarget) )
 }

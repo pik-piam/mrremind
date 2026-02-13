@@ -314,7 +314,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
     ghgFactor <- ghgFactorTarget[[1]]
     # absolute emissions target
     # (saved for reporting purposes, not used for input data generation for now)
-    ghgTarget <- ghgFactorTarget[[2]]
+    AbsTarget <- ghgFactorTarget[[2]]
 
     x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
   }
