@@ -50,13 +50,14 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   ## - takes CEDS emissions for reference year (if not available, use latest year in CEDS emissions)
   ## - if the column contains "BAU", use the value in "BAU_or_Reference_emissions_in_MtCO2e" as reference
   .calcGhgTarget <- function(data) {
+
     regi <- getItems(data, dim = 1)
     year <- getYears(data)
 
     if ("LULUCF" %in% getNames(data) &&
-          data[regi, year, "LULUCF"] > 0 &&
-          # actually of target year
-          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+        data[regi, year, "LULUCF"] > 0 &&
+        # actually of target year
+        emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
     } else {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
@@ -74,6 +75,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
         } else {
           message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
+          return(ghgTarget)
         }
       } else { # then Reference_Year contains a year
         # target + historic GHG emissions from CEDS (best fit)
@@ -103,6 +105,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
         } else {
           message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
+          return(ghgTarget)
         }
       } else { # then Reference_Year contains a year
 
@@ -151,18 +154,16 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       )
     }
 
-    if ("LULUCF" %in% getNames(data) &&
-      data[regi, year, "LULUCF"] > 0 &&
-      # actually of target year
-      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
 
+    if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
+      # actually of target year
+      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
       # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
-      if (!is.null(ghgTarget)) {
-        # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-        ghgTarget <- ghgTarget[regi, year, ] -
-          emiRef[regi, "y2020", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
-            factorLULUCF
-      }
+      year %in% c("y2030", "y2035")) {
+      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
+      ghgTarget <- ghgTarget[regi, year, ] -
+        emiRef[regi, year, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
+          factorLULUCF
     }
 
     return(ghgTarget)
@@ -175,6 +176,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   knownLow[["TGO"]] <- 2030
   knownLow[["GAB"]] <- 2050
   knownLow[["GBR"]] <- 2050
+  knownLow[["TZA"]] <- 2030
+  knownLow[["COD"]] <- 2030
+
 
   conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 

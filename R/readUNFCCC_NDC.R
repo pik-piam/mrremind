@@ -180,7 +180,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
         majorE$ISO_Code == "CHN" & majorE$Target_Year == 2035,
         c("Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e")
       ] <-
-        list("2025", 15500)
+        list("BAU", 15500)
       
       # Saudi Arabia still wrong it is 2019 instead of BAU
       majorE[
