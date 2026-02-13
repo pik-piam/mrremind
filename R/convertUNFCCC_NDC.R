@@ -308,7 +308,7 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
     ghgFactor <- toolCalcGhgFactor(x, subtype, subset)
-    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
+    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2, no_remove_warning = "ANT")
   }
 
   # add NDC version from subtype
