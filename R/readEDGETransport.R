@@ -4,7 +4,7 @@
 #' to REMIND and the iterative EDGE-T script
 #'
 #' @return magpie object of EDGEtransport iterative inputs
-#' @author Johanna Hoppe
+#' @author Johanna Hoppe, Alex K. Hagen
 #' @param subtype REMIND/iterative EDGE-T input data subtypes
 #'
 #' @examples
@@ -16,7 +16,7 @@
 
 readEDGETransport <- function(subtype) {
 
-  EDGE_scenario <- DEM_scenario <- NULL
+  EDGE_scenario <- DEM_scenario <- demScen_edge <- transportPolScen_edge <- i.demScen_remind <- i.EDGEtr_scen_remind <- NULL
   #############################################################
   ## Define all scenario combinations for which
   ## input data should be generated
@@ -35,7 +35,7 @@ readEDGETransport <- function(subtype) {
       ~SSPscen,         ~transportPolScen,        ~isICEban,    ~demScen,
       "SSP2",          "Mix1",                    FALSE,      "SSP2_demRedStrong",
       "SSP2",          "Mix2",                    FALSE,      "SSP2_demRedStrong",
-      "SSP2",          "Mix2",                    TRUE,      "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix3",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demRedStrong",
       "SSP2",          "Mix4",                    TRUE,       "SSP2_demDiffer",
@@ -53,7 +53,9 @@ readEDGETransport <- function(subtype) {
       "SSP2",          "NAV_all",                 TRUE,       "SSP2_demRedStrong",
       "SSP2",          "NAV_lce",                 FALSE,      "SSP2_demRedStrong",
       "SSP2",          "CAMP_lscWeak",            TRUE,       "SSP2_demRedWeak",
-      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong"
+      "SSP2",          "CAMP_lscStrong",          TRUE,       "SSP2_demRedStrong",
+      "SSP2",          "Mix2",                    TRUE,       "SSP2_lowAvShip",
+      "SSP2",          "Mix4",                    TRUE,       "SSP2_lowAvShip"
     )
   )
 
@@ -87,28 +89,30 @@ readEDGETransport <- function(subtype) {
 
   EdgeTransportSAdata <- setNames(EdgeTransportSAdata, types)
 
-  #############################################################
-  ## Rename EDGE-Transport demScens and map to REMIND demScens
-  ## that are applied to all sectors simultaneously
-  #############################################################
-  translateEdgeTransportDemScentoREMIND <- function(dt) {
-    dt[DEM_scenario == "SSP2_demDiffer" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "SSP2_demDiffer_IKEA"]
-    dt[DEM_scenario == "SSP2_demDiffer" & EDGE_scenario == "Mix1", DEM_scenario := "SSP2_demDiffer_IKEA"]
-    dt[DEM_scenario == "SSP2" & EDGE_scenario == "NAV_ele", DEM_scenario := "SSP2_NAV_ele"]
-    dt[DEM_scenario == "SSP2" & EDGE_scenario == "NAV_tec", DEM_scenario := "SSP2_NAV_tec"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "NAV_act", DEM_scenario := "SSP2_NAV_act"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "NAV_all", DEM_scenario := "SSP2_NAV_all"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "NAV_lce", DEM_scenario := "SSP2_NAV_lce"]
-    dt[DEM_scenario == "SSP2_demRedWeak" & EDGE_scenario == "CAMP_lscWeak", DEM_scenario := "SSP2_CAMP_weak"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "CAMP_lscStrong", DEM_scenario := "SSP2_CAMP_strong"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix1", DEM_scenario := "SSP2_lowEn"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix2", DEM_scenario := "SSP2_lowEn"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix2ICEban", DEM_scenario := "SSP2_lowEn"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix3ICEban", DEM_scenario := "SSP2_lowEn"]
-    dt[DEM_scenario == "SSP2_demRedStrong" & EDGE_scenario == "Mix4ICEban", DEM_scenario := "SSP2_lowEn"]
-    return(dt)
+  ########################################################################
+  ## Rename EDGE-Transport scenarios according to REMIND scenario levers
+  ## from 'demScen', 'transportPolScen' in transport to
+  ## 'cm_demScen', 'cm_EDGEtr_scen' in REMIND
+  ##
+  ## applied to all sectors simultaneously
+  ########################################################################
+  
+  # load scenarioMapping from edgeTransport package data
+  scenarioMapping <- toolGetMapping("helpersMappingEdgeTtoREMINDscen.csv", where = "edgeTransport")
+  
+  translateEdgeTransportScentoREMIND <- function(transportData, scenarioMap) {
+    # changes the rows with matches of DEM_scenario, EDGE_scenario in the mapping
+    # ! transportData changes outside the function !
+    # no match: rows are left unchanged
+    transportData[scenarioMap,
+                  on = list(DEM_scenario = demScen_edge, EDGE_scenario = transportPolScen_edge), # match values
+                  `:=`(DEM_scenario = i.demScen_remind, # overwrite values if match
+                       EDGE_scenario = i.EDGEtr_scen_remind)]
   }
-  EdgeTransportSAdata <- lapply(EdgeTransportSAdata, translateEdgeTransportDemScentoREMIND)
+  
+  # in-place modification of DEM_scenario, EDGE_scenario in EdgeTransportSAdata
+  lapply(EdgeTransportSAdata, translateEdgeTransportScentoREMIND, scenarioMapping)
+  
   #############################################################
   ## Create magpie object for every subtype
   #############################################################
