@@ -7,9 +7,9 @@
 readIAEA()
 }
 \description{
-Data on currently operating and under-construction nuclear power plants, reactors planned and proposed,
-electricity generation from nuclear
+Data on currently operating and under-construction nuclear power
+plants, reactors planned and proposed, electricity generation from nuclear
 }
 \author{
-Christoph Bertram
+Christoph Bertram, Pascal Weigmann
 }
