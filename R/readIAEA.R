@@ -5,12 +5,10 @@
 #' @author Christoph Bertram, Pascal Weigmann
 
 readIAEA <- function() {
-  x_2016 <- read.csv("January2016.csv", sep = ";", skip = 2, check.names = FALSE)
-  x_2016$YEAR <- 2016
-  x_2018 <- read.csv("August2018.csv", sep = ";", skip = 2, check.names = FALSE)
-  x_2018$YEAR <- 2018
+
   x_2020 <- read.csv("April2020.csv", sep = ",", skip = 2, check.names = FALSE)
   x_2020$YEAR <- 2020
+
   x_2025 <- read.csv("November2025.csv", sep = ",", skip = 2, check.names = FALSE)
   x_2025$YEAR <- 2025
 
@@ -21,11 +19,13 @@ readIAEA <- function() {
                          replacement = "United Arab Emirates",
                          x = x_2025$COUNTRY)
 
-  x <- dplyr::bind_rows(x_2016, x_2018, x_2020, x_2025)
+  x <- dplyr::bind_rows(x_2020, x_2025)
 
   # rearranging columns so magpie object can be easily created
   x <- x[, c(1, 13, 2:12)]
   x <- as.magpie(x, spatial = 1, temporal = 2, datacol = 3)
+
+  x <- add_columns(x, addnm = "Taiwan", dim = 1, fill = NA)
 
   # Data for Taiwan in 2020 is given separately and not included in the list
   x["Taiwan", "y2020", "REACTORS OPERABLE (MWe net)"] <- 3719

@@ -12,12 +12,10 @@ calcCapacityNuclear <- function() {
   grossnet <- 1.05
 
   x <- readSource("IAEA")
-  out <- new.magpie(getRegions(x), seq(2015, 2040, 5), "tnrs")
+  out <- new.magpie(getItems(x, dim = 1), seq(2020, 2040, 5), "tnrs")
 
   # Historical data ----
   # allocate data and convert from MW into TW
-  # total capacity in 2015: snapshot of operable reactors in early 2016
-  out[, 2015, ] <- x[, 2016, "REACTORS OPERABLE (MWe net)"] / 10^6
 
   # total capacity in 2020: snapshot of operable reactors in April 2020
   out[, 2020, ] <- x[, 2020, "REACTORS OPERABLE (MWe net)"] / 10^6
@@ -79,8 +77,8 @@ calcCapacityNuclear <- function() {
   out[ctry, 2040, ] <- pmax(out[ctry, 2040, ], 0.002)
 
   return(list(x = out, weight = NULL, unit = "TW",
-              description = "capacity of operating nuclear plants in 2015, 2020
-              and 2025, upper limits of capacity additions for 2030, 2025 and 2040")
+              description = "capacity of operating nuclear plants in 2020 and 2025,
+              upper limits of capacity additions for 2030, 2025 and 2040")
   )
 
 }
