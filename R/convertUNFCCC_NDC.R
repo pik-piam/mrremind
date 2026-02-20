@@ -16,7 +16,6 @@
 convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-
     # TODO: do we want to implement FE-Production-Share?
 
     # pre-processing ----
@@ -307,8 +306,14 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
   }
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
-    ghgFactor <- toolCalcGhgFactor(x, subtype, subset)
-    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
+    # calculate absolute and relative emissions target per country
+    ghgFactorTarget <- toolCalcGhgFactor(x, subtype, subset)
+    # emissions target relative to 2015 (ghgFactor)
+    ghgFactor <- ghgFactorTarget[[1]]
+    # absolute emissions target
+    # (saved for reporting purposes, not used for input data generation for now)
+    AbsTarget <- ghgFactorTarget[[2]]
+    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2, no_remove_warning = "ANT")
   }
 
   # add NDC version from subtype

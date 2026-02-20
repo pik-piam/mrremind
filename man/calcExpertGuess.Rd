@@ -10,6 +10,7 @@ calcExpertGuess(subtype)
 \item{subtype}{must be one of
 'biocharPrices'
 'ccsBounds'
+'deltacapoffset'
 'gridFactor'
 'subConvergenceRollback'
 'tradeConstraints'

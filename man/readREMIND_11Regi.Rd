@@ -2,25 +2,16 @@
 % Please edit documentation in R/readREMIND_11Regi.R
 \name{readREMIND_11Regi}
 \alias{readREMIND_11Regi}
-\title{Read REMIND region dependent data}
+\title{Read REMIND 11 Regi data}
 \usage{
 readREMIND_11Regi(subtype)
 }
 \arguments{
-\item{subtype}{Name of the regional data, e.g.
-"tradecost", "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
-}
-\value{
-magpie object of region dependent data
+\item{subtype}{Name of the source, e.g. "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \description{
-Read-in an csv files that contains regional data
-}
-\examples{
-\dontrun{
-a <- readSource(type = "REMIND_11Regi", subtype = "tradecost")
-}
+Read REMIND 11 Regi data
 }
 \author{
-original: not defined, tax, fossil and RLDC changes: Renato Rodrigues
+unknown
 }

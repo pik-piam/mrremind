@@ -13,10 +13,12 @@
 #'   - `co2prices`: CO2 prices (Robert Pietzcker)
 #'   - `costsTradePeFinancial`: primary energy tradecosts (financial costs on import,
 #'      export and use) (Nicolas Bauer)
+#'   - `deltacapoffset`: ??? (Robert Pietzcker)
 #'   - `gridFactor`: Estimates distribution of electricity demands per region (Robert Pietzcker)
 #'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
 #'   - `prtp`: pure rate of time preference (Nicolas Bauer)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+#'   - `storageFactor`: Regional storage parametrization (Robert Pietzcker)
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nicolas Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
@@ -69,6 +71,10 @@ readExpertGuess <- function(subtype) {
       as.magpie(spatial = 1, temporal = 0, datacol = 3) %>%
       collapseNames()
 
+  } else if (subtype == "deltacapoffset") {
+
+    out <- read.csv("p_adj_deltacapoffset_v1.0.0.csv", sep = ";") %>%
+      as.magpie()
   } else if (subtype == "gridFactor") {
 
     out <- read.csv("homogenous_regions_for_grids_v1.0.csv", sep = ";") %>%
@@ -90,6 +96,11 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
     getYears(out) <- "2005"
+
+  } else if (subtype == "storageFactor") {
+
+    out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
+      as.magpie()
 
   } else if (subtype == "subConvergenceRollback") {
 

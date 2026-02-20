@@ -1,18 +1,12 @@
-#' Converts REMIND regional data
+#' Converts REMIND 11 Regi data
 #'
 #' @param x MAgPIE object to be converted
-#' @param subtype Name of the regional data, e.g. "pe2se",
-#' "deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"
-#' @return A MAgPIE object containing country disaggregated data
-#' @author original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
-#'
+#' @param subtype Name of the source, e.g. "fossilExtractionCoeff", "uraniumExtractionCoeff"
+#' @author unknown
 convertREMIND_11Regi <- function(x, subtype) {
-  if (subtype == "storageFactor" | subtype == "ffPolyRent") {
+  if (subtype == "ffPolyRent") {
     # No weighting for spatial aggregation
     y <- toolAggregate(x, "regionmappingREMIND.csv", weight = NULL)
-  } else if (subtype == "deltacapoffset") {
-    fe <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2010, c("feelb", "feeli")], dim = 3)
-    y <- toolAggregate(x, "regionmappingREMIND.csv", weight = fe)
   } else if (subtype == "fossilExtractionCoeff") {
     # weight
     oil <- readSource("BGR", subtype = "oil")[, , "Remaining_Potential"]
