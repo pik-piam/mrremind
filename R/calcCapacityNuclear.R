@@ -39,12 +39,14 @@ calcCapacityNuclear <- function() {
       0.7 * x[, 2025, "REACTORS PROPOSED (MWe gross)"] / grossnet +
       # this is to represent that countries may develop new plans, and if you have
       # nuclear power this makes it easier to build new
-      0.1 * x[, 2025, "REACTORS OPERABLE (MWe net)"] / grossnet +
-      # max capacity additions from 2025 to 2030
-      0.3 * out[, 2030, ] +
-      # max capacity additions from 2030 to 2035
-      0.3 * out[, 2035, ]
-  ) / 10^6 # convert to TW
+      0.1 * x[, 2025, "REACTORS OPERABLE (MWe net)"] / grossnet
+  ) / 10^6 + # convert to TW
+    # a percentate of max capacity additions from 2025 to 2030 and from 2030 to 2035
+    # is added to include countries that currently have little nuclear but scaling
+    # it up until 2035 - they should also be able to continue their upscaling.
+    0.3 * out[, 2030, ] +
+    0.3 * out[, 2035, ]
+
 
   # Additional estimates ----
 
@@ -79,6 +81,6 @@ calcCapacityNuclear <- function() {
   return(list(x = out, weight = NULL, unit = "TW",
               description = "capacity of operating nuclear plants in 2015, 2020
               and 2025, upper limits of capacity additions for 2030, 2025 and 2040")
-         )
+  )
 
 }
