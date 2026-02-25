@@ -1,32 +1,26 @@
 #' Read geological storage potential
 #'
-#' @return A magpie object with geological storage potential. Off = offshore; On = onshore; TechPot = technical potential
-#' without any exclusion layers applied; PlanetLim = applying all exclusion layers described in Table S1 (e.g. protected
+#' @return A magpie object with geological storage potential. Off = offshore; On = onshore; potTech = technical potential
+#' without any exclusion layers applied; potLim = applying all exclusion layers described in Table S1 (e.g. protected
 #' areas, population centers, max and min depth, etc.)
 #' @author David Klein
 #'
 readGidden2025_geological_storage_potential <- function() {
-  intable <- readxl::read_excel("gidden_et_al_2025_supplemental_data.xlsx", sheet = "S5", skip = 1)
 
-  # ...2
-  # ...3
-  # Total...6
-  # Total...9
-  # Offshore...10
-  # Onshore...11
-  # Total...12
+  intable <- readxl::read_excel("gidden_et_al_2025_supplemental_data.xlsx", sheet = "S5", skip = 1) |>
+             dplyr::select(c("regi"       = "...1",         # select relevant columns and rename them
+                             "potTechOff" = "Offshore...4",
+                             "potTechOn"  = "Onshore...5",
+                             "potLimOff"  = "Offshore...7",
+                             "potLimOn"   = "Onshore...8"))
 
-  # remove columns that are not needed and rename the remaining ones
-  intable <- intable[, -c(2, 3, 6, 9, 10, 11, 12)]
-  colnames(intable) <- c("regi","potTechOff", "potTechOn", "potLimOff", "potLimOn")
-
+  # remove rows with no regional data
   #   1 NODE
   # 195 Total
   # 196 Non Mapped Countries
   # 231 Total
   # 232 Final Total
 
-  # remove rows with no regional data listed above
   intable <- intable[-c(1, 195, 196, 231, 232),]
 
   longtable <- tidyr::pivot_longer(intable,
