@@ -22,6 +22,3 @@ convertGidden2025_geological_storage_potential <- function(x) {
   return(x)
 
 }
-
-
-
