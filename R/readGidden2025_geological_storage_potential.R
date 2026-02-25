@@ -8,17 +8,26 @@
 readGidden2025_geological_storage_potential <- function() {
   intable <- readxl::read_excel("gidden_et_al_2025_supplemental_data.xlsx", sheet = "S5", skip = 1)
 
-  intable <- intable[-1 , -c(2, 3, 6, 9, 10, 11, 12)]
+  # ...2
+  # ...3
+  # Total...6
+  # Total...9
+  # Offshore...10
+  # Onshore...11
+  # Total...12
+
+  # remove columns that are not needed and rename the remaining ones
+  intable <- intable[, -c(2, 3, 6, 9, 10, 11, 12)]
   colnames(intable) <- c("regi","potTechOff", "potTechOn", "potLimOff", "potLimOn")
 
-  # 194 Total
-  # 195 Non Mapped Countries
-
-  # 230 Total
-  # 231 Final Total
+  #   1 NODE
+  # 195 Total
+  # 196 Non Mapped Countries
+  # 231 Total
+  # 232 Final Total
 
   # remove rows with no regional data listed above
-  intable <- intable[-c(194, 195, 230, 231),]
+  intable <- intable[-c(1, 195, 196, 231, 232),]
 
   longtable <- tidyr::pivot_longer(intable,
                                    cols = tidyselect::contains(c("Tech","Lim")),
