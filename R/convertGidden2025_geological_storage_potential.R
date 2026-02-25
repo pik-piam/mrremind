@@ -6,7 +6,7 @@
 convertGidden2025_geological_storage_potential <- function(x) {
 
   # What about regions that are listed in the source as "non mapped countries" among which
-  # - ATA (Antarctica) is known to madrat, but might not be availalbe for CCS
+  # - ATA (Antarctica) is known to madrat, but might not be available for CCS
   # - XCA is neither explained in the source nor known to madrat, but has a non-zero potential
 
   x <- toolCountryFill(x, fill = 0, verbosity = 0) # fill missing countries
