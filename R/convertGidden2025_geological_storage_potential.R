@@ -1,5 +1,6 @@
 #' Convert geological storage potential
 #'
+#' @param x MAgPIE object to be converted
 #' @return A magpie object with geological storage potential
 #' @author David Klein
 #'
