@@ -16,7 +16,6 @@ calcPotentialGeologicalStorage <- function() {
 
   # read geological storage potential from Gidden et al. 2025
   new <- readSource(type = "Gidden2025_geological_storage_potential")
-  new <- new * 12/44 # GtCO2 -> GtC
 
   # move content of calcLimitCCS.R here and delete it
   # Read capacity factor inputs
