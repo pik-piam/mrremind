@@ -13,12 +13,11 @@
 #'
 readNewClimate <- function(subtype, subset) {
   NPIfile <- dplyr::case_when(
-    grepl("2025", subtype, fixed = TRUE) ~ "NPi_2025-03-25.xlsx",
-    .default = "NPi_2025-03-25.xlsx"
+    grepl("2025", subtype, fixed = TRUE) ~ "NPi_PBL_2025.xlsx",
+    .default = "NPi_PBL_2025.xlsx"
   )
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-    # TODO: what about targets for H2-Electrolysers?
 
     data <- read_excel(
       NPIfile,
@@ -26,7 +25,7 @@ readNewClimate <- function(subtype, subset) {
       col_types = c(
         "text", "skip", "numeric", "text", "text", "numeric",
         "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-        "numeric", "numeric", "numeric", "skip", "skip", "skip", "skip"
+        "numeric", "numeric", "numeric", "numeric", "skip", "skip", "skip"
       )
     )
 

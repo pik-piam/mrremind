@@ -50,13 +50,14 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   ## - takes CEDS emissions for reference year (if not available, use latest year in CEDS emissions)
   ## - if the column contains "BAU", use the value in "BAU_or_Reference_emissions_in_MtCO2e" as reference
   .calcGhgTarget <- function(data) {
+
     regi <- getItems(data, dim = 1)
     year <- getYears(data)
 
     if ("LULUCF" %in% getNames(data) &&
-          data[regi, year, "LULUCF"] > 0 &&
-          # actually of target year
-          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+        data[regi, year, "LULUCF"] > 0 &&
+        # actually of target year
+        emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
     } else {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
@@ -74,10 +75,16 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
         } else {
           message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
+          return(ghgTarget)
         }
       } else { # then Reference_Year contains a year
         # target + historic GHG emissions from CEDS (best fit)
-        histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+
+        histYear <- min(
+          data[regi, year, "Reference_Year"],
+          max(getYears(ghg[, c(2030, 2035), , invert = TRUE], as.integer = TRUE))
+        )
+
         if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
@@ -98,11 +105,17 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
         } else {
           message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
+          return(ghgTarget)
         }
       } else { # then Reference_Year contains a year
 
         # target * historic GHG emissions from CEDS (best fit)
-        histYear <- min(data[regi, year, "Reference_Year"], max(getYears(ghg, as.integer = TRUE)))
+
+        histYear <- min(
+          data[regi, year, "Reference_Year"],
+          max(getYears(ghg[, c(2030, 2035), , invert = TRUE], as.integer = TRUE))
+        )
+
         if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
           message(
             "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
@@ -141,12 +154,16 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
       )
     }
 
-    if ("LULUCF" %in% getNames(data) &&
-          data[regi, year, "LULUCF"] > 0 &&
-          # actually of target year
-          emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+
+    if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
+      # actually of target year
+      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
+      # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
+      year %in% c("y2030", "y2035")) {
       # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] - emiRef[regi, "y2020", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] * factorLULUCF
+      ghgTarget <- ghgTarget[regi, year, ] -
+        emiRef[regi, year, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
+          factorLULUCF
     }
 
     return(ghgTarget)
@@ -155,12 +172,17 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
   # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
   # between target year and 2015 multiplied by factor 0.1
   knownHigh <- list("IND" = c(2030))
-  knownLow <- list()
+  knownLow  <- list("NGA" = c(2030))
+  knownLow[["TGO"]] <- 2030
   knownLow[["GAB"]] <- 2050
   knownLow[["GBR"]] <- 2050
+  knownLow[["TZA"]] <- 2030
+  knownLow[["COD"]] <- 2030
+
 
   conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
+  # initialize ghgFactor (emissions target relative to 2015) and ghgTarget (absolute emissions target) arrays
   ghgFactor <- new.magpie(
     cells_and_regions = getItems(reductionData, dim = 1),
     years = getYears(reductionData),
@@ -168,6 +190,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     sets = c("iso3c", "year", "scenario"),
     fill = NA
   )
+  # initialize magclass object for absolute emissions targets
+  # (only used for diagnostics, not needed for inputdata generation)
+  AbsTarget <- ghgFactor
 
   # for each country and year, calculate calculate GHG factor
   for (regi in getItems(reductionData, dim = 1)) {
@@ -197,10 +222,14 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             "For ", regi, " in ", year, ", ghgFactor=", ghgFactorMin, " is below 0. ",
             "Is the country really promising negative net emissions? Add it to 'knownLow'."
           )
+
         }
+
+        # also report absolute emissions target
+        AbsTarget[regi, y, ] <- ghgFactor[regi, y, ] * ghg2015
       }
     }
   }
 
-  return(ghgFactor)
+  return(list(ghgFactor,AbsTarget) )
 }

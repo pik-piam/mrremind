@@ -31,7 +31,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
   # function get historical energy data for 2020
   .getHistData <- function(subtype, AvgSeveralYears) {
     # get historical FE and SE data from IEA energy balances
-    IEA <- calcOutput("FE", source = "IEA", ieaVersion = "default", aggregate = F)
+    IEA <- calcOutput("FE", ieaVersion = "default", aggregate = F)
 
     # add items to calculate historical FE demand or historical SE generation
     if (subtype == "FE") {

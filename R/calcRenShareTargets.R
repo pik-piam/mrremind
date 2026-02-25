@@ -43,7 +43,7 @@ calcRenShareTargets <- function(scenario) {
   # xHistTotal is total electricity generation.)
   .getHistEnergyShare <- function(ShareTypes, AvgSeveralYears) {
     # get historical FE and SE data from IEA energy balances
-    IEA <- calcOutput("FE", source = "IEA", ieaVersion = "default", aggregate = F)
+    IEA <- calcOutput("FE", ieaVersion = "default", aggregate = F)
 
     # create array for historical energy shares and totals
     xHistShare <- new.magpie(getItems(IEA, dim = 1), years = NULL, names = ShareTypes, fill = NA)

@@ -9,21 +9,10 @@ convertIEA_WEO(x, subtype)
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{data subtype. Either "Capacity", "Generation", "Emissions",
-"Investment Costs", or "O&M Costs"}
-}
-\value{
-magpie object of the WEO data on generation (TWh), capacities (GW),
-emissions (Mt CO2) or disaggregated investment cost as magpie object
+\item{subtype}{data subtype. Either "Capacity" or "Invest_Costs"}
 }
 \description{
 Converts IEA World Energy Outlook data
-}
-\examples{
-\dontrun{
-a <- convertWEO(x, subtype = "Capacity")
-}
-
 }
 \author{
 Renato Rodrigues and Aman Malik

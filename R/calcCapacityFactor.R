@@ -113,7 +113,7 @@ calcCapacityFactor <- function() {
   output["DEU", c("y2020", "y2025"), "pc"] <- 0.43
   output["DEU", c("y2030"), "pc"] <- 0.4
 
-  weight <- calcOutput("FE", source = "IEA", aggregate = FALSE)[, 2015, "FE (EJ/yr)"]
+  weight <- calcOutput("FE", aggregate = FALSE)[, 2015, "FE (EJ/yr)"]
 
   # Return regions aggregation weighted by final energy
   return(list(

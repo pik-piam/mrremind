@@ -7,24 +7,11 @@
 readIEA_WEO(subtype)
 }
 \arguments{
-\item{subtype}{data subtype. Either "Capacity", "Generation", "Emissions",
-"Investment Costs", or "O&M Costs"}
-}
-\value{
-magpie object of the WEO data on generation (TWh), capacities (GW),
-emissions (Mt CO2) or disaggregated investment cost as magpie object
+\item{subtype}{data subtype. Either "Capacity" or "Invest_Costs"}
 }
 \description{
-Read-in IEA WEO 2016 data for investment costs and O&M costs
-of different technologies, and WEO 2017 data for historical
-electricity capacities (GW), generation (TWh) or emissions (Mt CO2).
-WEO 2019 data for PE and FE (Mtoe).
-}
-\examples{
-\dontrun{
-a <- readSource(type = "WEO", subtype = "Capacity")
-}
-
+Read-in IEA WEO 2016 data for investment costs of different technologies,
+and WEO 2017 data for historical electricity capacities (GW)
 }
 \author{
 Renato Rodrigues, Aman Malik, and Jerome Hilaire

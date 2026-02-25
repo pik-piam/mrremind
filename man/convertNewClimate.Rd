@@ -16,7 +16,7 @@ Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year}
 }
 \description{
 Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
-For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
+For countries and years without targets, 2020 values from IRENA and BP are used to fill the gaps.
 }
 \details{
 Emission targets are represented by a GHG factor, which is the quotient of total GHG
