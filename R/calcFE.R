@@ -67,7 +67,9 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(x[, , "FE|Transport|LDV|Liquids|Fossil (EJ/yr)"] +
                            x[, , "FE|Transport|non-LDV|Liquids|Fossil (EJ/yr)"], "FE|Transport|Liquids|Fossil (EJ/yr)"))
 
-# new aggregations based on more detailed categories: 
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers (EJ/yr) (EJ/yr)"] , "FE|Transport|Bunkers|Liquids (EJ/yr)"))   
+
+# new aggregations based on more detailed categories from IEA: 
 
 ## domestic aviation
 x <- mbind(x, setNames(x[, , "FE|Transport|DomAv|Liquids|Fossil (EJ/yr)"], "FE|Transport|Pass|Domestic Aviation|Liquids|Fossil (EJ/yr)"))
@@ -144,28 +146,46 @@ x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|IntNav|Liquids (EJ/yr)"], "FE
 x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Freight|International Shipping|Liquids (EJ/yr)"], "FE|Transport|Bunkers|Freight|International Shipping (EJ/yr)"))    
 x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Freight|International Shipping (EJ/yr)"], "FE|Transport|Bunkers|Freight (EJ/yr)"))   
 
+
+
 # check aggregations
 x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Liquids (EJ/yr)"] 
                      + x[, , "FE|Transport|NotSpecified|Liquids (EJ/yr)"] 
                      + x[, , "FE|Transport|Pass|Domestic Aviation|Liquids (EJ/yr)"] 
                      + x[, , "FE|Transport|Rail|Liquids (EJ/yr)"] 
                      + x[, , "FE|Transport|Road|Liquids (EJ/yr)"], 
-                       "FE|TransportCheck|Liquids (EJ/yr)")) 
+                       "FE|TransportCheck|w/o Bunkers|Liquids (EJ/yr)")) 
 x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Gases (EJ/yr)"] 
                      + x[, , "FE|Transport|NotSpecified|Gases (EJ/yr)"] 
                      + x[, , "FE|Transport|Pass|Domestic Aviation|Gases (EJ/yr)"] 
                      + x[, , "FE|Transport|Rail|Gases (EJ/yr)"] 
                      + x[, , "FE|Transport|Road|Gases (EJ/yr)"], 
-                       "FE|TransportCheck|Liquids (EJ/yr)")) 
+                       "FE|TransportCheck|w/o Bunkers|Gases (EJ/yr)")) 
 x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Electricity (EJ/yr)"] 
                     + x[, , "FE|Transport|NotSpecified|Electricity (EJ/yr)"] 
                     + x[, , "FE|Transport|Pass|Domestic Aviation|Electricity (EJ/yr)"]
                     + x[, , "FE|Transport|Rail|Electricity (EJ/yr)"] 
                     + x[, , "FE|Transport|Road|Electricity (EJ/yr)"], 
-                      "FE|TransportCheck|Electricity (EJ/yr)"))    
-x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)"))                          
+                      "FE|TransportCheck|w/o Bunkers|Electricity (EJ/yr)"))    
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Solids (EJ/yr)"] , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"))                          
 
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping (EJ/yr)"] 
+                    + x[, , "FE|Transport|NotSpecified (EJ/yr)"] 
+                    + x[, , "FE|Transport|Pass|Domestic Aviation (EJ/yr)"]
+                    + x[, , "FE|Transport|Rail (EJ/yr)"] 
+                    + x[, , "FE|Transport|Road (EJ/yr)"], 
+                      "FE|TransportCheck|w/o Bunkers (EJ/yr)"))    
 
+# check aggregates with bunkers
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Pass (EJ/yr)"]
+                     + x[, , "FE|Transport|Bunkers|Freight (EJ/yr)"], "FE|TransportCheck|Bunkers (EJ/yr)"))   
+
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)"))   
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Electricity (EJ/yr)"] , "FE|TransportCheck|Electricity (EJ/yr)")) 
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)")) 
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Liquids (EJ/yr)"]
+                     + x[, , "FE|Transport|Bunkers|Liquids (EJ/yr)"], "FE|TransportCheck (EJ/yr)"))   
+                
 
   # aggregate biomass and fossil data
   x <- mbind(x, setNames(x[, , "FE|Buildings|Gases|Biomass (EJ/yr)"] +
