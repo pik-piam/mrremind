@@ -67,6 +67,106 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(x[, , "FE|Transport|LDV|Liquids|Fossil (EJ/yr)"] +
                            x[, , "FE|Transport|non-LDV|Liquids|Fossil (EJ/yr)"], "FE|Transport|Liquids|Fossil (EJ/yr)"))
 
+# new aggregations based on more detailed categories: 
+
+## domestic aviation
+x <- mbind(x, setNames(x[, , "FE|Transport|DomAv|Liquids|Fossil (EJ/yr)"], "FE|Transport|Pass|Domestic Aviation|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|DomAv|Liquids|Fossil (EJ/yr)"], "FE|Transport|Pass|Domestic Aviation|Liquids (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|DomAv|Liquids|Fossil (EJ/yr)"], "FE|Transport|Pass|Domestic Aviation (EJ/yr)"))
+
+## domestic navigation
+x <- mbind(x, setNames(x[, , "FE|Transport|DomNav|Liquids|Diesel|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|DomNav|Liquids|Petrol|Fossil (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|DomNav|Liquids|Diesel|Biomass (EJ/yr)"]+
+                           x[, , "FE|Transport|DomNav|Liquids|Petrol|Biomass (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Liquids|Biomass (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Liquids|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Freight|Domestic Shipping|Liquids|Biomass (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Liquids (EJ/yr)"))
+
+x <- mbind(x, setNames(x[, , "FE|Transport|DomNav|Gases|Fossil (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Gases|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|DomNav|Gases|Biomass (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Gases|Biomass (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Gases|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Freight|Domestic Shipping|Gases|Biomass (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping|Gases (EJ/yr)"))
+
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Gases (EJ/yr)"]+
+                           x[, , "FE|Transport|Freight|Domestic Shipping|Liquids (EJ/yr)"], "FE|Transport|Freight|Domestic Shipping (EJ/yr)"))
+
+## Road
+x <- mbind(x, setNames(x[, , "FE|Transport|Road|Liquids|Diesel|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Road|Liquids|Petrol|Fossil (EJ/yr)"], "FE|Transport|Road|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Road|Liquids|Diesel|Biomass (EJ/yr)"]+
+                           x[, , "FE|Transport|Road|Liquids|Petrol|Biomass (EJ/yr)"], "FE|Transport|Road|Liquids|Biomass (EJ/yr)"))       
+x <- mbind(x, setNames(x[, , "FE|Transport|Road|Liquids|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Road|Liquids|Biomass (EJ/yr)"], "FE|Transport|Road|Liquids (EJ/yr)"))    
+x <- mbind(x, setNames(x[, , "FE|Transport|Road|Gases|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Road|Gases|Biomass (EJ/yr)"], "FE|Transport|Road|Gases (EJ/yr)"))   
+x <- mbind(x, setNames(x[, , "FE|Transport|Road|Gases (EJ/yr)"] + x[, , "FE|Transport|Road|Liquids (EJ/yr)"] +
+                           x[, , "FE|Transport|Road|Electricity (EJ/yr)"], "FE|Transport|Road (EJ/yr)"))   
+
+## Rail
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Liquids|Diesel|Fossil (EJ/yr)"], "FE|Transport|Rail|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Liquids|Diesel|Biomass (EJ/yr)"], "FE|Transport|Rail|Liquids|Biomass (EJ/yr)"))       
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Liquids|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Rail|Liquids|Biomass (EJ/yr)"], "FE|Transport|Rail|Liquids (EJ/yr)"))   
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Solids|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Rail|Solids|Biomass (EJ/yr)"], "FE|Transport|Rail|Solids (EJ/yr)"))                             
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Gases|Fossil (EJ/yr)"], "FE|Transport|Rail|Gases (EJ/yr)"))   
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Gases (EJ/yr)"] + x[, , "FE|Transport|Rail|Liquids (EJ/yr)"] +
+                           x[, , "FE|Transport|Rail|Electricity (EJ/yr)"] + x[, , "FE|Transport|Rail|Solids (EJ/yr)"], "FE|Transport|Rail (EJ/yr)"))   
+
+
+## Pipeline
+x <- mbind(x, setNames(x[, , "FE|Transport|Pipeline|Liquids|Diesel|Fossil (EJ/yr)"] + 
+                           x[, , "FE|Transport|Pipeline|Liquids|Petrol|Fossil (EJ/yr)"], "FE|Transport|Pipeline|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Pipeline|Liquids|Fossil (EJ/yr)"], "FE|Transport|Pipeline|Liquids (EJ/yr)")) 
+
+x <- mbind(x, setNames(x[, , "FE|Transport|Pipeline|Gases|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|Pipeline|Gases|Biomass (EJ/yr)"], "FE|Transport|Pipeline|Gases (EJ/yr)"))   
+
+x <- mbind(x, setNames(x[, , "FE|Transport|Pipeline|Gases (EJ/yr)"] + x[, , "FE|Transport|Pipeline|Liquids (EJ/yr)"] +
+                           x[, , "FE|Transport|Pipeline|Electricity (EJ/yr)"], "FE|Transport|Pipeline (EJ/yr)"))   
+
+## NotSpecified
+x <- mbind(x, setNames(x[, , "FE|Transport|NotSpecified|Liquids|Diesel|Fossil (EJ/yr)"], "FE|Transport|NotSpecified|Liquids|Fossil (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|NotSpecified|Liquids|Diesel|Biomass (EJ/yr)"], "FE|Transport|NotSpecified|Liquids|Biomass (EJ/yr)"))       
+x <- mbind(x, setNames(x[, , "FE|Transport|NotSpecified|Liquids|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|NotSpecified|Liquids|Biomass (EJ/yr)"], "FE|Transport|NotSpecified|Liquids (EJ/yr)"))   
+x <- mbind(x, setNames(x[, , "FE|Transport|NotSpecified|Gases|Fossil (EJ/yr)"]+
+                           x[, , "FE|Transport|NotSpecified|Gases|Biomass (EJ/yr)"], "FE|Transport|NotSpecified|Gases (EJ/yr)"))                             
+x <- mbind(x, setNames(x[, , "FE|Transport|NotSpecified|Gases (EJ/yr)"] + x[, , "FE|Transport|NotSpecified|Liquids (EJ/yr)"] +
+                           x[, , "FE|Transport|NotSpecified|Electricity (EJ/yr)"], "FE|Transport|NotSpecified (EJ/yr)"))  
+
+## Bunker details
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|IntAv|Liquids (EJ/yr)"], "FE|Transport|Bunkers|Pass|International Aviation|Liquids (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Pass|International Aviation|Liquids (EJ/yr)"], "FE|Transport|Bunkers|Pass|International Aviation (EJ/yr)"))
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Pass|International Aviation (EJ/yr)"], "FE|Transport|Bunkers|Pass (EJ/yr)"))
+
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|IntNav|Liquids (EJ/yr)"], "FE|Transport|Bunkers|Freight|International Shipping|Liquids (EJ/yr)"))      
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Freight|International Shipping|Liquids (EJ/yr)"], "FE|Transport|Bunkers|Freight|International Shipping (EJ/yr)"))    
+x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Freight|International Shipping (EJ/yr)"], "FE|Transport|Bunkers|Freight (EJ/yr)"))   
+
+# check aggregations
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Liquids (EJ/yr)"] 
+                     + x[, , "FE|Transport|NotSpecified|Liquids (EJ/yr)"] 
+                     + x[, , "FE|Transport|Pass|Domestic Aviation|Liquids (EJ/yr)"] 
+                     + x[, , "FE|Transport|Rail|Liquids (EJ/yr)"] 
+                     + x[, , "FE|Transport|Road|Liquids (EJ/yr)"], 
+                       "FE|TransportCheck|Liquids (EJ/yr)")) 
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Gases (EJ/yr)"] 
+                     + x[, , "FE|Transport|NotSpecified|Gases (EJ/yr)"] 
+                     + x[, , "FE|Transport|Pass|Domestic Aviation|Gases (EJ/yr)"] 
+                     + x[, , "FE|Transport|Rail|Gases (EJ/yr)"] 
+                     + x[, , "FE|Transport|Road|Gases (EJ/yr)"], 
+                       "FE|TransportCheck|Liquids (EJ/yr)")) 
+x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping|Electricity (EJ/yr)"] 
+                    + x[, , "FE|Transport|NotSpecified|Electricity (EJ/yr)"] 
+                    + x[, , "FE|Transport|Pass|Domestic Aviation|Electricity (EJ/yr)"]
+                    + x[, , "FE|Transport|Rail|Electricity (EJ/yr)"] 
+                    + x[, , "FE|Transport|Road|Electricity (EJ/yr)"], 
+                      "FE|TransportCheck|Electricity (EJ/yr)"))    
+x <- mbind(x, setNames(x[, , "FE|Transport|Rail|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)"))                          
+
+
+
   # aggregate biomass and fossil data
   x <- mbind(x, setNames(x[, , "FE|Buildings|Gases|Biomass (EJ/yr)"] +
                            x[, , "FE|Buildings|Gases|Fossil (EJ/yr)"], "FE|Buildings|Gases (EJ/yr)"))
@@ -117,7 +217,9 @@ calcFE <- function(ieaVersion = "default") {
   # add total for transport
   x <- mbind(x, setNames(x[, , "FE|Transport|Liquids (EJ/yr)"]
                          + x[, , "FE|Transport|Gases (EJ/yr)"]
-                         + x[, , "FE|Transport|Electricity (EJ/yr)"], "FE|Transport (EJ/yr)"))
+                         + x[, , "FE|Transport|Electricity (EJ/yr)"]
+                         + x[, , "FE|TransportCheck|Solids (EJ/yr)"],    # there seemed to be no solids variable in the previous "historical" version - so use the new one here
+                         "FE|Transport (EJ/yr)"))
   # add transport w/o Bunkers
   x <- mbind(x, setNames(x[, , "FE|Transport (EJ/yr)"]
                          - x[, , "FE|Transport|Bunkers (EJ/yr)"], "FE|Transport|w/o Bunkers (EJ/yr)"))
@@ -133,11 +235,28 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use (EJ/yr)"))
   x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"], "FE|w/o Bunkers (EJ/yr)"))
   x <- mbind(x, setNames(x[, , "FE (EJ/yr)"] - x[, , "FE|Transport|Bunkers (EJ/yr)"] - x[, , "FE|Non-energy Use (EJ/yr)"], "FE|w/o Non-energy Use w/o Bunkers (EJ/yr)"))
-  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Electricity", pmatch = TRUE], dim = 3), "FE|Electricity (EJ/yr)"))
-  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Gases", pmatch = TRUE], dim = 3), "FE|Gases (EJ/yr)"))
-  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Heat", pmatch = TRUE], dim = 3), "FE|Heat (EJ/yr)"))
-  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Liquids", pmatch = TRUE], dim = 3), "FE|Liquids (EJ/yr)"))
-  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Solids", pmatch = TRUE], dim = 3), "FE|Solids (EJ/yr)"))
+  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Electricity", pmatch = TRUE], dim = 3), "FEtestSumAll|Electricity (EJ/yr)"))
+  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Gases", pmatch = TRUE], dim = 3), "FEtestSumAll|Gases (EJ/yr)"))
+  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Heat", pmatch = TRUE], dim = 3), "FEtestSumAll|Heat (EJ/yr)"))
+  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Liquids", pmatch = TRUE], dim = 3), "FEtestSumAll|Liquids (EJ/yr)"))
+  x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Solids", pmatch = TRUE], dim = 3), "FEtestSumAll|Solids (EJ/yr)"))
+
+  # add totals per carrier (automatic sum doesn't work anymore, as various sub-aggregates were added)
+  x <- mbind(x, setNames(  x[, , "FE|Transport|Electricity (EJ/yr)"]
+                         + x[, , "FE|Industry|Electricity (EJ/yr)"]
+                         + x[, , "FE|Buildings|Electricity (EJ/yr)"], "FE|Electricity (EJ/yr)"))
+  x <- mbind(x, setNames(  x[, , "FE|Transport|Gases (EJ/yr)"] 
+                         + x[, , "FE|Industry|Gases (EJ/yr)"]
+                         + x[, , "FE|Buildings|Gases (EJ/yr)"], "FE|Gases (EJ/yr)"))
+  x <- mbind(x, setNames(  x[, , "FE|Transport|Heat (EJ/yr)"]
+                         + x[, , "FE|Industry|Heat (EJ/yr)"]
+                         + x[, , "FE|Buildings|Heat (EJ/yr)"], "FE|Heat (EJ/yr)"))                                           
+  x <- mbind(x, setNames(  x[, , "FE|Transport|Liquids (EJ/yr)"]
+                         + x[, , "FE|Industry|Liquids (EJ/yr)"]
+                         + x[, , "FE|Buildings|Liquids (EJ/yr)"], "FE|Liquids (EJ/yr)"))
+  x <- mbind(x, setNames(  x[, , "FE|TransportCheck|Solids (EJ/yr)"]   # there seemed to be no solids variable in the previous "historical" version - so use the new one here
+                         + x[, , "FE|Industry|Solids (EJ/yr)"]
+                         + x[, , "FE|Buildings|Solids (EJ/yr)"], "FE|Solids (EJ/yr)"))
 
 
   return(list(
