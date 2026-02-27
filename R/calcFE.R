@@ -210,12 +210,12 @@ x <- mbind(x, setNames(x[, , "FE|Transport|Freight|Domestic Shipping (EJ/yr)"]
 x <- mbind(x, setNames(x[, , "FE|Transport|Bunkers|Pass (EJ/yr)"]
                      + x[, , "FE|Transport|Bunkers|Freight (EJ/yr)"], "FE|TransportCheck|Bunkers (EJ/yr)"))   
 
-x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)"))   
-x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Electricity (EJ/yr)"] , "FE|TransportCheck|Electricity (EJ/yr)")) 
-x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)")) 
+
 x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Liquids (EJ/yr)"]
                      + x[, , "FE|Transport|Bunkers|Liquids (EJ/yr)"], "FE|TransportCheck (EJ/yr)"))   
-                
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Gases (EJ/yr)"] , "FE|TransportCheck|Gases (EJ/yr)"))                
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Electricity (EJ/yr)"] , "FE|TransportCheck|Electricity (EJ/yr)")) 
+x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Solids (EJ/yr)"] , "FE|TransportCheck|Solids (EJ/yr)"))   
 
   # aggregate biomass and fossil data
   x <- mbind(x, setNames(x[, , "FE|Buildings|Gases|Biomass (EJ/yr)"] +
@@ -298,8 +298,7 @@ x <- mbind(x, setNames(x[, , "FE|TransportCheck|w/o Bunkers|Liquids (EJ/yr)"]
   x <- mbind(x, setNames(  x[, , "FE|Transport|Gases (EJ/yr)"] 
                          + x[, , "FE|Industry|Gases (EJ/yr)"]
                          + x[, , "FE|Buildings|Gases (EJ/yr)"], "FE|Gases (EJ/yr)"))
-  x <- mbind(x, setNames(  x[, , "FE|Transport|Heat (EJ/yr)"]
-                         + x[, , "FE|Industry|Heat (EJ/yr)"]
+  x <- mbind(x, setNames(  x[, , "FE|Industry|Heat (EJ/yr)"]
                          + x[, , "FE|Buildings|Heat (EJ/yr)"], "FE|Heat (EJ/yr)"))                                           
   x <- mbind(x, setNames(  x[, , "FE|Transport|Liquids (EJ/yr)"]
                          + x[, , "FE|Industry|Liquids (EJ/yr)"]
