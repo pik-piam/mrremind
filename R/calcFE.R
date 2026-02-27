@@ -335,6 +335,8 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Liquids", pmatch = TRUE], dim = 3), "FEtestSumAll|Liquids (EJ/yr)"))
   x <- mbind(x, setNames(dimSums(x[, , "FE|", pmatch = TRUE][, , "Solids", pmatch = TRUE], dim = 3), "FEtestSumAll|Solids (EJ/yr)"))
 
+
+
   # add totals per carrier (automatic sum doesn't work anymore, as various sub-aggregates were added)
   x <- mbind(x, setNames(  x[, , "FE|Transport|Electricity (EJ/yr)"]
                            + x[, , "FE|Industry|Electricity (EJ/yr)"]
@@ -350,6 +352,14 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(  x[, , "FE|Transport|Solids (EJ/yr)"]
                            + x[, , "FE|Industry|Solids (EJ/yr)"]
                            + x[, , "FE|Buildings|Solids (EJ/yr)"], "FE|Solids (EJ/yr)"))
+
+# add further transport variables with names that are currently reported from EDGE-t
+  x <- mbind(x, setNames(x[, , "FE|Transport (EJ/yr)"], "FE|Transport with bunkers (EJ/yr)"))
+  x <- mbind(x, setNames(x[, , "FE|Transport|Electricity (EJ/yr)"], "FE|Transport with bunkers|Electricity (EJ/yr)"))
+  x <- mbind(x, setNames(x[, , "FE|Transport|Gases (EJ/yr)"], "FE|Transport with bunkers|Gases (EJ/yr)"))
+  x <- mbind(x, setNames(x[, , "FE|Transport|Liquids (EJ/yr)"], "FE|Transport with bunkers|Liquids (EJ/yr)"))
+  x <- mbind(x, setNames(x[, , "FE|Transport|Solids (EJ/yr)"], "FE|Transport with bunkers|Solids (EJ/yr)"))
+
 
 
   return(list(
