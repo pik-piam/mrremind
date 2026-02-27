@@ -43,7 +43,7 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
   } else if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_2026-02-26_v4.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_2026-02-27_v1.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 
   } else if (subtype == "capacityFactorRules") {
