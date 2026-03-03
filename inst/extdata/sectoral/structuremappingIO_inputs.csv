@@ -21,7 +21,7 @@ ANTCOAL;COMMPUB;sesofos;fesob;tdfossob;1;
 ANTCOAL;CONSTRUC;;;;;
 ANTCOAL;DISTLOSS;sesofos;feso;d_fesofos;-1;
 ANTCOAL;DISTLOSS;pecoal;sesofos;coaltr;-1;
-ANTCOAL;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+ANTCOAL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ANTCOAL;ELAUTOC;;;;;
 ANTCOAL;ELAUTOE;;;;;
 ANTCOAL;ELMAINC;;;;;
@@ -59,9 +59,9 @@ ANTCOAL;RAIL;sesofos;fesoi;tdfossoi;1;
 ANTCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 ANTCOAL;STATDIFF;;;;;
 ANTCOAL;STOCKCHA;;;;;
-ANTCOAL;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-ANTCOAL;TBLASTFUR;pecoal;sesofos;coaltr;-1;
-ANTCOAL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+ANTCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+ANTCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+ANTCOAL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ANTCOAL;TES;;;;;
 ANTCOAL;TEXTILES;;;;;
 ANTCOAL;TFC;pecoal;sesofos;coaltr;1;
@@ -118,7 +118,7 @@ BIODIESEL;COMMPUB;seliqbio;fehob;tdbiohob;1;
 BIODIESEL;CONSTRUC;;;;;
 BIODIESEL;DISTLOSS;;;;;
 BIODIESEL;DOMESNAV;seliqbio;fedie;tdbiodie;1;
-BIODIESEL;EBLASTFUR;seliqbio;fehoi;tdbiohoi;-1;
+BIODIESEL;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BIODIESEL;ELAUTOC;;;;;
 BIODIESEL;ELAUTOE;;;;;
 BIODIESEL;ELMAINC;;;;;
@@ -156,7 +156,7 @@ BIODIESEL;RESIDENT;seliqbio;fehob;tdbiohob;1;
 BIODIESEL;ROAD;seliqbio;fedie;tdbiodie;1;
 BIODIESEL;STATDIFF;;;;;
 BIODIESEL;STOCKCHA;;;;;
-BIODIESEL;TBLASTFUR;seliqbio;fehoi;tdbiohoi;-1;
+BIODIESEL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BIODIESEL;TES;;;;;
 BIODIESEL;TEXTILES;;;;;
 BIODIESEL;TFC;pebioil;seliqbio;biodiesel;1;
@@ -296,9 +296,9 @@ BITCOAL;CONSTRUC;;;;;
 BITCOAL;DISTLOSS;pecoal;sesofos;coaltr;-1;
 BITCOAL;DISTLOSS;sesofos;feso;d_fesofos;-1;
 BITCOAL;DOMESNAV;;;;;
-BITCOAL;EBLASTFUR;sesofos;fesoi;tdfossoi;-1;
+BITCOAL;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BITCOAL;ECOALLIQ;;;;;
-BITCOAL;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+BITCOAL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BITCOAL;EGASWKS;;;;;
 BITCOAL;ELAUTOC;;;;;
 BITCOAL;ELAUTOE;;;;;
@@ -342,10 +342,10 @@ BITCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 BITCOAL;STATDIFF;;;;;
 BITCOAL;STOCKCHA;;;;;
 BITCOAL;TBKB;pecoal;sesofos;coaltr;-1;
-BITCOAL;TBLASTFUR;pecoal;sesofos;coaltr;-1;
-BITCOAL;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
+BITCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BITCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BITCOAL;TCOALLIQ;pecoal;seliqfos;coalftrec;-1;
-BITCOAL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+BITCOAL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BITCOAL;TES;;;;;
 BITCOAL;TEXTILES;;;;;
 BITCOAL;TFC;pecoal;sesofos;coaltr;1;
@@ -432,7 +432,7 @@ BKB;DISTLOSS;sesofos;feso;d_fesofos;-1;
 BKB;DISTLOSS;pecoal;sesofos;coaltr;-1;
 BKB;DOMESNAV;;;;;
 BKB;EBKB;;;;;
-BKB;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+BKB;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BKB;EGASWKS;;;;;
 BKB;ELAUTOC;;;;;
 BKB;ELAUTOE;;;;;
@@ -471,8 +471,8 @@ BKB;RESIDENT;sesofos;fesob;tdfossob;1;
 BKB;STATDIFF;;;;;
 BKB;STOCKCHA;;;;;
 BKB;TBKB;;;;;
-BKB;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-BKB;TCOKEOVS;;;;;
+BKB;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BKB;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BKB;TES;;;;;
 BKB;TEXTILES;;;;;
 BKB;TFC;pecoal;sesofos;coaltr;1;
@@ -483,80 +483,80 @@ BKB;TOTTRANF;;;;;
 BKB;TOTTRANS;;;;;
 BKB;TRANSEQ;;;;;
 BKB;WOODPRO;;;;;
-BLFURGS;AUTOCHP;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;AUTOCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-BLFURGS;AUTOCHP;pecoal;segafos;coalgas;1.667;
-BLFURGS;AUTOCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-BLFURGS;AUTOCHP;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;AUTOELEC;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;AUTOELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-BLFURGS;AUTOELEC;pecoal;segafos;coalgas;1.667;
-BLFURGS;AUTOELEC;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;AUTOHEAT;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;AUTOHEAT;pecoal;segafos;coalgas;1.667;
-BLFURGS;AUTOHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-BLFURGS;AUTOHEAT;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;CHEMICAL;;;;;
-BLFURGS;CONSTRUC;;;;;
-BLFURGS;DISTLOSS;segafos;fega;d_fegafos;-1;
-BLFURGS;EBLASTFUR;pecoal;segafos;coalgas;1.667;
-BLFURGS;EBLASTFUR;sesofos;fesoi;tdfossoi;-1.667;
-BLFURGS;ECOKEOVS;pecoal;segafos;coalgas;1.667;
-BLFURGS;ECOKEOVS;sesofos;fesoi;tdfossoi;-1.667;
-BLFURGS;ELAUTOC;;;;;
-BLFURGS;ELAUTOE;;;;;
-BLFURGS;ELMAINC;;;;;
-BLFURGS;ELMAINE;;;;;
-BLFURGS;ELOUTPUT;;;;;
-BLFURGS;EMINES;;;;;
-BLFURGS;ENONSPEC;segafos;fega;d_fegafos;-1;
-BLFURGS;EPOWERPLT;;;;;
-BLFURGS;EXPORTS;;;;;
-BLFURGS;FOODPRO;;;;;
-BLFURGS;HEATOUT;;;;;
-BLFURGS;HEAUTOC;;;;;
-BLFURGS;HEAUTOH;;;;;
-BLFURGS;HEMAINC;;;;;
-BLFURGS;HEMAINH;;;;;
-BLFURGS;IMPORTS;;;;;
-BLFURGS;INONSPEC;;;;;
-BLFURGS;IRONSTL;;;;;
-BLFURGS;MACHINE;;;;;
-BLFURGS;MAINCHP;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;MAINCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-BLFURGS;MAINCHP;pecoal;segafos;coalgas;1.667;
-BLFURGS;MAINCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-BLFURGS;MAINCHP;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;MAINELEC;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;MAINELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-BLFURGS;MAINELEC;pecoal;segafos;coalgas;1.667;
-BLFURGS;MAINELEC;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;MAINHEAT;sesofos;fesoi;tdfossoi;1.667;
-BLFURGS;MAINHEAT;pecoal;segafos;coalgas;1.667;
-BLFURGS;MAINHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-BLFURGS;MAINHEAT;pecoal;sesofos;coaltr;1.6667;
-BLFURGS;MANUFACT;;;;;
-BLFURGS;MINING;;;;;
-BLFURGS;NECHEM;;;;;
-BLFURGS;NEINTREN;;;;;
-BLFURGS;NONENUSE;segafos;fegai;tdfosgai;1;
-BLFURGS;NONFERR;;;;;
-BLFURGS;NONMET;;;;;
-BLFURGS;ONONSPEC;segafos;fegab;tdfosgab;1;
-BLFURGS;PAPERPRO;;;;;
-BLFURGS;RESIDENT;segafos;fegab;tdfosgab;1;
-BLFURGS;STATDIFF;;;;;
-BLFURGS;TBLASTFUR;pecoal;segafos;coalgas;1.667;
-BLFURGS;TBLASTFUR;sesofos;fesoi;tdfossoi;-1.667;
-BLFURGS;TCOKEOVS;;;;;
-BLFURGS;TES;;;;;
-BLFURGS;TFC;;;;;
-BLFURGS;TGASWKS;;;;;
-BLFURGS;TNONSPEC;;;;;
-BLFURGS;TOTENGY;;;;;
-BLFURGS;TOTIND;segafos;fegai;tdfosgai;1;
-BLFURGS;TOTTRANF;;;;;
-BLFURGS;TRANSEQ;;;;;
+BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;CONSTRUC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;ELAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ELAUTOE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ELMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ELMAINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ELOUTPUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;EMINES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ENONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;EPOWERPLT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;EXPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;FOODPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;HEATOUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;HEAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;HEAUTOH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;HEMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;HEMAINH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;IMPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;NECHEM;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;NEINTREN;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;NONENUSE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;NONFERR;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;NONMET;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;ONONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;PAPERPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;RESIDENT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;STATDIFF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+BLFURGS;TES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TFC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TGASWKS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TNONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TOTENGY;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TOTIND;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TOTTRANF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+BLFURGS;TRANSEQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
 BROWN;AGRICULT;sesofos;fesoi;tdfossoi;1;
 BROWN;AUTOCHP;pecoal;seel;coalchp;-1;
 BROWN;AUTOCHP;pecoal;sehe;coalchp;-1;
@@ -569,7 +569,7 @@ BROWN;DISTLOSS;sesofos;feso;d_fesofos;-1;
 BROWN;DISTLOSS;pecoal;sesofos;coaltr;-1;
 BROWN;DOMESNAV;;;;;
 BROWN;EBKB;;;;;
-BROWN;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+BROWN;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BROWN;ELAUTOC;;;;;
 BROWN;ELAUTOE;;;;;
 BROWN;ELMAINC;;;;;
@@ -608,7 +608,7 @@ BROWN;RESIDENT;sesofos;fesob;tdfossob;1;
 BROWN;STATDIFF;;;;;
 BROWN;STOCKCHA;;;;;
 BROWN;TBKB;pecoal;sesofos;coaltr;-1;
-BROWN;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+BROWN;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 BROWN;TES;;;;;
 BROWN;TEXTILES;;;;;
 BROWN;TFC;pecoal;sesofos;coaltr;1;
@@ -642,7 +642,7 @@ CHARCOAL;PAPERPRO;;;;;
 CHARCOAL;RESIDENT;sesobio;fesob;tdbiosob;1;
 CHARCOAL;STATDIFF;;;;;
 CHARCOAL;STOCKCHA;;;;;
-CHARCOAL;TBLASTFUR;sesobio;fesoi;tdbiosoi;-1;
+CHARCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 CHARCOAL;TCHARCOAL;;;;;
 CHARCOAL;TES;;;;;
 CHARCOAL;TEXTILES;;;;;
@@ -660,9 +660,9 @@ COALTAR;COMMPUB;seliqfos;fehob;tdfoshob;1;
 COALTAR;CONSTRUC;;;;;
 COALTAR;DISTLOSS;seliqfos;fehoi;tdfoshoi;-1;
 COALTAR;DISTLOSS;pecoal;sesofos;coaltr;-1;
-COALTAR;EBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
-COALTAR;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-COALTAR;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+COALTAR;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COALTAR;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COALTAR;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 COALTAR;EGASWKS;;;;;
 COALTAR;ELAUTOC;;;;;
 COALTAR;ELAUTOE;;;;;
@@ -698,8 +698,8 @@ COALTAR;NONMET;;;;;
 COALTAR;PAPERPRO;;;;;
 COALTAR;STATDIFF;;;;;
 COALTAR;STOCKCHA;;;;;
-COALTAR;TBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
-COALTAR;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+COALTAR;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COALTAR;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 COALTAR;TES;;;;;
 COALTAR;TEXTILES;;;;;
 COALTAR;TFC;pecoal;sesofos;coaltr;1;
@@ -722,7 +722,7 @@ COKCOAL;CONSTRUC;;;;;
 COKCOAL;DISTLOSS;sesofos;feso;d_fesofos;-1;
 COKCOAL;DISTLOSS;pecoal;sesofos;coaltr;-1;
 COKCOAL;DOMESNAV;;;;;
-COKCOAL;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+COKCOAL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 COKCOAL;EGASWKS;;;;;
 COKCOAL;ELAUTOC;;;;;
 COKCOAL;ELAUTOE;;;;;
@@ -762,10 +762,10 @@ COKCOAL;RAIL;sesofos;fesoi;tdfossoi;1;
 COKCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 COKCOAL;STATDIFF;;;;;
 COKCOAL;STOCKCHA;;;;;
-COKCOAL;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-COKCOAL;TBLASTFUR;pecoal;sesofos;coaltr;-1;
+COKCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COKCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 COKCOAL;TCOALLIQ;pecoal;seliqfos;coalftrec;-1;
-COKCOAL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+COKCOAL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 COKCOAL;TES;;;;;
 COKCOAL;TEXTILES;;;;;
 COKCOAL;TFC;pecoal;sesofos;coaltr;1;
@@ -778,82 +778,82 @@ COKCOAL;TPATFUEL;pecoal;sesofos;coaltr;-1;
 COKCOAL;TRANSEQ;;;;;
 COKCOAL;TRNONSPE;;;;;
 COKCOAL;WOODPRO;;;;;
-COKEOVGS;AGRICULT;segafos;fegai;tdfosgai;1;
-COKEOVGS;AUTOCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-COKEOVGS;AUTOCHP;pecoal;segafos;coalgas;1.667;
-COKEOVGS;AUTOCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-COKEOVGS;AUTOCHP;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;AUTOELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-COKEOVGS;AUTOELEC;pecoal;segafos;coalgas;1.667;
-COKEOVGS;AUTOELEC;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;AUTOHEAT;pecoal;segafos;coalgas;1.667;
-COKEOVGS;AUTOHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-COKEOVGS;AUTOHEAT;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;CHEMICAL;;;;;
-COKEOVGS;COMMPUB;segafos;fegab;tdfosgab;1;
-COKEOVGS;CONSTRUC;;;;;
-COKEOVGS;DISTLOSS;segafos;fega;d_fegafos;-1;
-COKEOVGS;EBLASTFUR;pecoal;segafos;coalgas;1.667;
-COKEOVGS;ECOALLIQ;;;;;
-COKEOVGS;ECOKEOVS;pecoal;segafos;coalgas;1.667;The gas consumed as final energy comes from coal We use the coefficient to retrieve the coal amount necessary
-COKEOVGS;EGASWKS;;;;;
-COKEOVGS;ELAUTOC;;;;;
-COKEOVGS;ELAUTOE;;;;;
-COKEOVGS;ELMAINC;;;;;
-COKEOVGS;ELMAINE;;;;;
-COKEOVGS;ELOUTPUT;;;;;
-COKEOVGS;EMINES;;;;;
-COKEOVGS;ENONSPEC;segafos;fega;d_fegafos;-1;
-COKEOVGS;EPOWERPLT;;;;;
-COKEOVGS;EREFINER;segafos;fegai;tdfosgai;-1;
-COKEOVGS;EXPORTS;;;;;
-COKEOVGS;FOODPRO;;;;;
-COKEOVGS;HEATOUT;;;;;
-COKEOVGS;HEAUTOC;;;;;
-COKEOVGS;HEAUTOH;;;;;
-COKEOVGS;HEMAINC;;;;;
-COKEOVGS;HEMAINH;;;;;
-COKEOVGS;IMPORTS;;;;;
-COKEOVGS;INONSPEC;;;;;
-COKEOVGS;IRONSTL;;;;;
-COKEOVGS;MACHINE;;;;;
-COKEOVGS;MAINCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-COKEOVGS;MAINCHP;pecoal;segafos;coalgas;1.667;
-COKEOVGS;MAINCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-COKEOVGS;MAINCHP;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;MAINELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-COKEOVGS;MAINELEC;pecoal;segafos;coalgas;1.667;
-COKEOVGS;MAINELEC;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;MAINHEAT;pecoal;segafos;coalgas;1.667;
-COKEOVGS;MAINHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-COKEOVGS;MAINHEAT;pecoal;sesofos;coaltr;1.6667;
-COKEOVGS;MANUFACT;;;;;
-COKEOVGS;MINING;;;;;
-COKEOVGS;NECHEM;;;;;
-COKEOVGS;NEINTREN;;;;;
-COKEOVGS;NEOTHER;;;;;
-COKEOVGS;NONENUSE;segafos;fegai;tdfosgai;1;
-COKEOVGS;NONFERR;;;;;
-COKEOVGS;NONMET;;;;;
-COKEOVGS;ONONSPEC;segafos;fegab;tdfosgab;1;
-COKEOVGS;PAPERPRO;;;;;
-COKEOVGS;RESIDENT;segafos;fegab;tdfosgab;1;
-COKEOVGS;STATDIFF;;;;;
-COKEOVGS;STOCKCHA;;;;;
-COKEOVGS;TBLASTFUR;;;;;
-COKEOVGS;TBLENDGAS;;;;;
-COKEOVGS;TCOALLIQ;;;;;
-COKEOVGS;TCOKEOVS;pecoal;segafos;coalgas;1.667;
-COKEOVGS;TES;;;;;
-COKEOVGS;TEXTILES;;;;;
-COKEOVGS;TFC;;;;;
-COKEOVGS;TGASWKS;;;;;
-COKEOVGS;TNONSPEC;;;;;
-COKEOVGS;TOTENGY;;;;;
-COKEOVGS;TOTIND;segafos;fegai;tdfosgai;1;
-COKEOVGS;TOTTRANF;;;;;
-COKEOVGS;TRANSEQ;;;;;
-COKEOVGS;WOODPRO;;;;;
+COKEOVGS;AGRICULT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;COMMPUB;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;CONSTRUC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COKEOVGS;ECOALLIQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COKEOVGS;EGASWKS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ELAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ELAUTOE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ELMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ELMAINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ELOUTPUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;EMINES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ENONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;EPOWERPLT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;EREFINER;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;EXPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;FOODPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;HEATOUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;HEAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;HEAUTOH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;HEMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;HEMAINH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;IMPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NECHEM;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NEINTREN;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NEOTHER;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NONENUSE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NONFERR;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;NONMET;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;ONONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;PAPERPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;RESIDENT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;STATDIFF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;STOCKCHA;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COKEOVGS;TBLENDGAS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TCOALLIQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+COKEOVGS;TES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TEXTILES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TFC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TGASWKS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TNONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TOTENGY;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TOTIND;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TOTTRANF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;TRANSEQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+COKEOVGS;WOODPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
 CRNGFEED;CHEMICAL;;;;;
 CRNGFEED;EOILGASEX;peoil;peog;d_oil2og;-1;
 CRNGFEED;EXPORTS;;;;;
@@ -923,8 +923,8 @@ CRUDEOIL;PIPELINE;seliqfos;fedie;tdfosdie;1;
 CRUDEOIL;RESIDENT;seliqfos;fehob;tdfoshob;1;
 CRUDEOIL;STATDIFF;;;;;
 CRUDEOIL;STOCKCHA;;;;;
-CRUDEOIL;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-CRUDEOIL;TCOKEOVS;peoil;seliqfos;refliq;-1;
+CRUDEOIL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+CRUDEOIL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 CRUDEOIL;TES;;;;;
 CRUDEOIL;TEXTILES;;;;;
 CRUDEOIL;TFC;peoil;seliqfos;refliq;1;
@@ -946,10 +946,10 @@ ELECTR;COMMPUB;seel;feelb;tdelb;1;
 ELECTR;CONSTRUC;;;;;
 ELECTR;DISTLOSS;seel;feel;d_feel;-1;
 ELECTR;EBKB;;;;;
-ELECTR;EBLASTFUR;seel;feeli;tdeli;-1;
+ELECTR;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ELECTR;ECHARCOAL;;;;;
 ELECTR;ECOALLIQ;;;;;
-ELECTR;ECOKEOVS;seel;feeli;tdeli;-1;
+ELECTR;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ELECTR;EGASWKS;;;;;
 ELECTR;EGTL;;;;;
 ELECTR;ELMAINC;;;;;
@@ -1057,77 +1057,77 @@ GASCOKE;TOTENGY;;;;;
 GASCOKE;TOTIND;sesofos;fesoi;tdfossoi;1;
 GASCOKE;TOTTRANF;;;;;
 GASCOKE;TOTTRANS;;;;;
-GASWKSGS;AGRICULT;segafos;fegai;tdfosgai;1;
-GASWKSGS;AUTOCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-GASWKSGS;AUTOCHP;pecoal;segafos;coalgas;1.667;
-GASWKSGS;AUTOCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-GASWKSGS;AUTOELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-GASWKSGS;AUTOELEC;pecoal;segafos;coalgas;1.667;
-GASWKSGS;AUTOHEAT;pecoal;segafos;coalgas;1.667;
-GASWKSGS;AUTOHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-GASWKSGS;CHEMICAL;;;;;
-GASWKSGS;COMMPUB;segafos;fegab;tdfosgab;1;
-GASWKSGS;CONSTRUC;;;;;
-GASWKSGS;DISTLOSS;segafos;fega;d_fegafos;-1;
-GASWKSGS;ECOKEOVS;pecoal;segafos;coalgas;1.667;The gas consumed as final energy comes from coal We use the coefficient to retrieve the coal amount necessary
-GASWKSGS;EGASWKS;;;;;
-GASWKSGS;ELAUTOC;;;;;
-GASWKSGS;ELAUTOE;;;;;
-GASWKSGS;ELMAINC;;;;;
-GASWKSGS;ELMAINE;;;;;
-GASWKSGS;ELOUTPUT;;;;;
-GASWKSGS;EMINES;;;;;
-GASWKSGS;ENONSPEC;segafos;fega;d_fegafos;-1;
-GASWKSGS;EPATFUEL;;;;;
-GASWKSGS;EPOWERPLT;;;;;
-GASWKSGS;EREFINER;segafos;fegai;tdfosgai;-1;
-GASWKSGS;EXPORTS;;;;;
-GASWKSGS;FOODPRO;;;;;
-GASWKSGS;HEATOUT;;;;;
-GASWKSGS;HEAUTOC;;;;;
-GASWKSGS;HEAUTOH;;;;;
-GASWKSGS;HEMAINC;;;;;
-GASWKSGS;HEMAINH;;;;;
-GASWKSGS;IMPORTS;;;;;
-GASWKSGS;INONSPEC;;;;;
-GASWKSGS;IRONSTL;;;;;
-GASWKSGS;MACHINE;;;;;
-GASWKSGS;MAINCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-GASWKSGS;MAINCHP;pecoal;segafos;coalgas;1.667;
-GASWKSGS;MAINCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-GASWKSGS;MAINELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-GASWKSGS;MAINELEC;pecoal;segafos;coalgas;1.667;
-GASWKSGS;MAINHEAT;pecoal;segafos;coalgas;1.667;
-GASWKSGS;MAINHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-GASWKSGS;MANUFACT;;;;;
-GASWKSGS;MINING;;;;;
-GASWKSGS;NONFERR;;;;;
-GASWKSGS;NONMET;;;;;
-GASWKSGS;ONONSPEC;segafos;fegab;tdfosgab;1;
-GASWKSGS;PAPERPRO;;;;;
-GASWKSGS;RAIL;segafos;fegat;tdfosgat;1;
-GASWKSGS;RESIDENT;segafos;fegab;tdfosgab;1;
-GASWKSGS;STATDIFF;;;;;
-GASWKSGS;STOCKCHA;;;;;
-GASWKSGS;TBLENDGAS;;;;;
-GASWKSGS;TCOALLIQ;;;;;
-GASWKSGS;TCOKEOVS;;;;;
-GASWKSGS;TES;;;;;
-GASWKSGS;TEXTILES;;;;;
-GASWKSGS;TFC;;;;;
-GASWKSGS;TGASWKS;pecoal;segafos;coalgas;1.667;
-GASWKSGS;TOTENGY;;;;;
-GASWKSGS;TOTIND;segafos;fegai;tdfosgai;1;
-GASWKSGS;TOTTRANF;;;;;
-GASWKSGS;TOTTRANS;;;;;
-GASWKSGS;TRANSEQ;;;;;
-GASWKSGS;WOODPRO;;;;;
-GEOTHERM;AGRICULT;seel;feeli;tdeli;0.3;
+GASWKSGS;AGRICULT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;COMMPUB;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;CONSTRUC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+GASWKSGS;EGASWKS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ELAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ELAUTOE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ELMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ELMAINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ELOUTPUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;EMINES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ENONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;EPATFUEL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;EPOWERPLT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;EREFINER;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;EXPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;FOODPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;HEATOUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;HEAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;HEAUTOH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;HEMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;HEMAINH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;IMPORTS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;NONFERR;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;NONMET;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;ONONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;PAPERPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;RAIL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;RESIDENT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;STATDIFF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;STOCKCHA;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TBLENDGAS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TCOALLIQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+GASWKSGS;TES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TEXTILES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TFC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TGASWKS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TOTENGY;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TOTIND;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TOTTRANF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TOTTRANS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;TRANSEQ;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GASWKSGS;WOODPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+GEOTHERM;AGRICULT;seel;feeli;tdeli;0,3;
 GEOTHERM;AUTOCHP;pegeo;seel;geohdr;-1;
 GEOTHERM;AUTOELEC;pegeo;seel;geohdr;-1;
 GEOTHERM;AUTOHEAT;pegeo;sehe;geohe;-1;
 GEOTHERM;CHEMICAL;;;;;
-GEOTHERM;COMMPUB;seel;feelb;tdelb;0.3;
+GEOTHERM;COMMPUB;seel;feelb;tdelb;0,3;
 GEOTHERM;CONSTRUC;;;;;
 GEOTHERM;DISTLOSS;sehe;fehe;d_fehe;-1;
 GEOTHERM;ELAUTOC;;;;;
@@ -1136,7 +1136,7 @@ GEOTHERM;ELMAINC;;;;;
 GEOTHERM;ELMAINE;;;;;
 GEOTHERM;ELOUTPUT;;;;;
 GEOTHERM;EPOWERPLT;;;;;
-GEOTHERM;FISHING;seel;feeli;tdeli;0.3;
+GEOTHERM;FISHING;seel;feeli;tdeli;0,3;
 GEOTHERM;FOODPRO;;;;;
 GEOTHERM;HEATOUT;;;;;
 GEOTHERM;HEAUTOC;;;;;
@@ -1152,14 +1152,14 @@ GEOTHERM;MAINELEC;pegeo;seel;geohdr;-1;
 GEOTHERM;MAINHEAT;pegeo;sehe;geohe;-1;
 GEOTHERM;MANUFACT;;;;;
 GEOTHERM;NONMET;;;;;
-GEOTHERM;ONONSPEC;seel;feelb;tdelb;0.3;
-GEOTHERM;RESIDENT;seel;feelb;tdelb;0.3;
+GEOTHERM;ONONSPEC;seel;feelb;tdelb;0,3;
+GEOTHERM;RESIDENT;seel;feelb;tdelb;0,3;
 GEOTHERM;STATDIFF;;;;;
 GEOTHERM;TES;;;;;
 GEOTHERM;TEXTILES;;;;;
 GEOTHERM;TFC;pegeo;sehe;geohe;1;
 GEOTHERM;TOTENGY;;;;;
-GEOTHERM;TOTIND;seel;feeli;tdeli;0.3;
+GEOTHERM;TOTIND;seel;feeli;tdeli;0,3;
 GEOTHERM;TOTTRANF;;;;;
 GEOTHERM;TRANSEQ;;;;;
 GEOTHERM;WOODPRO;;;;;
@@ -1174,7 +1174,7 @@ HARDCOAL;CONSTRUC;;;;;
 HARDCOAL;DISTLOSS;sesofos;feso;d_fesofos;-1;
 HARDCOAL;DISTLOSS;pecoal;sesofos;coaltr;-1;
 HARDCOAL;DOMESNAV;;;;;
-HARDCOAL;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+HARDCOAL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 HARDCOAL;EGASWKS;;;;;
 HARDCOAL;ELAUTOC;;;;;
 HARDCOAL;ELAUTOE;;;;;
@@ -1217,11 +1217,11 @@ HARDCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 HARDCOAL;STATDIFF;;;;;
 HARDCOAL;STOCKCHA;;;;;
 HARDCOAL;TBKB;pecoal;sesofos;coaltr;-1;
-HARDCOAL;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-HARDCOAL;TBLASTFUR;pecoal;sesofos;coaltr;-1;
+HARDCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+HARDCOAL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 HARDCOAL;TBLENDGAS;;;;;
 HARDCOAL;TCOALLIQ;;;;;
-HARDCOAL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+HARDCOAL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 HARDCOAL;TES;;;;;
 HARDCOAL;TEXTILES;;;;;
 HARDCOAL;TFC;pecoal;sesofos;coaltr;1;
@@ -1243,9 +1243,9 @@ HEAT;CONSTRUC;;;;;
 HEAT;DISTLOSS;sehe;fehe;d_fehe;-1;
 HEAT;EBIOGAS;;;;;
 HEAT;EBKB;;;;;
-HEAT;EBLASTFUR;sehe;fehei;tdhei;-1;
+HEAT;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 HEAT;ECOALLIQ;;;;;
-HEAT;ECOKEOVS;sehe;fehei;tdhei;-1;
+HEAT;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 HEAT;EGASWKS;;;;;
 HEAT;ELAUTOC;;;;;
 HEAT;ELAUTOE;;;;;
@@ -1323,8 +1323,8 @@ INDWASTE;CONSTRUC;;;;;
 INDWASTE;DISTLOSS;sesobio;feso;d_fesobio;-1;
 INDWASTE;DISTLOSS;pebiolc;sesobio;biotr;-1;
 INDWASTE;EBKB;;;;;
-INDWASTE;EBLASTFUR;sesobio;fesoi;tdbiosoi;-1;
-INDWASTE;ECOKEOVS;;;;;
+INDWASTE;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+INDWASTE;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 INDWASTE;ELAUTOC;;;;;
 INDWASTE;ELAUTOE;;;;;
 INDWASTE;ELMAINC;;;;;
@@ -1360,7 +1360,7 @@ INDWASTE;RAIL;sesobio;fesoi;tdbiosoi;1;
 INDWASTE;RESIDENT;sesobio;fesob;tdbiosob;1;
 INDWASTE;STATDIFF;;;;;
 INDWASTE;STOCKCHA;;;;;
-INDWASTE;TCOKEOVS;;;;;
+INDWASTE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 INDWASTE;TES;;;;;
 INDWASTE;TEXTILES;;;;;
 INDWASTE;TFC;pebiolc;sesobio;biotr;1;
@@ -1442,9 +1442,9 @@ LIGNITE;RESIDENT;sesofos;fesob;tdfossob;1;
 LIGNITE;STATDIFF;;;;;
 LIGNITE;STOCKCHA;;;;;
 LIGNITE;TBKB;pecoal;sesofos;coaltr;-1;
-LIGNITE;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-LIGNITE;TBLASTFUR;pecoal;sesofos;coaltr;-1;
-LIGNITE;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+LIGNITE;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+LIGNITE;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+LIGNITE;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 LIGNITE;TES;;;;;
 LIGNITE;TEXTILES;;;;;
 LIGNITE;TFC;pecoal;sesofos;coaltr;1;
@@ -1470,8 +1470,8 @@ LPG;CONSTRUC;;;;;
 LPG;DISTLOSS;peoil;seliqfos;refliq;-1;
 LPG;DOMESAIR;seliqfos;fedie;tdfosdie;1;
 LPG;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-LPG;EBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
-LPG;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+LPG;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+LPG;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 LPG;EGASWKS;;;;;
 LPG;ELAUTOC;;;;;
 LPG;ELAUTOE;;;;;
@@ -1528,8 +1528,8 @@ LPG;ROAD;seliqfos;fepet;tdfospet;1;
 LPG;STATDIFF;;;;;
 LPG;STOCKCHA;;;;;
 LPG;TBLENDGAS;;;;;
-LPG;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-LPG;TCOKEOVS;peoil;seliqfos;refliq;-1;
+LPG;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+LPG;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 LPG;TES;;;;;
 LPG;TEXTILES;;;;;
 LPG;TFC;peoil;seliqfos;refliq;1;
@@ -1550,7 +1550,7 @@ LUBRIC;CHEMICAL;;;;;
 LUBRIC;COMMPUB;seliqfos;fehob;tdfoshob;1;
 LUBRIC;DISTLOSS;peoil;seliqfos;refliq;-1;
 LUBRIC;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-LUBRIC;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+LUBRIC;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 LUBRIC;EMINES;peoil;pecoal;d_oil2coal;-1;
 LUBRIC;ENONSPEC;;;;;
 LUBRIC;EOILGASEX;peoil;peog;d_oil2og;-1;
@@ -1590,8 +1590,8 @@ LUBRIC;RAIL;seliqfos;fedie;tdfosdie;1;
 LUBRIC;ROAD;seliqfos;fepet;tdfospet;1;
 LUBRIC;STATDIFF;;;;;
 LUBRIC;STOCKCHA;;;;;
-LUBRIC;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-LUBRIC;TCOKEOVS;peoil;seliqfos;refliq;-1;
+LUBRIC;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+LUBRIC;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 LUBRIC;TES;;;;;
 LUBRIC;TFC;peoil;seliqfos;refliq;1;
 LUBRIC;TOTENGY;peoil;seliqfos;refliq;-1;
@@ -1625,9 +1625,9 @@ MRENEW;DOMESAIR;;;;;
 MRENEW;DOMESNAV;;;;;
 MRENEW;EBIOGAS;;;;;
 MRENEW;EBKB;;;;;
-MRENEW;EBLASTFUR;;;;;
+MRENEW;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MRENEW;ECHARCOAL;;;;;
-MRENEW;ECOKEOVS;;;;;
+MRENEW;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MRENEW;EGASWKS;;;;;
 MRENEW;ELAUTOC;;;;;
 MRENEW;ELAUTOE;;;;;
@@ -1669,10 +1669,10 @@ MRENEW;ROAD;;;;;
 MRENEW;STATDIFF;;;;;
 MRENEW;STOCKCHA;;;;;
 MRENEW;TBKB;;;;;
-MRENEW;TBLASTFUR;;;;;
+MRENEW;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MRENEW;TBLENDGAS;;;;;
 MRENEW;TCHARCOAL;;;;;
-MRENEW;TCOKEOVS;;;;;
+MRENEW;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MRENEW;TES;;;;;
 MRENEW;TEXTILES;;;;;
 MRENEW;TFC;;;;;
@@ -1699,7 +1699,7 @@ MUNWASTEN;CONSTRUC;;;;;
 MUNWASTEN;DISTLOSS;sesobio;feso;d_fesobio;-1;
 MUNWASTEN;DISTLOSS;pebiolc;sesobio;biotr;-1;
 MUNWASTEN;EBKB;;;;;
-MUNWASTEN;ECOKEOVS;;;;;
+MUNWASTEN;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MUNWASTEN;ELAUTOC;;;;;
 MUNWASTEN;ELAUTOE;;;;;
 MUNWASTEN;ELMAINC;;;;;
@@ -1752,7 +1752,7 @@ MUNWASTER;CONSTRUC;;;;;
 MUNWASTER;DISTLOSS;sesobio;feso;d_fesobio;-1;
 MUNWASTER;DISTLOSS;pebiolc;sesobio;biotr;-1;
 MUNWASTER;EBKB;;;;;
-MUNWASTER;ECOKEOVS;;;;;
+MUNWASTER;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 MUNWASTER;ELAUTOC;;;;;
 MUNWASTER;ELAUTOE;;;;;
 MUNWASTER;ELMAINC;;;;;
@@ -1801,7 +1801,7 @@ NAPHTHA;CHEMICAL;;;;;
 NAPHTHA;COMMPUB;seliqfos;fehob;tdfoshob;1;
 NAPHTHA;CONSTRUC;;;;;
 NAPHTHA;DISTLOSS;peoil;seliqfos;refliq;-1;
-NAPHTHA;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+NAPHTHA;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NAPHTHA;EGASWKS;;;;;
 NAPHTHA;ELAUTOC;;;;;
 NAPHTHA;ELAUTOE;;;;;
@@ -1846,8 +1846,8 @@ NAPHTHA;ROAD;seliqfos;fepet;tdfospet;1;
 NAPHTHA;STATDIFF;;;;;
 NAPHTHA;STOCKCHA;;;;;
 NAPHTHA;TBLENDGAS;;;;;
-NAPHTHA;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-NAPHTHA;TCOKEOVS;peoil;seliqfos;refliq;-1;
+NAPHTHA;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+NAPHTHA;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NAPHTHA;TES;;;;;
 NAPHTHA;TEXTILES;;;;;
 NAPHTHA;TFC;peoil;seliqfos;refliq;1;
@@ -1871,8 +1871,8 @@ NATGAS;CONSTRUC;;;;;
 NATGAS;DISTLOSS;segafos;fega;d_fegafos;-1;
 NATGAS;DISTLOSS;pegas;segafos;gastr;-1;
 NATGAS;DOMESNAV;segafos;fegat;tdfosgat;1;
-NATGAS;EBLASTFUR;;;;;
-NATGAS;ECOKEOVS;;;;;
+NATGAS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+NATGAS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NATGAS;EGASWKS;;;;;
 NATGAS;ELAUTOC;;;;;
 NATGAS;ELAUTOE;;;;;
@@ -1927,9 +1927,9 @@ NATGAS;RESIDENT;segafos;fegab;tdfosgab;1;
 NATGAS;ROAD;segafos;fegat;tdfosgat;1;
 NATGAS;STATDIFF;;;;;
 NATGAS;STOCKCHA;;;;;
-NATGAS;TBLASTFUR;segafos;fegai;tdfosgai;1;
+NATGAS;TBLASTFUR;;;;1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NATGAS;TBLENDGAS;;;;;
-NATGAS;TCOKEOVS;segafos;fegai;tdfosgai;1;
+NATGAS;TCOKEOVS;;;;1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NATGAS;TES;;;;;
 NATGAS;TEXTILES;;;;;
 NATGAS;TFC;pegas;segafos;gastr;1;
@@ -2012,8 +2012,8 @@ NONBIODIES;CONSTRUC;;;;;
 NONBIODIES;DISTLOSS;peoil;seliqfos;refliq;-1;
 NONBIODIES;DOMESAIR;seliqfos;fedie;tdfosdie;1;
 NONBIODIES;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-NONBIODIES;EBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
-NONBIODIES;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+NONBIODIES;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+NONBIODIES;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NONBIODIES;EGASWKS;;;;;
 NONBIODIES;ELAUTOC;;;;;
 NONBIODIES;ELAUTOE;;;;;
@@ -2072,8 +2072,8 @@ NONBIODIES;ROAD;seliqfos;fedie;tdfosdie;1;
 NONBIODIES;STATDIFF;;;;;
 NONBIODIES;STOCKCHA;;;;;
 NONBIODIES;TBLENDGAS;;;;;
-NONBIODIES;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-NONBIODIES;TCOKEOVS;peoil;seliqfos;refliq;-1;
+NONBIODIES;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+NONBIODIES;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NONBIODIES;TES;;;;;
 NONBIODIES;TEXTILES;;;;;
 NONBIODIES;TFC;peoil;seliqfos;refliq;1;
@@ -2235,8 +2235,8 @@ NONCRUDE;ONONSPEC;seliqfos;fehob;tdfoshob;1;
 NONCRUDE;STATDIFF;;;;;
 NONCRUDE;STOCKCHA;;;;;
 NONCRUDE;TCOALLIQ;;;;;
-NONCRUDE;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-NONCRUDE;TCOKEOVS;peoil;seliqfos;refliq;-1;
+NONCRUDE;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+NONCRUDE;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 NONCRUDE;TES;;;;;
 NONCRUDE;TFC;peoil;seliqfos;refliq;1;
 NONCRUDE;TGTL;;;;;
@@ -2318,65 +2318,65 @@ OBIOLIQ;TOTTRANS;;;;;
 OBIOLIQ;TRANSEQ;;;;;
 OBIOLIQ;TRANSFER;;;;;
 OBIOLIQ;WOODPRO;;;;;
-OGASES;AUTOCHP;sesofos;fesoi;tdfossoi;1.667;
-OGASES;AUTOCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-OGASES;AUTOCHP;pecoal;segafos;coalgas;1.667;
-OGASES;AUTOCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-OGASES;AUTOCHP;pecoal;sesofos;coaltr;1.6667;
-OGASES;AUTOELEC;sesofos;fesoi;tdfossoi;1.667;
-OGASES;AUTOELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-OGASES;AUTOELEC;pecoal;segafos;coalgas;1.667;
-OGASES;AUTOELEC;pecoal;sesofos;coaltr;1.6667;
-OGASES;AUTOHEAT;sesofos;fesoi;tdfossoi;1.667;
-OGASES;AUTOHEAT;pecoal;segafos;coalgas;1.667;
-OGASES;AUTOHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-OGASES;AUTOHEAT;pecoal;sesofos;coaltr;1.6667;
-OGASES;CHEMICAL;;;;;
-OGASES;DISTLOSS;segafos;fega;d_fegafos;-1;
-OGASES;EBLASTFUR;pecoal;segafos;coalgas;1.667;
-OGASES;ECOKEOVS;pecoal;segafos;coalgas;1.667;
-OGASES;ELAUTOC;;;;;
-OGASES;ELAUTOE;;;;;
-OGASES;ELMAINC;;;;;
-OGASES;ELMAINE;;;;;
-OGASES;ELOUTPUT;;;;;
-OGASES;EMINES;;;;;
-OGASES;ENONSPEC;segafos;fega;d_fegafos;-1;
-OGASES;EPOWERPLT;;;;;
-OGASES;HEATOUT;;;;;
-OGASES;HEAUTOC;;;;;
-OGASES;HEAUTOH;;;;;
-OGASES;HEMAINC;;;;;
-OGASES;HEMAINH;;;;;
-OGASES;IRONSTL;;;;;
-OGASES;MACHINE;;;;;
-OGASES;MAINCHP;sesofos;fesoi;tdfossoi;1.667;
-OGASES;MAINCHP;pecoal;seel;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-OGASES;MAINCHP;pecoal;segafos;coalgas;1.667;
-OGASES;MAINCHP;pecoal;sehe;coalchp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-OGASES;MAINCHP;pecoal;sesofos;coaltr;1.6667;
-OGASES;MAINELEC;sesofos;fesoi;tdfossoi;1.667;
-OGASES;MAINELEC;pecoal;seel;pc;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of electricity The coefficient converts gas in solids
-OGASES;MAINELEC;pecoal;segafos;coalgas;1.667;
-OGASES;MAINELEC;pecoal;sesofos;coaltr;1.6667;
-OGASES;MAINHEAT;sesofos;fesoi;tdfossoi;1.667;
-OGASES;MAINHEAT;pecoal;segafos;coalgas;1.667;
-OGASES;MAINHEAT;pecoal;sehe;coalhp;-1.6667;We add the solids used in TBLASTFUR TGASWKS TCOKEOVS and producing gas which is used in the production of heat The coefficient converts gas in solids
-OGASES;MAINHEAT;pecoal;sesofos;coaltr;1.6667;
-OGASES;MANUFACT;;;;;
-OGASES;MINING;;;;;
-OGASES;NECHEM;;;;;
-OGASES;NEINTREN;;;;;
-OGASES;NONENUSE;segafos;fegai;tdfosgai;1;
-OGASES;NONFERR;;;;;
-OGASES;NONMET;;;;;
-OGASES;STATDIFF;;;;;
-OGASES;TBLASTFUR;pecoal;segafos;coalgas;1.667;
-OGASES;TFC;;;;;
-OGASES;TNONSPEC;;;;;
-OGASES;TOTENGY;;;;;
-OGASES;TOTIND;segafos;fegai;tdfosgai;1;
-OGASES;TOTTRANF;;;;;
+OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+OGASES;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+OGASES;ELAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;ELAUTOE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;ELMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;ELMAINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;ELOUTPUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;EMINES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;ENONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;EPOWERPLT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;HEATOUT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;HEAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;HEAUTOH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;HEMAINC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;HEMAINH;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;NECHEM;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;NEINTREN;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;NONENUSE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;NONFERR;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;NONMET;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;STATDIFF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+OGASES;TFC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;TNONSPEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;TOTENGY;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;TOTIND;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
+OGASES;TOTTRANF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the tool_fix_IEA_data_for_Industry_subsectors function, they do not need to be mapped anymore.
 OILSHALE;AUTOCHP;;;;;
 OILSHALE;AUTOELEC;;;;;
 OILSHALE;AUTOHEAT;;;;;
@@ -2422,7 +2422,7 @@ ONONSPEC;DISTLOSS;peoil;seliqfos;refliq;-1;
 ONONSPEC;DISTLOSS;seliqfos;fehoi;tdfoshoi;-1;
 ONONSPEC;DOMESAIR;seliqfos;fedie;tdfosdie;1;
 ONONSPEC;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-ONONSPEC;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+ONONSPEC;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ONONSPEC;ELAUTOC;;;;;
 ONONSPEC;ELAUTOE;;;;;
 ONONSPEC;ELMAINC;;;;;
@@ -2480,8 +2480,8 @@ ONONSPEC;RESIDENT;seliqfos;fehob;tdfoshob;1;
 ONONSPEC;ROAD;seliqfos;fepet;tdfospet;1;
 ONONSPEC;STATDIFF;;;;;
 ONONSPEC;STOCKCHA;;;;;
-ONONSPEC;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
-ONONSPEC;TCOKEOVS;peoil;seliqfos;refliq;-1;
+ONONSPEC;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+ONONSPEC;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 ONONSPEC;TES;;;;;
 ONONSPEC;TEXTILES;;;;;
 ONONSPEC;TFC;peoil;seliqfos;refliq;1;
@@ -2529,7 +2529,7 @@ OTHKERO;CONSTRUC;;;;;
 OTHKERO;DISTLOSS;peoil;seliqfos;refliq;-1;
 OTHKERO;DOMESAIR;seliqfos;fedie;tdfosdie;1;
 OTHKERO;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-OTHKERO;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+OTHKERO;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 OTHKERO;EGASWKS;;;;;
 OTHKERO;ELAUTOC;;;;;
 OTHKERO;ELAUTOE;;;;;
@@ -2608,8 +2608,8 @@ OVENCOKE;CONSTRUC;;;;;
 OVENCOKE;DISTLOSS;sesofos;feso;d_fesofos;-1;
 OVENCOKE;DISTLOSS;pecoal;sesofos;coaltr;-1;
 OVENCOKE;DOMESNAV;;;;;
-OVENCOKE;EBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-OVENCOKE;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+OVENCOKE;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+OVENCOKE;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 OVENCOKE;EGASWKS;;;;;
 OVENCOKE;ELAUTOC;;;;;
 OVENCOKE;ELAUTOE;;;;;
@@ -2651,9 +2651,9 @@ OVENCOKE;RESIDENT;sesofos;fesob;tdfossob;1;
 OVENCOKE;STATDIFF;;;;;
 OVENCOKE;STOCKCHA;;;;;
 OVENCOKE;TBKB;;;;;
-OVENCOKE;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
+OVENCOKE;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 OVENCOKE;TCOALLIQ;;;;;
-OVENCOKE;TCOKEOVS;;;;;
+OVENCOKE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 OVENCOKE;TES;;;;;
 OVENCOKE;TEXTILES;;;;;
 OVENCOKE;TFC;pecoal;sesofos;coaltr;1;
@@ -2721,7 +2721,7 @@ PATFUEL;CONSTRUC;;;;;
 PATFUEL;DISTLOSS;pecoal;sesofos;coaltr;-1;
 PATFUEL;DISTLOSS;sesofos;feso;d_fesofos;-1;
 PATFUEL;DOMESNAV;;;;;
-PATFUEL;ECOKEOVS;pecoal;sesofos;coaltr;-1;
+PATFUEL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 PATFUEL;ELAUTOC;;;;;
 PATFUEL;ELAUTOE;;;;;
 PATFUEL;ELMAINC;;;;;
@@ -2761,8 +2761,8 @@ PATFUEL;RESIDENT;sesofos;fesob;tdfossob;1;
 PATFUEL;STATDIFF;;;;;
 PATFUEL;STOCKCHA;;;;;
 PATFUEL;TBKB;;;;;
-PATFUEL;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-PATFUEL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+PATFUEL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+PATFUEL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 PATFUEL;TES;;;;;
 PATFUEL;TEXTILES;;;;;
 PATFUEL;TFC;pecoal;sesofos;coaltr;1;
@@ -2893,8 +2893,8 @@ PETCOKE;COMMPUB;sesofos;fesob;tdfossob;1;
 PETCOKE;CONSTRUC;;;;;
 PETCOKE;DISTLOSS;peoil;seliqfos;refliq;-1;
 PETCOKE;DISTLOSS;sesofos;feso;d_fesofos;-1;
-PETCOKE;EBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-PETCOKE;ECOKEOVS;;;;;
+PETCOKE;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+PETCOKE;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 PETCOKE;ELAUTOC;;;;;
 PETCOKE;ELAUTOE;;;;;
 PETCOKE;ELMAINC;;;;;
@@ -2942,9 +2942,9 @@ PETCOKE;RAIL;sesofos;fesoi;tdfossoi;1;
 PETCOKE;RESIDENT;sesofos;fesob;tdfossob;1;
 PETCOKE;STATDIFF;;;;;
 PETCOKE;STOCKCHA;;;;;
-PETCOKE;TBLASTFUR;peoil;seliqfos;refliq;-1;
-PETCOKE;TBLASTFUR;sesofos;fesoi;tdfossoi;-1;
-PETCOKE;TCOKEOVS;peoil;seliqfos;refliq;-1;
+PETCOKE;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+PETCOKE;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+PETCOKE;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 PETCOKE;TES;;;;;
 PETCOKE;TEXTILES;;;;;
 PETCOKE;TFC;peoil;seliqfos;refliq;1;
@@ -2972,7 +2972,7 @@ PRIMSBIO;DOMESNAV;;;;;
 PRIMSBIO;EBIOGAS;;;;;
 PRIMSBIO;EBKB;;;;;
 PRIMSBIO;ECHARCOAL;;;;;
-PRIMSBIO;ECOKEOVS;;;;;
+PRIMSBIO;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 PRIMSBIO;EGASWKS;;;;;
 PRIMSBIO;ELAUTOC;;;;;
 PRIMSBIO;ELAUTOE;;;;;
@@ -3046,7 +3046,7 @@ REFINGAS;CHEMICAL;;;;;
 REFINGAS;COMMPUB;seliqfos;fehob;tdfoshob;1;
 REFINGAS;CONSTRUC;;;;;
 REFINGAS;DISTLOSS;peoil;seliqfos;refliq;-1;
-REFINGAS;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+REFINGAS;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 REFINGAS;ELAUTOC;;;;;
 REFINGAS;ELAUTOE;;;;;
 REFINGAS;ELMAINC;;;;;
@@ -3082,8 +3082,8 @@ REFINGAS;ROAD;seliqfos;fedie;tdfosdie;1;
 REFINGAS;STATDIFF;;;;;
 REFINGAS;STOCKCHA;;;;;
 REFINGAS;TBLENDGAS;;;;;
-REFINGAS;TCOKEOVS;peoil;seliqfos;refliq;-1;
-REFINGAS;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+REFINGAS;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+REFINGAS;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 REFINGAS;TES;;;;;
 REFINGAS;TFC;peoil;seliqfos;refliq;1;
 REFINGAS;TGASWKS;seliqfos;fehoi;tdfoshoi;-1;
@@ -3123,7 +3123,7 @@ RENEWNS;ONONSPEC;sesobio;fesob;tdbiosob;1;
 RENEWNS;PAPERPRO;;;;;
 RENEWNS;RESIDENT;sesobio;fesob;tdbiosob;1;
 RENEWNS;STATDIFF;;;;;
-RENEWNS;TCOKEOVS;;;;;
+RENEWNS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 RENEWNS;TES;;;;;
 RENEWNS;TEXTILES;;;;;
 RENEWNS;TFC;pebiolc;sesobio;biotr;1;
@@ -3145,8 +3145,8 @@ RESFUEL;DISTLOSS;seliqfos;fedie;tdfosdie;1;
 RESFUEL;DISTLOSS;peoil;seliqfos;refliq;-1;
 RESFUEL;DOMESAIR;seliqfos;fedie;tdfosdie;1;
 RESFUEL;DOMESNAV;seliqfos;fedie;tdfosdie;1;
-RESFUEL;EBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
-RESFUEL;ECOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+RESFUEL;EBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+RESFUEL;ECOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 RESFUEL;EGASWKS;;;;;
 RESFUEL;ELAUTOC;;;;;
 RESFUEL;ELAUTOE;;;;;
@@ -3199,11 +3199,11 @@ RESFUEL;RESIDENT;seliqfos;fehob;tdfoshob;1;
 RESFUEL;ROAD;seliqfos;fedie;tdfosdie;1;
 RESFUEL;STATDIFF;;;;;
 RESFUEL;STOCKCHA;;;;;
-RESFUEL;TBLASTFUR;peoil;seliqfos;refliq;-1;
-RESFUEL;TBLASTFUR;seliqfos;fehoi;tdfoshoi;-1;
+RESFUEL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+RESFUEL;TBLASTFUR;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 RESFUEL;TBLENDGAS;;;;;
-RESFUEL;TCOKEOVS;peoil;seliqfos;refliq;-1;
-RESFUEL;TCOKEOVS;seliqfos;fehoi;tdfoshoi;-1;
+RESFUEL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
+RESFUEL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 RESFUEL;TES;;;;;
 RESFUEL;TEXTILES;;;;;
 RESFUEL;TFC;peoil;seliqfos;refliq;1;
@@ -3326,7 +3326,7 @@ SUBCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 SUBCOAL;STATDIFF;;;;;
 SUBCOAL;STOCKCHA;;;;;
 SUBCOAL;TBKB;pecoal;sesofos;coaltr;-1;
-SUBCOAL;TCOKEOVS;pecoal;sesofos;coaltr;-1;
+SUBCOAL;TCOKEOVS;;;;-1;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 SUBCOAL;TES;;;;;
 SUBCOAL;TEXTILES;;;;;
 SUBCOAL;TFC;pecoal;sesofos;coaltr;1;
@@ -3365,10 +3365,10 @@ TOTAL;DOMESAIR;;;;;
 TOTAL;DOMESNAV;;;;;
 TOTAL;EBIOGAS;;;;;
 TOTAL;EBKB;;;;;
-TOTAL;EBLASTFUR;;;;;
+TOTAL;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 TOTAL;ECHARCOAL;;;;;
 TOTAL;ECOALLIQ;;;;;
-TOTAL;ECOKEOVS;;;;;
+TOTAL;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 TOTAL;EGASWKS;;;;;
 TOTAL;EGTL;;;;;
 TOTAL;ELAUTOC;;;;;
@@ -3433,12 +3433,12 @@ TOTAL;ROAD;;;;;
 TOTAL;STATDIFF;;;;;
 TOTAL;STOCKCHA;;;;;
 TOTAL;TBKB;;;;;
-TOTAL;TBLASTFUR;;;;;
+TOTAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 TOTAL;TBLENDGAS;;;;;
 TOTAL;TBOILER;;;;;
 TOTAL;TCHARCOAL;;;;;
 TOTAL;TCOALLIQ;;;;;
-TOTAL;TCOKEOVS;;;;;
+TOTAL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL after the tool_fix_IEA_data_for_Industry_subsectors function. Hence, it does not need to be mapped anymore.
 TOTAL;TELE;;;;;
 TOTAL;TES;;;;;
 TOTAL;TEXTILES;;;;;
