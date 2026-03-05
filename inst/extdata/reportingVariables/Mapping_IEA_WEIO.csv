@@ -7,15 +7,15 @@
 "Fuels|Gas";;
 "Fuels|Coal";;
 "Fuels|Clean Fuels";;
-"Electricity|Power";"Energy Investments|Electricity";"billion US$2017/yr"
-"Electricity|Generation";"Energy Investments|Electricity Generation";"billion US$2017/yr"
-"Electricity|Coal";"Energy Investments|Electricity|Coal";"billion US$2017/yr"
-"Electricity|Oil and natural gas";"Energy Investments|Electricity|Gas";"billion US$2017/yr"
-"Electricity|Nuclear";"Energy Investments|Electricity|Nuclear";"billion US$2017/yr"
-"Electricity|Renewables";"Energy Investments|Electricity|Renwables";"billion US$2017/yr"
-"Electricity|Fossil fuels: with CCUS";"Energy Investments|Electricity|Fossil|w/o CCS";"billion US$2017/yr"
-"Electricity|Storage";"Energy Investments|Electricity|Storage";"billion US$2017/yr"
-"Electricity|Electricity networks";"Energy Investments|Electricity|Grid";"billion US$2017/yr"
+"Electricity|Power";"Investment|Energy Supply|Electricity";"billion US$2017/yr"
+"Electricity|Generation";"Investment|Energy Supply|Electricity|Generation";"billion US$2017/yr"
+"Electricity|Coal";"Investment|Energy Supply|Electricity|Coal";"billion US$2017/yr"
+"Electricity|Oil and natural gas";"Investment|Energy Supply|Electricity|Gas";"billion US$2017/yr"
+"Electricity|Nuclear";"Investment|Energy Supply|Electricity|Nuclear";"billion US$2017/yr"
+"Electricity|Renewables";"Investment|Energy Supply|Electricity|Renewables";"billion US$2017/yr"
+"Electricity|Fossil fuels: with CCUS";"Investment|Energy Supply|Electricity|Fossil|w/o CCS";"billion US$2017/yr"
+"Electricity|Storage";"Investment|Energy Supply|Electricity|Storage";"billion US$2017/yr"
+"Electricity|Electricity networks";"Investment|Energy Supply|Electricity|Transmission and Distribution ";"billion US$2017/yr"
 "End-Use|End-use";;
 "End-Use|Energy efficiency";;
 "End-Use|Other end-use";;

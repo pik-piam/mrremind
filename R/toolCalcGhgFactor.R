@@ -182,6 +182,7 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
   conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
+  # initialize ghgFactor (emissions target relative to 2015) and ghgTarget (absolute emissions target) arrays
   ghgFactor <- new.magpie(
     cells_and_regions = getItems(reductionData, dim = 1),
     years = getYears(reductionData),
@@ -189,6 +190,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
     sets = c("iso3c", "year", "scenario"),
     fill = NA
   )
+  # initialize magclass object for absolute emissions targets
+  # (only used for diagnostics, not needed for inputdata generation)
+  AbsTarget <- ghgFactor
 
   # for each country and year, calculate calculate GHG factor
   for (regi in getItems(reductionData, dim = 1)) {
@@ -218,10 +222,14 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
             "For ", regi, " in ", year, ", ghgFactor=", ghgFactorMin, " is below 0. ",
             "Is the country really promising negative net emissions? Add it to 'knownLow'."
           )
+
         }
+
+        # also report absolute emissions target
+        AbsTarget[regi, y, ] <- ghgFactor[regi, y, ] * ghg2015
       }
     }
   }
 
-  return(ghgFactor)
+  return(list(ghgFactor,AbsTarget) )
 }
