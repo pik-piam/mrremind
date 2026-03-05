@@ -103,6 +103,7 @@ readEDGETransport <- function(subtype) {
   
   # load scenarioMapping from edgeTransport package data
   scenarioMapping <- toolGetMapping("helpersMappingEdgeTtoREMINDscen.csv", where = "edgeTransport")
+  scenarioMapping <- data.table::setDT(scenarioMapping)
   
   translateEdgeTransportScentoREMIND <- function(transportData, scenarioMap) {
     # changes the rows with matches of DEM_scenario, EDGE_scenario in the mapping
