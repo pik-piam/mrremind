@@ -211,6 +211,7 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
+  calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
 
