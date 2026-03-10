@@ -74,9 +74,13 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
+  # TODO: move to mrremind or mrcommons
+  data <- toolFixIEAdataForIndustrySubsectors(data)
+
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
   # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
+  # TODO: integrate in some mapping?
   if (subtype %in% c("output", "output_reporting")) {
     ieamatch <- rbind(ieamatch,
                       ieamatch %>%
@@ -88,6 +92,20 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
   if (subtype == "output") {
     ieamatch <- ieamatch %>%
       filter(!grepl("^rep_", .data$REMINDitems_in))
+  }
+
+  # TODO: ...
+  if (mapping %in% c("output", "output_reporting", "output_biomass")) {
+
+    subsectorMapping <- toolGetMapping(type = "sectoral",
+                                   name = "mappingIEA_EDGEsubsectors_to_ESOutput.csv",
+                                   where = "mrremind")
+
+    ieamatch <- ieamatch %>%
+      left_join(subsectorMapping, by = c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")) %>%
+      select(-c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")) %>%
+      rename("REMINDitems_in" = "REMINDitems_in_ESM", "REMINDitems_out" = "REMINDitems_out_ESM",
+             "REMINDitems_tech" = "REMINDitems_tech_ESM")
   }
 
   ieamatch <- ieamatch %>%
@@ -135,6 +153,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
 
       edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings",
                             ieaVersion = ieaVersion, aggregate = FALSE)
+
+      # TODO: can we avoid this recursive calculation?
       feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
       shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
       shareBiotrad[is.na(shareBiotrad)] <- 0
