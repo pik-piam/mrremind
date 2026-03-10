@@ -60,7 +60,6 @@ ANTCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 ANTCOAL;STATDIFF;;;;;
 ANTCOAL;STOCKCHA;;;;;
 ANTCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-ANTCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 ANTCOAL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 ANTCOAL;TES;;;;;
 ANTCOAL;TEXTILES;;;;;
@@ -343,7 +342,6 @@ BITCOAL;STATDIFF;;;;;
 BITCOAL;STOCKCHA;;;;;
 BITCOAL;TBKB;pecoal;sesofos;coaltr;-1;
 BITCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-BITCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BITCOAL;TCOALLIQ;pecoal;seliqfos;coalftrec;-1;
 BITCOAL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BITCOAL;TES;;;;;
@@ -484,24 +482,12 @@ BKB;TOTTRANS;;;;;
 BKB;TRANSEQ;;;;;
 BKB;WOODPRO;;;;;
 BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;CONSTRUC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-BLFURGS;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-BLFURGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BLFURGS;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BLFURGS;ELAUTOC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;ELAUTOE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -523,17 +509,7 @@ BLFURGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces.
 BLFURGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -546,7 +522,6 @@ BLFURGS;ONONSPEC;;;;;This product is an output of a coke oven or blast furnaces.
 BLFURGS;PAPERPRO;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;RESIDENT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 BLFURGS;STATDIFF;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-BLFURGS;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BLFURGS;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BLFURGS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 BLFURGS;TES;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -662,7 +637,6 @@ COALTAR;DISTLOSS;seliqfos;fehoi;tdfoshoi;-1;
 COALTAR;DISTLOSS;pecoal;sesofos;coaltr;-1;
 COALTAR;EBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 COALTAR;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-COALTAR;ECOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 COALTAR;EGASWKS;;;;;
 COALTAR;ELAUTOC;;;;;
 COALTAR;ELAUTOE;;;;;
@@ -763,7 +737,6 @@ COKCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 COKCOAL;STATDIFF;;;;;
 COKCOAL;STOCKCHA;;;;;
 COKCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-COKCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 COKCOAL;TCOALLIQ;pecoal;seliqfos;coalftrec;-1;
 COKCOAL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 COKCOAL;TES;;;;;
@@ -780,14 +753,7 @@ COKCOAL;TRNONSPE;;;;;
 COKCOAL;WOODPRO;;;;;
 COKEOVGS;AGRICULT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;COMMPUB;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -818,14 +784,7 @@ COKEOVGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces
 COKEOVGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 COKEOVGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -923,7 +882,6 @@ CRUDEOIL;PIPELINE;seliqfos;fedie;tdfosdie;1;
 CRUDEOIL;RESIDENT;seliqfos;fehob;tdfoshob;1;
 CRUDEOIL;STATDIFF;;;;;
 CRUDEOIL;STOCKCHA;;;;;
-CRUDEOIL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 CRUDEOIL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 CRUDEOIL;TES;;;;;
 CRUDEOIL;TEXTILES;;;;;
@@ -1059,11 +1017,7 @@ GASCOKE;TOTTRANF;;;;;
 GASCOKE;TOTTRANS;;;;;
 GASWKSGS;AGRICULT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;COMMPUB;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -1093,11 +1047,7 @@ GASWKSGS;INONSPEC;;;;;This product is an output of a coke oven or blast furnaces
 GASWKSGS;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-GASWKSGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 GASWKSGS;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -1217,7 +1167,6 @@ HARDCOAL;RESIDENT;sesofos;fesob;tdfossob;1;
 HARDCOAL;STATDIFF;;;;;
 HARDCOAL;STOCKCHA;;;;;
 HARDCOAL;TBKB;pecoal;sesofos;coaltr;-1;
-HARDCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 HARDCOAL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 HARDCOAL;TBLENDGAS;;;;;
 HARDCOAL;TCOALLIQ;;;;;
@@ -1443,7 +1392,6 @@ LIGNITE;STATDIFF;;;;;
 LIGNITE;STOCKCHA;;;;;
 LIGNITE;TBKB;pecoal;sesofos;coaltr;-1;
 LIGNITE;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-LIGNITE;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 LIGNITE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 LIGNITE;TES;;;;;
 LIGNITE;TEXTILES;;;;;
@@ -1529,7 +1477,6 @@ LPG;STATDIFF;;;;;
 LPG;STOCKCHA;;;;;
 LPG;TBLENDGAS;;;;;
 LPG;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-LPG;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 LPG;TES;;;;;
 LPG;TEXTILES;;;;;
 LPG;TFC;peoil;seliqfos;refliq;1;
@@ -1590,7 +1537,6 @@ LUBRIC;RAIL;seliqfos;fedie;tdfosdie;1;
 LUBRIC;ROAD;seliqfos;fepet;tdfospet;1;
 LUBRIC;STATDIFF;;;;;
 LUBRIC;STOCKCHA;;;;;
-LUBRIC;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 LUBRIC;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 LUBRIC;TES;;;;;
 LUBRIC;TFC;peoil;seliqfos;refliq;1;
@@ -1847,7 +1793,6 @@ NAPHTHA;STATDIFF;;;;;
 NAPHTHA;STOCKCHA;;;;;
 NAPHTHA;TBLENDGAS;;;;;
 NAPHTHA;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-NAPHTHA;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 NAPHTHA;TES;;;;;
 NAPHTHA;TEXTILES;;;;;
 NAPHTHA;TFC;peoil;seliqfos;refliq;1;
@@ -2073,7 +2018,6 @@ NONBIODIES;STATDIFF;;;;;
 NONBIODIES;STOCKCHA;;;;;
 NONBIODIES;TBLENDGAS;;;;;
 NONBIODIES;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-NONBIODIES;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 NONBIODIES;TES;;;;;
 NONBIODIES;TEXTILES;;;;;
 NONBIODIES;TFC;peoil;seliqfos;refliq;1;
@@ -2236,7 +2180,6 @@ NONCRUDE;STATDIFF;;;;;
 NONCRUDE;STOCKCHA;;;;;
 NONCRUDE;TCOALLIQ;;;;;
 NONCRUDE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-NONCRUDE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 NONCRUDE;TES;;;;;
 NONCRUDE;TFC;peoil;seliqfos;refliq;1;
 NONCRUDE;TGTL;;;;;
@@ -2319,17 +2262,7 @@ OBIOLIQ;TRANSEQ;;;;;
 OBIOLIQ;TRANSFER;;;;;
 OBIOLIQ;WOODPRO;;;;;
 OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;AUTOHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;CHEMICAL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;DISTLOSS;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -2351,17 +2284,7 @@ OGASES;HEMAINH;;;;;This product is an output of a coke oven or blast furnaces. S
 OGASES;IRONSTL;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MACHINE;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINCHP;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINELEC;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
-OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MAINHEAT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MANUFACT;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
 OGASES;MINING;;;;;This product is an output of a coke oven or blast furnaces. Since these outputs are attributed to inputs of coke ovens and blast furnaces in the IEA data postprocessing, they do not need to be mapped anymore.
@@ -2480,7 +2403,6 @@ ONONSPEC;RESIDENT;seliqfos;fehob;tdfoshob;1;
 ONONSPEC;ROAD;seliqfos;fepet;tdfospet;1;
 ONONSPEC;STATDIFF;;;;;
 ONONSPEC;STOCKCHA;;;;;
-ONONSPEC;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 ONONSPEC;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 ONONSPEC;TES;;;;;
 ONONSPEC;TEXTILES;;;;;
@@ -2943,7 +2865,6 @@ PETCOKE;RESIDENT;sesofos;fesob;tdfossob;1;
 PETCOKE;STATDIFF;;;;;
 PETCOKE;STOCKCHA;;;;;
 PETCOKE;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-PETCOKE;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 PETCOKE;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 PETCOKE;TES;;;;;
 PETCOKE;TEXTILES;;;;;
@@ -3083,7 +3004,6 @@ REFINGAS;STATDIFF;;;;;
 REFINGAS;STOCKCHA;;;;;
 REFINGAS;TBLENDGAS;;;;;
 REFINGAS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-REFINGAS;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 REFINGAS;TES;;;;;
 REFINGAS;TFC;peoil;seliqfos;refliq;1;
 REFINGAS;TGASWKS;seliqfos;fehoi;tdfoshoi;-1;
@@ -3200,9 +3120,7 @@ RESFUEL;ROAD;seliqfos;fedie;tdfosdie;1;
 RESFUEL;STATDIFF;;;;;
 RESFUEL;STOCKCHA;;;;;
 RESFUEL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
-RESFUEL;TBLASTFUR;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 RESFUEL;TBLENDGAS;;;;;
-RESFUEL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 RESFUEL;TCOKEOVS;;;;;This flow is an input or output of coke ovens or blast furnaces that is already accounted for under IRONSTL in the postprocessing of IEA data. Hence, it does not need to be mapped anymore.
 RESFUEL;TES;;;;;
 RESFUEL;TEXTILES;;;;;
