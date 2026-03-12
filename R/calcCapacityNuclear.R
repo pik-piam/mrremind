@@ -24,6 +24,18 @@ calcCapacityNuclear <- function() {
   out[, 2025, ] <- x[, 2025, "REACTORS OPERABLE (MWe net)"] / 10^6
 
   # Near-Term data ----
+
+  # We assume that until 2030, 80% of the reactors that are currently under
+  # construction can be built.
+  # Until 2035, the remaining 20% under construction can be built, as well as
+  # 50% of the planned ones, and 30% of the proposed ones.
+  # Until 2040, the remaining 50% of the planned ones as well as the remaining
+  # 70% of the proposed ones could be built.
+  # There also might be completely new plans to build nuclear plants, which is
+  # likely easier if a country already has some nuclear - so we add 10% of the
+  # 2025 operating capacity - or if they built some between 2025 and 2035 - so
+  # we add 30% of the additions between 2025 and 2035.
+
   out[, 2030, ] <- 0.8 * x[, 2025, "REACTORS UNDER CONSTRUCTION (MWe gross)"] / grossnet / 10^6
 
   out[, 2035, ] <- (
@@ -35,8 +47,9 @@ calcCapacityNuclear <- function() {
   out[, 2040, ] <- (
     0.5 * x[, 2025, "REACTORS PLANNED (MWe gross)"] / grossnet +
       0.7 * x[, 2025, "REACTORS PROPOSED (MWe gross)"] / grossnet +
-      # this is to represent that countries may develop new plans, and if you have
-      # nuclear power this makes it easier to build new
+      # add 10% of operating 2025 capacities - this is to represent that
+      # countries may develop new nuclear plants, and if you have already
+      # nuclear power plants it is easier to build new ones.
       0.1 * x[, 2025, "REACTORS OPERABLE (MWe net)"] / grossnet
   ) / 10^6 + # convert to TW
     # a percentate of max capacity additions from 2025 to 2030 and from 2030 to 2035
