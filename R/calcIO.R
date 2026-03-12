@@ -74,8 +74,7 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
   # read in data and convert from ktoe to EJ
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
-  # TODO: move to mrremind or mrcommons, or integrate in readIEA
-  # TODO: decide if we can remove fixing
+  # apply IEA data postprocessing
   data <- toolFixIEAdataForIndustrySubsectors(data, fixing = TRUE)
 
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
