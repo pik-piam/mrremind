@@ -17,3 +17,5 @@ carbon_stored.*
 ^Makefile$
 ^output$
 ^.*CITATION.cff$
+^\.claude$
+^_pkgdown\.yml$
