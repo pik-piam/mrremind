@@ -17,9 +17,15 @@ calcPE <- function(ieaVersion = "default") {
   # delete NAs rows
   map <- map[c("io", target)] %>% stats::na.omit()
 
+  # TODO: temporary check, fix warnings and remove
+  if (length(setdiff(map$io, getNames(data))) > 0) {
+    items <- setdiff(map$io, getNames(data))
+    warning("mappings without data in calcIO found: ", items)
+  }
+
   # select data that have names
-  map <- map[map$io %in% getNames(data), ]
-  x <- data[, , map$io]
+  x <- data[, , intersect(getNames(data), map$io)]
+
   # aggregate from the IO names to the reporting names.
   x <- madrat::toolAggregate(x, map, dim = 3, from = "io", to = "input")
   # rename entries of data to match the reporting names
