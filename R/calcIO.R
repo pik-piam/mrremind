@@ -94,10 +94,9 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       filter(!grepl("^rep_", .data$REMINDitems_in))
   }
 
-  # TODO: ...
-  if (mapping %in% c("output", "output_reporting", "output_biomass")) {
+  # apply subsector mapping
+  if (subtype %in% c("output", "output_reporting", "output_biomass")) {
 
-    # apply subsector mapping
     subsectorMapping <- toolGetMapping(type = "sectoral",
                                    name = "mappingIEA_EDGEsubsectors_to_ESOutput.csv",
                                    where = "mrremind")
