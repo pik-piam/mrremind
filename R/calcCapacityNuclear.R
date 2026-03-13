@@ -89,6 +89,13 @@ calcCapacityNuclear <- function() {
   out[ctry, 2035, ] <- pmax(out[ctry, 2035, ], 0.0005)
   out[ctry, 2040, ] <- pmax(out[ctry, 2040, ], 0.002)
 
+  # Barakah reactors 1&2 were finished in 2020/2021
+  out["ARE", 2020, ] <- 3000 / 10^6
+
+  # provide some leeway for REMIND to keep the 1.85 GW running even though
+  # REMIND requires technical depreciation, which would reduce the capacity
+  out["ZAF", 2030, ] <- 400 / 10^6
+
   return(list(x = out, weight = NULL, unit = "TW",
               description = "capacity of operating nuclear plants in 2020 and 2025,
               upper limits of capacity additions for 2030, 2025 and 2040")
