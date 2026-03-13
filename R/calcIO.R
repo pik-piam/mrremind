@@ -117,10 +117,11 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       mutate(
         "REMINDitems_in" = ifelse(is.na(.data$REMINDitems_in_ESM), .data$REMINDitems_in, .data$REMINDitems_in_ESM),
         "REMINDitems_out" = ifelse(is.na(.data$REMINDitems_out_ESM), .data$REMINDitems_out, .data$REMINDitems_out_ESM),
-        "REMINDitems_tech_ESM" = ifelse(is.na(.data$REMINDitems_tech_ESM), .data$REMINDitems_tech, .data$REMINDitems_tech_ESM)
+        "REMINDitems_tech" = ifelse(is.na(.data$REMINDitems_tech_ESM), .data$REMINDitems_tech, .data$REMINDitems_tech_ESM)
       ) %>%
       select(-c("REMINDitems_in_ESM", "REMINDitems_out_ESM", "REMINDitems_tech_ESM"))
   }
+
   ieamatch <- ieamatch %>%
     select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
     stats::na.omit() %>%
