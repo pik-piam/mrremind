@@ -6,16 +6,18 @@
 #' @author Robert Pietzcker, Christoph Bertram, Aman Malik, Pascal Weigmann
 
 calcCapacityNuclear <- function() {
-
   # additional assumption: gross-net losses vary between 3 (Shin-Kori Unit 3)
   # and 12 (Fuqing Unit 5) %, so 5% seems good assumption:
   grossnet <- 1.05
 
   x <- readSource("IAEA")
-  out <- new.magpie(getItems(x, dim = 1), seq(2020, 2040, 5), "tnrs")
+  out <- new.magpie(getItems(x, dim = 1), seq(2015, 2040, 5), "tnrs")
 
   # Historical data ----
   # allocate data and convert from MW into TW
+
+  # total capacity in 2015: snapshot of operable reactors in early 2016
+  out[, 2015, ] <- setYears(x[, 2016, "REACTORS OPERABLE (MWe net)"] / 1000000, 2015)
 
   # total capacity in 2020: snapshot of operable reactors in April 2020
   out[, 2020, ] <- x[, 2020, "REACTORS OPERABLE (MWe net)"] / 10^6
@@ -83,15 +85,24 @@ calcCapacityNuclear <- function() {
   # Philippines, Rwanda, Sri Lanka, Sudan, Thailand, Indonesia,
   # Saudi Arabia (dupl), Vietnam
 
-  ctry <- c("DZA", "AZE", "SLV", "EST", "ETH", "KEN", "LAO", "MAR", "NGA", "PHL",
-            "RWA", "LKA", "SDN", "THA", "IDN", "VNM")
+  ctry <- c(
+    "DZA", "AZE", "SLV", "EST", "ETH", "KEN", "LAO", "MAR", "NGA", "PHL",
+    "RWA", "LKA", "SDN", "THA", "IDN", "VNM"
+  )
 
   out[ctry, 2035, ] <- pmax(out[ctry, 2035, ], 0.0005)
   out[ctry, 2040, ] <- pmax(out[ctry, 2040, ], 0.002)
 
-  return(list(x = out, weight = NULL, unit = "TW",
-              description = "capacity of operating nuclear plants in 2020 and 2025,
-              upper limits of capacity additions for 2030, 2025 and 2040")
-  )
+  # Barakah reactors 1&2 in the United Arab Emirates were finished in 2020/2021
+  out["ARE", 2020, ] <- 3000 / 10^6
 
+  # provide some leeway for REMIND to keep the 1.85 GW in South Africa running even though
+  # REMIND requires technical depreciation, which would reduce the capacity
+  out["ZAF", 2030, ] <- 400 / 10^6
+
+  return(list(
+    x = out, weight = NULL, unit = "TW",
+    description = "capacity of operating nuclear plants from 2015 - 2025,
+              upper limits of capacity additions for 2030, 2025 and 2040"
+  ))
 }
