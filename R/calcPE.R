@@ -25,6 +25,7 @@ calcPE <- function(ieaVersion = "default") {
 
   # select data that have names
   x <- data[, , intersect(getNames(data), map$io)]
+  map <- map[map$io %in% getNames(x), ]
 
   # aggregate from the IO names to the reporting names.
   x <- madrat::toolAggregate(x, map, dim = 3, from = "io", to = "input")
