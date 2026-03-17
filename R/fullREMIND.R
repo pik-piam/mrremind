@@ -147,6 +147,7 @@ fullREMIND <- function() {
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
+  calcOutput("CapacityBounds", subtype = "pipeline",                   round = 8,  file = "p_CapacityBounds.cs4r")
   calcOutput("ExpertGuess", subtype = "ccsBounds",                     round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("PotentialGeologicalStorage",                             round = 8,  file = "f_geoStorPot.cs3r")
 
