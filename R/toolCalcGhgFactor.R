@@ -206,30 +206,66 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
           ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
         }
 
-        ghgFactor[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ]) / ghg2015
 
-        ghgFactorMax <- max(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
 
-        if (isTRUE(ghgFactorMax > 1.5) && !year %in% knownHigh[[regi]] && !regi %in% c("IND", "CHN")) {
-          ghgFactor[regi, y, ] <- NA
-          message("For ", regi, " in ", year, ", ghgFactor=", ghgFactorMax, " is above 1.5 and will be dropped.")
-        }
+        # calculate absolute NDC emissions targets per country
+        AbsTarget[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ])
 
-        ghgFactorMin <- min(c(0, as.numeric(ghgFactor[regi, y, ])), na.rm = TRUE)
 
-        if (isTRUE(ghgFactorMin < 0) && !year %in% knownLow[[regi]]) {
-          stop(
-            "For ", regi, " in ", year, ", ghgFactor=", ghgFactorMin, " is below 0. ",
-            "Is the country really promising negative net emissions? Add it to 'knownLow'."
-          )
+        # calculate NDC target relative to 2015 historical emissions to perform some plausibility checks
+        TargetRelTo2015 <- as.vector(AbsTarget[regi, y, ] / ghg2015)
 
-        }
+        # define range in which NDC emissions need to be relative to historical 2015 emissions
+        # This serves to sort out very unambitious or extremely ambitious targets of single countries
+        # that might distort the aggregated target on REMIND region level that is calculated later on
+        RelTargetRange <- new.magpie(cells_and_regions = getItems(reductionData, dim = 1),
+                                     years = paste0("y",seq(2025,2100,5)),
+                                     names = c("maximum","minimum"),
+                                     fill = NA)
 
-        # also report absolute emissions target
-        AbsTarget[regi, y, ] <- ghgFactor[regi, y, ] * ghg2015
+
+
+        RelTargetRange[, "y2025", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
+        RelTargetRange[, "y2025", "minimum"] <- 0.5 # min. 50% of 2015 historical emissions for 2030 target
+        RelTargetRange[, "y2030", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
+        RelTargetRange[, "y2030", "minimum"] <- 0.3 # min. 30% of 2015 historical emissions for 2030 target
+        RelTargetRange[, "y2035", "maximum"] <- 1.3 # max. 130% of 2015 historical emissions for 2035 target
+        RelTargetRange[, "y2035", "minimum"] <- 0 # min. 0 for 2035 target (no net negative emissions targets)
+
+        # no maximum target for India and China because those countries are already REMIND regions so distortion of aggregation is not an issue
+        # and they tend to have quite unambitious targets
+        RelTargetRange[ c("CHN", "IND"), ,"maximum"] <- NA
+
+
+        # TODO: still think about adding SSP loop here / or rather drop SSP scenarios
+          # check whether targets in plausible range
+          if (!is.na(TargetRelTo2015) ) {
+            # check for too unambitious targets
+            if( !is.na(RelTargetRange[regi, y ,"maximum"])) {
+              if( TargetRelTo2015 > RelTargetRange[regi, y ,"maximum"] ) {
+                AbsTarget[regi, y, ] <- NA
+                message("For ", regi, " in ", year,
+                        ", NDC emissions target level is very unambitious as it is higher than ", as.vector(RelTargetRange[regi, y ,"maximum"]),
+                        " times the 2015 emissions and is therefore dropped")
+              }
+            }
+
+            # check for too ambitious targets
+            if( !is.na(RelTargetRange[regi, y ,"minimum"]) ) {
+              if( TargetRelTo2015 < RelTargetRange[regi, y ,"minimum"] ) {
+                AbsTarget[regi, y, ] <- NA
+                message("For ", regi, " in ", year,
+                        ", NDC emissions target level is ambitious as it is lower than ", as.vector(RelTargetRange[regi, y ,"minimum"]),
+                        "times the 2015 emissions and is therefore dropped")
+              }
+            }
+          }
+
+
+
       }
     }
   }
 
-  return(list(ghgFactor,AbsTarget) )
+  return(AbsTarget)
 }
