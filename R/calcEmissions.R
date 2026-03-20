@@ -604,6 +604,12 @@ calcEmissions <- function(datasource = "CEDS16") {
       )
     getNames(emi, dim = 1) <- map_pol[getNames(emi, dim = 1)]
 
+    # manually add F-Gases for all variables (this is no longer done by toolAggregate)
+    fgases <- emi[, , "F-Gases"]
+    emi <- emi[, , "F-Gases", invert = TRUE]
+    emi <- add_columns(emi, addnm = "F-Gases", dim = 3.1, fill = 0)
+    emi[, , getNames(fgases)] <- fgases
+
     # convert from Mt CO2eq/yr to Mt CH4/yr (AR5 GWP100)
     emi[, , "CH4"] <- emi[, , "CH4"] / 28
 
