@@ -10,32 +10,9 @@
 #' @seealso [convertUNFCCC_NDC()], [convertNewClimate()]
 toolCalcGhgFactor <- function(x, subtype, subset) {
 
-  reductionData <- x
 
-  # Reference Emissions from UNFCCC
-  emiRef <- calcOutput("EmiTargetReference", aggregate = FALSE)
-  # growth factor fro LULUCF 2020 to target year, assumption constant LULUCF emissions
-  factorLULUCF <- 1
 
-  # Future GDP values
-  gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
-
-  # Define EU countries + Croatia for special treatment because of joint targets
-  # GBR has its own targets starting from 2022
-  EUR_NDC_countries <- c(
-    "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-    "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-    "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-    "FRO", "GIB", "GGY", "IMN", "HRV",
-    if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
-  )
-
-  allowedType <- c("GHG-Absolute", "GHG", "GHG/GDP", "CO2/GDP", "GHG-fixed-total", "GHG/CAP")
-
-  # copy over EU target to EU countries
-  reductionData <- add_columns(reductionData, addnm = EUR_NDC_countries, dim = 1, fill = NA)
-  reductionData[EUR_NDC_countries, , ] <- reductionData["EUR", , ]
-  reductionData <- reductionData["EUR", , , invert = TRUE]
+  # 1. Define function to calculate country-level emissions targets depending on target type ----
 
   # Calculate GHG target emissions in Mt CO2eq in target year based on information in the NDC database
   ## Type describes how the target is formulated
@@ -156,95 +133,141 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
 
     if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
-      # actually of target year
-      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
-      # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
-      year %in% c("y2030", "y2035")) {
+        # actually of target year
+        emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
+        # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
+        year %in% c("y2030", "y2035")) {
       # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
       ghgTarget <- ghgTarget[regi, year, ] -
         emiRef[regi, year, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
-          factorLULUCF
+        factorLULUCF
     }
 
     return(ghgTarget)
   }
 
-  # TODO: adjust once we switch to 2015, by making it a flexible boundary depending on time span
-  # between target year and 2015 multiplied by factor 0.1
-  knownHigh <- list("IND" = c(2030))
-  knownLow  <- list("NGA" = c(2030))
-  knownLow[["TGO"]] <- 2030
-  knownLow[["GAB"]] <- 2050
-  knownLow[["GBR"]] <- 2050
-  knownLow[["TZA"]] <- 2030
-  knownLow[["COD"]] <- 2030
+  # 2. Read country-level target formulations and data required to transform them to absolute targets ----
+  reductionData <- x
+
+  # load UNFCCC emissions data used for targets relating to reference year emissions
+  emiRef <- calcOutput("EmiTargetReference", aggregate = FALSE)
+
+  # GDP SSP trajectories, needed for Emi/GDP intensity targets
+  gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
+
+  # define target types allowed
+  allowedType <- c("GHG-Absolute",
+                   "GHG",
+                   "GHG/GDP",
+                   "CO2/GDP",
+                   "GHG-fixed-total",
+                   "GHG/CAP")
+
+  # define conditionality of target ("conditional" or "unconditional" NDC)
+  conditional <- ifelse(length(grep("uncond", subtype)) == 0,
+                        "Conditional",
+                        "Unconditional")
 
 
-  conditional <- ifelse(length(grep("uncond", subtype)) == 0, "Conditional", "Unconditional")
 
-  # initialize ghgFactor (emissions target relative to 2015) and ghgTarget (absolute emissions target) arrays
-  ghgFactor <- new.magpie(
+
+
+  # 3. Deal with Targets for EU countries ----
+
+
+  # Define EU countries + Croatia for special treatment because of joint targets
+  # GBR has its own targets starting from 2022
+  EUR_NDC_countries <- c(
+    "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
+    "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
+    "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
+    "FRO", "GIB", "GGY", "IMN", "HRV",
+    if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
+  )
+
+
+  # copy over EU target to EU countries
+  reductionData <- add_columns(reductionData, addnm = EUR_NDC_countries, dim = 1, fill = NA)
+  reductionData[EUR_NDC_countries, , ] <- reductionData["EUR", , ]
+  reductionData <- reductionData["EUR", , , invert = TRUE]
+
+
+  # 4. Make Assumptions about Target Calculation ----
+
+  # assumption on development of LULUCF emissions in target year compared to 2020
+  # TODO: check / alter this in implementation (not sure which year it takes so far)
+  factorLULUCF <- 1
+
+
+
+
+  # 5. Define plausible range of NDC emissions targets ----
+
+  # define range in which NDC emissions need to be relative to historical 2015 emissions
+  # This serves to sort out very unambitious or extremely ambitious targets of single countries
+  # that might distort the aggregated target on REMIND region level that is calculated later on
+  RelTargetRange <- new.magpie(cells_and_regions = getItems(reductionData, dim = 1),
+                               years = paste0("y",seq(2025,2100,5)),
+                               names = c("maximum","minimum"),
+                               fill = NA)
+
+
+
+  RelTargetRange[, "y2025", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
+  RelTargetRange[, "y2025", "minimum"] <- 0.5 # min. 50% of 2015 historical emissions for 2030 target
+  RelTargetRange[, "y2030", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
+  RelTargetRange[, "y2030", "minimum"] <- 0.3 # min. 30% of 2015 historical emissions for 2030 target
+  RelTargetRange[, "y2035", "maximum"] <- 1.3 # max. 130% of 2015 historical emissions for 2035 target
+  RelTargetRange[, "y2035", "minimum"] <- 0 # min. 0 for 2035 target (no net negative emissions targets)
+
+  # no maximum target for India and China because those countries are already REMIND regions so distortion of aggregation is not an issue
+  # and they tend to have quite unambitious targets
+  RelTargetRange[ c("CHN", "IND"), ,"maximum"] <- NA
+
+
+  # 6. Calculate country-level absolute emissions targets ----
+
+
+  # initialize magclass object to store country-level NDC emissions targets
+  AbsTarget <- new.magpie(
     cells_and_regions = getItems(reductionData, dim = 1),
     years = getYears(reductionData),
     names = getNames(gdp),
     sets = c("iso3c", "year", "scenario"),
     fill = NA
   )
-  # initialize magclass object for absolute emissions targets
-  # (only used for diagnostics, not needed for inputdata generation)
-  AbsTarget <- ghgFactor
 
-  # for each country and year, calculate calculate GHG factor
+  # for each country and year, calculate calculate absolute NDC emissions target in MtCO2eq/yr for total GHG emissions excl. bunkers and excl. LULUCF
   for (regi in getItems(reductionData, dim = 1)) {
     for (year in getYears(reductionData, as.integer = TRUE)) {
       if (!is.na(reductionData[regi, year, conditional][1])) {
+        # determine target year to define NDC emissions goal for, round to nearest REMIND time step
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
-
-        if (regi %in% EUR_NDC_countries && allowedType[reductionData[regi, y, "Type"]] == "GHG-fixed-total") {
-          ghg2015 <- sum(setYears(emiRef[EUR_NDC_countries, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL))
-        } else {
-          ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
-        }
-
-
-
         # calculate absolute NDC emissions targets per country
         AbsTarget[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ])
 
+        # ### for debugging, TO REMOVE!
+        # print(paste("region: ", regi, "and year: ", y))
+        #
+        # if (regi == "POL" & y == 2050) {
+        # browser()
+        # }
+        # ###
 
         # calculate NDC target relative to 2015 historical emissions to perform some plausibility checks
-        TargetRelTo2015 <- as.vector(AbsTarget[regi, y, ] / ghg2015)
-
-        # define range in which NDC emissions need to be relative to historical 2015 emissions
-        # This serves to sort out very unambitious or extremely ambitious targets of single countries
-        # that might distort the aggregated target on REMIND region level that is calculated later on
-        RelTargetRange <- new.magpie(cells_and_regions = getItems(reductionData, dim = 1),
-                                     years = paste0("y",seq(2025,2100,5)),
-                                     names = c("maximum","minimum"),
-                                     fill = NA)
+        ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
+        TargetRelTo2015 <- AbsTarget[regi, y, ] / collapseNames(ghg2015)
 
 
 
-        RelTargetRange[, "y2025", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
-        RelTargetRange[, "y2025", "minimum"] <- 0.5 # min. 50% of 2015 historical emissions for 2030 target
-        RelTargetRange[, "y2030", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
-        RelTargetRange[, "y2030", "minimum"] <- 0.3 # min. 30% of 2015 historical emissions for 2030 target
-        RelTargetRange[, "y2035", "maximum"] <- 1.3 # max. 130% of 2015 historical emissions for 2035 target
-        RelTargetRange[, "y2035", "minimum"] <- 0 # min. 0 for 2035 target (no net negative emissions targets)
-
-        # no maximum target for India and China because those countries are already REMIND regions so distortion of aggregation is not an issue
-        # and they tend to have quite unambitious targets
-        RelTargetRange[ c("CHN", "IND"), ,"maximum"] <- NA
-
-
-        # TODO: still think about adding SSP loop here / or rather drop SSP scenarios
-          # check whether targets in plausible range
-          if (!is.na(TargetRelTo2015) ) {
+        # check whether targets in plausible range defined by RelTargetRange
+        for (i in getNames(TargetRelTo2015)) { # loop over SSPs
+          if (!is.na(TargetRelTo2015[,,i]) ) { # check whether target range defined
             # check for too unambitious targets
             if( !is.na(RelTargetRange[regi, y ,"maximum"])) {
-              if( TargetRelTo2015 > RelTargetRange[regi, y ,"maximum"] ) {
-                AbsTarget[regi, y, ] <- NA
-                message("For ", regi, " in ", year,
+              if( TargetRelTo2015[, ,i] > RelTargetRange[regi, y ,"maximum"] ) {
+                AbsTarget[regi, y, i] <- NA
+                message("For ", regi, " in ", year, " in ", i,
                         ", NDC emissions target level is very unambitious as it is higher than ", as.vector(RelTargetRange[regi, y ,"maximum"]),
                         " times the 2015 emissions and is therefore dropped")
               }
@@ -252,14 +275,15 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
             # check for too ambitious targets
             if( !is.na(RelTargetRange[regi, y ,"minimum"]) ) {
-              if( TargetRelTo2015 < RelTargetRange[regi, y ,"minimum"] ) {
-                AbsTarget[regi, y, ] <- NA
+              if( TargetRelTo2015[,,i] < RelTargetRange[regi, y ,"minimum"] ) {
+                AbsTarget[regi, y, i] <- NA
                 message("For ", regi, " in ", year,
                         ", NDC emissions target level is ambitious as it is lower than ", as.vector(RelTargetRange[regi, y ,"minimum"]),
                         "times the 2015 emissions and is therefore dropped")
               }
             }
           }
+        }
 
 
 
