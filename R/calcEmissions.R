@@ -604,6 +604,14 @@ calcEmissions <- function(datasource = "CEDS16") {
       )
     getNames(emi, dim = 1) <- map_pol[getNames(emi, dim = 1)]
 
+    # manually add F-Gases for all variables (this is no longer done by toolAggregate)
+    # TODO: consider adjusting the rest of the calculations to deal with new toolAggregate
+    # logic in a better way
+    fgases <- emi[, , "F-Gases"]
+    emi <- emi[, , "F-Gases", invert = TRUE]
+    emi <- add_columns(emi, addnm = "F-Gases", dim = 3.1, fill = 0)
+    emi[, , getNames(fgases)] <- fgases
+
     # convert from Mt CO2eq/yr to Mt CH4/yr (AR5 GWP100)
     emi[, , "CH4"] <- emi[, , "CH4"] / 28
 
@@ -791,7 +799,9 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     ## ---- ClimateTrace ----
   } else if (datasource == "ClimateTrace") {
+
     emi <- readSource("ClimateTrace")
+
     # map variables
     mapping <- toolGetMapping("mappingClimateTrace.csv",
                               type = "sectoral",
@@ -804,6 +814,14 @@ calcEmissions <- function(datasource = "CEDS16") {
       to = "REMIND",
       partrel = TRUE
     )
+
+    # the following calculations rely on an old implementation of toolAggregate
+    # that introduces all possible combinations of gas and variable
+    # TODO: consider rewriting code to assume new logic of toolAggregate
+
+    # manually introduce missing dimension combinations for now
+    cross <- quitte::cartesian(getNames(emi, dim = 1), getNames(emi, dim = 2))
+    emi <- add_columns(emi, cross[which(!cross %in% getNames(emi))], dim = 3, fill = 0)
 
     # rename pollutants
     map_pol <-
