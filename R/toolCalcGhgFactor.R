@@ -112,8 +112,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
           " is above ", max(getYears(ghg, as.integer = TRUE)), ". Skipping for now."
         )
       } else {
-        # NOTE: the inaccuracy for calculation of GHG factor for CO2/GDP is tolerated
-        # target * GDP in target year / GDP in reference year * GHG in reference year
+        # Calculate emissions target from GHG/GDP intensity targets
+        # Note that we always use total GHG emissions even if countries might refer to total CO2 emissions only.
+        # This small inaccuracy can be tolerated.
         ghgTarget <- (1 + data[regi, year, conditional]) *
           gdp[regi, year, ] /
           setYears(gdp[regi, round(as.numeric(data[regi, year, "Reference_Year"]) / 5) * 5, ], NULL) *
@@ -138,10 +139,9 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
         year %in% c("y2030", "y2035")) {
       # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] -
-        emiRef[regi, year, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] *
-        factorLULUCF
+      ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
     }
+
 
     return(ghgTarget)
   }
@@ -174,29 +174,56 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
 
   # 3. Deal with Targets for EU countries ----
 
+  # disaggregate (relative) emissions targets defined for EU(27) to country-level
+  # get H12 regionmapping
+  regionmapping <- toolGetMapping("regionmappingH12.csv", where = "mappingfolder", type = "regional")
 
-  # Define EU countries + Croatia for special treatment because of joint targets
-  # GBR has its own targets starting from 2022
-  EUR_NDC_countries <- c(
-    "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
-    "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
-    "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
-    "FRO", "GIB", "GGY", "IMN", "HRV",
-    if (grepl("_20(18|19|20|21)_", subtype)) "GBR"
-  )
+  # apply EU emissions reduction goals uniformly to all countries in EUR region (EU28)
+  # for which emissions goals are not defined in the input data
+  EUR_NDC_countries <- regionmapping %>%
+    filter( .data$RegionCode == "EUR") %>%
+    pull( .data$CountryCode)
 
+  # only include countries from EUR region that do not already have defined input data
+  # That is, if UK emissions target is defined in input data, this is not overwritten
+  # if it is not defined, then UK (country code "GBR") gets the same emissions reductions goal as EU
+  EUR_NDC_countries <- setdiff(EUR_NDC_countries,getRegions(reductionData))
 
-  # copy over EU target to EU countries
-  reductionData <- add_columns(reductionData, addnm = EUR_NDC_countries, dim = 1, fill = NA)
+  reductionData <- add_columns(reductionData,
+                               addnm = EUR_NDC_countries,
+                               dim = 1,
+                               fill = NA)
   reductionData[EUR_NDC_countries, , ] <- reductionData["EUR", , ]
   reductionData <- reductionData["EUR", , , invert = TRUE]
 
+  # take country-level reference emissions in 1990 for EU countries
+  reductionData[EUR_NDC_countries, , "BAU_or_Reference_emissions_in_MtCO2e"] <- emiRef[EUR_NDC_countries, 1990, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
 
-  # 4. Make Assumptions about Target Calculation ----
 
-  # assumption on development of LULUCF emissions in target year compared to 2020
-  # TODO: check / alter this in implementation (not sure which year it takes so far)
-  factorLULUCF <- 1
+  # 4. Assumptions about LULUCF emissions in target year ----
+
+  # base LULUCF emissions of 2030 and 2035 NDC target years on data from IIASA scenarios
+  # this LULUCF data is based on the national accounting logic and is therefore the most consistent available
+  # relative to reported UNFCCC emissions for historical periods
+
+  # get LULUCF conditional NDC scenario data from IISAA for 2030
+  IIASA_LULUCF_2030 <- readSource("IIASALanduse", subtype = "forecast2030")
+
+  # get LULUCF conditional NDC scenario data from IISAA for 2035
+  IIASA_LULUCF_2035 <- readSource("IIASALanduse", subtype = "forecast2035")
+
+  IIASA_LULUCF <- mbind(IIASA_LULUCF_2030,
+                        IIASA_LULUCF_2035)
+
+  EmiLULUCFTargetYear <- new.magpie(cells_and_regions = getRegions(reductionData),
+                                    years = getYears(reductionData),
+                                    names = c("Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"),
+                                    fill = 0)
+
+  # LULUCF assumptions for target years 2030 and 2035, for all other target years zero LULUCF contributions assumed
+  EmiLULUCFTargetYear <- IIASA_LULUCF[intersect(getRegions(EmiLULUCFTargetYear),getRegions(IIASA_LULUCF)),,]
+
+
 
 
 
@@ -245,14 +272,6 @@ toolCalcGhgFactor <- function(x, subtype, subset) {
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
         # calculate absolute NDC emissions targets per country
         AbsTarget[regi, y, ] <- .calcGhgTarget(reductionData[regi, year, ])
-
-        # ### for debugging, TO REMOVE!
-        # print(paste("region: ", regi, "and year: ", y))
-        #
-        # if (regi == "POL" & y == 2050) {
-        # browser()
-        # }
-        # ###
 
         # calculate NDC target relative to 2015 historical emissions to perform some plausibility checks
         ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
