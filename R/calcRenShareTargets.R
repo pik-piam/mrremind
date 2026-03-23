@@ -330,6 +330,7 @@ calcRenShareTargets <- function(scenario) {
   # that are used as country weights when aggregating to REMIND regions REMIND regions
   TotalsEnergyProj <- new.magpie(getItems(x, dim = 1), getItems(x, dim = 2), getNames(x), fill = NA)
   # get projections of energy use in target years
+
   TotalsEnergyProj[, , "RenFE"] <- toolCalcEnergyProj(subtype = "FE", subset = "SSP2", scenario = scenario)
   TotalsEnergyProj[, , "RenElec"] <- toolCalcEnergyProj(subtype = "SE|Electricity", subset = "SSP2",  scenario = scenario)
   # for non-biomass renewable share in electricity and non-fossil share in electricity the total is both SE electricity,
