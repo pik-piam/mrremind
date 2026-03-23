@@ -133,28 +133,23 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     # They are aggregated to region-level by simple summation of all countries with an NDC target:
     # absEmiTarget(region) = sum(country, absEmiTarget(country)), for all countries with NDC targets.
     # Note that this aggregation is done via the madrat routine run with the return() statement of this function.
+    # Weight is set to 0 to sum all country-level targets without weights.
 
     # absolute emissions target as aggregation variable
     x <- absEmiTarget
+    # set countries without NDC targets to 0
+    # their contribution to the regional NDC target is taken care of
+    # in the GAMS code of "./modules/45_carbonprice/NDC/." by adding their share of emissions from the NPI run
     x[is.na(x)] <- 0
 
-    # create 1/0 mask encoding whether a target year and country
-    # has a target represented by an absolute emissions target
-    mask <- 1 * !is.na(absEmiTarget)
-
-    # For simple summation aggregation, we use a weight of 1 for all countries with targets
-    # and 0 for countries without targets (encoded in the mask)
-    weight <- mask
 
 
     return(list(
       x = x,
-      weight = weight,
+      weight = NULL,
       unit = "MtCO2eq/yr",
       description = glue::glue("Absolute emissions targets in MtCO2eq/yr, \\
-                summed for all countries with NDC target in each region per target year."),
-      # do not throw warning for zero weights, as they only occur when there are no values to be aggregated
-      aggregationArguments = list(zeroWeight = "allow")
+                summed for all countries with NDC target in each region per target year.")
     ))
   }
 
