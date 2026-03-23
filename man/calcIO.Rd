@@ -5,7 +5,7 @@
 \title{Calc Input Output}
 \usage{
 calcIO(
-  subtype = c("input", "output", "output_biomass", "output_reporting", "trade"),
+  subtype = c("input", "output", "trade"),
   ieaVersion = "default",
   corrected = FALSE
 )
