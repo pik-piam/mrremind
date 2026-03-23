@@ -76,14 +76,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
 
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
-  # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  if (subtype %in% c("output", "output_reporting")) {
-    ieamatch <- rbind(ieamatch,
-                      ieamatch %>%
-                        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-                        mutate(REMINDitems_out = "feelb"))
-  }
-
   # filter items starting with x_, as they are not used in REMIND, but only for reporting
   if (subtype == "output") {
     ieamatch <- ieamatch %>%
