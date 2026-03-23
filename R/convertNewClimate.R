@@ -353,9 +353,8 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
   }
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
-
     # calculate absolute NDC emissions target per country
-    x <- toolCalcGhgFactor(x, subtype, subset)
+    x <- toolCalcGhgTarget(x, subtype, subset)
     # fill missing countries with NA (no target)
     x <- toolCountryFill(x, fill = NA, verbosity = 2, no_remove_warning = "ANT")
   }

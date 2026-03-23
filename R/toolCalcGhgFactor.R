@@ -1,17 +1,14 @@
-#' Calculate GHG Emission Factors from GHG emission targets
+#' Calculate absolute emission targets
 #'
-#' Emission targets are represented by a GHG Emission Factor, which is the quotient of total GHG
-#' emissions in the target year divided by the CEDS GHG emissions in 2015
+#' Calculate absolute emission targets depending on country-specific emissions target formulations.
+#' So far, the function mainly used to calculate NDC emissions targets.
 #'
 #' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux, Falk Benke
 #' @param x a magclass object with targets read in from NDC or NPI database
 #' @param subtype Emissions_YYYY_cond or Emissions_YYYY_uncond
 #' @param subset String, designating the GDP scenarios to use
 #' @seealso [convertUNFCCC_NDC()], [convertNewClimate()]
-toolCalcGhgFactor <- function(x, subtype, subset) {
-
-
-
+toolCalcGhgTarget <- function(x, subtype, subset) {
   # 1. Define function to calculate country-level emissions targets depending on target type ----
 
   # Calculate GHG target emissions in Mt CO2eq in target year based on information in the NDC database
