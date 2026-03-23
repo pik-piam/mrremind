@@ -8,7 +8,7 @@
 #'
 #' @author Falk Benke
 calcIoRemind <- function(subtype) {
-  x <- calcOutput("IO", subtype = subtype, corrected = TRUE, supplementary = TRUE)
+  x <- calcOutput("IO", subtype = subtype, corrected = TRUE, supplementary = TRUE, aggregate = FALSE)
   desc <- x$description
   x <- x$x
 
@@ -21,6 +21,6 @@ calcIoRemind <- function(subtype) {
     x = x,
     weight = NULL,
     unit = "EJ",
-    description = x$description
+    description = desc
   ))
 }
