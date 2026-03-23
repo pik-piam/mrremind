@@ -21,7 +21,7 @@
 #' }
 #'
 #' @importFrom dplyr filter mutate
-calcIO <- function(subtype = c("input", "output", "output_biomass", "output_reporting", "trade"),
+calcIO <- function(subtype = c("input", "output", "trade"),
                    ieaVersion = "default", corrected = FALSE) {
 
   subtype <- match.arg(subtype)
@@ -36,20 +36,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
     },
     output = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs.csv",
-                                where = "mrcommons",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output_biomass = {
-      mapping <- toolGetMapping(type = "sectoral",
-                                name = "structuremappingIO_outputs.csv",
-                                where = "mrcommons",
-                                returnPathOnly = TRUE)
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output_reporting = {
       mapping <- toolGetMapping(type = "sectoral",
                                 name = "structuremappingIO_outputs.csv",
                                 where = "mrcommons",
@@ -75,12 +61,6 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
-
-  # filter items starting with x_, as they are not used in REMIND, but only for reporting
-  if (subtype == "output") {
-    ieamatch <- ieamatch %>%
-      filter(!grepl("^rep_", .data$REMINDitems_in))
-  }
 
   ieamatch <- ieamatch %>%
     select(tidyselect::all_of(c("iea_product", "iea_flows", "Weight", target))) %>%
@@ -118,16 +98,22 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       reminditems["JPN", 2005, "peoil.Mport"] <- reminditems["JPN", 2005, "peoil.Mport"] - 0.0245 / 31.71e-03
     }
 
-    if (subtype %in% c("output", "input", "output_reporting")) {
+    if (subtype %in% c("output", "input")) {
 
       # Split residential Biomass into traditional and modern biomass depending upon the income per capita ----
-
       # In order to split the REMIND technology biotr between biotr and biotrmod,
       # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
       edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings",
                             ieaVersion = ieaVersion, aggregate = FALSE)
-      feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
+
+      if (subtype == "input") {
+        # TODO: does this really have to come from subtype "output", could it be retrieved from "input"?
+        feBio <- calcOutput("IO", subtype = "output", corrected = FALSE, ieaVersion = ieaVersion, aggregate = FALSE)
+      } else {
+        feBio <- reminditems[, , c("sesobio.fesob.tdbiosob", "sesobio.fesoi.tdbiosoi")]
+      }
+
       shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
       shareBiotrad[is.na(shareBiotrad)] <- 0
       reminditems <- mbind(reminditems,
