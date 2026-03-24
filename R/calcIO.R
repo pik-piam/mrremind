@@ -21,56 +21,38 @@
 #' }
 #'
 #' @importFrom dplyr filter mutate
-calcIO <- function(subtype = c("input", "output", "output_biomass", "output_reporting", "trade"),
+calcIO <- function(subtype = c("input", "output", "trade"),
                    ieaVersion = "default", corrected = FALSE) {
   subtype <- match.arg(subtype)
 
   switch(subtype,
-    input = {
-      mapping <- toolGetMapping(
-        type = "sectoral",
-        name = "structuremappingIO_inputs.csv",
-        where = "mrremind",
-        returnPathOnly = TRUE
-      )
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output = {
-      mapping <- toolGetMapping(
-        type = "sectoral",
-        name = "structuremappingIO_outputs.csv",
-        where = "mrcommons",
-        returnPathOnly = TRUE
-      )
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output_biomass = {
-      mapping <- toolGetMapping(
-        type = "sectoral",
-        name = "structuremappingIO_outputs.csv",
-        where = "mrcommons",
-        returnPathOnly = TRUE
-      )
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    output_reporting = {
-      mapping <- toolGetMapping(
-        type = "sectoral",
-        name = "structuremappingIO_outputs.csv",
-        where = "mrcommons",
-        returnPathOnly = TRUE
-      )
-      target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
-    },
-    trade = {
-      mapping <- toolGetMapping(
-        type = "sectoral",
-        name = "structuremappingIO_trade.csv",
-        where = "mrremind",
-        returnPathOnly = TRUE
-      )
-      target <- c("REMINDitems_enty", "REMINDitems_trade")
-    }
+         input = {
+           mapping <- toolGetMapping(
+             type = "sectoral",
+             name = "structuremappingIO_inputs.csv",
+             where = "mrremind",
+             returnPathOnly = TRUE
+           )
+           target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
+         },
+         output = {
+           mapping <- toolGetMapping(
+             type = "sectoral",
+             name = "structuremappingIO_outputs.csv",
+             where = "mrcommons",
+             returnPathOnly = TRUE
+           )
+           target <- c("REMINDitems_in", "REMINDitems_out", "REMINDitems_tech")
+         },
+         trade = {
+           mapping <- toolGetMapping(
+             type = "sectoral",
+             name = "structuremappingIO_trade.csv",
+             where = "mrremind",
+             returnPathOnly = TRUE
+           )
+           target <- c("REMINDitems_enty", "REMINDitems_trade")
+         }
   )
 
   if (!(ieaVersion %in% c("default", "latest"))) {
@@ -87,25 +69,8 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
 
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
-  # add total buildings electricity demand (feelb = feelcb + feelhpb + feelrhb)
-  # TODO: integrate in some mapping?
-  if (subtype %in% c("output", "output_reporting")) {
-    ieamatch <- rbind(
-      ieamatch,
-      ieamatch %>%
-        filter(.data$REMINDitems_out %in% c("feelcb", "feelhpb", "feelrhb")) %>%
-        mutate(REMINDitems_out = "feelb")
-    )
-  }
-
-  # filter items starting with x_, as they are not used in REMIND, but only for reporting
-  if (subtype == "output") {
-    ieamatch <- ieamatch %>%
-      filter(!grepl("^rep_", .data$REMINDitems_in))
-  }
-
   # apply subsector mapping
-  if (subtype %in% c("output", "output_reporting", "output_biomass")) {
+  if (subtype == "output") {
     subsectorMapping <- toolGetMapping(
       type = "sectoral",
       name = "mappingIEA_EDGEsubsectors_to_ESOutput.csv",
@@ -161,19 +126,23 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       reminditems["JPN", 2005, "peoil.Mport"] <- reminditems["JPN", 2005, "peoil.Mport"] - 0.0245 / 31.71e-03
     }
 
-    if (subtype %in% c("output", "input", "output_reporting")) {
-      # Split residential Biomass into traditional and modern biomass depending upon the income per capita ----
 
+    if (subtype %in% c("output", "input")) {
+
+      # Split residential Biomass into traditional and modern biomass depending upon the income per capita ----
       # In order to split the REMIND technology biotr between biotr and biotrmod,
       # We use the traditional biomass split for EDGE buildings and divide by the total quantity of FE biomass
 
-      edgeBio <- calcOutput("IOEdgeBuildings",
-        subtype = "output_EDGE_buildings",
-        ieaVersion = ieaVersion, aggregate = FALSE
-      )
+      edgeBio <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings",
+                            ieaVersion = ieaVersion, aggregate = FALSE)
 
-      # TODO: can we avoid this recursive calculation?
-      feBio <- calcOutput("IO", subtype = "output_biomass", ieaVersion = ieaVersion, aggregate = FALSE)
+      if (subtype == "input") {
+        # TODO: does this really have to come from subtype "output", could it be retrieved from "input"?
+        feBio <- calcOutput("IO", subtype = "output", corrected = FALSE, ieaVersion = ieaVersion, aggregate = FALSE)
+      } else {
+        feBio <- reminditems[, , c("sesobio.fesob.tdbiosob", "sesobio.fesoi.tdbiosoi")]
+      }
+
       shareBiotrad <- edgeBio[, , "biotrad"] / (feBio[, , "sesobio.fesob.tdbiosob"] + feBio[, , "sesobio.fesoi.tdbiosoi"])
       shareBiotrad[is.na(shareBiotrad)] <- 0
       reminditems <- mbind(
@@ -189,13 +158,13 @@ calcIO <- function(subtype = c("input", "output", "output_biomass", "output_repo
       bio1st <- calcOutput("1stBioDem", subtype = "ethanol_oils", aggregate = FALSE) / 1000 # PJ to EJ
       reminditems[, , "pebios.seliqbio.bioeths"] <-
         time_interpolate(bio1st[, , "pebios"],
-          interpolated_year = getYears(reminditems),
-          integrate_interpolated_years = FALSE, extrapolation_type = "constant"
+                         interpolated_year = getYears(reminditems),
+                         integrate_interpolated_years = FALSE, extrapolation_type = "constant"
         )
       reminditems[, , "pebioil.seliqbio.biodiesel"] <-
         time_interpolate(bio1st[, , "pebioil"],
-          interpolated_year = getYears(reminditems),
-          integrate_interpolated_years = FALSE, extrapolation_type = "constant"
+                         interpolated_year = getYears(reminditems),
+                         integrate_interpolated_years = FALSE, extrapolation_type = "constant"
         )
 
       # re-calculating fepet and fedie final energy based on updated EDGE shares ----

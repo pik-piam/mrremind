@@ -128,9 +128,9 @@ fullREMIND <- function() {
   calcOutput("WaterConsCoef",                            round = 3,  file = "WaterConsCoef.cs4r", aggregate = FALSE)
   calcOutput("WaterWithCoef",                            round = 3,  file = "WaterWithCoef.cs4r", aggregate = FALSE)
   calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
-  calcOutput("IO", subtype = "output", corrected = TRUE, round = 8,  file = "f04_IO_output.cs4r")
-  calcOutput("IO", subtype = "input",  corrected = TRUE, round = 8,  file = "f04_IO_input.cs4r")
-  calcOutput("IO", subtype = "trade",  corrected = TRUE, round = 8,  file = "f_IO_trade.cs4r")
+  calcOutput("IoRemind", subtype = "output",             round = 8,  file = "f04_IO_output.cs4r")
+  calcOutput("IoRemind", subtype = "input",              round = 8,  file = "f04_IO_input.cs4r")
+  calcOutput("IoRemind", subtype = "trade",              round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
              # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
@@ -147,6 +147,7 @@ fullREMIND <- function() {
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
+  calcOutput("CapacityBounds", subtype = "pipeline",                   round = 8,  file = "p_CapacityBounds.cs4r")
   calcOutput("ExpertGuess", subtype = "ccsBounds",                     round = 8,  file = "p_boundCapCCSindicator.cs4r")
   calcOutput("PotentialGeologicalStorage",                             round = 8,  file = "f_geoStorPot.cs3r")
 
