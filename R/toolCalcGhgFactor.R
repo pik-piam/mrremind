@@ -244,9 +244,10 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   RelTargetRange[, "y2035", "maximum"] <- 1.3 # max. 130% of 2015 historical emissions for 2035 target
   RelTargetRange[, "y2035", "minimum"] <- 0 # min. 0 for 2035 target (no net negative emissions targets)
 
+
   # no maximum target for India and China because those countries are already REMIND regions so distortion of aggregation is not an issue
   # and they tend to have quite unambitious targets
-  RelTargetRange[ c("CHN", "IND"), ,"maximum"] <- NA
+  RelTargetRange[ intersect(getRegions(RelTargetRange), c("CHN", "IND") ), ,"maximum"] <- NA
 
 
   # 6. Calculate country-level absolute emissions targets ----
