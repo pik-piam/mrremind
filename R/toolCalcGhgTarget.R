@@ -3,7 +3,7 @@
 #' Calculate absolute emission targets depending on country-specific emissions target formulations.
 #' So far, the function mainly used to calculate NDC emissions targets.
 #'
-#' @author Aman Malik, Christoph Bertram, Oliver Richters, Sophie Fuchs, Rahel Mandaroux, Falk Benke
+#' @author Rahel Mandaroux, Felix Schreyer, Falk Benke
 #' @param x a magclass object with targets read in from NDC or NPI database
 #' @param subtype Emissions_YYYY_cond or Emissions_YYYY_uncond
 #' @param subset String, designating the GDP scenarios to use
@@ -221,36 +221,7 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   EmiLULUCFTargetYear <- IIASA_LULUCF[intersect(getRegions(EmiLULUCFTargetYear),getRegions(IIASA_LULUCF)),,]
 
 
-
-
-
-
-  # 5. Define plausible range of NDC emissions targets ----
-
-  # define range in which NDC emissions need to be relative to historical 2015 emissions
-  # This serves to sort out very unambitious or extremely ambitious targets of single countries
-  # that might distort the aggregated target on REMIND region level that is calculated later on
-  RelTargetRange <- new.magpie(cells_and_regions = getItems(reductionData, dim = 1),
-                               years = paste0("y",seq(2025,2100,5)),
-                               names = c("maximum","minimum"),
-                               fill = NA)
-
-
-
-  RelTargetRange[, "y2025", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
-  RelTargetRange[, "y2025", "minimum"] <- 0.5 # min. 50% of 2015 historical emissions for 2030 target
-  RelTargetRange[, "y2030", "maximum"] <- 1.5 # max. 150% of 2015 historical emissions for 2030 target
-  RelTargetRange[, "y2030", "minimum"] <- 0.3 # min. 30% of 2015 historical emissions for 2030 target
-  RelTargetRange[, "y2035", "maximum"] <- 1.3 # max. 130% of 2015 historical emissions for 2035 target
-  RelTargetRange[, "y2035", "minimum"] <- 0 # min. 0 for 2035 target (no net negative emissions targets)
-
-
-  # no maximum target for India and China because those countries are already REMIND regions so distortion of aggregation is not an issue
-  # and they tend to have quite unambitious targets
-  RelTargetRange[ intersect(getRegions(RelTargetRange), c("CHN", "IND") ), ,"maximum"] <- NA
-
-
-  # 6. Calculate country-level absolute emissions targets ----
+  # 5. Calculate country-level absolute emissions targets ----
 
 
   # initialize magclass object to store country-level NDC emissions targets
@@ -265,7 +236,7 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # for each country and year, calculate calculate absolute NDC emissions target in MtCO2eq/yr for total GHG emissions excl. bunkers and excl. LULUCF
   for (regi in getItems(reductionData, dim = 1)) {
     for (year in getYears(reductionData, as.integer = TRUE)) {
-      if (!is.na(reductionData[regi, year, conditional][1])) {
+      if (!is.na(reductionData[regi, year, conditional][1]))  {
         # determine target year to define NDC emissions goal for, round to nearest REMIND time step
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
         # calculate absolute NDC emissions targets per country
@@ -273,36 +244,6 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
         # calculate NDC target relative to 2015 historical emissions to perform some plausibility checks
         ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
-        TargetRelTo2015 <- AbsTarget[regi, y, ] / collapseNames(ghg2015)
-
-
-
-        # check whether targets in plausible range defined by RelTargetRange
-        for (i in getNames(TargetRelTo2015)) { # loop over SSPs
-          if (!is.na(TargetRelTo2015[,,i]) ) { # check whether target range defined
-            # check for too unambitious targets
-            if( !is.na(RelTargetRange[regi, y ,"maximum"])) {
-              if( TargetRelTo2015[, ,i] > RelTargetRange[regi, y ,"maximum"] ) {
-                AbsTarget[regi, y, i] <- NA
-                message("For ", regi, " in ", year, " in ", i,
-                        ", NDC emissions target level is very unambitious as it is higher than ", as.vector(RelTargetRange[regi, y ,"maximum"]),
-                        " times the 2015 emissions and is therefore dropped")
-              }
-            }
-
-            # check for too ambitious targets
-            if( !is.na(RelTargetRange[regi, y ,"minimum"]) ) {
-              if( TargetRelTo2015[,,i] < RelTargetRange[regi, y ,"minimum"] ) {
-                AbsTarget[regi, y, i] <- NA
-                message("For ", regi, " in ", year,
-                        ", NDC emissions target level is ambitious as it is lower than ", as.vector(RelTargetRange[regi, y ,"minimum"]),
-                        "times the 2015 emissions and is therefore dropped")
-              }
-            }
-          }
-        }
-
-
 
       }
     }
