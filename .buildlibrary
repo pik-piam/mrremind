@@ -1,4 +1,4 @@
-ValidationKey: '54274005'
+ValidationKey: '54436300'
 AcceptedWarnings:
 - Invalid URL: .*
 - 'Warning: package ''.*'' was built under R version'
