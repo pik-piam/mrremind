@@ -24,14 +24,13 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   ## - takes CEDS emissions for reference year (if not available, use latest year in CEDS emissions)
   ## - if the column contains "BAU", use the value in "BAU_or_Reference_emissions_in_MtCO2e" as reference
   .calcGhgTarget <- function(data) {
-
     regi <- getItems(data, dim = 1)
     year <- getYears(data)
 
     if ("LULUCF" %in% getNames(data) &&
-        data[regi, year, "LULUCF"] > 0 &&
-        # actually of target year
-        emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
+      data[regi, year, "LULUCF"] > 0 &&
+      # actually of target year
+      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0) {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
     } else {
       ghg <- emiRef[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"]
@@ -131,10 +130,10 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
 
     if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
-        # actually of target year
-        emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
-        # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
-        year %in% c("y2030", "y2035")) {
+      # actually of target year
+      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
+      # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
+      year %in% c("y2030", "y2035")) {
       # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
       ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
     }
@@ -153,20 +152,20 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   gdp <- calcOutput("GDP", scenario = subset, aggregate = FALSE)
 
   # define target types allowed
-  allowedType <- c("GHG-Absolute",
-                   "GHG",
-                   "GHG/GDP",
-                   "CO2/GDP",
-                   "GHG-fixed-total",
-                   "GHG/CAP")
+  allowedType <- c(
+    "GHG-Absolute",
+    "GHG",
+    "GHG/GDP",
+    "CO2/GDP",
+    "GHG-fixed-total",
+    "GHG/CAP"
+  )
 
   # define conditionality of target ("conditional" or "unconditional" NDC)
   conditional <- ifelse(length(grep("uncond", subtype)) == 0,
-                        "Conditional",
-                        "Unconditional")
-
-
-
+    "Conditional",
+    "Unconditional"
+  )
 
 
   # 3. Deal with Targets for EU countries ----
@@ -178,18 +177,19 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # apply EU emissions reduction goals uniformly to all countries in EUR region (EU28)
   # for which emissions goals are not defined in the input data
   EUR_NDC_countries <- regionmapping %>%
-    filter( .data$RegionCode == "EUR") %>%
-    pull( .data$CountryCode)
+    filter(.data$RegionCode == "EUR") %>%
+    pull(.data$CountryCode)
 
   # only include countries from EUR region that do not already have defined input data
   # That is, if UK emissions target is defined in input data, this is not overwritten
   # if it is not defined, then UK (country code "GBR") gets the same emissions reductions goal as EU
-  EUR_NDC_countries <- setdiff(EUR_NDC_countries,getRegions(reductionData))
+  EUR_NDC_countries <- setdiff(EUR_NDC_countries, getRegions(reductionData))
 
   reductionData <- add_columns(reductionData,
-                               addnm = EUR_NDC_countries,
-                               dim = 1,
-                               fill = NA)
+    addnm = EUR_NDC_countries,
+    dim = 1,
+    fill = NA
+  )
   reductionData[EUR_NDC_countries, , ] <- reductionData["EUR", , ]
   reductionData <- reductionData["EUR", , , invert = TRUE]
 
@@ -209,16 +209,20 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # get LULUCF conditional NDC scenario data from IISAA for 2035
   IIASA_LULUCF_2035 <- readSource("IIASALanduse", subtype = "forecast2035")
 
-  IIASA_LULUCF <- mbind(IIASA_LULUCF_2030,
-                        IIASA_LULUCF_2035)
+  IIASA_LULUCF <- mbind(
+    IIASA_LULUCF_2030,
+    IIASA_LULUCF_2035
+  )
 
-  EmiLULUCFTargetYear <- new.magpie(cells_and_regions = getRegions(reductionData),
-                                    years = getYears(reductionData),
-                                    names = c("Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"),
-                                    fill = 0)
+  EmiLULUCFTargetYear <- new.magpie(
+    cells_and_regions = getRegions(reductionData),
+    years = getYears(reductionData),
+    names = c("Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"),
+    fill = 0
+  )
 
   # LULUCF assumptions for target years 2030 and 2035, for all other target years zero LULUCF contributions assumed
-  EmiLULUCFTargetYear <- IIASA_LULUCF[intersect(getRegions(EmiLULUCFTargetYear),getRegions(IIASA_LULUCF)),,]
+  EmiLULUCFTargetYear <- IIASA_LULUCF[intersect(getRegions(EmiLULUCFTargetYear), getRegions(IIASA_LULUCF)), , ]
 
 
   # 5. Calculate country-level absolute emissions targets ----
@@ -236,7 +240,7 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # for each country and year, calculate calculate absolute NDC emissions target in MtCO2eq/yr for total GHG emissions excl. bunkers and excl. LULUCF
   for (regi in getItems(reductionData, dim = 1)) {
     for (year in getYears(reductionData, as.integer = TRUE)) {
-      if (!is.na(reductionData[regi, year, conditional][1]))  {
+      if (!is.na(reductionData[regi, year, conditional][1])) {
         # determine target year to define NDC emissions goal for, round to nearest REMIND time step
         y <- if (year < 2060) ceiling((year - 1) / 5) * 5 else ceiling((year - 2) / 10) * 10
         # calculate absolute NDC emissions targets per country
@@ -244,7 +248,6 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
         # calculate NDC target relative to 2015 historical emissions to perform some plausibility checks
         ghg2015 <- setYears(emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"], NULL)
-
       }
     }
   }
