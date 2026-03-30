@@ -6,7 +6,7 @@ calcFE <- function(ieaVersion = "default") {
 
   #------ READ-IN DATA----------------------------------------
 
-  data <- calcOutput("IO", subtype = "output_reporting", corrected = TRUE,
+  data <- calcOutput("IO", subtype = "output", corrected = TRUE,
                      ieaVersion = ieaVersion, aggregate = FALSE)
 
   mapping <- toolGetMapping(type = "sectoral",
@@ -287,7 +287,7 @@ calcFE <- function(ieaVersion = "default") {
   x <- mbind(x, setNames(x[, , "FE|Industry|Solids|Biomass (EJ/yr)"] +
                            x[, , "FE|Industry|Solids|Fossil (EJ/yr)"], "FE|Industry|Solids (EJ/yr)"))
    x <- mbind(x, setNames(x[, , "FE|Transport|Solids|Biomass (EJ/yr)"] +
-                           x[, , "FE|Transport|Solids|Fossil (EJ/yr)"], "FE|Transport|Solids (EJ/yr)"))                          
+                           x[, , "FE|Transport|Solids|Fossil (EJ/yr)"], "FE|Transport|Solids (EJ/yr)"))
 
   # add stationary
   x <- mbind(x, setNames(x[, , "FE|Buildings|Electricity (EJ/yr)"] +
