@@ -79,16 +79,6 @@ calcEmiTargetReference <- function() {
   tmp[is.na(tmp)] <- iiasaHist[is.na(tmp)]
   out[, getYears(tmp), getNames(tmp)] <- tmp[, , ]
 
-  out <- add_columns(out, addnm = c("y2030", "y2035"), dim = 2)
-
-  # add forecast for 2030 from IIASA
-  fc2030 <- readSource("IIASALanduse", subtype = "forecast2030")
-  out[, 2030, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- fc2030
-
-  # add forecast fo 2035 from PBL
-  fc2035 <- readSource("IIASALanduse", subtype = "forecast2035")
-  out[, 2035, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- fc2035
-
   # fill gaps for Emissions incl. LULUCF national accounting with IIASA data ----
 
   # after filling gaps in "Emi|GHG|Land-Use Change|LULUCF national accounting" with IIASA data,
