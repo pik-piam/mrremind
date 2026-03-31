@@ -64,7 +64,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
     FETransport <- collapseNames(mselect(FETransport, GDP_scenario = subset, DEM_scenario = subset, EDGE_scenario = "Mix1"))
 
     # buildings and industry FE demand from EDGE-B and EDGE-I (in EJ/yr)
-    FEBuild <- calcOutput("FeDemandBuildings", subtype = "FE", scenario = scenario, signif = 4)[, , subset] %>%
+    FEBuild <- calcOutput("FeDemandBuildings", subtype = "FE", scenario = scenario, signif = 4)[, , subset][, , "none"] %>%
       collapseNames()
     FEIndustry <- calcOutput("FeDemandIndustry", scenarios = scenario, signif = 4)[, , subset]
 
