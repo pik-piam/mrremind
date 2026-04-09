@@ -9,8 +9,6 @@
 
 calcFeDemandBuildings <- function(subtype, scenario) {
 
-  # TODO: can we drop 3.2 RCP Scenario?
-
   # end of history
   eoh <- 2025
 
