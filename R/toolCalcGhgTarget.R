@@ -176,6 +176,8 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
   # apply EU emissions reduction goals uniformly to all countries in EUR region (EU28)
   # for which emissions goals are not defined in the input data
+  # Hence, we here assume that each EU country reduces emissions by the same percentage relative to their
+  # historical 1990 emissions.
   EUR_NDC_countries <- regionmapping %>%
     filter(.data$RegionCode == "EUR") %>%
     pull(.data$CountryCode)

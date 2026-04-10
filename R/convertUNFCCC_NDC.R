@@ -3,8 +3,8 @@
 #' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
 #' For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
 #'
-#' Emission targets are represented by a GHG factor, which is the quotient of total GHG
-#' emissions in the target year divided by the CEDS GHG emissions in 2005.
+#' NDC Emissions targets on absolute level for total GHG emissions without bunkers and land-use change emissions are calculated
+#' from country-specific target formulation and land-use change emissions data
 #'
 #' @param x a magclass object to be converted
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or

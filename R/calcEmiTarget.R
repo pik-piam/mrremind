@@ -133,7 +133,7 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     # They are aggregated to region-level by simple summation of all countries with an NDC target:
     # absEmiTarget(region) = sum(country, absEmiTarget(country)), for all countries with NDC targets.
     # Note that this aggregation is done via the madrat routine run with the return() statement of this function.
-    # Weight is set to 0 to sum all country-level targets without weights.
+    # Weight is set to NULL to sum all country-level targets without weights.
 
     # absolute emissions target as aggregation variable
     x <- absEmiTarget
