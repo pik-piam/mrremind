@@ -226,6 +226,28 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # LULUCF assumptions for target years 2030 and 2035, for all other target years zero LULUCF contributions assumed
   EmiLULUCFTargetYear <- IIASA_LULUCF[intersect(getRegions(EmiLULUCFTargetYear), getRegions(IIASA_LULUCF)), , ]
 
+  # manually fix EU LULUCF data because of issues / missing data in IIASA source
+  EU_LULUCF_assumption <- new.magpie( cells_and_regions = "EUR",
+                                      years = c("y2030","y2035"))
+
+  # Assume 310 MtCO2/yr LULUCF sink in 2030, which is the official EU target.
+  # Assume that this sink is maintained in 2035.
+  # https://www.consilium.europa.eu/en/press/press-releases/2023/03/28/fit-for-55-package-council-adopts-regulations-on-effort-sharing-and-land-use-and-forestry-sector/
+  EU_LULUCF_assumption["EUR",c("y2030","y2035"),] <- -310
+
+  # disaggregate to EU countries by GDP
+  # disaggregation irrelevant as long as only EU-level NDC target is used
+  EUR_regionmapping_countries <- regionmapping %>%
+                                  filter(RegionCode =="EUR") %>%
+                                  pull(CountryCode)
+
+  EU_LULUCF <- toolAggregate(EU_LULUCF_assumption,
+                             rel = regionmapping %>%
+                               filter(RegionCode =="EUR"),
+                             weight = gdp[EUR_regionmapping_countries,"y2020","SSP2"])
+
+  EmiLULUCFTargetYear[EUR_regionmapping_countries,c("y2030","y2035"),] <- EU_LULUCF
+
 
   # 5. Calculate country-level absolute emissions targets ----
 
