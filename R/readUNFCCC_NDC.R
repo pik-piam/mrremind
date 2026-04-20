@@ -169,37 +169,47 @@ readUNFCCC_NDC <- function(subtype, subset) {
         c("BAU_or_Reference_emissions_in_MtCO2e", "LULUCF")
       ] <-
         list(0.944, "Excluding")
-      
+
       # China 2035 this target is including LULUCF emissions
       # peak year =2025
       # reference emissions in 2025:
       # from REMIND_2026_01_22 NPi2025;Emi|GHG|w/o Bunkers|w/o Land-Use Change in  2025= 16079
       # LULUCF in 2020= -1211.589 in 2030= -935 thus we assume -1000 in 2025
-      
+
       majorE[
         majorE$ISO_Code == "CHN" & majorE$Target_Year == 2035,
         c("Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e")
       ] <-
         list("BAU", 15500)
-      
+
       # Saudi Arabia still wrong it is 2019 instead of BAU
       majorE[
         majorE$ISO_Code == "SAU",
         "Reference_Year"
       ] <- "2019"
-      
+
+      # For Japan, use reference emissions from sheet for base year, not CEDS data.
+      # This includes the reference emissions that Japan actually reported to calculate its NDC targets.
+      majorE[
+        majorE$ISO_Code == "JPN",
+        "Reference_Year"
+      ] <- "-1"
+
+
+      # end: manual corrections
+
       PBL_majorE <- majorE
-      
+
       majorISO <- unique(PBL_majorE$ISO_Code)
-      
-      
+
+
       EUR_NDC_countries <- c(
         "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
         "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
         "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
         "FRO", "GIB", "GGY", "IMN", "HRV", "GBR"
       )
-      
+
       PBL_NDCs <- readxl::read_excel(
         PBLtargets,
         sheet = "NDC emission levels", skip = 2, progress = FALSE
