@@ -238,12 +238,12 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # disaggregate to EU countries by GDP
   # disaggregation irrelevant as long as only EU-level NDC target is used
   EUR_regionmapping_countries <- regionmapping %>%
-                                  filter(RegionCode =="EUR") %>%
-                                  pull(CountryCode)
+                                  filter(.data$RegionCode =="EUR") %>%
+                                  pull(.data$CountryCode)
 
   EU_LULUCF <- toolAggregate(EU_LULUCF_assumption,
                              rel = regionmapping %>%
-                               filter(RegionCode =="EUR"),
+                               filter(.data$RegionCode =="EUR"),
                              weight = gdp[EUR_regionmapping_countries,"y2020","SSP2"])
 
   EmiLULUCFTargetYear[EUR_regionmapping_countries,c("y2030","y2035"),] <- EU_LULUCF
