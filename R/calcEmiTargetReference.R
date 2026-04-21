@@ -63,6 +63,13 @@ calcEmiTargetReference <- function() {
   ghgUNFCCC["CHN", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 7249
   ghgUNFCCC["CHN", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -766
 
+  # Also take India 2005 reference year from UNFCCC GHG Profile
+  # this is the average of 2000 and 2010 emissions as 2005 was not reported
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 1593
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -237
+
+
+
   ghgUNFCCC <- add_columns(ghgUNFCCC, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3.1)
 
   ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
@@ -79,8 +86,8 @@ calcEmiTargetReference <- function() {
     getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
   )
 
-  # also take China from UNFCCC as data from GHG profile was manually entered above
-  unfcccReg <- c(unfcccReg,"CHN")
+  # also take China and India from UNFCCC as data from GHG profile was manually entered above
+  unfcccReg <- c(unfcccReg,"CHN","IND")
 
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
