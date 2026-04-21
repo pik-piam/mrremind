@@ -71,34 +71,45 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
       # 2. Type-GHG-relative: relative reduction of emissions. E.g., "9% reduction compared to base year or BAU"
     } else if (allowedType[data[regi, year, "Type"]] == "GHG") { # relative GHG change
 
-      if (data[regi, year, "Reference_Year"] == -1) { # -1 if BAU.
-        if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
-          # target * BAU emissions in sheet
-          ghgTarget <- (1 + data[regi, year, conditional]) *
-            data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
-        } else {
-          message("For ", regi, " in ", year, ", reference year is BAU, but BAU Emissions are missing.")
+      # 1. Prefer BAU or reference emissions from sheet if available
+      if (!is.na(data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"])) {
+
+        ghgTarget <- (1 + data[regi, year, conditional]) *
+          data[regi, year, "BAU_or_Reference_emissions_in_MtCO2e"]
+
+      } else {
+
+        # 2. Fall back to historical reference year if no reference emissions from sheet
+
+        # if target relative to BAU
+        if (data[regi, year, "Reference_Year"] == -1) {
+          message("For ", regi, " in ", year,
+                  ", BAU emissions missing and no valid reference year provided.")
           return(ghgTarget)
         }
-      } else { # then Reference_Year contains a year
-
-        # target * historic GHG emissions from CEDS (best fit)
 
         histYear <- min(
           data[regi, year, "Reference_Year"],
           max(getYears(ghg[, c(2030, 2035), , invert = TRUE], as.integer = TRUE))
         )
 
-        if (data[regi, year, "Reference_Year"] > max(getYears(ghg, as.integer = TRUE))) {
+        # if target relative to reference year
+        if (data[regi, year, "Reference_Year"] >
+            max(getYears(ghg, as.integer = TRUE))) {
+
           message(
-            "For ", regi, " in ", year, ", reference year ", data[regi, year, "Reference_Year"][1],
-            " is above ", max(getYears(ghg, as.integer = TRUE)), ", so we use the latter as reference year."
+            "For ", regi, " in ", year,
+            ", reference year ", data[regi, year, "Reference_Year"][1],
+            " is above ", max(getYears(ghg, as.integer = TRUE)),
+            ", so we use the latter as reference year."
           )
         }
 
         ghgTarget <- (1 + data[regi, year, conditional]) *
           setYears(ghg[regi, histYear, ], NULL)
       }
+
+
       # 3. Type CO2 or GHG /GDP: relative reduction of CO2 or GHG intensity
     } else if (allowedType[data[regi, year, "Type"]] %in% c("GHG/GDP", "CO2/GDP")) { # GHG/GDP or CO2/GDP
 
