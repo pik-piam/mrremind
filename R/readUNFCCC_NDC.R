@@ -192,7 +192,7 @@ readUNFCCC_NDC <- function(subtype, subset) {
       # https://www.climatechangenews.com/2026/03/25/india-sets-achievable-green-electricity-and-emissions-instensity-targets/
       majorE <- majorE %>%
         rbind(majorE %>%
-                filter(ISO_Code == "IND") %>%
+                filter(.data$ISO_Code == "IND") %>%
                 mutate(Target_Year = 2035,
                        `Unconditional Relative` = -0.47,
                        `Conditional Relative` = -0.47))
