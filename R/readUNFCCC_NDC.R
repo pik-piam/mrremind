@@ -188,13 +188,20 @@ readUNFCCC_NDC <- function(subtype, subset) {
         "Reference_Year"
       ] <- "2019"
 
-      # For Japan, use reference emissions from sheet for base year, not CEDS data.
-      # This includes the reference emissions that Japan actually reported to calculate its NDC targets.
-      majorE[
-        majorE$ISO_Code == "JPN",
-        "Reference_Year"
-      ] <- "-1"
+      # add latest India 2035 target annoucement of -47% GHG/GDP
+      # https://www.climatechangenews.com/2026/03/25/india-sets-achievable-green-electricity-and-emissions-instensity-targets/
+      majorE <- majorE %>%
+        rbind(majorE %>%
+                filter(ISO_Code == "IND") %>%
+                mutate(Target_Year = 2035,
+                       `Unconditional Relative` = -0.47,
+                       `Conditional Relative` = -0.47))
 
+      # interpret India emissions intensity targets as excl. LULUCF
+      majorE[
+        majorE$ISO_Code == "IND",
+        "LULUCF"
+      ] <- "Excluding"
 
       # end: manual corrections
 
