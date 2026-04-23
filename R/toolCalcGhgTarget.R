@@ -141,12 +141,12 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
 
     if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
-      # actually of target year
-      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
       # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
       year %in% c("y2030", "y2035")) {
-      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
+      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change if available
+      if (!is.na(EmiLULUCFTargetYear[regi, year, ])) {
+        ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
+      }
     }
 
 
