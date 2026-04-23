@@ -222,6 +222,10 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
   # get LULUCF conditional NDC scenario data from IISAA for 2035
   IIASA_LULUCF_2035 <- readSource("IIASALanduse", subtype = "forecast2035")
 
+  # as India 2035 target has been added manually but was not present in the PBL data that provides the LULUCF 2035 emissions values,
+  # assume 2030 LULUCF emissions also for 2035 (as done for other countries, too)
+  IIASA_LULUCF_2035["IND","y2035",] <- collapseNames(IIASA_LULUCF_2030["IND","y2030",])
+
   IIASA_LULUCF <- mbind(
     IIASA_LULUCF_2030,
     IIASA_LULUCF_2035
