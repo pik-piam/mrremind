@@ -141,12 +141,12 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
 
     if ("LULUCF" %in% getNames(data) && data[regi, year, "LULUCF"] > 0 &&
-      # actually of target year
-      emiRef[regi, 2015, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] > 0 &&
       # if ghgTarget could not be set due to an invalid target formulation in the source, skip this step
       year %in% c("y2030", "y2035")) {
-      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change
-      ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
+      # subtract LULUCF from target to consistently apply Emi|GHG|w/o Bunkers|w/o Land-Use Change if available
+      if (!is.na(EmiLULUCFTargetYear[regi, year, ])) {
+        ghgTarget <- ghgTarget[regi, year, ] - EmiLULUCFTargetYear[regi, year, ]
+      }
     }
 
 
@@ -221,6 +221,10 @@ toolCalcGhgTarget <- function(x, subtype, subset) {
 
   # get LULUCF conditional NDC scenario data from IISAA for 2035
   IIASA_LULUCF_2035 <- readSource("IIASALanduse", subtype = "forecast2035")
+
+  # as India 2035 target has been added manually but was not present in the PBL data that provides the LULUCF 2035 emissions values,
+  # assume 2030 LULUCF emissions also for 2035 (as done for other countries, too)
+  IIASA_LULUCF_2035["IND","y2035",] <- collapseNames(IIASA_LULUCF_2030["IND","y2030",])
 
   IIASA_LULUCF <- mbind(
     IIASA_LULUCF_2030,
