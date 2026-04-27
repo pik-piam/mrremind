@@ -11,7 +11,7 @@ calcEmiTarget(sources, subtype, scenario)
 
 \item{subtype}{must be one of
 \itemize{
-\item 'Ghgfactor': target factors (target year emissions normalized by 2015 emissions)
+\item 'EmiTargetAbs': absolute emissions targets in MtCO2eq/yr
 \item 'Ghgshare': share of emissions covered under NDC target per REMIND region
 }}
 
