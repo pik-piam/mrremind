@@ -8,6 +8,7 @@ cooking_coal_fe;coal
 cooking_elec_fe;elec
 cooking_natgas_fe;natgas
 cooking_petrol_fe;petrol
+ict_elec_fe;elec
 space_cooling_elec_fe;elec
 space_cooling_heat_fe;heat
 space_heating_biomod_fe;biomod
