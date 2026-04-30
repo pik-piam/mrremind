@@ -52,11 +52,32 @@ calcEmiTargetReference <- function() {
     "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
   )]
 
+
+  # manually add data from UNFCCC GHG Profiles for China
+  # https://di.unfccc.int/ghg_profile_non_annex1
+  # This is what China official reported as their reference year emissions for the 2030 NDC target.
+  # We use total GHG emissions here although the emissions intensity 2030 target only refers to CO2 emissions.
+  # This is because we lack a projection of non-CO2 emissions development until 2030.
+  # We therefore calculate the target based on GHG-intensity, not CO2-intensity.
+  # The difference should not be large but the target should be a bit more ambitious than the actual CO2-intensity target.
+  ghgUNFCCC["CHN", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 7249
+  ghgUNFCCC["CHN", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -766
+
+  # Also take India 2005 reference year from UNFCCC GHG Profile
+  # this is the average of 2000 and 2010 emissions as 2005 was not reported
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 1593
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -237
+
+
+
   ghgUNFCCC <- add_columns(ghgUNFCCC, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3.1)
 
   ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
     ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
     ghgUNFCCC[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+
+
 
   # merge CEDS and UNFCCCC values ----
 
@@ -64,6 +85,9 @@ calcEmiTargetReference <- function() {
     getItems(unfccc, dim = 1),
     getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
   )
+
+  # also take China and India from UNFCCC as data from GHG profile was manually entered above
+  unfcccReg <- c(unfcccReg,"CHN","IND")
 
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
