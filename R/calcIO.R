@@ -65,7 +65,7 @@ calcIO <- function(subtype = c("input", "output", "trade"),
   data <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5
 
   # apply IEA data postprocessing
-  data <- toolFixIEAdataForIndustrySubsectors(data, fixing = TRUE)
+  data <- toolFixIEAdataForIndustrySubsectors(data)
 
   ieamatch <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
 
