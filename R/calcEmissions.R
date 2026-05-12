@@ -604,6 +604,8 @@ calcEmissions <- function(datasource = "CEDS16") {
       )
     getNames(emi, dim = 1) <- map_pol[getNames(emi, dim = 1)]
 
+    emi <- magclass::complete_magpie(emi, fill = 0, dim = 3)
+
     # convert from Mt CO2eq/yr to Mt CH4/yr (AR5 GWP100)
     emi[, , "CH4"] <- emi[, , "CH4"] / 28
 
@@ -791,7 +793,9 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     ## ---- ClimateTrace ----
   } else if (datasource == "ClimateTrace") {
+
     emi <- readSource("ClimateTrace")
+
     # map variables
     mapping <- toolGetMapping("mappingClimateTrace.csv",
                               type = "sectoral",
@@ -804,6 +808,9 @@ calcEmissions <- function(datasource = "CEDS16") {
       to = "REMIND",
       partrel = TRUE
     )
+
+    # manually introduce missing dimension combinations for now
+    emi <- magclass::complete_magpie(emi, fill = 0, dim = 3)
 
     # rename pollutants
     map_pol <-

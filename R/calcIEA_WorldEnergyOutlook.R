@@ -101,6 +101,16 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   dataGlo[, , "Cap|Electricity|Coal (GW)"] <-
     dataGlo[, , "Cap|Electricity|Coal|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Coal|w/ CC (GW)"]
 
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "Cap|Electricity|Coal (GW)", dim = 3.2)
+  dataReg[, , "Cap|Electricity|Coal (GW)"][, , getNames(dataReg[, , "Cap|Electricity|Coal|w/o CC (GW)"], dim=1)] <-
+    dataReg[, , "Cap|Electricity|Coal|w/o CC (GW)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "Cap|Electricity|Gas (GW)", dim = 3.2)
+  dataReg[, , "Cap|Electricity|Gas (GW)"][, , getNames(dataReg[, , "Cap|Electricity|Gas|w/o CC (GW)"], dim=1)] <-
+    dataReg[, , "Cap|Electricity|Gas|w/o CC (GW)"]
+
   dataGlo <- add_columns(dataGlo, "Cap|Electricity|Solar (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Solar (GW)"] <-
     dataGlo[, , "Cap|Electricity|Solar|CSP (GW)"] + dataGlo[, , "Cap|Electricity|Solar|PV (GW)"]
@@ -116,6 +126,16 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   dataGlo <- add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
   dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
     dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
+  dataReg[, , "SE|Electricity|Coal (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"], dim=1)] <-
+    dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "SE|Electricity|Gas (EJ/yr)", dim = 3.2)
+  dataReg[, , "SE|Electricity|Gas (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"], dim=1)] <-
+    dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"]
 
   # includes values from the original source for global region instead of calculating
   # it as the sum of all countries (as countries are incomplete)

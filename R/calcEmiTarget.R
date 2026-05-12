@@ -2,17 +2,17 @@
 #'
 #' @description This function calculates the emissions targets for the NDC scenarios applied in the REMIND module 45_carbonprice realization NDC.
 #' It contains the following steps:
-# 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
+# 1. Read country-level NDC targets as absolute emissions targets in MtCO2eq/yr
 # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets
 # 3  Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
-# 4. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
+# 4. Aggregate country-level absolute emissions targets to region-level absolute emissions targets by summation ("EmiTargetAbs")
 # 5. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
 #' The parameters calculated in 3.) and 4.) are further used in the NDC realization to calculate the region-wide NDC emissions targets
 #' in terms of total GHG emissions excl. bunkers and excl. LULUCF sectors.
 #'
 #' @param sources database source, either 'UNFCCC_NDC' or 'NewClimate'
 #' @param subtype must be one of
-#' - 'Ghgfactor': target factors (target year emissions normalized by 2015 emissions)
+#' - 'EmiTargetAbs': absolute emissions targets in MtCO2eq/yr
 #' - 'Ghgshare': share of emissions covered under NDC target per REMIND region
 #' @param scenario GDP and pop scenarios. Passed to [mrdrivers::calcGDP()].
 #' turned off for inpudata generation
@@ -20,21 +20,21 @@
 #'
 calcEmiTarget <- function(sources, subtype, scenario) {
   # Main steps:
-  # 1. Read country-level NDC targets as target factors (target year emissions normalized by 2015 emissions)
+  # 1. Read country-level NDC targets as absolute emissions targets in MtCO2eq/yr
   # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets
   # 3  Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets (yet)
-  # 4. Aggregate country-level target factors to region-level target factors using 2015 emissions as weight ("Ghgfactor")
+  # 4. Aggregate country-level absolute emissions targets to region-level absolute emissions targets by summation ("EmiTargetAbs")
   # 5. Calculate share of emissions covered under NDC target per REMIND region ("Ghgshare")
 
 
-  # 1. Read country-level NDC targets as target factors ----
+  # 1. Read country-level NDC targets as absolute emissions targets ----
 
   # check whether valid sources and subtypes chosen
   if (!sources %in% c("UNFCCC_NDC", "NewClimate")) {
     stop("Unknown source ", sources, " for calcEmiTarget.")
   }
 
-  if (!subtype %in% c("Ghgshare", "Ghgfactor")) {
+  if (!subtype %in% c("Ghgshare", "EmiTargetAbs")) {
     stop("Unknown 'subtype' argument")
   }
 
@@ -76,80 +76,80 @@ calcEmiTarget <- function(sources, subtype, scenario) {
     unlist() %>%
     unique() %>%
     sort()
-  ghgFactor <- purrr::map(
+  absEmiTarget <- purrr::map(
     listGhgFactors,
     ~ add_columns(.x, listYears[!listYears %in% getItems(.x, dim = "year")], 2)
   )
-  ghgFactor <- mbind(ghgFactor)
-  ghgFactor <- ghgFactor[, sort(getYears(ghgFactor)), ]
+  absEmiTarget <- mbind(absEmiTarget)
+  absEmiTarget <- absEmiTarget[, sort(getYears(absEmiTarget)), ]
 
   # 2. Make country-specific assumptions about inclusions or adaptations of NDC targets ----
 
   # remove US targets from NDC targets as of 2024
   # since under the Trump Administration the US has started a process of withdrawing from the Paris Agreement
   if (sources == "UNFCCC_NDC") {
-  ghgFactor["USA",,c("2024_uncond","2024_cond","2025_uncond","2025_cond", "2026_cond")] <- NA }
+  absEmiTarget["USA",,c("2024_uncond","2024_cond","2025_uncond","2025_cond", "2026_cond")] <- NA }
 
 
   # 3. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
 
   # for NDC version 2026 that includes 2030 and 2035 targets
   # extrapolate 2030 targets to 2035 for countries which do not have 2035 targets yet
-  NDCVersionToExtrapolate <- grep("2026", getNames(ghgFactor, dim=1), value=T)
+  NDCVersionToExtrapolate <- grep("2026", getNames(absEmiTarget, dim=1), value=T)
 
   if (length(NDCVersionToExtrapolate) > 0) {
-    # if no 2035 targets available, add 2035 to target factor object
-    if (!2035 %in% getYears(ghgFactor, as.integer = TRUE)) {
-      ghgFactor <- add_columns(ghgFactor, addnm = "y2035", dim = 2, fill = NA)
+    # if no 2035 targets available, add 2035 to target object
+    if (!2035 %in% getYears(absEmiTarget, as.integer = TRUE)) {
+      absEmiTarget <- add_columns(absEmiTarget, addnm = "y2035", dim = 2, fill = NA)
     }
-    # create maglcass object for extrapolated NDC scenarios
-    ghgFactorExtrapolated <- ghgFactor[, , NDCVersionToExtrapolate ]
+    # create magclass object for extrapolated NDC scenarios
+    absEmiTargetExtrapolated <- absEmiTarget[, , NDCVersionToExtrapolate ]
+    
+    # Load 2015 reference emissions for extrapolation
+    ghgRef2015 <- setYears(ghg[, 2015, ], NULL)
+    
     # Explanation of the extrapolation:
-    # Note that the ghgFactor gives the remaining relative emissions relative to 2015.
-    # Hence, 1 - ghgFactor gives the relative emissions reductions relative to 2015.
-    # Dividing by 15 years gives annual average emissions reductions.
-    # Multiplying by 20 years applies these emissions reductions over the whole 20-year period from 2015 to 2035.
-    # These relative emissions reduction need to be converted to a target factor by subtracting them from one.
-    ExtrapolatedTarget <- setYears(1 - ((1 - ghgFactorExtrapolated[, 2030, ]) / 15 * 20), 2035)
+    # For absolute emissions targets, we extrapolate from 2030 to 2035 using linear extrapolation
+    # based on the annual reduction rate from 2015 to 2030:
+    # Annual reduction rate = (2030 target - 2015 emissions) / 15 years
+    # 2035 target = 2030 target + (annual reduction rate × 5 years)
+    annualReductionRate <- (absEmiTargetExtrapolated[, 2030, ] - ghgRef2015) / 15
+    ExtrapolatedTarget2035 <- setYears(absEmiTargetExtrapolated[, 2030, ] + annualReductionRate * 5, 2035)
+    
     # only replace extrapolated 2035 target if country has no 2035 yet
-    Target2035 <- ghgFactorExtrapolated[, 2035, ]
-    Target2035[is.na(Target2035)] <- ExtrapolatedTarget[is.na(Target2035)]
-    ghgFactorExtrapolated[, 2035, ] <- Target2035
-    # add extrapolated 2025 NDC versions to input data
-    ghgFactor <- mbind(ghgFactor[,,setdiff(getNames(ghgFactor, dim=1),NDCVersionToExtrapolate)], ghgFactorExtrapolated)
+    Target2035 <- absEmiTargetExtrapolated[, 2035, ]
+    Target2035[is.na(Target2035)] <- ExtrapolatedTarget2035[is.na(Target2035)]
+    absEmiTargetExtrapolated[, 2035, ] <- Target2035
+    # add extrapolated 2026 NDC versions to input data
+    absEmiTarget <- mbind(absEmiTarget[,,setdiff(getNames(absEmiTarget, dim=1),NDCVersionToExtrapolate)], absEmiTargetExtrapolated)
   }
 
 
-  # 4. Aggregate country-level target factors to region-level target factors ----
+  # 4. Aggregate country-level absolute emissions targets to region-level absolute emissions targets ----
 
-  if (subtype == "Ghgfactor") {
-    # Explanation: The target factor ("ghgFactor") represents NDC target emissions normalized by 2015 emissions on country-level. The emissions
-    # cover total GHG emissions excl. land-use change and excl. bunker emissions. They are aggregated to region-level
-    # by a weighted sum of all countries with an NDC target where the weights are the 2015 emissions of the country
-    # normalized to the 2015 emissions of the region:
-    # targetFactor(region) = sum(country, emi2015(country) / emi2015(region) * targetFactor(country) ), for all countries with NDC targets.
-    # Note that his aggregation is done via the madrat routine run with the return() statement of this function.
+  if (subtype == "EmiTargetAbs") {
+    # Explanation: The absolute emissions target ("absEmiTarget") represents NDC target emissions in MtCO2eq/yr on country-level.
+    # The emissions cover total GHG emissions excl. land-use change and excl. bunker emissions.
+    # They are aggregated to region-level by simple summation of all countries with an NDC target:
+    # absEmiTarget(region) = sum(country, absEmiTarget(country)), for all countries with NDC targets.
+    # Note that this aggregation is done via the madrat routine run with the return() statement of this function.
+    # Weight is set to NULL to sum all country-level targets without weights.
 
-    # target factor as aggregation variable
-    x <- ghgFactor
+    # absolute emissions target as aggregation variable
+    x <- absEmiTarget
+    # set countries without NDC targets to 0
+    # their contribution to the regional NDC target is taken care of
+    # in the GAMS code of "./modules/45_carbonprice/NDC/." by adding their share of emissions from the NPI run
     x[is.na(x)] <- 0
 
-    # create 1/0 mask encoding whether a target year and country
-    # has a target represented by a GHG factor
-    mask <- 1 * !is.na(ghgFactor)
-
-    # GHG emission as weight, but only for countries and years with a GHG factor
-    weight <- setNames(setYears(ghg[, 2015, ], NULL), NULL) * mask
 
 
     return(list(
       x = x,
-      weight = weight,
-      unit = "1",
-      description = glue::glue("Multiplier for target year emissions vs 2015 emissions, \\
-                as weighted average for all countries with NDC target in each region per target year."),
-      # do not throw warning for zero weights, as they only occur when there are no values to be aggregated
-      aggregationArguments = list(zeroWeight = "allow")
+      weight = NULL,
+      unit = "MtCO2eq/yr",
+      description = glue::glue("Absolute emissions targets in MtCO2eq/yr, \\
+                summed for all countries with NDC target in each region per target year.")
     ))
   }
 
@@ -168,15 +168,15 @@ calcEmiTarget <- function(sources, subtype, scenario) {
 
 
 
-    # aggregation variable: 0/1 matrix with 1s indicating countries with target represented as GHG factor
-    x <- 1 * (!is.na(ghgFactor))
+    # aggregation variable: 0/1 matrix with 1s indicating countries with target represented as absolute emissions target
+    x <- 1 * (!is.na(absEmiTarget))
 
     # get GDP for extrapolating target year emissions needed for aggregation weights
     gdp <- calcOutput("GDP", scenario = scenario, aggregate = FALSE)
 
     # estimate target year emissions by multiplying 2015 emissions with average GDP growth rate
     # use these target year emissions as aggregation weight
-    weight <- new.magpie(getRegions(ghgFactor), getYears(ghgFactor), getNames(ghgFactor), fill = NA)
+    weight <- new.magpie(getRegions(absEmiTarget), getYears(absEmiTarget), getNames(absEmiTarget), fill = NA)
     weight[, , ] <- setYears(ghg[, 2015, ] / gdp[, 2015, ], NULL) * gdp[, getYears(weight), ]
 
     return(list(

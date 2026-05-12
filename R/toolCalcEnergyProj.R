@@ -55,6 +55,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
 
   # function to calculate FE trend on level of REMIND regions based on EDGE data
   .computeFeTrend <- function(subtype, subset, years) {
+
     # get FE demand projections per REMIND region for transport, buildings and industry for SSP2
     # transport FE demand from EDGE-T (in TWa/yr)
     FETransport <- calcOutput("EDGETransport", subtype = "f35_demByTech")
@@ -98,7 +99,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
     # get regionmapping
     mapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
     # assign REMIND FE region trend to all countries within this region
-    FeTrend <- toolAggregate(FeTrend, rel = mapping)
+    FeTrend <- toolAggregate(FeTrend, rel = mapping, from = "CountryCode", to = "RegionCode")
 
     return(FeTrend)
   }
@@ -112,7 +113,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
     # get regionmapping
     mapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", where = "mappingfolder")
     # assign REMIND GDP trend to all countries within this region to be able to subtract region GDP trend from country GDP trend
-    GDP_region <- toolAggregate(GDP_region, rel = mapping)
+    GDP_region <- toolAggregate(GDP_region, rel = mapping, from = "CountryCode", to = "RegionCode")
     # calculate difference between country GDP trend and region GDP trend of target year with respect to 2020
     GDPTrendDiff <- collapseDim(GDP_country[, years, ] / GDP_country[, "y2020", ] - GDP_region[, years, ] / GDP_region[, "y2020", ])
     # check whether GDP trend difference is within MaxThreshold,

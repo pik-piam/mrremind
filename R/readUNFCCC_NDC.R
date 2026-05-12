@@ -169,37 +169,57 @@ readUNFCCC_NDC <- function(subtype, subset) {
         c("BAU_or_Reference_emissions_in_MtCO2e", "LULUCF")
       ] <-
         list(0.944, "Excluding")
-      
-      # China 2035 this target is including LULUCF emissions
-      # peak year =2025
-      # reference emissions in 2025:
-      # from REMIND_2026_01_22 NPi2025;Emi|GHG|w/o Bunkers|w/o Land-Use Change in  2025= 16079
-      # LULUCF in 2020= -1211.589 in 2030= -935 thus we assume -1000 in 2025
-      
+
+      # Assume that China 2035 target is including LULUCF emissions
+      # Moreover, the target calculation requires some assumption about the peaking year emissions
+      # For this, check peaking year emissions in NPi2025 run from REMIND v3.6 master
+      # (/p/projects/remind/runs/REMIND_master_v3p6p0_2026_03_27/remind/output/SSP2-NPi2025_2026-03-27_18.02.18)
+      # Here, China emissions excl. LULUCF (Emi|GHG|w/o Bunkers|w/o Land-Use Change) peak in 2025 at 16439 MtCO2eq/yr.
+      # Furthermore, assume -1 GtCO2/yr LULUCF emissions in 2025
+      # (IIASA NDC scenario had -1.2 Gt in 2020, -935 in 2030)
+      # This gives about 15500 MtCo2eq/yr total GHG incl. LULUCF reference emissions for the China peaking year.
+
       majorE[
         majorE$ISO_Code == "CHN" & majorE$Target_Year == 2035,
-        c("Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e")
+        c("Reference_Year", "BAU_or_Reference_emissions_in_MtCO2e","LULUCF")
       ] <-
-        list("BAU", 15500)
-      
+        list("BAU", 15500,"Including")
+
       # Saudi Arabia still wrong it is 2019 instead of BAU
       majorE[
         majorE$ISO_Code == "SAU",
         "Reference_Year"
       ] <- "2019"
-      
+
+      # add latest India 2035 target annoucement of -47% GHG/GDP
+      # https://www.climatechangenews.com/2026/03/25/india-sets-achievable-green-electricity-and-emissions-instensity-targets/
+      majorE <- majorE %>%
+        rbind(majorE %>%
+                filter(.data$ISO_Code == "IND") %>%
+                mutate(Target_Year = 2035,
+                       `Unconditional Relative` = -0.47,
+                       `Conditional Relative` = -0.47))
+
+      # interpret India emissions intensity targets as excl. LULUCF
+      majorE[
+        majorE$ISO_Code == "IND",
+        "LULUCF"
+      ] <- "Excluding"
+
+      # end: manual corrections
+
       PBL_majorE <- majorE
-      
+
       majorISO <- unique(PBL_majorE$ISO_Code)
-      
-      
+
+
       EUR_NDC_countries <- c(
         "POL", "CZE", "ROU", "BGR", "HUN", "SVK", "LTU", "EST", "SVN",
         "LVA", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "GRC", "AUT",
         "PRT", "FIN", "SWE", "IRL", "DNK", "LUX", "CYP", "MLT", "JEY",
         "FRO", "GIB", "GGY", "IMN", "HRV", "GBR"
       )
-      
+
       PBL_NDCs <- readxl::read_excel(
         PBLtargets,
         sheet = "NDC emission levels", skip = 2, progress = FALSE
