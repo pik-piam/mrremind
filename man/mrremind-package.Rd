@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Lavinia Baumstark \email{lavinia@pik-potsdam.de}
   \item Renato Rodrigues
   \item Antoine Levesque
   \item Julian Oeser
