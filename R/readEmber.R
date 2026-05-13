@@ -10,7 +10,9 @@
 #'
 readEmber <- function() {
   filename <- "yearly_full_release_long_format.csv"
-  df <- read.csv(file.path("2025", filename))
+  df <- read.csv(file.path("2026", filename))
+
+  df <- df[df$Year != 2025, ]  # remove once there is data for 2025
 
   # filter out aggregated regions by only choosing rows that don't have a blank country.code
   df <- df[df$ISO.3.code != "", ]
