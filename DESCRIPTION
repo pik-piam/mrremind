@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.265.5
-Date: 2026-05-13
+Version: 0.265.6
+Date: 2026-05-19
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -45,7 +45,7 @@ Depends:
     GDPuc (>= 1.3.0),
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
-    mrcommons (>= 1.44.12),
+    mrcommonsremind (>= 0.1.0),
     mrdrivers (>= 6.0.0),
     mrindustry (>= 0.18.5),
 Imports:
