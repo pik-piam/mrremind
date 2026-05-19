@@ -8,7 +8,7 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   getItems(dataGlo, dim = 1) <- "GLO"
   dataReg <- readSource("IEA_WorldEnergyOutlook", convert = TRUE)
 
-  .mapToRemind <- function(data) {
+  .mapToRemind <- function(data, map) {
 
     # copy over Historical for 2010 - 2024 to other scenarios
     for (scen in getNames(data, dim = 1)) {
@@ -26,11 +26,6 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
     getNames(data, dim = 1) <- paste0("IEA WEO 2025 ", scens[getNames(data, dim = 1)])
     getSets(data)[3] <- "model"
-
-    map <- toolGetMapping("Mapping_IEA_WEO_complete.csv", type = "reportingVariables", where = "mrremind") %>%
-      filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
-      mutate("conversion" = as.numeric(.data$Conversion)) %>%
-      select("from" = "Variable", "to" = "REMIND", "conversion")
 
     out <- NULL
 
@@ -76,22 +71,33 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
     return(out)
   }
 
-  dataGlo <- .mapToRemind(dataGlo)
-  dataReg <- .mapToRemind(dataReg)
+  map <- toolGetMapping("Mapping_IEA_WEO_complete.csv", type = "reportingVariables", where = "mrremind") %>%
+    filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
+    mutate("conversion" = as.numeric(.data$Conversion))
 
-  .calcAdditionalVars <- function(x) {
-    # correct PE|Nuclear and PE
-    # PE Nuclear is usually reported in direct equivalents, values from IEA are
-    # roughly 3 times higher than the REMIND ones
-    x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] - x[, , "PE|Nuclear (EJ/yr)"]
-    x[, , "PE|Nuclear (EJ/yr)"] <- x[, , "PE|Nuclear (EJ/yr)"] / 3
-    x[, , "PE (EJ/yr)"] <- x[, , "PE (EJ/yr)"] + x[, , "PE|Nuclear (EJ/yr)"]
+  mapReg <- map %>%
+    mutate("REMIND" = ifelse(.data$REMIND_REGIONAL == "", .data$REMIND, .data$REMIND_REGIONAL)) %>%
+    select("from" = "Variable", "to" = "REMIND", "conversion")
 
-    return(x)
-  }
+  mapGlo <- map %>%
+    select("from" = "Variable", "to" = "REMIND", "conversion")
 
-  dataGlo <- .calcAdditionalVars(dataGlo)
-  dataReg <- .calcAdditionalVars(dataReg)
+
+  dataGlo <- .mapToRemind(dataGlo, mapGlo)
+  dataReg <- .mapToRemind(dataReg, mapReg)
+
+
+
+  # correct PE|Nuclear and PE
+  # PE Nuclear is usually reported in direct equivalents, values from IEA are
+  # roughly 3 times higher than the REMIND ones
+  dataGlo[, , "PE (EJ/yr)"] <- dataGlo[, , "PE (EJ/yr)"] - dataGlo[, , "PE|Nuclear (EJ/yr)"]
+  dataGlo[, , "PE|Nuclear (EJ/yr)"] <- dataGlo[, , "PE|Nuclear (EJ/yr)"] / 3
+  dataGlo[, , "PE (EJ/yr)"] <- dataGlo[, , "PE (EJ/yr)"] + dataGlo[, , "PE|Nuclear (EJ/yr)"]
+
+  dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] - dataReg[, , "PE|Nuclear (EJ/yr)"]
+  dataReg[, , "PE|Nuclear (EJ/yr)"] <- dataReg[, , "PE|Nuclear (EJ/yr)"] / 3
+  dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] + dataReg[, , "PE|Nuclear (EJ/yr)"]
 
   dataGlo <- add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
