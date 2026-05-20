@@ -2,7 +2,7 @@
 #'
 #' @author Falk Benke
 #'
-calcIEA_WorldEnergyOutlook <- function() { # nolint
+calcIeaWorldEnergyOutlook <- function() {
 
   dataGlo <- readSource("IEA_WorldEnergyOutlook", convert = FALSE)["World", , ]
   getItems(dataGlo, dim = 1) <- "GLO"
@@ -34,6 +34,10 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
 
       tmp <- data[, , scen]
       tmp <- collapseDim(tmp, dim = 3.1)
+
+      # remove NA Variables
+      remove <- magpply(tmp, function(y) all(is.na(y)), MARGIN = 3)
+      tmp <- tmp[, , !remove]
 
       if (!any(unique(map$from) %in% getNames(tmp))){
         next
@@ -82,11 +86,8 @@ calcIEA_WorldEnergyOutlook <- function() { # nolint
   mapGlo <- map %>%
     select("from" = "Variable", "to" = "REMIND", "conversion")
 
-
   dataGlo <- .mapToRemind(dataGlo, mapGlo)
   dataReg <- .mapToRemind(dataReg, mapReg)
-
-
 
   # correct PE|Nuclear and PE
   # PE Nuclear is usually reported in direct equivalents, values from IEA are
