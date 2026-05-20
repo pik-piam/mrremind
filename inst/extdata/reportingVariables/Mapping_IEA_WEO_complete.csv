@@ -73,9 +73,9 @@ Energy-Biomethane-Industry (EJ);;;;
 Energy-Biomethane-Total final consumption (EJ);;;;
 Energy-Biomethane-Transport (EJ);;;;
 Energy-Coal-Buildings (EJ);FE|Buildings|Solids|Fossil (EJ/yr);;1;
-Energy-Coal-Net exports (Million tonnes of coal equivalent);;;;
-Energy-Coal-Net imports (Million tonnes of coal equivalent);;;;
-Energy-Coal-Net trade (Million tonnes of coal equivalent);;;;
+Energy-Coal-Net exports (Million tonnes of coal equivalent);Trade|Exports|Coal (EJ/yr);;0.0293;
+Energy-Coal-Net imports (Million tonnes of coal equivalent);Trade|Imports|Coal (EJ/yr);;0.0293;
+Energy-Coal-Net trade (Million tonnes of coal equivalent);Trade|Coal (EJ/yr);;0.0293;
 Energy-Coal-Power sector inputs (EJ);PE|Coal|Electricity (EJ/yr);;;
 Energy-Coal-Production (Million tonnes of coal equivalent);;;;
 Energy-Coal-Total energy supply (EJ);PE|Coal (EJ/yr);;1;
@@ -84,7 +84,7 @@ Energy-Coal-Total final consumption (EJ);FE|Solids|Fossil (EJ/yr);;1;
 Energy-Coal: unabated-Electricity generation (TWh);SE|Electricity|Coal|w/o CC (EJ/yr);;0.0036;
 Energy-Coal: unabated-Industry (EJ);FE|Industry|Solids|Fossil (EJ/yr);;1;"Strictly speaking this is only coal not used in CC in industry (""unabated coal""). REMIND FE variable includes all coal. "
 Energy-Coal: unabated-Power sector inputs (EJ);PE|Coal|Electricity|w/o CC (EJ/yr);;1;
-Energy-Coal: unabated-Total energy supply (EJ);PE|Coal (EJ/yr);;1;"Strictly speaking this is only coal not used in carbon capture plants (""unabated coal""). REMIND PE variable includes all coal. "
+Energy-Coal: unabated-Total energy supply (EJ);;;;
 Energy-Coal: with CCUS-Electricity generation (TWh);SE|Electricity|Coal|w/ CC (EJ/yr);;0.0036;
 Energy-Coal: with CCUS-Industry (EJ);;;;
 Energy-Coal: with CCUS-Power sector inputs (EJ);PE|Coal|Electricity|w/ CC (EJ/yr);;1;
@@ -151,36 +151,42 @@ Energy-LPG and ethane-Demand (Million barrels per day);;;;
 Energy-Marine-Electricity generation (TWh);;;;
 Energy-Modern bioenergy and renewable waste-Electricity generation (TWh);SE|Electricity|Biomass (EJ/yr);;0.0036;
 Energy-Modern bioenergy and renewable waste-Power sector inputs (EJ);PE|Biomass|Electricity (EJ/yr);;1;
-Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;
+Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in regional IEA data
+Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in regional IEA data
 Energy-Modern bioenergy: gas-Total energy supply (EJ);FE|Gases|Biomass (EJ/yr);;1;
+Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in global IEA data
+Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in global IEA data
 Energy-Modern bioenergy: liquid-Buildings (EJ);FE|Buildings|Liquids|Biomass (EJ/yr);;1;
-Energy-Modern bioenergy: liquid-Total energy supply (EJ);;;;
+Energy-Modern bioenergy: liquid-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in global IEA data
+Energy-Modern bioenergy: liquid-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in global IEA data
 Energy-Modern bioenergy: liquid-Total final consumption (EJ);FE|Liquids|Biomass (EJ/yr);FE|w/o Bunkers|Liquids|Biomass (EJ/yr);1;
 Energy-Modern bioenergy: liquid-Transport (EJ);FE|Transport|Liquids|Biomass (EJ/yr);FE|Transport|w/o Bunkers|Liquids|Biomass (EJ/yr);1;
 Energy-Modern bioenergy: solid-Buildings (EJ);FE|Buildings|Solids|Biomass|Modern (EJ/yr);;1;
 Energy-Modern bioenergy: solid-Industry (EJ);FE|Industry|Solids|Biomass|Modern (EJ/yr);;1;
 Energy-Modern bioenergy: solid-Total energy supply (EJ);FE|Solids|Biomass|Modern (EJ/yr);;1;
+Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in global IEA data
+Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in global IEA data
 Energy-Naphtha-Demand (Million barrels per day);;;;
 Energy-Natural gas liquids-Production (Million barrels per day);;;;
 Energy-Natural gas-Buildings (EJ);;;;
-Energy-Natural gas-Net exports (Billion cubic metres);;;;
-Energy-Natural gas-Net imports (Billion cubic metres);;;;
-Energy-Natural gas-Net trade (Billion cubic metres);;;;
+Energy-Natural gas-Net exports (Billion cubic metres);Trade|Exports|Gas (EJ/yr);;36;
+Energy-Natural gas-Net imports (Billion cubic metres);Trade|Imports|Gas (EJ/yr);;36;
+Energy-Natural gas-Net trade (Billion cubic metres);Trade|Gas (EJ/yr);;36;
 Energy-Natural gas-Power sector inputs (EJ);PE|Gas|Electricity (EJ/yr);;1;
 Energy-Natural gas-Price (USD per MBtu (2024, MER));Price|Primary Energy|Gas (US$2017/GJ);;0.74;convert from US$2024 / Mbtu to US$2017/GJ, multiplying by 0.78 (inflation) and 0.95 (Mbtu to GJ)
 Energy-Natural gas-Production (Billion cubic metres);;;;
 Energy-Natural gas-Total energy supply (Billion cubic metres);;;;
 Energy-Natural gas-Total energy supply (EJ);PE|Gas (EJ/yr);;1;
-Energy-Natural gas-Total final consumption (EJ);FE|Gases|Fossil|Natural Gas (EJ/yr);;;
+Energy-Natural gas-Total final consumption (EJ);FE|Gases|Fossil (EJ/yr);;1;
 Energy-Natural gas-Transport (EJ);;;;
 Energy-Natural gas: unabated-Electricity generation (TWh);SE|Electricity|Gas|w/o CC (EJ/yr);;0.0036;
 Energy-Natural gas: unabated-Industry (EJ);FE|Industry|Gases|Fossil|Natural Gas (EJ/yr);;1;
-Energy-Natural gas: unabated-Power sector inputs (EJ);PE|Gas|Electricity (EJ/yr);;1;
-Energy-Natural gas: unabated-Total energy supply (EJ);PE|Gas (EJ/yr);;1;
+Energy-Natural gas: unabated-Power sector inputs (EJ);PE|Gas|Electricity|w/o CC (EJ/yr);;1;
+Energy-Natural gas: unabated-Total energy supply (EJ);;;;
 Energy-Natural gas: with CCUS-Electricity generation (TWh);SE|Electricity|Gas|w/ CC (EJ/yr);;0.0036;
 Energy-Natural gas: with CCUS-Industry (EJ);;;;
 Energy-Natural gas: with CCUS-Power sector inputs (EJ);PE|Gas|Electricity|w/ CC (EJ/yr);;1;
-Energy-Natural gas: with CCUS-Total energy supply (EJ);PE|Gas (EJ/yr);;1;
+Energy-Natural gas: with CCUS-Total energy supply (EJ);;;;
 Energy-Nuclear-Electricity generation (TWh);SE|Electricity|Nuclear (EJ/yr);;0.0036;
 Energy-Nuclear-Power sector inputs (EJ);;;;
 Energy-Nuclear-Total energy supply (EJ);PE|Nuclear (EJ/yr);;1;
@@ -189,11 +195,11 @@ Energy-Oil-Buildings (EJ);FE|Buildings|Liquids|Fossil|Oil (EJ/yr);;1;
 Energy-Oil-Demand (Million barrels per day);;;;
 Energy-Oil-Electricity generation (TWh);SE|Electricity|Oil (EJ/yr);;0.0036;
 Energy-Oil-Industry (EJ);FE|Industry|Liquids|Fossil|Oil (EJ/yr);;1;
-Energy-Oil-Net exports (Million barrels per day);;;;
-Energy-Oil-Net imports (Million barrels per day);;;;
+Energy-Oil-Net exports (Million barrels per day);Trade|Exports|Oil (EJ/yr);;2.23;
+Energy-Oil-Net imports (Million barrels per day);Trade|Imports|Oil (EJ/yr);;2.23;
 Energy-Oil-Power sector inputs (EJ);PE|Oil|Electricity (EJ/yr);;1;
 Energy-Oil-Price (USD per barrel (2024, MER));Price|Primary Energy|Oil (US$2017/GJ);;0.13;convert from US$2024 /barrel to US$2017/GJ, multiplying by 0.78 (inflation) and 0.17 (barrel to GJ)
-Energy-Oil-Processing gains (Million barrels per day);;;;
+Energy-Oil-Processing gains (Million barrels per day);Trade|Oil (EJ/yr);;2.23;
 Energy-Oil-Production (Million barrels per day);;;;
 Energy-Oil-Supply (Million barrels per day);;;;
 Energy-Oil-Total energy supply (EJ);PE|Oil (EJ/yr);PE|w/o Bunkers|Oil (EJ/yr);1;
@@ -255,8 +261,8 @@ Energy-Total-Total energy supply (EJ);PE (EJ/yr);PE|w/o Bunkers (EJ/yr);1;
 Energy-Total-Total final consumption (EJ);FE (EJ/yr);FE|w/o Bunkers (EJ/yr);1;
 Energy-Total-Transport (EJ);FE|Transport (EJ/yr);FE|Transport|w/o Bunkers (EJ/yr);1;
 Energy-Traditional use of biomass-Residential (EJ);FE|Buildings|Solids|Biomass|Traditional (EJ/yr);;1;
-Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;
 Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass|Traditional (EJ/yr);;1;
+Energy-Traditional use of biomass-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;
 Energy-Wind-Electricity generation (TWh);SE|Electricity|Wind (EJ/yr);;0.0036;
 Energy-Wind-Power sector inputs (EJ);;;;
 Energy-Wind-Total energy supply (EJ);PE|Wind (EJ/yr);;1;
