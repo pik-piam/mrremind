@@ -3,6 +3,7 @@
 export(fullREMIND)
 export(fullTHRESHOLDS)
 export(toolAggregateTimeSteps)
+export(toolAggregateWithoutGlobal)
 export(toolBiomassSupplyAggregate)
 export(toolCubicFunctionAggregate)
 export(toolCubicFunctionDisaggregate)
