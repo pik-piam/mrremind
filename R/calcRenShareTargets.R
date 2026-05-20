@@ -27,12 +27,14 @@ calcRenShareTargets <- function(scenario) {
 
   # The preparation makes the following steps:
   # 1. get data and select target types to be considered
-  # 2. get historic renewable shares and totals
-  # 3. extrapolate targets to REMIND time steps
-  # 4. make assumptions about target development over time for countries with and without target
-  # 5. select which REMIND regions get targets and determine their respective target year
-  # 6. get total demand in target year to be used as aggregation weights
-  # 7. hand-over to madrat for aggregation via weighted sum
+  # 2. make country-specific assumptions deviating from PBL input
+  # 3. get historic renewable shares and totals
+  # 4. extrapolate targets to REMIND time steps
+  # 5. make assumptions about target development over time for countries with and without target
+  # 6. select which REMIND regions get targets and determine their respective target year
+  # 7. format renewable share target data to be used as input data for REMIND
+  # 8. get total demand in target year to be used as aggregation weights
+  # 9. hand-over to madrat for aggregation via weighted sum
 
   ### define functions ----
 
@@ -281,19 +283,56 @@ calcRenShareTargets <- function(scenario) {
   x <- collapseDim(x[, , "Min"])
 
 
-  ## 2. get historic renewable shares and totals ----
+  ## 2. make country-specific assumptions deviating from PBL input ----
+
+  # Update EU27 FE renewable share default for 2030 (official value), PBL/NewClimate data contain outdated 45% instead of 42.5%
+  # https://energy.ec.europa.eu/topics/renewable-energy/renewable-energy-directive-targets-and-rules/renewable-energy-targets_en
+  eu27Mapping <- toolGetMapping("extramapping_EU27.csv", where = "mappingfolder", type = "regional") %>%
+    filter(.data$EU27_map == "EU27")
+  eu27Countries <- unique(eu27Mapping$CountryCode)
+  x[eu27Countries, "y2030", "FE|Renewable"] <- 0.425
+
+  # We replace the NewClimate/PBL renewable FE targets for the EU by projections from the NCEPs
+  # as this is what countries are more likely to reach.
+  # source: https://www.contexte.com/eu/article/energy/whos-ahead-whos-behind-eu-member-states-progress-on-renewables_225474
+  x["DEU", "y2030", "FE|Renewable"] <- 0.41
+  x["FRA", "y2030", "FE|Renewable"] <- 0.35
+  x["ITA", "y2030", "FE|Renewable"] <- 0.39
+  x["POL", "y2030", "FE|Renewable"] <- 0.21
+  x["ESP", "y2030", "FE|Renewable"] <- 0.48
+  x["NLD", "y2030", "FE|Renewable"] <- 0.32
+  x["ROU", "y2030", "FE|Renewable"] <- 0.38
+  x["BEL", "y2030", "FE|Renewable"] <- 0.22
+  x["CZE", "y2030", "FE|Renewable"] <- 0.30
+  x["GRC", "y2030", "FE|Renewable"] <- 0.43
+  x["AUT", "y2030", "FE|Renewable"] <- 0.57
+  x["IRL", "y2030", "FE|Renewable"] <- 0.43
+  x["HUN", "y2030", "FE|Renewable"] <- 0.30
+  x["PRT", "y2030", "FE|Renewable"] <- 0.51
+  x["DNK", "y2030", "FE|Renewable"] <- 0.58
+  x["SWE", "y2030", "FE|Renewable"] <- 0.67
+  x["FIN", "y2030", "FE|Renewable"] <- 0.62
+  x["BGR", "y2030", "FE|Renewable"] <- 0.35
+  x["SVK", "y2030", "FE|Renewable"] <- 0.25
+  x["HRV", "y2030", "FE|Renewable"] <- 0.43
+  x["LTU", "y2030", "FE|Renewable"] <- 0.55
+  x["SVN", "y2030", "FE|Renewable"] <- 0.33
+  x["EST", "y2030", "FE|Renewable"] <- 0.65
+  x["LVA", "y2030", "FE|Renewable"] <- 0.61
+
+  ## 3. get historic renewable shares and totals ----
 
   # historic energy share in 2020
   xHist <- .getHistEnergyShare(getNames(x), AvgSeveralYears = T)
   xHistShare <- xHist[[1]]
   xHistTotal <- xHist[[2]]
 
-  ## 3. extrapolate targets to REMIND time steps ----
+  ## 4. extrapolate targets to REMIND time steps ----
 
   # extrapolate targets to REMIND time steps where targets are in years that are not REMIND timesteps
   x <- .extrapolateTargetYears(x, xHistShare, seq(2020, 2050, 5))
 
-  ## 4. make assumptions about target development over time for countries with and without target ----
+  ## 5. make assumptions about target development over time for countries with and without target ----
 
   # interpolate and extrapolate renewable share targets for countries with targets
   # assume that countries with share targets reach their share linearly from 2020 shares to the target year
@@ -307,23 +346,46 @@ calcRenShareTargets <- function(scenario) {
     quitte::interpolate_missing_periods(expand.values = T) %>%
     as.magpie()
 
-  ## 4. select which REMIND regions get targets and determine their respective target year ----
+  ## 6. select which REMIND regions get targets and determine their respective target year ----
 
   # get regionmapping to be used for aggregation method
   regionmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
+
   # select which REMIND regions get targets and determine their respective target year
   x <- .selectTargetRemindRegion(x, xIntp, xHistTotal, regionmapping, 0.2)
 
-  ## 5. format renewable share target data to be used as input data for REMIND
+  ## 7. format renewable share target data to be used as input data for REMIND
 
   # rename target types to those used in REMIND techpol realization
-  getNames(x) <- c("RenElec", "RenFE", "NonBioRenElec", "NonFossilElec")
+  targetMapping <- data.frame(
+    source = c(
+      "SE|Electricity|Renewable",
+      "SE|Electricity|Non-Biomass Renewable",
+      "SE|Electricity|Non-Fossil",
+      "FE|Renewable"
+    ),
+    target = c(
+      "RenElec",
+      "NonBioRenElec",
+      "NonFossilElec",
+      "RenFE"
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  missingTargets <- setdiff(targetMapping$source, getNames(x))
+  if (length(missingTargets) > 0) {
+    stop("Missing energy share target types in x: ", paste(missingTargets, collapse = ", "))
+  }
+
+  x <- x[, , targetMapping$source]
+  getNames(x) <- targetMapping$target
 
   # replace NA with 0 for the case that there are not targets in a country
   x[is.na(x)] <- 0
 
 
-  ## 6. get total demand in target year to be used as aggregation weights ----
+  ## 8. get total demand in target year to be used as aggregation weights ----
 
   # get aggregation weights for renewable share targets
   # generate new object EnergyProj for projections of total energy in target year
@@ -339,7 +401,7 @@ calcRenShareTargets <- function(scenario) {
   TotalsEnergyProj[, , "NonFossilElec"] <- TotalsEnergyProj[, , "RenElec"]
 
 
-  ## 7. hand-over to madrat for aggregation via weighted sum ----
+  ## 9. hand-over to madrat for aggregation via weighted sum ----
 
   return(list(
     # renewable share targets by country as aggregation variable
