@@ -153,6 +153,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
 
+  # Historical emissions from CEDS CMIP7
+  calcOutput(
+    "Emissions", datasource = "CEDS_CMIP7", file = valfile, years = seq(1990, 2023, 1),
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS_CMIP7")
+  )
+
   # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
