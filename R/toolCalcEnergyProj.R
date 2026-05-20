@@ -6,6 +6,7 @@
 #' @param subtype "FE" (Total final energy consumption), "SE|Electricity" (SE electricity generation)
 #' @param subset GDP scenario to use
 #' @param scenario set of GDP scenarios to use for calcFEDemand calculation (trigger standard cache in this function)
+#' @param years target years for projection
 #' @seealso [convertNewClimate()]
 
 toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050, 5)) {

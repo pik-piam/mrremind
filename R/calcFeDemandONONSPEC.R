@@ -41,8 +41,7 @@
 
 #' @returns list with MagPIE object
 #'
-#' @importFrom dplyr filter group_by group_modify slice_tail ungroup left_join
-#'   mutate select
+#' @importFrom dplyr filter group_by group_modify slice_tail ungroup left_join mutate select
 
 calcFeDemandONONSPEC <- function(scenario, eoh) {
 
