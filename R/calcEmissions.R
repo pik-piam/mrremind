@@ -1101,14 +1101,26 @@ calcEmissions <- function(datasource = "CEDS16") {
     tmp <- emi
 
     description <- "historic emissions from 2015-2024"
-    }
+  }
 
-  return(list(
-    x = tmp,
-    weight = NULL,
-    unit = "Mt",
-    aggregationFunction = toolAggregateWithoutGlobal,
-    aggregationArguments = list(glo = global),
-    description = description
-  ))
+  if (datasource == "CEDS_CMIP7") {
+    return_list = list(
+      x = tmp,
+      weight = NULL,
+      unit = "Mt",
+      aggregationFunction = toolAggregateWithoutGlobal,
+      aggregationArguments = list(glo = global),
+      description = description
+    )
+  } else {
+    return_list = list(
+      x = tmp,
+      weight = NULL,
+      unit = "Mt",
+      aggregationFunction = toolAggregate,
+      description = description
+    )
+  }
+
+  return(return_list)
 }
