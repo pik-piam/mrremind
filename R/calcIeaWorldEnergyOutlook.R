@@ -144,37 +144,12 @@ calcIeaWorldEnergyOutlook <- function() {
   dataReg[, , "SE|Electricity|Gas (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"], dim=1)] <-
     dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"]
 
-  # includes values from the original source for global region instead of calculating
-  # it as the sum of all countries (as countries are incomplete)
-  .customAggregate <- function(x, rel, to = NULL, glo) {
-    x <- toolAggregate(x, rel = rel, to = to)
-
-    if ("GLO" %in% getItems(x, dim = 1)) {
-      x <- x["GLO", , , invert = TRUE]
-
-      out <- new.magpie(
-        cells_and_regions = union(getItems(x, dim = 1), "GLO"),
-        years = union(getYears(x), getYears(glo)),
-        names = union(getNames(x), getNames(glo)),
-        fill = NA,
-        sets = names(dimnames(x))
-      )
-
-      out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
-      out["GLO", getYears(glo), getNames(glo)] <- glo
-
-      return(out)
-    } else {
-      return(x)
-    }
-  }
-
   return(list(
     x = dataReg,
     weight = NULL,
     unit = c("GW", "EJ/yr", "Mt CO2/yr"),
-    aggregationFunction = .customAggregate,
-    aggregationArguments = list(glo = dataGlo),
+    aggregationFunction = toolAggregateWithoutGlobal,
+    aggregationArguments = list(glo = dataGlo, removeAllAgg = TRUE),
     description = "IEA World Energy Outlook 2025 values as REMIND variables"
   ))
 }
