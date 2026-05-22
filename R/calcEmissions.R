@@ -410,11 +410,11 @@ calcEmissions <- function(datasource = "CEDS16") {
       description <- "historic emissions from 1750-2023, IAMC sectors"
     }
 
-    ## ---- CEDS_CMIP7 ----
-  } else if (datasource == "CEDS_CMIP7") {
+    ## ---- CMIP7_CEDS ----
+  } else if (datasource == "CMIP7_CEDS") {
 
-    x <- readSource("CEDS_CMIP7")  # country data
-    g <- readSource("CEDS_CMIP7", convert = FALSE)  # global data
+    x <- readSource("CMIP7_CEDS")  # country data
+    g <- readSource("CMIP7_CEDS", convert = FALSE)  # global data
 
     # some global variables will only be used as reference of summations
     # -> don't rename so we are able to differentiate later in mif
@@ -423,7 +423,7 @@ calcEmissions <- function(datasource = "CEDS16") {
                         "Emissions|Kyoto GHG AR6GWP100",
                         "Emissions|GHG AR6GWP100")]
 
-    # ignoring F-Gases and other species for now
+    # global data that should be mapped, ignoring F-Gases and other species for now
     g <- g["GLO", , c("Aircraft", "Shipping"), pmatch = TRUE]
 
     # bunkers, AFOLU and country data can be handled together from here on
@@ -445,6 +445,15 @@ calcEmissions <- function(datasource = "CEDS16") {
     # unit inconsistency in ref data for GHG variables
     getNames(ref, dim = 2) <- gsub("MtCO2 / yr", "Mt CO2eq/yr", getNames(ref, dim = 2))
 
+    # rename to identify aggregates from data source and give more precise name
+    getNames(ref, dim = 1) <- gsub("Emissions", "Emi|CMIP7", getNames(ref, dim = 1))
+    getNames(ref, dim = 1) <- gsub("Energy and Industrial Processes",
+                                   "w/o AFOLU", getNames(ref, dim = 1))
+    ref <- add_columns(ref, "Emi|CMIP7|CO2.Mt CO2/yr", dim = 3)
+    ref[, , "Emi|CMIP7|CO2"] <-
+      ref[, , "Emi|CMIP7|CO2|AFOLU"] +
+      ref[, , "Emi|CMIP7|CO2|w/o AFOLU"]
+
     # mapping necessary for bunkers and country data
     # transform "Emissions|gas|variable" to "gas.variable" for easier processing
     getNames(emi, dim = 1) <- gsub("^Emissions\\|([^|]+)\\|([^|]+)$",
@@ -453,10 +462,10 @@ calcEmissions <- function(datasource = "CEDS16") {
 
     # variable mapping
     map <- toolGetMapping(type = "sectoral",
-                          name = "mappingCEDS_CMIP7.csv",
+                          name = "mappingCMIP7_CEDS.csv",
                           where = "mrremind")
     emi <- toolAggregate(emi, map, dim = 3.2,
-                         from = "CEDS_CMIP7", to = "REMIND", partrel = TRUE)
+                         from = "CMIP7_CEDS", to = "REMIND", partrel = TRUE)
 
     # rename species that have different name in REMIND reporting
     getNames(emi, dim = 1) <- gsub("Sulfur", "SO2", getNames(emi, dim = 1))
@@ -475,17 +484,17 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.2)
     emi["GLO", , "Energy and Industrial Processes"] <-
       dimSums(emi[, , "w/o Bunkers|Energy and Industrial Processes"], dim = 1, na.rm = TRUE) +
-      emi["GLO", , "Transport|Freight|International Shipping|Demand"] +
-      emi["GLO", , "Transport|Pass|Aviation|International|Demand"]
+      emi["GLO", , "Energy|Demand|Transport|Bunkers|Freight|International Shipping"] +
+      emi["GLO", , "Energy|Demand|Transport|Pass|Aviation"]
 
-    emi <- add_columns(emi, "Total", dim = 3.2)
-    emi["GLO", , "Total"] <-
+    emi <- add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi["GLO", , "w/ Bunkers|Energy and Industrial Processes"] <-
+      emi["GLO", , "Energy and Industrial Processes"]
+
+    emi <- add_columns(emi, "w/o AFOLU", dim = 3.2)
+    emi["GLO", , "w/o AFOLU"] <-
       dimSums(emi[, , "Energy and Industrial Processes"], dim = 1, na.rm = TRUE) +
       dimSums(emi[, , "Agriculture"], dim = 1, na.rm = TRUE) +
-      dimSums(emi[, , "Land-Use Change|Forest Burning"], dim = 1, na.rm = TRUE) +
-      dimSums(emi[, , "Land-Use Change|Savanna Burning"], dim = 1, na.rm = TRUE) +
-      dimSums(emi[, , "Land-Use Change|Peatland"], dim = 1, na.rm = TRUE) +
-      dimSums(emi[, , "Land-Use Change|Agricultural Waste Burning"], dim = 1, na.rm = TRUE) +
       dimSums(emi[, , "Waste"], dim = 1, na.rm = TRUE) +
       dimSums(emi[, , "Product Use|Solvents"], dim = 1, na.rm = TRUE)
 
@@ -502,6 +511,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     getSets(emi, fulldim = FALSE)[3] <- "variable.unit"
 
     # Manual GHG aggregation because the data is too chaotic
+    # loop is the easiest way to avoid creating all possible var.unit combinations
     emi <- add_columns(emi, paste0("Emi|GHG|", ghg_vars,".Mt CO2eq/yr"), dim = 3, fill = 0)
     for (var in ghg_vars) {
       emi[, , paste0("Emi|GHG|", var,".Mt CO2eq/yr")] <-
@@ -510,12 +520,9 @@ calcEmissions <- function(datasource = "CEDS16") {
         emi[, , paste0("Emi|N2O|", var,".kt N2O/yr")] * 273 / 1000
       }
 
-    # remove temporary "Total" from variable name
-    getNames(emi, dim = 1) <- gsub("\\|Total", "", getNames(emi, dim = 1))
-
-    # separate output data into country and regional again, so
+    # separate output data into country and global again, so
     # toolAggregateWithoutGlobal can handle it
-    # only keep variables that already have global values which are non NA
+    # only keep variables that already have any global values which are non NA
     keep_glo <- apply(!is.na(emi["GLO", , ]), 3, any)
     global <- mbind(emi["GLO", , keep_glo], ref)
 
@@ -523,7 +530,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     keep <- apply(!is.na(emi["GLO", , ,invert = TRUE]), 3, any)
     tmp <- emi["GLO", , keep, invert = TRUE]
 
-    description <- "harmonized emission data used for CMIP7"
+    description <- "harmonized emission data used for ScenarioMIP as part of CMIP7"
 
     ## ---- EDGAR 6 ----
   } else if (datasource == "EDGAR6") {
@@ -1103,7 +1110,7 @@ calcEmissions <- function(datasource = "CEDS16") {
     description <- "historic emissions from 2015-2024"
   }
 
-  if (datasource == "CEDS_CMIP7") {
+  if (datasource == "CMIP7_CEDS") {
     return_list = list(
       x = tmp,
       weight = NULL,
