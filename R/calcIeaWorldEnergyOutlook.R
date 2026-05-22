@@ -148,8 +148,8 @@ calcIeaWorldEnergyOutlook <- function() {
     x = dataReg,
     weight = NULL,
     unit = c("GW", "EJ/yr", "Mt CO2/yr"),
-    aggregationFunction = toolAggregateWithoutGlobal,
-    aggregationArguments = list(glo = dataGlo, removeAllAgg = TRUE),
+    aggregationFunction = toolAggregateCustomRegs,
+    aggregationArguments = list(agg = dataGlo),
     description = "IEA World Energy Outlook 2025 values as REMIND variables"
   ))
 }

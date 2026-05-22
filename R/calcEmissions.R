@@ -1115,8 +1115,8 @@ calcEmissions <- function(datasource = "CEDS16") {
       x = tmp,
       weight = NULL,
       unit = "Mt",
-      aggregationFunction = toolAggregateWithoutGlobal,
-      aggregationArguments = list(glo = global),
+      aggregationFunction = toolAggregateCustomRegs,
+      aggregationArguments = list(agg = global, removeAllAgg = FALSE),
       description = description
     )
   } else {
