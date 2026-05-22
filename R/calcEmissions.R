@@ -491,6 +491,8 @@ calcEmissions <- function(datasource = "CEDS16") {
     emi["GLO", , "w/ Bunkers|Energy and Industrial Processes"] <-
       emi["GLO", , "Energy and Industrial Processes"]
 
+    # highest level aggregation depends on species: CO2 without burning vars,
+    # other species including burning vars
     emi <- add_columns(emi, "w/o AFOLU", dim = 3.2)
     emi["GLO", , "w/o AFOLU"] <-
       dimSums(emi[, , "Energy and Industrial Processes"], dim = 1, na.rm = TRUE) +
@@ -498,8 +500,19 @@ calcEmissions <- function(datasource = "CEDS16") {
       dimSums(emi[, , "Waste"], dim = 1, na.rm = TRUE) +
       dimSums(emi[, , "Product Use|Solvents"], dim = 1, na.rm = TRUE)
 
+    emi <- add_columns(emi, "Total", dim = 3.2)
+    emi["GLO", , "Total"] <-
+      emi["GLO", , "w/o AFOLU"] +
+      dimSums(emi[, , "AFOLU|Agricultural Waste Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Forest Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Grassland Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Peat Burning"], dim = 1, na.rm = TRUE)
+
+    emi <- emi[, , "CO2.Total", invert = TRUE]
+
     # variable names of those that should be aggregated to GHG below
     ghg_vars <- getNames(emi[, , "CH4"], dim = 2)
+    ghg_vars <- ghg_vars[ghg_vars != "Total"]
 
     # change variable names back to notation using "|"
     getNames(emi) <-
@@ -518,7 +531,10 @@ calcEmissions <- function(datasource = "CEDS16") {
         emi[, , paste0("Emi|CO2|", var,".Mt CO2/yr")] +
         emi[, , paste0("Emi|CH4|", var,".Mt CH4/yr")] * 28 +
         emi[, , paste0("Emi|N2O|", var,".kt N2O/yr")] * 273 / 1000
-      }
+    }
+
+    # remove temporary "Total" from variable name
+    getNames(emi, dim = 1) <- gsub("\\|Total", "", getNames(emi, dim = 1))
 
     # separate output data into country and global again, so
     # toolAggregateWithoutGlobal can handle it
