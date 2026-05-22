@@ -410,6 +410,143 @@ calcEmissions <- function(datasource = "CEDS16") {
       description <- "historic emissions from 1750-2023, IAMC sectors"
     }
 
+    ## ---- CMIP7_CEDS ----
+  } else if (datasource == "CMIP7_CEDS") {
+
+    x <- readSource("CMIP7_CEDS")  # country data
+    g <- readSource("CMIP7_CEDS", convert = FALSE)  # global data
+
+    # some global variables will only be used as reference of summations
+    # -> don't rename so we are able to differentiate later in mif
+    ref <- g["GLO", , c("Emissions|CO2|Energy and Industrial Processes",
+                        "Emissions|CO2|AFOLU",
+                        "Emissions|Kyoto GHG AR6GWP100",
+                        "Emissions|GHG AR6GWP100")]
+
+    # global data that should be mapped, ignoring F-Gases and other species for now
+    g <- g["GLO", , c("Aircraft", "Shipping"), pmatch = TRUE]
+
+    # bunkers, AFOLU and country data can be handled together from here on
+    emi <- new.magpie(
+      cells_and_regions = union(getItems(x, dim = 1), "GLO"),
+      years = union(getYears(x), getYears(g)),
+      names = union(getNames(x), getNames(g)),
+      fill = NA,
+      sets = names(dimnames(x))
+    )
+
+    emi["GLO", getYears(g), getNames(g)] <- g
+    emi[getRegions(x), getYears(x), getNames(x)] <- x
+
+    # remove model and scenario for easier handling
+    emi <- collapseDim(emi, dim = c(3.1, 3.2))
+    ref <- collapseDim(ref, dim = c(3.1, 3.2))
+
+    # unit inconsistency in ref data for GHG variables
+    getNames(ref, dim = 2) <- gsub("MtCO2 / yr", "Mt CO2eq/yr", getNames(ref, dim = 2))
+
+    # rename to identify aggregates from data source and give more precise name
+    getNames(ref, dim = 1) <- gsub("Emissions", "Emi|CMIP7", getNames(ref, dim = 1))
+    getNames(ref, dim = 1) <- gsub("Energy and Industrial Processes",
+                                   "w/o AFOLU", getNames(ref, dim = 1))
+    ref <- add_columns(ref, "Emi|CMIP7|CO2.Mt CO2/yr", dim = 3)
+    ref[, , "Emi|CMIP7|CO2"] <-
+      ref[, , "Emi|CMIP7|CO2|AFOLU"] +
+      ref[, , "Emi|CMIP7|CO2|w/o AFOLU"]
+
+    # mapping necessary for bunkers and country data
+    # transform "Emissions|gas|variable" to "gas.variable" for easier processing
+    getNames(emi, dim = 1) <- gsub("^Emissions\\|([^|]+)\\|([^|]+)$",
+                                 "\\1.\\2",
+                                 getNames(emi, dim = 1))
+
+    # variable mapping
+    map <- toolGetMapping(type = "sectoral",
+                          name = "mappingCMIP7_CEDS.csv",
+                          where = "mrremind")
+    emi <- toolAggregate(emi, map, dim = 3.2,
+                         from = "CMIP7_CEDS", to = "REMIND", partrel = TRUE)
+
+    # rename species that have different name in REMIND reporting
+    getNames(emi, dim = 1) <- gsub("Sulfur", "SO2", getNames(emi, dim = 1))
+    getNames(emi, dim = 1) <- gsub("NOx", "NOX", getNames(emi, dim = 1))
+
+    # build possible summations per species
+    emi <- add_columns(emi, "w/o Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi[, , "w/o Bunkers|Energy and Industrial Processes"] <-
+      emi[, , "Energy|Supply"] +
+      emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
+      emi[, , "Energy|Demand|Buildings"] +
+      emi[, , "Industry"]
+
+    # summations that are only possible globally but for all species
+    # variables on country level need to be region-summed first
+    emi <- add_columns(emi, "Energy and Industrial Processes", dim = 3.2)
+    emi["GLO", , "Energy and Industrial Processes"] <-
+      dimSums(emi[, , "w/o Bunkers|Energy and Industrial Processes"], dim = 1, na.rm = TRUE) +
+      emi["GLO", , "Energy|Demand|Transport|Bunkers|Freight|International Shipping"] +
+      emi["GLO", , "Energy|Demand|Transport|Pass|Aviation"]
+
+    emi <- add_columns(emi, "w/ Bunkers|Energy and Industrial Processes", dim = 3.2)
+    emi["GLO", , "w/ Bunkers|Energy and Industrial Processes"] <-
+      emi["GLO", , "Energy and Industrial Processes"]
+
+    # highest level aggregation depends on species: CO2 without burning vars,
+    # other species including burning vars
+    emi <- add_columns(emi, "w/o AFOLU", dim = 3.2)
+    emi["GLO", , "w/o AFOLU"] <-
+      dimSums(emi[, , "Energy and Industrial Processes"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "Agriculture"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "Waste"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "Product Use|Solvents"], dim = 1, na.rm = TRUE)
+
+    emi <- add_columns(emi, "Total", dim = 3.2)
+    emi["GLO", , "Total"] <-
+      emi["GLO", , "w/o AFOLU"] +
+      dimSums(emi[, , "AFOLU|Agricultural Waste Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Forest Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Grassland Burning"], dim = 1, na.rm = TRUE) +
+      dimSums(emi[, , "AFOLU|Land|Fires|Peat Burning"], dim = 1, na.rm = TRUE)
+
+    emi <- emi[, , "CO2.Total", invert = TRUE]
+
+    # variable names of those that should be aggregated to GHG below
+    ghg_vars <- getNames(emi[, , "CH4"], dim = 2)
+    ghg_vars <- ghg_vars[ghg_vars != "Total"]
+
+    # change variable names back to notation using "|"
+    getNames(emi) <-
+      gsub("^([^\\.]+)\\.(.*)$",
+           "Emi|\\1|\\2",
+           getNames(emi))
+
+    # repair dimension names that have been broken
+    getSets(emi, fulldim = FALSE)[3] <- "variable.unit"
+
+    # Manual GHG aggregation because the data is too chaotic
+    # loop is the easiest way to avoid creating all possible var.unit combinations
+    emi <- add_columns(emi, paste0("Emi|GHG|", ghg_vars,".Mt CO2eq/yr"), dim = 3, fill = 0)
+    for (var in ghg_vars) {
+      emi[, , paste0("Emi|GHG|", var,".Mt CO2eq/yr")] <-
+        emi[, , paste0("Emi|CO2|", var,".Mt CO2/yr")] +
+        emi[, , paste0("Emi|CH4|", var,".Mt CH4/yr")] * 28 +
+        emi[, , paste0("Emi|N2O|", var,".kt N2O/yr")] * 273 / 1000
+    }
+
+    # remove temporary "Total" from variable name
+    getNames(emi, dim = 1) <- gsub("\\|Total", "", getNames(emi, dim = 1))
+
+    # separate output data into country and global again, so
+    # toolAggregateWithoutGlobal can handle it
+    # only keep variables that already have any global values which are non NA
+    keep_glo <- apply(!is.na(emi["GLO", , ]), 3, any)
+    global <- mbind(emi["GLO", , keep_glo], ref)
+
+    # country level data, remove global only variables
+    keep <- apply(!is.na(emi["GLO", , ,invert = TRUE]), 3, any)
+    tmp <- emi["GLO", , keep, invert = TRUE]
+
+    description <- "harmonized emission data used for ScenarioMIP as part of CMIP7"
 
     ## ---- EDGAR 6 ----
   } else if (datasource == "EDGAR6") {
@@ -987,12 +1124,26 @@ calcEmissions <- function(datasource = "CEDS16") {
     tmp <- emi
 
     description <- "historic emissions from 2015-2024"
-    }
+  }
 
-  return(list(
-    x = tmp,
-    weight = NULL,
-    unit = "Mt",
-    description = description
-  ))
+  if (datasource == "CMIP7_CEDS") {
+    return_list = list(
+      x = tmp,
+      weight = NULL,
+      unit = "Mt",
+      aggregationFunction = toolAggregateCustomRegs,
+      aggregationArguments = list(agg = global, removeAllAgg = FALSE),
+      description = description
+    )
+  } else {
+    return_list = list(
+      x = tmp,
+      weight = NULL,
+      unit = "Mt",
+      aggregationFunction = toolAggregate,
+      description = description
+    )
+  }
+
+  return(return_list)
 }
