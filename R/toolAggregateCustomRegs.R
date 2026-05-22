@@ -41,7 +41,7 @@ toolAggregateCustomRegs <- function(x, agg, rel,
     out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
 
     # override global data with manually supplied global data
-    out[r, getYears(agg), getNames(agg)] <- agg
+    out[r, getYears(agg), getNames(agg)] <- agg[r, , ]
 
     return(out)
 
