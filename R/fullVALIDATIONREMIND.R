@@ -157,7 +157,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     "Emissions", datasource = "CMIP7_CEDS", file = valfile, years = seq(1990, 2023, 1),
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS_CMIP7")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "CMIP7_CEDS")
   )
 
   # EDGAR6 Emissions----
