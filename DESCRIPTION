@@ -46,7 +46,8 @@ Depends:
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
     mrcommons (>=  1.67.3), 
-    mrcommonsremind (>= 0.1.0),
+    mrenergy (>= 0.1.0),
+    mrenergycore (>= 0.2.0),
     mrdrivers (>= 6.0.0),
     mrindustry (>= 0.18.5),
 Imports:
