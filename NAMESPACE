@@ -2,6 +2,7 @@
 
 export(fullREMIND)
 export(fullTHRESHOLDS)
+export(toolAggregateCustomRegs)
 export(toolAggregateTimeSteps)
 export(toolBiomassSupplyAggregate)
 export(toolCubicFunctionAggregate)
