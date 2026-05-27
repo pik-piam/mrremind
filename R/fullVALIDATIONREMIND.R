@@ -153,6 +153,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
   )
 
+  # Historical emissions from CMIP7 CEDS, uses toolAggregateWithoutGlobal
+  calcOutput(
+    "Emissions", datasource = "CMIP7_CEDS", file = valfile, years = seq(1990, 2023, 1),
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "CMIP7_CEDS")
+  )
+
   # EDGAR6 Emissions----
 
   # Historical emissions from EDGAR v5.0 and v6.0
@@ -294,7 +301,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
 
   # IEA World Energy Outlook ----
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", file = valfile,
+    type = "IeaWorldEnergyOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical")
   )
