@@ -293,8 +293,9 @@ calcRenShareTargets <- function(scenario) {
   x[eu27Countries, "y2030", "FE|Renewable"] <- 0.425
 
   # We replace the NewClimate/PBL renewable FE targets for the EU by projections from the NCEPs
+  # Furthermore, we add the criterion that countries annual increase in RE share is limited to some extend to their historic rates
   # as this is what countries are more likely to reach.
-  # source: https://www.contexte.com/eu/article/energy/whos-ahead-whos-behind-eu-member-states-progress-on-renewables_225474
+  # NCEP source: https://www.contexte.com/eu/article/energy/whos-ahead-whos-behind-eu-member-states-progress-on-renewables_225474
   x["DEU", "y2030", "FE|Renewable"] <- 0.41
   x["FRA", "y2030", "FE|Renewable"] <- 0.35
   x["ITA", "y2030", "FE|Renewable"] <- 0.39
@@ -319,6 +320,31 @@ calcRenShareTargets <- function(scenario) {
   x["SVN", "y2030", "FE|Renewable"] <- 0.33
   x["EST", "y2030", "FE|Renewable"] <- 0.65
   x["LVA", "y2030", "FE|Renewable"] <- 0.61
+  # in addition set UK to 27% which would mean a 1.5 times increase of the current growth rate until 2030 in our model
+  x["GBR", "y2030", "FE|Renewable"] <- 0.27
+
+  # limit RE increase until 2030 by a cap
+  # cap is based on a multiple of the increase observed in 2019-2024 using Eurostat historic renewable shares
+  # calculate a 2030 cap based on 1.5x annual growth from 2019-2024,
+  # with a stricter 1.0x cap for selected countries
+  # that have experienced fast growth or that have a specific regional technology preferences (France)
+  EurostatReShare <- collapseDim(readSource("Eurostat_REShare"))
+  Eurostat2019 <- EurostatReShare[, "y2019", ]
+  Eurostat2024 <- EurostatReShare[, "y2024", ]
+  AnnualIncrease <- (Eurostat2024 - Eurostat2019) / 5
+  CapFactor <- Eurostat2024
+  CapFactor[] <- 1.5
+  StrictCapCountries <- c("FRA", "AUT", "BEL", "NLD", "ESP", "PRT", "SWE", "FIN", "DNK")
+  CapFactor[StrictCapCountries, , ] <- 1
+  Cap2030Percent <- Eurostat2024 + CapFactor * AnnualIncrease * 6
+  Cap2030Share <- Cap2030Percent / 100
+
+  # Apply cap only to EU27 countries (leave targets unchanged if Eurostat data is missing)
+  x[eu27Countries, "y2030", "FE|Renewable"] <- pmin(
+    x[eu27Countries, "y2030", "FE|Renewable"],
+    Cap2030Share[eu27Countries, , ],
+    na.rm = TRUE
+  )
 
   ## 3. get historic renewable shares and totals ----
 
