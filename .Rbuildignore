@@ -19,3 +19,4 @@ carbon_stored.*
 ^.*CITATION.cff$
 ^\.claude$
 ^_pkgdown\.yml$
+^\.positai$
