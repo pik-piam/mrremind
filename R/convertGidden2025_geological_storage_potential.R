@@ -10,7 +10,9 @@ convertGidden2025_geological_storage_potential <- function(x) {
   # - ATA (Antarctica) is known to madrat, but might not be available for CCS
   # - XCA is neither explained in the source nor known to madrat, but has a non-zero potential
 
-  x <- toolCountryFill(x, fill = 0, verbosity = 0) # fill missing countries
+  # fill missing countries
+  x <- toolCountryFill(x, fill = 0, verbosity = 0,
+                       no_remove_warning = c("XAD", "XCA", "XPI", "XSP", "ZNC"))
 
   x <- x * 12/44 # from GtCO2 to GtC
 
