@@ -13,8 +13,8 @@ toolCalcEnergyProj(subtype, subset, scenario, years = seq(2020, 2050, 5))
 
 \item{subset}{GDP scenario to use}
 
-
-\item{scenario}{set of GDP scenarios to use for calcFEDemand calculation (trigger standard cache in this function)}
+\item{scenario}{set of GDP scenarios to use for calcFeDemandBuildings and calcFeDemandIndustry
+calculation (trigger standard cache in this function)}
 
 \item{years}{target years for projection}
 }
