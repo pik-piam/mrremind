@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.267.1
-Date: 2026-05-26
+Version: 0.268.1
+Date: 2026-06-01
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -76,3 +76,4 @@ Encoding: UTF-8
 LazyData: no
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3
