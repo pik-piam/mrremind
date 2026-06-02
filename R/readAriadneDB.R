@@ -30,7 +30,7 @@ readAriadneDB <- function() {
     tidyr::gather("period", "value", -"model", -"scenario", -"region", -"variable", -"unit") %>%
     dplyr::filter(!is.na(.data$value)) %>%
     # ensure period is numeric year (remove leading y if present)
-    dplyr::mutate(period = as.integer(stringr::str_replace(period, "^y", ""))) %>%
+    dplyr::mutate( period = as.integer(stringr::str_replace(.data$period, "^y", ""))) %>%
     as.magpie(temporal = 6, spatial = 3, datacol = 7)
 
   return(out)

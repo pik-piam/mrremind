@@ -82,7 +82,8 @@ calcExogDemScen <- function() {
   # Get FEdemand output for SSP2 Germany only (filter early for efficiency)
   # Multiple scenarios needed for cache, but only SSP2 used in output
   feDemScen <- c("SSPs", "SSP2IndiaDEAs", "SSP2_lowEn", "SSP2_highDemDEU", "SSP2_NAV_all")
-  remind_base <- calcOutput("FEdemand", scenario = feDemScen, signif = 4, aggregate = FALSE, warnNA = FALSE)["DEU", , "SSP2"]
+  remind_base <- calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4)["DEU", , "SSP2"]
+
 
   # Extract REMIND production anchors (2025 and 2100)
   df_remind_ssp2 <- quitte::as.quitte(remind_base) %>%
@@ -221,7 +222,9 @@ calcExogDemScen <- function() {
   df_deu_values <- dplyr::bind_rows(df_values_until_2050, df_after_2050) %>%
                       mutate( region = "DEU") %>%
                       rename( scenario = .data$scen.remind) %>%
-                      select( .data$region, .data$period, .data$scenario, .data$variable, .data$value)
+                      select( .data$region, .data$period, .data$scenario, .data$variable, .data$value) %>%
+                      # only use periods from 2030 on because that's where we start policy runs
+                      filter( .data$period >= 2030)
 
   # convert to magclass output, all other countries outside Germany set to 0
   out <- df_deu_values %>%
