@@ -82,7 +82,7 @@ calcExogDemScen <- function() {
   # Get FEdemand output for SSP2 Germany only (filter early for efficiency)
   # Multiple scenarios needed for cache, but only SSP2 used in output
   feDemScen <- c("SSPs", "SSP2IndiaDEAs", "SSP2_lowEn", "SSP2_highDemDEU", "SSP2_NAV_all")
-  remind_base <- calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4)["DEU", , "SSP2"]
+  remind_base <- calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, aggregate = F)["DEU", , "SSP2"]
 
 
   # Extract REMIND production anchors (2025 and 2100)
