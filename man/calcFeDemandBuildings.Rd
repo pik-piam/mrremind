@@ -7,7 +7,7 @@
 calcFeDemandBuildings(subtype, scenario)
 }
 \arguments{
-\item{subtype}{either "FE", "FE_buildings", or "UE_buildings"}
+\item{subtype}{either "FE", or "UE"}
 
 \item{scenario}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
