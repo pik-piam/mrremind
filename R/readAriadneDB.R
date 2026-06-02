@@ -10,7 +10,6 @@ readAriadneDB <- function() {
 
   # read in FORECAST v5 file (sheet "Sheet1")
   data_file <- file.path(
-    "C:/work/scripts/inputdata/sources/AriadneDB",
     "FORECAST_Ariadne_v5_Szenarien.xlsx"
   )
 
