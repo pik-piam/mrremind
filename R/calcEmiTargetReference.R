@@ -86,11 +86,18 @@ calcEmiTargetReference <- function() {
     getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
   )
 
-  # also take China and India from UNFCCC as data from GHG profile was manually entered above
-  unfcccReg <- c(unfcccReg,"CHN","IND")
 
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
+
+
+  # for India and China take 2005 emissions from UNFCCC
+  # to get correct reference emissions for their NDC emissions targets
+  # where 2005 is the reference year
+  out[c("CHN","IND"), "y2005", ] <- ghgUNFCCC[c("CHN","IND"), "y2005", ]
+
+
+
 
   # fill gaps for LULUCF national accounting with IIASA data ----
 

@@ -10,7 +10,7 @@ https://ember-climate.org/data-catalogue/yearly-electricity-data/
 readEmber()
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Read Ember Yearly Electricity Data

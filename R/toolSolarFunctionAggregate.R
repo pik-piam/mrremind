@@ -11,8 +11,7 @@
 #'
 #' @author Felix Schreyer, Renato Rodrigues, Julian Oeser
 #' @export
-#' @importFrom dplyr mutate select rename filter left_join group_by ungroup arrange summarise desc
-#'  full_join
+#' @importFrom dplyr mutate select rename filter left_join group_by ungroup arrange summarise desc full_join
 toolSolarFunctionAggregate <- function(x, rel = NULL, weight = calcOutput("FE", aggregate = FALSE)[, "y2015", "FE|Electricity (EJ/yr)"]) {
   # old part by Julian Oeser
 

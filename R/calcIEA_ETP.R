@@ -86,35 +86,10 @@ calcIEA_ETP <- function() {
   getItems(xGlo, dim = 1) <- "GLO"
   dataGlo <- .map(xGlo, mapping)
 
-  # includes global values from the original source instead of calculating
-  # them as the sum of all countries (as countries are incomplete)
-  .customAggregate <- function(x, rel, to = NULL, glo) {
-    x <- toolAggregate(x, rel = rel, to = to)
-
-    if ("GLO" %in% getItems(x, dim = 1)) {
-      out <- new.magpie(
-        cells_and_regions = getItems(x, dim = 1),
-        years = union(getYears(x), getYears(glo)),
-        names = union(getNames(x), getNames(glo)),
-        fill = NA,
-        sets = names(dimnames(x))
-      )
-
-      x <- x["GLO", , , invert = TRUE]
-
-      out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
-      out["GLO", getYears(glo), getNames(glo)] <- glo
-
-      return(out)
-    } else {
-      return(x)
-    }
-  }
-
   list(x = dataReg,
        weight = NULL,
-       aggregationFunction = .customAggregate,
-       aggregationArguments = list(glo = dataGlo),
+       aggregationFunction = toolAggregateCustomRegs,
+       aggregationArguments = list(agg = dataGlo),
        unit = c("EJ/yr", "Mt CO2/yr", "Mt/yr", "bn pkm/yr", "bn tkm/yr"),
        description = "IEA ETP projections as REMIND variables")
 }
