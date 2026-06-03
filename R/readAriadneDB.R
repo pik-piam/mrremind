@@ -1,36 +1,33 @@
 #' Ariadne database scenario data
-#' @description  Scenario data from the Ariadne modeling intercomparison project for Germany.
-#' See README in input file for more details.
+#' @description  This reads in FORECAST industry production data for Germany used in the Ariadne scenarios
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
 #' @importFrom dplyr filter mutate
 #'
 readAriadneDB <- function() {
-
   # read in FORECAST v5 file (sheet "Sheet1")
-  data_file <- file.path(
-    "FORECAST_Ariadne_v5_Szenarien.xlsx"
-  )
+  data_file <- "FORECAST_Ariadne_v5_Szenarien.xlsx"
 
+  # read source file and convert to quitte format
   data <- readxl::read_excel(
     data_file,
-    sheet = "Sheet1",
-    col_types = "text",
-    .name_repair = "minimal"
+    sheet = "Sheet1"
   ) %>%
-    # try to coerce numeric columns (periods) to numeric if they exist
-    readr::type_convert() %>%
-    # normalize column names to lowercase to match expected names (model, scenario, region, variable, unit)
-    dplyr::rename_with(tolower)
+    gather("period", "value", -"Model", -"Scenario", -"Region", -"Variable", -"Unit") %>%
+    as.quitte()
 
-  # rearrange and convert to magclass object
+  # only retain scenario and variable variation
+  # only use production and gross value added variables
+  # convert to magpie object
   out <- data %>%
-    tidyr::gather("period", "value", -"model", -"scenario", -"region", -"variable", -"unit") %>%
-    dplyr::filter(!is.na(.data$value)) %>%
-    # ensure period is numeric year (remove leading y if present)
-    dplyr::mutate( period = as.integer(stringr::str_replace(.data$period, "^y", ""))) %>%
-    as.magpie(temporal = 6, spatial = 3, datacol = 7)
+    filter(.data$variable %in% c(
+      grep("Production\\|", getVars(data), value = T),
+      grep("Gross Value Added\\|", getVars(data), value = T)
+    )) %>%
+    select("period", "region", "scenario", "variable", "value") %>%
+    as.magpie(temporal = 1, spatial = 2, datacol = 5)
+
 
   return(out)
 }

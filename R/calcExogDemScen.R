@@ -24,11 +24,36 @@ calcExogDemScen <- function() {
 
   data_forecast <- readSource("AriadneDB")
 
+  # Filter FORECAST data for Germany only, keep in quitte format
+  df_forecast <- quitte::as.quitte(data_forecast["DEU", , ])
+
   # Map FORECAST scenarios to REMIND scenario names
   scenario_mapping <- data.frame(
     scen.forecast = c("KN2045_Bal_v5", "KN2045_Elec_plus_v5"),
     scen.remind = c("ariadne_bal", "ariadne_reloc")
   )
+
+  # Get REMIND industry production trajectories
+  # Get FEdemand output for SSP2 Germany only (filter early for efficiency)
+  # Multiple scenarios needed for cache, but only SSP2 used in output
+  feDemScen <- c("SSPs", "SSP2IndiaDEAs", "SSP2_lowEn", "SSP2_highDemDEU", "SSP2_NAV_all")
+  remind_base <- calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, aggregate = F)["DEU", , "SSP2"]
+
+  # industry production variables to adapt
+  output_variables <- c(
+    "ue_steel_primary",
+    "ue_steel_secondary",
+    "ue_cement",
+    "ue_chemicals",
+    "ue_otherInd"
+  )
+
+  # Extract REMIND production values needed for the FORECAST-based trajectories (2025 and 2100)
+  df_remind_ssp2 <- quitte::as.quitte(remind_base) %>%
+    dplyr::filter(.data$item %in% output_variables, .data$period %in% c(2025, 2100)) %>%
+    select("variable" = "item", "period", "value")
+
+  # Required mappings
 
   # Map steel/cement production variables from FORECAST to REMIND internal names
   variable_mapping <- data.frame(
@@ -40,7 +65,8 @@ calcExogDemScen <- function() {
     )
   )
 
-  # Map GVA sectors to REMIND industry variables (6 sectors aggregated to ue_otherInd)
+  # Map FORECAST industry gross added value variables to REMIND variables
+  # (6 sectors aggregated to ue_otherInd)
   gva_mapping <- data.frame(
     var.forecast = c(
       "Gross Value Added|Industry|Chemicals",
@@ -57,53 +83,12 @@ calcExogDemScen <- function() {
     )
   )
 
-  # Define output variables and REMIND timesteps
-  output_variables <- c("ue_steel_primary", "ue_steel_secondary", "ue_cement",
-                        "ue_chemicals", "ue_otherInd")
-  output_years <- sort(unique(quitte::remind_timesteps$period))
-  output_years <- output_years[output_years >= 2005 & output_years <= 2100]
-  years_2025_2050 <- output_years[output_years >= 2025 & output_years <= 2050]
-  years_2030_2050 <- output_years[output_years >= 2030 & output_years <= 2050]
-  years_after_2050 <- output_years[output_years > 2050]
-
-  # Create output variable names (scenario.variable combinations)
-  output_names <- as.vector(outer(
-    scenario_mapping$scen.remind,
-    output_variables,
-    FUN = function(x, y) paste0(x, ".", y)
-  ))
-
-  # Filter FORECAST data for Germany only, keep in quitte format
-  df_forecast <- quitte::as.quitte(data_forecast["DEU",,])
-
-
-
-  # Get REMIND industry production trajectories
-  # Get FEdemand output for SSP2 Germany only (filter early for efficiency)
-  # Multiple scenarios needed for cache, but only SSP2 used in output
-  feDemScen <- c("SSPs", "SSP2IndiaDEAs", "SSP2_lowEn", "SSP2_highDemDEU", "SSP2_NAV_all")
-  remind_base <- calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, aggregate = F)["DEU", , "SSP2"]
-
-
-  # Extract REMIND production anchors (2025 and 2100)
-  df_remind_ssp2 <- quitte::as.quitte(remind_base) %>%
-    dplyr::filter(.data$item %in% output_variables, .data$period %in% c(2025, 2100)) %>%
-    dplyr::select(variable = .data$item, .data$period, .data$value)
-
-  # Verify each variable-year combination has exactly one SSP2 anchor
-  duplicate_check <- df_remind_ssp2 %>%
-    dplyr::count(.data$variable, .data$period) %>%
-    dplyr::filter(.data$n != 1)
-
-  if (nrow(duplicate_check) > 0) {
-    stop("Missing or non-unique SSP2 REMIND baseline values in calcOutput('FEdemand').")
-  }
-
-  # Keep distinct anchors for later joins
-  df_remind_anchors <- df_remind_ssp2 %>%
-    dplyr::distinct(.data$variable, .data$period, .keep_all = TRUE)
-
   # ---- Step 2: Create trajectories for 2030-2050 for steel and cement ----
+
+  # time steps to adapt
+  output_years <- sort(unique(quitte::remind_timesteps$period)) # REMIND timesteps
+  output_years <- output_years[output_years >= 2005 & output_years <= 2100]
+  years_2030_2050 <- output_years[output_years >= 2030 & output_years <= 2050]
 
   # Take steel/cement trajectories directly from FORECAST in 2030-2050 period
   # Map scenario/variable names and convert units (Mt -> Gt)
@@ -122,12 +107,12 @@ calcExogDemScen <- function() {
       value = .data$value * 1e-3
     )
 
-  if (any(is.na(df_steel_cement_2030_2050$scen.remind)) ||
-      any(is.na(df_steel_cement_2030_2050$variable))) {
-    stop("Could not map FORECAST steel/cement data to REMIND scenarios or variables.")
-  }
 
   # ---- Step 3: Create trajectories for 2030-2050 for chemicals and other industry ----
+
+  # time steps to adapt
+  years_2025_2050 <- output_years[output_years >= 2025 & output_years <= 2050]
+
 
   # Aggregate FORECAST industry gross value added (GVA) outside of steel, cement chemicals
   # to get to production of other industry sector in REMIND
@@ -147,23 +132,24 @@ calcExogDemScen <- function() {
   # but then follow FORECAST trend until 2050
   df_gva_2025 <- df_gva_2025_2050 %>%
     dplyr::filter(.data$period == 2025) %>%
-    dplyr::rename(value_2025 = .data$value) %>%
-    dplyr::select(.data$scen.remind, .data$var.remind, .data$value_2025)
+    dplyr::rename("value_2025" = "value") %>%
+    select("scen.remind", "var.remind", "value_2025")
 
   # Convert GVA values to indices relative to 2025
   df_gva_index <- df_gva_2025_2050 %>%
     dplyr::left_join(df_gva_2025, by = c("scen.remind", "var.remind")) %>%
     dplyr::mutate(index = .data$value / .data$value_2025)
 
-  if (any(is.na(df_gva_index$index))) {
-    stop("Missing FORECAST 2025 values for GVA-based scaling.")
-  }
 
-  # Scale chemicals/otherInd with REMIND 2025 anchors to get 2025-2050 pathways
-  df_remind_2025 <- df_remind_anchors %>%
+  # Scale chemicals/otherInd GVA to follow the the relative development of FORECAST trajectories in 2030-2050 on
+  # (i.e. 2025 values are still the same as in REMIND)
+  df_remind_2025 <- df_remind_ssp2 %>%
     dplyr::filter(.data$period == 2025) %>%
-    dplyr::rename(var.remind = .data$variable, remind_2025 = .data$value) %>%
-    dplyr::select(.data$var.remind, .data$remind_2025)
+    dplyr::rename(
+      "var.remind" = "variable",
+      "remind_2025" = "value"
+    ) %>%
+    select("var.remind", "remind_2025")
 
   df_chem_other_2025_2050 <- df_gva_index %>%
     dplyr::left_join(df_remind_2025, by = "var.remind") %>%
@@ -174,9 +160,6 @@ calcExogDemScen <- function() {
       value = .data$remind_2025 * .data$index
     )
 
-  if (any(is.na(df_chem_other_2025_2050$value))) {
-    stop("Missing REMIND 2025 anchors for chemicals or other industry variables.")
-  }
 
   # Merge all explicitly defined values up to 2050
   df_values_until_2050 <- dplyr::bind_rows(
@@ -186,19 +169,22 @@ calcExogDemScen <- function() {
 
   # ---- Step 4: Linear interpolation from 2050 to REMIND values in 2100 ----
 
-  # Extract 2050 values as interpolation start points
+  # time steps to adapt
+  years_after_2050 <- output_years[output_years > 2050]
+
+  # Extract 2050 values as interpolation starting points
   df_2050 <- df_values_until_2050 %>%
     dplyr::filter(.data$period == 2050) %>%
-    dplyr::rename(value_2050 = .data$value) %>%
-    dplyr::select(.data$scen.remind, .data$variable, .data$value_2050)
+    dplyr::rename("value_2050" = "value") %>%
+    select("scen.remind", "variable", "value_2050")
 
-  # Extract SSP2 2100 anchors as interpolation end points
-  df_2100 <- df_remind_anchors %>%
+  # Extract SSP2 2100 REMIND production as interpolation end points
+  df_2100 <- df_remind_ssp2 %>%
     dplyr::filter(.data$period == 2100) %>%
-    dplyr::rename(value_2100 = .data$value) %>%
-    dplyr::select(.data$variable, .data$value_2100)
+    dplyr::rename("value_2100" = "value") %>%
+    select("variable", "value_2100")
 
-  # Generate all scenario-variable-year combinations after 2050 with linear interpolation
+  # linearly interpolate production from FORECAST-derived values in 2050 to REMIND value in 2100
   df_after_2050 <- expand.grid(
     scen.remind = scenario_mapping$scen.remind,
     variable = output_variables,
@@ -210,28 +196,27 @@ calcExogDemScen <- function() {
     dplyr::mutate(
       value = .data$value_2050 + (.data$value_2100 - .data$value_2050) * ((.data$period - 2050) / 50)
     ) %>%
-    dplyr::select(.data$scen.remind, .data$variable, .data$period, .data$value)
+    select("scen.remind", "variable", "period", "value")
 
-  if (any(is.na(df_after_2050$value))) {
-    stop("Missing 2050 or 2100 anchors required for interpolation after 2050.")
-  }
 
   # ---- Step 5: Convert to magclass format ----
 
   # Merge all pre-2050 and post-2050 values and create final variable names
   df_deu_values <- dplyr::bind_rows(df_values_until_2050, df_after_2050) %>%
-                      mutate( region = "DEU") %>%
-                      rename( scenario = .data$scen.remind) %>%
-                      select( .data$region, .data$period, .data$scenario, .data$variable, .data$value) %>%
-                      # only use periods from 2030 on because that's where we start policy runs
-                      filter( .data$period >= 2030)
+    mutate(region = "DEU") %>%
+    rename("scenario" = "scen.remind") %>%
+    select("region", "period", "scenario", "variable", "value") %>%
+    # only use periods from 2030 on because that's where we start policy runs
+    filter(.data$period >= 2030)
 
   # convert to magclass output, all other countries outside Germany set to 0
   out <- df_deu_values %>%
-            as.magpie(spatial = 1,
-                      temporal = 2,
-                      datacol = 5) %>%
-            toolCountryFill(fill = 0, verbosity = 2)
+    as.magpie(
+      spatial = 1,
+      temporal = 2,
+      datacol = 5
+    ) %>%
+    toolCountryFill(fill = 0, verbosity = 2)
 
 
   list(
