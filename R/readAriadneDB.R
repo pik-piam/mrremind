@@ -4,6 +4,8 @@
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
 #' @importFrom dplyr filter mutate
+#' @importFrom tidyr gather
+#' @importFrom quitte getVars as.quitte
 #'
 readAriadneDB <- function() {
   # read in FORECAST v5 file (sheet "Sheet1")

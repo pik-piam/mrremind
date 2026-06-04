@@ -5,6 +5,8 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
+#'
+#' @importFrom dplyr select
 
 calcExogDemScen <- function() {
   # Exogenous industry production scenarios for Germany used in the Ariadne project
