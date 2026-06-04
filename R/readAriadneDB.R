@@ -28,6 +28,7 @@ readAriadneDB <- function() {
       grep("Gross Value Added\\|", getVars(data), value = T)
     )) %>%
     select("period", "region", "scenario", "variable", "value") %>%
+    as.data.frame() %>%
     as.magpie(temporal = 1, spatial = 2, datacol = 5)
 
 

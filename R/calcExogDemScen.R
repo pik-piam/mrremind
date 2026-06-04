@@ -211,8 +211,10 @@ calcExogDemScen <- function() {
     # only use periods from 2030 on because that's where we start policy runs
     filter(.data$period >= 2030)
 
+
   # convert to magclass output, all other countries outside Germany set to 0
   out <- df_deu_values %>%
+    as.data.frame() %>%
     as.magpie(
       spatial = 1,
       temporal = 2,
