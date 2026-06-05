@@ -4,7 +4,7 @@
 \alias{readEurostat_REShare}
 \title{Read Eurostat Historical Renewable FE Share Data}
 \usage{
-readEurostat_REShare()
+readEurostat_REShare(subtype)
 }
 \value{
 magpie object of Eurostat Historical Renewable FE Share Data (share)
