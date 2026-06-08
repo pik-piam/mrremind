@@ -15,7 +15,7 @@ calcJRC_IDEES(subtype)
 }}
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Calculate selected REMIND energy and emission variables from historical JRC IDEES values
