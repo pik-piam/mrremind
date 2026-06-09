@@ -53,17 +53,10 @@ fullREMIND <- function() {
     match.steel.historic.values = TRUE,
     match.steel.estimates = "IEA_ETP"
   )
-  calcOutput("FEdemand", scenario = feDemScen, signif = 4, file = "f_fedemand.cs4r")
-  calcOutput("FeDemandBuildings",
-             subtype = "FE_buildings",
-             scenario = feDemScen,
-             round = 8,
-             file = "f_fedemand_build.cs4r")
-  calcOutput("FeDemandBuildings",
-             subtype = "UE_buildings",
-             scenario = feDemScen,
-             round = 8,
-             file = "f36_uedemand_build.cs4r")
+
+  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
+  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
+  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
@@ -212,6 +205,7 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
+  calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
 
