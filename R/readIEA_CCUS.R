@@ -7,7 +7,7 @@
 #' @param subtype either `historical` for data until 2024,
 #' `projections` for "high" and "low" projections up to 2030 used as input-data
 #'  or `pipeline` separated by status for use in formulating near-term bounds
-#' @importFrom dplyr filter mutate select
+#' @importFrom dplyr filter mutate select ac
 #' @importFrom readxl read_xlsx
 #'
 readIEA_CCUS <- function(subtype) {
@@ -40,17 +40,17 @@ readIEA_CCUS <- function(subtype) {
 
   sharedData <- data[sharedMask, ] %>%
     mutate(country = strsplit(.data$country, "-")) %>%
-    tidyr::unnest(country) %>%
+    tidyr::unnest(.data$country) %>%
     mutate(country = trimws(.data$country))
 
   # compute GDP-weighted values
   sharedData <- sharedData %>%
     mutate(iso3 = madrat::toolCountry2isocode(.data$country)) %>%
     mutate(gdpValue = as.numeric(gdp[.data$iso3, 2020, ])) %>%
-    group_by(across(-c(country, iso3, gdpValue, value))) %>%
+    group_by(dplyr::across(-c(.data$country, .data$iso3, .data$gdpValue, .data$value))) %>%
     mutate(value = .data$value * .data$gdpValue / sum(.data$gdpValue)) %>%
     ungroup() %>%
-    select(-iso3, -gdpValue)
+    select(-.data$iso3, -.data$gdpValue)
 
   data <- rbind(data[!sharedMask, ], sharedData)
 
