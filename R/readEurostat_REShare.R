@@ -5,7 +5,7 @@
 #' @return magpie object of Eurostat Historical Renewable FE Share Data (share)
 #' @author Felix Schreyer
 #'
-readEurostat_REShare <- function(subtype) {
+readEurostat_REShare <- function() {
   # read Eurostat spreadsheet
   ReShareRaw <- readxl::read_excel(
     path = "sdg_07_40_page_spreadsheet.xlsx",
