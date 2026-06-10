@@ -72,7 +72,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
     # define CES inputs over which to sum for respective FE demand
     if (subtype == "FE") {
       # for FE projection, get FE trend of total FE
-      input.fe.build <- c("feelcb", "feelhpb", "feelrhb", "fegab", "fehob", "fesob", "feheb")
+      input.fe.build <- c("feelrhcob", "feelhpb", "feelalb", "feelictb", "feelscb", "fegab", "fehob", "fesob", "feheb")
       input.fe.indst <- c(
         grep("fe.*steel", getNames(FEIndustry), value = TRUE),
         grep("fe.*cement", getNames(FEIndustry), value = TRUE),
@@ -82,7 +82,7 @@ toolCalcEnergyProj <- function(subtype, subset, scenario, years = seq(2020, 2050
       input.fe.trans <- getNames(FETransport)
     } else if (subtype == "SE|Electricity") {
       # for SE electricity projection, get FE trend of FE electricity
-      input.fe.build <- c("feelcb", "feelhpb", "feelrhb")
+      input.fe.build <- c("feelrhcob", "feelhpb", "feelalb", "feelictb", "feelscb")
       input.fe.indst <- c(
         "feel_steel_secondary", "feel_steel_primary", "feel_cement",
         "feelwlth_chemicals", "feelhth_chemicals",
