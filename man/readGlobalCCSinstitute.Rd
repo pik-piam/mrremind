@@ -8,10 +8,8 @@ readGlobalCCSinstitute(subtype = "08-09-2017")
 }
 \arguments{
 \item{subtype}{Project Database version to read, one of
-\itemize{
-\item \code{'08-09-2017'}: Data apparently from June 2017.
-\item \code{'2023-11'}: Data from the Global Status of CCS 2023 report.
-}}
+- \code{'08-09-2017'}: Data apparently from June 2017.
+- \code{'2023-11'}: Data from the Global Status of CCS 2023 report.}
 }
 \value{
 a magpie object
