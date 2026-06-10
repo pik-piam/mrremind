@@ -18,6 +18,7 @@
 #'   - `ies`: intertemporal elasticity of substitution (Nicolas Bauer)
 #'   - `prtp`: pure rate of time preference (Nicolas Bauer)
 #'   - `subConvergenceRollback`: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+#'   - `storageFactor`: Regional storage parametrization (Robert Pietzcker)
 #'   - `taxConvergence`: Tax convergence level in US$2017 (Nicolas Bauer)
 #'   - `taxConvergenceRollback`: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
 #'   - `tradeConstraints`: parameter by Nicolas Bauer (2024) for the region specific trade
@@ -42,7 +43,7 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
   } else if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_3.6.1.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_2026-02-27_v1.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 
   } else if (subtype == "capacityFactorRules") {
@@ -58,7 +59,7 @@ readExpertGuess <- function(subtype) {
 
   } else if (subtype == "co2prices") {
 
-    out <- read.csv("co2prices-2025-09.csv", sep = ";") %>%
+    out <- read.csv("co2prices-2026-06.csv", sep = ";") %>%
       select(-"Country", -"RegionCode") %>%
       as.magpie()
 
@@ -95,6 +96,11 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
     getYears(out) <- "2005"
+
+  } else if (subtype == "storageFactor") {
+
+    out <- read.csv("storage-factor_EU21_v1.0.csv", sep = ";") %>%
+      as.magpie()
 
   } else if (subtype == "subConvergenceRollback") {
 

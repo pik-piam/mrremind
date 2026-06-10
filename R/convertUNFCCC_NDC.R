@@ -3,8 +3,8 @@
 #' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
 #' For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
 #'
-#' Emission targets are represented by a GHG factor, which is the quotient of total GHG
-#' emissions in the target year divided by the CEDS GHG emissions in 2005.
+#' NDC Emissions targets on absolute level for total GHG emissions without bunkers and land-use change emissions are calculated
+#' from country-specific target formulation and land-use change emissions data
 #'
 #' @param x a magclass object to be converted
 #' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
@@ -16,7 +16,6 @@
 convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-
     # TODO: do we want to implement FE-Production-Share?
 
     # pre-processing ----
@@ -307,8 +306,10 @@ convertUNFCCC_NDC <- function(x, subtype, subset = NULL) { # nolint: object_name
   }
 
   if (grepl("Emissions", subtype, fixed = TRUE)) {
-    ghgFactor <- toolCalcGhgFactor(x, subtype, subset)
-    x <- toolCountryFill(ghgFactor, fill = NA, verbosity = 2)
+    # calculate absolute NDC emissions target per country
+    x <- toolCalcGhgTarget(x, subtype, subset)
+    # fill missing countries with NA (no target)
+    x <- toolCountryFill(x, fill = NA, verbosity = 2, no_remove_warning = "ANT")
   }
 
   # add NDC version from subtype

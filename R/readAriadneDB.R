@@ -1,28 +1,36 @@
 #' Ariadne database scenario data
-#' @description  Scenario data from the Ariadne modeling intercomparison project for Germany.
-#' See README in input file for more details.
+#' @description  This reads in FORECAST industry production data for Germany used in the Ariadne scenarios
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #' @author Felix Schreyer
 #' @importFrom dplyr filter mutate
+#' @importFrom tidyr gather
+#' @importFrom quitte getVars as.quitte
 #'
 readAriadneDB <- function() {
+  # read in FORECAST v5 file (sheet "Sheet1")
+  data_file <- "FORECAST_Ariadne_v5_Szenarien.xlsx"
 
-  # read in file
+  # read source file and convert to quitte format
   data <- readxl::read_excel(
-    "IIASA_DB_Complete_06_03_2024.xlsx",
-    sheet = "data",
-    col_types = c(
-      rep("text", 5),
-      rep("numeric", 19)
-    )
-  )
+    data_file,
+    sheet = "Sheet1"
+  ) %>%
+    gather("period", "value", -"Model", -"Scenario", -"Region", -"Variable", -"Unit") %>%
+    as.quitte()
 
-  # rearrange and convert to magclass object
+  # only retain scenario and variable variation
+  # only use production and gross value added variables
+  # convert to magpie object
   out <- data %>%
-    tidyr::gather("period", "value", -"model", -"scenario", -"region", -"variable", -"unit") %>%
-    filter(!is.na(.data$value)) %>%
-    as.magpie(temporal = 6, spatial = 3, datacol = 7)
+    filter(.data$variable %in% c(
+      grep("Production\\|", getVars(data), value = T),
+      grep("Gross Value Added\\|", getVars(data), value = T)
+    )) %>%
+    select("period", "region", "scenario", "variable", "value") %>%
+    as.data.frame() %>%
+    as.magpie(temporal = 1, spatial = 2, datacol = 5)
+
 
   return(out)
 }

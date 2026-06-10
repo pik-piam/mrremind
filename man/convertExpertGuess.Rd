@@ -25,6 +25,7 @@ export and use) (Nicolas Bauer)
 \item \code{ies}: intertemporal elasticity of substitution (Nicolas Bauer)
 \item \code{prtp}: pure rate of time preference (Nicolas Bauer)
 \item \code{subConvergenceRollback}: Subsidy convergence level in rollback scenario in US$2017 (Nicolas Bauer)
+\item \code{storageFactor}: Regional storage parametrization (Robert Pietzcker)
 \item \code{taxConvergence}: Tax convergence level in US$2017 (Nicolas Bauer)
 \item \code{taxConvergenceRollback}: Tax convergence level in rollback scenario in US$2017 (Nicolas Bauer)
 \item \code{tradeConstraints}: parameter by Nicolas Bauer (2024) for the region specific trade
@@ -35,4 +36,7 @@ effectiveness to varying degrees such as percentage numbers (Nicolas Bauer)
 }
 \description{
 Converts data from expert guess
+}
+\author{
+Falk Benke
 }

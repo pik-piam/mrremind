@@ -48,10 +48,11 @@ calcExpertGuess <- function(subtype) {
   if (subtype == "biocharPrices") {
 
     unit <- "USD 2015/t biochar"
-    description <- glue::glue("Biochar price assumptions over time. Assumptions \\
-    based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    description <- glue::glue(
+      "Biochar price assumptions over time. Assumptions based on collection of \\
+      current bulk sale prices (see Dorndorf et al (submitted))."
+    )
     weight <- NULL
-
   } else if (subtype == "ccsBounds") {
 
     getNames(x) <- NULL
@@ -81,7 +82,6 @@ calcExpertGuess <- function(subtype) {
     weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
 
   } else if (subtype == "tradeConstraints") {
-
     unit <- "unitless"
     description <- glue::glue(
       "parameter by Nicolas Bauer (2024) for the region specific \\

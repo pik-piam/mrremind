@@ -22,5 +22,5 @@ a <- readSource(type = "EDGETransport")
 }
 }
 \author{
-Johanna Hoppe
+Johanna Hoppe, Alex K. Hagen
 }

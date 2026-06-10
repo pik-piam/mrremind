@@ -9,7 +9,6 @@
 #' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
 
 calcEmiTargetReference <- function() {
-
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7
   gwpCH4 <- 28
   gwpN2O <- 265
@@ -19,7 +18,7 @@ calcEmiTargetReference <- function() {
 
   # calculate CEDS values ----
 
-  # Calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
+  # calculate GHG total of CO2, CH4 and N2O [unit Mt CO2eq] without landuse
   GHGwoLULUCF <- dimSums(ceds[, , c(
     "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
     "Emi|CO2|Agriculture (Mt CO2/yr)",
@@ -46,7 +45,6 @@ calcEmiTargetReference <- function() {
     ghgCEDS[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
     ghgCEDS[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
 
-
   # get UNFCCC values ----
 
   ghgUNFCCC <- unfccc[, , c(
@@ -54,11 +52,32 @@ calcEmiTargetReference <- function() {
     "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
   )]
 
+
+  # manually add data from UNFCCC GHG Profiles for China
+  # https://di.unfccc.int/ghg_profile_non_annex1
+  # This is what China official reported as their reference year emissions for the 2030 NDC target.
+  # We use total GHG emissions here although the emissions intensity 2030 target only refers to CO2 emissions.
+  # This is because we lack a projection of non-CO2 emissions development until 2030.
+  # We therefore calculate the target based on GHG-intensity, not CO2-intensity.
+  # The difference should not be large but the target should be a bit more ambitious than the actual CO2-intensity target.
+  ghgUNFCCC["CHN", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 7249
+  ghgUNFCCC["CHN", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -766
+
+  # Also take India 2005 reference year from UNFCCC GHG Profile
+  # this is the average of 2000 and 2010 emissions as 2005 was not reported
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <- 1593
+  ghgUNFCCC["IND", "y2005", "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <- -237
+
+
+
   ghgUNFCCC <- add_columns(ghgUNFCCC, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3.1)
 
   ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
     ghgUNFCCC[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
     ghgUNFCCC[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+
+
 
   # merge CEDS and UNFCCCC values ----
 
@@ -67,14 +86,48 @@ calcEmiTargetReference <- function() {
     getItems(readSource("UNFCCC", convert = FALSE), dim = 1)
   )
 
+
   out <- ghgCEDS
   out[unfcccReg, , ] <- ghgUNFCCC[unfcccReg, , ]
+
+
+  # for India and China take 2005 emissions from UNFCCC
+  # to get correct reference emissions for their NDC emissions targets
+  # where 2005 is the reference year
+  out[c("CHN","IND"), "y2005", ] <- ghgUNFCCC[c("CHN","IND"), "y2005", ]
+
+
+
+
+  # fill gaps for LULUCF national accounting with IIASA data ----
+
+  # for historical values, replace all NAs with IIASA data
+  iiasaHist <- readSource("IIASALanduse", subtype = "historical")
+  tmp <- out[, 2022, , invert = TRUE][, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+  # this does not overwrite existing data of better quality, but only uses IIASA where
+  # no better source is available
+  tmp[is.na(tmp)] <- iiasaHist[is.na(tmp)]
+  out[, getYears(tmp), getNames(tmp)] <- tmp[, , ]
+
+  # fill gaps for Emissions incl. LULUCF national accounting with IIASA data ----
+
+  # after filling gaps in "Emi|GHG|Land-Use Change|LULUCF national accounting" with IIASA data,
+  # we can now also redo the calculation of "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
+  # to fill more gaps (either gaps are filled, or previously existing values are recalculated below)
+
+  out[,,"Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
+    out[,,"Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] +
+    out[,,"Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
+  # fill all remaining NAs with 0 ----
+
   out[is.na(out)] <- 0
 
   return(list(
     x = out,
     unit = "Mt CO2eq",
     description = glue::glue("historical GHG emissions with and without LULUCF \\
-    from 1990 to 2022 according to UNFCCC and CEDS")
+    from 1990 to 2022 according to UNFCCC, CEDS and IIASA")
   ))
 }

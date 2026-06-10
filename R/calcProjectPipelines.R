@@ -255,17 +255,26 @@ calcProjectPipelines <- function(subtype) {
     unit <- "GW"
     description <- "Nuclear project pipeline from GEM and IEA PRIS"
 
-  #   # Coal ----
-  # } else if (subtype == "coal") {
-  #   x <- readSource("GlobalEnergyMonitor")
-  #   x <- x[, , "Coal", pmatch = T]
-  #
-  #
-  #
-  #   # meta data
-  #   unit <- "GW"
-  #   description <- "Coal project pipeline from GEM"
-  #
+    # Coal ----
+  } else if (subtype == "coal") {
+    x <- readSource("GlobalEnergyMonitor")
+    x <- x[, , "Coal", pmatch = T]
+
+
+    # put all in "pre-construction" category ("pre-permit", "permitted" categories from database)
+    # and announced projects into "planned" category
+    x <- mbind(x,
+               setNames(x[, , "pre-construction"] + x[, , "announced"], "GlobalEnergyMonitor.Cap|Electricity|Coal.planned.GW"),
+               # rename to "operational", "construction"
+               setNames(x[, , "operating"], "GlobalEnergyMonitor.Cap|Electricity|Coal.operational.GW"))
+
+    x <- x[, , c("operational", "construction", "planned")]
+
+
+    # meta data
+    unit <- "GW"
+    description <- "Coal project pipeline from GEM"
+
   #   # Geothermal ----
   # } else if (subtype == "geothermal") {
   #   x <- readSource("GlobalEnergyMonitor")

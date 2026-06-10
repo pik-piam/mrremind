@@ -2,22 +2,18 @@
 % Please edit documentation in R/convertREMIND_11Regi.R
 \name{convertREMIND_11Regi}
 \alias{convertREMIND_11Regi}
-\title{Converts REMIND regional data}
+\title{Converts REMIND 11 Regi data}
 \usage{
 convertREMIND_11Regi(x, subtype)
 }
 \arguments{
 \item{x}{MAgPIE object to be converted}
 
-\item{subtype}{Name of the regional data, e.g. "pe2se",
-"deltacapoffset", "fossilExtractionCoeff", "uraniumExtractionCoeff"}
-}
-\value{
-A MAgPIE object containing country disaggregated data
+\item{subtype}{Name of the source, e.g. "fossilExtractionCoeff", "uraniumExtractionCoeff"}
 }
 \description{
-Converts REMIND regional data
+Converts REMIND 11 Regi data
 }
 \author{
-original: not defined - tax, fossil and RLDC changes: Renato Rodriguess
+unknown
 }

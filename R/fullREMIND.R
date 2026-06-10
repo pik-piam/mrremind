@@ -56,17 +56,10 @@ fullREMIND <- function() {
     match.steel.historic.values = TRUE,
     match.steel.estimates = "IEA_ETP"
   )
-  calcOutput("FEdemand", scenario = feDemScen, signif = 4, file = "f_fedemand.cs4r")
-  calcOutput("FeDemandBuildings",
-             subtype = "FE_buildings",
-             scenario = feDemScen,
-             round = 8,
-             file = "f_fedemand_build.cs4r")
-  calcOutput("FeDemandBuildings",
-             subtype = "UE_buildings",
-             scenario = feDemScen,
-             round = 8,
-             file = "f36_uedemand_build.cs4r")
+
+  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
+  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
+  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
@@ -131,9 +124,9 @@ fullREMIND <- function() {
   calcOutput("WaterConsCoef",                            round = 3,  file = "WaterConsCoef.cs4r", aggregate = FALSE)
   calcOutput("WaterWithCoef",                            round = 3,  file = "WaterWithCoef.cs4r", aggregate = FALSE)
   calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
-  calcOutput("IO", subtype = "output", corrected = TRUE, round = 8,  file = "f04_IO_output.cs4r")
-  calcOutput("IO", subtype = "input",  corrected = TRUE, round = 8,  file = "f04_IO_input.cs4r")
-  calcOutput("IO", subtype = "trade",  corrected = TRUE, round = 8,  file = "f_IO_trade.cs4r")
+  calcOutput("IoRemind", subtype = "output",             round = 8,  file = "f04_IO_output.cs4r")
+  calcOutput("IoRemind", subtype = "input",              round = 8,  file = "f04_IO_input.cs4r")
+  calcOutput("IoRemind", subtype = "trade",              round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
              # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
@@ -150,8 +143,9 @@ fullREMIND <- function() {
   calcOutput("Solar",                                                  round = 5,  file = "f_dataRegiSolar.cs3r")
   calcOutput("CapacityNuclear",                                        round = 5,  file = "pm_NuclearConstraint.cs4r")
   calcOutput("CCScapacity", subtype = "pipeline",                      round = 8,  file = "p_boundCapCCS.cs4r")
+  calcOutput("CapacityBounds", subtype = "pipeline",                   round = 8,  file = "p_CapacityBounds.cs4r")
   calcOutput("ExpertGuess", subtype = "ccsBounds",                     round = 8,  file = "p_boundCapCCSindicator.cs4r")
-  calcOutput("LimitCCS",                                               round = 8,  file = "pm_dataccs.cs3r")
+  calcOutput("PotentialGeologicalStorage",                             round = 8,  file = "f_geoStorPot.cs3r")
 
   calcOutput("BiomassPrices",                                          round = 6,  file = "f30_bioen_price.cs4r")
   calcOutput("ResFor2ndBioengery", years = rem_years,                  round = 5,  file = "p30_biolcResidues.cs3r")
@@ -182,11 +176,11 @@ fullREMIND <- function() {
   #---------------policy parameters--------------------------------------------------------------------
 
   # NDC emissions targets from UNFCCC
-  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "EmiTargetAbs", scenario = gdpPopScen, round = 4, file = "fm_EmiTargetAbs.cs3r")
   calcOutput("EmiTarget", sources = "UNFCCC_NDC", subtype = "Ghgshare", scenario = gdpPopScen, round = 4, file = "fm_shareTarget.cs3r")
 
   # NDC emissions targets from NewClimate protocol
-  calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgfactor", scenario = gdpPopScen, round = 4, file = "fm_NC_factorTargetyear.cs3r")
+  calcOutput("EmiTarget", sources = "NewClimate", subtype = "EmiTargetAbs", scenario = gdpPopScen, round = 4, file = "fm_NC_EmiTargetAbs.cs3r")
   calcOutput("EmiTarget", sources = "NewClimate", subtype = "Ghgshare", scenario = gdpPopScen, round = 4, file = "fm_NC_shareTarget.cs3r")
 
   # capacity targets from UNFCCC
@@ -214,6 +208,7 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
+  calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
 
