@@ -2,18 +2,12 @@
 % Please edit documentation in R/calcPHI.R
 \name{calcPHI}
 \alias{calcPHI}
-\title{Calculate capital costs for energy technologies}
+\title{Provides REMIND data for realization Investment_Inefficiencies in 01_macro Module}
 \usage{
 calcPHI()
 }
 \description{
 Provides REMIND data for realization Investment_Inefficiencies in 01_macro Module
-}
-\examples{
-\dontrun{
-calcOutput("IMF_PHI")
-}
-
 }
 \author{
 Diamantis Koutsandreas

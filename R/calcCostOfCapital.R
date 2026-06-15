@@ -3,13 +3,6 @@
 #' Provides REMIND data for 25_WACC Module
 #'
 #' @author Diamantis Koutsandreas
-#'
-#' @examples
-#' \dontrun{
-#' calcOutput("ETH_WACC")
-#' }
-#'
-
 
 calcCostOfCapital <- function() {
   output <- readSource("ETH_WACC")

@@ -18,10 +18,6 @@ Provides REMIND data for 25_WACC Module
 calcOutput("ETH_WACC")
 }
 
-\dontrun{
-calcOutput("ETH_WACC")
-}
-
 }
 \author{
 Diamantis Koutsandreas
