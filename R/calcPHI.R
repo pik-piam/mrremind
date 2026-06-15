@@ -6,7 +6,7 @@
 calcPHI <- function() {
 
   output <- readSource("IMF_PHI")
-
+  getNames(output) <- NULL
   return(
     list(
       x = output,

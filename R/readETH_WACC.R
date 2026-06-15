@@ -2,9 +2,6 @@
 #' the REMIND regions
 #' @author Diamantis Koutsandreas
 
-#' @noRd
-utils::globalVariables(c("value", "min_val", "reg", "tewacc"))
-
 readETH_WACC <- function() {
   years <- c(2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050,
              2055, 2060, 2070, 2080, 2090, 2100, 2110, 2130, 2150)
@@ -16,7 +13,7 @@ readETH_WACC <- function() {
     rename(reg = 1) # Rename the region column to 'reg'
 
   data_expanded <- data %>%
-    slice(rep(seq_len(dplyr::n()), each = length(years))) %>%
+    dplyr::slice(rep(seq_len(dplyr::n()), each = length(years))) %>%
     mutate(t = rep(years, times = nrow(data)))
 
   data_expanded <- data_expanded %>%
