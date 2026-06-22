@@ -13,7 +13,7 @@ convertPBL_EFsBaseline(x)
 \item{x}{a magpie object}
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Disaggregates PBL emission factors from the 26 IMAGE regions to ISO3

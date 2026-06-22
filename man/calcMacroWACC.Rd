@@ -2,7 +2,8 @@
 % Please edit documentation in R/calcMacroWACC.R
 \name{calcMacroWACC}
 \alias{calcMacroWACC}
-\title{Calculate capital costs for REMIND regions}
+\title{Calculate the weighted average cost of capital (WACC) markups for REMIND regions.
+These values are applied to macroeconomic investments.}
 \usage{
 calcMacroWACC()
 }
