@@ -44,7 +44,7 @@ fullREMIND <- function() {
 
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
   calcOutput("CostOfCapital",                                     file = "p25_wacc.cs4r", aggregate = FALSE)
-  
+  calcOutput("MacroWACC",                                     file = "p25_macro_wacc.cs4r", aggregate = FALSE)
 
   # Exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
