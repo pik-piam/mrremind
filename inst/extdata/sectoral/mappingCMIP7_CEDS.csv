@@ -1,8 +1,8 @@
 CMIP7_CEDS;REMIND;IAMC;CommentREMIND;CommentIAMC
+Agricultural Waste Burning;AFOLU|Agricultural Waste Burning;;;
 Agriculture;Agriculture;;;
-Forest Burning;AFOLU|Agricultural Waste Burning;;;
-Grassland Burning;AFOLU|Land|Fires|Forest Burning;;;
-Agricultural Waste Burning;AFOLU|Land|Fires|Grassland Burning;;;
+Forest Burning;AFOLU|Land|Fires|Forest Burning;;;
+Grassland Burning;AFOLU|Land|Fires|Grassland Burning;;;
 Peat Burning;AFOLU|Land|Fires|Peat Burning;;;
 Residential Commercial Other;Energy|Demand|Buildings;;;
 Industrial Sector;Industry;;Industrial energy demand + Industrial processes;

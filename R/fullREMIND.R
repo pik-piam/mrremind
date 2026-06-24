@@ -32,6 +32,7 @@ fullREMIND <- function() {
 
   calcOutput("RatioPPP2MER",                          round = 8,  file = "pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
+  calcOutput("PHI",                                               file = "p01_phi.cs4r", aggregate = FALSE)
 
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
@@ -42,6 +43,8 @@ fullREMIND <- function() {
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
+  calcOutput("CostOfCapital",                                     file = "p25_wacc.cs4r", aggregate = FALSE)
+  calcOutput("MacroWACC",                                     file = "p25_macro_wacc.cs4r", aggregate = FALSE)
 
   # Exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
@@ -205,6 +208,7 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceCEDS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
+  calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
 
   #---------------no longer used in REMIND develop-----------------------------------------------------
 
