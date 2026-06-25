@@ -270,9 +270,9 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.D.1.a. Aviation|NMVOC;;;
 1.D.1.a. Aviation|NOX;;;
 1.D.1.a. Aviation|SO2;;;
-1.D.1.b. Navigation|CH4;0.001;"Navigation|CH4;0.001;Emi|CH4|Transport|Freight|International Shipping|Demand";Mt CH4/yr
+1.D.1.b. Navigation|CH4;0.001;Emi|CH4|Transport|Freight|International Shipping|Demand;Mt CH4/yr
 1.D.1.b. Navigation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Bunkers|Freight|International Shipping|Demand;Mt CO2/yr
-1.D.1.b. Navigation|N2O;1;"Navigation|N2O;1;Emi|N2O|Transport|Freight|International Shipping|Demand";kt N2O/yr
+1.D.1.b. Navigation|N2O;1;Emi|N2O|Transport|Freight|International Shipping|Demand;kt N2O/yr
 1.D.2. Multilateral operations|CH4;;;
 1.D.2. Multilateral operations|CO;;;
 1.D.2. Multilateral operations|CO2;;;
