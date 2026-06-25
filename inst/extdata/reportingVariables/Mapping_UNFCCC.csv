@@ -105,28 +105,28 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.A.3. Transport|SO2;;;
 1.A.3.a. Domestic aviation|CH4;;;
 1.A.3.a. Domestic aviation|CO;;;
-1.A.3.a. Domestic aviation|CO2;0.001;Emi|CO2|Transport|Pass|Aviation|Domestic|Demand;Mt CO2/yr
+1.A.3.a. Domestic aviation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Pass|Domestic Aviation;Mt CO2/yr
 1.A.3.a. Domestic aviation|N2O;;;
 1.A.3.a. Domestic aviation|NMVOC;;;
 1.A.3.a. Domestic aviation|NOX;;;
 1.A.3.a. Domestic aviation|SO2;;;
 1.A.3.b. Road transportation|CH4;;;
 1.A.3.b. Road transportation|CO;;;
-1.A.3.b. Road transportation|CO2;0.001;Emi|CO2|Transport|Pass|Road|Demand;Mt CO2/yr
+1.A.3.b. Road transportation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Road;Mt CO2/yr
 1.A.3.b. Road transportation|N2O;;;
 1.A.3.b. Road transportation|NMVOC;;;
 1.A.3.b. Road transportation|NOX;;;
 1.A.3.b. Road transportation|SO2;;;
 1.A.3.c. Railways|CH4;;;
 1.A.3.c. Railways|CO;;;
-1.A.3.c. Railways|CO2;0.001;Emi|CO2|Transport|Pass|Rail|Demand;Mt CO2/yr
+1.A.3.c. Railways|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Rail;Mt CO2/yr
 1.A.3.c. Railways|N2O;;;
 1.A.3.c. Railways|NMVOC;;;
 1.A.3.c. Railways|NOX;;;
 1.A.3.c. Railways|SO2;;;
 1.A.3.d. Domestic navigation|CH4;;;
 1.A.3.d. Domestic navigation|CO;;;
-1.A.3.d. Domestic navigation|CO2;0.001;Emi|CO2|Transport|Freight|Navigation|Demand;Mt CO2/yr
+1.A.3.d. Domestic navigation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Freight|Domestic Shipping;Mt CO2/yr
 1.A.3.d. Domestic navigation|N2O;;;
 1.A.3.d. Domestic navigation|NMVOC;;;
 1.A.3.d. Domestic navigation|NOX;;;
@@ -263,16 +263,16 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.D.1. International bunkers|NMVOC;;;
 1.D.1. International bunkers|NOX;;;
 1.D.1. International bunkers|SO2;;;
-1.D.1.a. Aviation|CH4;0.001;Emi|CH4|Transport|Pass|Aviation|International|Demand;Mt CH4/yr
+1.D.1.a. Aviation|CH4;0.001;Emi|CH4|Energy|Demand|Transport|Bunkers|Pass|International Aviation;Mt CH4/yr
 1.D.1.a. Aviation|CO;;;
-1.D.1.a. Aviation|CO2;0.001;Emi|CO2|Transport|Pass|Aviation|International|Demand;Mt CO2/yr
-1.D.1.a. Aviation|N2O;1;Emi|N2O|Transport|Pass|Aviation|International|Demand;kt N2O/yr
+1.D.1.a. Aviation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Bunkers|Pass|International Aviation;Mt CO2/yr
+1.D.1.a. Aviation|N2O;1;Emi|N2O|Energy|Demand|Transport|Bunkers|Pass|International Aviation;kt N2O/yr
 1.D.1.a. Aviation|NMVOC;;;
 1.D.1.a. Aviation|NOX;;;
 1.D.1.a. Aviation|SO2;;;
-1.D.1.b. Navigation|CH4;0.001;Emi|CH4|Transport|Freight|International Shipping|Demand;Mt CH4/yr
-1.D.1.b. Navigation|CO2;0.001;Emi|CO2|Transport|Freight|International Shipping|Demand;Mt CO2/yr
-1.D.1.b. Navigation|N2O;1;Emi|N2O|Transport|Freight|International Shipping|Demand;kt N2O/yr
+1.D.1.b. Navigation|CH4;0.001;Emi|CH4|Energy|Demand|Transport|Bunkers|Freight|International Shipping|Demand;Mt CH4/yr
+1.D.1.b. Navigation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Bunkers|Freight|International Shipping|Demand;Mt CO2/yr
+1.D.1.b. Navigation|N2O;1;Emi|N2O|Energy|Demand|Transport|Bunkers|Freight|International Shipping|Demand;kt N2O/yr
 1.D.2. Multilateral operations|CH4;;;
 1.D.2. Multilateral operations|CO;;;
 1.D.2. Multilateral operations|CO2;;;
