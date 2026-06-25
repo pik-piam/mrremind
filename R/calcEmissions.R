@@ -756,6 +756,11 @@ calcEmissions <- function(datasource = "CEDS16") {
       emi[, , "Energy|Supply|Electricity and Heat"] +
       emi[, , "Energy|Supply|Fuels"]
 
+    emi <- add_columns(emi, "Industry", dim = 3.2)
+    emi[, , "Industry"] <-
+      emi[, , "Industrial Processes"] +
+      emi[, , "Energy|Demand|Industry"]
+
     emi <- add_columns(emi, "w/o Bunkers|Energy|Demand", dim = 3.2)
     emi[, , "w/o Bunkers|Energy|Demand"] <-
       emi[, , "w/o Bunkers|Energy|Demand|Transport"] +
