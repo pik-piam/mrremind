@@ -9,7 +9,7 @@ calcPE <- function(ieaVersion = "default") {
 
   mapping <- toolGetMapping(type = "sectoral",
                             name = "structuremappingIO_reporting.csv",
-                            where = "mrremind", returnPathOnly = TRUE)
+                            where = "mrenergy", returnPathOnly = TRUE)
   target <- c("input")
 
   ### calculate data
