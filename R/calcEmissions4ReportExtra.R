@@ -13,7 +13,7 @@ calcEmissions4ReportExtra <- function(sectors = "CEDS") {
 
   if (sectors == "IAMC") {
     # Mapping between CEDS sectors and some IAMC sectors we want to estimate emission factors for
-    iamcsectormap <- toolGetMapping("mappingCEDS2025toREMIND.csv", type = "sectoral", where = "mrremind")
+    iamcsectormap <- toolGetMapping("mappingCEDS2025toREMIND.csv", type = "sectoral", where = "mrenergy")
     # Discard nonmapped sectors and aggregate them
     out <- out[, , intersect(getItems(out, dim = 3.1), iamcsectormap$CEDS2025)]
     out <- toolAggregate(out, rel = iamcsectormap, dim = 3.1, from = "CEDS2025", to = "IAMC")
