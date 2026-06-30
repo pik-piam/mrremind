@@ -15,5 +15,5 @@ or \code{pipeline} separated by status for use in formulating near-term bounds}
 Reads in capacities from projects in IEA CCUS database
 }
 \author{
-Anne Merfort, Falk Benke
+Anne Merfort, Falk Benke, Pascal Weigmann
 }
