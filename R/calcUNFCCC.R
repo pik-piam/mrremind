@@ -239,6 +239,29 @@ calcUNFCCC <- function() {
     x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
 
+  x <- add_columns(x, "Emi|CO2|Industry|Cement (Mt CO2/yr)", dim = 3.1)
+  x[, , "Emi|CO2|Industry|Cement (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|Industrial Processes|Cement (Mt CO2/yr)"] +
+    x[, , "Emi|CO2|Energy|Demand|Industry|Cement (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|CO2|Industry|Steel (Mt CO2/yr)", dim = 3.1)
+  x[, , "Emi|CO2|Industry|Steel (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|Industrial Processes|Steel (Mt CO2/yr)"] +
+    x[, , "Emi|CO2|Energy|Demand|Industry|Steel (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|CO2|Industry|Chemicals (Mt CO2/yr)", dim = 3.1)
+  x[, , "Emi|CO2|Industry|Chemicals (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|Industrial Processes|Chemicals (Mt CO2/yr)"] +
+    x[, , "Emi|CO2|Energy|Demand|Industry|Chemicals (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|CO2|Industry|Other Industry (Mt CO2/yr)", dim = 3.1)
+  x[, , "Emi|CO2|Industry|Other Industry (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] -
+    x[, , "Emi|CO2|Industrial Processes|Chemicals (Mt CO2/yr)"] -
+    x[, , "Emi|CO2|Industrial Processes|Steel (Mt CO2/yr)"] -
+    x[, , "Emi|CO2|Industrial Processes|Cement (Mt CO2/yr)"] +
+    x[, , "Emi|CO2|Energy|Demand|Industry|Other Industry (Mt CO2/yr)"]
+
   x <- add_columns(x, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
   x[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
