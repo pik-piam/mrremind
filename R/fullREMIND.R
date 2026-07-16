@@ -211,26 +211,4 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
   calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
 
-  #---------------no longer used in REMIND develop-----------------------------------------------------
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.5,
-                              "Early development"    = 0.2),
-             signif = 3, file = "f37_indCCSlimit_default.cs4r",
-             years = seq(2005, 2050, 5))
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.8,
-                              "Early development"    = 0.5),
-             signif = 3, file = "f37_indCCSlimit_high.cs4r",
-             years = seq(2005, 2050, 5))
-
 }
