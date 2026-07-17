@@ -7,7 +7,7 @@
 readAriadneDB()
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 This reads in FORECAST industry production data for Germany used in the Ariadne scenarios

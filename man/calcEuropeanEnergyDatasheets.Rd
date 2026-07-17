@@ -11,7 +11,7 @@ calcEuropeanEnergyDatasheets(subtype)
 or "EU27" (latest data from August 23 without GBR)}
 }
 \value{
-A \code{\link[magclass:magclass]{magpie}} object.
+A \code{\link[magclass:magclass-package]{magpie}} object.
 }
 \description{
 Calculate REMIND variables from European Energy Datasheets
