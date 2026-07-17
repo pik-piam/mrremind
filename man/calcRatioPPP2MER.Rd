@@ -24,6 +24,9 @@ with base year equal to the \code{year} argument) from PPP to MER. So for exampl
 }
 \details{
 Missing conversion factors are set to 1 and regional aggregation is weighed by GDP from WDI-MI-James.
+
+This ratio is also reported as the Price Level Index (GDP) in the World Bank's WDI database, which is equal to our
+measure multiplied by 100.
 }
 \examples{
 \dontrun{
