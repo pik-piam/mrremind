@@ -5,20 +5,12 @@
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
 #'
-calcUNFCCC <- function() {
+#' @param subtype either generate for countries "all" or "annex-1-only"
+#'
+calcUNFCCC <- function(subtype = "all") {
+  stopifnot(subtype %in% c("all", "annex-1-only"))
 
   data <- readSource("UNFCCC", subtype = "annex-1")
-
-  # fill countries of selected regions with 0 to allow for regional aggregation
-  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
-  mapping <- toolGetMapping("regionmappingH12.csv",
-                            type = "regional",
-                            where = "mappingfolder") %>%
-    filter(.data$RegionCode %in% regions.fill)
-
-  tmp <- data[unique(mapping$CountryCode), , ]
-  tmp[is.na(tmp)] <- 0
-  data[unique(mapping$CountryCode), , ] <- tmp
 
   # map to REMIND variables
 
@@ -42,6 +34,9 @@ calcUNFCCC <- function() {
 
   x <- stats::aggregate(value ~ variable + region + period, x, sum) %>%
     as.magpie()
+
+  # fill missing values with 0, because there are assumed to be small
+  x[is.na(x)] <- 0
 
   # aggregate pollutants ----
 
@@ -266,6 +261,17 @@ calcUNFCCC <- function() {
     x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
 
+  # overall aggregates ----
+  x <- add_columns(x, "Emi|CO2|w/o Bunkers|w/o Land-Use Change (Mt CO2/yr)", dim = 3)
+  x[, , "Emi|CO2|w/o Bunkers|w/o Land-Use Change (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] -
+    x[, , "Emi|CO2|Land-Use Change|LULUCF national accounting (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3)
+  x[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
+    x[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
+    x[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
   # default variables equal to "w/ bunkers" variables
   x <- add_columns(x, "Emi|CO2|LULUCF national accounting (Mt CO2/yr)",
                    dim = 3)
@@ -318,43 +324,67 @@ calcUNFCCC <- function() {
   x[, , "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"]
 
-
   # remove years before 1990 due to incomplete data
   x <- x[, seq(1986, 1989, 1), , invert = TRUE]
 
 
 
   # Use Non-Annex-1 Data ----
-  nonAnnexData <- readSource("UNFCCC", subtype = "non-annex-1")
+  if (subtype == "all") {
+    nonAnnexData <- readSource("UNFCCC", subtype = "non-annex-1")
 
-  mapping <- toolGetMapping("Mapping_UNFCCC_Non_Annex.csv", type = "reportingVariables", where = "mrremind") %>%
-    select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
-    mutate(
-      "REMIND" = trimws(.data$REMIND)
-    ) %>%
-    filter(!is.na(.data$REMIND), .data$REMIND != "")
+    mapping <- toolGetMapping("Mapping_UNFCCC_Non_Annex.csv", type = "reportingVariables", where = "mrremind") %>%
+      select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
+      mutate(
+        "REMIND" = trimws(.data[["REMIND"]])
+      ) %>%
+      filter(!is.na(.data[["REMIND"]]), .data[["REMIND"]] != "")
 
-  nonAnnexData <- nonAnnexData %>%
-    mselect(variable = unique(mapping$variable)) %>%
-    quitte::as.quitte(na.rm = TRUE)
+    nonAnnexData <- nonAnnexData %>%
+      mselect(variable = unique(mapping[["variable"]])) %>%
+      as.data.frame(rev = 3) %>%
+      filter(!is.na(.data[[".value"]]))
 
-  nonAnnexData <- left_join(nonAnnexData, mapping, by = "variable", relationship = "many-to-many") %>%
-    mutate(
-      "value" = .data$value * .data$conversion,
-      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")")
-    ) %>%
-    select("variable" = "REMIND", "region", "period", "value") %>%
-    as.magpie()
+    # mapping and conversion
+    nonAnnexData <- left_join(nonAnnexData, mapping, by = "variable", relationship = "many-to-many") %>%
+      mutate(
+        "value" = .data[[".value"]] * .data[["conversion"]],
+        "REMIND" = paste0(.data[["REMIND"]], " (", .data[["Unit_REMIND"]], ")")
+      ) %>%
+      select("variable" = "REMIND", "region", "year", "value") %>%
+      as.magpie()
 
-  result <- new.magpie(
-    cells_and_regions = getISOlist(),
-    years = union(getYears(x), getYears(nonAnnexData)),
-    names = union(getNames(x), getNames(nonAnnexData)),
-    sets = c("region", "year", "value"),
-    fill = NA
-  )
-  result[getRegions(x), getYears(x), getNames(x)] = x
-  result[getRegions(nonAnnexData), getYears(nonAnnexData), getNames(nonAnnexData)] = nonAnnexData
+    # the countries should not overlap
+    stopifnot(length(intersect(getItems(x, dim = 1), getItems(nonAnnexData, dim = 1))) == 0)
+
+    years = union(getYears(x), getYears(nonAnnexData))
+    names = union(getNames(x), getNames(nonAnnexData))
+
+    # write both annex and non-annex data into a new magclass object
+    result <- new.magpie(
+      cells_and_regions = getISOlist(),
+      years = years,
+      names = names,
+      sets = c("region", "year", "value"),
+      fill = NA
+    )
+    result[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
+    result[getItems(nonAnnexData, dim = 1), getYears(nonAnnexData), getNames(nonAnnexData)] <- nonAnnexData
+  } else {
+    result <- x %>%
+      toolCountryFill(fill = NA, verbosity = 2)
+  }
+
+  # fill countries of selected regions with 0 to allow for regional aggregation
+  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
+  mapping <- toolGetMapping("regionmappingH12.csv",
+                            type = "regional",
+                            where = "mappingfolder") %>%
+    filter(.data$RegionCode %in% regions.fill)
+
+  tmp <- result[unique(mapping$CountryCode), , ]
+  tmp[is.na(tmp)] <- 0
+  result[unique(mapping$CountryCode), , ] <- tmp
 
   return(list(
     x = result, weight = NULL,

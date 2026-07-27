@@ -4,7 +4,10 @@
 \alias{calcUNFCCC}
 \title{Calculate REMIND emission variables from historical UNFCCC values}
 \usage{
-calcUNFCCC()
+calcUNFCCC(subtype = "all")
+}
+\arguments{
+\item{subtype}{either generate for countries "all" or "annex-1-only"}
 }
 \value{
 A magpie object.

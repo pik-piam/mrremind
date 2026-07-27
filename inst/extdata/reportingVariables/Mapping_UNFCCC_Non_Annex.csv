@@ -1,7 +1,7 @@
 UNFCCC;Factor;REMIND;Unit_REMIND
 CO2 emissions without LULUCF / LUCF;0.001;Emi|CO2|w/o Bunkers|w/o Land-Use Change;Mt CO2/yr
 CO2 net emissions/removals by LULUCF / LUCF;0.001;Emi|CO2|Land-Use Change|LULUCF national accounting;Mt CO2/yr
-CO2 net emissions/removals with LULUCF / LUCF;0.001;Emi|CO2|w/o Bunkers;Mt CO2/yr
+CO2 net emissions/removals with LULUCF / LUCF;0.001;Emi|CO2|w/o Bunkers|LULUCF national accounting;Mt CO2/yr
 GHG emissions without LULUCF / LUCF;0.001;Emi|GHG|w/o Bunkers|w/o Land-Use Change;Mt CO2eq/yr
 GHG net emissions/removals by LULUCF / LUCF;0.001;Emi|GHG|Land-Use Change|LULUCF national accounting;Mt CO2eq/yr
-GHG net emissions/removals with LULUCF / LUCF;0.001;Emi|GHG|w/o Bunkers;Mt CO2eq/yr
+GHG net emissions/removals with LULUCF / LUCF;0.001;Emi|GHG|w/o Bunkers|LULUCF national accounting;Mt CO2eq/yr
