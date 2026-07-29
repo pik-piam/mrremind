@@ -16,23 +16,24 @@ calcUNFCCC <- function(subtype = "all") {
 
   mapping <- toolGetMapping("Mapping_UNFCCC.csv", type = "reportingVariables", where = "mrremind") %>%
     select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
-    mutate("REMIND" = trimws(.data$REMIND),
-           "variable" = trimws(gsub("\\.", "_", .data$variable))) %>%
-    filter(!is.na(.data$REMIND), .data$REMIND != "")
+    mutate("REMIND" = trimws(.data[["REMIND"]]),
+           "variable" = trimws(gsub("\\.", "_", .data[["variable"]]))) %>%
+    filter(!is.na(.data[["REMIND"]]), .data[["REMIND"]] != "")
 
   df <- data %>%
-    mselect(variable = unique(mapping$variable)) %>%
-    quitte::as.quitte(na.rm = TRUE) %>%
-    filter(.data$period >= 1990)
+    mselect(variable = unique(mapping[["variable"]])) %>%
+    as.data.frame(rev = 3) %>%
+    filter(!is.na(.data[[".value"]])) %>%
+    filter(.data[["year"]] >= 1990)
 
   x <- left_join(df, mapping, by = "variable", relationship = "many-to-many") %>%
     mutate(
-      "value" = .data$value * .data$conversion,
-      "REMIND" = paste0(.data$REMIND, " (", .data$Unit_REMIND, ")")
+      "value" = .data[[".value"]] * .data[["conversion"]],
+      "REMIND" = paste0(.data[["REMIND"]], " (", .data[["Unit_REMIND"]], ")")
     ) %>%
-    select("variable" = "REMIND", "region", "period", "value")
+    select("variable" = "REMIND", "region", "year", "value")
 
-  x <- stats::aggregate(value ~ variable + region + period, x, sum) %>%
+  x <- stats::aggregate(value ~ variable + region + year, x, sum) %>%
     as.magpie()
 
   # fill missing values with 0, because there are assumed to be small
@@ -313,11 +314,11 @@ calcUNFCCC <- function(subtype = "all") {
   mapping <- toolGetMapping("regionmappingH12.csv",
                             type = "regional",
                             where = "mappingfolder") %>%
-    filter(.data$RegionCode %in% regions.fill)
+    filter(.data[["RegionCode"]] %in% regions.fill)
 
-  tmp <- result[unique(mapping$CountryCode), , ]
+  tmp <- result[unique(mapping[["CountryCode"]]), , ]
   tmp[is.na(tmp)] <- 0
-  result[unique(mapping$CountryCode), , ] <- tmp
+  result[unique(mapping[["CountryCode"]]), , ] <- tmp
 
   return(list(
     x = result, weight = NULL,
