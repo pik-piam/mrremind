@@ -5,20 +5,12 @@
 #' @author Falk Benke, Pascal Weigmann
 #' @importFrom dplyr select mutate left_join
 #'
-calcUNFCCC <- function() {
+#' @param subtype either generate for countries "all" or "annex-1-only"
+#'
+calcUNFCCC <- function(subtype = "all") {
+  stopifnot(subtype %in% c("all", "annex-1-only"))
 
-  data <- readSource("UNFCCC")
-
-  # fill countries of selected regions with 0 to allow for regional aggregation
-  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
-  mapping <- toolGetMapping("regionmappingH12.csv",
-                            type = "regional",
-                            where = "mappingfolder") %>%
-    filter(.data$RegionCode %in% regions.fill)
-
-  tmp <- data[unique(mapping$CountryCode), , ]
-  tmp[is.na(tmp)] <- 0
-  data[unique(mapping$CountryCode), , ] <- tmp
+  data <- readSource("UNFCCC", subtype = "annex-1")
 
   # map to REMIND variables
 
@@ -41,12 +33,14 @@ calcUNFCCC <- function() {
     select("variable" = "REMIND", "region", "period", "value")
 
   x <- stats::aggregate(value ~ variable + region + period, x, sum) %>%
-    as.magpie() %>%
-    toolCountryFill(fill = NA, verbosity = 2)
+    as.magpie()
+
+  # fill missing values with 0, because there are assumed to be small
+  x[is.na(x)] <- 0
 
   # aggregate pollutants ----
 
-  x <- add_columns(x, "Emi|CH4|w/o Bunkers|LULUCF national accounting (Mt CH4/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CH4|w/o Bunkers|LULUCF national accounting (Mt CH4/yr)", dim = 3)
   x[, , "Emi|CH4|w/o Bunkers|LULUCF national accounting (Mt CH4/yr)"] <- dimSums(
     x[, , c(
       "Emi|CH4|Agriculture (Mt CH4/yr)",
@@ -58,7 +52,7 @@ calcUNFCCC <- function() {
     dim = 3, na.rm = TRUE
   )
 
-  x <- add_columns(x, "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] <- dimSums(
     x[, , c(
       "Emi|CO2|Agriculture (Mt CO2/yr)",
@@ -70,7 +64,7 @@ calcUNFCCC <- function() {
     dim = 3, na.rm = TRUE
   )
 
-  x <- add_columns(x, "Emi|N2O|w/o Bunkers|LULUCF national accounting (kt N2O/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|N2O|w/o Bunkers|LULUCF national accounting (kt N2O/yr)", dim = 3)
   x[, , "Emi|N2O|w/o Bunkers|LULUCF national accounting (kt N2O/yr)"] <- dimSums(
     x[, , c(
       "Emi|N2O|Agriculture (kt N2O/yr)",
@@ -84,38 +78,38 @@ calcUNFCCC <- function() {
 
   # add total GHG as CO2 equivalents for sectors ----
 
-  x <- add_columns(x, "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy (Mt CO2/yr)"] +
     x[, , "Emi|CH4|w/o Bunkers|Energy (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|w/o Bunkers|Energy (kt N2O/yr)"] / 1000 * 265
 
-  x <- add_columns(x, "Emi|GHG|Industrial Processes (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Industrial Processes (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Industrial Processes (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Industrial Processes (kt N2O/yr)"] / 1000 * 265
 
-  x <- add_columns(x, "Emi|GHG|Agriculture (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Agriculture (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Agriculture (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Agriculture (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Agriculture (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Agriculture (kt N2O/yr)"] / 1000 * 265
 
-  x <- add_columns(x, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Land-Use Change|LULUCF national accounting (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Land-Use Change|LULUCF national accounting (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Land-Use Change|LULUCF national accounting (kt N2O/yr)"] / 1000 * 265
 
-  x <- add_columns(x, "Emi|GHG|Waste (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Waste (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Waste (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Waste (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Waste (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Waste (kt N2O/yr)"] / 1000 * 265
 
   # GHG total
-  x <- add_columns(x, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] +
     x[, , "Emi|CH4|w/o Bunkers|LULUCF national accounting (Mt CH4/yr)"] * 28 +
@@ -123,41 +117,41 @@ calcUNFCCC <- function() {
 
   # additional CO2 variables ----
 
-  x <- add_columns(x, "Emi|CO2|w/ Bunkers|LULUCF national accounting (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|w/ Bunkers|LULUCF national accounting (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|w/ Bunkers|LULUCF national accounting (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|w/ Bunkers|Energy (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy and Industrial Processes (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|w/ Bunkers|Energy and Industrial Processes (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy and Industrial Processes (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|w/o Bunkers|Energy|Demand (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|w/o Bunkers|Energy|Demand (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|w/o Bunkers|Energy|Demand (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
     x[, , "Emi|CO2|w/o Bunkers|Energy|Demand|Transport (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy|Demand (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy|Demand (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|w/ Bunkers|Energy|Demand (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy|Demand (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|w/ Bunkers|Energy|Demand|Transport (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|w/ Bunkers|Energy|Demand|Transport (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy|Demand|Transport (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"]
@@ -165,37 +159,37 @@ calcUNFCCC <- function() {
   # additional GHG variables ----
 
   x <- add_columns(x, "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Energy|Demand|Transport|International Bunkers (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Energy|Demand|Transport|International Bunkers (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Energy|Demand|Transport|International Bunkers (kt N2O/yr)"] / 1000 * 265
 
 
-  x <- add_columns(x, "Emi|GHG|w/ Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|w/ Bunkers|LULUCF national accounting (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|w/ Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
 
-  x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|w/o Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/o Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|Energy (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/ Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
-  x <- add_columns(x, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Energy|Demand|Industry (Mt CH4/yr)"] * 28 +
@@ -203,58 +197,58 @@ calcUNFCCC <- function() {
 
 
   x <- add_columns(x, "Emi|GHG|w/o Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/o Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|w/o Bunkers|Energy|Demand|Transport (Mt CO2/yr)"] +
     x[, , "Emi|CH4|w/o Bunkers|Energy|Demand|Transport (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|w/o Bunkers|Energy|Demand|Transport (kt N2O/yr)"] / 1000 * 265
 
-  x <- add_columns(x, "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)"] <-
     x[, , "Emi|CO2|Energy|Demand|Buildings (Mt CO2/yr)"] +
     x[, , "Emi|CH4|Energy|Demand|Buildings (Mt CH4/yr)"] * 28 +
     x[, , "Emi|N2O|Energy|Demand|Buildings (kt N2O/yr)"] / 1000 * 265
 
   x <- add_columns(x, "Emi|GHG|w/o Bunkers|Energy|Demand (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/o Bunkers|Energy|Demand (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|w/o Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Buildings (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|Energy|Demand (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|w/ Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|w/ Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/o Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Transport|International Bunkers (Mt CO2eq/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|Industry (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|Industry (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|Industry|Cement (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|Industry|Cement (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|Industry|Cement (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes|Cement (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry|Cement (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|Industry|Steel (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|Industry|Steel (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|Industry|Steel (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes|Steel (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry|Steel (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|Industry|Chemicals (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|Industry|Chemicals (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|Industry|Chemicals (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes|Chemicals (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry|Chemicals (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|CO2|Industry|Other Industry (Mt CO2/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|CO2|Industry|Other Industry (Mt CO2/yr)", dim = 3)
   x[, , "Emi|CO2|Industry|Other Industry (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|Industrial Processes (Mt CO2/yr)"] -
     x[, , "Emi|CO2|Industrial Processes|Chemicals (Mt CO2/yr)"] -
@@ -262,72 +256,138 @@ calcUNFCCC <- function() {
     x[, , "Emi|CO2|Industrial Processes|Cement (Mt CO2/yr)"] +
     x[, , "Emi|CO2|Energy|Demand|Industry|Other Industry (Mt CO2/yr)"]
 
-  x <- add_columns(x, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3.1)
+  x <- add_columns(x, "Emi|GHG|Industry (Mt CO2eq/yr)", dim = 3)
   x[, , "Emi|GHG|Industry (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|Industrial Processes (Mt CO2eq/yr)"] +
     x[, , "Emi|GHG|Energy|Demand|Industry (Mt CO2eq/yr)"]
 
+  # overall aggregates ----
+  x <- add_columns(x, "Emi|CO2|w/o Bunkers|w/o Land-Use Change (Mt CO2/yr)", dim = 3)
+  x[, , "Emi|CO2|w/o Bunkers|w/o Land-Use Change (Mt CO2/yr)"] <-
+    x[, , "Emi|CO2|w/o Bunkers|LULUCF national accounting (Mt CO2/yr)"] -
+    x[, , "Emi|CO2|Land-Use Change|LULUCF national accounting (Mt CO2/yr)"]
+
+  x <- add_columns(x, "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)", dim = 3)
+  x[, , "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)"] <-
+    x[, , "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"] -
+    x[, , "Emi|GHG|Land-Use Change|LULUCF national accounting (Mt CO2eq/yr)"]
+
   # default variables equal to "w/ bunkers" variables
   x <- add_columns(x, "Emi|CO2|LULUCF national accounting (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|LULUCF national accounting (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/ Bunkers|LULUCF national accounting (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|Energy (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|Energy (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/ Bunkers|Energy (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|Energy and Industrial Processes (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/ Bunkers|Energy and Industrial Processes (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|Energy|Demand (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|Energy|Demand (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/ Bunkers|Energy|Demand (Mt CO2/yr)"]
 
   x <- add_columns(x, "Emi|CO2|Energy|Demand|Transport (Mt CO2/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|CO2|Energy|Demand|Transport (Mt CO2/yr)"] <-
     x[, , "Emi|CO2|w/ Bunkers|Energy|Demand|Transport (Mt CO2/yr)"]
 
 
   x <- add_columns(x, "Emi|GHG|LULUCF national accounting (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|LULUCF national accounting (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|LULUCF national accounting (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|Energy (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|Energy (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|Energy (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|Energy and Industrial Processes (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|Energy and Industrial Processes (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|Energy and Industrial Processes (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|Energy|Demand (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|Energy|Demand (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|Energy|Demand (Mt CO2eq/yr)"]
 
   x <- add_columns(x, "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)",
-                   dim = 3.1)
+                   dim = 3)
   x[, , "Emi|GHG|Energy|Demand|Transport (Mt CO2eq/yr)"] <-
     x[, , "Emi|GHG|w/ Bunkers|Energy|Demand|Transport (Mt CO2eq/yr)"]
 
-  # return results ----
-
-
   # remove years before 1990 due to incomplete data
   x <- x[, seq(1986, 1989, 1), , invert = TRUE]
-  x <- add_dimension(x, dim = 3.1, add = "model", nm = "UNFCCC")
+
+
+
+  # Use Non-Annex-1 Data ----
+  if (subtype == "all") {
+    nonAnnexData <- readSource("UNFCCC", subtype = "non-annex-1")
+
+    mapping <- toolGetMapping("Mapping_UNFCCC_Non_Annex.csv", type = "reportingVariables", where = "mrremind") %>%
+      select("variable" = "UNFCCC", "REMIND", "conversion" = "Factor", "Unit_REMIND") %>%
+      mutate(
+        "REMIND" = trimws(.data[["REMIND"]])
+      ) %>%
+      filter(!is.na(.data[["REMIND"]]), .data[["REMIND"]] != "")
+
+    nonAnnexData <- nonAnnexData %>%
+      mselect(variable = unique(mapping[["variable"]])) %>%
+      as.data.frame(rev = 3) %>%
+      filter(!is.na(.data[[".value"]]))
+
+    # mapping and conversion
+    nonAnnexData <- left_join(nonAnnexData, mapping, by = "variable", relationship = "many-to-many") %>%
+      mutate(
+        "value" = .data[[".value"]] * .data[["conversion"]],
+        "REMIND" = paste0(.data[["REMIND"]], " (", .data[["Unit_REMIND"]], ")")
+      ) %>%
+      select("variable" = "REMIND", "region", "year", "value") %>%
+      as.magpie()
+
+    # the countries should not overlap
+    stopifnot(length(intersect(getItems(x, dim = 1), getItems(nonAnnexData, dim = 1))) == 0)
+
+    years = union(getYears(x), getYears(nonAnnexData))
+    names = union(getNames(x), getNames(nonAnnexData))
+
+    # write both annex and non-annex data into a new magclass object
+    result <- new.magpie(
+      cells_and_regions = getISOlist(),
+      years = years,
+      names = names,
+      sets = c("region", "year", "value"),
+      fill = NA
+    )
+    result[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
+    result[getItems(nonAnnexData, dim = 1), getYears(nonAnnexData), getNames(nonAnnexData)] <- nonAnnexData
+  } else {
+    result <- x %>%
+      toolCountryFill(fill = NA, verbosity = 2)
+  }
+
+  # fill countries of selected regions with 0 to allow for regional aggregation
+  regions.fill <- c("EUR", "REF", "NEU", "CAZ")
+  mapping <- toolGetMapping("regionmappingH12.csv",
+                            type = "regional",
+                            where = "mappingfolder") %>%
+    filter(.data$RegionCode %in% regions.fill)
+
+  tmp <- result[unique(mapping$CountryCode), , ]
+  tmp[is.na(tmp)] <- 0
+  result[unique(mapping$CountryCode), , ] <- tmp
 
   return(list(
-    x = x, weight = NULL,
+    x = result, weight = NULL,
     unit = c("Mt CO2", "Mt CH4", "kt N2O", "Mt CO2eq"),
     description = "Historical UNFCCC values as REMIND variables"
   ))
