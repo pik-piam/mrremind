@@ -365,7 +365,7 @@ calcUNFCCC <- function(subtype = "all") {
       cells_and_regions = getISOlist(),
       years = years,
       names = names,
-      sets = c("region", "year", "value"),
+      sets = c("region", "year", "variable"),
       fill = NA
     )
     result[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
