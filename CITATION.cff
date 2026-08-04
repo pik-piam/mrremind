@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'mrremind: MadRat REMIND Input Data Package'
-version: 0.273.1
+version: 0.274.0
 date-released: '2026-07-31'
 abstract: The mrremind packages contains data preprocessing for the REMIND model.
 authors:
@@ -67,6 +67,8 @@ authors:
   given-names: Gabriel
 - family-names: Dorndorf
   given-names: Tabea
+- family-names: Krogmann
+  given-names: Simon
 license: LGPL-3.0
 repository-code: https://github.com/pik-piam/mrremind
 
