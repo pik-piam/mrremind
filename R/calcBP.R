@@ -18,46 +18,30 @@ calcBP <- function() {
   # prepare consumption data ----
   consumption <- readSource("BP", subtype = "Consumption")
 
-  # read in efficiency factors described in sheet "Methodology
-  # 1965-2000: assumed constant efficiency of 36%
-  # 2000-2017: a linear increase from 36% to 40% based on observed data
-  # 2018 onwards: the annual rate of efficiency improvement is based on the simplified
-  # assumption that efficiency will increase linearly to 45% by 2050.
+  # accounting of the source as of the 2025 Statistical Review (see the notes below the
+  # sheet "Total Energy Supply (TES) -EJ"): non-combustible renewables (solar, wind, hydro)
+  # are reported on the energy content of their gross electrical output, i.e. already in
+  # direct equivalent accounting, while nuclear is reported on its input heat requirement
+  # using a fixed efficiency of 33% and thus needs to be converted
 
-  efficiencyFactors <- rbind(
-    data.frame(period = seq(1965, 2000, 1), value = 0.36),
-    data.frame(period = seq(2001, 2016), value = NA),
-    data.frame(period = 2017, value = 0.4),
-    data.frame(period = seq(2018, 2049), value = NA),
-    data.frame(period = 2050, value = 0.45)
-  )
+  nuclearEfficiency <- 0.33
 
-  efficiencyFactors <- quitte::interpolate_missing_periods(efficiencyFactors, method = "linear") %>%
-    as.magpie() %>%
-    dimReduce()
+  # recalculate nuclear to direct equivalent accounting
+  consumption.nuclear <- consumption[, , "Nuclear Consumption (EJ)"] * nuclearEfficiency
 
-  renewables.vars <- c(
-    "Solar Consumption (EJ)", "Wind Consumption (EJ)",
-    "Nuclear Consumption (EJ)", "Hydro Consumption (EJ)"
-  )
-
-  # recalculate renewables to direct equivalent accounting
-  consumption.renewables <- consumption[, , renewables.vars] * efficiencyFactors[, getYears(consumption), ]
-
-  # store fossils, which need no conversion
-  consumption.fossils <- consumption[, , c(renewables.vars, "Primary Energy Consumption (EJ)"), invert = TRUE]
+  # store the other variables, which need no conversion
+  consumption.other <- consumption[, , c("Nuclear Consumption (EJ)",
+                                         "Primary Energy Consumption (EJ)"), invert = TRUE]
 
   # recalculate total pe consumption to direct equivalent accounting
 
-  # 1. deduct original nuclear and electricity generation by renewables
+  # 1. deduct original nuclear
   pe.nuclear <- consumption[, , "Nuclear Consumption (EJ)"]
-  pe.elec.renewable <- generation[, , "Generation|Electricity|Renewable (EJ)"]
-  consumption.pe <- consumption[, , "Primary Energy Consumption (EJ)"] - pe.nuclear - pe.elec.renewable
+  consumption.pe <- consumption[, , "Primary Energy Consumption (EJ)"] - pe.nuclear
 
-  # 2. add adjusted nuclear and renewables values
-  pe.nuclear.dea <- pe.nuclear * efficiencyFactors[, getYears(pe.nuclear), ]
-  pe.elec.renewable.dea <- pe.elec.renewable * efficiencyFactors[, getYears(pe.elec.renewable), ]
-  consumption.pe <- consumption.pe + pe.elec.renewable.dea + pe.nuclear.dea
+  # 2. add adjusted nuclear value
+  pe.nuclear.dea <- pe.nuclear * nuclearEfficiency
+  consumption.pe <- consumption.pe + pe.nuclear.dea
   consumption.pe <- collapseDim(consumption.pe)
   getNames(consumption.pe) <- "Primary Energy Consumption (EJ)"
   getSets(consumption.pe) <- c("region", "year", "data")
@@ -94,8 +78,8 @@ calcBP <- function() {
     emissions,
     capacity,
     generation,
-    consumption.fossils,
-    consumption.renewables,
+    consumption.other,
+    consumption.nuclear,
     consumption.pe,
     trade.oil,
     trade.oil.net,
@@ -137,15 +121,15 @@ calcBP <- function() {
 
   # convert price units ----
 
-  # should be from US$2023, but 'toolConvertGDP' currently returns NA
+  # should be from US$2025, but 'toolConvertGDP' currently returns NA
   poil <- GDPuc::toolConvertGDP(
-    gdp = x[, , "Price|Primary Energy|Oil (US$2023/GJ)"],
+    gdp = x[, , "Price|Primary Energy|Oil (US$2025/GJ)"],
     unit_in = "constant 2022 US$MER",
     unit_out = mrdrivers::toolGetUnitDollar(),
     replace_NAs = "with_USA"
   )
 
-  getNames(poil) <- gsub("\\$2023", "\\$2017", getNames(poil))
+  getNames(poil) <- gsub("\\$2025", "\\$2017", getNames(poil))
 
   # assume these units are in current MER
   pcoalgas <- GDPuc::toolConvertGDP(
@@ -158,7 +142,7 @@ calcBP <- function() {
   getNames(pcoalgas) <- gsub("\\$", "\\$2017", getNames(pcoalgas))
 
 
-  x <- x[, , c("Price|Primary Energy|Oil (US$2023/GJ)",
+  x <- x[, , c("Price|Primary Energy|Oil (US$2025/GJ)",
                "Price|Primary Energy|Gas (US$/GJ)",
                "Price|Primary Energy|Coal (US$/GJ)"), invert = TRUE]
 

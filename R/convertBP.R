@@ -188,20 +188,20 @@ convertBP <- function(x, subtype) {
     trade.export.oil <- .removeNaRegions(x[, , "Trade|Export|Oil (kb/d)"])
     trade.import.oil <- .removeNaRegions(x[, , "Trade|Import|Oil (kb/d)"])
 
-    # step 1: resolve to more fine granual regions based on detailed Oil Trade Data for 2022 and 2023 available
+    # step 1: resolve to more fine granual regions based on detailed Oil Trade Data for 2024 and 2025 available
 
     # reference data
     trade.ref.export.oil <- new.magpie(getItems(x, dim = 1), getYears(x), "Trade|Export|Oil (kb/d)")
     trade.ref.export.oil[, , "Trade|Export|Oil (kb/d)"] <- x[, , "Trade|Export|Oil|Crude (kb/d)"] +
       x[, , "Trade|Export|Oil|Product (kb/d)"]
     trade.ref.export.oil <- .removeNaRegions(trade.ref.export.oil)
-    trade.ref.export.oil <- trade.ref.export.oil[, c(2022, 2023), ]
+    trade.ref.export.oil <- trade.ref.export.oil[, c(2024, 2025), ]
 
     trade.ref.import.oil <- new.magpie(getItems(x, dim = 1), getYears(x), "Trade|Import|Oil (kb/d)")
     trade.ref.import.oil[, , "Trade|Import|Oil (kb/d)"] <- x[, , "Trade|Import|Oil|Crude (kb/d)"] +
       x[, , "Trade|Import|Oil|Product (kb/d)"]
     trade.ref.import.oil <- .removeNaRegions(trade.ref.import.oil)
-    trade.ref.import.oil <- trade.ref.import.oil[, c(2022, 2023), ]
+    trade.ref.import.oil <- trade.ref.import.oil[, c(2024, 2025), ]
 
     reg2detailReg <- toolGetMapping("regionmappingBP_Oil_Region_To_DetailReg.csv",
                                     type = "regional", where = "mrremind")
@@ -215,17 +215,17 @@ convertBP <- function(x, subtype) {
 
     trade.ref.export.split <- toolAggregate(trade.export.oil[from_regions, , ],
       rel = reg2detailReg.export,
-      weight = trade.ref.export.oil[to_regions, 2023, ]
+      weight = trade.ref.export.oil[to_regions, 2025, ]
     )
 
     x1 <- new.magpie(c(to_regions, unchanged_regions), getYears(x), "Trade|Export|Oil (kb/d)")
 
-    # for 2022 and 2023 we use the detailed data
-    x1[, c(2022, 2023), ] <- trade.ref.export.oil
+    # for 2024 and 2025 we use the detailed data
+    x1[, c(2024, 2025), ] <- trade.ref.export.oil
 
-    # for 1980 - 2021 we split some regions into more fine granular regions by 2021 data
-    x1[unchanged_regions, seq(1980, 2021, 1), ] <- trade.export.oil[unchanged_regions, seq(1980, 2021, 1), ]
-    x1[to_regions, seq(1980, 2021, 1), ] <- trade.ref.export.split[, seq(1980, 2021, 1), ]
+    # for 1980 - 2023 we split some regions into more fine granular regions by 2025 data
+    x1[unchanged_regions, seq(1980, 2023, 1), ] <- trade.export.oil[unchanged_regions, seq(1980, 2023, 1), ]
+    x1[to_regions, seq(1980, 2023, 1), ] <- trade.ref.export.split[, seq(1980, 2023, 1), ]
 
     from_regions <- intersect(reg2detailReg.import$BP_Region, getItems(trade.import.oil, dim = 1))
     to_regions <- intersect(reg2detailReg.import$BP_Region_Detail, getItems(trade.ref.import.oil, dim = 1))
@@ -233,17 +233,17 @@ convertBP <- function(x, subtype) {
 
     trade.ref.import.split <- toolAggregate(trade.import.oil[from_regions, , ],
       rel = reg2detailReg.import,
-      weight = trade.ref.import.oil[to_regions, 2023, ]
+      weight = trade.ref.import.oil[to_regions, 2025, ]
     )
 
     x2 <- new.magpie(c(to_regions, unchanged_regions), getYears(x), "Trade|Import|Oil (kb/d)")
 
-    # for 2022 and 2023 we use the detailed data
-    x2[, c(2022, 2023), ] <- trade.ref.import.oil
+    # for 2024 and 2025 we use the detailed data
+    x2[, c(2024, 2025), ] <- trade.ref.import.oil
 
-    # for 1980 - 2021 we split some regions into more fine granular regions by 2021 data
-    x2[unchanged_regions, seq(1980, 2021, 1), ] <- trade.import.oil[unchanged_regions, seq(1980, 2021, 1), ]
-    x2[to_regions, seq(1980, 2021, 1), ] <- trade.ref.import.split[, seq(1980, 2021, 1), ]
+    # for 1980 - 2023 we split some regions into more fine granular regions by 2025 data
+    x2[unchanged_regions, seq(1980, 2023, 1), ] <- trade.import.oil[unchanged_regions, seq(1980, 2023, 1), ]
+    x2[to_regions, seq(1980, 2023, 1), ] <- trade.ref.import.split[, seq(1980, 2023, 1), ]
 
     x.trade <- new.magpie(getItems(x1, dim = 1), getYears(x1), c("Trade|Import|Oil (kb/d)", "Trade|Export|Oil (kb/d)"))
     x.trade[, , "Trade|Export|Oil (kb/d)"] <- x1
@@ -303,15 +303,18 @@ convertBP <- function(x, subtype) {
     lam <- mapping[mapping$RegionCode == "LAM", "CountryCode"]
 
     # specific region mapping for gas prices:
-    # Japan -> JPN, Korea -> OAS, average (Netherlands, Germany) -> EUR, US-> USA, Can -> CAZ
+    # Japan -> JPN, Korea -> OAS, Netherlands -> EUR, US-> USA and CAZ
+    # as of the 2025 Statistical Review, the series "Avg German Import Price" (previously
+    # averaged with the Netherlands for EUR) and "Alberta" (previously used for CAZ) are
+    # no longer reported, CAZ is now approximated by the US Henry Hub price
     price.gas <- new.magpie(c(oas, eur, caz, "USA", "GBR", "JPN"), getYears(x.price), "Price|Natural Gas ($/mbtu)")
     price.gas["JPN", , "Price|Natural Gas ($/mbtu)"] <- x.price["JPN", , "Price|LNG|Japan|CIF ($/mbtu)"]
     price.gas[oas, , "Price|Natural Gas ($/mbtu)"] <- x.price[oas, , "Price|LNG|Japan|Korea Marker ($/mbtu)"]
-    price.gas[eur, , "Price|Natural Gas ($/mbtu)"] <- (x.price[eur, , "Price|Natural Gas|Netherlands TTF DA Heren Index ($/mbtu)"] +
-      x.price[eur, , "Price|Natural Gas|Avg German Import Price ($/mbtu)"]) / 2
+    price.gas[eur, , "Price|Natural Gas ($/mbtu)"] <-
+      x.price[eur, , "Price|Natural Gas|Netherlands TTF DA Heren Index ($/mbtu)"]
     price.gas["GBR", , "Price|Natural Gas ($/mbtu)"] <- x.price["GBR", , "Price|Natural Gas|UK Heren NBP Index ($/mbtu)"]
     price.gas["USA", , "Price|Natural Gas ($/mbtu)"] <- x.price["USA", , "Price|Natural Gas|US Henry Hub ($/mbtu)"]
-    price.gas[caz, , "Price|Natural Gas ($/mbtu)"] <- x.price[caz, , "Price|Natural Gas|Alberta ($/mbtu)"]
+    price.gas[caz, , "Price|Natural Gas ($/mbtu)"] <- x.price[caz, , "Price|Natural Gas|US Henry Hub ($/mbtu)"]
     price.gas <- toolCountryFill(price.gas, fill = 0, verbosity = 2)
 
     price.coal <- new.magpie(c(lam, oas, eur, "USA", "GBR", "JPN", "IND", "CHN", "AUS", "ZAF"),
