@@ -381,7 +381,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "UNFCCC", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "UNFCCC")
   )
 
   # UNIDO ----

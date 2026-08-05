@@ -1,8 +1,8 @@
 Type: Package
 Package: mrremind
 Title: MadRat REMIND Input Data Package
-Version: 0.271.0
-Date: 2026-06-09
+Version: 0.274.0
+Date: 2026-07-31
 Authors@R: c(
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = c("aut", "cre")),
     person("Renato", "Rodrigues", role = "aut"),
@@ -33,7 +33,8 @@ Authors@R: c(
     person("Rahel", "Mandaroux", role = "aut"),
     person("Johannes", "Koch", role = "aut"),
     person("Gabriel", "Abrahao", role = "aut"),
-    person("Tabea", "Dorndorf", role = "aut")
+    person("Tabea", "Dorndorf", role = "aut"),
+    person("Simon", "Krogmann", role = "aut")
   )
 Description: The mrremind packages contains data preprocessing for the
     REMIND model.
@@ -45,7 +46,9 @@ Depends:
     GDPuc (>= 1.3.0),
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
-    mrcommons (>= 1.44.12),
+    mrcommons (>= 1.69.5), 
+    mrenergy (>= 0.1.1),
+    mrcommonsenergy (>= 0.5.0),
     mrdrivers (>= 6.0.0),
     mrindustry (>= 0.18.5),
 Imports:
@@ -59,7 +62,6 @@ Imports:
     purrr,
     quitte (>= 0.3105.0),
     R.utils,
-    readr,
     readxl,
     reshape2,
     rlang,

@@ -32,6 +32,7 @@ fullREMIND <- function() {
 
   calcOutput("RatioPPP2MER",                          round = 8,  file = "pm_shPPPMER.cs4r")
   calcOutput("MacroInvestments",                      round = 8,  file = "p01_boundInvMacro.cs4r")
+  calcOutput("PHI",                                               file = "p01_phi.cs4r", aggregate = FALSE)
 
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
   calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
@@ -42,6 +43,8 @@ fullREMIND <- function() {
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
+  calcOutput("CostOfCapital",                                     file = "p25_wacc.cs4r", aggregate = FALSE)
+  calcOutput("MacroWACC",                                     file = "p25_macro_wacc.cs4r", aggregate = FALSE)
 
   # Exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
@@ -128,6 +131,7 @@ fullREMIND <- function() {
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
              # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
              temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
+  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCapYearly.cs3r")
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("SeProduction",                                           round = 8,  file = "p_histProdSe.cs3r")
@@ -206,27 +210,5 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
   calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
-
-  #---------------no longer used in REMIND develop-----------------------------------------------------
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.5,
-                              "Early development"    = 0.2),
-             signif = 3, file = "f37_indCCSlimit_default.cs4r",
-             years = seq(2005, 2050, 5))
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.8,
-                              "Early development"    = 0.5),
-             signif = 3, file = "f37_indCCSlimit_high.cs4r",
-             years = seq(2005, 2050, 5))
 
 }

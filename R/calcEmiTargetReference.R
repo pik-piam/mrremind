@@ -14,7 +14,7 @@ calcEmiTargetReference <- function() {
   gwpN2O <- 265
 
   ceds <- calcOutput("Emissions", datasource = "CEDS2025", years = 1990:2022, aggregate = FALSE)
-  unfccc <- collapseDim(calcOutput("UNFCCC", years = 1990:2022, aggregate = FALSE, warnNA = FALSE))
+  unfccc <- calcOutput("UNFCCC", subtype = "annex-1-only", years = 1990:2022, aggregate = FALSE, warnNA = FALSE)
 
   # calculate CEDS values ----
 

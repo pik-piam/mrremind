@@ -45,16 +45,15 @@ calcFeDemandBuildings <- function(subtype, scenario) {
                             name = "mappingEDGEBuildingsToREMIND.csv",
                             where = "mrremind")
 
-  remindVars <- filter(mapping, grepl("^fe..b$|^feel..b$|^feelcb$", .data$REMINDitems_out))
-  remindVars <- unique(remindVars$REMINDitems_out)
+  remindVars <- unique(mapping$REMINDitems_out)
 
   # Extend mapping for Useful Energy
   if (subtype == "UE") {
     mapping <- mapping %>%
       mutate(EDGE_buildings_items = gsub("_fe$", "_ue", .data[["EDGE_buildings_items"]]),
-             REMINDitems_out = gsub("^fe", "ue", .data[["REMINDitems_out"]])) %>%
+             REMINDitems_out = gsub("fe", "ue", .data[["REMINDitems_out"]])) %>%
       rbind(mapping)
-    remindVars <- gsub("^fe", "ue", remindVars)
+    remindVars <- gsub("fe", "ue", remindVars)
   }
 
   scenarioRcp <- unique(gsub("^(.*\\..*)\\..*$", "\\1", getItems(data, dim = 3)))
@@ -79,7 +78,7 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   # Prepare Output
   ## Change item names back from UE to FE
   if (subtype == "UE") {
-    getItems(remind, "item") <- gsub("^ue", "fe", getItems(remind, "item"))
+    getItems(remind, "item") <- gsub("ue", "fe", getItems(remind, "item"))
   }
 
   description <- switch(subtype,
@@ -88,8 +87,8 @@ calcFeDemandBuildings <- function(subtype, scenario) {
   )
 
   outputStructure <- switch(subtype,
-    FE = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$",
-    UE = "^(SSP[1-5]|SDP).*\\..*\\.fe.*b$"
+    FE = "^(SSP[1-5]|SDP).*\\..*\\.(fe.*b$|.*_fe$)",
+    UE = "^(SSP[1-5]|SDP).*\\..*\\.(fe.*b$|.*_fe$)"
   )
 
   list(x = remind,

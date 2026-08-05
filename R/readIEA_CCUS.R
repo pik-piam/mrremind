@@ -7,7 +7,7 @@
 #' @param subtype either `historical` for data until 2024,
 #' `projections` for "high" and "low" projections up to 2030 used as input-data
 #'  or `pipeline` separated by status for use in formulating near-term bounds
-#' @importFrom dplyr filter mutate select ac
+#' @importFrom dplyr filter mutate select
 #' @importFrom readxl read_xlsx
 #'
 readIEA_CCUS <- function(subtype) {

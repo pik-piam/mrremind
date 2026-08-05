@@ -105,28 +105,28 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.A.3. Transport|SO2;;;
 1.A.3.a. Domestic aviation|CH4;;;
 1.A.3.a. Domestic aviation|CO;;;
-1.A.3.a. Domestic aviation|CO2;0.001;Emi|CO2|Transport|Pass|Aviation|Domestic|Demand;Mt CO2/yr
+1.A.3.a. Domestic aviation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Pass|Domestic Aviation;Mt CO2/yr
 1.A.3.a. Domestic aviation|N2O;;;
 1.A.3.a. Domestic aviation|NMVOC;;;
 1.A.3.a. Domestic aviation|NOX;;;
 1.A.3.a. Domestic aviation|SO2;;;
 1.A.3.b. Road transportation|CH4;;;
 1.A.3.b. Road transportation|CO;;;
-1.A.3.b. Road transportation|CO2;0.001;Emi|CO2|Transport|Pass|Road|Demand;Mt CO2/yr
+1.A.3.b. Road transportation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Road;Mt CO2/yr
 1.A.3.b. Road transportation|N2O;;;
 1.A.3.b. Road transportation|NMVOC;;;
 1.A.3.b. Road transportation|NOX;;;
 1.A.3.b. Road transportation|SO2;;;
 1.A.3.c. Railways|CH4;;;
 1.A.3.c. Railways|CO;;;
-1.A.3.c. Railways|CO2;0.001;Emi|CO2|Transport|Pass|Rail|Demand;Mt CO2/yr
+1.A.3.c. Railways|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Rail;Mt CO2/yr
 1.A.3.c. Railways|N2O;;;
 1.A.3.c. Railways|NMVOC;;;
 1.A.3.c. Railways|NOX;;;
 1.A.3.c. Railways|SO2;;;
 1.A.3.d. Domestic navigation|CH4;;;
 1.A.3.d. Domestic navigation|CO;;;
-1.A.3.d. Domestic navigation|CO2;0.001;Emi|CO2|Transport|Freight|Navigation|Demand;Mt CO2/yr
+1.A.3.d. Domestic navigation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Freight|Domestic Shipping;Mt CO2/yr
 1.A.3.d. Domestic navigation|N2O;;;
 1.A.3.d. Domestic navigation|NMVOC;;;
 1.A.3.d. Domestic navigation|NOX;;;
@@ -265,13 +265,13 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 1.D.1. International bunkers|SO2;;;
 1.D.1.a. Aviation|CH4;0.001;Emi|CH4|Transport|Pass|Aviation|International|Demand;Mt CH4/yr
 1.D.1.a. Aviation|CO;;;
-1.D.1.a. Aviation|CO2;0.001;Emi|CO2|Transport|Pass|Aviation|International|Demand;Mt CO2/yr
+1.D.1.a. Aviation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Bunkers|Pass|International Aviation;Mt CO2/yr
 1.D.1.a. Aviation|N2O;1;Emi|N2O|Transport|Pass|Aviation|International|Demand;kt N2O/yr
 1.D.1.a. Aviation|NMVOC;;;
 1.D.1.a. Aviation|NOX;;;
 1.D.1.a. Aviation|SO2;;;
 1.D.1.b. Navigation|CH4;0.001;Emi|CH4|Transport|Freight|International Shipping|Demand;Mt CH4/yr
-1.D.1.b. Navigation|CO2;0.001;Emi|CO2|Transport|Freight|International Shipping|Demand;Mt CO2/yr
+1.D.1.b. Navigation|CO2;0.001;Emi|CO2|Energy|Demand|Transport|Bunkers|Freight|International Shipping|Demand;Mt CO2/yr
 1.D.1.b. Navigation|N2O;1;Emi|N2O|Transport|Freight|International Shipping|Demand;kt N2O/yr
 1.D.2. Multilateral operations|CH4;;;
 1.D.2. Multilateral operations|CO;;;
@@ -290,9 +290,10 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 2. Total industrial processes|CO2;0.001;Emi|CO2|Industrial Processes;Mt CO2/yr
 2. Total industrial processes|N2O;1;Emi|N2O|Industrial Processes;kt N2O/yr
 2.A. Mineral industry|CO2;0.001;Emi|CO2|Industrial Processes|Minerals;Mt CO2/yr
-2.A.1. Cement production|CO2;;;
-2.A.2. Lime production|CO2;;;
-2.A.3. Glass production|CO2;;;
+2.A. Mineral industry|CO2;0.001;Emi|CO2|Industrial Processes|Cement;Mt CO2/yr
+2.A.1. Cement production|CO2;0.001;Emi|CO2|Industrial Processes|Cement_exactUNFCCC;Mt CO2/yr
+2.A.2. Lime production|CO2;0.001;Emi|CO2|Industrial Processes|Lime;Mt CO2/yr
+2.A.3. Glass production|CO2;0.001;Emi|CO2|Industrial Processes|Glass;Mt CO2/yr
 2.A.4. Other process uses of carbonates|CO2;;;
 2.B. Chemical industry|CH4;0.001;Emi|CH4|Industrial Processes|Chemicals;Mt CH4/yr
 2.B. Chemical industry|CO2;0.001;Emi|CO2|Industrial Processes|Chemicals;Mt CO2/yr
@@ -316,8 +317,11 @@ UNFCCC;Factor;REMIND;Unit_REMIND
 2.C. Metal industry|CH4;0.001;Emi|CH4|Industrial Processes|Metals;Mt CH4/yr
 2.C. Metal industry|CO2;0.001;Emi|CO2|Industrial Processes|Metals;Mt CO2/yr
 2.C. Metal industry|N2O;1;Emi|N2O|Industrial Processes|Metals;kt N2O/yr
-2.C.1. Iron and steel production|CH4;;;
-2.C.1. Iron and steel production|CO2;;;
+2.C. Metal industry|CH4;0.001;Emi|CH4|Industrial Processes|Steel;Mt CH4/yr
+2.C. Metal industry|CO2;0.001;Emi|CO2|Industrial Processes|Steel;Mt CO2/yr
+2.C. Metal industry|N2O;1;Emi|N2O|Industrial Processes|Steel;kt N2O/yr
+2.C.1. Iron and steel production|CH4;0.001;Emi|CH4|Industrial Processes|Iron and steel_exactUNFCCC;Mt CH4/yr
+2.C.1. Iron and steel production|CO2;0.001;Emi|CO2|Industrial Processes|Iron and steel_exactUNFCCC;Mt CO2/yr
 2.C.2. Ferroalloys production|CH4;;;
 2.C.2. Ferroalloys production|CO2;;;
 2.C.3. Aluminium production|CO2;;;
