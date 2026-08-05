@@ -3,18 +3,20 @@
 #' @param subtype Either "Emission", Capacity", "Generation", "Production",
 #' "Consumption", "Trade Oil", "Trade Gas", "Trade Coal" or "Price"
 #' @return A [`magpie`][magclass::magclass] object.
-#' @author Aman Malik, Falk Benke
+#' @author Aman Malik, Falk Benke, Pascal Weigmann
 readBP <- function(subtype) {
 
-  filename <- file.path("2022", "EI-Stats-Review-All-Data.xlsx")
+  filename <- file.path("2026", "EI-Stats-Review-ALL-data.xlsx")
 
   tidyData <- function(df, variable, rows2remove = c("Total|OECD|European")) {
     colnames(df)[1] <- "Country"
-    df$Country <- gsub("\\.", "", df$Country)
+    df$Country <- trimws(gsub("\\.", "", df$Country))
     df <- df %>%
-      tidyr::gather(colnames(df[1, -1]), key = "Year", value = "value") %>%
-      dplyr::mutate("Year" = as.integer(.data$Year),
-                    "value" = suppressWarnings(as.numeric(.data$value))) %>%
+      # columns containing "n/a" are read as character, so they need to be converted
+      # before they can be combined with the numeric ones
+      tidyr::pivot_longer(colnames(df[1, -1]), names_to = "Year", values_to = "value",
+                          values_transform = list(value = function(x) suppressWarnings(as.numeric(x)))) %>%
+      dplyr::mutate("Year" = as.integer(.data$Year)) %>%
       dplyr::filter(!grepl(rows2remove, .data$Country), !is.na(.data$value),
                     .data$value != "n/a", .data$Year >= 1900) %>%
       dplyr::mutate("Country" = gsub(pattern = " and ", replacement = " & ", x = .data$Country)) %>%
@@ -26,7 +28,7 @@ readBP <- function(subtype) {
   }
 
   tidyDataVertical <- function(df, rows2remove = c("Total|OECD|European")) {
-    df$Country <- gsub("\\.", "", df$Country)
+    df$Country <- trimws(gsub("\\.", "", df$Country))
     if (!is.null(rows2remove)) {
       df <- dplyr::filter(df, !grepl(rows2remove, .data$Country))
     }
@@ -40,15 +42,15 @@ readBP <- function(subtype) {
 
   if (subtype == "Emission") {
 
-    dataEmi <- readxl::read_excel(filename, sheet = "Carbon Dioxide from Energy", range = "A3:BH109")
+    dataEmi <- readxl::read_excel(filename, sheet = "CO2 from Energy", range = "A3:BJ114")
     data <- tidyData(dataEmi, "Emi|CO2 (Mt CO2)")
 
   } else if (subtype == "Capacity") {
     # Capacity Data for Wind, Solar, and Geobiomass
-    dataSolar <- readxl::read_excel(filename, sheet = "Solar Installed Capacity", range = "A4:Y78")
+    dataSolar <- readxl::read_excel(filename, sheet = "Solar Installed Capacity", range = "A4:AA78")
     dataSolar <- tidyData(dataSolar, "Capacity|Solar (MW)")
 
-    dataWind <- readxl::read_excel(filename, sheet = "Wind Installed Capacity", range = "A4:AB70")
+    dataWind <- readxl::read_excel(filename, sheet = "Wind Installed Capacity", range = "A4:AA77")
     dataWind <- tidyData(dataWind, "Capacity|Wind (MW)")
 
     data <- list(dataSolar, dataWind) %>%
@@ -57,34 +59,34 @@ readBP <- function(subtype) {
   } else if (subtype == "Generation") {
     # Generation data for Nuclear, Hydro, Solar, Wind, Geobiomass, Other Renewables
 
-    dataNuclear <- readxl::read_excel(filename, sheet = "Nuclear Generation - TWh", range = "A3:BH114")
+    dataNuclear <- readxl::read_excel(filename, sheet = "Nuclear Generation - TWh", range = "A3:BJ114")
     dataNuclear <- tidyData(dataNuclear, "Generation|Nuclear (TWh)")
 
-    dataHydro <- readxl::read_excel(filename, sheet = "Hydro Generation - TWh", range = "A3:BH114")
+    dataHydro <- readxl::read_excel(filename, sheet = "Hydro Generation - TWh", range = "A3:BJ114")
     dataHydro <- tidyData(dataHydro, "Generation|Hydro (TWh)")
 
-    dataSolar <- readxl::read_excel(filename, sheet = "Solar Generation - TWh", range = "A3:BH114")
+    dataSolar <- readxl::read_excel(filename, sheet = "Solar Generation - TWh", range = "A3:BJ114")
     dataSolar <- tidyData(dataSolar, "Generation|Solar (TWh)")
 
-    dataWind <- readxl::read_excel(filename, sheet = "Wind Generation - TWh", range = "A3:BH114")
+    dataWind <- readxl::read_excel(filename, sheet = "Wind Generation - TWh", range = "A3:BJ114")
     dataWind <- tidyData(dataWind, "Generation|Wind (TWh)")
 
-    dataElec <- readxl::read_excel(filename, sheet = "Electricity Generation - TWh", range = "A3:AN113")
+    dataElec <- readxl::read_excel(filename, sheet = "Electricity Generation - TWh", range = "A3:AP113")
     dataElec <- tidyData(dataElec, "Generation|Electricity (TWh)")
 
-    dataElectRenewable <- readxl::read_excel(filename, sheet = "Renewable Power (inc hydro) -EJ", range = "A3:BH114")
+    dataElectRenewable <- readxl::read_excel(filename, sheet = "Renewable Power (inc hydro) -EJ", range = "A3:BJ114")
     dataElectRenewable <- tidyData(dataElectRenewable, "Generation|Electricity|Renewable (EJ)")
 
-    dataElecGas <- readxl::read_excel(filename, sheet = "Gas inputs - Elec generation", range = "A3:AN59")
+    dataElecGas <- readxl::read_excel(filename, sheet = "Gas inputs - Elec generation", range = "A3:AP59")
     dataElecGas <- tidyData(dataElecGas, "Generation|Electricity|Gas (TWh)")
 
-    dataElecOil <- readxl::read_excel(filename, sheet = "Oil inputs - Elec generation ", range = "A3:AN59")
+    dataElecOil <- readxl::read_excel(filename, sheet = "Oil inputs - Elec generation ", range = "A3:AP59")
     dataElecOil <- tidyData(dataElecOil, "Generation|Electricity|Oil (TWh)")
 
-    dataElecCoal <- readxl::read_excel(filename, sheet = "Coal inputs - Elec generation ", range = "A3:AN59")
+    dataElecCoal <- readxl::read_excel(filename, sheet = "Coal inputs - Elec generation ", range = "A3:AP59")
     dataElecCoal <- tidyData(dataElecCoal, "Generation|Electricity|Coal (TWh)")
 
-    dataGeoBiomass <- readxl::read_excel(filename, sheet = "Geo Biomass Other - TWh", range = "A3:BH114")
+    dataGeoBiomass <- readxl::read_excel(filename, sheet = "Geo Biomass Other - TWh", range = "A3:BJ114")
     dataGeoBiomass <- tidyData(dataGeoBiomass, "Generation|Geo_biomass (TWh)")
 
     data <- list(
@@ -97,16 +99,16 @@ readBP <- function(subtype) {
 
     # This part is currently not used in any other madrat function
 
-    dataOil <- readxl::read_excel(filename, sheet = "Oil Production - tonnes", range = "A3:BH76")
+    dataOil <- readxl::read_excel(filename, sheet = "Oil Production - tonnes", range = "A3:BJ81")
     dataOil <- tidyData(dataOil, "Oil Production (million t)")
 
-    dataCoalEj <- readxl::read_excel(filename, sheet = "Coal Production - EJ", range = "A3:AR62")
+    dataCoalEj <- readxl::read_excel(filename, sheet = "Coal Production - EJ", range = "A3:AT62")
     dataCoalEj <- tidyData(dataCoalEj, "Coal Production (EJ)")
 
-    dataCoalTon <- readxl::read_excel(filename, sheet = "Coal Production - mt", range = "A3:AR62")
+    dataCoalTon <- readxl::read_excel(filename, sheet = "Coal Production - mt", range = "A3:AT62")
     dataCoalTon <- tidyData(dataCoalTon, "Coal Production (million t)")
 
-    dataGas <- readxl::read_excel(filename, sheet = "Gas Production - EJ", range = "A3:BC78")
+    dataGas <- readxl::read_excel(filename, sheet = "Gas Production - EJ", range = "A3:BE78")
     dataGas <- tidyData(dataGas, "Gas Production (EJ)")
 
     # Includes crude oil, shale oil, oil sands, condensates (lease condensate or gas condensates that require
@@ -117,31 +119,31 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Consumption") {
 
-    dataPeConsumption <- readxl::read_excel(filename, sheet = "Primary energy cons - EJ", range = "A3:BH114")
+    dataPeConsumption <- readxl::read_excel(filename, sheet = "Total Energy Supply (TES) -EJ", range = "A3:BJ114")
     dataPeConsumption <- tidyData(dataPeConsumption, "Primary Energy Consumption (EJ)")
 
-    dataLiqConsumption <- readxl::read_excel(filename, sheet = "Liquids Consumption - barrels", range = "A3:BH114")
+    dataLiqConsumption <- readxl::read_excel(filename, sheet = "Liquids Consumption - barrels", range = "A3:BJ114")
     dataLiqConsumption <- tidyData(dataLiqConsumption, "Liquids Consumption (kb/d)")
 
-    dataOilConsumption <- readxl::read_excel(filename, sheet = "Oil Consumption - EJ", range = "A3:BH114")
+    dataOilConsumption <- readxl::read_excel(filename, sheet = "Oil Consumption - EJ", range = "A3:BJ114")
     dataOilConsumption <- tidyData(dataOilConsumption, "Oil Consumption (EJ)")
 
-    dataGasConsumption <- readxl::read_excel(filename, sheet = "Gas Consumption - EJ", range = "A3:BH114")
+    dataGasConsumption <- readxl::read_excel(filename, sheet = "Gas Consumption - EJ", range = "A3:BJ111")
     dataGasConsumption <- tidyData(dataGasConsumption, "Gas Consumption (EJ)")
 
-    dataCoalConsumption <- readxl::read_excel(filename, sheet = "Coal Consumption - EJ", range = "A3:BH114")
+    dataCoalConsumption <- readxl::read_excel(filename, sheet = "Coal Consumption - EJ", range = "A3:BJ114")
     dataCoalConsumption <- tidyData(dataCoalConsumption, "Coal Consumption (EJ)")
 
-    dataSolarConsumption <- readxl::read_excel(filename, sheet = "Solar Consumption - EJ", range = "A3:BH114")
+    dataSolarConsumption <- readxl::read_excel(filename, sheet = "Solar Consumption - EJ", range = "A3:BJ114")
     dataSolarConsumption <- tidyData(dataSolarConsumption, "Solar Consumption (EJ)")
 
-    dataWindConsumption <- readxl::read_excel(filename, sheet = "Wind Consumption - EJ", range = "A3:BH114")
+    dataWindConsumption <- readxl::read_excel(filename, sheet = "Wind Consumption - EJ", range = "A3:BJ114")
     dataWindConsumption <- tidyData(dataWindConsumption, "Wind Consumption (EJ)")
 
-    dataNuclearConsumption <- readxl::read_excel(filename, sheet = "Nuclear Consumption - EJ", range = "A3:BH114")
+    dataNuclearConsumption <- readxl::read_excel(filename, sheet = "Nuclear Consumption - EJ", range = "A3:BJ114")
     dataNuclearConsumption <- tidyData(dataNuclearConsumption, "Nuclear Consumption (EJ)")
 
-    dataHydroConsumption <- readxl::read_excel(filename, sheet = "Hydro Consumption - EJ", range = "A3:BH114")
+    dataHydroConsumption <- readxl::read_excel(filename, sheet = "Hydro Consumption - EJ", range = "A3:BJ114")
     dataHydroConsumption <- tidyData(dataHydroConsumption, "Hydro Consumption (EJ)")
 
     data <- list(
@@ -153,12 +155,12 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Trade Oil") {
 
-    dataOilTrade <- readxl::read_excel(filename, sheet = "Oil trade movements", range = "A3:AS27")
+    dataOilTrade <- readxl::read_excel(filename, sheet = "Oil trade movements", range = "A3:AU26")
 
     dataOilTradeImport <- tidyData(dataOilTrade[seq(1, 8), ], "Trade|Import|Oil (kb/d)")
-    dataOilTradeExport <- tidyData(dataOilTrade[seq(9, 24), ], "Trade|Export|Oil (kb/d)")
+    dataOilTradeExport <- tidyData(dataOilTrade[seq(9, 23), ], "Trade|Export|Oil (kb/d)")
 
-    dataOilTradeDetail <- readxl::read_excel(filename, sheet = "Oil - Trade movements in 22-23",
+    dataOilTradeDetail <- readxl::read_excel(filename, sheet = "Oil - Trade movements in 24-25",
                                              range = "A28:I50", .name_repair = "unique_quiet")
 
     colnames(dataOilTradeDetail) <- c("Country", rep(c(
@@ -167,8 +169,8 @@ readBP <- function(subtype) {
     ), times = 2))
 
     dataOilTradeDetail <- rbind(
-      dataOilTradeDetail[, seq(1, 5)] %>% dplyr::mutate("Year" = 2022),
-      dataOilTradeDetail[, c(1, seq(6, 9))] %>% dplyr::mutate("Year" = 2023)
+      dataOilTradeDetail[, seq(1, 5)] %>% dplyr::mutate("Year" = 2024),
+      dataOilTradeDetail[, c(1, seq(6, 9))] %>% dplyr::mutate("Year" = 2025)
     ) %>%
       tidyDataVertical()
 
@@ -177,7 +179,7 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Trade Coal") {
 
-    dataCoalTrade <- readxl::read_excel(filename, sheet = "Coal - Trade movements", range = "A3:Y34")
+    dataCoalTrade <- readxl::read_excel(filename, sheet = "Coal - Trade movements", range = "A3:AA34")
 
     dataCoalTradeImport <- tidyData(dataCoalTrade[seq(1, 15), ], "Trade|Import|Coal (EJ)",
       rows2remove = c("Total|OECD|European|Rest")
@@ -192,7 +194,7 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Trade Gas") {
 
-    dataGasTrade <- readxl::read_excel(filename, sheet = "Gas - Trade movements", range = "A3:Y106")
+    dataGasTrade <- readxl::read_excel(filename, sheet = "Gas - Trade movements", range = "A3:AA107")
     colnames(dataGasTrade)[1] <- "Variable"
     variableMapping <- {
       c(
@@ -289,6 +291,7 @@ readBP <- function(subtype) {
         "OECD Asia|Trade|Export|Gas (bcm)",
         NA,
         NA,
+        NA,
         "Other Asia|Trade|Import|Gas (bcm)",
         NA,
         NA,
@@ -314,7 +317,7 @@ readBP <- function(subtype) {
 
   } else if (subtype == "Price") {
 
-    dataOilSpotCrudePrice <- readxl::read_excel(filename, sheet = "Spot crude prices", range = "A4:E56")
+    dataOilSpotCrudePrice <- readxl::read_excel(filename, sheet = "Spot crude prices", range = "A4:E58")
 
     colnames(dataOilSpotCrudePrice) <- c(
       "Year",
@@ -326,28 +329,35 @@ readBP <- function(subtype) {
 
     dataOilSpotCrudePrice <- dplyr::filter(dataOilSpotCrudePrice, !is.na(.data$Year))
 
-    dataOilCrudePrice <- readxl::read_excel(filename, sheet = "Oil crude prices since 1861", range = "A4:C167")
+    dataOilCrudePrice <- readxl::read_excel(filename, sheet = "Oil crude prices since 1861", range = "A4:C169")
 
     colnames(dataOilCrudePrice) <- c(
       "Year",
       "Price|Crude Oil ($money of the day/bbl)",
-      "Price|Crude Oil ($2023/bbl)"
+      "Price|Crude Oil ($2025/bbl)"
     )
 
-    dataGasPrice <- readxl::read_excel(filename, sheet = "Gas Prices ", range = "A5:H45",
+    # the sheet was restructured: the series "Avg German Import Price" and
+    # "Alberta" are no longer reported, additional markers were added
+    dataGasPrice <- readxl::read_excel(filename, sheet = "Gas Prices ", range = "A4:K48",
                                          .name_repair = "unique_quiet")
     colnames(dataGasPrice) <- c(
       "Year",
       "Price|LNG|Japan|CIF ($/mbtu)",
+      "Price|LNG|South Korea ($/mbtu)",
       "Price|LNG|Japan|Korea Marker ($/mbtu)",
-      "Price|Natural Gas|Avg German Import Price ($/mbtu)",
+      "Price|LNG|China ($/mbtu)",
+      "Price|LNG|West India Marker ($/mbtu)",
+      "Price|LNG|Northwest Europe Marker ($/mbtu)",
+      "Price|Natural Gas|Zeebrugge ($/mbtu)",
       "Price|Natural Gas|UK Heren NBP Index ($/mbtu)",
       "Price|Natural Gas|Netherlands TTF DA Heren Index ($/mbtu)",
-      "Price|Natural Gas|US Henry Hub ($/mbtu)",
-      "Price|Natural Gas|Alberta ($/mbtu)"
+      "Price|Natural Gas|US Henry Hub ($/mbtu)"
     )
 
-    dataCoalPrice <- readxl::read_excel(filename, sheet = "Coal & Uranium - Prices", range = "A4:I41",
+    dataGasPrice <- dplyr::filter(dataGasPrice, !is.na(.data$Year))
+
+    dataCoalPrice <- readxl::read_excel(filename, sheet = "Coal & Uranium - Prices", range = "A4:I43",
                                         .name_repair = "unique_quiet")
 
     colnames(dataCoalPrice) <- c(
