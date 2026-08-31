@@ -94,16 +94,17 @@ EUR <- setNames(data.frame(30, 50, 0.123432, 2), c("c1", "c2", "c3", "c4"))
 NEU <- setNames(data.frame(30, 50, 1.650330, 2), c("c1", "c2", "c3", "c4"))
 df <- rbind(EUR, NEU)
 row.names(df) <- c("EUR", "NEU")
+data <- add_dimension(as.magpie(df), dim=3.1, nm="dummy")
 # maxExtraction (upper limit for function estimation)
 maxExtraction <- 23
 # output
-output <- toolCubicFunctionAggregate(df,
+output <- toolCubicFunctionAggregate(data,
   xUpperBound = maxExtraction,
   returnMagpie = FALSE, returnChart = TRUE, returnSample = TRUE,
   label = list(x = "Cumulated Extraction", y = "Cost", legend = "Region Fuel Functions")
 )
-output$coeff
-output$chart
+output$dummy$coeff
+output$dummy$chart
 }
 \seealso{
 \code{\link{toolCubicFunctionDisaggregate}}
