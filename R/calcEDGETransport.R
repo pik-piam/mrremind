@@ -9,8 +9,6 @@ calcEDGETransport <- function(subtype) {
 
   x <- readSource("EDGETransport", subtype)
 
-  weightSum <- value <- NULL
-
   switch(subtype,
     "f35_esCapCost" = {
       weight <- readSource("EDGETransport", subtype = "weightESdemand")
@@ -20,16 +18,12 @@ calcEDGETransport <- function(subtype) {
       aggregationFunction <- function(x, rel, weight) {
         # check whether weightsum is zero for some cases
         # if so, the values should just be aggregated equally in order to prevent zeros in the results
-        weight <- rmndt::magpie2dt(weight)
-        regMap <- rel
-        data.table::setnames(regMap, "country", "all_regi")
-        weight <- merge(weight, regMap[, c("all_regi", "region")], by = "all_regi")
-        weight[, weightSum := sum(value), by = c("region", "GDP_scenario", "DEM_scenario",
-                                                 "EDGE_scenario", "all_teEs", "tall")]
-        weight[weightSum == 0, value := 1]
-        weight[, c("region", "weightSum") := NULL]
-        weight <- as.magpie(weight)
-        toolAggregate(x, rel = rel, weight)
+        weight <- weight[rel[["country"]], , ]
+        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL)
+        expandedSum <- weightSum[rel[["region"]], , ]
+        magclass::getItems(expandedSum, dim = 1) <- rel[["country"]]
+        weight[!is.na(expandedSum) & expandedSum == 0] <- 1
+        madrat::toolAggregate(x, rel = rel, weight = weight)
       }
     },
     "f35_fe2es" = {
@@ -40,16 +34,13 @@ calcEDGETransport <- function(subtype) {
       aggregationFunction <- function(x, rel, weight) {
         # check whether weightsum is zero for some cases
         # if so, the values should just be aggregated equally in order to prevent zeros in the results
-        weight <- rmndt::magpie2dt(weight)
-        regMap <- rel
-        data.table::setnames(regMap, "country", "all_regi")
-        weight <- merge(weight, regMap[, c("all_regi", "region")], by = "all_regi")
-        weight[, weightSum := sum(value), by = c("region", "GDP_scenario", "DEM_scenario",
-                                                 "EDGE_scenario", "all_enty", "all_in", "all_teEs", "tall")]
-        weight[weightSum == 0, value := 1]
-        weight[, c("region", "weightSum", "all_enty", "all_in") := NULL]
-        weight <- as.magpie(weight)
-        toolAggregate(x, rel = rel, weight)
+        weight <- weight[rel[["country"]], , ]
+        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL)
+        expandedSum <- weightSum[rel[["region"]], , ]
+        magclass::getItems(expandedSum, dim = 1) <- rel[["country"]]
+        weight[!is.na(expandedSum) & expandedSum == 0] <- 1
+        weight <- magclass::dimSums(weight, dim = c("all_enty", "all_in"))
+        madrat::toolAggregate(x, rel = rel, weight = weight)
       }
     },
     "f35_demByTech" = {
