@@ -16,13 +16,15 @@ calcEDGETransport <- function(subtype) {
       unit <- "2017US$/(p|t)km"
       description <- "Capital cost (purchase) per energy service demand on CES level."
       aggregationFunction <- function(x, rel, weight) {
-        # check whether weightsum is zero for some cases
-        # if so, the values should just be aggregated equally in order to prevent zeros in the results
-        weight <- weight[rel[["country"]], , ]
-        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL)
-        expandedSum <- weightSum[rel[["region"]], , ]
-        magclass::getItems(expandedSum, dim = 1) <- rel[["country"]]
-        weight[!is.na(expandedSum) & expandedSum == 0] <- 1
+        # check whether a region has only 0-weights in some column and set these values to 1
+
+        # aggregate then disaggregate:
+        # 0-countries in non-0-regions will have the region average instead
+        # 0-countries in 0-regions will stay 0
+        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL, from = "country", to = "region")
+        expandedSum <- madrat::toolAggregate(weightSum, rel = rel, weight = NULL, from = "region", to = "country")
+        # expandedSum now has 0s in only the right places
+        weight[!is.na(weight) & expandedSum == 0] <- 1
         madrat::toolAggregate(x, rel = rel, weight = weight)
       }
     },
@@ -32,13 +34,15 @@ calcEDGETransport <- function(subtype) {
       unit <- "trn (p|t)km/Twa"
       description <- "Energy efficiency on CES level."
       aggregationFunction <- function(x, rel, weight) {
-        # check whether weightsum is zero for some cases
-        # if so, the values should just be aggregated equally in order to prevent zeros in the results
-        weight <- weight[rel[["country"]], , ]
-        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL)
-        expandedSum <- weightSum[rel[["region"]], , ]
-        magclass::getItems(expandedSum, dim = 1) <- rel[["country"]]
-        weight[!is.na(expandedSum) & expandedSum == 0] <- 1
+        # check whether a region has only 0-weights in some column and set these values to 1
+
+        # aggregate then disaggregate:
+        # 0-countries in non-0-regions will have the region average instead
+        # 0-countries in 0-regions will stay 0
+        weightSum <- madrat::toolAggregate(weight, rel = rel, weight = NULL, from = "country", to = "region")
+        expandedSum <- madrat::toolAggregate(weightSum, rel = rel, weight = NULL, from = "region", to = "country")
+        # expandedSum now has 0s in only the right places
+        weight[!is.na(weight) & expandedSum == 0] <- 1
         weight <- magclass::dimSums(weight, dim = c("all_enty", "all_in"))
         madrat::toolAggregate(x, rel = rel, weight = weight)
       }
