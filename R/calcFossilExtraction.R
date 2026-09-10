@@ -29,7 +29,8 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
     # FS: add specific Australian gas extraction cost curve based on Dylan McConnell/GSOO data
     AusRawData <- readSource("DylanAusGasCost")
 
-    s_GJ_2_twa <- 31.71e-12
+    s_GJ_2_TWa <- 31.71e-12
+    s_PJ_2_TWa <- 1 / 31536
 
     Data2 <- NULL
     Value <- NULL
@@ -58,9 +59,9 @@ calcFossilExtraction <- function(subtype = "FossilExtraction") {
       filter(Res > 0) %>%
       rbind(DIIS) %>%
       # convert from PJ to TWa
-      mutate(Res = Res * 1e-15 / s_GJ_2_twa) %>%
+      mutate(Res = Res * s_PJ_2_TWa) %>%
       # convert from USD/GJ to tr USD/Twa
-      mutate(Price = Price / s_GJ_2_twa / 1e12) %>%
+      mutate(Price = Price * (1e-12 / s_GJ_2_TWa)) %>%
       arrange(Price)
 
     RegrData$CumRes <- cumsum(RegrData$Res)
