@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Lavinia Baumstark \email{lavinia@pik-potsdam.de}
   \item Renato Rodrigues
   \item Antoine Levesque
   \item Julian Oeser
@@ -48,6 +49,8 @@ Authors:
   \item Rahel Mandaroux
   \item Johannes Koch
   \item Gabriel Abrahao
+  \item Tabea Dorndorf
+  \item Simon Krogmann
 }
 
 }

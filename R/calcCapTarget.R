@@ -67,8 +67,8 @@ calcCapTarget <- function(sources) {
     REN21data <- readSource("REN21", subtype = "Capacity")
     REN21 <- extend2Dim(REN21data, names(listCapacities))
 
-    # names of all technologies in REN21 and NDC database + apCarElT
-    techNames <- c(getNames(capacities), getNames(REN21), paste(names(listCapacities), "apCarElT", sep = ".")) %>%
+    # names of all technologies in REN21 and NDC database
+    techNames <- c(getNames(capacities), getNames(REN21)) %>%
       unique() %>%
       sort()
 
@@ -77,7 +77,7 @@ calcCapTarget <- function(sources) {
     common_tech <- intersect(getNames(REN21) %>% unlist() %>% unique(),
                              getNames(capacities)   %>% unlist() %>% unique())
     # for common technologies, take bigger value
-    x[, listYears, common_tech] <- base::pmax(REN21[, listYears, common_tech], capacities[, , common_tech])
+    x[, listYears, common_tech] <- pmax(REN21[, listYears, common_tech], capacities[, , common_tech])
     # for tech. in REN21 but not in NDC, take REN21 values
     x[, , setdiff(getNames(REN21), common_tech)] <- REN21[, , setdiff(getNames(REN21), common_tech)]
     # for tech. in NDC but not in REN21, take NDC values
@@ -86,8 +86,6 @@ calcCapTarget <- function(sources) {
     # unfeasible solution in REMIND, therefore setting from 2025 onwards
     x["CHN", seq(2025, 2040, 5), "tnrs"] <- 58 # in GW
     p40_conv_cap_2_MioLDV <-  650 # Conversion factor from capacity of ApCarxxx to Mio Light duty vehicles
-    x["CHN", 2020, "apCarElT"] <- 5 / p40_conv_cap_2_MioLDV # China's EV target of 5 Million EVs by 2020.
-    x["CHN", seq(2025, 2040, 5), "apCarElT"] <- 15 / p40_conv_cap_2_MioLDV
 
     # making 2040 targets as good as 2035 targets.
     for (t in seq_len(length(as.vector(x[, 2040, ])))) {

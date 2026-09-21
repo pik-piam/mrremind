@@ -5,20 +5,22 @@
 #' @param subtype must be one of
 #' 'biocharPrices'
 #' 'ccsBounds'
+#' 'deltacapoffset'
+#' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
-#' 'taxConvergence'
-#' 'taxConvergenceRollback'
+#' 'tradecost'
 #'
 calcExpertGuess <- function(subtype) {
 
   subtypes <- c(
     "biocharPrices",
     "ccsBounds",
+    "deltacapoffset",
+    "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
-    "taxConvergence",
-    "taxConvergenceRollback"
+    "tradecost"
   )
 
   if (!(subtype %in% subtypes)) {
@@ -28,10 +30,11 @@ calcExpertGuess <- function(subtype) {
   isocountries <- c(
     "biocharPrices" = FALSE,
     "ccsBounds" = TRUE,
+    "deltacapoffset" = TRUE,
+    "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
-    "taxConvergence" = TRUE,
-    "taxConvergenceRollback" = TRUE
+    "tradecost" = TRUE
   )
 
   x <- readSource("ExpertGuess", subtype = subtype, convert = isocountries[[subtype]])
@@ -39,10 +42,11 @@ calcExpertGuess <- function(subtype) {
   if (subtype == "biocharPrices") {
 
     unit <- "USD 2015/t biochar"
-    description <- glue::glue("Biochar price assumptions over time. Assumptions \\
-    based on collection of current bulk sale prices (see Dorndorf et al (submitted)).")
+    description <- glue::glue(
+      "Biochar price assumptions over time. Assumptions based on collection of \\
+      current bulk sale prices (see Dorndorf et al (submitted))."
+    )
     weight <- NULL
-
   } else if (subtype == "ccsBounds") {
 
     getNames(x) <- NULL
@@ -53,8 +57,25 @@ calcExpertGuess <- function(subtype) {
     a value of 1 means that no bound should be set.")
     weight = NULL
 
-  } else if (subtype == "tradeConstraints") {
+  } else if (subtype == "deltacapoffset") {
 
+    getYears(x) <- "y2010"
+    unit <- "TW"
+    description <- glue::glue("Global offset of 200MW multiplied with the regional \\
+                              share of PE2SE capacities")
+    weight <- NULL
+
+  } else if (subtype == "gridFactor") {
+
+    unit <- "factor"
+    getNames(x) <- NULL
+    description <- glue::glue(
+      "multiplicative factor that scales total grid requirements \\
+      down in comparatively small or homogeneous regions"
+    )
+    weight <- dimSums(calcOutput("IO", subtype = "output", aggregate = FALSE)[, 2005, c("feeli", "feelb")], dim = 3)
+
+  } else if (subtype == "tradeConstraints") {
     unit <- "unitless"
     description <- glue::glue(
       "parameter by Nicolas Bauer (2024) for the region specific \\
@@ -64,23 +85,6 @@ calcExpertGuess <- function(subtype) {
     )
     weight <- NULL
 
-  } else if (subtype == "taxConvergence") {
-
-
-    unit <- "US$2017/GJ"
-    description <- glue::glue("Tax convergence level for specific regions, year \\
-                              and final energy type")
-    weight <- x
-    weight[, , ] <- 1
-
-  } else if (subtype == "taxConvergenceRollback") {
-
-    unit <- "US$2017/GJ"
-    description <- glue::glue("Tax convergence level for specific regions, year \\
-                              and final energy type in rollback scenario")
-    weight <- x
-    weight[, , ] <- 1
-
   } else if (subtype == "subConvergenceRollback") {
 
     unit <- "US$2017/GJ"
@@ -89,6 +93,12 @@ calcExpertGuess <- function(subtype) {
                               rollback scenario")
     weight <- x
     weight[, , ] <- 1
+
+  } else if (subtype == "tradecost") {
+
+    unit <- "share"
+    description <- glue::glue("energy costs in share (0..1)")
+    weight <- new.magpie(getRegions(x), "y2005", fill = 1)
 
   }
 

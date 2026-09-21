@@ -50,9 +50,6 @@ calcWaterConsCoef <- function() {
     }
   }
 
-  # remove no longer used technologies pcc and pco
-  output <- output[, , c("pcc", "pco"), invert = TRUE]
-
   # add some assumed data
   assudata <- readSource("MacknickIntensities", "missingAssumed")
   assudata <- assudata[, , c("pcc", "pco"), invert = TRUE]

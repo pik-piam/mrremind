@@ -10,7 +10,7 @@ readUBA <- function() {
   sheets <- tibble(
     sheet = c("THG", "CO2"),
     name = c("Emi|GHG", "Emi|CO2"),
-    range = c("B4:AJ54", "B4:AJ54"),
+    range = c("B4:AL54", "B4:AL54"),
     unit = c("Mt CO2-equiv/yr", "Mt CO2/yr")
   )
 
@@ -20,17 +20,18 @@ readUBA <- function() {
 
     tmp <- suppressWarnings(
       read_xlsx(
-        path = "2024_03_13_em_entwicklung_in_d_ksg-sektoren_thg_v1.0.xlsx",
+        path = "datentabelle_zu_den_treibhausgas-emissionen_2024.xlsx",
         sheet = sheets[["sheet"]][[i]],
         col_names = T,
-        col_types = c("text", rep("numeric", 34)),
+        col_types = c("text", "text", rep("numeric", 35)),
         range = sheets[["range"]][[i]],
         .name_repair = "minimal",
         na = c("n/a")
       )
-    )
+    ) %>%
+      select(-2)
 
-    colnames(tmp) <- c("sektor", seq(1990, 2023, 1))
+    colnames(tmp) <- c("sektor", seq(1990, 2024, 1))
 
     tmp <- tmp %>%
       filter(!is.na(.data$sektor)) %>%

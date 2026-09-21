@@ -69,31 +69,18 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   # IEA Primary Energy ----
 
   calcOutput(
-    type = "PE", subtype = "IEA", ieaVersion = "latest", file = valfile,
+    type = "PE", ieaVersion = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
-
-  # World Energy Outlook 2019 Primary Energy ----
-
-  pe <- calcOutput(type = "PE", subtype = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
-  pe <- collapseNames(pe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(pe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
-
 
   # IEA Final Energy ----
 
   calcOutput(
-    type = "FE", source = "IEA", ieaVersion = "latest", file = valfile,
+    type = "FE", ieaVersion = "latest", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "IEA")
   )
-
-  # World Energy Outlook 2019 Final Energy ----
-
-  fe <- calcOutput(type = "FE", source = "IEA_WEO", aggregate = columnsForAggregation, warnNA = FALSE, try = FALSE)
-  fe <- collapseNames(fe[, , "Current Policies Scenario", pmatch = TRUE])
-  write.report(fe, file = valfile, append = TRUE, scenario = "historical", model = "IEA WEO 2019")
 
   # IEA Fossil Trade ----
 
@@ -164,6 +151,13 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     "Emissions", datasource = "CEDS2025_IAMC", file = valfile, years = seq(1970, 2023, 1),
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical", model = "CEDS IAMC sectors")
+  )
+
+  # Historical emissions from CMIP7 CEDS, uses toolAggregateWithoutGlobal
+  calcOutput(
+    "Emissions", datasource = "CMIP7_CEDS", file = valfile, years = seq(1990, 2023, 1),
+    aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
+    try = FALSE, writeArgs = list(scenario = "historical", model = "CMIP7_CEDS")
   )
 
   # EDGAR6 Emissions----
@@ -265,7 +259,6 @@ fullVALIDATIONREMIND <- function(rev = 0) {
     try = FALSE, writeArgs = list(scenario = "historical", model = "EEA")
   )
 
-
   # Global Energy Monitor ----
 
   calcOutput(
@@ -306,9 +299,9 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   )
 
 
-  # IEA World Energy Outlook 2023 ----
+  # IEA World Energy Outlook ----
   calcOutput(
-    type = "IEA_WorldEnergyOutlook", file = valfile,
+    type = "IeaWorldEnergyOutlook", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
     try = FALSE, writeArgs = list(scenario = "historical")
   )
@@ -318,7 +311,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "CCScapacity", subtype = "historical", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "IEA CCUS")
   )
 
   # IRENA Capacities  ----
@@ -388,7 +381,7 @@ fullVALIDATIONREMIND <- function(rev = 0) {
   calcOutput(
     type = "UNFCCC", file = valfile,
     aggregate = columnsForAggregation, append = TRUE, warnNA = FALSE,
-    try = FALSE, writeArgs = list(scenario = "historical")
+    try = FALSE, writeArgs = list(scenario = "historical", model = "UNFCCC")
   )
 
   # UNIDO ----

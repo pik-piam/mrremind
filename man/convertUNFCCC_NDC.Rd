@@ -19,8 +19,8 @@ Converts conditional and unconditional capacity and production targets into tota
 For countries and years without targets, 2015 values from IRENA and BP are used to fill the gaps.
 }
 \details{
-Emission targets are represented by a GHG factor, which is the quotient of total GHG
-emissions in the target year divided by the CEDS GHG emissions in 2005.
+NDC Emissions targets on absolute level for total GHG emissions without bunkers and land-use change emissions are calculated
+from country-specific target formulation and land-use change emissions data
 }
 \seealso{
 \code{\link[=readIRENA]{readIRENA()}}

@@ -54,39 +54,12 @@ calcIEA_EVOutlook <- function() {
   dataReg <- x[c("GLO", "EUR", "EU27"), , ]
   x <- x[c("GLO", "EUR", "EU27"), , , invert = TRUE]
 
-  # includes region values from the original source instead of calculating
-  # them as the sum of all countries (as countries are incomplete)
-  .customAggregate <- function(x, rel, to = NULL, reg) {
-    x <- toolAggregate(x, rel = rel, to = to)
-
-    if (any(c("GLO", "EUR", "EU27") %in% getItems(x, dim = 1))) {
-
-      r <- intersect(c("GLO", "EUR", "EU27"), getItems(x, dim = 1))
-      x <- x[r, , , invert = TRUE]
-
-      out <- new.magpie(
-        cells_and_regions = union(getItems(x, dim = 1), r),
-        years = union(getYears(x), getYears(reg)),
-        names = union(getNames(x), getNames(reg)),
-        fill = NA,
-        sets = names(dimnames(x))
-      )
-
-      out[getItems(x, dim = 1), getYears(x), getNames(x)] <- x
-      out[r, getYears(reg), getNames(reg)] <- reg[r, , ]
-
-      return(out)
-    } else {
-      return(x)
-    }
-  }
-
   return(list(
     x = x,
     weight = NULL,
     unit = c("EJ/yr", "Million vehicles"),
-    aggregationFunction = .customAggregate,
-    aggregationArguments = list(reg = dataReg),
+    aggregationFunction = toolAggregateCustomRegs,
+    aggregationArguments = list(agg = dataReg, regs = c("GLO", "EUR", "EU27")),
     description = "IEA EV Outlook data in REMIND variables"
   ))
 }

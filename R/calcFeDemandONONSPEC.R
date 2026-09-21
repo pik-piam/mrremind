@@ -41,8 +41,7 @@
 
 #' @returns list with MagPIE object
 #'
-#' @importFrom dplyr filter group_by group_modify slice_tail ungroup left_join
-#'   mutate select
+#' @importFrom dplyr filter group_by group_modify slice_tail ungroup left_join mutate select
 
 calcFeDemandONONSPEC <- function(scenario, eoh) {
 
@@ -106,7 +105,7 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
                               eps = constTolerance) {
     decay <- -log(eps) * (1 + epsCorrection) / dt
     x <- xStart + xDotStart / decay * (1 - exp(-decay * (t - tStart)))
-    base::pmax(0, x)
+    pmax(0, x)
   }
 
 

@@ -4,7 +4,7 @@
 #'
 #' @author Anne Merfort, Falk Benke
 #'
-#' @param subtype either `historical` for data until 2024 or `pipeline`
+#' @param subtype either `historical` for data until 2025 or `pipeline`
 #' for projections in 2020, 2025 and 2030 (including some redistribution on EU/NEU level)
 #'
 calcCCScapacity <- function(subtype) {
@@ -19,7 +19,7 @@ calcCCScapacity <- function(subtype) {
   }
 
   if (subtype == "historical") {
-    # project pipeline snapshot from April 2025
+    # project pipeline snapshot from March 2026
     x <- readSource("IEA_CCUS", subtype = "historical")
   }
 

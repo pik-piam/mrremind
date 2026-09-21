@@ -2,7 +2,9 @@
 #'
 #' @return a magclass object
 calcTrade <- function() {
-  x <- calcOutput("IO", subtype = "trade", ieaVersion = "latest", aggregate = FALSE)
+
+  x <- calcOutput("IO", subtype = "trade", ieaVersion = "latest",
+                  corrected = TRUE, aggregate = FALSE)
 
   # Xport - Mport
   mapping <- list(

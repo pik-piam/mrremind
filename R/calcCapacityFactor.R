@@ -18,11 +18,6 @@ calcCapacityFactor <- function() {
   # Read capacity factor inputs
   global <- readSource("ExpertGuess", subtype = "capacityFactorGlobal", convert = FALSE)
 
-  # remove no longer used items
-  notUsed <- c("apcarelt", "aptrnelt", "apcarh2t", "apcarpet", "apcardit",
-               "apcardiefft", "apcardieffH2t", "pcc", "pco")
-  global <- global[, , notUsed, invert = TRUE]
-
   # Set coal plant capacity factor long-term assumption to 50% (down from 60%)
   global[, , "pc"] <- 0.5
   # Read capacity factor rules
@@ -118,7 +113,7 @@ calcCapacityFactor <- function() {
   output["DEU", c("y2020", "y2025"), "pc"] <- 0.43
   output["DEU", c("y2030"), "pc"] <- 0.4
 
-  weight <- calcOutput("FE", source = "IEA", aggregate = FALSE)[, 2015, "FE (EJ/yr)"]
+  weight <- calcOutput("FE", aggregate = FALSE)[, 2015, "FE (EJ/yr)"]
 
   # Return regions aggregation weighted by final energy
   return(list(

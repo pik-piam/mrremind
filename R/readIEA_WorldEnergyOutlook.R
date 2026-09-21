@@ -6,20 +6,20 @@
 readIEA_WorldEnergyOutlook <- function() { # nolint
 
   data <- rbind(
-   utils::read.csv2(
-      file = "2023/complete/WEO2023_Extended_Data_Regions.csv",
+    utils::read.csv2(
+      file = "2025/complete/WEO2025_Extended_Data_Regions.csv",
       sep = ","
     ) %>% dplyr::rename_all(tolower),
-   utils::read.csv2(
-      file = "2023/complete/WEO2023_Extended_Data_Supply_Refining_H2_Trade_Prices.csv",
-      sep = ","
-    ) %>% dplyr::rename_all(tolower),
-    read.csv(
-      file = "2023/complete/WEO2023_Extended_Data_World.csv",
+    utils::read.csv2(
+      file = "2025/complete/WEO2025_Extended_Data_Supply_Refining_H2_Trade_Prices.csv",
       sep = ","
     ) %>% dplyr::rename_all(tolower),
     read.csv(
-      file = "2023/complete/WEO2023_Extended_Data_Investment.csv",
+      file = "2025/complete/WEO2025_Extended_Data_World.csv",
+      sep = ","
+    ) %>% dplyr::rename_all(tolower),
+    read.csv(
+      file = "2025/complete/WEO2025_Extended_Data_Investment.csv",
       sep = ","
     ) %>% dplyr::rename_all(tolower)
   ) %>%
@@ -35,10 +35,11 @@ readIEA_WorldEnergyOutlook <- function() { # nolint
 
   # investment data uses yearly ranges and needs special treatment
   # we currently don't read in cumulative investment spending, only annual average spending
-  rangeData <- data %>% filter(
-    is.na(suppressWarnings(as.numeric(.data$year))),
-    grepl("Investment spending, annual average", .data$variable)
-  )
+  rangeData <- data %>%
+    filter(
+      is.na(suppressWarnings(as.numeric(.data$year))),
+      grepl("Investment spending, annual average", .data$variable)
+    )
 
   # remove non-annual data
   data <- data %>%
@@ -57,10 +58,10 @@ readIEA_WorldEnergyOutlook <- function() { # nolint
     splitData <- rbind(splitData, left_join(y, select(d, -2), by = "variable"))
   }
 
-  data <- rbind(data, splitData)
+  data <- rbind(data, splitData) %>%
+    as.magpie(temporal = 2, spatial = 1, datacol = 5) %>%
+    magpiesort()
 
-  as.magpie(data, temporal = 2, spatial = 1, datacol = 5) %>%
-    magpiesort() %>%
-    return()
+  return(data)
 
 }

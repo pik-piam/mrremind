@@ -10,7 +10,7 @@ calcPlasticsEoL <- function() {
   # read source data ----
 
   # read in projections for plastics end-of-life flows EJ/yr
-  x <- readSource("Stegmann2022")
+  x <- readSource("Stegmann2022", subtype = "FEweighted")
 
   # select variables that we are going to need to calculate incineration shares
   selection <- c(
@@ -80,7 +80,7 @@ calcPlasticsEoL <- function() {
 
   # create weights ----
 
-  fe <- calcOutput("FE", source = "IEA", aggregate = FALSE)[, 2016, "FE (EJ/yr)"]
+  fe <- calcOutput("FE", aggregate = FALSE)[, 2016, "FE (EJ/yr)"]
 
   return(
     list(

@@ -34,10 +34,11 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
   
   # Check that type matches values in absolute/relative conditional/unconditional columns
   if (!grepl("Emissions_20(18|21)", subtype)) {
+    #no values should be in the wrong types
     colRelative <- is.na(input$`Conditional Relative`) & is.na(input$`Unconditional Relative`) &
-      input$Type %in% c("GHG", "GHG/GDP", "CO2/GDP", "GHG/CAP")
-    colAbsolute <- is.na(input$`Conditional Absolute`) & is.na(input$`Unconditional Absolute`) &
       input$Type %in% c("GHG-Absolute", "GHG-fixed-total")
+    colAbsolute <- is.na(input$`Conditional Absolute`) & is.na(input$`Unconditional Absolute`) &
+      input$Type %in% c("GHG", "GHG/GDP", "CO2/GDP", "GHG/CAP")
     colInconsistent <- !(colRelative | colAbsolute)
     if (any(colInconsistent)) {
       stop(
@@ -62,11 +63,15 @@ toolProcessClimateTargetDatabase <- function(input, database, subtype) {
   
   # In case a country has two or more types of targets for same year, use GHG-Absolute targets
   # note: the only remaining country in 2021 is MGD Madagascar based on its 2016 submission
+  
   input <- input[!(input$ISO_Code %in% input[duplicated(input[c(1, 4)]), ]$ISO_Code &
                      input$Target_Year %in% input[duplicated(input[c(1, 4)]), ]$Target_Year &
                      input$Type != "GHG-Absolute"), ]
   
   # Check whether conditional is more stringent than unconditional
+  input$Conditional <- as.numeric(input$Conditional)
+  input$Unconditional <- as.numeric(input$Unconditional)
+  
   condTrumpsUncond <- (input$Conditional <= input$Unconditional) | is.na(input$Unconditional)
   if (any(!condTrumpsUncond)) {
     stop(

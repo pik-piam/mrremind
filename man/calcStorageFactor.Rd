@@ -19,5 +19,5 @@ calcOutput("StorageFactor")
 
 }
 \author{
-Lavinia Baumstark
+Lavinia Baumstark, Robert Pietzcker
 }

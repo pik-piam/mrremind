@@ -7,7 +7,7 @@
 calcExogDemScen()
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 prepare data for exogenuous FE and ES demand pathways that do not

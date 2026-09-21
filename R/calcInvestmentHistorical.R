@@ -3,7 +3,7 @@
 #'
 calcInvestmentHistorical <- function() {
   x <- readSource("IEA_WEIO")[c("World", "China"), , ]
-  getItems(x, dim = 1) <- c("GLO", "CHN")
+  getItems(x, dim = 1) <- c("GLO", "CHA")
 
   mapping <- toolGetMapping("Mapping_IEA_WEIO.csv", type = "reportingVariables", where = "mrremind") %>%
     filter(.data$variable != "")

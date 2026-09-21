@@ -1,0 +1,155 @@
+#' Calculate REMIND variables from IEA World Energy Outlook data.
+#'
+#' @author Falk Benke
+#'
+calcIeaWorldEnergyOutlook <- function() {
+
+  dataGlo <- readSource("IEA_WorldEnergyOutlook", convert = FALSE)["World", , ]
+  getItems(dataGlo, dim = 1) <- "GLO"
+  dataReg <- readSource("IEA_WorldEnergyOutlook", convert = TRUE)
+
+  .mapToRemind <- function(data, map) {
+
+    # copy over Historical for 2010 - 2024 to other scenarios
+    for (scen in getNames(data, dim = 1)) {
+      data[, c("y2010", "y2015", "y2023", "y2024"), scen] <-
+        data[, c("y2010", "y2015", "y2023", "y2024"), "Historical"][, , getNames(data[, , scen], dim = 2)]
+    }
+
+    # rename scenarios
+    scens <- c(
+      "Stated Policies Scenario" = "StatedPol",
+      "Historical" = "Historical",
+      "Current Policies Scenario" = "CurPol",
+      "Net Zero Emissions by 2050 Scenario" = "NetZero"
+    )
+
+    getNames(data, dim = 1) <- paste0("IEA WEO 2025 ", scens[getNames(data, dim = 1)])
+    getSets(data)[3] <- "model"
+
+    out <- NULL
+
+    # iterate over scenarios for variable mapping to avoid introducing empty entries via toolAggregate
+    for (scen in getNames(data, dim = 1)) {
+
+      tmp <- data[, , scen]
+      tmp <- collapseDim(tmp, dim = 3.1)
+
+      # remove NA Variables
+      remove <- magpply(tmp, function(y) all(is.na(y)), MARGIN = 3)
+      tmp <- tmp[, , !remove]
+
+      if (!any(unique(map$from) %in% getNames(tmp))){
+        next
+      }
+
+      for (var in intersect(getNames(tmp), unique(map$from))) {
+        conv <- map[map$from == var, "conversion"]
+
+        # if there is more than one conversion factor, it means that one source variable
+        # is converted two more than one target variable using a different conversion factor
+        if (length(unique(conv)) > 1) {
+
+          # create unique "from" variables for each mapping entry by appending numbers
+          map[map$from == var, "from"] <- paste0(map[map$from == var, "from"], " ",
+                                                 seq(1, nrow(map[map$from == var, ])))
+
+          # duplicate "from" data for each mapping entry
+          for (i in seq(1, length(unique(conv)))) {
+            dup <- tmp[, , var]
+            getNames(dup) <- paste0(getNames(dup), " ", i)
+            tmp <- mbind(tmp, dup)
+          }
+          tmp <- tmp[, , var, invert = TRUE]
+        } else {
+          tmp[, , var] <- tmp[, , var] * unique(conv)
+        }
+      }
+
+      tmp <- toolAggregate(tmp, dim = 3, rel = map, from = "from", to = "to",
+                           partrel = TRUE, verbosity = 2)
+      tmp <- add_dimension(tmp, dim = 3.1, add = "model", nm = scen)
+      out <- mbind(out, tmp)
+    }
+
+    return(out)
+  }
+
+  map <- toolGetMapping("Mapping_IEA_WEO_complete.csv", type = "reportingVariables", where = "mrremind") %>%
+    filter(!is.na(.data$REMIND), .data$REMIND != "") %>%
+    mutate("conversion" = as.numeric(.data$Conversion))
+
+  mapReg <- map %>%
+    mutate("REMIND" = ifelse(.data$REMIND_REGIONAL == "", .data$REMIND, .data$REMIND_REGIONAL)) %>%
+    select("from" = "Variable", "to" = "REMIND", "conversion")
+
+  mapGlo <- map %>%
+    select("from" = "Variable", "to" = "REMIND", "conversion")
+
+  dataGlo <- .mapToRemind(dataGlo, mapGlo)
+  dataReg <- .mapToRemind(dataReg, mapReg)
+
+  # correct PE|Nuclear and PE
+  # PE Nuclear is usually reported in direct equivalents, values from IEA are
+  # roughly 3 times higher than the REMIND ones
+  dataGlo[, , "PE (EJ/yr)"] <- dataGlo[, , "PE (EJ/yr)"] - dataGlo[, , "PE|Nuclear (EJ/yr)"]
+  dataGlo[, , "PE|Nuclear (EJ/yr)"] <- dataGlo[, , "PE|Nuclear (EJ/yr)"] / 3
+  dataGlo[, , "PE (EJ/yr)"] <- dataGlo[, , "PE (EJ/yr)"] + dataGlo[, , "PE|Nuclear (EJ/yr)"]
+
+  dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] - dataReg[, , "PE|Nuclear (EJ/yr)"]
+  dataReg[, , "PE|Nuclear (EJ/yr)"] <- dataReg[, , "PE|Nuclear (EJ/yr)"] / 3
+  dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] + dataReg[, , "PE|Nuclear (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
+  dataGlo[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
+    dataGlo[, , "Cap|Electricity|Biomass (GW)"] - dataGlo[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
+
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Coal (GW)", dim = 3.2)
+  dataGlo[, , "Cap|Electricity|Coal (GW)"] <-
+    dataGlo[, , "Cap|Electricity|Coal|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Coal|w/ CC (GW)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "Cap|Electricity|Coal (GW)", dim = 3.2)
+  dataReg[, , "Cap|Electricity|Coal (GW)"][, , getNames(dataReg[, , "Cap|Electricity|Coal|w/o CC (GW)"], dim=1)] <-
+    dataReg[, , "Cap|Electricity|Coal|w/o CC (GW)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "Cap|Electricity|Gas (GW)", dim = 3.2)
+  dataReg[, , "Cap|Electricity|Gas (GW)"][, , getNames(dataReg[, , "Cap|Electricity|Gas|w/o CC (GW)"], dim=1)] <-
+    dataReg[, , "Cap|Electricity|Gas|w/o CC (GW)"]
+
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Solar (GW)", dim = 3.2)
+  dataGlo[, , "Cap|Electricity|Solar (GW)"] <-
+    dataGlo[, , "Cap|Electricity|Solar|CSP (GW)"] + dataGlo[, , "Cap|Electricity|Solar|PV (GW)"]
+
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Fossil (GW)", dim = 3.2)
+  dataGlo[, , "Cap|Electricity|Fossil (GW)"] <-
+    dataGlo[, , "Cap|Electricity|Fossil|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Fossil|w/ CC (GW)"]
+
+  dataGlo <- add_columns(dataGlo, "Cap|Electricity|Gas (GW)", dim = 3.2)
+  dataGlo[, , "Cap|Electricity|Gas (GW)"] <-
+    dataGlo[, , "Cap|Electricity|Gas|w/o CC (GW)"] + dataGlo[, , "Cap|Electricity|Gas|w/ CC (GW)"]
+
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
+  dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
+    dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
+  dataReg[, , "SE|Electricity|Coal (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"], dim=1)] <-
+    dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"]
+
+  # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
+  dataReg <- add_columns(dataReg, "SE|Electricity|Gas (EJ/yr)", dim = 3.2)
+  dataReg[, , "SE|Electricity|Gas (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"], dim=1)] <-
+    dataReg[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"]
+
+  return(list(
+    x = dataReg,
+    weight = NULL,
+    unit = c("GW", "EJ/yr", "Mt CO2/yr"),
+    aggregationFunction = toolAggregateCustomRegs,
+    aggregationArguments = list(agg = dataGlo),
+    description = "IEA World Energy Outlook 2025 values as REMIND variables"
+  ))
+}

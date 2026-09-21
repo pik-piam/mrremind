@@ -2,19 +2,14 @@
 % Please edit documentation in R/calcPE.R
 \name{calcPE}
 \alias{calcPE}
-\title{Computes Primary Energy variables}
+\title{Computes Primary Energy variables from IEA Energy Balances}
 \usage{
-calcPE(subtype = "IEA", ieaVersion = "default")
+calcPE(ieaVersion = "default")
 }
 \arguments{
-\item{subtype}{source for calculation, either "IEA" or "IEA_WEO"}
-
 \item{ieaVersion}{Release version of IEA data, either 'default' (vetted and used in REMIND)
 or 'latest'.}
 }
-\value{
-a magclass object
-}
 \description{
-Computes Primary Energy variables
+Computes Primary Energy variables from IEA Energy Balances
 }

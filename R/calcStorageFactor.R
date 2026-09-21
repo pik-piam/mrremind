@@ -2,39 +2,59 @@
 #' @description provides capacity factor values
 #'
 #' @return magpie object of the capacity factor data
-#' @author Lavinia Baumstark
+#' @author Lavinia Baumstark, Robert Pietzcker
 #' @examples
 #' \dontrun{
 #' calcOutput("StorageFactor")
 #' }
 #'
 calcStorageFactor <- function() {
-  # Read storage factor inputs
-  x <- readSource("REMIND_11Regi", subtype = "storageFactor")
+
+  # read storage factor inputs
+  x <- readSource("ExpertGuess", subtype = "storageFactor")
   getSets(x)[3] <- "all_te"
 
   # read in weight data
-  # for solar
+
+  ## for solar and csp
   tmp <- calcOutput("Solar", aggregate = FALSE)
-  weightSolar <- dimSums(tmp[, , "area"][, , "PV"][, , c("0-50", "50-100")], dim = c(3.4, 3.3))
-  weightSolar <- collapseNames(weightSolar)
+
+  # as weight, we use the PV potential (capacity * FLh) in each country,
+  # ignoring the uneconomic grades with FLh < 730
+
+  weightSolar <- tmp[, , "capacity"][, , "PV"][, , c("0-50", "50-100")] %>%
+    collapseNames() %>%
+    as.quitte() %>%
+    mutate(
+      "Bin" = as.numeric(as.character(.data$Bin)),
+      "value" = .data$value * .data$Bin * 1e-6
+    ) %>%
+    filter(.data$Bin > 729) %>%
+    group_by(.data$period, .data$region) %>%
+    summarise(value = sum(.data$value), .groups = "drop") %>%
+    ungroup() %>%
+    as.magpie()
+
   getNames(weightSolar) <- c("spv")
   weightSolar <- mbind(weightSolar, setNames(weightSolar, "csp"))
-  # for wind onshore
+
+  ## for wind onshore
   weightOnshore <- calcOutput("PotentialWindOn", aggregate = FALSE)
   weightOnshore <- collapseNames(dimSums(weightOnshore, dim = 3))
   getSets(weightOnshore)[1] <- getSets(weightSolar)[1]
   getSets(weightOnshore)[2] <- getSets(weightSolar)[2]
   getNames(weightOnshore) <- "windon"
   getYears(weightOnshore) <- getYears(weightSolar)
-  # for wind onshore
+
+  ## for wind onshore
   weightOffshore <- calcOutput("PotentialWindOff", aggregate = FALSE)
   weightOffshore <- collapseNames(dimSums(weightOffshore, dim = 3))
   getSets(weightOffshore)[1] <- getSets(weightSolar)[1]
   getSets(weightOffshore)[2] <- getSets(weightSolar)[2]
   getNames(weightOffshore) <- "windoff"
   getYears(weightOffshore) <- getYears(weightSolar)
-  # combile all weights
+
+  ## combine all weights
   w <- mbind(weightSolar, weightOnshore, weightOffshore)
   getSets(w)[3] <- "all_te"
 
@@ -42,8 +62,15 @@ calcStorageFactor <- function() {
     x = x,
     weight = w,
     unit = "% of capacity",
-    description = paste0("multiplicative factor that scales total curtailment and ",
-                         "storage requirements up or down in different regions for ",
-                         "different technologies")
+    description = glue::glue(
+      'Multiplicative factor that scales total curtailment and storage requirements \\
+      up or down in different regions for different technologies.  \\
+      The regional storage parameterization is based on the regional data from this paper: \\
+      "Ueckerdt, F., Pietzcker, R., Scholz, Y., Stetter, D., Giannousakis, A., Luderer, G., 2017. \\
+      Decarbonizing global power supply under region-specific consideration of challenges and \\
+      options of integrating variable renewables in the REMIND model. Energy Economics 64, 665-684. \\
+      https://doi.org/10.1016/j.eneco.2016.05.012" and - for EU regions - a further differentiation \\
+      based on "how much are storage needs reduced because solar aligns well with cooling demands", \\
+      which is proxied by "how far south does a region lie".')
   ))
 }
