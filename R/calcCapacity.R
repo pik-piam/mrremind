@@ -9,13 +9,15 @@
 #' calcOutput("Capacity", subtype = "capacityByTech")
 #' }
 calcCapacity <- function(subtype) {
+  MW_2_TW <- 1e-6
+  GW_2_TW <- 1e-3
 
   if (subtype == "capacityByTech") {
     description <- "Historical capacity by technology."
 
 
     ###### Use IRENA data for world renewables capacity
-    # Year: 2000-2024
+    # Year: 2000-2025
     mapping <- tibble::tribble(
       ~remind,   ~irena,
       "geohdr",  "Geothermal",
@@ -28,7 +30,7 @@ calcCapacity <- function(subtype) {
 
     capIRENA <- readSource(type = "IRENA", subtype = "Capacity")[, , mapping$irena] %>% # selecting relevant variables
       toolAggregate(dim = 3, rel = mapping, from = "irena", to = "remind") * # renaming to remind names
-      1e-6 # converting MW to TW
+      MW_2_TW
 
     ###### Use Openmod capacity values updated by the LIMES team for the European countries
     # Year: 2015
@@ -45,7 +47,7 @@ calcCapacity <- function(subtype) {
           "DEU", "BEL", "LUX", "CZE", "SVK", "AUT", "CHE", "HUN", "ROU", "SVN", "FRA", "HRV", "BGR", "ITA",
           "ESP", "PRT", "GRC"), , mappingOpenmod$openmod] %>% # selecting countries and variables
       toolAggregate(dim = 3, rel = mappingOpenmod, from = "openmod", to = "remind") * # renaming to remind names
-      1e-3 # converting GW to TW
+      GW_2_TW
 
 
     ###### Use WEO 2017 data for countries: "USA","BRA","RUS","CHN","IND","JPN"
@@ -59,7 +61,20 @@ calcCapacity <- function(subtype) {
     capWEO <- readSource(type = "IEA_WEO", subtype = "Capacity")
     capWEO <- capWEO[c("USA", "BRA", "RUS", "CHN", "IND", "JPN"), 2015, mappingWEO$weo] %>% # selecting relevant data
       toolAggregate(dim = 3, rel = mappingWEO, from = "weo", to = "remind") * # renaming to remind names
-      1e-3 # converting GW to TW
+      GW_2_TW
+
+    ###### Use IEA data for electrolysis capacities
+    # Year: 2000-2025
+    mappingElh2 <- tibble::tribble(
+      ~iea,      ~remind,
+      "electric", "elh2",
+    )
+
+    # this filter is not strictly necessary since only electrolysis have electric capacity
+    electrolysisTechs = c("AEM", "ALK", "Other Electrolysis", "PEM", "SOEC")
+    capElh2 <- readSource(type = "IEA_HydrogenProduction")[, , electrolysisTechs] %>% dimSums(dim = 3.1)
+    capElh2 <- capElh2[, getYears(capElh2, as.integer = TRUE) >= 2000, mappingElh2$iea] %>%
+      toolAggregate(dim = 3, rel = mappingElh2, from = "iea", to = "remind") * MW_2_TW
 
 
     ###### Use manual data with expert judgement
@@ -85,7 +100,7 @@ calcCapacity <- function(subtype) {
 
     ###### merge capacity data from different sources
     # the order matters as latter will overwrite former
-    datasets <- list(capIRENA, capOpenmod, capWEO, capManual)
+    datasets <- list(capIRENA, capOpenmod, capWEO, capElh2, capManual)
     output <- new.magpie(
       cells_and_regions = unique(unlist(lapply(datasets, getRegions))),
       years = sort(unique(unlist(lapply(datasets, getYears)))),
@@ -94,7 +109,7 @@ calcCapacity <- function(subtype) {
     )
 
     for (dataset in datasets) {
-      output[getRegions(dataset), getYears(dataset), getNames(dataset)] <- dataset[getRegions(dataset), getYears(dataset), getNames(dataset)]
+      output[getItems(dataset, dim = 1), getYears(dataset), getNames(dataset)] <- dataset
     }
 
     output[is.na(output)] <- 0 # set NA to 0
