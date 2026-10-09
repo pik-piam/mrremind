@@ -1,6 +1,14 @@
 #' generate F-Gases based on IMAGE data
 #'
 #' @param subtype "IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.
+#' "KigaliFull" and "KigaliImplemented" build scenarios from the "Very Low - SSP1" scenario of the ScenarioMIP
+#' MESSAGEix R10 data (readSource("ScenarioMIP", "FGasScen")): the Annex F Group I HFC species are multiplied by the
+#' Kigali Amendment reduction fractions (calcOutput("KAReductionFractions"), computed per country), in all countries
+#' ("KigaliFull") or only in the China+ (R10) countries ("KigaliImplemented"). HFC-23, PFCs and SF6 are kept as in the
+#' scenario, C2F6 is set to 0 and C6F14 is not produced. The totals are rebuilt in CO2eq from the species with the GWPs
+#' of AR6GWP. All SSP and RCP combinations receive the same scenario for now (placeholder mapping).
+#' ASSUMPTION: the HCFC part of the legal Kigali baselines is NOT considered (HFC-only baselines, see
+#' calcKAReductionFractions), so the caps are tighter than the legal ones.
 #' @param interp "interpolate2025" will intepolate from EDGAR historical data from 2025 to interpyear.
 #' To account for the very old IMAGE scenarios in IMAGElegacy,
 #' this used to be 2050 but is now flexible. Any other interp value will ignore this step.
@@ -187,8 +195,147 @@ calcFGas <- function(subtype = "IMAGE2025", interp = "interpolate2025", interpye
     # If we are not doing anything else, the output is just outx. If we are doing the interpolation,
     # keep the x naming
     x <- outx
+  } else if (subtype %in% c("KigaliFull", "KigaliImplemented")) {
+    # The species table links the ScenarioMIP variables to the REMIND variables and to the AR6 names of the gases
+    w <- readSource("ScenarioMIP", subtype = "FGasSpecies", convert = FALSE)
+    gwpAR6 <- readSource("AR6GWP")
+    w$gwp_ar6 <- gwpAR6$GWP[match(w$ar6_gas, gwpAR6$Gas)]
+
+    # The ScenarioMIP data at country level, in kt of each gas per year. The C2F6 and C6F14 of the
+    # table are not reported by the MESSAGEix model, so they are not in the data
+    x <- readSource("ScenarioMIP", subtype = "FGasScen")
+    # Assumption: both Kigali variants start from the MESSAGEix scenario "Very Low - SSP1", the one with the lowest
+    # F-gas emissions of the ScenarioMIP database. The same scenario is used for all REMIND SSPs and RCPs (see the
+    # placeholder mapping below)
+    x <- collapseNames(x[, , "Very Low - SSP1"])
+    x <- x[, , intersect(w$smip_variable, getNames(x))]
+
+    # The Annex F Group I HFCs are the ones capped by the Kigali Amendment. HFC-23 (Group II, which has a destruction
+    # duty but no cap), the PFCs and SF6 are not covered by the Amendment and keep the scenario values
+    hfcGroupI <- c("Emissions|HFC|HFC125", "Emissions|HFC|HFC134a", "Emissions|HFC|HFC143a", "Emissions|HFC|HFC227ea",
+                   "Emissions|HFC|HFC245fa", "Emissions|HFC|HFC32", "Emissions|HFC|HFC43-10")
+    hfcAll <- c(hfcGroupI, "Emissions|HFC|HFC23")
+    pfcAll <- "Emissions|CF4"
+
+    # The Kigali fractions per country and year, the same for all Group I species (see calcKAReductionFractions). They
+    # are the allowed share of the 2020 emissions of the country and never above 1
+    ka <- calcOutput("KAReductionFractions", aggregate = FALSE)[, getItems(x, dim = 2), ]
+    ka <- collapseDim(ka)
+
+    # The scenario value of each country and Group I species in 2020, before any cap. The cap of a country is its Kigali
+    # fraction times this value, so the caps follow the level of the scenario and not the level of EDGAR. Summing over
+    # the single year drops the year dimension, so that it can be combined with the fractions of all years
+    ref2020 <- dimSums(x[, 2020, hfcGroupI], dim = 2)
+
+    # The countries that get the caps: all of them for KigaliFull, only the China+ (R10) countries (China, Hong Kong,
+    # Macao and Taiwan) for KigaliImplemented. As a mask: 1 if the country gets the caps, 0 if not
+    isCapped <- 1 + 0 * dimSums(ka, dim = 2)
+    if (subtype == "KigaliImplemented") {
+      isCapped[, , ] <- 0
+      isCapped[c("CHN", "HKG", "MAC", "TWN"), , ] <- 1
+    }
+
+    # The Kigali group of each country, as masks: 1 if the country is in the group, 0 if not
+    grp <- readSource("KAReductions", subtype = "groups")
+
+    # This is the place where the Kigali fractions meet the scenario. The result of each country and Group I species is
+    # the smaller of the scenario value and the cap, min(scenario, cap) (magclass has no pmin, so the part of the
+    # scenario above the cap, the excess, is calculated and removed). If the scenario is already below the cap it stays
+    # as it is. The cap only applies from the first year in which the group is bound by the treaty, before that the
+    # scenario is not touched. Fractions are never above 1, so until the first cut of the group bites the cap is simply
+    # the 2020 level of the scenario (the freeze). One block per group, with the start year of the group.
+
+    # Non-Article 5 (developed countries): there is no freeze, the first cut already applies in 2019, so the cap is on
+    # for all years of the scenario
+    isNonA5 <- collapseDim(grp[, , "nonA5"])
+    startNonA5 <- 2019
+    yearsNonA5 <- 0 * ka
+    yearsNonA5[, getYears(ka, as.integer = TRUE) >= startNonA5, ] <- 1
+    appliesNonA5 <- isNonA5 * yearsNonA5 * isCapped
+    capNonA5 <- ka * ref2020
+    excessNonA5 <- x[, , hfcGroupI] - capNonA5
+    excessNonA5[excessNonA5 < 0] <- 0
+    x[, , hfcGroupI] <- x[, , hfcGroupI] - excessNonA5 * appliesNonA5
+
+    # Non-Article 5 countries with special early steps (Belarus, Russia, Kazakhstan, Tajikistan and Uzbekistan): their
+    # first step is in 2020, there is no freeze, so the cap is on from 2020 (all years of the scenario)
+    isNonA5Special <- collapseDim(grp[, , "nonA5_special"])
+    startNonA5Special <- 2020
+    yearsNonA5Special <- 0 * ka
+    yearsNonA5Special[, getYears(ka, as.integer = TRUE) >= startNonA5Special, ] <- 1
+    appliesNonA5Special <- isNonA5Special * yearsNonA5Special * isCapped
+    capNonA5Special <- ka * ref2020
+    excessNonA5Special <- x[, , hfcGroupI] - capNonA5Special
+    excessNonA5Special[excessNonA5Special < 0] <- 0
+    x[, , hfcGroupI] <- x[, , hfcGroupI] - excessNonA5Special * appliesNonA5Special
+
+    # Article 5 Group 1 (developing countries not in Group 2, this includes China): the treaty starts to bind with the
+    # freeze in 2024, so that is the first year of the cap. Before 2024 the scenario is left alone
+    isA5G1 <- collapseDim(grp[, , "A5G1"])
+    startA5G1 <- 2024
+    yearsA5G1 <- 0 * ka
+    yearsA5G1[, getYears(ka, as.integer = TRUE) >= startA5G1, ] <- 1
+    appliesA5G1 <- isA5G1 * yearsA5G1 * isCapped
+    capA5G1 <- ka * ref2020
+    excessA5G1 <- x[, , hfcGroupI] - capA5G1
+    excessA5G1[excessA5G1 < 0] <- 0
+    x[, , hfcGroupI] <- x[, , hfcGroupI] - excessA5G1 * appliesA5G1
+
+    # Article 5 Group 2 (India, Pakistan, Iran, Iraq, Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, UAE): the treaty
+    # starts to bind with the freeze in 2028, so that is the first year of the cap. Before 2028 the scenario is
+    # left alone
+    isA5G2 <- collapseDim(grp[, , "A5G2"])
+    startA5G2 <- 2028
+    yearsA5G2 <- 0 * ka
+    yearsA5G2[, getYears(ka, as.integer = TRUE) >= startA5G2, ] <- 1
+    appliesA5G2 <- isA5G2 * yearsA5G2 * isCapped
+    capA5G2 <- ka * ref2020
+    excessA5G2 <- x[, , hfcGroupI] - capA5G2
+    excessA5G2[excessA5G2 < 0] <- 0
+    x[, , hfcGroupI] <- x[, , hfcGroupI] - excessA5G2 * appliesA5G2
+
+    # The AR6 GWP100 of each species, one global value per species, with the same species and set names as x so that the
+    # multiplication below is element-wise and does not build a cross product
+    gwp <- new.magpie("GLO", NULL, w$smip_variable, fill = w$gwp_ar6, sets = c("region", "year", "variable"))
+    gwp <- gwp[, , getNames(x)]
+    # kt of each gas times its GWP gives kt CO2eq, divided by 1000 for Mt CO2eq
+    co2 <- x * gwp / 1000
+    gwpHFC134a <- gwpAR6$GWP[gwpAR6$Gas == "HFC-134a"]
+    gwpCF4 <- gwpAR6$GWP[gwpAR6$Gas == "PFC-14"]
+
+    # The REMIND variables, in the units of f_emiFgas
+    mdata <- mbind(
+      # The species, kt of each gas per year, with the REMIND names of the table
+      setNames(x, w$remind_variable[match(getNames(x), w$smip_variable)]),
+      # C2F6 is not reported by the MESSAGEix model, so it is set to 0 (C6F14 is not produced at all, as in the IMAGE
+      # data, see the selection of the variables below). kt per year
+      setNames(0 * x[, , "Emissions|CF4"], "emiFgasC2F6"),
+      # The total of the species that are reported (C2F6 and C6F14 are not in it) with the AR6 GWPs, which is why it is
+      # not the total of the database. Mt CO2eq per year
+      setNames(dimSums(co2, dim = 3), "emiFgasTotal"),
+      # All HFCs, including HFC-23, in kt HFC134a-equivalent per year (Mt CO2eq times 1000, divided by the GWP of
+      # HFC-134a)
+      setNames(dimSums(co2[, , hfcAll], dim = 3) * 1000 / gwpHFC134a, "emiFgasHFC"),
+      # All PFCs, here only CF4, in kt CF4-equivalent per year
+      setNames(dimSums(co2[, , pfcAll], dim = 3) * 1000 / gwpCF4, "emiFgasPFC")
+    )
+    # The variables of the other subtypes, in their order, without C6F14
+    mdata <- mdata[, , unlist(emi_mapping[emi_mapping != "emiFgasC6F14"], use.names = FALSE)]
+
+    # Same dimensions as the other subtypes. This is a placeholder mapping: the one scenario is used for all five SSPs
+    # and all six RCP entries, so there is no relation between the REMIND SSP/RCP and the MESSAGEix scenario
+    out <- add_dimension(mdata, dim = 3.1, add = "Scenario", nm = paste0("forcing_SSP", 1:5))
+    out <- add_dimension(out, dim = 3.1, add = "rcp", nm = c("rcp20", "rcp26", "rcp37", "rcp45", "rcp60", "none"))
+    out <- add_dimension(out, dim = 3.1, add = "SPAscen", nm = "SPA0")
+    out <- dimOrder(out, perm = c(3, 2, 1, 4))
+    getSets(out)[getSets(out) == "variable"] <- "Variable"
+    # The REMIND years. The scenario has no values before 2020 and after 2100: the years in between are interpolated
+    # linearly, the earlier years are a constant extension of 2020 and 2110, 2130 and 2150 a constant extension of 2100
+    rem_years <- c(seq(2005, 2060, 5), seq(2070, 2110, 10), 2130, 2150)
+    outx <- time_interpolate(out, interpolated_year = rem_years, extrapolation_type = "constant")
+    x <- outx
   } else {
-    stop("Invalid subtype. Please use 'IMAGE2025' or 'IMAGElegacy'")
+    stop("Invalid subtype. Please use 'IMAGE2025', 'IMAGElegacy', 'KigaliFull' or 'KigaliImplemented'")
   }
 
 
