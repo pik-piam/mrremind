@@ -14,8 +14,6 @@ calcExpertGuess(subtype)
 'gridFactor'
 'subConvergenceRollback'
 'tradeConstraints'
-'taxConvergence'
-'taxConvergenceRollback',
 'tradecost'}
 }
 \description{

@@ -35,11 +35,9 @@ fullREMIND <- function() {
   calcOutput("PHI",                                               file = "p01_phi.cs4r", aggregate = FALSE)
 
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
+  calcOutput("FETaxes", subtype = "taxes",            round = 8,  file = "f21_tau_fe_tax.cs4r")
   calcOutput("FETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_fe_sub.cs4r")
 
-  calcOutput("ExpertGuess", subtype = "taxConvergence", round = 2, file = "f21_tax_convergence.cs4r")
-  calcOutput("ExpertGuess", subtype = "taxConvergenceRollback", round = 2, file = "f21_tax_convergence_rollback.cs4r")
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
@@ -129,9 +127,12 @@ fullREMIND <- function() {
   calcOutput("IoRemind", subtype = "trade",              round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
-             # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
-             temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
-  calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCapYearly.cs3r")
+             # for period 2025, only use the year 2025, as 2026, 2027 are not in the data yet
+             temporalmapping = filter(quitte::remind_timesteps, !(.data$year %in% c(2023, 2024, 2026, 2027))))
+  tmp <- calcOutput("Capacity", subtype = "capacityByTech", round = 6, file = "pm_histCapYearly.cs3r")
+  if ("y2026" %in% getYears(tmp)) {
+    warning("Consider updating the temporal mapping of pm_histCap.cs3r")
+  }
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("SeProduction",                                           round = 8,  file = "p_histProdSe.cs3r")

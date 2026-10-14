@@ -43,7 +43,7 @@ readExpertGuess <- function(subtype) {
       as.magpie()
 
   } else if (subtype == "capacityFactorGlobal") {
-    out <- read.csv("capacity-factors-global_REMIND_2026-02-27_v1.csv", sep = ";") %>%
+    out <- read.csv("capacity-factors-global_REMIND_2026-09-24.csv", sep = ";") %>%
       as.magpie(datacol = 2)
 
   } else if (subtype == "capacityFactorRules") {
@@ -59,7 +59,7 @@ readExpertGuess <- function(subtype) {
 
   } else if (subtype == "co2prices") {
 
-    out <- read.csv("co2prices-2026-06.csv", sep = ";") %>%
+    out <- read.csv("co2prices-2026-08.csv", sep = ";") %>%
       select(-"Country", -"RegionCode") %>%
       as.magpie()
 

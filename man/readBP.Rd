@@ -17,5 +17,5 @@ A \code{\link[magclass:magclass]{magpie}} object.
 BP Capacity and Generation Data
 }
 \author{
-Aman Malik, Falk Benke
+Aman Malik, Falk Benke, Pascal Weigmann
 }

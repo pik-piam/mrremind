@@ -19,7 +19,8 @@ calcFETaxes <- function(subtype = "taxes") {
   # read in taxes/subsidies values
   if (subtype == "taxes") {
     tax <- readSource("IIASA_subs_taxes", subtype = "tax_rate")
-    desc <- "Aggregated final energy tax data from country level data provided by IIASA (Jessica Jewell)"
+    desc <- "Aggregated final energy tax data from country level data provided by IIASA (Jessica Jewell) \
+extrapolated into the future for various tax scenarios"
   } else if (subtype == "subsidies") {
     tax <- -readSource("IIASA_subs_taxes", subtype = "subsidies_bulk")
     desc <- "Aggregated final energy subsidy data from country level data provided by IIASA (Jessica Jewell)"
@@ -161,6 +162,65 @@ calcFETaxes <- function(subtype = "taxes") {
 
   }
 
+  if (subtype == "taxes") {
+    years <- sort(unique(quitte::remind_timesteps$period))
+    # all emi_sectors present in remind
+    sectors <- c("power", "refining", "solids", "extraction", "build", "indst", "trans", "agriculture", "waste", "cdr",
+                 "lulucf", "bunkers", "other", "indirect")
+    # set all taxes to 0 that will be weighted 0
+    Rtax[Renergy == 0] <- 0
+    # extend base year value to all time steps
+    Rtax <- time_interpolate(Rtax, years, integrate_interpolated_years = TRUE, extrapolation_type = "constant")
+
+    # See documentation of cm_fetaxscen in Remind
+    # scenario 0 has no FE taxes
+    scen0 <- Rtax * 0
+    # scenario 1,3,4 use the default taxes
+    scen1 <- scen3 <- scen4 <- Rtax
+
+    # scenario 2 converges some FE taxes to expert-guessed values in 2050
+    convergence <- readSource("ExpertGuess", subtype = "taxConvergence", convert = TRUE)
+    convergence <- add_dimension(convergence, dim = 3.1, add = "sector", nm = sectors, expand = TRUE)
+    stopifnot(getYears(convergence) == "y2050")
+    # converge taxes from now onward
+    scen2 <- add_columns(Rtax[, c(2025, 2050), ], addnm = setdiff(getNames(convergence), getNames(Rtax)), fill = 0,
+                         dim = 3)
+    scen2[getItems(convergence, dim = 1), getYears(convergence), getNames(convergence)] <- convergence
+    # linear interpolation between now and 2050
+    scen2 <- time_interpolate(scen2, years, integrate_interpolated_years = TRUE, extrapolation_type = "constant")
+
+    # scenario 5 rolls back some FE taxes to expert-guessed values in 2035
+    rollback <- readSource("ExpertGuess", subtype = "taxConvergenceRollback", convert = TRUE)
+    rollback <- add_dimension(rollback, dim = 3.1, add = "sector", nm = sectors, expand = TRUE)
+    stopifnot(getYears(rollback) == "y2035")
+    # converge taxes from now onward
+    scen5 <- add_columns(Rtax[, c(2025, 2035), ], addnm = setdiff(getNames(rollback), getNames(Rtax)), fill = 0,
+                         dim = 3)
+    scen5[getItems(rollback, dim = 1), getYears(rollback), getNames(rollback)] <- rollback
+    # linear interpolation between now and 2035
+    scen5 <- time_interpolate(scen5, years, integrate_interpolated_years = TRUE, extrapolation_type = "constant")
+
+    curves <- list(scen0, scen1, scen2, scen3, scen4, scen5)
+    result <- NULL
+    for (i in seq_along(curves)) {
+      result <- mbind(result, add_dimension(curves[[i]], dim = 3.1, add = "scenario", nm = i - 1))
+    }
+
+
+    non_2_trillion <- 1e-12
+    GJ_2_TWa <- 31.71e-12
+    epsilon <- 1e-12
+    result <- result * (non_2_trillion / GJ_2_TWa)
+    # adapt Renergy to match Rtax (except the scenario subdimension)
+    # use epsilon so that regions with 0 weight still have taxes later in the convergence scenarios
+    Renergy <- add_columns(Renergy, addnm = setdiff(getNames(convergence), getNames(Renergy)), fill = epsilon, dim = 3)
+    Renergy <- add_columns(Renergy, addnm = setdiff(getNames(rollback), getNames(Renergy)), fill = epsilon, dim = 3)
+    Renergy[Renergy == 0] <- epsilon
+    # do not throw a warning for zero weights, as they seem to be intended
+    return(list(x = result, weight = Renergy, unit = "trillion US$2017/TWa", description = desc,
+                aggregationArguments = list(zeroWeight = "allow")))
+  }
+
   # Weights do not take into account the differentiation by services. So if
   # the tax in a Cooling country is very high and the tax in a country in the
   # same region using a lot of electricity for cooking is low, the tax for
@@ -168,8 +228,8 @@ calcFETaxes <- function(subtype = "taxes") {
   # for cooling and low for cooking
   # So, we can assume that countries are app. similar in a given region
 
+  # do not throw a warning for zero weights, as they seem to be intended
   list(x = Rtax, weight = Renergy, unit = "US$2017/GJ", description = desc,
-       # do not throw a warning for zero weights, as they seem to be intended
-       aggregationArguments = list(zeroWeight = "allow")
+    aggregationArguments = list(zeroWeight = "allow")
   )
 }

@@ -9,8 +9,11 @@
 #' @importFrom dplyr mutate select
 #'
 convertPBL_EFsBaseline <- function(x) {
-    imagemapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv", type = "regional", where = "mrremind")
-    remindmapping <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mappingfolder")
+    imagemapping <- toolGetMapping("regionmapping_IMAGE_PBL_Stegmann2022.csv",
+                                   type = "regional", where = "mrindustry")
+
+    remindmapping <- toolGetMapping("regionmappingH12.csv", type = "regional",
+                                    where = "mappingfolder")
 
     xiso <- toolAggregate(x, rel = imagemapping, dim = 1,  from = "RegionCode", to = "CountryCode")
 

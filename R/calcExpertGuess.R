@@ -9,8 +9,6 @@
 #' 'gridFactor'
 #' 'subConvergenceRollback'
 #' 'tradeConstraints'
-#' 'taxConvergence'
-#' 'taxConvergenceRollback',
 #' 'tradecost'
 #'
 calcExpertGuess <- function(subtype) {
@@ -22,8 +20,6 @@ calcExpertGuess <- function(subtype) {
     "gridFactor",
     "subConvergenceRollback",
     "tradeConstraints",
-    "taxConvergence",
-    "taxConvergenceRollback",
     "tradecost"
   )
 
@@ -38,8 +34,6 @@ calcExpertGuess <- function(subtype) {
     "gridFactor" = TRUE,
     "subConvergenceRollback" = TRUE,
     "tradeConstraints" = FALSE,
-    "taxConvergence" = TRUE,
-    "taxConvergenceRollback" = TRUE,
     "tradecost" = TRUE
   )
 
@@ -90,23 +84,6 @@ calcExpertGuess <- function(subtype) {
       such as percentage numbers"
     )
     weight <- NULL
-
-  } else if (subtype == "taxConvergence") {
-
-
-    unit <- "US$2017/GJ"
-    description <- glue::glue("Tax convergence level for specific regions, year \\
-                              and final energy type")
-    weight <- x
-    weight[, , ] <- 1
-
-  } else if (subtype == "taxConvergenceRollback") {
-
-    unit <- "US$2017/GJ"
-    description <- glue::glue("Tax convergence level for specific regions, year \\
-                              and final energy type in rollback scenario")
-    weight <- x
-    weight[, , ] <- 1
 
   } else if (subtype == "subConvergenceRollback") {
 

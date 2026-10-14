@@ -18,47 +18,63 @@ import(mrdrivers)
 import(mrenergy)
 import(mrindustry)
 importFrom(data.table,":=")
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_match)
-importFrom(dplyr,desc)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,full_join)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_modify)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,pull)
-importFrom(dplyr,relocate)
-importFrom(dplyr,rename)
-importFrom(dplyr,select)
-importFrom(dplyr,slice_tail)
-importFrom(dplyr,summarise)
-importFrom(dplyr,ungroup)
+importFrom(dplyr,
+  arrange,
+  bind_rows,
+  case_match,
+  desc,
+  distinct,
+  filter,
+  full_join,
+  group_by,
+  group_modify,
+  left_join,
+  mutate,
+  pull,
+  relocate,
+  rename,
+  select,
+  slice_tail,
+  summarise,
+  ungroup
+)
 importFrom(madrat,readSource)
-importFrom(magclass,dimSums)
-importFrom(magclass,mbind)
-importFrom(magclass,setNames)
+importFrom(magclass,
+  dimSums,
+  mbind,
+  setNames
+)
 importFrom(magrittr,"%>%")
-importFrom(quitte,as.quitte)
-importFrom(quitte,cartesian)
-importFrom(quitte,getVars)
-importFrom(quitte,interpolate_missing_periods)
-importFrom(readxl,excel_sheets)
-importFrom(readxl,read_excel)
-importFrom(readxl,read_xlsx)
-importFrom(rlang,"!!!")
-importFrom(rlang,"!!")
-importFrom(rlang,.data)
-importFrom(rlang,sym)
-importFrom(rlang,syms)
+importFrom(quitte,
+  as.quitte,
+  cartesian,
+  getVars,
+  interpolate_missing_periods
+)
+importFrom(readxl,
+  excel_sheets,
+  read_excel,
+  read_xlsx
+)
+importFrom(rlang,
+  "!!!",
+  "!!",
+  .data,
+  sym,
+  syms
+)
 importFrom(stats,na.omit)
-importFrom(tibble,as_tibble)
-importFrom(tibble,tibble)
-importFrom(tidyr,complete)
-importFrom(tidyr,gather)
-importFrom(tidyr,pivot_longer)
-importFrom(utils,head)
-importFrom(utils,read.csv)
-importFrom(utils,tail)
+importFrom(tibble,
+  as_tibble,
+  tibble
+)
+importFrom(tidyr,
+  complete,
+  gather,
+  pivot_longer
+)
+importFrom(utils,
+  head,
+  read.csv,
+  tail
+)
