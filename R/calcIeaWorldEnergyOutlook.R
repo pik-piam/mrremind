@@ -134,6 +134,14 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
     dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
 
+  dataGlo <- add_columns(dataGlo, "FE|w/o Non-energy Use|Industry (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|w/o Non-energy Use|Industry (EJ/yr)"] <-
+    dataGlo[, , "FE|Industry (EJ/yr)"] - dataGlo[, , "FE|Non-energy Use|Industry|Liquids|Fossil (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Transport|w/o Bunkers (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Transport|w/o Bunkers (EJ/yr)"] <-
+    dataGlo[, , "FE|Transport (EJ/yr)"] - 0.778 * dataGlo[, , "FE|Transport|Freight|Shipping (EJ/yr)"] - 0.579 * dataGlo[, , "FE|Transport|Pass|Aviation (EJ/yr)"] # factors are derived from 2023 share of bunkers in total shipping/aviation
+
   # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
   dataReg <- add_columns(dataReg, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
   dataReg[, , "SE|Electricity|Coal (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"], dim=1)] <-
