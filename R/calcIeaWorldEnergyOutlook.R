@@ -100,6 +100,14 @@ calcIeaWorldEnergyOutlook <- function() {
   dataReg[, , "PE|Nuclear (EJ/yr)"] <- dataReg[, , "PE|Nuclear (EJ/yr)"] / 3
   dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] + dataReg[, , "PE|Nuclear (EJ/yr)"]
 
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
+  dataGlo[, , "SE|Electricity|Coal (EJ/yr)"] <-
+    dataGlo[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"] + dataGlo[, , "SE|Electricity|Coal|w/ CC (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Gas (EJ/yr)", dim = 3.2)
+  dataGlo[, , "SE|Electricity|Gas (EJ/yr)"] <-
+    dataGlo[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"] + dataGlo[, , "SE|Electricity|Gas|w/ CC (EJ/yr)"]
+
   dataGlo <- add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
     dataGlo[, , "Cap|Electricity|Biomass (GW)"] - dataGlo[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
