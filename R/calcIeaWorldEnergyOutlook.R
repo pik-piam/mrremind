@@ -154,9 +154,6 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo[, , "FE|Transport|w/o Bunkers|Electricity (EJ/yr)"] <-
     dataGlo[, , "FE|Transport|Electricity (EJ/yr)"] # no electrification of bunkers possible at the moment
 
-
-FE|Transport|w/o Bunkers|+|Electricity
-
   # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
   dataReg <- add_columns(dataReg, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
   dataReg[, , "SE|Electricity|Coal (EJ/yr)"][, , getNames(dataReg[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"], dim=1)] <-
