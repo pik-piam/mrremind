@@ -100,6 +100,14 @@ calcIeaWorldEnergyOutlook <- function() {
   dataReg[, , "PE|Nuclear (EJ/yr)"] <- dataReg[, , "PE|Nuclear (EJ/yr)"] / 3
   dataReg[, , "PE|w/o Bunkers (EJ/yr)"] <- dataReg[, , "PE|w/o Bunkers (EJ/yr)"] + dataReg[, , "PE|Nuclear (EJ/yr)"]
 
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
+  dataGlo[, , "SE|Electricity|Coal (EJ/yr)"] <-
+    dataGlo[, , "SE|Electricity|Coal|w/o CC (EJ/yr)"] + dataGlo[, , "SE|Electricity|Coal|w/ CC (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "SE|Electricity|Gas (EJ/yr)", dim = 3.2)
+  dataGlo[, , "SE|Electricity|Gas (EJ/yr)"] <-
+    dataGlo[, , "SE|Electricity|Gas|w/o CC (EJ/yr)"] + dataGlo[, , "SE|Electricity|Gas|w/ CC (EJ/yr)"]
+
   dataGlo <- add_columns(dataGlo, "Cap|Electricity|Biomass|w/o CC (GW)", dim = 3.2)
   dataGlo[, , "Cap|Electricity|Biomass|w/o CC (GW)"] <-
     dataGlo[, , "Cap|Electricity|Biomass (GW)"] - dataGlo[, , "Cap|Electricity|Biomass|w/ CC (GW)"]
@@ -133,6 +141,18 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo <- add_columns(dataGlo, "SE|Electricity|Solar (EJ/yr)", dim = 3.2)
   dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
     dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|w/o Non-energy Use|Industry (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|w/o Non-energy Use|Industry (EJ/yr)"] <-
+    dataGlo[, , "FE|Industry (EJ/yr)"] - dataGlo[, , "FE|Non-energy Use|Industry|Liquids|Fossil (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Transport|w/o Bunkers (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Transport|w/o Bunkers (EJ/yr)"] <-
+    dataGlo[, , "FE|Transport (EJ/yr)"] - 0.778 * dataGlo[, , "FE|Transport|Freight|Shipping (EJ/yr)"] - 0.579 * dataGlo[, , "FE|Transport|Pass|Aviation (EJ/yr)"] # factors are derived from 2023 share of bunkers in total shipping/aviation
+
+  dataGlo <- add_columns(dataGlo, "FE|Transport|w/o Bunkers|Electricity (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Transport|w/o Bunkers|Electricity (EJ/yr)"] <-
+    dataGlo[, , "FE|Transport|Electricity (EJ/yr)"] # no electrification of bunkers possible at the moment
 
   # for regional data, only without CCS available, still map to total capacity as in the near-term there is no difference between these variables
   dataReg <- add_columns(dataReg, "SE|Electricity|Coal (EJ/yr)", dim = 3.2)
