@@ -142,6 +142,34 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo[, , "SE|Electricity|Solar (EJ/yr)"] <-
     dataGlo[, , "SE|Electricity|Solar|PV (EJ/yr)"] + dataGlo[, , "SE|Electricity|Solar|CSP (EJ/yr)"]
 
+  dataGlo <- add_columns(dataGlo, "FE|Industry|Gases (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Industry|Gases (EJ/yr)"] <-
+    dataGlo[, , "FE|Industry|Gases with H2 (EJ/yr)"] - dataGlo[, , "FE|Industry|Hydrogen (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Buildings|Gases (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Buildings|Gases (EJ/yr)"] <-
+    dataGlo[, , "FE|Buildings|Gases with H2 (EJ/yr)"] - dataGlo[, , "FE|Buildings|Hydrogen (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Transport|Gases (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Transport|Gases (EJ/yr)"] <-
+    dataGlo[, , "FE|Transport|Gases with H2 (EJ/yr)"] - dataGlo[, , "FE|Transport|Hydrogen (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Gases (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Gases (EJ/yr)"] <-
+    dataGlo[, , "FE|Gases with H2 (EJ/yr)"] - dataGlo[, , "FE|Hydrogen (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Solids|Fossil|Coal (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Solids|Fossil|Coal (EJ/yr)"] <-
+    dataGlo[, , "FE|Solids|Coal (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Solids|Fossil|Coal (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Solids|Fossil|Coal (EJ/yr)"] <-
+    dataGlo[, , "FE|Solids|Coal (EJ/yr)"]
+
+  dataGlo <- add_columns(dataGlo, "FE|Gases|Fossil (EJ/yr)", dim = 3.2)
+  dataGlo[, , "FE|Gases|Fossil (EJ/yr)"] <-
+    dataGlo[, , "FE|Gases|Gas (EJ/yr)"]
+
   dataGlo <- add_columns(dataGlo, "FE|w/o Non-energy Use|Industry (EJ/yr)", dim = 3.2)
   dataGlo[, , "FE|w/o Non-energy Use|Industry (EJ/yr)"] <-
     dataGlo[, , "FE|Industry (EJ/yr)"] - dataGlo[, , "FE|Non-energy Use|Industry|Liquids|Fossil (EJ/yr)"]
