@@ -162,10 +162,6 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo[, , "FE|Solids|Fossil|Coal (EJ/yr)"] <-
     dataGlo[, , "FE|Solids|Coal (EJ/yr)"]
 
-  dataGlo <- add_columns(dataGlo, "FE|Solids|Fossil|Coal (EJ/yr)", dim = 3.2)
-  dataGlo[, , "FE|Solids|Fossil|Coal (EJ/yr)"] <-
-    dataGlo[, , "FE|Solids|Coal (EJ/yr)"]
-
   dataGlo <- add_columns(dataGlo, "FE|Gases|Fossil (EJ/yr)", dim = 3.2)
   dataGlo[, , "FE|Gases|Fossil (EJ/yr)"] <-
     dataGlo[, , "FE|Gases|Gas (EJ/yr)"]
