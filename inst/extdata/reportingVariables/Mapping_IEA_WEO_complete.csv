@@ -68,10 +68,10 @@ Energy intensity-Total-Total final consumption per GDP (GJ per thousand USD (202
 Energy-Ammonia-Power sector inputs (EJ);;;;
 Energy-Ammonia-Total final consumption (EJ);;;;
 Energy-Bioenergy: with CCUS-Electricity generation (TWh);SE|Electricity|Biomass|w/ CC (EJ/yr);;0.0036;
-Energy-Biomethane-Buildings (EJ);;;;
-Energy-Biomethane-Industry (EJ);;;;
-Energy-Biomethane-Total final consumption (EJ);;;;
-Energy-Biomethane-Transport (EJ);;;;
+Energy-Biomethane-Buildings (EJ);FE|Buildings|Gases|Biomass (EJ/yr);;1;
+Energy-Biomethane-Industry (EJ);FE|Industry|Gases|Biomass (EJ/yr);;1;
+Energy-Biomethane-Total final consumption (EJ);FE|Gases|Biomass (EJ/yr);FE|w/o Bunkers|Gases|Biomass;1;
+Energy-Biomethane-Transport (EJ);FE|Transport|Gases|Biomass (EJ/yr);FE|Transport|w/o Bunkers|Gases|Biomass;1;
 Energy-Coal-Buildings (EJ);FE|Buildings|Solids|Fossil (EJ/yr);;1;
 Energy-Coal-Net exports (Million tonnes of coal equivalent);;;;
 Energy-Coal-Net imports (Million tonnes of coal equivalent);;;;
@@ -153,7 +153,6 @@ Energy-Modern bioenergy and renewable waste-Electricity generation (TWh);SE|Elec
 Energy-Modern bioenergy and renewable waste-Power sector inputs (EJ);PE|Biomass|Electricity (EJ/yr);;1;
 Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in regional IEA data
 Energy-Modern bioenergy-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in regional IEA data
-Energy-Modern bioenergy: gas-Total energy supply (EJ);FE|Gases|Biomass (EJ/yr);;1;
 Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in global IEA data
 Energy-Modern bioenergy: gas-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in global IEA data
 Energy-Modern bioenergy: liquid-Buildings (EJ);FE|Buildings|Liquids|Biomass (EJ/yr);;1;
@@ -163,7 +162,7 @@ Energy-Modern bioenergy: liquid-Total final consumption (EJ);FE|Liquids|Biomass 
 Energy-Modern bioenergy: liquid-Transport (EJ);FE|Transport|Liquids|Biomass (EJ/yr);FE|Transport|w/o Bunkers|Liquids|Biomass (EJ/yr);1;
 Energy-Modern bioenergy: solid-Buildings (EJ);FE|Buildings|Solids|Biomass|Modern (EJ/yr);;1;
 Energy-Modern bioenergy: solid-Industry (EJ);FE|Industry|Solids|Biomass|Modern (EJ/yr);;1;
-Energy-Modern bioenergy: solid-Total energy supply (EJ);FE|Solids|Biomass|Modern (EJ/yr);;1;
+Energy-Modern bioenergy: solid-Total energy supply (EJ);;;;
 Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass|Modern (EJ/yr);;1;this only exists in global IEA data
 Energy-Modern bioenergy: solid-Total energy supply (EJ);PE|Biomass (EJ/yr);;1;this only exists in global IEA data
 Energy-Naphtha-Demand (Million barrels per day);;;;
@@ -219,12 +218,12 @@ Energy-Shale gas-Production (Billion cubic metres);;;;
 Energy-Solar PV-Electricity generation (TWh);SE|Electricity|Solar|PV (EJ/yr);;0.0036;
 Energy-Solar PV-Power sector inputs (EJ);;;;
 Energy-Solar-Total energy supply (EJ);PE|Solar (EJ/yr);;1;
-Energy-Solid bioenergy incl_ TUOB-Total final consumption (EJ);;;;
+Energy-Solid bioenergy incl_ TUOB-Total final consumption (EJ);FE|Solids|Biomass (EJ/yr);;1;
 Energy-Steam coal-Net trade (Million tonnes of coal equivalent);;;;
 Energy-Steam coal-Price (USD per tonne (2024, MER));;;;
 Energy-Steam coal-Production (Million tonnes of coal equivalent);;;;
-Energy-Synthetic methane-Total final consumption (EJ);;;;
-Energy-Synthetic oil products-Total final consumption (EJ);;;;
+Energy-Synthetic methane-Total final consumption (EJ);FE|Gases|Hydrogen (EJ/yr);;1;
+Energy-Synthetic oil products-Total final consumption (EJ);FE|Liquids|Hydrogen (EJ/yr);;1;
 Energy-Tight gas-Production (Billion cubic metres);;;;
 Energy-Tight oil-Production (Million barrels per day);;;;
 Energy-Total gases-Buildings (EJ);FE|Buildings|Gases (EJ/yr);;1;
