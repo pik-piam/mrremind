@@ -18,8 +18,8 @@ magpie object at country level
 Each gas species is distributed to the countries of its R10 region proportionally to the country emissions of
 the same species in the base year 2020 of \code{\link[=readEDGAR7Fgases]{readEDGAR7Fgases()}} (as in \code{\link[=convertIMAGE2025]{convertIMAGE2025()}}, but per species).
 The weights are computed on the fly from \code{readSource("EDGAR7Fgases")}. The species are listed in the table
-\code{readSource("ScenarioMIP", "FGasSpecies", convert = FALSE)}. A tiny constant is added to the weights so that
-regions where EDGAR7 has zero emissions of a species for all countries are distributed equally instead of failing.
+\code{readSource("ScenarioMIP", "FGasSpecies", convert = FALSE)}. Before that, the data of each model is interpolated
+linearly to every year from 2020 to 2100. The assumptions are explained in the code.
 }
 \author{
 Gabriel Abrahao

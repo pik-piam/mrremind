@@ -10,18 +10,25 @@ calcKAReductionFractions()
 list for \code{\link[madrat:calcOutput]{madrat::calcOutput()}}: magpie object (country, years 2020-2100, fraction_hfc_I) and weight
 }
 \description{
-For each country, the Kigali phase-down steps of its group (readSource("KAReductions", "schedule")) are applied
-to the country baseline and expressed as a fraction of the country emissions in the reference year 2020:
-\verb{fraction(y) = min(1, baseline x (1 - reduction(group, y) / 100) / emissions(2020))}.
-Emissions are the EDGAR7 emissions of the Annex F Group I HFCs (table KASpecies.csv of the source) in Mt CO2eq
+For each country, the Kigali phase-down steps of its group (readSource("KAReductions", "schedule")) are linearly
+interpolated between the step years (constant before the first and after the last step), applied to the country
+baseline and expressed as a fraction of the country emissions in the reference year 2020, i.e. the allowed share of
+the baseline times the baseline relative to the reference year:
+\verb{fraction(y) = min(1, (1 - reduction(group, y) / 100) x baseline / emissions(2020))}.
+Emissions are the EDGAR7 emissions of the Annex F Group I HFCs in Mt CO2eq
 (AR6 GWP100), used as a proxy for the capped consumption. Group I is the only group capped; HFC-23, PFC, SF6 and
 NF3 are not (fraction 1, not returned).
 }
 \details{
+Because the steps are interpolated, the reduction reaches the legal value of a step in the step year and is larger
+than the legal one between steps (the law holds the previous step until the next one).
+
 Baseline years (HFC part of the legal baselines, from the Kigali Amendment, see README.txt of the source folder):
 non-Article 5 (also the special group) 2011-2013, Article 5 Group 1 2020-2022, Article 5 Group 2 2024-2026. Only the
 years available in EDGAR7 (up to 2021) are used; if none of the legal years is available (Group 2) the fallback
-2020-2021 is used, which is probably too low. The HCFC part of the legal baseline (+65\% / +15\% / +25\% of the HCFC
+2020-2021 is used, which is probably too low. The assumptions of each group are listed in its block in the code.
+
+The HCFC part of the legal baseline (+65\% / +15\% / +25\% of the HCFC
 baseline) is NOT included, so the caps are tighter than the legal ones. Countries without a group get 1.
 
 The fractions are intensive: when aggregating to regions they are weighted by the 2020 Group I emissions.

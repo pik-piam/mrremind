@@ -7,11 +7,11 @@
 convertClimateTrace(x)
 }
 \arguments{
-\item{x}{A \code{\link[magclass:magclass-package]{magpie}} object returned from
+\item{x}{A \code{\link[magclass:magclass]{magpie}} object returned from
 \code{\link[=readClimateTrace]{readClimateTrace()}}.}
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Convert ClimateTrace data

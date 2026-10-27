@@ -10,7 +10,7 @@ https://heatroadmap.eu/roadmaps/
 readHRE()
 }
 \value{
-A \code{\link[magclass:magclass-package]{magpie}} object.
+A \code{\link[magclass:magclass]{magpie}} object.
 }
 \description{
 Read Heat Roadmap Europe data

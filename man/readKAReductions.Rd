@@ -12,13 +12,17 @@ with dimensions country x group (A5G1, A5G2, nonA5, nonA5_special).
 "schedule": KASchedule.csv, the phase-down steps of Table 1 of the UNEP Kigali FAQ, returned as a plain
 data.frame with the columns group, step, year and reduction_pct (cumulative reduction in percent of the baseline,
 in force from \code{year} until the next step of the group).
-"species": KASpecies.csv, the F-gases of Annex F present in EDGAR7 with their Annex F group (I = capped,
-II = HFC-23), returned as a data.frame with the columns edgar_gas, ar6_gas and annex_f_group.
-The two data.frames are not magpie objects (returned as list(x, class = "data.frame"), which madrat unpacks):
-read them with \code{convert = FALSE}.}
+"curpol": KACurPol.csv, the countries whose current policies include the KA (or a stricter HFC phase-down), from
+the v7 Current Policies Protocol, returned as a plain data.frame with one row per policy (columns policy_id,
+country, iso, policy_type, sector, indicator, value_min, value_max, unit, target_type, base_year, target_year,
+quantification, comments). value_min/value_max are the change in percent (negative = reduction) relative to
+base_year in target_year; value_max is only filled for ranges (India) and for the absolute EU 2050 phase-out
+(target_type "absolute", no base_year). The iso code "EU" is not a country.
+The schedule and curpol tables are not magpie objects (returned as list(x, class = "data.frame"), which madrat
+unpacks): read them with \code{convert = FALSE}.}
 }
 \value{
-magpie object (subtype "groups") or data.frame (subtypes "schedule" and "species")
+magpie object (subtype "groups") or data.frame (subtypes "schedule", "curpol")
 }
 \description{
 Reads the two base tables of the source folder KAReductions (see README.txt there for sources, baseline years and
