@@ -1,20 +1,40 @@
 #' generate F-Gases based on IMAGE data
 #'
-#' @param subtype "IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.
-#' "Kigali2026" builds four scenarios from the ScenarioMIP data (readSource("ScenarioMIP", "FGasScen")) in four steps:
-#' (1) all the scenarios of the models MESSAGEix and IMAGE are read; (2) the species that MESSAGEix does not have
-#' (HFC-23, C2F6, C6F14) are taken from IMAGE, which is then dropped; (3) the scenarios are harmonized to the EDGAR7
-#' emissions of 2020, "High - SSP5" returning to its own values by 2100 and "Very Low - SSP1" keeping the 2020 ratio;
-#' (4) the four scenarios are built: MESSAGEHigh and MESSAGEVeryLow are the harmonized scenarios, MESSAGEKAFull and
-#' MESSAGEKAImplemented are MESSAGEVeryLow with the Annex F Group I HFC species limited by the Kigali Amendment: the
-#' result is the smaller of the scenario and the Kigali fraction (calcOutput("KAReductionFractions"), computed per
-#' country) times the 2020 value, in all countries (MESSAGEKAFull) or only in the countries of the table of current
-#' policies (readSource("KAReductions", "curpol"), the EU as its 27 member states) (MESSAGEKAImplemented). HFC-23, PFCs
-#' and SF6 are not capped. The totals are rebuilt in CO2eq from the species with
-#' the GWPs of AR6GWP. The result has the dimensions region, year, scenario and variable, without SSP, RCP or SPA
-#' dimensions: the mapping of the scenarios to them is not done here.
+#' The subtype "Kigali2026" builds four scenarios from the ScenarioMIP data, harmonized to EDGAR7 and with the
+#' Kigali Amendment applied as a cap; see the details.
+#'
+#' @details
+#' Subtype "Kigali2026" works at country level, in kt of each gas per year, in four steps:
+#' \enumerate{
+#'   \item All the scenarios of the models MESSAGEix and IMAGE are read (readSource("ScenarioMIP", "FGasScen")).
+#'   \item The species that MESSAGEix does not have (HFC-23, C2F6, C6F14) are taken from the IMAGE scenario of the same
+#'     name, which is then dropped.
+#'   \item The scenarios are harmonized to the EDGAR7 emissions of 2020: each country and species is multiplied by
+#'     1 + (ratio - 1) x weight, with ratio = EDGAR7 / scenario in 2020. For "High - SSP5" the weight goes linearly
+#'     from 1 in 2020 to 0 in 2100, so it matches EDGAR7 in 2020 and returns to its own values by 2100. For
+#'     "Very Low - SSP1" the weight is 1 in all years, so the 2020 ratio is kept and the relative changes of the
+#'     scenario are preserved. Where the scenario is zero in 2020 the ratio is set to 1 and the species stays zero.
+#'   \item The four scenarios are built. MESSAGEHigh and MESSAGEVeryLow are the harmonized scenarios. MESSAGEKAFull
+#'     and MESSAGEKAImplemented are MESSAGEVeryLow with the Annex F Group I HFCs (HFC-32, -125, -134a, -143a, -227ea,
+#'     -245fa, -43-10) limited by the Kigali Amendment: the result is the smaller of the scenario and the cap, which
+#'     is the Kigali fraction of the country (calcOutput("KAReductionFractions")) times its 2020 value. MESSAGEKAFull
+#'     caps all countries; MESSAGEKAImplemented only the countries of the table of current policies
+#'     (readSource("KAReductions", "curpol"), the EU as its 27 member states), with the same reduction as in
+#'     MESSAGEKAFull. HFC-23, PFCs and SF6 are not capped. Each species is capped at its own share of its 2020 value,
+#'     whereas the treaty limits the CO2eq sum of the group, so the result is slightly more restrictive than a
+#'     basket cap that allows shifting between species.
+#' }
+#' The Kigali reduction is not applied to the first years: it is frozen at zero up to 2025 (inclusive), so that the
+#' Kigali scenarios are identical to MESSAGEVeryLow until then, and is phased in linearly between 2025 and 2030, from
+#' when the full reduction applies. The totals are rebuilt in CO2eq from the species with the AR6 GWP100 of
+#' AR6GWP. The result has the dimensions region, year, scenario and variable, without SSP, RCP or SPA dimensions:
+#' the mapping of the scenarios to them is not done here.
+#'
 #' ASSUMPTION: the HCFC part of the legal Kigali baselines is NOT considered (HFC-only baselines, see
 #' calcKAReductionFractions), so the caps are tighter than the legal ones.
+#'
+#' @param subtype "IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data and
+#' "Kigali2026" the ScenarioMIP scenarios with the Kigali Amendment (see the details).
 #' @param interp "interpolate2025" will intepolate from EDGAR historical data from 2025 to interpyear.
 #' To account for the very old IMAGE scenarios in IMAGElegacy,
 #' this used to be 2050 but is now flexible. Any other interp value will ignore this step.
@@ -296,10 +316,12 @@ calcFGas <- function(subtype = "Kigali2026", interp = "none", interpyear = 2030)
     # This is the place where the Kigali fractions meet the scenario. For each country and Group I species the result is
     # the smaller of the scenario value and the cap, min(scenario, cap) (magclass has no pmin, so the part of the
     # scenario above the cap, the excess, is calculated; removing it gives the minimum). If the scenario is already
-    # below the cap nothing is removed. The cap only applies from the first year in which the group is bound by the
-    # treaty, before that the scenario is not touched. Fractions are never above 1, so until the first cut of the group
-    # bites the cap is simply the 2020 level (the freeze). One block per group, with the start year of the group. Each
-    # block ends with the reduction that its countries get, which is later removed from MESSAGEVeryLow
+    # below the cap nothing is removed. Fractions are never above 1, so until the first cut of a group the cap is
+    # simply the 2020 level (the freeze of the treaty). Each group has its own block, with the year in which the
+    # treaty starts to bind it, and each block ends with the reduction that its countries get, which is later removed
+    # from MESSAGEVeryLow. Note that the freeze to 2025 and the phase-in applied below make the start years of the
+    # groups redundant for now, since they are all before 2030. They are kept so that the blocks stay true to the
+    # treaty if the freeze is moved
 
     # Non-Article 5 (developed countries): there is no freeze, the first cut already applies in 2019, so the cap is on
     # for all years of the scenario
@@ -352,10 +374,13 @@ calcFGas <- function(subtype = "Kigali2026", interp = "none", interpyear = 2030)
 
     # The groups do not overlap, so each country gets the reduction of its own group only (the others are zero for it)
     reductionKA <- reductionNonA5 + reductionNonA5Special + reductionA5G1 + reductionA5G2
-    # The years up to 2029 (inclusive) are taken as history and are not modified: the reduction is frozen at zero for
-    # them, so that MESSAGEKAFull and MESSAGEKAImplemented are the same as MESSAGEVeryLow until 2029, and the caps only
-    # act from 2030 on
-    reductionKA[, getYears(reductionKA, as.integer = TRUE) <= 2029, ] <- 0
+    # The years up to 2025 (inclusive) are taken as history and are not modified: the reduction is frozen at zero for
+    # them, so that MESSAGEKAFull and MESSAGEKAImplemented are the same as MESSAGEVeryLow until 2025
+    reductionKA[, getYears(reductionKA, as.integer = TRUE) <= 2025, ] <- 0
+    # So that the caps do not appear all at once, 2026 to 2029 are dropped and filled again by interpolating linearly
+    # between the frozen 2025 (zero) and the reduction of 2030: a smooth phase-in
+    reductionKA <- reductionKA[, !(getYears(reductionKA, as.integer = TRUE) %in% 2026:2029), ]
+    reductionKA <- time_interpolate(reductionKA, 2026:2029, integrate_interpolated_years = TRUE)
 
     # MESSAGEKAFull: all countries get the reduction
     xKAFull <- xLow
@@ -452,6 +477,6 @@ calcFGas <- function(subtype = "Kigali2026", interp = "none", interpyear = 2030)
     x = outx,
     weight = NULL,
     unit = "Mt CO2-equiv/yr, kt HFC134a-equiv/yr, kt HFC125/yr, kt HFC134a/yr, kt HFC143a/yr, kt HFC227ea/yr, kt HFC23/yr, kt HFC245fa/yr, kt HFC32/yr, kt HFC43-10/yr, kt CF4-equiv/yr, kt SF6/yr, kt C2F6/yr, kt C6F14/yr, kt CF4/yr",
-    description = "F-gases prescribed scenarios from ScenarioMIP, harmonized to EDGAR7 and capped by the Kigali Amendment"
+    description = "F-gases scenarios from ScenarioMIP, harmonized to EDGAR7 and capped by the Kigali Amendment"
   ))
 }
