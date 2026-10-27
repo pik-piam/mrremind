@@ -27,7 +27,7 @@
 #' \dontrun{
 #' x <- calcOutput("FGas")
 #' }
-calcFGas <- function(subtype = "IMAGE2025", interp = "interpolate2025", interpyear = 2030) {
+calcFGas <- function(subtype = "Kigali2026", interp = "none", interpyear = 2030) {
   # Mapping for the REMIND variable names. Works with both versions
   # of the IMAGE data
   emi_mapping <- list(
@@ -452,6 +452,6 @@ calcFGas <- function(subtype = "IMAGE2025", interp = "interpolate2025", interpye
     x = outx,
     weight = NULL,
     unit = "Mt CO2-equiv/yr, kt HFC134a-equiv/yr, kt HFC125/yr, kt HFC134a/yr, kt HFC143a/yr, kt HFC227ea/yr, kt HFC23/yr, kt HFC245fa/yr, kt HFC32/yr, kt HFC43-10/yr, kt CF4-equiv/yr, kt SF6/yr, kt C2F6/yr, kt C6F14/yr, kt CF4/yr",
-    description = "F-gases from IMAGE"
+    description = "F-gases prescribed scenarios from ScenarioMIP, harmonized to EDGAR7 and capped by the Kigali Amendment"
   ))
 }
