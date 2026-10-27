@@ -51,7 +51,8 @@ importFrom(quitte,
   as.quitte,
   cartesian,
   getVars,
-  interpolate_missing_periods
+  interpolate_missing_periods,
+  read.quitte
 )
 importFrom(readxl,
   excel_sheets,
