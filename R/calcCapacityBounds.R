@@ -10,7 +10,7 @@
 #'
 #' @author Felix Schreyer
 #'
-#' @param subtype either `historical` for data until 2024 or `pipeline`
+#' @param subtype either `historical` for data until 2025 or `pipeline`
 #' for projections in 2020, 2025 and 2030 (including some redistribution on EU/NEU level)
 #'
 calcCapacityBounds <- function(subtype) {

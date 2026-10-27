@@ -2,7 +2,7 @@
 #'
 #' Reads in capacities from projects in IEA CCUS database
 #'
-#' @author Anne Merfort, Falk Benke
+#' @author Anne Merfort, Falk Benke, Pascal Weigmann
 #'
 #' @param subtype either `historical` for data until 2024,
 #' `projections` for "high" and "low" projections up to 2030 used as input-data
@@ -14,9 +14,8 @@ readIEA_CCUS <- function(subtype) {
   # ASSUMPTION: transport and storage are limiting factors for CCS
   # project types filter applied to source
   projectTypes <- c("Full chain", "Storage", "T&S")
-
-  data <- readxl::read_excel("IEA CCUS Projects Database 2025.xlsx",
-    sheet = "CCUS Projects Database"
+  data <- readxl::read_excel("IEA CCUS Projects Database 2026.xlsx",
+    sheet = "DRAFT CCUS Projects Database"
   ) %>%
     select(
       "project" = "Project name",
@@ -24,79 +23,43 @@ readIEA_CCUS <- function(subtype) {
       "type" = "Project type",
       "start" = "Operation",
       "end" = "Suspension/decommissioning/cancellation",
-      "status" = "Project Status",
+      "status" = "Project status",
       "value" = "Estimated capacity by IEA (Mt CO2/yr)"
     ) %>%
-    # remove entries without announced capacities and not matching project type
     filter(!is.na(.data$value), .data$type %in% projectTypes)
 
   # correct mistakes in IEA Data
   data[data$country == "Lybia", "country"] <- "Libya"
   data[data$country == "Island", "country"] <- "Iceland"
 
-
-  # new shared projects:
-  # - United States-Canada,
-  # - Netherlands-Belgium,
-  # - Australia-Timor Leste,
-  # - France-Spain,
-  # - Japan-Australia
-
-  # share capacities of projects by multiple countries according to their GDP
+  # load GDP once
   gdp <- calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)
-  gdp_JPN <- as.numeric(gdp["JPN", 2020, ])
-  gdp_AUS <- as.numeric(gdp["AUS", 2020, ])
-  gdp_MYS <- as.numeric(gdp["MYS", 2020, ])
-  gdp_USA <- as.numeric(gdp["USA", 2020, ])
-  gdp_CAN <- as.numeric(gdp["CAN", 2020, ])
-  gdp_NLD <- as.numeric(gdp["NLD", 2020, ])
-  gdp_BEL <- as.numeric(gdp["BEL", 2020, ])
-  gdp_TLS <- as.numeric(gdp["TLS", 2020, ])
-  gdp_FRA <- as.numeric(gdp["FRA", 2020, ])
-  gdp_ESP <- as.numeric(gdp["ESP", 2020, ])
 
-  JM <- data[data$country == "Japan-Malaysia", ]
-  AJ <- data[data$country %in% c("Australia-Japan", "Japan-Australia"), ]
-  UC <- data[data$country == "United States-Canada", ]
-  NB <- data[data$country == "Netherlands-Belgium", ]
-  AT <- data[data$country == "Australia-Timor Leste", ]
-  FS <- data[data$country == "France-Spain", ]
+  # identify all multi-country rows and split into long format (one country per row)
+  sharedMask <- grepl("-", data$country)
 
-  # remove mixed-country data and attach single country data weighted by GDP
-  data <- data %>%
-    filter(!.data$country %in% c("Japan-Malaysia",
-                                 "Australia-Japan",
-                                 "Japan-Australia",
-                                 "United States-Canada",
-                                 "Netherlands-Belgium",
-                                 "Australia-Timor Leste",
-                                 "France-Spain")) %>%
-    rbind(
-    mutate(JM, country = "Japan",     value = .data$value*gdp_JPN/(gdp_JPN + gdp_MYS)),
-    mutate(JM, country = "Malaysia",  value = .data$value*gdp_MYS/(gdp_JPN + gdp_MYS)),
+  sharedData <- data[sharedMask, ] %>%
+    mutate(country = strsplit(.data$country, "-")) %>%
+    tidyr::unnest(.data$country) %>%
+    mutate(country = trimws(.data$country))
 
-    mutate(AJ, country = "Australia", value = .data$value*gdp_AUS/(gdp_JPN + gdp_AUS)),
-    mutate(AJ, country = "Japan",     value = .data$value*gdp_JPN/(gdp_JPN + gdp_AUS)),
+  # compute GDP-weighted values
+  sharedData <- sharedData %>%
+    mutate(iso3 = madrat::toolCountry2isocode(.data$country)) %>%
+    mutate(gdpValue = as.numeric(gdp[.data$iso3, 2020, ])) %>%
+    group_by(dplyr::across(-c(.data$country, .data$iso3, .data$gdpValue, .data$value))) %>%
+    mutate(value = .data$value * .data$gdpValue / sum(.data$gdpValue)) %>%
+    ungroup() %>%
+    select(-.data$iso3, -.data$gdpValue)
 
-    mutate(UC, country = "United States", value = .data$value*gdp_USA/(gdp_USA + gdp_CAN)),
-    mutate(UC, country = "Canada",        value = .data$value*gdp_CAN/(gdp_USA + gdp_CAN)),
-
-    mutate(NB, country = "Netherlands", value = .data$value*gdp_NLD/(gdp_NLD + gdp_BEL)),
-    mutate(NB, country = "Belgium",     value = .data$value*gdp_BEL/(gdp_NLD + gdp_BEL)),
-
-    mutate(AT, country = "Australia",   value = .data$value*gdp_AUS/(gdp_AUS + gdp_TLS)),
-    mutate(AT, country = "Timor Leste", value = .data$value*gdp_TLS/(gdp_AUS + gdp_TLS)),
-
-    mutate(FS, country = "France", value = .data$value*gdp_FRA/(gdp_FRA + gdp_ESP)),
-    mutate(FS, country = "Spain",  value = .data$value*gdp_ESP/(gdp_FRA + gdp_ESP))
-    )
+  data <- rbind(data[!sharedMask, ], sharedData)
 
   if (subtype == "historical") {
     hist <- data %>%
-      filter(.data$start <= 2024, .data$status != "Cancelled")
+      filter(.data$start <= 2025, .data$status != "Cancelled")
     # ASSUMPTION: if no end year is given, assume project remains active at
     # least until present
-    hist[is.na(hist$end), "end"] <- 2024
+    hist[is.na(hist$end), "end"] <- 2025
 
     # expand data from start-end format to yearly capacity
     tmp <- NULL
@@ -112,13 +75,14 @@ readIEA_CCUS <- function(subtype) {
 
     # summation of projects to get country totals
     cap <- stats::aggregate(value ~ country + period, data = tmp, FUN = sum) %>%
-      filter(.data$period <= 2024) %>%
+      filter(.data$period <= 2025) %>%
       mutate(variable = "Carbon Management|Storage")
 
     cap <- cap[, c("country", "period", "variable", "value")]
     x <- as.magpie(cap, spatial = 1)
 
   } else if (subtype == "projections") {
+    # TODO is this subtype needed/used?
 
     # ASSUMPTION: if empty start year, assume project start in 2030
     # end in 2030, unless decommissioned before

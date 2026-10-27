@@ -50,13 +50,9 @@ calcCoolingSharesBase <- function() {
   # add sea data to data
   data <- mbind(data, sea_new)
 
-  # check if all categories sum up to 100%
-  check <- new.magpie(getRegions(data), getYears(data), id)
-  for (i in id) {
-    check[, , i] <- dimSums(data[, , i], dim = 3.2)
-  }
-  if (!all(check == 100)) {
-    stop("sum of categorie XXX is not 100%")
+  check <- dimSums(data, dim = 3.2)
+  if (any(abs(check - 100) > 1e-5)) {
+    stop("categories do not sum up to 100")
   }
 
   # read in mapping to REMIND technologies

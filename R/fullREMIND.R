@@ -35,16 +35,14 @@ fullREMIND <- function() {
   calcOutput("PHI",                                               file = "p01_phi.cs4r", aggregate = FALSE)
 
   calcOutput("PETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_pe_sub.cs4r")
-  calcOutput("FETaxes", subtype = "taxes",            round = 2,  file = "f21_tau_fe_tax.cs4r")
+  calcOutput("FETaxes", subtype = "taxes",            round = 8,  file = "f21_tau_fe_tax.cs4r")
   calcOutput("FETaxes", subtype = "subsidies",        round = 2,  file = "f21_tau_fe_sub.cs4r")
 
-  calcOutput("ExpertGuess", subtype = "taxConvergence", round = 2, file = "f21_tax_convergence.cs4r")
-  calcOutput("ExpertGuess", subtype = "taxConvergenceRollback", round = 2, file = "f21_tax_convergence_rollback.cs4r")
   calcOutput("ExpertGuess", subtype = "subConvergenceRollback", round = 2, file = "f21_sub_convergence_rollback.cs4r")
 
   calcOutput("Capital", scenario = gdpPopScen,        signif = 4, file = "f29_capitalQuantity.cs4r")
   calcOutput("CostOfCapital",                                     file = "p25_wacc.cs4r", aggregate = FALSE)
-  
+  calcOutput("MacroWACC",                                     file = "p25_macro_wacc.cs4r", aggregate = FALSE)
 
   # Exogenous demand scenarios activated by cm_exogDem_scen
   calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
@@ -57,9 +55,9 @@ fullREMIND <- function() {
     match.steel.estimates = "IEA_ETP"
   )
 
-  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
-  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
-  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
+  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs3r")
+  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs3r")
+  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs3r")
   calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
@@ -90,11 +88,11 @@ fullREMIND <- function() {
   calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
   calcOutput("MACCbaseN2O",  source = "PBL_2007",                               round = 5, file = "p_macBaseVanv.cs4r")
   calcOutput("MACCbaseN2O",  source = "PBL_2022",                               round = 5, file = "p_macBaseHarmsen2022.cs4r")
-  calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
-  calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
-  calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs4r")
-  calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs4r")
-  calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
+  calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs3r")
+  calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs3r")
+  calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs3r")
+  calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs3r")
+  calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs3r")
   calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
@@ -129,8 +127,12 @@ fullREMIND <- function() {
   calcOutput("IoRemind", subtype = "trade",              round = 8,  file = "f_IO_trade.cs4r")
 
   calcOutput("Capacity", subtype = "capacityByTech",                   round = 6,  file = "pm_histCap.cs3r",
-             # for period 2025, only use the year 2024 value (drop 2023, 2025-2027 are not in data anyways)
-             temporalmapping = filter(quitte::remind_timesteps, .data$year != 2023))
+             # for period 2025, only use the year 2025, as 2026, 2027 are not in the data yet
+             temporalmapping = filter(quitte::remind_timesteps, !(.data$year %in% c(2023, 2024, 2026, 2027))))
+  tmp <- calcOutput("Capacity", subtype = "capacityByTech", round = 6, file = "pm_histCapYearly.cs3r")
+  if ("y2026" %in% getYears(tmp)) {
+    warning("Consider updating the temporal mapping of pm_histCap.cs3r")
+  }
   calcOutput("Capacity", subtype = "capacityByPE",                     round = 6,  file = "p_PE_histCap.cs3r")
   calcOutput("CapacityFactor",                                         round = 6,  file = "f_cf.cs3r")
   calcOutput("SeProduction",                                           round = 8,  file = "p_histProdSe.cs3r")
@@ -209,27 +211,5 @@ fullREMIND <- function() {
   calcOutput("AirPollBaseyearEmi", data_source = "GAINS2025", outsectors = "GAINS", baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectGAINS_sourceGAINS.cs4r")
   calcOutput("AirPollBaseyearEmi", data_source = "CEDS2025",  outsectors = "INT",   baseyear = 2020, CEDS.5yearmean = TRUE, round = 8, file = "emi2020_sectNOGAINS_sourceCEDS.cs4r")
   calcOutput("MAgPIEReport", subtype = "AirPollutants", round = 8,  file = "AirPollutantsMAgPIE.cs4r")
-
-  #---------------no longer used in REMIND develop-----------------------------------------------------
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.3, a2 = 0.15, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.5,
-                              "Early development"    = 0.2),
-             signif = 3, file = "f37_indCCSlimit_default.cs4r",
-             years = seq(2005, 2050, 5))
-
-  calcOutput("Industry_CCS_limits",
-             scenarios = feDemScen,
-             a1 = 0.5, a2 = 0.25, installation_minimum = 1,
-             stage_weight = c("Operational"          = 1,
-                              "In construction"      = 1,
-                              "Advanced development" = 0.8,
-                              "Early development"    = 0.5),
-             signif = 3, file = "f37_indCCSlimit_high.cs4r",
-             years = seq(2005, 2050, 5))
 
 }

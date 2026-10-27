@@ -43,7 +43,7 @@ calcIEA_ETP <- function() {
   # keep only countries that were reported individually or are part of given regions
   .removeRegions <- function(x, keepRegions) {
     map <- toolGetMapping("regionmappingIEA_ETP.csv",
-                          where = "mrremind", type = "regional",
+                          where = "mrenergy", type = "regional",
                           returnPathOnly = TRUE) %>%
       utils::read.csv2(check.names = FALSE)
     keepCountries <- map %>%
