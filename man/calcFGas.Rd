@@ -7,7 +7,14 @@
 calcFGas(subtype = "IMAGE2025", interp = "interpolate2025", interpyear = 2030)
 }
 \arguments{
-\item{subtype}{"IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.}
+\item{subtype}{"IMAGElegacy" will use the old IMAGE data, "IMAGE2025" will use the new IMAGE2025 data.
+"KigaliFull" and "KigaliImplemented" build scenarios from the "Very Low - SSP1" scenario of the ScenarioMIP
+MESSAGEix R10 data (readSource("ScenarioMIP", "FGasScen")): the HFC species are multiplied by the Kigali
+Amendment reduction fractions (calcOutput("KAReductionFractions"), computed per country), in all regions ("KigaliFull") or only in the
+China+ (R10) countries ("KigaliImplemented"); non-HFC gases are kept as in the scenario. The totals are rebuilt in
+CO2eq from the species (species tables of the ScenarioMIP and KAReductions sources, GWPs from AR6GWP). All SSP and RCP combinations receive the same scenario
+for now (placeholder mapping). ASSUMPTION: the HCFC part of the legal Kigali baselines is NOT considered (HFC-only
+baselines, see calcKAReductionFractions), so the caps are tighter than the legal ones.}
 
 \item{interp}{"interpolate2025" will intepolate from EDGAR historical data from 2025 to interpyear.
 To account for the very old IMAGE scenarios in IMAGElegacy,
