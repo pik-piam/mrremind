@@ -166,9 +166,9 @@ calcIeaWorldEnergyOutlook <- function() {
   dataGlo[, , "FE|Gases|Fossil (EJ/yr)"] <-
     dataGlo[, , "FE|Gases|Gas (EJ/yr)"]
 
-  dataGlo <- add_columns(dataGlo, "FE|Liquids| w/ Ammonia (EJ/yr)", dim = 3.2)
+  dataGlo <- add_columns(dataGlo, "FE|Liquids (EJ/yr)", dim = 3.2)
   dataGlo[, , "FE|Liquids (EJ/yr)"] <-
-    dataGlo[, , "FE|Liquids| w/ Ammonia (EJ/yr)"] - dataGlo[, , "FE|Ammonia (EJ/yr)"]
+    dataGlo[, , "FE|Liquids|w/ Ammonia (EJ/yr)"] - dataGlo[, , "FE|Ammonia (EJ/yr)"]
 
   dataGlo <- add_columns(dataGlo, "FE|w/o Non-energy Use|Industry (EJ/yr)", dim = 3.2)
   dataGlo[, , "FE|w/o Non-energy Use|Industry (EJ/yr)"] <-

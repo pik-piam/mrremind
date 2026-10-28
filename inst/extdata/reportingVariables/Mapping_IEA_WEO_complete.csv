@@ -232,7 +232,7 @@ Energy-Total gases-Total final consumption (EJ);FE|Gases with H2 (EJ/yr);;1;
 Energy-Total gases-Transport (EJ);FE|Transport|Gases with H2 (EJ/yr);;1;
 Energy-Total liquids-Buildings (EJ);FE|Buildings|Liquids (EJ/yr);;1;
 Energy-Total liquids-Industry (EJ);FE|Industry|Liquids (EJ/yr);;1;
-Energy-Total liquids-Total final consumption (EJ);FE|Liquids| w/ Ammonia (EJ/yr);FE|w/o Bunkers|Liquids (EJ/yr);1;
+Energy-Total liquids-Total final consumption (EJ);FE|Liquids|w/ Ammonia (EJ/yr);FE|w/o Bunkers|Liquids (EJ/yr);1;
 Energy-Total liquids-Transport (EJ);FE|Transport|Liquids (EJ/yr);FE|Transport|w/o Bunkers|Liquids (EJ/yr);1;
 Energy-Total solid fuels-Buildings (EJ);FE|Buildings|Solids (EJ/yr);;1;
 Energy-Total solid fuels-Industry (EJ);FE|Industry|Solids (EJ/yr);;1;
