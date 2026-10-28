@@ -66,7 +66,7 @@ Economic indicators-Total-Household (Million units);;;;
 Energy intensity-Total-TES per GDP (GJ per thousand USD (2024, PPP));;;;
 Energy intensity-Total-Total final consumption per GDP (GJ per thousand USD (2024, PPP));;;;
 Energy-Ammonia-Power sector inputs (EJ);;;;
-Energy-Ammonia-Total final consumption (EJ);;;;
+Energy-Ammonia-Total final consumption (EJ);FE|Ammonia (EJ/yr);;1;
 Energy-Bioenergy: with CCUS-Electricity generation (TWh);SE|Electricity|Biomass|w/ CC (EJ/yr);;0.0036;
 Energy-Biomethane-Buildings (EJ);FE|Buildings|Gases|Biomass (EJ/yr);;1;
 Energy-Biomethane-Industry (EJ);FE|Industry|Gases|Biomass (EJ/yr);;1;
@@ -118,8 +118,8 @@ Energy-Hydrogen (incl onsite)-Final demand (EJ);FE|Industry|Hydrogen (EJ/yr);;1;
 Energy-Hydrogen (incl onsite)-International bunkers (EJ);;;;
 Energy-Hydrogen and H2-based fuels-Electricity generation (TWh);SE|Electricity|Hydrogen (EJ/yr);;0.0036;
 Energy-Hydrogen based fuels-Demand (Million barrels per day);;;;
-Energy-Hydrogen-based fuels: gaseous-Total final consumption (EJ);FE|Gases|Hydrogen (EJ/yr);;1;
-Energy-Hydrogen-based fuels: liquid-Total final consumption (EJ);FE|Liquids|Hydrogen (EJ/yr);;1;
+Energy-Hydrogen-based fuels: gaseous-Total final consumption (EJ);;FE|Gases|Hydrogen (EJ/yr);1;This variable only appears in the regional data, not the global data
+Energy-Hydrogen-based fuels: liquid-Total final consumption (EJ);;FE|Liquids|Hydrogen (EJ/yr);1;This variable only appears in the regional data, not the global data
 Energy-Hydrogen-Bioenergy and other (Million tonnes);;;;
 Energy-Hydrogen-Buildings (EJ);FE|Buildings|Hydrogen (EJ/yr);;1;
 Energy-Hydrogen-Fossil fuels with CCUS (Million tonnes);;;;
@@ -232,7 +232,7 @@ Energy-Total gases-Total final consumption (EJ);FE|Gases with H2 (EJ/yr);;1;
 Energy-Total gases-Transport (EJ);FE|Transport|Gases with H2 (EJ/yr);;1;
 Energy-Total liquids-Buildings (EJ);FE|Buildings|Liquids (EJ/yr);;1;
 Energy-Total liquids-Industry (EJ);FE|Industry|Liquids (EJ/yr);;1;
-Energy-Total liquids-Total final consumption (EJ);FE|Liquids (EJ/yr);FE|w/o Bunkers|Liquids (EJ/yr);1;
+Energy-Total liquids-Total final consumption (EJ);FE|Liquids| w/ Ammonia (EJ/yr);FE|w/o Bunkers|Liquids (EJ/yr);1;
 Energy-Total liquids-Transport (EJ);FE|Transport|Liquids (EJ/yr);FE|Transport|w/o Bunkers|Liquids (EJ/yr);1;
 Energy-Total solid fuels-Buildings (EJ);FE|Buildings|Solids (EJ/yr);;1;
 Energy-Total solid fuels-Industry (EJ);FE|Industry|Solids (EJ/yr);;1;
