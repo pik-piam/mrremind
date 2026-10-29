@@ -55,37 +55,37 @@ fullREMIND <- function() {
 
 
 
-#-------------- energy demand parameters -----------------------------------------------------------
+  #-------------- energy demand parameters -----------------------------------------------------------
 
-##--------------Industry --------------------------------------------------------------
-# Industry
-calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
-calcOutput("ChemicalFeedstocksShare",                  round = 2, file = "p37_chemicals_feedstock_share.cs4r")
-calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
-calcOutput(
+  #--------------Industry --------------------------------------------------------------
+
+  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
+  calcOutput("ChemicalFeedstocksShare",                  round = 2, file = "p37_chemicals_feedstock_share.cs4r")
+  calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
+  calcOutput(
     type = "Steel_Projections",
     scenarios = mrdrivers::toolReplaceShortcuts(gdpPopScen),
     subtype = "secondary.steel.max.share",
     file = "p37_steel_secondary_max_share.cs4r",
     match.steel.historic.values = TRUE,
     match.steel.estimates = "IEA_ETP"
- )
-##--------------Buildings --------------------------------------------------------------
-calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
-calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
-calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
-calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
-# Exogenous demand scenarios activated by cm_exogDem_scen
-calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
+  )
+  #--------------Buildings --------------------------------------------------------------
+  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
+  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
+  calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
+  calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
+  # Exogenous demand scenarios activated by cm_exogDem_scen
+  calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
 
-##--------------Transport --------------------------------------------------------------
-calcOutput("EDGETransport", subtype = "f35_esCapCost",                           file = "f35_esCapCost.cs4r")
-calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
-calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
-calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
+  #--------------Transport --------------------------------------------------------------
+  calcOutput("EDGETransport", subtype = "f35_esCapCost",                           file = "f35_esCapCost.cs4r")
+  calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
+  calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
+  calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
 
 
-#-------------- damage parameters -----------------------------------------------------------
+  #-------------- damage parameters -----------------------------------------------------------
   calcOutput("TCdamage", subtype = "const",                 round = 8, file = "f50_TC_df_const.cs4r", aggregate = FALSE)
   calcOutput("TCdamage", subtype = "tasK",                  round = 8, file = "f50_TC_df_tasK.cs4r", aggregate = FALSE)
   calcOutput("KLWdamage", subtype = "beta1",                round = 8, file = "f50_KLW_df_beta1.cs4r", aggregate = FALSE)
@@ -185,7 +185,7 @@ calcOutput("EDGETransport", subtype = "f29_trpdemand",                          
   calcOutput("industry_specific_FE_limits", aggregate = FALSE,                     file = "pm_energy_limit.csv")
   calcOutput("PlasticsEoL",                                            round = 5,  file = "f_incinerationShares.cs4r")
 
-  
+
   #---------------policy parameters--------------------------------------------------------------------
 
   # NDC emissions targets from PBL ELEVATE scenario protocol
