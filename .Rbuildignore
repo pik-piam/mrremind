@@ -20,3 +20,5 @@ carbon_stored.*
 ^\.claude$
 ^_pkgdown\.yml$
 ^\.positai$
+^CODE_STYLE\.md$
+^CONTRIBUTING\.md$

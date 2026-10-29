@@ -65,7 +65,7 @@ calcFeDemandONONSPEC <- function(scenario, eoh) {
 
   .getFlowsIEA <- function() {
     data <- calcOutput("IOEdgeBuildings",
-                       subtype = "output_EDGE",
+                       subtype = "output_EDGE_ononspec",
                        aggregate = FALSE)
     getSets(data) <- c("region", "period", "item")
     # ONONSPEC have been mapped to feoth* before
