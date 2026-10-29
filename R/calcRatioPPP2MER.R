@@ -6,6 +6,8 @@
 #'
 #' Missing conversion factors are set to 1 and regional aggregation is weighed by GDP from WDI-MI-James.
 #'
+#' This ratio is also reported as the Price Level Index (GDP) in the World Bank's WDI database, which is equal to our
+#' measure multiplied by 100.
 #'
 #' @param year An integer specifying the base year of conversion factor. Defaults to the base year of
 #' [mrdrivers::toolGetUnitDollar()], currently: `r mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE)`.
@@ -17,9 +19,12 @@
 #'
 calcRatioPPP2MER <- function(year = as.numeric(mrdrivers::toolGetUnitDollar(returnOnlyBase = TRUE))) {
 
-  data <- readSource("WDI", "PA.NUS.PPPC.RF")[, year, ]
-  # Replace 0s with 1s. This was done previously. Other solutions here should be taken into consideration.
-  data[data == 0] <- 1
+  # Converting 1s returns the conversion factors. Missing conversion factors are set to 1.
+  data <- GDPuc::toolConvertGDP(gdp = new.magpie(getISOlist(), fill = 1),
+                                unit_in = glue::glue("constant {year} Int$PPP"),
+                                unit_out = glue::glue("constant {year} US$MER"),
+                                replace_NAs = "no_conversion")
+
   # Set names and years to NULL, for GAMS interface to work.
   getNames(data) <- NULL
   getYears(data) <- NULL
