@@ -19,15 +19,13 @@
 #'     \item{reference_level}{explicit reference level in Mt CO2eq/yr, or NA to
 #'       derive from historical data in the target's own scope}
 #'   }
-#' @param subset GDP scenario used for intensity targets (default "SSP2")
 #' @return a data frame with columns \code{iso3c}, \code{year}, and
 #'   \code{Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)}, with the EU
 #'   aggregate disaggregated to individual member states
 #' @author Felix Schreyer, Rahel Mandaroux
 #' @seealso [convertPBL_NDC()], [readPBL_NDC()]
 #' @importFrom dplyr filter select mutate left_join rename bind_rows pull if_else coalesce group_by ungroup case_when
-toolCalcNDCTarget <- function(targets, subset = "SSP2") {
-  gdpScen <- if ("SSP2" %in% subset) "SSP2" else subset[1]
+toolCalcNDCTarget <- function(targets) {
   inclName <- "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
 
   # 1. Load reference emissions, LULUCF projections, and GDP data ----
@@ -47,7 +45,7 @@ toolCalcNDCTarget <- function(targets, subset = "SSP2") {
     select("iso3c" = "region", "year" = "period", "lulucf" = "value") %>%
     mutate("year" = as.integer(as.character(.data$year)))
 
-  gdp <- collapseDim(calcOutput("GDP", scenario = gdpScen, aggregate = FALSE)[, , gdpScen])
+  gdp <- collapseDim(calcOutput("GDP", scenario = "SSP2", aggregate = FALSE))
   gdpDf <- quitte::as.quitte(gdp) %>%
     select("iso3c" = "region", "gdpYear" = "period", "gdp" = "value") %>%
     mutate("gdpYear" = as.integer(as.character(.data$gdpYear)))

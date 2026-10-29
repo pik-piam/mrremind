@@ -193,7 +193,7 @@ calcOutput("EDGETransport", subtype = "f29_trpdemand",                          
   calcOutput("NDCTargets", sources = "PBL_NDC", subtype = "Ghgshare", round = 4, file = "fm_shareTarget.cs4r")
 
   # capacity targets from NewClimate protocol
-  calcOutput("CapTarget", sources = "NewClimate", round = 4, file = "f40_NewClimate.cs3r")
+  calcOutput("CapTarget", round = 4, file = "f40_NewClimate.cs3r")
 
   # renewable share targets from NewClimate protocol
   calcOutput("RenShareTargets", scenario = feDemScen, round = 4, file = "f40_RenShareTargets.cs3r")

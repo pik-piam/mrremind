@@ -10,28 +10,27 @@
 #'
 #' @param x a magclass object as returned by [readPBL_NDC()]
 #' @param subtype one of "detailed" or "reduced"
-#' @param subset GDP scenario used for intensity targets (defaults to SSP2)
 #' @author Felix Schreyer, Rahel Mandaroux
 #' @seealso [readPBL_NDC()], [toolCalcNDCTarget()]
 #' @importFrom dplyr filter select mutate
 #' @importFrom tidyr pivot_wider
-convertPBL_NDC <- function(x, subtype, subset = "SSP2") { # nolint: object_name_linter.
+convertPBL_NDC <- function(x, subtype) { # nolint: object_name_linter.
   if (subtype == "reduced") {
     return(toolCountryFill(x, fill = NA, verbosity = 2, no_remove_warning = "EU"))
   }
 
-  if (subtype != "detailed") {
-    stop("Invalid subtype for convertPBL_NDC, please use 'detailed' or 'reduced'.")
+  if (subtype == "detailed") {
+    targets <- quitte::as.quitte(x, na.rm = FALSE) %>%
+      select("iso3c" = "region", "year" = "period", "type", "scope", "variable", "value") %>%
+      pivot_wider(names_from = "variable", values_from = "value") %>%
+      filter(!is.na(.data$target_value)) %>%
+      mutate("year" = as.integer(as.character(.data$year)))
+
+    out <- toolCalcNDCTarget(targets) %>%
+      as.magpie(spatial = "iso3c", temporal = "year")
+
+    return(toolCountryFill(out, fill = NA, verbosity = 2))
   }
 
-  targets <- quitte::as.quitte(x, na.rm = FALSE) %>%
-    select("iso3c" = "region", "year" = "period", "type", "scope", "variable", "value") %>%
-    pivot_wider(names_from = "variable", values_from = "value") %>%
-    filter(!is.na(.data$target_value)) %>%
-    mutate("year" = as.integer(as.character(.data$year)))
-
-  out <- toolCalcNDCTarget(targets, subset = subset) %>%
-    as.magpie(spatial = "iso3c", temporal = "year")
-
-  return(toolCountryFill(out, fill = NA, verbosity = 2))
+  stop("Invalid subtype for convertPBL_NDC, please use 'detailed' or 'reduced'.")
 }

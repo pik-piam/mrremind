@@ -2,14 +2,9 @@
 #'
 #' @description Capacity targets (GW) at regional level from the NewClimate NPI policy database.
 #'
-#' @param sources must be "NewClimate"
-#' @author Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez, Falk Benke
+#' @author Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez
 #'
-calcCapTarget <- function(sources) {
-
-  if (sources != "NewClimate") {
-    stop("Unknown 'sources' argument. Only 'NewClimate' is supported.")
-  }
+calcCapTarget <- function() {
 
   listCapacities <- list(
     "2024_cond"   = readSource("NewClimate", subtype = "Capacity_2025_cond"),

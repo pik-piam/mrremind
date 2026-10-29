@@ -14,7 +14,7 @@
 #' @param subtype must be one of
 #' - 'EmiTargetAbs': absolute emissions targets in MtCO2eq/yr
 #' - 'Ghgshare': share of emissions covered under NDC target per REMIND region
-#' @author Rahel Mandaroux, Falk Benke, Felix Schreyer
+#' @author Rahel Mandaroux, Felix Schreyer
 #'
 calcNDCTargets <- function(sources, subtype) {
   # Main steps:
@@ -39,7 +39,7 @@ calcNDCTargets <- function(sources, subtype) {
 
   # read country-level absolute emission targets from PBL ELEVATE protocol
   # detailed target formulations for major emitters, translated to absolute levels
-  detailed <- readSource("PBL_NDC", subtype = "detailed", subset = "SSP2")
+  detailed <- readSource("PBL_NDC", subtype = "detailed")
   # pre-computed levels (excl LULUCF) for all other countries
   reduced <- readSource("PBL_NDC", subtype = "reduced")
 
@@ -57,10 +57,6 @@ calcNDCTargets <- function(sources, subtype) {
 
 
   # 3. Extrapolate NDC targets from 2030 to 2035 for countries which do not have 2035 NDC targets ----
-
-  if (!2035 %in% getYears(absEmiTarget, as.integer = TRUE)) {
-    absEmiTarget <- add_columns(absEmiTarget, addnm = "y2035", dim = 2, fill = NA)
-  }
 
   # linear extrapolation: annual reduction rate from 2015 to 2030, projected five more years
   ghgRef2015 <- setYears(ghg[, 2015, ], NULL)
@@ -118,7 +114,7 @@ calcNDCTargets <- function(sources, subtype) {
     x <- 1 * (!is.na(absEmiTarget))
 
     # get GDP for extrapolating target year emissions needed for aggregation weights
-    gdp <- collapseDim(calcOutput("GDP", scenario = "SSP2", aggregate = FALSE)[, , "SSP2"])
+    gdp <- collapseDim(calcOutput("GDP", scenario = "SSP2", aggregate = FALSE))
 
     # estimate target year emissions by multiplying 2015 emissions with GDP growth rate
     weight <- setYears(ghg[, 2015, ] / gdp[, 2015, ], NULL) * gdp[, getYears(absEmiTarget), ]
