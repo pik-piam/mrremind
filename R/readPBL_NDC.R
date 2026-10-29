@@ -43,6 +43,19 @@ readPBL_NDC <- function(subtype) { # nolint: object_name_linter.
     )
 
     # 2. Classify target type, emission scope and select the conditional target value ----
+
+    # There are 4 target types:
+    # 1. Absolute Target -> target value is the absolute level of emissions in MtCO2eq/yr
+    # 2. Absolute Reduction -> target value is the absolute reduction in MtCO2eq/yr
+    # 3. Percentage Reduction -> target value is the percentage reduction relative to a reference year
+    # 4. Intensity Reduction -> target value is the percentage reduction in emissions intensity of GDP relative to a reference year
+
+    # There are 2 emissions scopes supported:
+    # 1. incl LULUCF -> target on total GHG including LULUCF
+    # 2. excl LULUCF -> target on total GHG excluding LULUCF
+
+    # Currently only conditional NDC targets are supported.
+
     prepared <- raw %>%
       filter(.data$originalIndicator %in% emissionIndicators) %>%
       mutate(
