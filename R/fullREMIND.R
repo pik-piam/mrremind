@@ -192,8 +192,8 @@ fullREMIND <- function() {
   #---------------policy parameters--------------------------------------------------------------------
 
   # NDC emissions targets from PBL ELEVATE scenario protocol
-  calcOutput("NDCTargets", sources = "PBL_NDC", subtype = "EmiTargetAbs", round = 4, file = "fm_EmiTargetAbs.cs4r")
-  calcOutput("NDCTargets", sources = "PBL_NDC", subtype = "Ghgshare", round = 4, file = "fm_shareTarget.cs4r")
+  calcOutput("NDCTargets", sources = "PBL_NDC", subtype = "EmiTargetAbs", round = 4, file = "f45_EmiTargetAbs.cs4r")
+  calcOutput("NDCTargets", sources = "PBL_NDC", subtype = "Ghgshare", round = 4, file = "f45_shareTarget.cs4r")
 
   # capacity targets from NewClimate protocol
   calcOutput("CapTarget", round = 4, file = "f40_NewClimate.cs3r")
