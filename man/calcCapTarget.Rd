@@ -4,14 +4,11 @@
 \alias{calcCapTarget}
 \title{Calculate Capacity Targets}
 \usage{
-calcCapTarget(sources)
-}
-\arguments{
-\item{sources}{must be "NewClimate"}
+calcCapTarget()
 }
 \description{
 Capacity targets (GW) at regional level from the NewClimate NPI policy database.
 }
 \author{
-Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez, Falk Benke
+Rahel Mandaroux, Léa Hayez
 }

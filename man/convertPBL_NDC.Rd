@@ -4,14 +4,12 @@
 \alias{convertPBL_NDC}
 \title{Convert NDC emission targets from the PBL ELEVATE scenario protocol}
 \usage{
-convertPBL_NDC(x, subtype, subset = "SSP2")
+convertPBL_NDC(x, subtype)
 }
 \arguments{
 \item{x}{a magclass object as returned by \code{\link[=readPBL_NDC]{readPBL_NDC()}}}
 
 \item{subtype}{one of "detailed" or "reduced"}
-
-\item{subset}{GDP scenario used for intensity targets (defaults to SSP2)}
 }
 \description{
 Translates the NDC target formulations into absolute emission

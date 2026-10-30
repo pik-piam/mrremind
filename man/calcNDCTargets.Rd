@@ -22,5 +22,5 @@ The parameters calculated in 3.) and 4.) are further used in the NDC realization
 in terms of total GHG emissions excl. bunkers and excl. LULUCF sectors.
 }
 \author{
-Rahel Mandaroux, Falk Benke, Felix Schreyer
+Rahel Mandaroux, Felix Schreyer
 }

@@ -4,7 +4,7 @@
 \alias{toolCalcNDCTarget}
 \title{Calculate NDC emission target levels from country target formulations}
 \usage{
-toolCalcNDCTarget(targets, subset = "SSP2")
+toolCalcNDCTarget(targets)
 }
 \arguments{
 \item{targets}{a data frame with one row per country x target-year with columns:
@@ -20,8 +20,6 @@ Mt CO2eq for Absolute types; reductions encoded as negative numbers)}
 \item{reference_level}{explicit reference level in Mt CO2eq/yr, or NA to
 derive from historical data in the target's own scope}
 }}
-
-\item{subset}{GDP scenario used for intensity targets (default "SSP2")}
 }
 \value{
 a data frame with columns \code{iso3c}, \code{year}, and
