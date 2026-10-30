@@ -2,7 +2,7 @@
 #'
 #' @description Capacity targets (GW) at regional level from the NewClimate NPI policy database.
 #'
-#' @author Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez
+#' @author Rahel Mandaroux, Léa Hayez
 #'
 calcCapTarget <- function() {
 

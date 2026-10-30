@@ -26,9 +26,14 @@
 #' @seealso [convertPBL_NDC()], [readPBL_NDC()]
 #' @importFrom dplyr filter select mutate left_join rename bind_rows pull if_else coalesce group_by ungroup case_when
 toolCalcNDCTarget <- function(targets) {
+
+  # variable used for reference emissions with total GHG incl LULUCF (incl national accounting LULUCF)
   inclName <- "Emi|GHG|w/o Bunkers|LULUCF national accounting (Mt CO2eq/yr)"
 
   # 1. Load reference emissions, LULUCF projections, and GDP data ----
+
+
+  # reference emissions from UNFCCC or CEDS historical emissions data
   emiRef <- calcOutput("EmiTargetReference", aggregate = FALSE)
   refIncl <- quitte::as.quitte(emiRef[, , inclName]) %>%
     select("iso3c" = "region", "refYear" = "period", "refIncl" = "value") %>%
@@ -37,6 +42,9 @@ toolCalcNDCTarget <- function(targets) {
     select("iso3c" = "region", "refYear" = "period", "refExcl" = "value") %>%
     mutate("refYear" = as.integer(as.character(.data$refYear)))
 
+  # LULUCF emissions projections from IIASA for NDC scenario based on Forsell et al. 
+  # 2030 read from IIASA, 2035 read from difference in PBL NDC protocol
+  # TODO: check whether same LULUCF is assumed for both years
   lulucf2030 <- readSource("IIASALanduse", subtype = "forecast2030")
   lulucf2035 <- readSource("IIASALanduse", subtype = "forecast2035")
   # India 2035 was added manually and is missing from the LULUCF source; reuse 2030 value
@@ -45,6 +53,7 @@ toolCalcNDCTarget <- function(targets) {
     select("iso3c" = "region", "year" = "period", "lulucf" = "value") %>%
     mutate("year" = as.integer(as.character(.data$year)))
 
+  # get GDP trajectories of SSP2
   gdp <- collapseDim(calcOutput("GDP", scenario = "SSP2", aggregate = FALSE))
   gdpDf <- quitte::as.quitte(gdp) %>%
     select("iso3c" = "region", "gdpYear" = "period", "gdp" = "value") %>%
@@ -97,6 +106,9 @@ toolCalcNDCTarget <- function(targets) {
   TargetData <- bind_rows(CountryTargetData, EUTargetData)
 
   # 4. Apply the target-type-specific formula to get absolute emission levels ----
+
+  # calculate absolute emissions levels, substract LULUCF if LULUCF was included in the countries target 
+  # If LULUCF was excluded, lulucf_inscope is 0 and nothing is substracted. 
   TargetsCalculated <- TargetData %>%
     mutate(
       "Emi|GHG|w/o Bunkers|w/o Land-Use Change (Mt CO2eq/yr)" = case_when(
