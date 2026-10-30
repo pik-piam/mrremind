@@ -57,10 +57,13 @@ fullREMIND <- function() {
 
   #-------------- energy demand parameters -----------------------------------------------------------
 
+  # Exogenous demand scenarios activated by cm_exogDem_scen
+  calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
+
   #--------------Industry --------------------------------------------------------------
 
-  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs4r")
-  calcOutput("ChemicalFeedstocksShare",                  round = 2, file = "p37_chemicals_feedstock_share.cs4r")
+  calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs3r")
+  calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
   calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
   calcOutput(
     type = "Steel_Projections",
@@ -70,13 +73,13 @@ fullREMIND <- function() {
     match.steel.historic.values = TRUE,
     match.steel.estimates = "IEA_ETP"
   )
+
   #--------------Buildings --------------------------------------------------------------
-  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs4r")
-  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs4r")
+
+  calcOutput("FeDemandBuildings", subtype = "FE", scenario = feDemScen, round = 8, file = "f_fedemandBuild.cs3r")
+  calcOutput("FeDemandBuildings", subtype = "UE", scenario = feDemScen, round = 8, file = "f36_uedemand_build.cs3r")
   calcOutput("Floorspace", scenario = feDemScen, onlyTotal = TRUE, round = 1, file = "p36_floorspace_scen.cs4r")
   calcOutput("Floorspace", scenario = feDemScen,            round = 1, file = "f36_floorspace_scen.cs4r")
-  # Exogenous demand scenarios activated by cm_exogDem_scen
-  calcOutput("ExogDemScen",                           round = 8,  file = "p47_exogDemScen.cs4r")
 
   #--------------Transport --------------------------------------------------------------
   calcOutput("EDGETransport", subtype = "f35_esCapCost",                           file = "f35_esCapCost.cs4r")
@@ -106,11 +109,11 @@ fullREMIND <- function() {
   calcOutput("EmiMacCEDS", baseyear = 2020,                                     round = 5, file = "p_macBaseCEDS2020.cs4r")
   calcOutput("MACCbaseN2O",  source = "PBL_2007",                               round = 5, file = "p_macBaseVanv.cs4r")
   calcOutput("MACCbaseN2O",  source = "PBL_2022",                               round = 5, file = "p_macBaseHarmsen2022.cs4r")
-  calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs4r")
-  calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs4r")
-  calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs4r")
-  calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs4r")
-  calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs4r")
+  calcOutput("MACCsCH4", source = "ImageMacc",                                  round = 6, file = "p_abatparam_CH4.cs3r")
+  calcOutput("MACCsN2O", source = "ImageMacc",                                  round = 6, file = "p_abatparam_N2O.cs3r")
+  calcOutput("MACCsCH4", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_CH4.cs3r")
+  calcOutput("MACCsN2O", source = "PBL_MACC_SSP2_2022",                         round = 6, file = "p_abatparam_SSP22022_N2O.cs3r")
+  calcOutput("FGas",                                                            round = 6, file = "f_emiFgas.cs3r")
   calcOutput("EmiFossilFuelExtr", source = "EDGAR",                             round = 6, file = "p_emiFossilFuelExtr.cs4r")
   calcOutput("EmiFossilFuelExtr", source = "CEDS2025",                          round = 6, file = "p_emiFossilFuelExtr2020.cs4r")
   calcOutput("Region2MAGICC",                                                   round = 6, file = "p_regi_2_MAGICC_regions.cs3r")
