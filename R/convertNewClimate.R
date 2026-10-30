@@ -3,21 +3,16 @@
 #' Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
 #' For countries and years without targets, 2020 values from IRENA and BP are used to fill the gaps.
 #'
-#' Emissions targets on absolute level for total GHG emissions without bunkers and land-use change emissions are calculated
-#' from country-specific target formulation and land-use change emissions data
-#'
 #' @param x a magclass object to be converted
-#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-#'   Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year
-#' @param subset String, designating the GDP scenarios to use. Only used for emission targets.
+#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets,
+#'   RenShareTargets for renewable energy share targets, with YYYY NPI version year
+#' @param subset A string (or vector of strings) designating the scenario(s) to be returned.
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
 #' @seealso [readIRENA()]
 #'
 convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter.
 
   if (grepl("Capacity", subtype, fixed = TRUE)) {
-
-    # TODO: can we move parts to a separate tool function to avoid redundancies with convertUNFCCC_NDC?
 
     # pre-processing ----
 
@@ -350,13 +345,6 @@ convertNewClimate <- function(x, subtype, subset) { # nolint: object_name_linter
     )
 
     getNames(x) <- m[getNames(x)]
-  }
-
-  if (grepl("Emissions", subtype, fixed = TRUE)) {
-    # calculate absolute NDC emissions target per country
-    x <- toolCalcGhgTarget(x, subtype, subset)
-    # fill missing countries with NA (no target)
-    x <- toolCountryFill(x, fill = NA, verbosity = 2, no_remove_warning = "ANT")
   }
 
   if (grepl("RenShareTargets", subtype, fixed = TRUE)) {

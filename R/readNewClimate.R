@@ -6,8 +6,8 @@
 #' NPI targets only include targets that are based on implemented policy instruments.
 
 #' @author Rahel Mandaroux, Léa Hayez, Falk Benke
-#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-#'   Emissions_YYYY_uncond for Emissions targets, RenShareTargets for renewable energy share targets,
+#' @param subtype Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets,
+#'   RenShareTargets for renewable energy share targets,
 #'   with YYYY NDC version year, determines the database version to be read in
 #' @param subset A string (or vector of strings) designating the scenario(s) to be returned (only used in convert).
 #'
@@ -40,23 +40,6 @@ readNewClimate <- function(subtype, subset) {
 
     x <- as.magpie(data, spatial = 1, temporal = 2, datacol = 3)
 
-  } else if (grepl("Emissions", subtype, fixed = TRUE)) {
-
-    input <- readxl::read_excel(
-      NPIfile,
-      sheet = "EmissionTargets", skip = 3, na = c("?", ""), progress = FALSE
-    ) %>%
-      suppressMessages() %>%
-      select(
-        "ISO_Code" = 2, "Reference_Year" = 7,
-        "BAU_or_Reference_emissions_in_MtCO2e" = 8, "Target_Year" = 9,
-        "Type" = 10, "Unconditional Relative" = 11, "Conditional Relative" = 12,
-        "Unconditional Absolute" = 13, "Conditional Absolute" = 14
-      ) %>%
-      toolProcessClimateTargetDatabase(database = "NewClimate", subtype = subtype)
-
-    x <- as.magpie(input, spatial = "ISO_Code", temporal = "Target_Year")
-    # read in energy share targets from policy modeling protocol
   } else if (grepl("RenShareTargets", subtype, fixed = TRUE)) {
     data <- readxl::read_excel(
       NPIfile,
@@ -81,7 +64,7 @@ readNewClimate <- function(subtype, subset) {
 
     x <- as.magpie(data, spatial = "ISO-3", temporal = "Target Year")
   } else {
-    stop("Incorrect subtype, please use Capacity_YYYY_cond or Emissions_YYYY_cond (or uncond).")
+    stop("Incorrect subtype, please use Capacity_YYYY_cond or RenShareTargets.")
   }
   return(x)
 }
