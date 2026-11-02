@@ -9,18 +9,14 @@ convertNewClimate(x, subtype, subset)
 \arguments{
 \item{x}{a magclass object to be converted}
 
-\item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets, Emissions_YYYY_cond or
-Emissions_YYYY_uncond for Emissions targets, with YYYY NPI version year}
+\item{subtype}{Capacity_YYYY_cond or Capacity_YYYY_uncond for Capacity Targets,
+RenShareTargets for renewable energy share targets, with YYYY NPI version year}
 
-\item{subset}{String, designating the GDP scenarios to use. Only used for emission targets.}
+\item{subset}{A string (or vector of strings) designating the scenario(s) to be returned.}
 }
 \description{
 Converts conditional and unconditional capacity and production targets into total capacity (GW) in target year.
 For countries and years without targets, 2020 values from IRENA and BP are used to fill the gaps.
-}
-\details{
-Emissions targets on absolute level for total GHG emissions without bunkers and land-use change emissions are calculated
-from country-specific target formulation and land-use change emissions data
 }
 \seealso{
 \code{\link[=readIRENA]{readIRENA()}}

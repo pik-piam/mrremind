@@ -13,7 +13,7 @@ CO2 (excl LU), CH4, N2O (so far no F-Gas historic time series)
 When available, UNFCCC data is used, otherwise CEDS data.
 }
 \seealso{
-\code{\link[=calcEmiTarget]{calcEmiTarget()}}, \code{\link[=convertUNFCCC_NDC]{convertUNFCCC_NDC()}}
+\code{\link[=calcNDCTargets]{calcNDCTargets()}}
 }
 \author{
 Rahel Mandaroux, Falk Benke
