@@ -1,5 +1,16 @@
 #' Fractions of the 2020 HFC emissions that remain under the Kigali Amendment, per country
+#' This doesnt' calculate the actual emissions or any scenarios, it just interprets the KA
+#' tables from `readKAReductions` into fractions per country, also making all baseline years 2020.
+#' 
+#' Also note that these are specifically the HFC fractions, which are covered by the KA, not the total F-gas fractions.
 #'
+#' The HCFC part of the legal baseline (+65% / +15% / +25% of the HCFC
+#' baseline) is NOT included, so the caps are tighter than the legal ones.
+#' Countries without a group get 1 (no reduction).
+#'
+#' The fractions are intensive: when aggregating to regions they are weighted by the 2020 Group I emissions.
+#'
+#' @section Detailed description of the method and where to find reference numbers:
 #' For each country, the Kigali phase-down steps of its group (readSource("KAReductions", "schedule")) are linearly
 #' interpolated between the step years (constant before the first and after the last step), applied to the country
 #' baseline and expressed as a fraction of the country emissions in the reference year 2020, i.e. the allowed share of
@@ -16,11 +27,6 @@
 #' non-Article 5 (also the special group) 2011-2013, Article 5 Group 1 2020-2022, Article 5 Group 2 2024-2026. Only the
 #' years available in EDGAR7 (up to 2021) are used; if none of the legal years is available (Group 2) the fallback
 #' 2020-2021 is used, which is probably too low. The assumptions of each group are listed in its block in the code.
-#'
-#' The HCFC part of the legal baseline (+65% / +15% / +25% of the HCFC
-#' baseline) is NOT included, so the caps are tighter than the legal ones. Countries without a group get 1.
-#'
-#' The fractions are intensive: when aggregating to regions they are weighted by the 2020 Group I emissions.
 #'
 #' @return list for [madrat::calcOutput()]: magpie object (country, years 2020-2100, fraction_hfc_I) and weight
 #' @author Gabriel Abrahao
