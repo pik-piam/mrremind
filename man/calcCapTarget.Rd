@@ -4,19 +4,11 @@
 \alias{calcCapTarget}
 \title{Calculate Capacity Targets}
 \usage{
-calcCapTarget(sources)
-}
-\arguments{
-\item{sources}{either "NewClimate" or "UNFCCC_NDC+REN21+CHN_NUC"}
+calcCapTarget()
 }
 \description{
-The capacity targets (GW) at regional level are produced from different databases
-\itemize{
-\item UNFCCC_NDC database, an update of the Rogelj 2017 paper (see readme in inputdata)
-\item REN21 Global Renewables
-\item New Climate NPI policy database
-}
+Capacity targets (GW) at regional level from the NewClimate NPI policy database.
 }
 \author{
-Aman Malik, Oliver Richters, Rahel Mandaroux, Léa Hayez, Falk Benke
+Rahel Mandaroux, Léa Hayez
 }
