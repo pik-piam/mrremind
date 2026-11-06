@@ -8,7 +8,8 @@ readScenarioMIP(subtype = "FGasScen")
 }
 \arguments{
 \item{subtype}{"FGasScen": F-gas emissions (HFC species, CF4, C2F6, C6F14, SF6, total F-gases) of the scenarios
-"Very Low - SSP1" and "High - SSP5" of the models MESSAGEix-GLOBIOM-GAINS 2.1-M-R12 (named MESSAGEix) and IMAGE 3.4
+"Very Low - SSP1", "Medium - SSP2" (named "Medium - SSP2 (Marker)" by IMAGE, renamed on reading) and "High - SSP5"
+of the models MESSAGEix-GLOBIOM-GAINS 2.1-M-R12 (named MESSAGEix) and IMAGE 3.4
 (named IMAGE), to be used as the basis of scenarios for f_emiFgas.
 "FGasSpecies": ScenarioMIPFGasSpecies.csv, the table of the F-gas species (smip_variable, remind_variable,
 edgar_gas, ar6_gas, type) linking ScenarioMIP, REMIND, EDGAR7 and AR6GWP names; returned as a data.frame
