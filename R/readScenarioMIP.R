@@ -1,7 +1,8 @@
 #' Read ScenarioMIP R10 data
 #'
 #' @param subtype "FGasScen": F-gas emissions (HFC species, CF4, C2F6, C6F14, SF6, total F-gases) of the scenarios
-#' "Very Low - SSP1" and "High - SSP5" of the models MESSAGEix-GLOBIOM-GAINS 2.1-M-R12 (named MESSAGEix) and IMAGE 3.4
+#' "Very Low - SSP1", "Medium - SSP2" (named "Medium - SSP2 (Marker)" by IMAGE, renamed on reading) and "High - SSP5"
+#' of the models MESSAGEix-GLOBIOM-GAINS 2.1-M-R12 (named MESSAGEix) and IMAGE 3.4
 #' (named IMAGE), to be used as the basis of scenarios for f_emiFgas.
 #' "FGasSpecies": ScenarioMIPFGasSpecies.csv, the table of the F-gas species (smip_variable, remind_variable,
 #' edgar_gas, ar6_gas, type) linking ScenarioMIP, REMIND, EDGAR7 and AR6GWP names; returned as a data.frame
@@ -47,8 +48,10 @@ readScenarioMIP <- function(subtype = "FGasScen") {
     IMAGE = "IMAGE 3.4"                                # reports HFC-23, C2F6 and C6F14
   )
   scenarios <- c(
-    "Very Low - SSP1",         # strong mitigation, the basis of the Kigali scenarios in calcFGas
-    "High - SSP5"              # high emissions, not used so far
+    "Very Low - SSP1",         # strong mitigation
+    "Medium - SSP2",           # medium emissions (MESSAGEix), the basis of the Kigali scenarios in calcFGas
+    "Medium - SSP2 (Marker)",  # the same scenario in IMAGE, which names it differently
+    "High - SSP5"              # high emissions
   )
   # The database has no value for the years a scenario does not report (for example 2026-2029, only every fifth year
   # after 2025 is filled), so dropping the NA values is what defines the years of each scenario and variable
@@ -56,6 +59,8 @@ readScenarioMIP <- function(subtype = "FGasScen") {
     x[x$model %in% models & x$scenario %in% scenarios & x$variable %in% fgasVariables, ]
   })
   d$model <- names(models)[match(d$model, models)]
+  # IMAGE calls its Medium scenario "Medium - SSP2 (Marker)", the same name as in MESSAGEix is used for both models
+  d$scenario <- sub(" \\(Marker\\)$", "", d$scenario)
   d <- d[, c("region", "period", "model", "scenario", "variable", "value")]
   names(d)[names(d) == "period"] <- "year"      # the time set is called year in the other functions that use this data
   as.magpie(d, spatial = "region", temporal = "year")
