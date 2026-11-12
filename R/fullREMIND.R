@@ -63,8 +63,8 @@ fullREMIND <- function() {
   #--------------Industry --------------------------------------------------------------
 
   calcOutput("FeDemandIndustry", scenarios = feDemScen, signif = 4, file = "f_fedemandInd.cs3r")
-  calcOutput("ChemicalFeedstocksShare",                     round = 2, file = "p37_chemicals_feedstock_share.cs4r")
-  calcOutput("ClinkerToCementRatio",                     round = 2,  file = "p37_clinker-to-cement-ratio.cs4r")
+  calcOutput("ChemicalFeedstocksShare",                  round = 2, file = "p37_chemicals_feedstock_share.cs4r")
+  calcOutput("ClinkerToCementRatio",                     round = 2, file = "p37_clinker-to-cement-ratio.cs4r")
   calcOutput(
     type = "Steel_Projections",
     scenarios = mrdrivers::toolReplaceShortcuts(gdpPopScen),
@@ -85,7 +85,7 @@ fullREMIND <- function() {
   calcOutput("EDGETransport", subtype = "f35_esCapCost",                           file = "f35_esCapCost.cs4r")
   calcOutput("EDGETransport", subtype = "f35_fe2es",                               file = "f35_fe2es.cs4r")
   calcOutput("EDGETransport", subtype = "f35_demByTech",                           file = "f35_demByTech.cs4r")
-  calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_trpdemand.cs4r")
+  calcOutput("EDGETransport", subtype = "f29_trpdemand",                           file = "f29_fedemandTransp.cs4r")
 
 
   #-------------- damage parameters -----------------------------------------------------------
