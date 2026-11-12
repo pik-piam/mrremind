@@ -1,6 +1,6 @@
 calcNetForeignAsset <- function() {
   # Read in Current account balance from the IMF WEO
-  x <- readSource("IMF")[, , "Current account balance [Billions U_S_ dollars]"]
+  x <- readSource("IMF")[, , "Current account balance (credit less debit), US dollar [Billions US dollar]"]
 
   ### Allocate global current account to the countries
   # Calculate global sum which is not 0
