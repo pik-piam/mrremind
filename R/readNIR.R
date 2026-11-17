@@ -9,14 +9,14 @@ readNIR <- function(subtype) {
 
   files <- list.files(pattern = ".xlsx$")
   countries <- unique(regmatches(files, regexpr("[A-Z]{3}", files)))
-  years <- paste0("y", unique(substr(gsub("[^0-9]", "", files, ""), 5, 8)))
+  years <- paste0("y", unique(substr(gsub("[^0-9]", "", files), 5, 8)))
 
   if (subtype == "1B2") {
     data <- new.magpie(countries, years, names = c("Oil", "Gas", "VentingOil", "VentingGas",
                                                    "FlaringOil", "FlaringGas"), sets = c("region", "year", "emissions"))
     for (i in files) {
       country <- regmatches(i, regexpr("[A-Z]{3}", i))
-      year <- paste0("y", substr(gsub("[^0-9]", "", i, ""), 5, 8))
+      year <- paste0("y", substr(gsub("[^0-9]", "", i), 5, 8))
 
       nir <- read_excel(i, sheet = sheet, skip = 4, .name_repair = "unique_quiet")
       nir <- unname(unlist(nir[, 10]))[c(4, 11, 20, 21, 24, 25)]
