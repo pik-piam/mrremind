@@ -22,3 +22,5 @@ carbon_stored.*
 ^\.positai$
 ^CODE_STYLE\.md$
 ^CONTRIBUTING\.md$
+^CLAUDE.md$
+^AGENTS.md$

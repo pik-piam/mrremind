@@ -7,6 +7,9 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [main, master]
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       image: ghcr.io/pik-piam/ci-image:latest
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install package and dependencies
         shell: Rscript {0}
@@ -66,7 +69,7 @@ jobs:
         env:
           NOT_CRAN: "true"
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
         if: ${{ github.event_name != 'pull_request' }}
         with:
           file: ./simple-codecov.json
