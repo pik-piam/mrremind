@@ -6,7 +6,7 @@
 #' When available, UNFCCC data is used, otherwise CEDS data.
 #'
 #' @author Rahel Mandaroux, Falk Benke
-#' @seealso [calcEmiTarget()], [convertUNFCCC_NDC()]
+#' @seealso [calcNDCTargets()]
 
 calcEmiTargetReference <- function() {
   # Global Warming Potentials of CH4 and N20, AR5 WG1 CH08 Table 8.7

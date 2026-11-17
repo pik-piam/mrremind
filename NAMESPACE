@@ -22,6 +22,8 @@ importFrom(dplyr,
   arrange,
   bind_rows,
   case_match,
+  case_when,
+  coalesce,
   desc,
   distinct,
   filter,
@@ -51,7 +53,8 @@ importFrom(quitte,
   as.quitte,
   cartesian,
   getVars,
-  interpolate_missing_periods
+  interpolate_missing_periods,
+  read.quitte
 )
 importFrom(readxl,
   excel_sheets,
@@ -74,6 +77,7 @@ importFrom(tidyr,
   complete,
   gather,
   pivot_longer,
+  pivot_wider,
   unnest
 )
 importFrom(utils,
