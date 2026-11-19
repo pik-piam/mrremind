@@ -4,26 +4,31 @@
 #' or 'latest'.
 calcPE <- function(ieaVersion = "default") {
 
-  data <- calcOutput("IO", subtype = "input", corrected = TRUE,
-                     ieaVersion = ieaVersion, aggregate = FALSE)
+  x <- calcOutput("IO",
+                  subtype = "input", corrected = TRUE,
+                  ieaVersion = ieaVersion, aggregate = FALSE
+  )
 
-  mapping <- toolGetMapping(type = "sectoral",
-                            name = "structuremappingIO_reporting.csv",
-                            where = "mrenergy", returnPathOnly = TRUE)
-  target <- c("input")
+  mapping <- toolGetMapping(
+    type = "sectoral",
+    name = "structuremappingIO_reporting.csv",
+    where = "mrenergy", returnPathOnly = TRUE
+  )
 
-  ### calculate data
-  map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "")
-  # delete NAs rows
-  map <- map[c("io", target)] %>% stats::na.omit()
+  # TODO: fix outdated mappings once we drop support for IEA 2024
+  map <- utils::read.csv2(mapping, stringsAsFactors = FALSE, na.strings = "") %>%
+    select("io", "input") %>%
+    filter(!is.na(.data$input))
 
-  # select data that have names
-  map <- map[map$io %in% getNames(data), ]
-  x <- data[, , map$io]
-  # aggregate from the IO names to the reporting names.
-  x <- madrat::toolAggregate(x, map, dim = 3, from = "io", to = "input")
-  # rename entries of data to match the reporting names
-  getNames(x) <- paste0(getNames(x), " (EJ/yr)")
+  if (length(setdiff(map$io, getNames(x))) > 0) {
+    message(paste0("outdated mappings in PE reporting", paste0(setdiff(map$io, getNames(x)), collapse = ", ")))
+  }
+
+  map <- map %>%
+    filter(.data$io %in% getNames(x)) %>%
+    mutate("input" = paste0(.data$input, " (EJ/yr)"))
+
+  x <- toolAggregate(x[, , unique(map$io)], rel = map, dim = 3, from = "io", to = "input")
 
   # add loss to electricity
   x[, , "PE|Coal|Electricity (EJ/yr)"] <- x[, , "PE|Coal|Electricity (EJ/yr)"] +
