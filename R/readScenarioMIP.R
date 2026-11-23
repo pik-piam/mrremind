@@ -44,8 +44,8 @@ readScenarioMIP <- function(subtype = "FGasScen") {
   # has many more, so naming them here makes both files give the same result. The models get short names in the
   # result: a dot in a name would be taken as a separator between dimensions by magclass, and these names have dots
   models <- c(
-    MESSAGEix = "MESSAGEix-GLOBIOM-GAINS 2.1-M-R12",   # does not report C2F6, C6F14, and has no HFC-23 emissions
-    IMAGE = "IMAGE 3.4"                                # reports HFC-23, C2F6 and C6F14
+    "MESSAGEix-GLOBIOM-GAINS 2.1-M-R12" = "MESSAGEix",   # does not report C2F6, C6F14, and has no HFC-23 emissions
+    "IMAGE 3.4" = "IMAGE"                                # reports HFC-23, C2F6 and C6F14
   )
   scenarios <- c(
     "Very Low - SSP1",         # strong mitigation
@@ -55,13 +55,22 @@ readScenarioMIP <- function(subtype = "FGasScen") {
   )
   # The database has no value for the years a scenario does not report (for example 2026-2029, only every fifth year
   # after 2025 is filled), so dropping the NA values is what defines the years of each scenario and variable
-  d <- read.quitte(file, drop.na = TRUE, filter.function = function(x) {
-    x[x$model %in% models & x$scenario %in% scenarios & x$variable %in% fgasVariables, ]
-  })
-  d$model <- names(models)[match(d$model, models)]
-  # IMAGE calls its Medium scenario "Medium - SSP2 (Marker)", the same name as in MESSAGEix is used for both models
-  d$scenario <- sub(" \\(Marker\\)$", "", d$scenario)
-  d <- d[, c("region", "period", "model", "scenario", "variable", "value")]
-  names(d)[names(d) == "period"] <- "year"      # the time set is called year in the other functions that use this data
-  as.magpie(d, spatial = "region", temporal = "year")
+
+  d <- utils::read.csv2(file, sep = ",") %>%
+    filter(
+      .data$model %in% names(models),
+      .data$scenario %in% scenarios,
+      .data$variable %in% fgasVariables
+    ) %>%
+    pivot_longer(cols = dplyr::starts_with("X"), names_to = "year") %>%
+    filter(!is.na(.data$value)) %>%
+    mutate(
+      "value" = as.numeric(.data$value),
+      "year" = as.numeric(gsub("X", "", .data$year)),
+      "scenario" = gsub(" \\(Marker\\)$", "", .data$scenario)
+    ) %>%
+    quitte::revalue.levels(model = models) %>%
+    select(-"unit")
+
+  return(as.magpie(d, spatial = "region", temporal = "year"))
 }
