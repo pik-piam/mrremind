@@ -17,7 +17,6 @@ import(mrcommonsenergy)
 import(mrdrivers)
 import(mrenergy)
 import(mrindustry)
-importFrom(data.table,":=")
 importFrom(dplyr,
   arrange,
   bind_rows,

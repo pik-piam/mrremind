@@ -7,7 +7,8 @@
 readEDGETransport(subtype)
 }
 \arguments{
-\item{subtype}{REMIND/iterative EDGE-T input data subtypes}
+\item{subtype}{REMIND/iterative EDGE-T input data subtypes, should be one of
+f35_esCapCost, f35_fe2es, f35_demByTech, f29_trpdemand, weightESdemand, shares_LDV_transport}
 }
 \value{
 magpie object of EDGEtransport iterative inputs
@@ -20,6 +21,7 @@ to REMIND and the iterative EDGE-T script
 \dontrun{
 a <- readSource(type = "EDGETransport")
 }
+
 }
 \author{
 Johanna Hoppe, Alex K. Hagen

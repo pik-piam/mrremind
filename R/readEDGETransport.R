@@ -5,24 +5,23 @@
 #'
 #' @return magpie object of EDGEtransport iterative inputs
 #' @author Johanna Hoppe, Alex K. Hagen
-#' @param subtype REMIND/iterative EDGE-T input data subtypes
+#' @param subtype REMIND/iterative EDGE-T input data subtypes, must be one of
+#' f35_esCapCost, f35_fe2es, f35_demByTech, f29_trpdemand, weightESdemand,
+#' shares_LDV_transport
 #'
 #' @examples
 #' \dontrun{
 #' a <- readSource(type = "EDGETransport")
 #' }
-#' @importFrom dplyr bind_rows
-#' @importFrom data.table :=
-
+#'
 readEDGETransport <- function(subtype) {
 
-  EDGE_scenario <- DEM_scenario <- demScen_edge <- transportPolScen_edge <- i.demScen_remind <- i.EDGEtr_scen_remind <- NULL
   #############################################################
   ## Define all scenario combinations for which
   ## input data should be generated
   #############################################################
 
-  allScens <- bind_rows(
+  allScens <- dplyr::bind_rows(
     ## for all "default" SSP variants we ship the whole zoo of standard
     ## EDGE-T scenarios
     tidyr::expand_grid(
@@ -71,27 +70,25 @@ readEDGETransport <- function(subtype) {
   #############################################################
 
   EdgeTransportSAdata <- lapply(allScens,
-                     function(x) {
-                       calcOutput(type = "EdgeTransportSA",
-                                  aggregate = FALSE,
-                                  supplementary = FALSE,
-                                  SSPscen = x[["SSPscen"]],
-                                  transportPolScen = x[["transportPolScen"]],
-                                  isICEban = x[["isICEban"]],
-                                  demScen = x[["demScen"]],
-                                  isTransportReported = FALSE,
-                                  isREMINDinputReported = TRUE,
-                                  isStored = FALSE)
-                     })
+                                function(x) {
+                                  calcOutput(type = "EdgeTransportSA",
+                                             aggregate = FALSE,
+                                             supplementary = FALSE,
+                                             SSPscen = x[["SSPscen"]],
+                                             transportPolScen = x[["transportPolScen"]],
+                                             isICEban = x[["isICEban"]],
+                                             demScen = x[["demScen"]],
+                                             isTransportReported = FALSE,
+                                             isREMINDinputReported = TRUE,
+                                             isStored = FALSE)
+                                })
 
   types <- unique(unlist(lapply(EdgeTransportSAdata, names)))
-  # Bind rows of equally named subtypes
-  EdgeTransportSAdata <- lapply(types, function(type, outerList) {
-    listOfDataTables <- lapply(outerList, function(innerList) innerList[[type]])
-    data.table::rbindlist(listOfDataTables)
-  }, EdgeTransportSAdata)
 
-  EdgeTransportSAdata <- setNames(EdgeTransportSAdata, types)
+  stopifnot(subtype %in% types)
+
+  data <- lapply(EdgeTransportSAdata, function(x) as.data.frame(x[[subtype]])) %>%
+    dplyr::bind_rows()
 
   ########################################################################
   ## Rename EDGE-Transport scenarios according to REMIND scenario levers
@@ -100,30 +97,18 @@ readEDGETransport <- function(subtype) {
   ##
   ## applied to all sectors simultaneously
   ########################################################################
-  
-  # load scenarioMapping from edgeTransport package data
-  scenarioMapping <- toolGetMapping("helpersMappingEdgeTtoREMINDscen.csv", where = "edgeTransport")
-  scenarioMapping <- data.table::setDT(scenarioMapping)
-  
-  translateEdgeTransportScentoREMIND <- function(transportData, scenarioMap) {
-    # changes the rows with matches of DEM_scenario, EDGE_scenario in the mapping
-    # ! transportData changes outside the function !
-    # no match: rows are left unchanged
-    transportData[scenarioMap,
-                  on = list(DEM_scenario = demScen_edge, EDGE_scenario = transportPolScen_edge), # match values
-                  `:=`(DEM_scenario = i.demScen_remind, # overwrite values if match
-                       EDGE_scenario = i.EDGEtr_scen_remind)]
-  }
-  
-  # in-place modification of DEM_scenario, EDGE_scenario in EdgeTransportSAdata
-  lapply(EdgeTransportSAdata, translateEdgeTransportScentoREMIND, scenarioMapping)
-  
-  #############################################################
-  ## Create magpie object for every subtype
-  #############################################################
 
-  validSubtypes <- names(EdgeTransportSAdata)
-  if (!subtype %in% validSubtypes) stop(sprintf("Subtype %s is not valid for EDGETransport.", subtype))
+  m <- toolGetMapping("helpersMappingEdgeTtoREMINDscen.csv", where = "edgeTransport")
 
-  as.magpie(EdgeTransportSAdata[[subtype]])
+  x <- data %>%
+    left_join(m, by = c("DEM_scenario" = "demScen_edge", "EDGE_scenario" = "transportPolScen_edge")) %>%
+    mutate(
+      "DEM_scenario" = ifelse(is.na(.data$demScen_remind), .data$DEM_scenario, .data$demScen_remind),
+      "EDGE_scenario" = ifelse(is.na(.data$EDGEtr_scen_remind), .data$EDGE_scenario, .data$EDGEtr_scen_remind)
+    ) %>%
+    select(-c("demScen_remind", "EDGEtr_scen_remind")) %>%
+    as.magpie()
+
+  return(x)
+
 }

@@ -9,7 +9,8 @@ convertEDGETransport(x, subtype)
 \arguments{
 \item{x}{MAgPIE object containing EDGE-T values in 21 region resolution}
 
-\item{subtype}{REMIND/iterative EDGE-T input data subtypes}
+\item{subtype}{REMIND/iterative EDGE-T input data subtypes, should be one of
+f35_esCapCost, f35_fe2es, f35_demByTech, f29_trpdemand, weightESdemand, shares_LDV_transport}
 }
 \value{
 REMIND/iterative EDGE-T input data as MAgPIE object disaggregated to ISO level
